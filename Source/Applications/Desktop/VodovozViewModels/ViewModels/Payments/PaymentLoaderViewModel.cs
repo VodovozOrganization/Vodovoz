@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -43,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationParametersProvider,
 			IProfitCategoryProvider profitCategoryProvider,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,

@@ -29,6 +29,7 @@ using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
 using Vodovoz.Settings.Phones;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Dialogs
 {
@@ -95,7 +96,8 @@ namespace Vodovoz.Dialogs
 
 		private void ConfigureDlg()
 		{
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
 			_parametersProvider = new ParametersProvider();
 			_contactsParameters = new ContactParametersProvider(_parametersProvider);
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();

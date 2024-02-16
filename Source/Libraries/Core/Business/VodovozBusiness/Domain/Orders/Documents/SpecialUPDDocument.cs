@@ -9,14 +9,15 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
 	public class SpecialUPDDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
 	{
 		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
-		private IOrganizationParametersProvider _organizationParametersProvider => ScopeProvider.Scope
-			.Resolve<IOrganizationParametersProvider>();
+		private IOrganizationSettings _organizationParametersProvider => ScopeProvider.Scope
+			.Resolve<IOrganizationSettings>();
 
 		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
 			.Resolve<IDeliveryScheduleParametersProvider>();

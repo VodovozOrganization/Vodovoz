@@ -15,7 +15,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Database.Organizations;
+using Vodovoz.Settings.Organizations;
 using VodovozHealthCheck;
 
 namespace PayPageAPI
@@ -80,7 +81,7 @@ namespace PayPageAPI
 			services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
-			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
+			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
 			
 			//repositories
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();

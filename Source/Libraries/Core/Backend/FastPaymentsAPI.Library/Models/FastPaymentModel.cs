@@ -15,7 +15,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace FastPaymentsAPI.Library.Models
 {
@@ -30,7 +30,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationParametersProvider;
 		private readonly IRequestFromConverter _requestFromConverter;
 
 		public FastPaymentModel(
@@ -43,7 +43,7 @@ namespace FastPaymentsAPI.Library.Models
 			IFastPaymentFactory fastPaymentApiFactory,
 			IFastPaymentManager fastPaymentManager,
 			IOrganizationRepository organizationRepository,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationParametersProvider,
 			IRequestFromConverter requestFromConverter)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

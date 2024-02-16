@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Autofac;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Tools.Orders
 {
@@ -24,10 +25,9 @@ namespace Vodovoz.Tools.Orders
 	public static class OrderDocumentRulesRepository
 	{
 		static List<Rule> rules = new List<Rule>();
-		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
-			new OrganizationParametersProvider(new ParametersProvider());
+		private static IOrganizationSettings _organizationParametersProvider => ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 		
-		private static readonly int _beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+		private static int _beveragesWorldOrganizationId => _organizationParametersProvider.BeveragesWorldOrganizationId;
 
 		public static OrderDocumentType[] GetSetOfDocumets(OrderStateKey key) =>
 			rules.Where(r => r.Condition(key)).SelectMany(r => r.Documents).Distinct().ToArray();

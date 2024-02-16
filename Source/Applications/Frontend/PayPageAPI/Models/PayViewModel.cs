@@ -4,7 +4,7 @@ using QS.Utilities;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace PayPageAPI.Models
 {
@@ -15,11 +15,11 @@ namespace PayPageAPI.Models
 		private FastPaymentStatus _fastPaymentStatus;
 
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationParametersProvider;
 
 		public PayViewModel(
 			IFastPaymentParametersProvider fastPaymentParametersProvider,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationParametersProvider,
 			FastPayment fastPayment)
 		{
 			_fastPaymentParametersProvider =

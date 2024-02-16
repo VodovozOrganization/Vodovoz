@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -337,7 +338,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 			
 			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			}
 

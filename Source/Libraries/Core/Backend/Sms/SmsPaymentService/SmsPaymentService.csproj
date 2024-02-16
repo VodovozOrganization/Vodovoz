@@ -91,6 +91,10 @@
       <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj">
+      <Project>{445c399f-f7f9-43ff-8278-e0392a792f03}</Project>
+      <Name>Vodovoz.Settings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
       <Name>VodovozBusiness</Name>

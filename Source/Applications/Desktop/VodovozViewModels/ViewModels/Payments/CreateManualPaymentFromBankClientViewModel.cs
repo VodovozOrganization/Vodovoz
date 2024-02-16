@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using System.Linq;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -20,7 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	{
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationParametersProvider;
 		private const int _paymentNumForUpdateBalance = 120820;
 		private const string _updateBalanceTag = "Ввод остатков";
 		private int _defaultPaymentNum = 1;
@@ -38,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IProfitCategoryRepository profitCategoryRepository,
 			IProfitCategoryProvider profitCategoryProvider,
 			IOrganizationRepository organizationRepository,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationParametersProvider,
 			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(profitCategoryRepository == null)

@@ -97,6 +97,7 @@ using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using Vodovoz.Settings.Roboats;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Phones;
 
 namespace Vodovoz
@@ -139,7 +140,7 @@ namespace Vodovoz
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
 		private ICounterpartySettings _counterpartySettings;
-		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
+		private IOrganizationSettings _organizationParametersProvider = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
 		private IDeleteEntityService _deleteEntityService;

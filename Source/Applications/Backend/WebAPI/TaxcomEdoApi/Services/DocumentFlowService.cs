@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
@@ -39,7 +40,7 @@ namespace TaxcomEdoApi.Services
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationParametersProvider;
 		private readonly IConfigurationSection _apiSection;
 		private readonly EdoUpdFactory _edoUpdFactory;
 		private readonly EdoBillFactory _edoBillFactory;
@@ -64,7 +65,7 @@ namespace TaxcomEdoApi.Services
 			IOrderRepository orderRepository,
 			IGenericRepository<EdoContainer> edoContainersRepository,
 			IOrganizationRepository organizationRepository,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationParametersProvider,
 			EdoUpdFactory edoUpdFactory,
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,

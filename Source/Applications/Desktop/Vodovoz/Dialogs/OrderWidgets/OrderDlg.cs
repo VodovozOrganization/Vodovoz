@@ -128,6 +128,7 @@ using QS.ViewModels.Control.EEVM;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Roboats;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
 {
@@ -479,7 +480,8 @@ namespace Vodovoz
 				}
 
 				Entity.PaymentType = Entity.Client.PaymentMethod;
-				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var parametersProvider = new ParametersProvider();
 				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
@@ -602,7 +604,8 @@ namespace Vodovoz
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var parametersProvider = new ParametersProvider();
 			var orderParametersProvider = new OrderParametersProvider(parametersProvider);

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +47,7 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
@@ -1959,7 +1960,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual void ForceUpdateContract(Organization organization = null)
 		{
 			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings); 
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var parametersProvider = new ParametersProvider();
 				var orderParametersProvider = new OrderParametersProvider(parametersProvider);

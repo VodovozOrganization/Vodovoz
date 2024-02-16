@@ -21,6 +21,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database.Organizations;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.TempAdapters;
@@ -35,8 +37,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrackRepository _trackRepository;
 
-		private readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
+		private readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider;
 
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
@@ -88,6 +89,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+			_commonOrganisationProvider = new CashDistributionCommonOrganisationProvider(lifetimeScope.Resolve<IOrganizationSettings>());
 
 			UoW = uow;
 			FuelDocument = new FuelDocument();
@@ -130,6 +132,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+			_commonOrganisationProvider = new CashDistributionCommonOrganisationProvider(lifetimeScope.Resolve<IOrganizationSettings>());
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
@@ -175,6 +178,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+			_commonOrganisationProvider = new CashDistributionCommonOrganisationProvider(lifetimeScope.Resolve<IOrganizationSettings>());
 
 			var uow = _uowFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
@@ -222,6 +226,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+			_commonOrganisationProvider = new CashDistributionCommonOrganisationProvider(lifetimeScope.Resolve<IOrganizationSettings>());
 
 			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
 			UoW = uow;

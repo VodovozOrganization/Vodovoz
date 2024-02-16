@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database.Organizations;
 
 namespace VodovozBusinessTests.Domain.Fuel
 {
@@ -53,8 +54,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -111,8 +112,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -160,8 +161,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 			
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock = 
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -198,8 +199,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -251,8 +252,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -296,8 +297,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 			
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock = 
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -334,8 +335,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -379,8 +380,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 			
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock = 
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -418,8 +419,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -466,8 +467,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -515,8 +516,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -562,8 +563,8 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationParametersProviderMock =
+				Substitute.For<OrganizationSettings>(_parametersProvider);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
 				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
@@ -625,7 +626,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			var organisationParametersProviderMock = Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			var organisationParametersProviderMock = Substitute.For<OrganizationSettings>(_parametersProvider);
 			organisationParametersProviderMock.CommonCashDistributionOrganisationId.Returns(2);
 
 			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =

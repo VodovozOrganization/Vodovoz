@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
 {
@@ -48,7 +49,8 @@ namespace Vodovoz
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var parametersProvider = new ParametersProvider();
 			var orderParametersProvider = new OrderParametersProvider(parametersProvider);

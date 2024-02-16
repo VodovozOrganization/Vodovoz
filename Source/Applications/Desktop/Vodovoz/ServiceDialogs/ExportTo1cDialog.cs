@@ -1,4 +1,5 @@
-﻿using Gtk;
+﻿using Autofac;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
@@ -12,6 +13,7 @@ using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
 {
@@ -44,15 +46,16 @@ namespace Vodovoz
 
         private void Export(Export1cMode mode)
         {
+			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
             var dateStart = dateperiodpicker1.StartDate;
-            var dateEnd = dateperiodpicker1.EndDate;
+			var dateEnd = dateperiodpicker1.EndDate;
 
             int? organizationId = null;
             if(mode == Export1cMode.BuhgalteriaOOONew) {
                 organizationId = (comboOrganization.SelectedItem as Organization)?.Id;
             }
             else if(mode == Export1cMode.BuhgalteriaOOO) {
-                organizationId = new OrganizationParametersProvider(_parametersProvider).VodovozOrganizationId;
+                organizationId = organizationSettings.VodovozOrganizationId;
             }
 
             using(var exportOperation = new ExportOperation(
