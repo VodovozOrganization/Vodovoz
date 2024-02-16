@@ -998,13 +998,6 @@ namespace Vodovoz.Domain.Client
 					new[] { this.GetPropertyName(o => o.KPP) });
 			}
 
-			if(Organization?.Length > 45)
-			{
-				yield return new ValidationResult(
-					"Длина строки \"Организация\" не должна превышать 45 символов",
-					new[] { this.GetPropertyName(o => o.Organization) });
-			}
-
 			RoomType[] notNeedOrganizationRoomTypes = new RoomType[] { RoomType.Apartment, RoomType.Chamber };
 
 			if(Counterparty.PersonType == PersonType.natural && !notNeedOrganizationRoomTypes.Contains(RoomType))
@@ -1015,6 +1008,13 @@ namespace Vodovoz.Domain.Client
 						"Необходимо заполнить поле \"Организация\"",
 						new[] { this.GetPropertyName(o => o.Organization) });
 				}
+			}
+
+			if(Organization?.Length > 45)
+			{
+				yield return new ValidationResult(
+					"Длина строки \"Организация\" не должна превышать 45 символов",
+					new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices
