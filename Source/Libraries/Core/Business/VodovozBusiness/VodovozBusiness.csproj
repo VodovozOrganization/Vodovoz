@@ -1370,8 +1370,6 @@
     <Compile Include="Domain\Client\DeliveryPointResponsiblePerson.cs" />
     <Compile Include="Domain\Client\DeliveryPointResponsiblePersonType.cs" />
     <Compile Include="Domain\Employees\EmployeePost.cs" />
-    <Compile Include="Services\IOrderPaymentSettings.cs" />
-    <Compile Include="Parameters\OrderPaymentSettings.cs" />
     <Compile Include="VodovozBusinessAssemblyFinder.cs" />
     <Compile Include="EntityRepositories\Store\MovementDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Store\IMovementDocumentRepository.cs" />

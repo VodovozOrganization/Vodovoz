@@ -7,6 +7,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Order = Vodovoz.Domain.Orders.Order;
 
