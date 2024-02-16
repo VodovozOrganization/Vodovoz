@@ -2935,6 +2935,12 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+
+				if(recalculatedTrackResponse.Routes is null)
+				{
+					recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				}
+				
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 
 				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
