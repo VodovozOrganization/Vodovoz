@@ -856,11 +856,9 @@
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\IRoboatsSettings.cs" />
-    <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Parameters\NomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Parameters\PhoneTypeSettings.cs" />
-    <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />

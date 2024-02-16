@@ -37,7 +37,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.TempAdapters;
@@ -47,6 +46,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.ViewModels.Logistic
 {

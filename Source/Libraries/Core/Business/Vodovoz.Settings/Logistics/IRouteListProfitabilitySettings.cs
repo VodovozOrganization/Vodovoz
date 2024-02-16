@@ -1,4 +1,4 @@
-namespace Vodovoz.Parameters
+﻿namespace Vodovoz.Settings.Logistics
 {
 	public interface IRouteListProfitabilitySettings
 	{
