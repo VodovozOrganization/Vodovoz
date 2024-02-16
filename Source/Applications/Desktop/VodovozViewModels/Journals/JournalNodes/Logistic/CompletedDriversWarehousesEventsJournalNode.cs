@@ -21,6 +21,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public static readonly string EmployeeColumn = "Сотрудник";
 		public static readonly string CarColumn = "Автомобиль";
 		public static readonly string CompletedDateColumn = "Время фиксации";
-		public static readonly string DistanceColumn = "Расстояние\nот места сканирования";
+		public static readonly string DistanceColumn = "Расстояние\nот места сканирования(м)";
 	}
 }

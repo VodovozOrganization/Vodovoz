@@ -16,6 +16,7 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using System.Reflection;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Settings.Database;
@@ -144,7 +145,8 @@ namespace FastPaymentsNotificationWorker
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					typeof(DriverWarehouseEventMap).Assembly
 				}
 			);
 		}

@@ -1,4 +1,4 @@
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -613,6 +613,21 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.OnTheWay,
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock
+			};
+		}
+
+		public OrderStatus[] GetStatusesForOrderCancelationWithCancellation()
+		{
+			return new OrderStatus[] {
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Canceled,
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled
 			};
 		}
 
