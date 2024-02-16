@@ -123,6 +123,7 @@ namespace Vodovoz.Domain.Orders
 		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
+		private bool? _isDoNotMakeCallBeforeArrival;
 		private DateTime? _firstDeliveryDate;
 
 		#region Cвойства
@@ -451,6 +452,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _callBeforeArrivalMinutes;
 			set => SetField(ref _callBeforeArrivalMinutes, value);
+		}
+
+		[Display(Name = "Отзвон не нужен")]
+		public virtual bool? IsDoNotMakeCallBeforeArrival
+		{
+			get => _isDoNotMakeCallBeforeArrival;
+			set => SetField(ref _isDoNotMakeCallBeforeArrival, value);
 		}
 
 		private string commentLogist;
@@ -1614,6 +1622,12 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult($"Значение поля \"Комментарий ОДЗ\" не должно превышать 255 символов",
 					new[] { nameof(OPComment) });
+			}
+
+			if(!SelfDelivery && CallBeforeArrivalMinutes == null && (IsDoNotMakeCallBeforeArrival is null || IsDoNotMakeCallBeforeArrival == false))
+			{
+				yield return new ValidationResult($"В заказе не заполнено поле \"Отзвон за\"",
+					new[] { nameof(CallBeforeArrivalMinutes) });
 			}
 
 			#region Валидация, если уже есть чек
