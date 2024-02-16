@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -332,7 +333,7 @@ namespace Vodovoz.Reports
 				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(new ParametersProvider());
+			var cashCategoryParametersProvider = ScopeProvider.Scope.Resolve<IOrganizationCashTransferDocumentSettings>();
 			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
 			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
 
