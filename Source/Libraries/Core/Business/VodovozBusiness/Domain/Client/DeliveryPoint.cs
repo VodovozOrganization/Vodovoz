@@ -1008,13 +1008,13 @@ namespace Vodovoz.Domain.Client
 						"Необходимо заполнить поле \"Организация\"",
 						new[] { this.GetPropertyName(o => o.Organization) });
 				}
+			}
 
-				if(Organization?.Length > 45)
-				{
-					yield return new ValidationResult(
-						"Длина строки \"Организация\" не должна превышать 45 символов",
-						new[] { this.GetPropertyName(o => o.Organization) });
-				}
+			if(Organization?.Length > 45)
+			{
+				yield return new ValidationResult(
+					"Длина строки \"Организация\" не должна превышать 45 символов",
+					new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices
