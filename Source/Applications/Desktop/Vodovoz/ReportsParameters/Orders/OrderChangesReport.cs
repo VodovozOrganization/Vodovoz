@@ -12,6 +12,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Parameters;
 using QS.Project.Services;
+using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -20,12 +21,12 @@ namespace Vodovoz.ReportsParameters.Orders
     {
         private List<SelectedChangeTypeNode> _changeTypes = new List<SelectedChangeTypeNode>();
         private List<SelectedIssueTypeNode> _issueTypes = new List<SelectedIssueTypeNode>();
-        private readonly IReportDefaultsProvider reportDefaultsProvider;
+        private readonly IReportSettings reportDefaultsProvider;
 		private readonly IInteractiveService _interactiveService;
 		private readonly int _monitoringPeriodAvailable;
 
 		public OrderChangesReport(
-			IReportDefaultsProvider reportDefaultsProvider,
+			IReportSettings reportDefaultsProvider,
 			IInteractiveService interactiveService,
 			IArchiveDataSettings archiveDataSettings)
         {

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -24,6 +24,7 @@ using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
@@ -1137,12 +1138,13 @@ public partial class MainWindow
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
 		var paramProvider = new ParametersProvider();
+		var reportSettings = _autofacScope.Resolve<IReportSettings>();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
 			() => new QSReport.ReportViewDlg(
 				new OrderChangesReport(
-					new ReportDefaultsProvider(paramProvider),
+					reportSettings,
 					ServicesConfig.InteractiveService,
 					new ArchiveDataSettings(paramProvider))));
 	}

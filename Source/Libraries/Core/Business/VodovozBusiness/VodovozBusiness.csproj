@@ -900,7 +900,6 @@
     <Compile Include="Services\IGlobalSettings.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
-    <Compile Include="Parameters\IReportDefaultsProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="Parameters\NewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\ProductionWarehouseMovementReportProvider.cs" />
@@ -909,7 +908,6 @@
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />
-    <Compile Include="Parameters\ReportDefaultsProvider.cs" />
     <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
