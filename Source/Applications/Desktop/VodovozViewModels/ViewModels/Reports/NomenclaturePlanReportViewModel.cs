@@ -25,7 +25,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly INomenclaturePlanParametersProvider _nomenclaturePlanParametersProvider;
+		private readonly INomenclaturePlanSettings _nomenclaturePlanSettings;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 
@@ -80,14 +80,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public NomenclaturePlanReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
 			INavigationManager navigation, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider, IFileDialogService fileDialogService) : base(unitOfWorkFactory, interactiveService,
+			INomenclaturePlanSettings nomenclaturePlanSettings, IFileDialogService fileDialogService) : base(unitOfWorkFactory, interactiveService,
 			navigation)
 		{
 			Title = "Отчёт по мотивации КЦ";
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_nomenclaturePlanParametersProvider = nomenclaturePlanParametersProvider ??
-												  throw new ArgumentNullException(nameof(nomenclaturePlanParametersProvider));
+			_nomenclaturePlanSettings = nomenclaturePlanSettings ??
+												  throw new ArgumentNullException(nameof(nomenclaturePlanSettings));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				(productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory)))
 				.CreateProductGroupAutocompleteSelectorFactory();
 
-			CallCenterSubdivisionId = _nomenclaturePlanParametersProvider.CallCenterSubdivisionId;
+			CallCenterSubdivisionId = _nomenclaturePlanSettings.CallCenterSubdivisionId;
 
 			Configure();
 		}
@@ -171,7 +171,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.List<SubdivisionReportColumn>()
 				.OrderBy(x => x.Name);
 
-			Subdivision = Subdivisions.FirstOrDefault(s => s.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId);
+			Subdivision = Subdivisions.FirstOrDefault(s => s.Id == _nomenclaturePlanSettings.CallCenterSubdivisionId);
 
 			SelectedEmployees = new GenericObservableList<EmployeeReportColumn>();
 
@@ -432,7 +432,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				.Left.JoinAlias(o => o.Author, () => employeeAlias)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.Kind, () => equipmentKindAlias)
-				.Where(o => (o.Author.Id.IsIn(employeesIds) || employeeAlias.Subdivision.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId) &&
+				.Where(o => (o.Author.Id.IsIn(employeesIds) || employeeAlias.Subdivision.Id == _nomenclaturePlanSettings.CallCenterSubdivisionId) &&
 							!o.OrderStatus.IsIn(statusList) &&
 							!o.IsContractCloser &&
 							o.CreateDate.Value.Date >= StartDate && o.CreateDate.Value.Date <= EndDate)
@@ -655,7 +655,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private int? CallCenterEmployeesCount
 		{
 			get => _callCenterEmployeesCount ?? (_callCenterEmployeesCount = UoW.Session.QueryOver<Employee>()
-				.Where(e => e.Subdivision.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId)
+				.Where(e => e.Subdivision.Id == _nomenclaturePlanSettings.CallCenterSubdivisionId)
 				.And(e => e.Status == Vodovoz.Core.Domain.Employees.EmployeeStatus.IsWorking)
 				.Select(Projections.Count<Employee>(e => e.Id))
 				.SingleOrDefault<int>());
