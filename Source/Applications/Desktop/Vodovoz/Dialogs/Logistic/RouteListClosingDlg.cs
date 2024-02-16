@@ -62,6 +62,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz
 {
@@ -165,7 +166,7 @@ namespace Vodovoz
 			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
 			_discountReasonRepository = _lifetimeScope.Resolve<IDiscountReasonRepository>();
-			_nomenclatureOnlineParametersProvider = _lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>();
+			_nomenclatureOnlineParametersProvider = _lifetimeScope.Resolve<INomenclatureOnlineSettings>();
 
 			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
 			_orderParametersProvider = _lifetimeScope.Resolve<IOrderSettings>();
@@ -853,7 +854,7 @@ namespace Vodovoz
 		private IUserRepository _userRepository;
 		private IOrderRepository _orderRepository;
 		private IDiscountReasonRepository _discountReasonRepository;
-		private INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private INomenclatureOnlineSettings _nomenclatureOnlineParametersProvider;
 
 		Nomenclature DefaultBottle {
 			get {

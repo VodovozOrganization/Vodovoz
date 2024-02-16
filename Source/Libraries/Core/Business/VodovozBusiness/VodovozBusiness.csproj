@@ -856,7 +856,6 @@
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
-    <Compile Include="Parameters\NomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
@@ -1020,7 +1019,6 @@
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
-    <Compile Include="Services\INomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IFiasApiParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />

@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
-		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureOnlineSettings _nomenclatureOnlineParametersProvider;
 		private readonly INomenclatureService _nomenclatureService;
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
-			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
+			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)

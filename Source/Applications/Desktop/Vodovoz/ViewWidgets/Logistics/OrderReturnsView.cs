@@ -40,6 +40,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -65,7 +66,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
-		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureOnlineSettings _nomenclatureOnlineParametersProvider;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
@@ -104,7 +105,7 @@ namespace Vodovoz
 			IWageParameterService wageParameterService,
 			IParametersProvider parametersProvider,
 			IOrderSettings orderParametersProvider,
-			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
+			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)

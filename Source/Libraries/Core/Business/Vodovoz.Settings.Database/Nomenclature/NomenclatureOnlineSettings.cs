@@ -1,14 +1,13 @@
 ﻿using System;
-using Vodovoz.Services;
-using Vodovoz.Settings;
+using Vodovoz.Settings.Nomenclature;
 
-namespace Vodovoz.Parameters
+namespace Vodovoz.Settings.Database.Nomenclature
 {
-	public class NomenclatureOnlineParametersProvider : INomenclatureOnlineParametersProvider
+	public class NomenclatureOnlineSettings : INomenclatureOnlineSettings
 	{
 		private readonly ISettingsController _settingsController;
 
-		public NomenclatureOnlineParametersProvider(ISettingsController settingsController)
+		public NomenclatureOnlineSettings(ISettingsController settingsController)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
@@ -20,7 +19,7 @@ namespace Vodovoz.Parameters
 		public int OtherGoodsNomenclatureOnlineGroupId => _settingsController.GetIntValue("OtherGoodsNomenclatureOnlineGroupId");
 
 		#endregion
-		
+
 		#region Онлайн типы товаров
 
 		public int KulerNomenclatureOnlineCategoryId => _settingsController.GetIntValue("KulerNomenclatureOnlineCategoryId");

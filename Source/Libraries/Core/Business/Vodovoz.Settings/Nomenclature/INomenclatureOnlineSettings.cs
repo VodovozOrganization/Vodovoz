@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Services
+﻿namespace Vodovoz.Settings.Nomenclature
 {
-	public interface INomenclatureOnlineParametersProvider
+	public interface INomenclatureOnlineSettings
 	{
 		int WaterNomenclatureOnlineGroupId { get; }
 		int EquipmentNomenclatureOnlineGroupId { get; }
