@@ -139,14 +139,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Shift == FilterViewModel.DeliveryShift);
 			}
 
-			if(FilterViewModel.StartDate != null)
+			var startDate = FilterViewModel.StartDate;
+			if(startDate != null)
 			{
-				query.Where(o => o.Date >= FilterViewModel.StartDate);
+				query.Where(o => o.Date >= startDate);
 			}
 
-			if(FilterViewModel.EndDate != null)
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
 			{
-				query.Where(o => o.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+				query.Where(o => o.Date <= endDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.GeographicGroup != null)
