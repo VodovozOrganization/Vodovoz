@@ -15,7 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.User;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using VodovozInfrastructure.Configuration;
