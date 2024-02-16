@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -31,8 +32,7 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 
 		private Gdk.Pixbuf _vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 

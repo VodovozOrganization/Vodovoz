@@ -28,17 +28,20 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class RouteListRepository : IRouteListRepository
 	{
+		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		
-		public RouteListRepository(IStockRepository stockRepository, ITerminalNomenclatureProvider terminalNomenclatureProvider)
+		public RouteListRepository(ISettingsController settingsController, IStockRepository stockRepository, ITerminalNomenclatureProvider terminalNomenclatureProvider)
 		{
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_terminalNomenclatureProvider =
 				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
@@ -1560,8 +1563,18 @@ FROM
 
 			return result;
 		}
-	}
 
+		private string GetCargoDailyNormParameterName(CarTypeOfUse carTypeOfUse) => $"CargoDailyNormFor{carTypeOfUse}";
+		public decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse) => _settingsController.GetDecimalValue(GetCargoDailyNormParameterName(carTypeOfUse));
+
+		public void SaveCargoDailyNorms(Dictionary<CarTypeOfUse, decimal> cargoDailyNorms)
+		{
+			foreach(var cargoDailyNorm in cargoDailyNorms)
+			{
+				_settingsController.CreateOrUpdateSetting(GetCargoDailyNormParameterName(cargoDailyNorm.Key), cargoDailyNorm.Value.ToString());
+			}
+		}
+	}
 
 	#region DTO
 

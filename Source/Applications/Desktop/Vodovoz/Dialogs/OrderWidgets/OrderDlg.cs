@@ -126,6 +126,7 @@ using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz
 {
@@ -188,7 +189,7 @@ namespace Vodovoz
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
-		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
+		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
@@ -1576,7 +1577,7 @@ namespace Vodovoz
 
 			foreach(var flyer in activeFlyers)
 			{
-				if(!_orderRepository.HasFlyersOnStock(UoW, _routeListParametersProvider, flyer.FlyerNomenclature.Id, geographicGroupId))
+				if(!_orderRepository.HasFlyersOnStock(UoW, _routeListSettings, flyer.FlyerNomenclature.Id, geographicGroupId))
 				{
 					continue;
 				}

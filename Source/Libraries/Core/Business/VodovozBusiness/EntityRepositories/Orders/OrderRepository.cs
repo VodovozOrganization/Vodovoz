@@ -24,6 +24,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -776,7 +777,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		public bool HasFlyersOnStock(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
+			IUnitOfWork uow, IRouteListSettings routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;

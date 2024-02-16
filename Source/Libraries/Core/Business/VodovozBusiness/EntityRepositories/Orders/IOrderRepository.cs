@@ -9,6 +9,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Services;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Logistics;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -130,7 +131,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
-		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListParametersProvider, int flyerId, int geographicGroup);
 
 		/// <summary>
 		/// Проверка на перенос данной позиция в другой заказ

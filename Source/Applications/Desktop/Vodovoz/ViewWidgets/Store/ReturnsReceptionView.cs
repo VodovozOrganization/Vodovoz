@@ -50,8 +50,7 @@ namespace Vodovoz
 		{
 			var baseParameters = new BaseParametersProvider(new ParametersProvider());
 			_terminalNomenclatureProvider = baseParameters;
-			var routeListRepository = new RouteListRepository(new StockRepository(), baseParameters);
-			_carLoadDocumentRepository = new CarLoadDocumentRepository(routeListRepository);
+			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
 			_carUnloadRepository = new CarUnloadRepository();
 			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 			_nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
