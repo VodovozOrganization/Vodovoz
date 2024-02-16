@@ -9,7 +9,7 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Store;
-using Vodovoz.Services;
+using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ViewModels.Reports
 {
@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Reports
 		private DelegateCommand _exportCommand = null;
 		private DelegateCommand _helpCommand = null;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly IProductionWarehouseMovementReportProvider _productionWarehouseMovementReportProvider;
+		private readonly IProductionWarehouseMovementReportSettings _productionWarehouseMovementReportProvider;
 		private bool _isDetailedForExport;
 		private DateTime? _filterStartDate;
 
@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.Reports
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			IFileDialogService fileDialogService,
-			IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider)
+			IProductionWarehouseMovementReportSettings productionWarehouseMovementReportProvider)
 			: base(unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)), interactiveService, navigationManager)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
