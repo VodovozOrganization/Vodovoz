@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Settings.Phones;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -62,6 +63,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
 		private readonly ICoordinatesParser _coordinatesParser;
 		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private string _districtOnMap;
 		private bool _showDistrictBorders;
@@ -86,6 +88,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			ICoordinatesParser coordinatesParser,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRepository deliveryRepository,
+			IPhoneTypeSettings phoneTypeSettings,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -121,14 +124,15 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
-			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));			
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
+			PhonesViewModel = new PhonesViewModel(_phoneTypeSettings, phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,

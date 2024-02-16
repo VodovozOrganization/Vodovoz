@@ -2,7 +2,7 @@
 using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Services;
+using Vodovoz.Settings.Phones;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {

@@ -29,6 +29,7 @@ using Vodovoz.ViewModels.ViewModels;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
+using Vodovoz.Settings.Phones;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -178,7 +179,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			return new PhonesViewModel(phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
+			return new PhonesViewModel(phoneTypeSettings, phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
 				ReadOnly = true
 			};
 		}

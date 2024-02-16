@@ -97,6 +97,7 @@ using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using Vodovoz.Settings.Roboats;
+using Vodovoz.Settings.Phones;
 
 namespace Vodovoz
 {
@@ -760,8 +761,9 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
-				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,

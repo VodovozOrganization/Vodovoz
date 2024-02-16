@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Gtk;
@@ -14,6 +15,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Phones;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
 
@@ -143,7 +145,8 @@ namespace Vodovoz.Views.Contacts
 
 			var phoneViewModel = new PhoneViewModel(newPhone,
 				ServicesConfig.CommonServices,
-				new PhoneTypeSettings(new ParametersProvider()));
+				ScopeProvider.Scope.Resolve<IPhoneTypeSettings>()
+			);
 
 			var phoneDataCombo = new yListComboBox();
 			phoneDataCombo.WidthRequest = 100;

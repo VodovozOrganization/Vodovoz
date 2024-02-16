@@ -28,6 +28,7 @@ using Vodovoz.Core.Domain.Employees;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
+using Vodovoz.Settings.Phones;
 
 namespace Vodovoz.Dialogs
 {
@@ -137,10 +138,12 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters,  _commonServices);
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
+
+			ClientPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsParameters,  _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _commonServices);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsParameters, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)
