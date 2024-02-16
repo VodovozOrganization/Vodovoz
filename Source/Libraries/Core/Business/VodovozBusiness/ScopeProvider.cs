@@ -3,7 +3,7 @@ using System;
 
 namespace Vodovoz
 {
-	[Obsolete("Без везкой причины не расширять использование этого класса. Необходимо сокращать зависимости в сущностях")]
+	[Obsolete("НЕ использовать на слое ViewModels. Можно использовать только в старых View(Dialogs).")]
 	public static class ScopeProvider
 	{
 		public static ILifetimeScope Scope { get; set; }
