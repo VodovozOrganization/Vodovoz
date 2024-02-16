@@ -13,18 +13,18 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.NotificationRecievers;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace SmsPaymentService
 {
-    public class SmsPaymentService : ISmsPaymentService
+	public class SmsPaymentService : ISmsPaymentService
     {
 	    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IPaymentController _paymentController;
 	    private readonly ISmsPaymentStatusNotificationReciever _smsPaymentStatusNotificationReciever;
-	    private readonly IOrderParametersProvider _orderParametersProvider;
+	    private readonly IOrderSettings _orderParametersProvider;
 	    private readonly SmsPaymentFileCache _smsPaymentFileCache;
 	    private readonly ISmsPaymentDTOFactory _smsPaymentDTOFactory;
 	    private readonly ISmsPaymentValidator _smsPaymentValidator;
@@ -33,7 +33,7 @@ namespace SmsPaymentService
 			IUnitOfWorkFactory uowFactory,
             IPaymentController paymentController, 
             ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
-            IOrderParametersProvider orderParametersProvider,
+            IOrderSettings orderParametersProvider,
             SmsPaymentFileCache smsPaymentFileCache,
             ISmsPaymentDTOFactory smsPaymentDTOFactory,
             ISmsPaymentValidator smsPaymentValidator

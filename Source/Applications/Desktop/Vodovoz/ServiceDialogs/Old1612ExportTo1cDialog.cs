@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Xml;
+using Autofac;
 using Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
@@ -9,6 +10,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Old1612ExportTo1c
 {
@@ -32,7 +34,7 @@ namespace Vodovoz.Old1612ExportTo1c
 
             using(var exportOperation = new ExportOperation(
                 mode,
-                new OrderParametersProvider(new ParametersProvider()),
+                ScopeProvider.Scope.Resolve<IOrderSettings>(),
                 dateStart,
                 dateEnd,
                 null))

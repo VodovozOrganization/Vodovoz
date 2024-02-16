@@ -6,25 +6,25 @@ using QSProjectsLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Old1612ExportTo1c
 {
-    public class ExportOperation : IDisposable
+	public class ExportOperation : IDisposable
     {
 	    private readonly IOrderRepository _orderRepository = new OrderRepository();
         private readonly IUnitOfWork uow;
         private readonly DateTime start;
         private readonly DateTime end;
         private readonly Export1cMode mode;
-        private readonly IOrderParametersProvider orderParametersProvider;
+        private readonly IOrderSettings orderParametersProvider;
         private readonly Organization organization;
         private IList<Order> orders;
 
         public int Steps => orders.Count;
         public ExportData Result { get; private set; }
 
-        public ExportOperation(Export1cMode mode, IOrderParametersProvider orderParametersProvider, DateTime start, DateTime end, Organization organization = null)
+        public ExportOperation(Export1cMode mode, IOrderSettings orderParametersProvider, DateTime start, DateTime end, Organization organization = null)
         {
             this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();

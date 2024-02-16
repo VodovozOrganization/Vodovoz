@@ -10,6 +10,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Models
@@ -17,14 +18,14 @@ namespace Vodovoz.Models
 	public class Stage2OrganizationProvider : IOrganizationProvider
 	{
 		private readonly IOrganizationSettings _organizationParametersProvider;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderParametersProvider;
 		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 
 		public Stage2OrganizationProvider(
 			IOrganizationSettings organizationParametersProvider,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderParametersProvider,
 			IGeographicGroupParametersProvider geographicGroupParametersProvider,
 			IFastPaymentRepository fastPaymentRepository,
 			ICashReceiptRepository cashReceiptRepository)

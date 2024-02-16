@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace DriverAPI.Library.Models
 {
@@ -40,7 +41,7 @@ namespace DriverAPI.Library.Models
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 
 		public OrderModel(
 			ILogger<OrderModel> logger,
@@ -57,7 +58,7 @@ namespace DriverAPI.Library.Models
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QRPaymentConverter qrPaymentConverter,
 			IFastPaymentModel fastPaymentModel,
-			IOrderParametersProvider orderParametersProvider)
+			IOrderSettings orderSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -73,7 +74,7 @@ namespace DriverAPI.Library.Models
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
 		/// <summary>
@@ -696,7 +697,7 @@ namespace DriverAPI.Library.Models
 			vodovozOrder.IsBottleStockDiscrepancy = vodovozOrder.BottlesByStockCount != bottlesByStockActualCount;
 
 			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
-			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
+			vodovozOrder.CalculateBottlesStockDiscounts(_orderSettings, true);
 			_uow.Save(vodovozOrder);
 			_uow.Commit();
 		}

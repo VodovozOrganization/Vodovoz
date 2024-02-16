@@ -12,7 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Cash
@@ -24,9 +24,9 @@ namespace Vodovoz.EntityRepositories.Cash
 		private CashReceipt _cashReceiptAlias = null;
 		private Counterparty _counterpartyAlias = null;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderParametersProvider;
 
-		public CashReceiptRepository(IUnitOfWorkFactory uowFactory, IOrderParametersProvider orderParametersProvider)
+		public CashReceiptRepository(IUnitOfWorkFactory uowFactory, IOrderSettings orderParametersProvider)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));

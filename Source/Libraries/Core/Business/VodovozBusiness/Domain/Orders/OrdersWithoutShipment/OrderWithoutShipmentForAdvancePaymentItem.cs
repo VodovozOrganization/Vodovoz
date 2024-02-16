@@ -338,8 +338,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 			
 			if(orderOrganizationProviderFactory == null) {
-				var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			}
 

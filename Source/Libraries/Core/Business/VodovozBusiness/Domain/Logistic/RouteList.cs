@@ -54,6 +54,7 @@ using Vodovoz.Core.Domain.Employees;
 using Microsoft.Extensions.DependencyInjection;
 using Autofac;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -1845,7 +1846,7 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
-						var orderParametersProvider = validationContext.GetService<IOrderParametersProvider>();
+						var orderParametersProvider = validationContext.GetService<IOrderSettings>();
 						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesParametersProvider>();
 
 						validationContext.Items.TryGetValue(ValidationKeyIgnoreReceiptsForOrders, out var ignoreReceiptsInOrdersParameter);

@@ -25,6 +25,7 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
@@ -34,7 +35,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderParametersProvider;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -57,7 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListRepository routedListRepository,
 			IInteractiveService interactiveService,
-			IOrderParametersProvider orderParametersProvider, 
+			IOrderSettings orderParametersProvider, 
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,

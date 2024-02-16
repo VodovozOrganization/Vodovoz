@@ -47,6 +47,8 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Settings.Database.Organizations;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Database.Orders;
+using Vodovoz.Settings.Orders;
 
 namespace FastPaymentsAPI
 {
@@ -142,7 +144,7 @@ namespace FastPaymentsAPI
 			//providers
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddScoped<ISettingsController, SettingsController>();
-			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
+			services.AddSingleton<IOrderSettings, OrderSettings>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
 			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
 			services.AddScoped<IEmailParametersProvider, EmailParametersProvider>();

@@ -23,8 +23,8 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -127,7 +127,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public IList<VodovozOrder> GetOrdersToExport1c8(
 			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderParametersProvider,
 			Export1cMode mode,
 			DateTime startDate,
 			DateTime endDate,

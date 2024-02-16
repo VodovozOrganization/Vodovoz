@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Cash
 			ICommonServices commonServices,
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{

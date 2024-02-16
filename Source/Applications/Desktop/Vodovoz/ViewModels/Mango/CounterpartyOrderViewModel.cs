@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -39,7 +40,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderParametersProvider;
 
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IRouteListRepository _routedListRepository;
@@ -87,7 +88,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			ITdiCompatibilityNavigation tdinavigation,
 			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderParametersProvider,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IParametersProvider parametersProvider,

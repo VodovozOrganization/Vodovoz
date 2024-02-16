@@ -40,7 +40,7 @@ namespace Vodovoz.Representations
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly Employee _currentEmployee;
 		private readonly IOrderPaymentSettings _orderPaymentSettings;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderParametersProvider;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly bool _userCanChangePayTypeToByCard;
 
@@ -50,7 +50,7 @@ namespace Vodovoz.Representations
 			ICommonServices commonServices, 
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IEmployeeService employeeService,
 			INavigationManager navigationManager,

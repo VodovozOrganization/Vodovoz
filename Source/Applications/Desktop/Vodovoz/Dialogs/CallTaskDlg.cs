@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
 using Vodovoz.Settings.Phones;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Dialogs
 {
@@ -96,13 +97,12 @@ namespace Vodovoz.Dialogs
 
 		private void ConfigureDlg()
 		{
-			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			_parametersProvider = new ParametersProvider();
 			_contactsParameters = new ContactParametersProvider(_parametersProvider);
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 

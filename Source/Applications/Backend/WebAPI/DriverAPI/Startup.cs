@@ -56,6 +56,8 @@ using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Settings.Database.Orders;
+using Vodovoz.Settings.Orders;
 
 namespace DriverAPI
 {
@@ -281,7 +283,7 @@ namespace DriverAPI
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();
-			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
+			services.AddScoped<IOrderSettings, OrderSettings>();
 			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();

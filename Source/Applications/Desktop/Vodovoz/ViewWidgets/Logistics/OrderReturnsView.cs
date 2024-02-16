@@ -40,6 +40,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -60,7 +61,7 @@ namespace Vodovoz
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly INavigationManager _navigationManager;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderParametersProvider;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
@@ -102,7 +103,7 @@ namespace Vodovoz
 			IDiscountReasonRepository discountReasonRepository,
 			IWageParameterService wageParameterService,
 			IParametersProvider parametersProvider,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderParametersProvider,
 			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			INavigationManager navigationManager,
@@ -743,7 +744,7 @@ namespace Vodovoz
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
-			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
+			var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
 			_routeListItem.Order.CalculateBottlesStockDiscounts(orderParametersProvider, true);
 		}
 

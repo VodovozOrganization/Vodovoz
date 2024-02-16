@@ -47,6 +47,8 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database.Orders;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -83,8 +85,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IEmailService>();
 		private IGeneralSettingsParametersProvider _generalSettingsParameters => ScopeProvider.Scope
 			.Resolve<IGeneralSettingsParametersProvider>();
-		private IOrderParametersProvider _orderParametersProvider => ScopeProvider.Scope
-			.Resolve<IOrderParametersProvider>();
+		private IOrderSettings _orderParametersProvider => ScopeProvider.Scope
+			.Resolve<IOrderSettings>();
 		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
 			.Resolve<IDeliveryScheduleParametersProvider>();
 		private OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery => ScopeProvider.Scope
@@ -1542,13 +1544,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Нельзя выбрать доставку за час для заказа-самовывоза", new[] { nameof(DeliveryPoint) });
 			}
 
-			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
+			var orderParametersProvider = validationContext.GetService(typeof(IOrderSettings)) as IOrderSettings;
 
 			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlineOrder == null)
 			{
 				if(orderParametersProvider == null)
 				{
-					throw new ArgumentNullException(nameof(IOrderParametersProvider));
+					throw new ArgumentNullException(nameof(IOrderSettings));
 				}
 				if(PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
 				{
@@ -1559,7 +1561,7 @@ namespace Vodovoz.Domain.Orders
 			if((new[] { PaymentType.Cash, PaymentType.Terminal }.Contains(PaymentType)
 				   || (PaymentType == PaymentType.PaidOnline
 					   && PaymentByCardFrom != null
-					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
+					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderSettings)))
 						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
 			   && Contract?.Organization != null && Contract.Organization.CashBoxId == null)
 			{
@@ -1960,11 +1962,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual void ForceUpdateContract(Organization organization = null)
 		{
 			if(orderOrganizationProviderFactory == null) {
-				var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>(); ;
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings); 
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope); 
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var parametersProvider = new ParametersProvider();
-				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+				var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
 				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
@@ -2097,7 +2098,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		private DiscountReason GetDiscountReasonStockBottle(
-			IOrderParametersProvider orderParametersProvider, decimal discount)
+			IOrderSettings orderParametersProvider, decimal discount)
 		{
 			var reasonId = discount == 10m
 				? orderParametersProvider.GetDiscountReasonStockBottle10PercentsId
@@ -2112,10 +2113,10 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Рассчитывает скидки в товарах по акции "Бутыль"
 		/// </summary>
-		public virtual void CalculateBottlesStockDiscounts(IOrderParametersProvider orderParametersProvider, bool byActualCount = false)
+		public virtual void CalculateBottlesStockDiscounts(IOrderSettings orderSettings, bool byActualCount = false)
 		{
-			if(orderParametersProvider == null) {
-				throw new ArgumentNullException(nameof(orderParametersProvider));
+			if(orderSettings == null) {
+				throw new ArgumentNullException(nameof(orderSettings));
 			}
 
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
@@ -2125,12 +2126,12 @@ namespace Vodovoz.Domain.Orders
 			if(bottlesByStock == Total19LBottlesToDeliver)
 			{
 				stockBottleDiscountPercent = 10m;
-				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderSettings, stockBottleDiscountPercent);
 			}
 			if(bottlesByStock > Total19LBottlesToDeliver)
 			{
 				stockBottleDiscountPercent = 20m;
-				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderSettings, stockBottleDiscountPercent);
 			}
 
 			foreach(OrderItem item in ObservableOrderItems
@@ -2157,7 +2158,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void RecalculateStockBottles(IOrderParametersProvider orderParametersProvider)
+		public virtual void RecalculateStockBottles(IOrderSettings orderParametersProvider)
 		{
 			if(!IsBottleStock) {
 				BottlesByStockCount = 0;

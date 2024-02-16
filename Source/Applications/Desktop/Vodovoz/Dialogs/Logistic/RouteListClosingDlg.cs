@@ -61,6 +61,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz
 {
@@ -72,7 +73,7 @@ namespace Vodovoz
 		private ILogger<RouteListClosingDlg> _logger;
 
 		private IParametersProvider _parametersProvider;
-		private IOrderParametersProvider _orderParametersProvider;
+		private IOrderSettings _orderParametersProvider;
 		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private IRouteListRepository _routeListRepository;
@@ -167,7 +168,7 @@ namespace Vodovoz
 			_nomenclatureOnlineParametersProvider = _lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>();
 
 			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
-			_orderParametersProvider = _lifetimeScope.Resolve<IOrderParametersProvider>();
+			_orderParametersProvider = _lifetimeScope.Resolve<IOrderSettings>();
 			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
 			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();

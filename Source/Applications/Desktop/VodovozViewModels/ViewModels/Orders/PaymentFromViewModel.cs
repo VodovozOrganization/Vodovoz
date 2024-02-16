@@ -7,7 +7,7 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Orders
@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Orders
 			ICommonServices commonServices,
 			IPaymentFromRepository paymentFromRepository,
 			IOrganizationJournalFactory organizationJournalFactory,
-			IOrderParametersProvider orderParametersProvider) : base(uoWBuilder, uowFactory, commonServices)
+			IOrderSettings orderParametersProvider) : base(uoWBuilder, uowFactory, commonServices)
 		{
 			if(paymentFromRepository is null)
 			{
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Orders
 			
 			CanShowOrganization = true;
 			ValidationContext.ServiceContainer.AddService(typeof(IPaymentFromRepository), paymentFromRepository);
-			ValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
+			ValidationContext.ServiceContainer.AddService(typeof(IOrderSettings), orderParametersProvider);
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);

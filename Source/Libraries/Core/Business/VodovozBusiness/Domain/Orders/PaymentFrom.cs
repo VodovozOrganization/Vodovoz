@@ -9,7 +9,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			if(!(validationContext.ServiceContainer.GetService(
-				typeof(IOrderParametersProvider)) is IOrderParametersProvider orderParametersProvider))
+				typeof(IOrderSettings)) is IOrderSettings orderParametersProvider))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderParametersProvider) }");
 			}

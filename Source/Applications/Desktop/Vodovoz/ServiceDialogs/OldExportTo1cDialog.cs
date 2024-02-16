@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Xml;
+using Autofac;
 using Gtk;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Orders;
@@ -8,6 +9,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.OldExportTo1c;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz
 {
@@ -38,7 +40,7 @@ namespace Vodovoz
 			var dateStart = dateperiodpicker1.StartDate;
 			var dateEnd = dateperiodpicker1.EndDate;
 
-			using(var exportOperation = new ExportOperation(new OrderParametersProvider(new ParametersProvider()), mode, dateStart, dateEnd)) {
+			using(var exportOperation = new ExportOperation(ScopeProvider.Scope.Resolve<IOrderSettings>(), mode, dateStart, dateEnd)) {
 				this.exportInProgress = true;
 				UpdateExportButtonSensitivity();
 				LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);

@@ -13,6 +13,7 @@ using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
@@ -60,7 +61,7 @@ namespace Vodovoz
 
             using(var exportOperation = new ExportOperation(
                 mode,
-                new OrderParametersProvider(_parametersProvider),
+				ScopeProvider.Scope.Resolve<IOrderSettings>(),
                 dateStart,
                 dateEnd,
                 organizationId

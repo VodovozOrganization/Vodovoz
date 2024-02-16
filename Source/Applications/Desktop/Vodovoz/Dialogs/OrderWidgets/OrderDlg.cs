@@ -129,6 +129,7 @@ using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz
 {
@@ -185,7 +186,7 @@ namespace Vodovoz
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private ICounterpartyContractFactory counterpartyContractFactory;
-		private IOrderParametersProvider _orderParametersProvider;
+		private IOrderSettings _orderSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
@@ -480,11 +481,9 @@ namespace Vodovoz
 				}
 
 				Entity.PaymentType = Entity.Client.PaymentMethod;
-				var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
+				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var parametersProvider = new ParametersProvider();
-				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+				var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
 				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
@@ -604,15 +603,12 @@ namespace Vodovoz
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
-			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(organizationSettings);
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var parametersProvider = new ParametersProvider();
-			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+			_orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, _orderSettings);
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider, cashReceiptRepository);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
-			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, ServicesConfig.UnitOfWorkFactory);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
@@ -770,10 +766,10 @@ namespace Vodovoz
 
 			var excludedPaymentFromIds = new[]
 			{
-				_orderParametersProvider.PaymentByCardFromSmsId,
-				_orderParametersProvider.GetPaymentByCardFromAvangardId,
-				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.PaymentByCardFromOnlineStoreId
+				_orderSettings.PaymentByCardFromSmsId,
+				_orderSettings.GetPaymentByCardFromAvangardId,
+				_orderSettings.GetPaymentByCardFromFastPaymentServiceId,
+				_orderSettings.PaymentByCardFromOnlineStoreId
 			};
 
 			var paymentFromItemsQuery = UoW.Session.QueryOver<PaymentFrom>();
@@ -1049,7 +1045,7 @@ namespace Vodovoz
 
 			yChkActionBottle.Toggled += (sender, e) =>
 			{
-				Entity.RecalculateStockBottles(_orderParametersProvider);
+				Entity.RecalculateStockBottles(_orderSettings);
 				ControlsActionBottleAccessibility();
 				ycomboboxReason.Sensitive = !yChkActionBottle.Active;
 				SetDiscountUnitEditable();
@@ -2188,7 +2184,7 @@ namespace Vodovoz
 
 		protected bool Validate(ValidationContext validationContext)
 		{
-			validationContext.ServiceContainer.AddService(_orderParametersProvider);
+			validationContext.ServiceContainer.AddService(_orderSettings);
 			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
 			return ServicesConfig.ValidationService.Validate(Entity, validationContext);
 		}
@@ -3789,7 +3785,7 @@ namespace Vodovoz
 
 		protected void OnYEntTareActBtlFromClientChanged(object sender, EventArgs e)
 		{
-			Entity.CalculateBottlesStockDiscounts(_orderParametersProvider);
+			Entity.CalculateBottlesStockDiscounts(_orderSettings);
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
