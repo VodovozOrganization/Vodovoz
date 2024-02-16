@@ -135,7 +135,8 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-				entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.CanEditReference = false;
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = _logisticanEditing;
 

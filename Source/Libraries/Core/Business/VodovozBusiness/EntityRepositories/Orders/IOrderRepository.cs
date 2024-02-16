@@ -157,6 +157,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 	}
 
 	public class ClientEquipmentNode
