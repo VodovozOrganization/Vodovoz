@@ -9,7 +9,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Complaints
 	public class GuiltyItemViewModel : EntityWidgetViewModelBase<ComplaintGuiltyItem>
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private bool _isForSalesDepartment;
 
 		public GuiltyItemViewModel(
@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			IUnitOfWork uow,
 			bool fromComplaintsJournalFilter = false
 		) : base(entity, commonServices)

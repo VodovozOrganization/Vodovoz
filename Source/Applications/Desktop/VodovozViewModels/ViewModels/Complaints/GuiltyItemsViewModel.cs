@@ -11,7 +11,7 @@ using System;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ICommonServices _commonServices;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 
 		public GuiltyItemsViewModel(
 			Complaint entity,
@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			bool isForSalesDepartment = false
 		) : base(entity, commonServices)
 		{

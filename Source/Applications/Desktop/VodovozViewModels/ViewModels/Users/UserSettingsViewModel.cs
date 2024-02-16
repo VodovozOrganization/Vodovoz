@@ -16,8 +16,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Users;
@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Users
 	public class UserSettingsViewModel : EntityTabViewModelBase<UserSettings>, ITDICloseControlTab
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
 		private ILifetimeScope _lifetimeScope;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Users
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclaturePricesRepository nomenclatureFixedPriceRepository)

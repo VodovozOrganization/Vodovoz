@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -51,7 +52,7 @@ namespace Vodovoz.ViewModels
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)

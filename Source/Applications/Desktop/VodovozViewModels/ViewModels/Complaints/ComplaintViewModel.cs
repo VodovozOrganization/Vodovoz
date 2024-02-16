@@ -30,6 +30,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -84,7 +85,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintResultsRepository complaintResultsRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			IRouteListItemRepository routeListItemRepository,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			IComplaintParametersProvider complaintParametersProvider,
@@ -583,7 +584,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
-		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
+		private ISubdivisionSettings SubdivisionParametersProvider { get; }
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{

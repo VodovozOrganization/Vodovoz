@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Widgets;
@@ -27,7 +28,7 @@ namespace Vodovoz.Dialogs
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
+		private readonly ISubdivisionSettings _subdivisionParametersProvider = ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;

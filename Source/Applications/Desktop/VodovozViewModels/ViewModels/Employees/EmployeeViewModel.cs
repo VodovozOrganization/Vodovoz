@@ -35,8 +35,8 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IAuthorizationService _authorizationService;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
@@ -1115,7 +1115,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			
-			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionParametersProvider), _subdivisionParametersProvider);
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionSettings), _subdivisionParametersProvider);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}

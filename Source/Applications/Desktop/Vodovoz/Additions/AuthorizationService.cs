@@ -15,6 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.User;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -40,7 +41,7 @@ namespace Vodovoz.Additions
 			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
 			IEmailParametersProvider emailParametersProvider,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			ILogger<AuthorizationService> logger)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));

@@ -36,6 +36,7 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.NHibernateProjections.Employees;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -46,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
@@ -68,7 +69,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			IGtkTabsOpener gtkDialogsOpener,

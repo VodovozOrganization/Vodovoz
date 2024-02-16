@@ -17,8 +17,8 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewModels
@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels
 		
 		private void UpdateUserRoles()
 		{
-			var devSubdivisionId = _scope.Resolve<ISubdivisionParametersProvider>().GetDevelopersSubdivisionId;
+			var devSubdivisionId = _scope.Resolve<ISubdivisionSettings>().GetDevelopersSubdivisionId;
 			var isDeveloper = _scope.Resolve<IEmployeeService>().GetEmployeeForUser(UoW, CurrentUser.Id).Subdivision.Id == devSubdivisionId;
 			
 			try

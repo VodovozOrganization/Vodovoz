@@ -23,8 +23,8 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly ICommonServices _commonServices;
 
 		#region Constructor
@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			IFileDialogService fileDialogService,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)

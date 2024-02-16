@@ -25,8 +25,8 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -289,7 +289,7 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionParametersProvider)) is ISubdivisionParametersProvider
+			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
 					subdivisionParametersProvider))
 			{
 				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionParametersProvider)}");

@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Parameters
+﻿namespace Vodovoz.Settings.Organizations
 {
-	public interface ISubdivisionParametersProvider
+	public interface ISubdivisionSettings
 	{
 		int GetDevelopersSubdivisionId { get; }
 		int GetHumanResourcesSubdivisionId { get; }

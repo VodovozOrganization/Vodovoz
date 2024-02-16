@@ -28,6 +28,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -51,7 +52,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
@@ -70,7 +71,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			IGtkTabsOpener gtkDialogsOpener,
