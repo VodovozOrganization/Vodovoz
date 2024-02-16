@@ -33,6 +33,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Presentation.ViewModels.Pacs;
+using Vodovoz.Settings.Tabs;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using VodovozInfrastructure.Configuration;
@@ -103,7 +104,7 @@ public partial class MainWindow : Gtk.Window
 		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
 		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
 		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
-		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
+		var tabsParametersProvider = _autofacScope.Resolve<ITabsSettings>();
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
 

@@ -921,7 +921,6 @@
     <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Parameters\RouteListParametersProvider.cs" />
     <Compile Include="Parameters\SalesReceiptsParametersProvider.cs" />
-    <Compile Include="Parameters\TabsParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1052,7 +1051,6 @@
     <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
     <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
-    <Compile Include="Services\ITabsParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
