@@ -50,6 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			var filter = new WarehouseJournalFilterViewModel();
 			filterParams?.Invoke(filter);
+			JournalFilter = filter;
 			_filterViewModel = filter;
 		}
 
