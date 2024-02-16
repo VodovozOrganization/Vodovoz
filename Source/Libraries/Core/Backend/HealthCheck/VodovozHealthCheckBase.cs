@@ -50,7 +50,7 @@ namespace VodovozHealthCheck
 
 			if(healthResult.IsHealthy )
 			{
-				return HealthCheckResult.Healthy();
+				return HealthCheckResult.Healthy("Проверка пройдена успешно");
 			}
 
 			var unhealthyDictionary = new Dictionary<string, object>
