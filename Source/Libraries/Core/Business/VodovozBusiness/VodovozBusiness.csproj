@@ -836,7 +836,6 @@
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\GlobalSettings.cs" />
-    <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
@@ -988,7 +987,6 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
-    <Compile Include="Services\IFiasApiParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />

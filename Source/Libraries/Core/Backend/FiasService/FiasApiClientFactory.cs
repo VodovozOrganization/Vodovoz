@@ -1,15 +1,15 @@
 ﻿using System;
 using Fias.Client.Cache;
-using Vodovoz.Services;
+using Vodovoz.Settings.Fias;
 
 namespace Fias.Client
 {
 	internal class FiasApiClientFactory : IFiasApiClientFactory
 	{
-		private readonly IFiasApiParametersProvider _fiasApiParametersProvider;
+		private readonly IFiasApiSettings _fiasApiParametersProvider;
 		private readonly GeocoderCache _geocoderCache;
 
-		public FiasApiClientFactory(IFiasApiParametersProvider fiasApiParametersProvider, GeocoderCache geocoderCache)
+		public FiasApiClientFactory(IFiasApiSettings fiasApiParametersProvider, GeocoderCache geocoderCache)
 		{
 			_fiasApiParametersProvider = fiasApiParametersProvider ?? throw new ArgumentNullException(nameof(fiasApiParametersProvider));
 			_geocoderCache = geocoderCache ?? throw new ArgumentNullException(nameof(geocoderCache));
