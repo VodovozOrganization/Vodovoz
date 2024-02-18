@@ -580,7 +580,6 @@ namespace Vodovoz
 						.As<ISalesReceiptsServiceSettings>()
 						.As<IErrorSendSettings>()
 						.As<IProfitCategoryProvider>()
-						.As<IMailjetParametersProvider>()
 						.As<IVpbxSettings>()
 						.As<ITerminalNomenclatureProvider>()
 						.AsSelf();

@@ -16,7 +16,6 @@ namespace Vodovoz.Core.DataService
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IProfitCategoryProvider,
-		IMailjetParametersProvider,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
@@ -336,32 +335,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IProfitCategoryProvider
-
-		#region IMailjetParametersProvider
-
-		public string MailjetUserId
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("MailjetUserId"))
-				{
-					throw new InvalidProgramException("В параметрах базы не указаны настройки подключения к серверу отправки почты Mailjet (MailjetUserId)");
-				}
-				return _parametersProvider.GetParameterValue("MailjetUserId");
-			}
-		}
-
-		public string MailjetSecretKey {
-			get {
-				if(!_parametersProvider.ContainsParameter("MailjetSecretKey"))
-				{
-					throw new InvalidProgramException("В параметрах базы не указаны настройки подключения к серверу отправки почты Mailjet (MailjetSecretKey)");
-				}
-				return _parametersProvider.GetParameterValue("MailjetSecretKey");
-			}
-		}
-
-		#endregion
 
 		#region ITerminalNomenclatureProvider
 

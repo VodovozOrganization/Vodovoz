@@ -1296,7 +1296,6 @@
     <Compile Include="Domain\BusinessTasks\BusinessTask.cs" />
     <Compile Include="Domain\BusinessTasks\ClientTask.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
-    <Compile Include="Services\IMailjetParametersProvider.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebt.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPayment.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePayment.cs" />
