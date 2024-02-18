@@ -6,7 +6,6 @@ using Vodovoz.Services;
 namespace Vodovoz.Core.DataService
 {
 	public class BaseParametersProvider : 
-		IStandartDiscountsService, 
 		IWageParametersProvider
 	{
 		private readonly IParametersProvider _parametersProvider;
@@ -15,19 +14,6 @@ namespace Vodovoz.Core.DataService
 		{
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
-
-		#region IStandartDiscountsService
-
-		public int GetDiscountForStockBottle()
-		{
-			if(!_parametersProvider.ContainsParameter("причина_скидки_для_акции_Бутыль"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен параметр основания скидки для акции Бутыль (причина_скидки_для_акции_Бутыль).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("причина_скидки_для_акции_Бутыль"));
-		}
-
-		#endregion
 
 		#region IWageParametersProvider implementation
 
