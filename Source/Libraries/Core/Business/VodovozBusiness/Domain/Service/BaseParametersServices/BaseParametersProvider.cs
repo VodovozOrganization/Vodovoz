@@ -11,7 +11,6 @@ namespace Vodovoz.Core.DataService
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
-		ISalesReceiptsServiceSettings,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
@@ -254,48 +253,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion ISmsNotificationServiceSettings implementation
-
-		#region ISalesReceiptsServiceSettings implementation
-
-		public int MaxUnsendedCashReceiptsForWorkingService
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("MaxUnsendedCashReceiptsForWorkingService"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных кассовых чеков для рабочей службы (MaxUnsendedCashReceiptsForWorkingService).");
-				}
-				string value = _parametersProvider.GetParameterValue("MaxUnsendedCashReceiptsForWorkingService");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных кассовых чеков для рабочей службы (MaxUnsendedCashReceiptsForWorkingService)");
-				}
-
-				return result;
-			}
-		}
-		
-		public int DefaultSalesReceiptCashierId
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("default_sales_receipt_cashier_id"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение Id кассира по умолчанию для службы отправки чеков (default_sales_receipt_cashier_id).");
-				}
-				string value = _parametersProvider.GetParameterValue("default_sales_receipt_cashier_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение Id кассира по умолчанию для службы отправки чеков (default_sales_receipt_cashier_id)");
-				}
-
-				return result;
-			}
-		}
-
-		#endregion ISalesReceiptsServiceSettings implementation
 
 		#region ITerminalNomenclatureProvider
 
