@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
-using EdoService;
 using EdoService.Library;
 using Fias.Client;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +32,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
+using QS.HistoryLog;
 using QS.Navigation;
 using QS.Osrm;
 using QS.Permissions;
@@ -42,7 +42,6 @@ using QS.Project.Domain;
 using QS.Project.GtkSharp;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
-using QS.Project.Services.GtkUI;
 using QS.Project.Versioning;
 using QS.Report;
 using QS.Report.Repository;
@@ -68,7 +67,6 @@ using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Mango;
 using Vodovoz.Application.Pacs;
-using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
@@ -76,8 +74,6 @@ using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
-using Vodovoz.Core.DataService;
-using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -100,11 +96,9 @@ using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Presentation.ViewModels.PaymentType;
@@ -123,7 +117,9 @@ using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -147,10 +143,6 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
-using QS.HistoryLog;
-using Vodovoz.Settings.Counterparty;
-using Vodovoz.Settings.Database.Counterparty;
-using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -564,32 +556,6 @@ namespace Vodovoz
 					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(CounterpartyDlg)))
 						.Where(t => t.IsAssignableTo<ITdiTab>())
 						.AsSelf();
-
-					#endregion
-
-					#region ParameterProviders
-
-					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
-						.Where(t => t.Name.EndsWith("Provider")
-							&& t.GetInterfaces()
-								.Where(i => i.Name == $"I{t.Name}")
-								.FirstOrDefault() != null)
-						.As((s) => s.GetTypeInfo()
-							.GetInterfaces()
-							.Where(i => i.Name == $"I{s.Name}")
-							.First())
-						.SingleInstance();
-
-					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
-						.Where(t => t.Name.EndsWith("Settings")
-							&& t.GetInterfaces()
-								.Where(i => i.Name == $"I{t.Name}")
-								.FirstOrDefault() != null)
-						.As((s) => s.GetTypeInfo()
-							.GetInterfaces()
-							.Where(i => i.Name == $"I{s.Name}")
-							.First())
-						.SingleInstance();
 
 					#endregion
 

@@ -10,8 +10,6 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database.Common;
 using Vodovoz.Tools;
 
 namespace MonitoringArchivingWorker
@@ -28,8 +26,6 @@ namespace MonitoringArchivingWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureContainer<ContainerBuilder>(builder =>
 				{
-					builder.RegisterType<ParametersProvider>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchiveDataSettings>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<TrackRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<ArchivedTrackPointRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<ArchivedHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();

@@ -1,24 +1,19 @@
-﻿using System;
-using System.Linq;
-using Gtk;
+﻿using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
-using Vodovoz.Dialogs;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Representations;
-using Vodovoz.Filters.ViewModels;
-using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Extensions;
 using QS.Project.Services;
-using Autofac;
-using Vodovoz.Settings.Common;
+using System;
+using System.Linq;
+using Vodovoz.Dialogs;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Representations;
+using Vodovoz.TempAdapters;
+using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 
 namespace Vodovoz.JournalViewers
 {

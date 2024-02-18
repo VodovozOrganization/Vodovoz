@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using FastPaymentsAPI.HealthChecks;
+﻿using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
@@ -17,41 +14,22 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.DB;
-using QS.Project.Services;
-using QS.Services;
-using Vodovoz.Core.DataService;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using QS.Project.Core;
+using System;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
-using VodovozInfrastructure.Cryptography;
 using VodovozHealthCheck;
-using QS.Project.Core;
-using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate;
-using Vodovoz.Settings.Database.Organizations;
-using Vodovoz.Settings.Organizations;
-using Vodovoz.Settings.Database.Orders;
-using Vodovoz.Settings.Orders;
-using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.FastPayments;
+using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI
 {
@@ -142,14 +120,6 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
 			services.AddSingleton<ISelfDeliveryRepository, SelfDeliveryRepository>();
 			services.AddSingleton<ICashRepository, CashRepository>();
-
-			//providers
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddScoped<ISettingsController, SettingsController>();
-			services.AddSingleton<IOrderSettings, OrderSettings>();
-			services.AddSingleton<IFastPaymentSettings, FastPaymentSettings>();
-			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
-			services.AddScoped<IEmailSettings, EmailSettings>();
 
 			//factories
 			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();

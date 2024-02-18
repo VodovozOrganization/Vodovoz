@@ -12,13 +12,7 @@ using PayPageAPI.Models;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database.FastPayments;
-using Vodovoz.Settings.Database.Organizations;
-using Vodovoz.Settings.FastPayments;
-using Vodovoz.Settings.Organizations;
 using VodovozHealthCheck;
 
 namespace PayPageAPI
@@ -81,9 +75,6 @@ namespace PayPageAPI
 			
 			//configs and settings
 			services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<IFastPaymentSettings, FastPaymentSettings>();
-			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
 			
 			//repositories
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();

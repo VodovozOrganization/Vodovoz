@@ -15,10 +15,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Orders;
-using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 
 namespace CashReceiptPrepareWorker
@@ -84,16 +81,6 @@ namespace CashReceiptPrepareWorker
 
 			builder.RegisterType<CashReceiptFactory>()
 				.As<ICashReceiptFactory>()
-				.SingleInstance();
-
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			builder.RegisterType<OrderSettings>()
-				.As<IOrderSettings>()
-				.SingleInstance();
-
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			builder.RegisterType<ParametersProvider>()
-				.As<IParametersProvider>()
 				.SingleInstance();
 
 			builder.RegisterType<ReceiptPreparerFactory>()

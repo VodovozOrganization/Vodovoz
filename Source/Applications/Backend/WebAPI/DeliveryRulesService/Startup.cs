@@ -1,34 +1,24 @@
 ﻿using Autofac;
 using DeliveryRulesService.Cache;
+using DeliveryRulesService.HealthChecks;
 using Fias.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySqlConnector;
+using Microsoft.Extensions.Logging;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Project.DB;
-using QS.Project.Domain;
+using QS.Project.Core;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
-using DeliveryRulesService.HealthChecks;
 using Vodovoz;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.DataService;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
-using QS.Project.Core;
-using Vodovoz.Core.Data.NHibernate;
-using Microsoft.Extensions.Logging;
 
 namespace DeliveryRulesService
 {
@@ -87,7 +77,6 @@ namespace DeliveryRulesService
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DistrictCache>().AsSelf().AsImplementedInterfaces();
 			
 			builder.RegisterType<CallTaskWorker>()

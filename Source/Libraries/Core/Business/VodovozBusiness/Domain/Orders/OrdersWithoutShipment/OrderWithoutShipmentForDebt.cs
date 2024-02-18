@@ -1,18 +1,17 @@
-﻿using System;
+﻿using Autofac;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using QS.Print;
+using QS.Report;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.Print;
-using QS.Report;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using QS.HistoryLog;
-using Vodovoz.Domain.Client;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Organizations;
-using Autofac;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {

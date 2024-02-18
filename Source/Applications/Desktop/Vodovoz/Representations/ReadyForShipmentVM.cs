@@ -18,7 +18,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModel
 {
@@ -35,7 +34,7 @@ namespace Vodovoz.ViewModel
 			this.UoW = uow;
 		}
 		
-		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly ISubdivisionRepository subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 		private readonly IRouteListRepository routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 
 		public ReadyForShipmentFilter Filter {

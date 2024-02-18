@@ -1,8 +1,6 @@
 ﻿using Autofac;
 using QS.Dialog;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
@@ -13,9 +11,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Orders;
-using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
 {

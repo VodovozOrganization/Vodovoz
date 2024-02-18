@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Autofac;
+using GMap.NET;
+using QS.DomainModel.Entity;
+using QS.Osrm;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Autofac;
-using GMap.NET;
-using QS.DomainModel.Entity;
-using QS.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Logistic

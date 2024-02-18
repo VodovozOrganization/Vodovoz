@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -19,7 +18,6 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -47,12 +45,11 @@ namespace Vodovoz
 
 		public ReturnsReceptionView()
 		{
-			var baseParameters = new BaseParametersProvider(new ParametersProvider());
 			_nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			_nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
 			_carUnloadRepository = new CarUnloadRepository();
-			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+			_subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 
 			Build();
 

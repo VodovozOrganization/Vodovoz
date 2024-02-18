@@ -1,8 +1,6 @@
-﻿using Gamma.Utilities;
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
-using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
@@ -25,15 +23,13 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
 using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
 using VodOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {

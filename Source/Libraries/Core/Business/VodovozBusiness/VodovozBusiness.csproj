@@ -866,8 +866,6 @@
     <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
-    <Compile Include="Parameters\IParametersProvider.cs" />
-    <Compile Include="Parameters\ParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1242,7 +1240,6 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\ISmsNotificationRepository.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
-    <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />
     <Compile Include="Tools\PasswordGenerator.cs" />

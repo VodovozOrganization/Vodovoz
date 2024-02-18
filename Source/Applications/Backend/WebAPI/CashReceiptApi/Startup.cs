@@ -13,10 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Orders;
-using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 
 namespace CashReceiptApi
@@ -98,16 +95,6 @@ namespace CashReceiptApi
 			builder.RegisterType<FiscalizationResultSaver>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			builder.RegisterType<OrderSettings>()
-				.As<IOrderSettings>()
-				.SingleInstance();
-
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			builder.RegisterType<ParametersProvider>()
-				.As<IParametersProvider>()
-				.SingleInstance();
 
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()

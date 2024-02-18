@@ -10,17 +10,17 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
-using Vodovoz.Parameters;
+using Vodovoz.Settings;
 
 namespace Vodovoz.EntityRepositories.Subdivisions
 {
 	public class SubdivisionRepository : ISubdivisionRepository
 	{
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ISettingsController _settingsController;
 
-		public SubdivisionRepository(IParametersProvider parametersProvider)
+		public SubdivisionRepository(ISettingsController settingsController)
 		{
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		
 		/// <summary>
@@ -62,12 +62,12 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		{
 			var qcDep = "номер_отдела_ОКК";
 			
-			if(!_parametersProvider.ContainsParameter(qcDep))
+			if(!_settingsController.ContainsSetting(qcDep))
 			{
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
 			}
 
-			return uow.GetById<Subdivision>(int.Parse(_parametersProvider.GetParameterValue(qcDep)));
+			return uow.GetById<Subdivision>(int.Parse(_settingsController.GetStringValue(qcDep)));
 		}
 
 		/// <summary>

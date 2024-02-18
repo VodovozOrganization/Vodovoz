@@ -20,7 +20,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -38,7 +37,6 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
@@ -60,7 +58,6 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
-		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly INavigationManager _navigationManager;
 		private readonly IOrderSettings _orderParametersProvider;
@@ -104,7 +101,6 @@ namespace Vodovoz
 			IOrderRepository orderRepository,
 			IDiscountReasonRepository discountReasonRepository,
 			IWageParameterService wageParameterService,
-			IParametersProvider parametersProvider,
 			IOrderSettings orderParametersProvider,
 			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
 			IDeliveryRulesSettings deliveryRulesParametersProvider,
@@ -137,7 +133,6 @@ namespace Vodovoz
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_nomenclatureOnlineParametersProvider = nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));

@@ -1,4 +1,6 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -17,7 +19,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -33,34 +35,29 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Settings.Cash;
-using Vodovoz.Core.Domain.Employees;
-using Microsoft.Extensions.DependencyInjection;
-using Autofac;
-using Vodovoz.Settings.Logistics;
-using Vodovoz.Settings.Orders;
-using Vodovoz.Settings.Common;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -76,10 +73,8 @@ namespace Vodovoz.Domain.Logistic
 
 		private IUnitOfWorkFactory _uowFactory => ScopeProvider.Scope
 			.Resolve<IUnitOfWorkFactory>();
-		private IParametersProvider _parametersProvider => ScopeProvider.Scope
-			.Resolve<IParametersProvider>();
-		private BaseParametersProvider _baseParametersProvider => ScopeProvider.Scope
-			.Resolve<BaseParametersProvider>();
+		private ISubdivisionRepository _subdivisionRepository => ScopeProvider.Scope
+			.Resolve<ISubdivisionRepository>();
 		private IOrganizationRepository _organizationRepository => ScopeProvider.Scope
 			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
@@ -1203,11 +1198,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
-			var returnedBottlesNom = int.Parse(_parametersProvider.GetParameterValue("returned_bottle_nomenclature_id"));
 			var bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Id,
-				returnedBottlesNom)
+				_nomenclatureSettings.ReturnedBottleNomenclatureId)
 			.Sum(item => item.Amount);
 
 			var discrepancies = GetDiscrepancies();
@@ -2257,7 +2251,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
 				&& new PermissionRepository().HasAccessToClosingRoutelist(
-					UoW, new SubdivisionRepository(_parametersProvider), _employeeRepository, ServicesConfig.UserService)) {
+					UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}

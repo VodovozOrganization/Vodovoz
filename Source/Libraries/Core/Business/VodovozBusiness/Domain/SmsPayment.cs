@@ -1,21 +1,19 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Core.DataService;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain
 {
-    [Appellative(
+	[Appellative(
             Gender = GrammaticalGender.Masculine,
             NominativePlural = "платежи по Sms",
             Nominative = "платёж по Sms")]

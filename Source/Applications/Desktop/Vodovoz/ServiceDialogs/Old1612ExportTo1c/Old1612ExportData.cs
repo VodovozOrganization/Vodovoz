@@ -1,17 +1,16 @@
-﻿using System;
+﻿using Autofac;
+using Gamma.Utilities;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Autofac;
-using Gamma.Utilities;
-using QS.DomainModel.UoW;
 using Vodovoz.Attributes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Old1612ExportTo1c.Catalogs;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Old1612ExportTo1c

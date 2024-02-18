@@ -5,15 +5,11 @@ using QS.Project.Services;
 using QS.Report.ViewModels;
 using System;
 using Vodovoz;
-using Vodovoz.Core.DataService;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -1280,10 +1276,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnCashBoolReportActivated(object sender, EventArgs e)
 	{
+		ISubdivisionRepository subdivisionRepository = _autofacScope.Resolve<ISubdivisionRepository>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-			() => new QSReport.ReportViewDlg(new CashBookReport(
-				new SubdivisionRepository(new ParametersProvider()), ServicesConfig.CommonServices)));
+			() => new QSReport.ReportViewDlg(new CashBookReport(subdivisionRepository, ServicesConfig.CommonServices)));
 	}
 
 	/// <summary>

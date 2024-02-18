@@ -2,10 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Sms.External.Interface;
 using Sms.External.SmsRu;
-using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.SmsInformerWorker.Options;
 using Vodovoz.SmsInformerWorker.Services;
 

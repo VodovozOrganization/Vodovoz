@@ -2,13 +2,17 @@
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using Microsoft.Extensions.Logging;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
+using QS.Services;
+using QS.Utilities.Debug;
 using QS.Utilities.Extensions;
-using QS.Validation;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -18,6 +22,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -26,45 +31,38 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using QS.Utilities.Debug;
-using Vodovoz.Extensions;
-using QS.Navigation;
-using Vodovoz.ViewModels.Employees;
-using Microsoft.Extensions.Logging;
-using Vodovoz.Core.Domain.Employees;
-using Vodovoz.ViewModels.Logistic;
-using QS.Services;
-using QS.Dialog;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Settings.Orders;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Settings.Logistics;
-using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz
 {
@@ -75,7 +73,6 @@ namespace Vodovoz
 
 		private ILogger<RouteListClosingDlg> _logger;
 
-		private IParametersProvider _parametersProvider;
 		private IOrderSettings _orderParametersProvider;
 		private IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private INomenclatureSettings _nomenclatureSettings;
@@ -170,7 +167,6 @@ namespace Vodovoz
 			_discountReasonRepository = _lifetimeScope.Resolve<IDiscountReasonRepository>();
 			_nomenclatureOnlineParametersProvider = _lifetimeScope.Resolve<INomenclatureOnlineSettings>();
 
-			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
 			_orderParametersProvider = _lifetimeScope.Resolve<IOrderSettings>();
 			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
@@ -734,7 +730,6 @@ namespace Vodovoz
 				_orderRepository,
 				_discountReasonRepository,
 				_wageParameterService,
-				_parametersProvider,
 				_orderParametersProvider,
 				_nomenclatureOnlineParametersProvider,
 				_deliveryRulesParametersProvider,
@@ -1458,11 +1453,10 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = _routeListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var returnedBottlesNom = int.Parse(_parametersProvider.GetParameterValue("returned_bottle_nomenclature_id"));
 			bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
-				returnedBottlesNom)
+				_nomenclatureSettings.ReturnedBottleNomenclatureId)
 			.Sum(item => item.Amount);
 
 			var defectiveNomenclaturesIds = _nomenclatureRepository

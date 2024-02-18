@@ -19,7 +19,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Client

@@ -9,9 +9,7 @@ using QS.ChangePassword.Views;
 using QS.Configuration;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.ErrorReporting;
-using QS.Project.DB;
 using QS.Project.DB.Passwords;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
@@ -32,13 +30,10 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Security.Principal;
-using System.Text.Json;
 using Vodovoz.Configuration;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database.Logistics;
@@ -131,11 +126,8 @@ namespace Vodovoz
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
 			var settingsController = AppDIContainer.Resolve<ISettingsController>();
-			var parametersProvider = new ParametersProvider();
-			parametersProvider.RefreshParameters();
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
-			var baseParameters = new BaseParametersProvider(parametersProvider);
 
 			var errorSendSettings = AppDIContainer.Resolve<IErrorSendSettings>();
 			bool canAutomaticallyErrorSend = LoginDialog.BaseName == errorSendSettings.DefaultBaseForErrorSend;

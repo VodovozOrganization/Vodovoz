@@ -12,7 +12,6 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
@@ -21,7 +20,6 @@ namespace Vodovoz
 	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
     {
         bool exportInProgress;
-        private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
         public ExportTo1cDialog(IUnitOfWorkFactory unitOfWorkFactory)
         {

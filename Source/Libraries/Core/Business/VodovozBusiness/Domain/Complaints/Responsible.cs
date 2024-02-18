@@ -4,7 +4,6 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Complaints;
 
 namespace Vodovoz.Domain.Client

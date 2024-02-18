@@ -19,16 +19,10 @@ using TaxcomEdoApi.HealthChecks;
 using TaxcomEdoApi.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Database.Organizations;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.Orders;
 using VodovozHealthCheck;
 
@@ -117,9 +111,6 @@ namespace TaxcomEdoApi
 			services.AddSingleton<ParticipantDocFlowConverter>();
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
 			services.AddSingleton<UpdProductConverter>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
-			services.AddSingleton<IDeliveryScheduleSettings, DeliveryScheduleSettings>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
 			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));

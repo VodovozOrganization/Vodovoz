@@ -18,7 +18,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
@@ -35,6 +34,7 @@ namespace Vodovoz.ViewModels
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IDepositRepository _depositRepository;
 		private readonly IMoneyRepository _moneyRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private ILifetimeScope _lifetimeScope;
 
 		private Employee _currentEmployee;
@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionSettings subdivisionParametersProvider,
+			ISubdivisionRepository subdivisionRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
@@ -68,6 +69,7 @@ namespace Vodovoz.ViewModels
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			_moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
@@ -95,7 +97,7 @@ namespace Vodovoz.ViewModels
 				this,
 				_lifetimeScope,
 				commonServices,
-				new SubdivisionRepository(new ParametersProvider()),
+				_subdivisionRepository,
 				employeeJournalFactory,
 				subdivisionParametersProvider);
 

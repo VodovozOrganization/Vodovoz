@@ -1,35 +1,30 @@
-﻿using System;
+﻿using Autofac;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Services;
-using QS.Validation;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using QSReport;
+using QSWidgetLib;
+using System;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
-using QSWidgetLib;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Models;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Core.Domain.Employees;
-using Autofac;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
-using Vodovoz.Settings.Organizations;
-using Vodovoz.Settings.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
 using Vodovoz.Settings.Contacts;
+using Vodovoz.Settings.Orders;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.Dialogs
 {
@@ -47,7 +42,6 @@ namespace Vodovoz.Dialogs
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
 		private readonly ICommonServices _commonServices;
-		private IParametersProvider _parametersProvider;
 		private IContactSettings _contactsSettings;
 
 		public CallTaskDlg()

@@ -4,17 +4,14 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
-using QS.Validation;
 using System;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
@@ -30,7 +27,6 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionSettings _subdivisionParametersProvider = ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;

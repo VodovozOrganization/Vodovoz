@@ -23,7 +23,6 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports;
 using Vodovoz.Settings.Cash;

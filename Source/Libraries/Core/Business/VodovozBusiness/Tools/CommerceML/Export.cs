@@ -1,15 +1,15 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using RestSharp;
+using RestSharp.Authenticators;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using QS.DomainModel.UoW;
-using RestSharp;
-using RestSharp.Authenticators;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings;
 using Vodovoz.Tools.CommerceML.Nodes;
 
 namespace Vodovoz.Tools.CommerceML
@@ -25,7 +25,7 @@ namespace Vodovoz.Tools.CommerceML
 	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IOrganizationRepository _organizationRepository;
-        private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private readonly ISettingsController _settingsController;
 
         #region Глобальные настройки экспорта
         static public XmlWriterSettings WriterSettings = new XmlWriterSettings
@@ -88,10 +88,11 @@ namespace Vodovoz.Tools.CommerceML
 
 #endregion
 
-		public Export(IUnitOfWork uow, IOrganizationRepository organizationRepository)
+		public Export(IUnitOfWork uow, IOrganizationRepository organizationRepository, ISettingsController settingsController)
 		{
 			UOW = uow;
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
 		public void RunToDirectory(string dir)
@@ -129,19 +130,19 @@ namespace Vodovoz.Tools.CommerceML
 		{
 			Errors.Clear();
             TotalTasks = 12;
-			ExportMode mode = _parametersProvider.ContainsParameter(OnlineStoreExportMode) 
-				? (ExportMode)Enum.Parse(typeof(ExportMode), _parametersProvider.GetParameterValue(OnlineStoreExportMode))
+			ExportMode mode = _settingsController.ContainsSetting(OnlineStoreExportMode) 
+				? (ExportMode)Enum.Parse(typeof(ExportMode), _settingsController.GetStringValue(OnlineStoreExportMode))
 				: ExportMode.Umi;
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var configuredUrl = _parametersProvider.GetParameterValue(OnlineStoreUrlParameterName);
+			var configuredUrl = _settingsController.GetStringValue(OnlineStoreUrlParameterName);
 			var parsedUrl = new Uri(configuredUrl);
 			var path = parsedUrl.LocalPath; 
 			var client = new RestClient(configuredUrl.Replace(path, ""));
 			client.CookieContainer = new System.Net.CookieContainer();
-			client.Authenticator = new HttpBasicAuthenticator(_parametersProvider.GetParameterValue(OnlineStoreLoginParameterName),
-				_parametersProvider.GetParameterValue(OnlineStorePasswordParameterName));
+			client.Authenticator = new HttpBasicAuthenticator(_settingsController.GetStringValue(OnlineStoreLoginParameterName),
+				_settingsController.GetStringValue(OnlineStorePasswordParameterName));
 			var request = new RestRequest(path + "?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);

@@ -22,7 +22,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
@@ -37,7 +37,7 @@ namespace TaxcomEdoApi.Services
 		private readonly ILogger<DocumentFlowService> _logger;
 		private readonly TaxcomApi _taxcomApi;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ISettingsController _settingController;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationSettings _organizationParametersProvider;
@@ -61,7 +61,7 @@ namespace TaxcomEdoApi.Services
 			TaxcomApi taxcomApi,
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IParametersProvider parametersProvider,
+			ISettingsController settingController,
 			IOrderRepository orderRepository,
 			IGenericRepository<EdoContainer> edoContainersRepository,
 			IOrganizationRepository organizationRepository,
@@ -77,7 +77,7 @@ namespace TaxcomEdoApi.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_settingController = settingController ?? throw new ArgumentNullException(nameof(settingController));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
@@ -95,8 +95,8 @@ namespace TaxcomEdoApi.Services
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			_logger.LogInformation("Процесс электронного документооборота запущен");
-			_lastEventIngoingDocumentsTimeStamp = _parametersProvider.GetValue<long>("last_event_ingoing_documents_timestamp");
-			_lastEventOutgoingDocumentsTimeStamp = _parametersProvider.GetValue<long>("last_event_outgoing_documents_timestamp");
+			_lastEventIngoingDocumentsTimeStamp = _settingController.GetValue<long>("last_event_ingoing_documents_timestamp");
+			_lastEventOutgoingDocumentsTimeStamp = _settingController.GetValue<long>("last_event_outgoing_documents_timestamp");
 			_cashlessOrganizationId = _organizationParametersProvider.GetCashlessOrganisationId;
 			_closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
 			await StartWorkingAsync(stoppingToken);
@@ -577,7 +577,7 @@ namespace TaxcomEdoApi.Services
 			}
 			finally
 			{
-				_parametersProvider.CreateOrUpdateParameter(
+				_settingController.CreateOrUpdateSetting(
 					"last_event_outgoing_documents_timestamp", _lastEventOutgoingDocumentsTimeStamp.ToString());
 			}
 
@@ -641,7 +641,7 @@ namespace TaxcomEdoApi.Services
 			}
 			finally
 			{
-				_parametersProvider.CreateOrUpdateParameter(
+				_settingController.CreateOrUpdateSetting(
 					"last_event_ingoing_documents_timestamp", _lastEventIngoingDocumentsTimeStamp.ToString());
 			}
 

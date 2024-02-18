@@ -1,11 +1,9 @@
 ﻿using Autofac;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -14,7 +12,6 @@ using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
@@ -62,10 +59,11 @@ namespace Vodovoz.SidePanel
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
+					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 					return new CashInfoPanelView(
 						ServicesConfig.UnitOfWorkFactory,
 						new CashRepository(),
-						new SubdivisionRepository(new ParametersProvider()),
+						subdivisionRepository,
 						new UserRepository());
 				case PanelViewType.EdoLightsMatrixPanelView:
 					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();

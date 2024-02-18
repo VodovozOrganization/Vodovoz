@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -14,16 +10,17 @@ using QS.Print;
 using QS.Project.Services;
 using QS.Tdi;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Dialogs.Logistic

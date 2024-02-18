@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
-using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -11,7 +9,6 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.Services;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Logistic;

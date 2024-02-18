@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings;
 using Vodovoz.Tools.CommerceML;
 
 namespace Vodovoz.Dialogs.OnlineStore
 {
 	public partial class ExportToSiteDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private readonly ISettingsController _settingsController = ScopeProvider.Scope.Resolve<ISettingsController>();
 		
 		public ExportToSiteDlg()
 		{
@@ -28,24 +27,24 @@ namespace Vodovoz.Dialogs.OnlineStore
 			TabName = "Экспорт интернет магазин";
 			comboExportMode.ItemsEnum = typeof(ExportMode);
 			
-			if(_parametersProvider.ContainsParameter(Export.OnlineStoreUrlParameterName))
+			if(_settingsController.ContainsSetting(Export.OnlineStoreUrlParameterName))
 			{
-				entrySitePath.Text = _parametersProvider.GetParameterValue(Export.OnlineStoreUrlParameterName);
+				entrySitePath.Text = _settingsController.GetStringValue(Export.OnlineStoreUrlParameterName);
 			}
 
-			if(_parametersProvider.ContainsParameter(Export.OnlineStoreLoginParameterName))
+			if(_settingsController.ContainsSetting(Export.OnlineStoreLoginParameterName))
 			{
-				entryUser.Text = _parametersProvider.GetParameterValue(Export.OnlineStoreLoginParameterName);
+				entryUser.Text = _settingsController.GetStringValue(Export.OnlineStoreLoginParameterName);
 			}
 
-			if(_parametersProvider.ContainsParameter(Export.OnlineStorePasswordParameterName))
+			if(_settingsController.ContainsSetting(Export.OnlineStorePasswordParameterName))
 			{
-				entryPassword.Text = _parametersProvider.GetParameterValue(Export.OnlineStorePasswordParameterName);
+				entryPassword.Text = _settingsController.GetStringValue(Export.OnlineStorePasswordParameterName);
 			}
 
-			if(_parametersProvider.ContainsParameter(Export.OnlineStoreExportMode))
+			if(_settingsController.ContainsSetting(Export.OnlineStoreExportMode))
 			{
-				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), _parametersProvider.GetParameterValue(Export.OnlineStoreExportMode));
+				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), _settingsController.GetStringValue(Export.OnlineStoreExportMode));
 			}
 		}
 
@@ -73,7 +72,8 @@ namespace Vodovoz.Dialogs.OnlineStore
 				fileChooser.Destroy();
 
 				var organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
-				var export = new Export(uow, organizationRepository);
+				var settingsController = ScopeProvider.Scope.Resolve<ISettingsController>();
+				var export = new Export(uow, organizationRepository, settingsController);
 				export.ProgressUpdated += Export_ProgressUpdated;
 
 				export.RunToDirectory(directory);
@@ -89,29 +89,30 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		protected void OnEntrySitePathFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
+			_settingsController.CreateOrUpdateSetting(Export.OnlineStoreUrlParameterName, entrySitePath.Text);
 		}
 
 		protected void OnEntryUserFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStoreLoginParameterName, entryUser.Text);
+			_settingsController.CreateOrUpdateSetting(Export.OnlineStoreLoginParameterName, entryUser.Text);
 		}
 
 		protected void OnEntryPasswordFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStorePasswordParameterName, entryPassword.Text);
+			_settingsController.CreateOrUpdateSetting(Export.OnlineStorePasswordParameterName, entryPassword.Text);
 		}
 
 		protected void OnComboExportModeChangedByUser(object sender, EventArgs e)
 		{
-			_parametersProvider.CreateOrUpdateParameter(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
+			_settingsController.CreateOrUpdateSetting(Export.OnlineStoreExportMode,  comboExportMode.SelectedItem.ToString());
 		}
 
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)
 		{
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				var organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
-				var export = new Export(uow, organizationRepository);
+				var settingsController = ScopeProvider.Scope.Resolve<ISettingsController>();
+				var export = new Export(uow, organizationRepository, settingsController);
 				export.ProgressUpdated += Export_ProgressUpdated;
 
 				export.RunToSite();
