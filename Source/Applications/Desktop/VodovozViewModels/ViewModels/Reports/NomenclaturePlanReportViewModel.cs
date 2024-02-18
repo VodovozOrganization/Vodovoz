@@ -25,6 +25,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -39,6 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INomenclaturePlanSettings _nomenclaturePlanSettings;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 
@@ -78,9 +80,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			return result;
 		}
 
-		public NomenclaturePlanReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
-			INavigationManager navigation, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclaturePlanSettings nomenclaturePlanSettings, IFileDialogService fileDialogService) : base(unitOfWorkFactory, interactiveService,
+		public NomenclaturePlanReportViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigation,
+			ICommonServices commonServices,
+			IProductGroupJournalFactory productGroupJournalFactory,
+			INomenclaturePlanSettings nomenclaturePlanSettings,
+			INomenclatureRepository nomenclatureRepository,
+			IFileDialogService fileDialogService) : base(unitOfWorkFactory, interactiveService,
 			navigation)
 		{
 			Title = "Отчёт по мотивации КЦ";
@@ -88,6 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclaturePlanSettings = nomenclaturePlanSettings ??
 												  throw new ArgumentNullException(nameof(nomenclaturePlanSettings));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
@@ -678,7 +687,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				TabParent.OpenTab(() => new NomenclaturesPlanJournalViewModel(
 					new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
 					_unitOfWorkFactory,
-					_commonServices)
+					_commonServices,
+					_nomenclatureRepository)
 				);
 			},
 				() => true

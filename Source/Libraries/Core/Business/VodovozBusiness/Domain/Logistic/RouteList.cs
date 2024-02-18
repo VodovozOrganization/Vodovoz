@@ -60,6 +60,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -79,8 +80,6 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IParametersProvider>();
 		private BaseParametersProvider _baseParametersProvider => ScopeProvider.Scope
 			.Resolve<BaseParametersProvider>();
-		private INomenclatureParametersProvider _nomenclatureParametersProvider => ScopeProvider.Scope
-			.Resolve<INomenclatureParametersProvider>();
 		private IOrganizationRepository _organizationRepository => ScopeProvider.Scope
 			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
@@ -109,6 +108,8 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IGlobalSettings>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
 			.Resolve<INomenclatureSettings>();
+		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
+			.Resolve<INomenclatureRepository>();
 
 
 		private CarVersion _carVersion;
@@ -920,7 +921,7 @@ namespace Vodovoz.Domain.Logistic
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}
 
-			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 
 			ObservableAddresses.Remove(address);
@@ -1001,9 +1002,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var shipmentCategories = Nomenclature.GetCategoriesForShipment().ToArray();
 
-			var defaultBottleNomenclatureId = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(UoW).Id;
-
-			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategories, new[] { defaultBottleNomenclatureId })
+			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategories, new[] { _nomenclatureSettings.DefaultBottleNomenclatureId })
 				.Select(x => new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = x.Amount });
 
 			AddDiscrepancy(allUnloaded, result, (discrepancy, amount) => discrepancy.ToWarehouse = amount);
@@ -1144,7 +1143,7 @@ namespace Vodovoz.Domain.Logistic
 			#region Свободные остатки
 
 			var freeBalance = ObservableDeliveryFreeBalanceOperations
-				.Where(o => o.Nomenclature.Id != _nomenclatureParametersProvider.GetDefaultBottleNomenclature(UoW).Id)
+				.Where(o => o.Nomenclature.Id != _nomenclatureSettings.DefaultBottleNomenclatureId)
 				.GroupBy(o => o.Nomenclature)
 				.Select(list => new GoodsInRouteListResult
 				{

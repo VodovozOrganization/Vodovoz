@@ -4,14 +4,15 @@ using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace RoboatsService.OrderValidation
 {
 	public sealed class OnlyWaterOrderValidator : OrderValidatorBase
 	{
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureParametersProvider;
 
-		public OnlyWaterOrderValidator(INomenclatureParametersProvider nomenclatureParametersProvider)
+		public OnlyWaterOrderValidator(INomenclatureSettings nomenclatureParametersProvider)
 		{
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 		}

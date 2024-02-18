@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Controllers
 {
@@ -26,7 +27,7 @@ namespace Vodovoz.Controllers
 		public RouteListProfitabilityController(
 			ILogger<RouteListProfitabilityController> logger,
 			IRouteListProfitabilityFactory routeListProfitabilityFactory,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureParametersProvider,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
 			IRouteListProfitabilityRepository routeListProfitabilityRepository,
 			IRouteListRepository routeListRepository)
@@ -41,7 +42,7 @@ namespace Vodovoz.Controllers
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_paidDeliveriesNomenclaturesIds =
 				(nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider)))
-				.PaidDeliveriesNomenclaturesIds();
+				.PaidDeliveriesNomenclaturesIds;
 		}
 
 		public void CalculateNewRouteListProfitability(IUnitOfWork uow, RouteList routeList)

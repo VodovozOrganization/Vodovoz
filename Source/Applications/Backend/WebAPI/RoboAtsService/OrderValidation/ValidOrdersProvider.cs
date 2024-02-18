@@ -1,6 +1,5 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
 using QS.Utilities;
 using RoboatsService.Monitoring;
 using System;
@@ -9,7 +8,7 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.OrderValidation
@@ -17,14 +16,14 @@ namespace RoboatsService.OrderValidation
 	public class ValidOrdersProvider
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureParametersProvider;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallBatchRegistrator _roboatsCallRegistrator;
 
 		public ValidOrdersProvider(
 			IUnitOfWorkFactory uowFactory,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureParametersProvider,
 			IRoboatsRepository roboatsRepository,
 			IRoboatsSettings roboatsSettings,
 			RoboatsCallBatchRegistrator roboatsCallRegistrator)

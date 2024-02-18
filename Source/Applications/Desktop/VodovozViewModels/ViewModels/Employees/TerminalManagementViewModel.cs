@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private string _title;
 		private int _terminalId;
 		private DriverAttachedTerminalDocumentBase _entity;
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ICommonServices commonServices,
 			IUnitOfWork uow,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			INomenclatureSettings nomenclatureSettings)
+			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			_driver = driver ?? throw new ArgumentNullException(nameof(driver));

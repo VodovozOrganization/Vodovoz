@@ -27,12 +27,14 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using QS.Navigation;
 using QS.Deletion;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
 	{
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderForRouteListJournalViewModel(
@@ -41,12 +43,14 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			INomenclatureRepository nomenclatureRepository,
 			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			Action<OrderJournalFilterViewModel> filterConfig = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
@@ -138,8 +142,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			var sanitizationNomenclatureIds = 
-				new NomenclatureParametersProvider(new ParametersProvider()).GetSanitisationNomenclature(uow);
+			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 

@@ -18,6 +18,7 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 
@@ -38,7 +39,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public OrderService(
 			ILogger<OrderService> logger,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureParametersProvider,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
 			IOrderDailyNumberController orderDailyNumberController,

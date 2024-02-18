@@ -2,16 +2,16 @@
 using System;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Models.Orders
 {
 	public class OrderCopyModel
 	{
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureParametersProvider;
 		private readonly IFlyerRepository _flyerRepository;
 
-		public OrderCopyModel(INomenclatureParametersProvider nomenclatureParametersProvider, IFlyerRepository flyerRepository)
+		public OrderCopyModel(INomenclatureSettings nomenclatureParametersProvider, IFlyerRepository flyerRepository)
 		{
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));

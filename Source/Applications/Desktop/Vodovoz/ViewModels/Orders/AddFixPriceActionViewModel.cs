@@ -8,7 +8,8 @@ using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -23,17 +24,23 @@ namespace Vodovoz.ViewModels.Orders
 		private bool _isForZeroDebt;
 		private DialogViewModelBase _container;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 
 		public AddFixPriceActionViewModel(
 			ILifetimeScope lifetimeScope,
 			IUnitOfWork uow,
 			PromotionalSet promotionalSet,
+			INomenclatureSettings nomenclatureSettings,
+			INomenclatureRepository nomenclatureRepository,
 			ICommonServices commonServices)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			CreateCommands();
 			PromotionalSet = promotionalSet;
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			CommonServices = commonServices;
 			UoW = uow;
 		}
@@ -115,8 +122,7 @@ namespace Vodovoz.ViewModels.Orders
 						return;
 					}
 
-					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					var waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureParametersProvider);
+					var waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, _nomenclatureSettings, _nomenclatureRepository);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
 
 					foreach(var fixedPrice in fixedPrices)

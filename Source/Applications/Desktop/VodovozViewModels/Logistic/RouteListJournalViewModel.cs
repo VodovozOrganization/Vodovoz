@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IStockRepository _stockRepository;
 		private readonly IReportPrinter _reportPrinter;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly IUserSettingsService _userSettings;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
-			INomenclatureSettings nomenclatureSettings,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,

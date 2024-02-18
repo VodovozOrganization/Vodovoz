@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
-			INomenclatureSettings nomenclatureSettings,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,

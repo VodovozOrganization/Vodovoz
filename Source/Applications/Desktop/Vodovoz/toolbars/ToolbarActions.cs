@@ -567,14 +567,14 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		INomenclatureRepository nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		var nomenclatureRepository = _autofacScope.Resolve<INomenclatureRepository>();
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 
 		tdiMain.OpenTab(
 			"ExportImportNomenclatureCatalog",
 			() => new ExportImportNomenclatureCatalogViewModel(
 				nomenclatureRepository,
-				ServicesConfig.UnitOfWorkFactory,
+				uowFactory,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
 			)

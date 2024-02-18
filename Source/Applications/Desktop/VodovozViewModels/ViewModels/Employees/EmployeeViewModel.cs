@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private ILifetimeScope _lifetimeScope;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
@@ -129,7 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			INavigationManager navigationManager,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope,
-			INomenclatureSettings nomenclatureSettings,
+			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)

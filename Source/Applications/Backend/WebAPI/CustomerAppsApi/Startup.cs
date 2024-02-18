@@ -21,7 +21,6 @@ using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
@@ -29,8 +28,6 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Roboats;
@@ -87,8 +84,6 @@ namespace CustomerAppsApi
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IEmailRepository, EmailRepository>()
 				.AddSingleton<ISettingsController, SettingsController>()
-				.AddSingleton<IParametersProvider, ParametersProvider>()
-				.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>()
 				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
 				.AddSingleton<IRoboatsRepository, RoboatsRepository>()
 				.AddSingleton<IBottlesRepository, BottlesRepository>()

@@ -60,7 +60,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 			testRLItem.Order = order;
 			testRLItem.Order.UoW = uow;
 			testRLItem.Order.DeliveryDate = DateTime.Now;
-			var standartNom = Substitute.For<INomenclatureSettings>();
+			var standartNom = Substitute.For<Vodovoz.Settings.Nomenclature.INomenclatureSettings>();
 			standartNom.ForfeitId.Returns(33);
 
 			// act

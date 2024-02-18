@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
@@ -40,7 +41,8 @@ namespace Vodovoz.Domain.Logistic
 		private AddressTransferType? _addressTransferType;
 		private RouteListItem _transferredTo;
 
-
+		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
+			.Resolve<INomenclatureRepository>();
 		private IDeliveryRulesSettings _deliveryRulesParametersProvider => ScopeProvider.Scope
 			.Resolve<IDeliveryRulesSettings>();
 		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
@@ -862,7 +864,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
 			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), new NomenclatureParametersProvider(new ParametersProvider()));
+				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), _nomenclatureRepository);
 
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}

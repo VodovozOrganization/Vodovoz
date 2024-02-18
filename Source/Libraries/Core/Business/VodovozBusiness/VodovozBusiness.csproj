@@ -867,7 +867,6 @@
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
-    <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
@@ -982,7 +981,6 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
-    <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IUserSettingsService.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />

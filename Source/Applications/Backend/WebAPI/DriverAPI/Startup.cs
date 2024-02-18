@@ -283,12 +283,6 @@ namespace DriverAPI
 			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
 			services.AddScoped<ICarRepository, CarRepository>();
 
-			// Провайдеры параметров
-			services.AddScoped<IParametersProvider, ParametersProvider>();
-			services.AddScoped<IOrderSettings, OrderSettings>();
-			services.AddScoped<IDriverApiSettings, DriverApiSettings>();
-			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-
 			services.AddDriverApiLibrary();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

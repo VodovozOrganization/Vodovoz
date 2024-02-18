@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -28,8 +30,9 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		string GetReportName()
 		{
-			var orderItemsQty = Order.OrderItems.Count(i => i.Nomenclature.IsFromOnlineShopGroup(
-				new NomenclatureParametersProvider(new ParametersProvider()).GetIdentifierOfOnlineShopGroup()));
+			var nomencltureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			var orderItemsQty = Order.OrderItems
+				.Count(i => i.Nomenclature.IsFromOnlineShopGroup(nomencltureSettings.IdentifierOfOnlineShopGroup));
 			
 			return orderItemsQty <= 4 ? "Documents.AssemblyList" : "Documents.SeparateAssemblyList";
 		}

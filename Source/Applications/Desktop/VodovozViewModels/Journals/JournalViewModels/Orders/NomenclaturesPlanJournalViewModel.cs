@@ -18,10 +18,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
     public class NomenclaturesPlanJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclaturePlanViewModel, NomenclaturePlanJournalNode, NomenclaturePlanFilterViewModel>
     {
-        public NomenclaturesPlanJournalViewModel(
+		private readonly INomenclatureRepository _nomenclatureRepository;
+
+		public NomenclaturesPlanJournalViewModel(
 	        NomenclaturePlanFilterViewModel filterViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        ICommonServices commonServices,
+			INomenclatureRepository nomenclatureRepository,
 			Action<NomenclaturePlanFilterViewModel> filterConfig = null)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
@@ -32,7 +35,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			{
 				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
 			}
-        }
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+		}
 
         protected override void CreateNodeActions()
         {
@@ -102,6 +106,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	            EntityUoWBuilder.ForOpen(node.Id),
 	            UnitOfWorkFactory,
 	            commonServices,
-	            new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())));
+				_nomenclatureRepository);
     }
 }

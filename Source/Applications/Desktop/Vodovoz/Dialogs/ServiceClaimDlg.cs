@@ -3,10 +3,8 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using QSProjectsLib;
@@ -21,7 +19,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -39,8 +36,7 @@ namespace Vodovoz
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();

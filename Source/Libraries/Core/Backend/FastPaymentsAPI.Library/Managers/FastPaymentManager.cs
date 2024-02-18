@@ -17,7 +17,7 @@ namespace FastPaymentsAPI.Library.Managers
 	{
 		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly IOrderSettings _orderParametersProvider;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly ICashRepository _cashRepository;
@@ -25,7 +25,7 @@ namespace FastPaymentsAPI.Library.Managers
 		public FastPaymentManager(
 			IFastPaymentSettings fastPaymentParametersProvider,
 			IOrderSettings orderParametersProvider,
-			INomenclatureSettings nomenclatureSettings,
+			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository)

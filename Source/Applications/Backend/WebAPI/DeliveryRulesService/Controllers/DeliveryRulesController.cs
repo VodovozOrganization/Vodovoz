@@ -1,4 +1,5 @@
 ﻿using DeliveryRulesService.Cache;
+using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -8,16 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using DeliveryRulesService.Constants;
-using Fias.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Models;
-using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 
 namespace DeliveryRulesService.Controllers
@@ -30,23 +27,17 @@ namespace DeliveryRulesService.Controllers
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IFiasApiClientFactory _fiasApiClientFactory;
-		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCache _districtCache;
 		private readonly DeliverySchedule _fastDeliverySchedule;
-		private readonly CancellationTokenSource _cancellationTokenSource;
 
 		public DeliveryRulesController(
 			ILogger<DeliveryRulesController> logger,
 			IUnitOfWorkFactory uowFactory,
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
-			IFiasApiClientFactory fiasApiClientFactory,
 			IDeliveryRulesSettings deliveryRulesParametersProvider,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCache districtCache)
 		{
@@ -54,17 +45,11 @@ namespace DeliveryRulesService.Controllers
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_fiasApiClientFactory = fiasApiClientFactory ?? throw new ArgumentNullException(nameof(fiasApiClientFactory));
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
-			_nomenclatureParametersProvider =
-				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
-			_cancellationTokenSource = new CancellationTokenSource();
-
-			_fiasApiClient = _fiasApiClientFactory.CreateClient();
 
 			using(var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{
@@ -288,7 +273,7 @@ namespace DeliveryRulesService.Controllers
 						ScheduleRestriction = _fastDeliverySchedule.Name
 					});
 					
-					var fastDeliveryNomenclature = _nomenclatureParametersProvider.GetFastDeliveryNomenclature(uow);
+					var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
 					deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
 				}
 			}

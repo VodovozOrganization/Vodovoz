@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IInteractiveService _interactiveService;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IUserService _userService;
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigation,
 			ILifetimeScope lifetimeScope,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
-			INomenclatureSettings nomenclatureSettings,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IRouteListRepository routeListRepository,
 			IRouteListService routeListService,
 			IUserService userService,

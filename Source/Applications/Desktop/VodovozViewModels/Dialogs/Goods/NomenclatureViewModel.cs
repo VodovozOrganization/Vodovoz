@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
 			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
-			INomenclatureSettings nomenclatureSettings,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{

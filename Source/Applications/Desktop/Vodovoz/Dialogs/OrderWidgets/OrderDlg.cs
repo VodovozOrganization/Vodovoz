@@ -158,11 +158,8 @@ namespace Vodovoz
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
-		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
-		private static readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
-
-		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 
 		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
 
@@ -220,7 +217,7 @@ namespace Vodovoz
 			= new RentPackagesJournalsViewModelsFactory(ServicesConfig.UnitOfWorkFactory, Startup.MainWin.NavigationManager);
 
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
-			= new NonSerialEquipmentsForRentJournalViewModelFactory(ServicesConfig.UnitOfWorkFactory);
+			= ScopeProvider.Scope.Resolve<INonSerialEquipmentsForRentJournalViewModelFactory>();
 
 		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
 		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
@@ -287,18 +284,6 @@ namespace Vodovoz
 			&& _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
-		public virtual INomenclatureRepository NomenclatureRepository
-		{
-			get
-			{
-				if(nomenclatureRepository == null)
-				{
-					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
-				}
-
-				return nomenclatureRepository;
-			}
-		}
 
 		private DriverAPIHelper _driverApiHelper;
 
@@ -502,8 +487,7 @@ namespace Vodovoz
 
 		public void CopyOrderFrom(int orderId)
 		{
-			var nomenclatureParameterProvider = new NomenclatureParametersProvider(_parametersProvider);
-			var orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, _flyerRepository);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
 				.CopyStockBottle()
@@ -547,8 +531,7 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int orderId)
 		{
-			var nomenclatureParameterProvider = new NomenclatureParametersProvider(_parametersProvider);
-			var orderCopyModel = new OrderCopyModel(nomenclatureParameterProvider, _flyerRepository);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields(
 					x => x.Client,
@@ -578,9 +561,9 @@ namespace Vodovoz
 		{
 			SetPermissions();
 			
-			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
-			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
-			_advancedPaymentNomenclatureId = _nomenclatureParametersProvider.AdvancedPaymentNomenclatureId;
+			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
+			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
@@ -605,7 +588,7 @@ namespace Vodovoz
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
-			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -751,7 +734,7 @@ namespace Vodovoz
 
 			if(Entity.OrderStatus == OrderStatus.Closed)
 			{
-				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, NomenclatureRepository, Entity)
+				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, _nomenclatureRepository, Entity)
 					.ToString();
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
@@ -4665,7 +4648,7 @@ namespace Vodovoz
 		private bool NeedToCreateOrderForDailyRentEquipmentReturn => 
 			_justCreated &&
 			Entity.ObservableOrderItems.Any(orderItem =>
-				orderItem.Nomenclature.Id == _nomenclatureParametersProvider.DailyCoolerRentNomenclatureId);
+				orderItem.Nomenclature.Id == _nomenclatureSettings.DailyCoolerRentNomenclatureId);
 
 		private void OnSlaveOrderClosed(object sender, EventArgs e)
 		{
@@ -4774,7 +4757,7 @@ namespace Vodovoz
 					.Distinct()
 					.ToArray();
 
-				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
+				var anyNomenclature = _nomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, paidRentPackage.EquipmentKind, existingItems);
 				AddPaidRent(rentType, paidRentPackage, anyNomenclature);
 			}
 			else
@@ -4865,7 +4848,7 @@ namespace Vodovoz
 					.Distinct()
 					.ToArray();
 
-				var anyNomenclature = NomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
+				var anyNomenclature = _nomenclatureRepository.GetAvailableNonSerialEquipmentForRent(UoW, freeRentPackage.EquipmentKind, existingItems);
 				AddFreeRent(freeRentPackage, anyNomenclature);
 			}
 			else

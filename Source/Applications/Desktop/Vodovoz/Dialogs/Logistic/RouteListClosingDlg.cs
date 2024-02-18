@@ -78,7 +78,7 @@ namespace Vodovoz
 		private IParametersProvider _parametersProvider;
 		private IOrderSettings _orderParametersProvider;
 		private IDeliveryRulesSettings _deliveryRulesParametersProvider;
-		private INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListRepository _routeListRepository;
 		private INomenclatureRepository _nomenclatureRepository;
 
@@ -173,7 +173,7 @@ namespace Vodovoz
 			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
 			_orderParametersProvider = _lifetimeScope.Resolve<IOrderSettings>();
 			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
-			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 
@@ -277,7 +277,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
 			_routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
 

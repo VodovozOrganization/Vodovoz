@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -49,11 +48,9 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
-using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
@@ -83,6 +80,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IPaymentFromBankClientController>();
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
+		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
+			.Resolve<INomenclatureSettings>();
 		private IEmailRepository _emailRepository => ScopeProvider.Scope
 			.Resolve<IEmailRepository>();
 		private IEmailService _emailService => ScopeProvider.Scope
@@ -111,7 +110,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(paidDeliveryNomenclatureId == default(int))
 				{
-					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
+					paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 				}
 
 				return paidDeliveryNomenclatureId;
@@ -4952,8 +4951,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(_fastDeliveryNomenclature == null)
 				{
-					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					_fastDeliveryNomenclature = nomenclatureParametersProvider.GetFastDeliveryNomenclature(UoW);
+					_fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(UoW);
 				}
 
 				return _fastDeliveryNomenclature;

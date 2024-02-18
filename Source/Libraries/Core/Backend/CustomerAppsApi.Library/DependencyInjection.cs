@@ -59,7 +59,6 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
 				.AddSingleton<ISettingsController, SettingsController>()
 				.AddSingleton<ISessionProvider, DefaultSessionProvider>()
-				.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>()
 				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
 				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
