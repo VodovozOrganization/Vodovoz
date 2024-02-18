@@ -579,7 +579,6 @@ namespace Vodovoz
 						.As<ISmsNotificationServiceSettings>()
 						.As<ISalesReceiptsServiceSettings>()
 						.As<IEmailServiceSettings>()
-						.As<IDriverServiceParametersProvider>()
 						.As<IErrorSendParameterProvider>()
 						.As<IProfitCategoryProvider>()
 						.As<IMailjetParametersProvider>()

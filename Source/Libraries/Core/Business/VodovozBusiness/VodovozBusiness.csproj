@@ -1276,7 +1276,6 @@
     <Compile Include="EntityRepositories\Permissions\IPermissionRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\PermissionRepository.cs" />
     <Compile Include="Domain\Orders\UndeliveryProblemSource.cs" />
-    <Compile Include="Services\IDriverServiceParametersProvider.cs" />
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
     <Compile Include="Services\IErrorSendParameterProvider.cs" />

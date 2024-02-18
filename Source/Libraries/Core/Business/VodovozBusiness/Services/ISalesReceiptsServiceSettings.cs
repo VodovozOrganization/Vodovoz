@@ -4,6 +4,5 @@
 	{
 		int MaxUnsendedCashReceiptsForWorkingService { get; }
 		int DefaultSalesReceiptCashierId { get; }
-		int MaxUoWAllowed { get; }
 	}
 }

@@ -16,7 +16,6 @@ namespace Vodovoz.Core.DataService
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
-		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
 		IMailjetParametersProvider,
@@ -383,30 +382,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IEmailServiceSettings implementation
-
-		#region IDriverServiceParametersProvider
-
-		public int MaxUoWAllowed
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("max_uow_allowed"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение максимального количества UoW (max_uow_allowed)");
-				}
-
-				string value = _parametersProvider.GetParameterValue("max_uow_allowed");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение максимального количества UoW (max_uow_allowed)");
-				}
-
-				return result;
-			}
-		}
-
-		#endregion
 
 		#region IProfitCategoryProvider
 
