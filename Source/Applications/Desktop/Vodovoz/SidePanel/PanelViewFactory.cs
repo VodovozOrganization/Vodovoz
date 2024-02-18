@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
@@ -49,10 +50,11 @@ namespace Vodovoz.SidePanel
 					var complaintSettigs = ScopeProvider.Scope.Resolve<IComplaintSettings>();
 					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), complaintSettigs);
 				case PanelViewType.SmsSendPanelView:
+					var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,
 						new FastPaymentRepository(),
-						new FastPaymentParametersProvider(new ParametersProvider()));
+						fastPaymentSettings);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);

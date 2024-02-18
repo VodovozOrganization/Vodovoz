@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Parameters
+﻿namespace Vodovoz.Settings.FastPayments
 {
-	public interface IFastPaymentParametersProvider
+	public interface IFastPaymentSettings
 	{
 		int GetQRLifetime { get; }
 		int GetPayUrlLifetime { get; }

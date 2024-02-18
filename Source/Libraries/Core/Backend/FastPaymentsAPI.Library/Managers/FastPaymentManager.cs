@@ -6,15 +6,15 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Orders;
 
 namespace FastPaymentsAPI.Library.Managers
 {
 	public class FastPaymentManager : IFastPaymentManager
 	{
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly IOrderSettings _orderParametersProvider;
 		private readonly IStandartNomenclatures _standartNomenclatures;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -22,7 +22,7 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly ICashRepository _cashRepository;
 
 		public FastPaymentManager(
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentParametersProvider,
 			IOrderSettings orderParametersProvider,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,

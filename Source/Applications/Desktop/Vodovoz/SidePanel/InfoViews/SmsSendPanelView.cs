@@ -11,9 +11,9 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database.Sms;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Sms;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -39,7 +39,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		public SmsSendPanelView(
 			ICommonServices commonServices,
 			IFastPaymentRepository fastPaymentRepository,
-			IFastPaymentParametersProvider fastPaymentParametersProvider)
+			IFastPaymentSettings fastPaymentParametersProvider)
 		{
 			if(commonServices == null)
 			{

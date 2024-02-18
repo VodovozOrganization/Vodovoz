@@ -1,18 +1,18 @@
 ﻿using System;
 using PayPageAPI.Models;
 using Vodovoz.Domain.FastPayments;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Organizations;
 
 namespace PayPageAPI.Controllers
 {
 	public class PayViewModelFactory : IPayViewModelFactory
 	{
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly IOrganizationSettings _organizationParametersProvider;
 
 		public PayViewModelFactory(
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentParametersProvider,
 			IOrganizationSettings organizationParametersProvider)
 		{
 			_fastPaymentParametersProvider =

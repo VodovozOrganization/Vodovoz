@@ -51,6 +51,7 @@ using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Database.FastPayments;
 
 namespace FastPaymentsAPI
 {
@@ -147,7 +148,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddScoped<ISettingsController, SettingsController>();
 			services.AddSingleton<IOrderSettings, OrderSettings>();
-			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
+			services.AddSingleton<IFastPaymentSettings, FastPaymentSettings>();
 			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
 			services.AddScoped<IEmailSettings, EmailSettings>();
 

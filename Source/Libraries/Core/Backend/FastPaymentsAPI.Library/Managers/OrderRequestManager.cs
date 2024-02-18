@@ -6,7 +6,7 @@ using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.FastPayments;
 
 namespace FastPaymentsAPI.Library.Managers
 {
@@ -14,14 +14,14 @@ namespace FastPaymentsAPI.Library.Managers
 	{
 		private readonly IDTOManager _dtoManager;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IOrderService _orderService;
 
 		public OrderRequestManager(
 			IDTOManager dtoManager,
 			ISignatureManager signatureManager,
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentParametersProvider,
 			IFastPaymentFactory fastPaymentApiFactory,
 			IOrderService orderService)
 		{

@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Sms;
 using VodovozInfrastructure.Utils;
 
@@ -15,13 +15,13 @@ namespace Vodovoz.Models
 {
 	internal sealed class FastPaymentSender : IFastPaymentSender
 	{
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly ISmsClientChannelFactory _smsClientFactory;
 		private readonly ISmsSettings _smsSettings;
 		private HttpClient _httpClient;
 
 		public FastPaymentSender(
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentParametersProvider,
 			ISmsClientChannelFactory smsClientFactory,
 			ISmsSettings smsSettings)
 		{

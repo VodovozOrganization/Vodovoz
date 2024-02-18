@@ -3,7 +3,7 @@ using Gamma.Utilities;
 using QS.Utilities;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Organizations;
 
 namespace PayPageAPI.Models
@@ -14,11 +14,11 @@ namespace PayPageAPI.Models
 		private decimal _orderSum;
 		private FastPaymentStatus _fastPaymentStatus;
 
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly IOrganizationSettings _organizationParametersProvider;
 
 		public PayViewModel(
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentParametersProvider,
 			IOrganizationSettings organizationParametersProvider,
 			FastPayment fastPayment)
 		{
