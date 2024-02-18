@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Parameters
 {
-	public interface IGMapParametersProviders
+	public interface IGMapSettings
 	{
 		string SquidServer { get; }
 	}

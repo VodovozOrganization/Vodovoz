@@ -159,7 +159,7 @@ namespace Vodovoz
 			);
 
 			//Настройка карты
-			IGMapParametersProviders gMapParametersProviders = new GMapPararmetersProviders(parametersProvider);
+			IGMapSettings gMapParametersProviders = AppDIContainer.Resolve<IGMapSettings>();
 
 			GMapProvider.UserAgent = string.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				_applicationInfo.ProductName,

@@ -851,9 +851,7 @@
     <Compile Include="Parameters\IArchiveDataSettings.cs" />
     <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\IEmailParametersProvider.cs" />
-    <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
-    <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
