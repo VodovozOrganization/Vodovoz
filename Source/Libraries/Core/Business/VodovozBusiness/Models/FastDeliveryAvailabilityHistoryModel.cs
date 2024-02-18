@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using NLog;
 using Vodovoz.Domain.Logistic.FastDelivery;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.Models
 {
@@ -33,7 +33,7 @@ namespace Vodovoz.Models
 			}
 		}
 
-		public void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider)
+		public void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistoryParameterProvider)
 		{
 			if(fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
 			{

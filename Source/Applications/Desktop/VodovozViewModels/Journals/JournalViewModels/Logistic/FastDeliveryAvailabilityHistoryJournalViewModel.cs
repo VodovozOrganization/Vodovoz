@@ -20,6 +20,7 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -44,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
-			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider,
+			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistoryParameterProvider,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			Action<FastDeliveryAvailabilityFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Vodovoz.Services
+namespace Vodovoz.Settings.Delivery
 {
-	public interface IFastDeliveryAvailabilityHistoryParameterProvider
+	public interface IFastDeliveryAvailabilityHistorySettings
 	{
 		int FastDeliveryHistoryStorageDays { get; }
 		DateTime FastDeliveryHistoryClearDate { get; }
