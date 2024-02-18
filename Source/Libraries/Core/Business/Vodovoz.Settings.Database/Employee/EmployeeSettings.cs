@@ -13,5 +13,7 @@ namespace Vodovoz.Settings.Database.Employee
 		public int DefaultEmployeeRegistrationVersionId => _settingsController.GetValue<int>(nameof(DefaultEmployeeRegistrationVersionId).FromPascalCaseToSnakeCase());
 		public int WorkingClothesFineTemplateId => _settingsController.GetIntValue("working_clothes_fine_template_id");
 		public int MaxDaysForNewbieDriver => _settingsController.GetIntValue("max_days_for_newbie_driver");
+		public int DefaultEmployeeForCallTask => _settingsController.GetIntValue("сотрудник_по_умолчанию_для_crm");
+		public int DefaultEmployeeForDepositReturnTask => _settingsController.GetIntValue("сотрудник_по_умолчанию_для_задач_по_залогам");
 	}
 }

@@ -10,7 +10,6 @@ namespace Vodovoz.Core.DataService
 	public class BaseParametersProvider : 
 		IStandartNomenclatures, 
 		IStandartDiscountsService, 
-		IPersonProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
@@ -68,28 +67,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен параметр основания скидки для акции Бутыль (причина_скидки_для_акции_Бутыль).");
 			}
 			return int.Parse(_parametersProvider.GetParameterValue("причина_скидки_для_акции_Бутыль"));
-		}
-
-		#endregion
-
-		#region IPersonProvider
-
-		public int GetDefaultEmployeeForCallTask()
-		{
-			if(!_parametersProvider.ContainsParameter("сотрудник_по_умолчанию_для_crm"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_crm).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("сотрудник_по_умолчанию_для_crm")); ;
-		}
-
-		public int GetDefaultEmployeeForDepositReturnTask()
-		{
-			if(!_parametersProvider.ContainsParameter("сотрудник_по_умолчанию_для_задач_по_залогам"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_задач_по_залогам).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("сотрудник_по_умолчанию_для_задач_по_залогам"));
 		}
 
 		#endregion

@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -248,13 +249,14 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public void CancelOrder(Order order)
 		{
+			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 				_unitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
 				_orderRepository,
 				_employeeRepository,
-				new BaseParametersProvider(_parametersProvider),
+				employeeSettings,
 				ServicesConfig.CommonServices.UserService,
 				ErrorReporter.Instance);
 

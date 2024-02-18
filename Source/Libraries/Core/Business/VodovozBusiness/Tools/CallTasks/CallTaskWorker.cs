@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.Tools.CallTasks
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.Tools.CallTasks
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowfactory;
+		private IEmployeeSettings _employeeSettings;
 
 		public ITaskCreationInteractive TaskCreationInteractive { get; set; }
 
@@ -26,7 +28,6 @@ namespace Vodovoz.Tools.CallTasks
 		private ICallTaskRepository callTaskRepository { get; }
 		private IOrderRepository orderRepository { get; }
 		private IEmployeeRepository employeeRepository { get; }
-		private IPersonProvider personProvider { get; }
 		private IUserService userService { get; }
 		private IErrorReporter errorReporter { get; }
 
@@ -35,8 +36,8 @@ namespace Vodovoz.Tools.CallTasks
 			ICallTaskFactory callTaskFactory, 
 			ICallTaskRepository callTaskRepository, 
 			IOrderRepository orderRepository, 
-			IEmployeeRepository employeeRepository, 
-			IPersonProvider personProvider,
+			IEmployeeRepository employeeRepository,
+			IEmployeeSettings employeeSettings,
 			IUserService userService,
 			IErrorReporter errorReporter,
 			ITaskCreationInteractive taskCreationInteractive = null
@@ -47,7 +48,7 @@ namespace Vodovoz.Tools.CallTasks
 			this.callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			this.personProvider = personProvider ?? throw new ArgumentNullException(nameof(personProvider));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			this.userService = userService;
 			this.errorReporter = errorReporter;
 			TaskCreationInteractive = taskCreationInteractive;
@@ -111,7 +112,7 @@ namespace Vodovoz.Tools.CallTasks
 
 			var newTask = new CallTask();
 			callTaskFactory.FillNewTask(uow, newTask, employeeRepository);
-			newTask.AssignedEmployee = uow.GetById<Employee>(personProvider.GetDefaultEmployeeForCallTask());
+			newTask.AssignedEmployee = uow.GetById<Employee>(_employeeSettings.DefaultEmployeeForCallTask);
 			newTask.TaskState = CallTaskStatus.Task;
 			newTask.DeliveryPoint = order.DeliveryPoint;
 			newTask.Counterparty = order.Client;
@@ -199,7 +200,7 @@ namespace Vodovoz.Tools.CallTasks
 
 			var newTask = new CallTask();
 			callTaskFactory.FillNewTask(order.UoW, newTask, employeeRepository);
-			newTask.AssignedEmployee = order.UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
+			newTask.AssignedEmployee = order.UoW.GetById<Employee>(_employeeSettings.DefaultEmployeeForDepositReturnTask);
 			newTask.TaskState = CallTaskStatus.DepositReturn;
 			newTask.DeliveryPoint = order.DeliveryPoint;
 			newTask.Counterparty = order.Client;

@@ -133,6 +133,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Settings.Employee;
 
 namespace Vodovoz
 {
@@ -358,13 +359,14 @@ namespace Vodovoz
 			{
 				if(callTaskWorker == null)
 				{
+					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 					callTaskWorker = new CallTaskWorker(
 						ServicesConfig.UnitOfWorkFactory,
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						_orderRepository,
 						_employeeRepository,
-						_baseParametersProvider,
+						employeeSettings,
 						ServicesConfig.CommonServices.UserService,
 						ErrorReporter.Instance);
 				}

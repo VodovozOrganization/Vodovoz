@@ -42,6 +42,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -384,13 +385,14 @@ namespace Vodovoz.JournalViewModels
 
 		protected void InitPopupActions()
 		{
+			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 			var callTaskWorker = new CallTaskWorker(
 				UnitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
 				_callTaskRepository,
 				new OrderRepository(),
 				new EmployeeRepository(),
-				_baseParametersProvider,
+				employeeSettings,
 				commonServices.UserService,
 				ErrorReporter.Instance);
 

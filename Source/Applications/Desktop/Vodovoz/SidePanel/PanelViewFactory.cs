@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
@@ -42,8 +43,9 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
+					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 					return new CallTaskPanelView(
-						new BaseParametersProvider(new ParametersProvider()),
+						employeeSettings,
 						new EmployeeRepository(),
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:

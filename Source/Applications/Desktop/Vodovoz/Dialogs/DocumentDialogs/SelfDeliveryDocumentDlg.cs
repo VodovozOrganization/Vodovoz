@@ -30,6 +30,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -280,6 +281,7 @@ namespace Vodovoz
 			Entity.UpdateOperations(UoW);
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
+			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
 			var callTaskWorker = new CallTaskWorker(
 				ServicesConfig.UnitOfWorkFactory,
@@ -287,7 +289,7 @@ namespace Vodovoz
 				new CallTaskRepository(),
 				new OrderRepository(),
 				_employeeRepository,
-				new BaseParametersProvider(new ParametersProvider()),
+				employeeSettings,
 				ServicesConfig.CommonServices.UserService,
 				ErrorReporter.Instance);
 			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))

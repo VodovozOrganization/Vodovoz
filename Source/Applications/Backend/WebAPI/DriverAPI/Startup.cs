@@ -290,7 +290,6 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
-			services.AddScoped<IPersonProvider, BaseParametersProvider>();
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 
 			services.AddDriverApiLibrary();

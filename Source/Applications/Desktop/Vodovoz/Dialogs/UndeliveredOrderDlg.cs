@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -40,13 +41,14 @@ namespace Vodovoz.Dialogs
 		public virtual CallTaskWorker CallTaskWorker {
 			get {
 				if(callTaskWorker == null) {
+					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 					callTaskWorker = new CallTaskWorker(
 						ServicesConfig.UnitOfWorkFactory,
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						_orderRepository,
 						_employeeRepository,
-						_baseParametersProvider,
+						employeeSettings,
 						ServicesConfig.CommonServices.UserService,
 						ErrorReporter.Instance);
 				}

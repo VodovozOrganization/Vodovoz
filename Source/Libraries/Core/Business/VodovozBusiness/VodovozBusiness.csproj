@@ -1124,7 +1124,6 @@
     <Compile Include="Domain\Payments\OrderIdProviderForMobileApp.cs" />
     <Compile Include="Domain\Client\DeliveryPointCategory.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKind.cs" />
-    <Compile Include="Services\IPersonProvider.cs" />
     <Compile Include="EntityRepositories\Operations\BottlesRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IBottlesRepository.cs" />
