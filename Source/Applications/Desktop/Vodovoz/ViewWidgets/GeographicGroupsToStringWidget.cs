@@ -10,7 +10,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
@@ -19,8 +18,6 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GeographicGroupsToStringWidget : Gtk.Bin
 	{
-		private readonly int _eastGeographicGroupId = new GeographicGroupParametersProvider(new ParametersProvider()).EastGeographicGroupId;
-
 		public event EventHandler<EventArgs> ListContentChanged;
 		public BindingControler<GeographicGroupsToStringWidget> Binding { get; private set; }
 

@@ -5,7 +5,7 @@ using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.EntityRepositories.Sale
@@ -63,7 +63,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		}
 
 		public IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
-			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			IUnitOfWork uow, IGeographicGroupSettings geographicGroupParametersProvider)
 		{
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
@@ -80,7 +80,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		}
 
 		public IList<GeoGroup> GeographicGroupsWithoutEast(
-			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			IUnitOfWork uow, IGeographicGroupSettings geographicGroupParametersProvider)
 		{
 			GeoGroup geoGroupAlias = null;
 

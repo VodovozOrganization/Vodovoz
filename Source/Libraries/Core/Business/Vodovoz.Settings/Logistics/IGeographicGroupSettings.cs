@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Services
+﻿namespace Vodovoz.Settings.Logistics
 {
-	public interface IGeographicGroupParametersProvider
+	public interface IGeographicGroupSettings
 	{
 		int SouthGeographicGroupId { get; }
 		int NorthGeographicGroupId { get; }

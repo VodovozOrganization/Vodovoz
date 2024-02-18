@@ -31,9 +31,9 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.NHibernateProjections.Logistics;
-using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
-		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
+		private readonly IGeographicGroupSettings _geographicGroupParametersProvider;
 
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IDeliveryRepository deliveryRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IGeographicGroupRepository geographicGroupRepository,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider,
+			IGeographicGroupSettings geographicGroupParametersProvider,
 			IEmployeeSettings employeeSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{

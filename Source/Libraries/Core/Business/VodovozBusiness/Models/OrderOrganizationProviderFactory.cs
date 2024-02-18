@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
@@ -18,15 +18,11 @@ namespace Vodovoz.Models
 
 		public IOrganizationProvider CreateOrderOrganizationProvider()
 		{
-			var parametersProvider = new ParametersProvider();
-			var geographicGroupParametersProvider = new GeographicGroupParametersProvider(parametersProvider);
-			var fastPaymentRepository = new FastPaymentRepository();
-
 			return new Stage2OrganizationProvider(
 				_scope.Resolve<IOrganizationSettings>(),
 				_scope.Resolve<IOrderSettings>(),
-				geographicGroupParametersProvider,
-				fastPaymentRepository,
+				_scope.Resolve<IGeographicGroupSettings>(),
+				_scope.Resolve<IFastPaymentRepository>(),
 				_scope.Resolve<ICashReceiptRepository>());
 		}
 	}
