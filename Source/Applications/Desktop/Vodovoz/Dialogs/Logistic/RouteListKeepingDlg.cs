@@ -53,7 +53,7 @@ namespace Vodovoz
 		private IDeliveryShiftRepository _deliveryShiftRepository;
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IWageParameterService _wageParameterService;
-		private IGeneralSettings _generalSettingsParametersProvider;
+		private IGeneralSettings _generalSettingsSettings;
 		private readonly bool _isOrderWaitUntilActive;
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
@@ -76,7 +76,7 @@ namespace Vodovoz
 			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
 			_logisticanEditing = _isUserLogist && _allEditing;
 
-			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
+			_isOrderWaitUntilActive = _generalSettingsSettings.GetIsOrderWaitUntilActive;
 
 			ConfigureDlg();
 		}
@@ -123,7 +123,7 @@ namespace Vodovoz
 			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
-			_generalSettingsParametersProvider = _lifetimeScope.Resolve<IGeneralSettings>();
+			_generalSettingsSettings = _lifetimeScope.Resolve<IGeneralSettings>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}

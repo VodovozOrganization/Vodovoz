@@ -8,20 +8,20 @@ namespace PayPageAPI.Controllers
 {
 	public class PayViewModelFactory : IPayViewModelFactory
 	{
-		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
-		private readonly IOrganizationSettings _organizationParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public PayViewModelFactory(
-			IFastPaymentSettings fastPaymentParametersProvider,
-			IOrganizationSettings organizationParametersProvider)
+			IFastPaymentSettings fastPaymentSettings,
+			IOrganizationSettings organizationSettings)
 		{
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 		
 		public PayViewModel CreateNewPayViewModel(FastPayment fastPayment) =>
-			new PayViewModel(_fastPaymentParametersProvider, _organizationParametersProvider, fastPayment);
+			new PayViewModel(_fastPaymentSettings, _organizationSettings, fastPayment);
 	}
 }

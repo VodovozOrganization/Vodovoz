@@ -10,11 +10,11 @@ namespace RoboatsService.OrderValidation
 {
 	public sealed class OnlyWaterOrderValidator : OrderValidatorBase
 	{
-		private readonly INomenclatureSettings _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
-		public OnlyWaterOrderValidator(INomenclatureSettings nomenclatureParametersProvider)
+		public OnlyWaterOrderValidator(INomenclatureSettings nomenclatureSettings)
 		{
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
 		public override IEnumerable<string> GetProblemMessages(IEnumerable<Order> orders)
@@ -28,8 +28,8 @@ namespace RoboatsService.OrderValidation
 			foreach(var order in orders)
 			{
 				var hasOnlyWater = !order.OrderItems
-					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
-					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.FastDeliveryNomenclatureId)
+					.Where(x => x.Nomenclature.Id != _nomenclatureSettings.PaidDeliveryNomenclatureId)
+					.Where(x => x.Nomenclature.Id != _nomenclatureSettings.FastDeliveryNomenclatureId)
 					.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
 
 				if(hasOnlyWater)

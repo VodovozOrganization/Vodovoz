@@ -26,7 +26,7 @@ namespace Vodovoz.Journals.JournalViewModels
 {
 	public sealed class DistrictsSetJournalViewModel : FilterableSingleEntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode, DistrictsSetJournalFilterViewModel>
 	{
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
 
@@ -37,7 +37,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeRepository employeeRepository,
 			IEntityDeleteWorker entityDeleteWorker,
 			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryRepository deliveryRepository,
 			INavigationManager navigation,
 			bool hideJournalForOpenDialog = false,
@@ -48,8 +48,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_deliveryRulesParametersProvider =
-				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings =
+				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
@@ -217,7 +217,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				selected => _сanChangeOnlineDeliveriesToday && IsStoppedOnlineDeliveriesToday,
 				selected =>
 				{
-					_deliveryRulesParametersProvider.UpdateOnlineDeliveriesTodayParameter("false");
+					_deliveryRulesSettings.UpdateOnlineDeliveriesTodayParameter("false");
 					SetIsStoppedOnlineDeliveriesToday();
 					UpdateJournalActions?.Invoke();
 				}
@@ -232,7 +232,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				selected => _сanChangeOnlineDeliveriesToday && !IsStoppedOnlineDeliveriesToday,
 				selected =>
 				{
-					_deliveryRulesParametersProvider.UpdateOnlineDeliveriesTodayParameter("true");
+					_deliveryRulesSettings.UpdateOnlineDeliveriesTodayParameter("true");
 					SetIsStoppedOnlineDeliveriesToday();
 					UpdateJournalActions?.Invoke();
 				}
@@ -242,7 +242,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		private void SetIsStoppedOnlineDeliveriesToday()
 		{
-			IsStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+			IsStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 		}
 
 		protected override void CreatePopupActions()

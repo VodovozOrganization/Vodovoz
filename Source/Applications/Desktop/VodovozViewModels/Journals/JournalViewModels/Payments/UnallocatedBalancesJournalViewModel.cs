@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			ILifetimeScope scope,
 			IDeleteEntityService deleteEntityService = null,
 			params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			}
 
 			_closingDocumentDeliveryScheduleId =
-				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 

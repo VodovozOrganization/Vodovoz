@@ -52,11 +52,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -110,11 +110,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument
@@ -159,11 +159,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 			
 			OrganizationRepository organizationRepositoryMock = 
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			// act, assert
@@ -197,11 +197,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -250,11 +250,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -295,11 +295,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 			
 			OrganizationRepository organizationRepositoryMock = 
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			// act, assert
@@ -333,11 +333,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -378,11 +378,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 			
 			OrganizationRepository organizationRepositoryMock = 
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			// act, assert
@@ -417,11 +417,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -465,11 +465,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -514,11 +514,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -561,11 +561,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationSettings organisationParametersProviderMock =
+			OrganizationSettings organisationSettingsMock =
 				Substitute.For<OrganizationSettings>(_settingsController);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
@@ -624,11 +624,11 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			var organisationParametersProviderMock = Substitute.For<OrganizationSettings>(_settingsController);
-			organisationParametersProviderMock.CommonCashDistributionOrganisationId.Returns(2);
+			var organisationSettingsMock = Substitute.For<OrganizationSettings>(_settingsController);
+			organisationSettingsMock.CommonCashDistributionOrganisationId.Returns(2);
 
 			OrganizationRepository organizationRepositoryMock =
-				Substitute.For<OrganizationRepository>(organisationParametersProviderMock);
+				Substitute.For<OrganizationRepository>(organisationSettingsMock);
 			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();

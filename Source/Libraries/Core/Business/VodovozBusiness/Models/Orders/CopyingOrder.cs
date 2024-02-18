@@ -16,7 +16,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IUnitOfWork _uow;
 		private readonly Order _copiedOrder;
 		private readonly Order _resultOrder;
-		private readonly INomenclatureSettings _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
@@ -25,7 +25,7 @@ namespace Vodovoz.Models.Orders
 		private bool _needCopyStockBottleDiscount;
 
 		internal CopyingOrder(IUnitOfWork uow, Order copiedOrder, Order resultOrder,
-			INomenclatureSettings nomenclatureParametersProvider, IFlyerRepository flyerRepository)
+			INomenclatureSettings nomenclatureSettings, IFlyerRepository flyerRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
@@ -36,12 +36,12 @@ namespace Vodovoz.Models.Orders
 					$"Заказ, в который переносятся данные из копируемого заказа, должен быть новым. (Свойство {nameof(resultOrder.Id)} должно быть равно 0)");
 			}
 
-			_nomenclatureParametersProvider =
-				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings =
+				nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 
-			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
-			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
+			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			_flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
 		}
 

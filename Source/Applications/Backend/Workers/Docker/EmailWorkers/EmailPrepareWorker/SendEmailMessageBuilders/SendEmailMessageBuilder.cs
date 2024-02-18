@@ -10,17 +10,17 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class SendEmailMessageBuilder
 	{
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private readonly int _instanceId;
 
 		protected SendEmailMessage _sendEmailMessage = new();
 
-		public SendEmailMessageBuilder(IEmailSettings emailParametersProvider, IEmailDocumentPreparer emailDocumentPreparer,
+		public SendEmailMessageBuilder(IEmailSettings emailSettings, IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail, int instanceId)
 		{
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDocumentPreparer = emailDocumentPreparer;
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 			_instanceId = instanceId;
@@ -35,8 +35,8 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		{
 			_sendEmailMessage.From = new EmailContact
 			{
-				Name = _emailParametersProvider.DocumentEmailSenderName,
-				Email = _emailParametersProvider.DocumentEmailSenderAddress
+				Name = _emailSettings.DocumentEmailSenderName,
+				Email = _emailSettings.DocumentEmailSenderAddress
 			};
 
 			return this;

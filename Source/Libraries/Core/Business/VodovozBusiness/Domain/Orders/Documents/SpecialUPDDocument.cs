@@ -15,10 +15,10 @@ namespace Vodovoz.Domain.Orders.Documents
 	public class SpecialUPDDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
 	{
 		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
-		private IOrganizationSettings _organizationParametersProvider => ScopeProvider.Scope
+		private IOrganizationSettings _organizationSettings => ScopeProvider.Scope
 			.Resolve<IOrganizationSettings>();
 
-		private IDeliveryScheduleSettings _deliveryScheduleParametersProvider => ScopeProvider.Scope
+		private IDeliveryScheduleSettings _deliveryScheduleSettings => ScopeProvider.Scope
 			.Resolve<IDeliveryScheduleSettings>();
 
 
@@ -122,7 +122,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 
-			if(Order.DeliverySchedule.Id == _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId)
+			if(Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
 			{
 				return GetTemplateForClosingDocumentOrder(hasAgreeForEdo);
 			}
@@ -149,7 +149,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			{
 				if(!_beveragesWorldOrganizationId.HasValue)
 				{
-					_beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+					_beveragesWorldOrganizationId = _organizationSettings.BeveragesWorldOrganizationId;
 				}
 				
 				if(((Order.OurOrganization != null && Order.OurOrganization.Id == _beveragesWorldOrganizationId)

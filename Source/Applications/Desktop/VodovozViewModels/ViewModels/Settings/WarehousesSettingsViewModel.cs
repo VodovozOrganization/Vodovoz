@@ -24,8 +24,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			IGeneralSettings generalSettingsParametersProvider,
-			string parameterName) : base(commonServices, unitOfWorkFactory, generalSettingsParametersProvider, parameterName)
+			IGeneralSettings generalSettingsSettings,
+			string parameterName) : base(commonServices, unitOfWorkFactory, generalSettingsSettings, parameterName)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		protected override void SaveEntities()
 		{
 			var ids = ObservableEntities.Select(x => x.Id).ToArray();
-			GeneralSettingsParametersProvider.UpdateWarehousesIdsForParameter(ids, ParameterName);
+			GeneralSettingsSettings.UpdateWarehousesIdsForParameter(ids, ParameterName);
 			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Данные сохранены");
 		}
 
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				NamedDomainObjectNode resultAlias = null;
 				uow.Session.DefaultReadOnly = true;
 
-				var warehousesIds = GeneralSettingsParametersProvider.WarehousesForPricesAndStocksIntegration;
+				var warehousesIds = GeneralSettingsSettings.WarehousesForPricesAndStocksIntegration;
 
 				var nodes = uow.Session.QueryOver<Warehouse>()
 					.WhereRestrictionOn(w => w.Id).IsIn(warehousesIds)

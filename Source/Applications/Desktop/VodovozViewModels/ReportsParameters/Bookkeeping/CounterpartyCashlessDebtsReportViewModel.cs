@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -49,16 +49,16 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			_counterpartySubtypeRepository = counterpartySubtypeRepository ?? throw new ArgumentNullException(nameof(counterpartySubtypeRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 
-			if(deliveryScheduleParametersProvider is null)
+			if(deliveryScheduleSettings is null)
 			{
-				throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+				throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			}
 
 			Title = "Долги по безналу";
 
 			_unitOfWork = _uowFactory.CreateWithoutRoot(Title);
 
-			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
+			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
 			FilterViewModel = CreateCounterpartyCashlessDebtsReportIncludeExcludeFilter(_unitOfWork);
 			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;

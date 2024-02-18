@@ -71,7 +71,7 @@ namespace Vodovoz.Infrastructure.Services
 
 		public void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork uow,
-			IEmailSettings emailParametersProvider,
+			IEmailSettings emailSettings,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData)
@@ -97,8 +97,8 @@ namespace Vodovoz.Infrastructure.Services
 			{
 				From = new EmailContact
 				{
-					Name = emailParametersProvider.DocumentEmailSenderName,
-					Email = emailParametersProvider.DocumentEmailSenderAddress
+					Name = emailSettings.DocumentEmailSenderName,
+					Email = emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = emailContacts,

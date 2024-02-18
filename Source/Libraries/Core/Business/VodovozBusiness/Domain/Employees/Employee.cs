@@ -290,9 +290,9 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
-					subdivisionParametersProvider))
+					subdivisionSettings))
 			{
-				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionParametersProvider)}");
+				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionSettings)}");
 			}
 
 			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
@@ -419,7 +419,7 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if(Subdivision == null || Subdivision.Id == subdivisionParametersProvider.GetParentVodovozSubdivisionId())
+			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())
 			{
 				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
 												" общим подразделением 'Веселый Водовоз'");
@@ -546,16 +546,16 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository,
-			IWageSettings wageParametersProvider, IInteractiveService interactiveService)
+			IWageSettings wageSettings, IInteractiveService interactiveService)
 		{
 			if(wageRepository == null)
 			{
 				throw new ArgumentNullException(nameof(wageRepository));
 			}
 
-			if(wageParametersProvider == null)
+			if(wageSettings == null)
 			{
-				throw new ArgumentNullException(nameof(wageParametersProvider));
+				throw new ArgumentNullException(nameof(wageSettings));
 			}
 
 			if(interactiveService == null)

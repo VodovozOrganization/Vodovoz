@@ -41,8 +41,8 @@ namespace Vodovoz.Representations
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly Employee _currentEmployee;
 		private readonly IOrderPaymentSettings _orderPaymentSettings;
-		private readonly IOrderSettings _orderParametersProvider;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IOrderSettings _orderSettings;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly bool _userCanChangePayTypeToByCard;
 
 		public SelfDeliveriesJournalViewModel(
@@ -51,8 +51,8 @@ namespace Vodovoz.Representations
 			ICommonServices commonServices, 
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
-			IOrderSettings orderParametersProvider,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IOrderSettings orderSettings,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IEmployeeService employeeService,
 			INavigationManager navigationManager,
 			Action<OrderJournalFilterViewModel> filterConfig = null) 
@@ -60,8 +60,8 @@ namespace Vodovoz.Representations
 		{
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
@@ -297,8 +297,8 @@ namespace Vodovoz.Representations
 									commonServices,
 									_callTaskWorker,
 									_orderPaymentSettings,
-									_orderParametersProvider,
-									_deliveryRulesParametersProvider,
+									_orderSettings,
+									_deliveryRulesSettings,
 									_currentEmployee), 
 								this
 							);
@@ -326,8 +326,8 @@ namespace Vodovoz.Representations
 									commonServices,
 									_callTaskWorker,
 									_orderPaymentSettings,
-									_orderParametersProvider,
-									_deliveryRulesParametersProvider,
+									_orderSettings,
+									_deliveryRulesSettings,
 									_currentEmployee),
 								this
 							);

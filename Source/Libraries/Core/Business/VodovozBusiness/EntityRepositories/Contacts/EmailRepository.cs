@@ -101,7 +101,7 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleParametersProvider)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 				var result = (from address in uow.GetAll<RouteListItem>()
 					where address.Order.Id == order.Id
@@ -115,7 +115,7 @@ namespace Vodovoz.EntityRepositories
 									)						   
 						|| (
 								(!address.Order.Client.NeedSendBillByEdo || address.Order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
-								&& address.Order.DeliverySchedule.Id == deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId
+								&& address.Order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 								&& order.OrderStatus == OrderStatus.Closed
 							)
 						)						
@@ -245,14 +245,14 @@ namespace Vodovoz.EntityRepositories
 				.SingleOrDefault();
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailSettings emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailSettings emailSettings)
 		{
-			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
+			return uow.GetById<BulkEmailEventReason>(emailSettings.BulkEmailEventOtherReasonId);
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailSettings emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailSettings emailSettings)
 		{
-			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
+			return uow.GetById<BulkEmailEventReason>(emailSettings.BulkEmailEventOperatorReasonId);
 		}
 
 		public Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
@@ -338,7 +338,7 @@ namespace Vodovoz.EntityRepositories
 				.Take(1);
 		}
 
-		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailParametersProvider, bool isForUnsubscribePage = false)
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)
 		{
 			BulkEmailEventReason bulkEmailEventReasonAlias = null;
 
@@ -350,7 +350,7 @@ namespace Vodovoz.EntityRepositories
 				query.Where(x => !x.HideForUnsubscribePage);
 			}
 
-			query.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId);
+			query.OrderBy(x => x.Id == emailSettings.BulkEmailEventOtherReasonId);
 
 			return query.List();
 		}

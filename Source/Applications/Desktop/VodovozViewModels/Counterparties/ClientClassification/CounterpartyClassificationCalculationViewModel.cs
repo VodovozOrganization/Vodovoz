@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IUserService _userService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly bool _canCalculateCounterpartyClassifications;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IUserService userService,
 			IFileDialogService fileDialogService,
 			ICounterpartyRepository counterpartyRepository,
-			IEmailSettings emailParametersProvider
+			IEmailSettings emailSettings
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			if(uowFactory is null)
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_uow = uowFactory.CreateWithoutRoot();
 
 			_canCalculateCounterpartyClassifications = 
@@ -379,7 +379,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
 					_uow,
-					_emailParametersProvider,
+					_emailSettings,
 					_currentUserName,
 					emails,
 					_reportData);

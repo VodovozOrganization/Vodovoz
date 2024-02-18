@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
-			IComplaintSettings complaintParametersProvider,
+			IComplaintSettings complaintSettings,
 			IGenericRepository<Subdivision> subdivisionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			ExportReportCommand = new DelegateCommand(ExportReport, () => CanExportReport);
 			GeoGroups = UoW.GetAll<GeoGroup>().ToList();
 			ComplaintResults = UoW.GetAll<ComplaintResultBase>().ToList();
-			SelectedComplaintResult = ComplaintResults.FirstOrDefault(x => x.Id == complaintParametersProvider.GuiltProvenComplaintResultId);
+			SelectedComplaintResult = ComplaintResults.FirstOrDefault(x => x.Id == complaintSettings.GuiltProvenComplaintResultId);
 			SetupFilter();
 		}
 

@@ -16,17 +16,17 @@ namespace Vodovoz.Models
 	{
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IFlyerRepository _flyerRepository;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IStockRepository _stockRepository;
 		private IList<Flyer> _activeFlyers;
 		private IDictionary<int, decimal> _flyersInStock;
 
 		public AdditionalLoadingModel(IEmployeeRepository employeeRepository, IFlyerRepository flyerRepository,
-			IDeliveryRulesSettings deliveryRulesParametersProvider, IStockRepository stockRepository)
+			IDeliveryRulesSettings deliveryRulesSettings, IStockRepository stockRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 		}
 
@@ -161,8 +161,8 @@ namespace Vodovoz.Models
 
 		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
 		{
-			var additionalFlyersEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
-			var additionalFlyersForNewCounterpartiesEnabled = _deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled;
+			var additionalFlyersEnabled = _deliveryRulesSettings.AdditionalLoadingFlyerAdditionEnabled;
+			var additionalFlyersForNewCounterpartiesEnabled = _deliveryRulesSettings.FlyerForNewCounterpartyEnabled;
 
 			if(!additionalFlyersEnabled
 			&& !additionalFlyersForNewCounterpartiesEnabled)
@@ -174,9 +174,9 @@ namespace Vodovoz.Models
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L && x.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(x => x.Amount);
 
-			var flyerAmount = (int)water19LCount / _deliveryRulesParametersProvider.BottlesCountForFlyer;
+			var flyerAmount = (int)water19LCount / _deliveryRulesSettings.BottlesCountForFlyer;
 
-			var flyerForNewCounterpartiesAmount = (int)water19LCount / _deliveryRulesParametersProvider.FlyerForNewCounterpartyBottlesCount;
+			var flyerForNewCounterpartiesAmount = (int)water19LCount / _deliveryRulesSettings.FlyerForNewCounterpartyBottlesCount;
 
 			if(flyerAmount == 0 && flyerForNewCounterpartiesAmount == 0)
 			{

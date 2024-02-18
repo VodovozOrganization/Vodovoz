@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionSettings subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
             INavigationManager navigationManager,
 			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			if(FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value)
 			{
-				var salesSubDivisionId = subdivisionParametersProvider.GetSalesSubdivisionId();
+				var salesSubDivisionId = subdivisionSettings.GetSalesSubdivisionId();
 				FilterViewModel.RestrictInProcessAtDepartment = UoW.GetById<Subdivision>(salesSubDivisionId);
 			}
 

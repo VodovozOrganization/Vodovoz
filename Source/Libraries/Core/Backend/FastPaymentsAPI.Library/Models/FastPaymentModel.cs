@@ -30,7 +30,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationSettings _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRequestFromConverter _requestFromConverter;
 
 		public FastPaymentModel(
@@ -43,7 +43,7 @@ namespace FastPaymentsAPI.Library.Models
 			IFastPaymentFactory fastPaymentApiFactory,
 			IFastPaymentManager fastPaymentManager,
 			IOrganizationRepository organizationRepository,
-			IOrganizationSettings organizationParametersProvider,
+			IOrganizationSettings organizationSettings,
 			IRequestFromConverter requestFromConverter)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,15 +55,15 @@ namespace FastPaymentsAPI.Library.Models
 			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new ArgumentNullException(nameof(fastPaymentApiFactory));
 			_fastPaymentManager = fastPaymentManager ?? throw new ArgumentNullException(nameof(fastPaymentManager));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_requestFromConverter = requestFromConverter ?? throw new ArgumentNullException(nameof(requestFromConverter));
 		}
 
 		public Organization GetOrganization(RequestFromType requestFromType)
 		{
 			var organization = _organizationRepository.GetPaymentFromOrganizationById(_uow, (int)requestFromType);
-			return organization ?? _organizationRepository.GetOrganizationById(_uow, _organizationParametersProvider.VodovozSouthOrganizationId);
+			return organization ?? _organizationRepository.GetOrganizationById(_uow, _organizationSettings.VodovozSouthOrganizationId);
 		}
 
 		public FastPayment GetFastPaymentByTicket(string ticket)

@@ -87,9 +87,9 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IEmailService>();
 		private IGeneralSettings _generalSettingsParameters => ScopeProvider.Scope
 			.Resolve<IGeneralSettings>();
-		private IOrderSettings _orderParametersProvider => ScopeProvider.Scope
+		private IOrderSettings _orderSettings => ScopeProvider.Scope
 			.Resolve<IOrderSettings>();
-		private IDeliveryScheduleSettings _deliveryScheduleParametersProvider => ScopeProvider.Scope
+		private IDeliveryScheduleSettings _deliveryScheduleSettings => ScopeProvider.Scope
 			.Resolve<IDeliveryScheduleSettings>();
 		private OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery => ScopeProvider.Scope
 			.Resolve<OrderItemComparerForCopyingFromUndelivery>();
@@ -943,7 +943,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
+			var closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
 			if(IsFirstOrder || DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
 			{
@@ -1003,7 +1003,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			int discountReasonId = _orderParametersProvider.GetClientsSecondOrderDiscountReasonId;
+			int discountReasonId = _orderSettings.GetClientsSecondOrderDiscountReasonId;
 
 			if(IsSecondOrder)
 			{
@@ -1547,15 +1547,15 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Нельзя выбрать доставку за час для заказа-самовывоза", new[] { nameof(DeliveryPoint) });
 			}
 
-			var orderParametersProvider = validationContext.GetService(typeof(IOrderSettings)) as IOrderSettings;
+			var orderSettings = validationContext.GetService(typeof(IOrderSettings)) as IOrderSettings;
 
 			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlineOrder == null)
 			{
-				if(orderParametersProvider == null)
+				if(orderSettings == null)
 				{
 					throw new ArgumentNullException(nameof(IOrderSettings));
 				}
-				if(PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+				if(PaymentByCardFrom.Id == orderSettings.PaymentFromTerminalId)
 				{
 					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
 				}
@@ -1564,7 +1564,7 @@ namespace Vodovoz.Domain.Orders
 			if((new[] { PaymentType.Cash, PaymentType.Terminal }.Contains(PaymentType)
 				   || (PaymentType == PaymentType.PaidOnline
 					   && PaymentByCardFrom != null
-					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderSettings)))
+					   && !(orderSettings ?? throw new ArgumentNullException(nameof(IOrderSettings)))
 						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
 			   && Contract?.Organization != null && Contract.Organization.CashBoxId == null)
 			{
@@ -1967,8 +1967,8 @@ namespace Vodovoz.Domain.Orders
 			if(orderOrganizationProviderFactory == null) {
 				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope); 
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
-				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 			}
@@ -2100,11 +2100,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		private DiscountReason GetDiscountReasonStockBottle(
-			IOrderSettings orderParametersProvider, decimal discount)
+			IOrderSettings orderSettings, decimal discount)
 		{
 			var reasonId = discount == 10m
-				? orderParametersProvider.GetDiscountReasonStockBottle10PercentsId
-				: orderParametersProvider.GetDiscountReasonStockBottle20PercentsId;
+				? orderSettings.GetDiscountReasonStockBottle10PercentsId
+				: orderSettings.GetDiscountReasonStockBottle20PercentsId;
 
 			var discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId)
 				?? throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
@@ -2160,13 +2160,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void RecalculateStockBottles(IOrderSettings orderParametersProvider)
+		public virtual void RecalculateStockBottles(IOrderSettings orderSettings)
 		{
 			if(!IsBottleStock) {
 				BottlesByStockCount = 0;
 				BottlesByStockActualCount = 0;
 			}
-			CalculateBottlesStockDiscounts(orderParametersProvider);
+			CalculateBottlesStockDiscounts(orderSettings);
 		}
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
@@ -3163,11 +3163,11 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleParametersProvider);
+					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleSettings);
 					break;
 				case OrderStatus.Closed:
-					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleParametersProvider);
-					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleParametersProvider);
+					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleSettings);
+					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -5003,8 +5003,8 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(_educationalInstitutionDeliveryPointCategoryId == default(int))
 				{
-					var deliveryPointParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryPointSettings>();
-					_educationalInstitutionDeliveryPointCategoryId = deliveryPointParametersProvider.EducationalInstitutionDeliveryPointCategoryId;
+					var deliveryPointSettings = ScopeProvider.Scope.Resolve<IDeliveryPointSettings>();
+					_educationalInstitutionDeliveryPointCategoryId = deliveryPointSettings.EducationalInstitutionDeliveryPointCategoryId;
 				}
 
 				return _educationalInstitutionDeliveryPointCategoryId;

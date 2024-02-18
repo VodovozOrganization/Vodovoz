@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly Employee _employee;
 		private readonly IInteractiveService _interactiveService;
 
@@ -60,12 +60,12 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
-		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailSettings emailParametersProvider,
+		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailSettings emailSettings,
 									  Employee employee, IInteractiveService interactiveService, IUnitOfWork uow = null)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_employee = employee;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			StoredEmails = new GenericObservableList<StoredEmail>();
@@ -263,7 +263,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 			try
 			{
-				_ = _emailParametersProvider.DocumentEmailSenderAddress;
+				_ = _emailSettings.DocumentEmailSenderAddress;
 			}
 			catch(InvalidProgramException)
 			{
@@ -273,7 +273,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 			try
 			{
-				_ = _emailParametersProvider.DocumentEmailSenderName;
+				_ = _emailSettings.DocumentEmailSenderName;
 			}
 			catch(InvalidProgramException)
 			{

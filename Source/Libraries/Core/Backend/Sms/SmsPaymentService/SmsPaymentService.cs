@@ -25,7 +25,7 @@ namespace SmsPaymentService
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IPaymentController _paymentController;
 	    private readonly ISmsPaymentStatusNotificationReciever _smsPaymentStatusNotificationReciever;
-	    private readonly IOrderSettings _orderParametersProvider;
+	    private readonly IOrderSettings _orderSettings;
 	    private readonly SmsPaymentFileCache _smsPaymentFileCache;
 	    private readonly ISmsPaymentDTOFactory _smsPaymentDTOFactory;
 	    private readonly ISmsPaymentValidator _smsPaymentValidator;
@@ -35,7 +35,7 @@ namespace SmsPaymentService
 			IUnitOfWorkFactory uowFactory,
             IPaymentController paymentController, 
             ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
-            IOrderSettings orderParametersProvider,
+            IOrderSettings orderSettings,
             SmsPaymentFileCache smsPaymentFileCache,
             ISmsPaymentDTOFactory smsPaymentDTOFactory,
             ISmsPaymentValidator smsPaymentValidator,
@@ -45,7 +45,7 @@ namespace SmsPaymentService
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             _smsPaymentStatusNotificationReciever = smsPaymentStatusNotificationReciever ?? throw new ArgumentNullException(nameof(smsPaymentStatusNotificationReciever));
-            _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            _orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
             _smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
             _smsPaymentDTOFactory = smsPaymentDTOFactory ?? throw new ArgumentNullException(nameof(smsPaymentDTOFactory));
             _smsPaymentValidator = smsPaymentValidator ?? throw new ArgumentNullException(nameof(smsPaymentValidator));
@@ -113,7 +113,7 @@ namespace SmsPaymentService
 
                     newPayment.SetReadyToSend();
                     var paymentDto = _smsPaymentDTOFactory.CreateSmsPaymentDTO(uow, newPayment, order,
-	                    uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId));
+	                    uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId));
 
                     if(!_smsPaymentValidator.Validate(paymentDto, out var errorMessages))
                     {
@@ -232,7 +232,7 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(uow, paidDate == default(DateTime) ? DateTime.Now : paidDate, uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId), _nomenclatureSettings);
+                            payment.SetPaid(uow, paidDate == default(DateTime) ? DateTime.Now : paidDate, uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId), _nomenclatureSettings);
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
@@ -306,7 +306,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId), _nomenclatureSettings);
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId), _nomenclatureSettings);
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -428,7 +428,7 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderParametersProvider.PaymentByCardFromSmsId), _nomenclatureSettings);
+                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId), _nomenclatureSettings);
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();

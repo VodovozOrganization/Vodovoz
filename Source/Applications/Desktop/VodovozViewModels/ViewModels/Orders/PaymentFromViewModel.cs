@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Orders
 			ICommonServices commonServices,
 			IPaymentFromRepository paymentFromRepository,
 			IOrganizationJournalFactory organizationJournalFactory,
-			IOrderSettings orderParametersProvider) : base(uoWBuilder, uowFactory, commonServices)
+			IOrderSettings orderSettings) : base(uoWBuilder, uowFactory, commonServices)
 		{
 			if(paymentFromRepository is null)
 			{
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Orders
 			
 			CanShowOrganization = true;
 			ValidationContext.ServiceContainer.AddService(typeof(IPaymentFromRepository), paymentFromRepository);
-			ValidationContext.ServiceContainer.AddService(typeof(IOrderSettings), orderParametersProvider);
+			ValidationContext.ServiceContainer.AddService(typeof(IOrderSettings), orderSettings);
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);

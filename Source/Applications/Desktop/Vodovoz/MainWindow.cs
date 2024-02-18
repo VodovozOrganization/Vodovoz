@@ -100,8 +100,8 @@ public partial class MainWindow : Gtk.Window
 		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
 		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
 		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
-		var tabsParametersProvider = _autofacScope.Resolve<ITabsSettings>();
-		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
+		var tabsSettings = _autofacScope.Resolve<ITabsSettings>();
+		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsSettings.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
 
 		if (reorderTabs)

@@ -42,9 +42,9 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			if(!(validationContext.ServiceContainer.GetService(
-				typeof(IOrderSettings)) is IOrderSettings orderParametersProvider))
+				typeof(IOrderSettings)) is IOrderSettings orderSettings))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderParametersProvider) }");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderSettings) }");
 			}
 			
 			if(string.IsNullOrWhiteSpace(Name))
@@ -54,7 +54,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Id > 0
 				&& OrganizationForOnlinePayments != null
-				&& orderParametersProvider.PaymentsByCardFromAvangard.Contains(Id)
+				&& orderSettings.PaymentsByCardFromAvangard.Contains(Id)
 				&& !OrganizationForOnlinePayments.AvangardShopId.HasValue)
 			{
 				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_Id",

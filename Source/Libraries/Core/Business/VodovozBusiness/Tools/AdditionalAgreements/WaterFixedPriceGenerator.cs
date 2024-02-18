@@ -13,17 +13,17 @@ namespace Vodovoz.Tools
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly decimal _priceIncrement;
 
-		public WaterFixedPriceGenerator(IUnitOfWork uow, INomenclatureSettings nomenclatureParametersProvider, INomenclatureRepository nomenclatureRepository)
+		public WaterFixedPriceGenerator(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, INomenclatureRepository nomenclatureRepository)
 		{
 			_uow = uow;
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			if(nomenclatureParametersProvider == null)
+			if(nomenclatureSettings == null)
 			{
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 			}
 			
 			SemiozeriePrice = 0m;
-			_priceIncrement = nomenclatureParametersProvider.GetWaterPriceIncrement;
+			_priceIncrement = nomenclatureSettings.GetWaterPriceIncrement;
 			SemiozerieWater = _nomenclatureRepository.GetWaterSemiozerie(uow);
 			RuchkiWater = _nomenclatureRepository.GetWaterRuchki(uow);
 			KislorodnayaWater = _nomenclatureRepository.GetWaterKislorodnaya(uow);

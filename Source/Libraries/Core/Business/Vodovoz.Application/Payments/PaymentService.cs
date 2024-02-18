@@ -28,15 +28,15 @@ namespace Vodovoz.Application.Payments
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider)
+			IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 			_paymentRepository = paymentRepository
 				?? throw new ArgumentNullException(nameof(paymentRepository));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
 
-			_closingDocumentDeliveryScheduleId = (deliveryScheduleParametersProvider
-					?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+			_closingDocumentDeliveryScheduleId = (deliveryScheduleSettings
+					?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 		}
 

@@ -30,7 +30,7 @@ namespace DriverAPI.Library.Models
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly OrderConverter _orderConverter;
-		private readonly IDriverApiSettings _webApiParametersProvider;
+		private readonly IDriverApiSettings _webApiSettings;
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentModel _aPISmsPaymentModel;
 		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
@@ -49,7 +49,7 @@ namespace DriverAPI.Library.Models
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			OrderConverter orderConverter,
-			IDriverApiSettings webApiParametersProvider,
+			IDriverApiSettings webApiSettings,
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentModel aPISmsPaymentModel,
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
@@ -65,7 +65,7 @@ namespace DriverAPI.Library.Models
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
-			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_webApiSettings = webApiSettings ?? throw new ArgumentNullException(nameof(webApiSettings));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
@@ -335,7 +335,7 @@ namespace DriverAPI.Library.Models
 			if(driverComplaintInfo.Rating < _maxClosingRating)
 			{
 				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, driverComplaintInfo.DriverComplaintReasonId);
-				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
+				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiSettings.ComplaintSourceId);
 				var reason = complaintReason?.Name ?? driverComplaintInfo.OtherDriverComplaintReasonComment;
 
 				var complaint = new Complaint

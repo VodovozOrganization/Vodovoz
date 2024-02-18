@@ -15,7 +15,7 @@ namespace UnsubscribePage.Controllers
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public UnsubscribeViewModel CreateNewUnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider) =>
-			new UnsubscribeViewModel(_uowFactory, guid, emailRepository, emailParametersProvider);
+		public UnsubscribeViewModel CreateNewUnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings) =>
+			new UnsubscribeViewModel(_uowFactory, guid, emailRepository, emailSettings);
 	}
 }

@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -113,8 +113,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings);
 
-			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
-												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
+												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 
 			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
@@ -163,7 +163,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			_defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(deliveryScheduleParametersProvider.DefaultDeliveryDayScheduleId);
+				UoW.GetById<DeliveryDaySchedule>(deliveryScheduleSettings.DefaultDeliveryDayScheduleId);
 			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
 			NHibernateUtil.Initialize(_defaultDeliveryDaySchedule.Shifts);
 

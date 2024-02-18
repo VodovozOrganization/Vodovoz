@@ -30,7 +30,7 @@ namespace Vodovoz.Additions
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly int _humanResourcesSubdivisionId;
 		private readonly int _developersSubdivisionId;
 
@@ -40,22 +40,22 @@ namespace Vodovoz.Additions
 			IUserRoleSettings userRoleSettings,
 			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
-			IEmailSettings emailParametersProvider,
-			ISubdivisionSettings subdivisionParametersProvider,
+			IEmailSettings emailSettings,
+			ISubdivisionSettings subdivisionSettings,
 			ILogger<AuthorizationService> logger)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 
-			if(subdivisionParametersProvider is null)
+			if(subdivisionSettings is null)
 			{
-				throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+				throw new ArgumentNullException(nameof(subdivisionSettings));
 			}
-			_humanResourcesSubdivisionId = subdivisionParametersProvider.GetHumanResourcesSubdivisionId;
-			_developersSubdivisionId = subdivisionParametersProvider.GetDevelopersSubdivisionId;
+			_humanResourcesSubdivisionId = subdivisionSettings.GetHumanResourcesSubdivisionId;
+			_developersSubdivisionId = subdivisionSettings.GetDevelopersSubdivisionId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -195,8 +195,8 @@ namespace Vodovoz.Additions
 			{
 				From = new EmailContact
 				{
-					Name = _emailParametersProvider.DocumentEmailSenderName,
-					Email = _emailParametersProvider.DocumentEmailSenderAddress
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = new List<EmailContact>

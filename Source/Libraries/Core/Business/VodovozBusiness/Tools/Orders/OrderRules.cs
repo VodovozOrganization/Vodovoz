@@ -24,9 +24,9 @@ namespace Vodovoz.Tools.Orders
 	public static class OrderDocumentRulesRepository
 	{
 		static List<Rule> rules = new List<Rule>();
-		private static IOrganizationSettings _organizationParametersProvider => ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+		private static IOrganizationSettings _organizationSettings => ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 		
-		private static int _beveragesWorldOrganizationId => _organizationParametersProvider.BeveragesWorldOrganizationId;
+		private static int _beveragesWorldOrganizationId => _organizationSettings.BeveragesWorldOrganizationId;
 
 		public static OrderDocumentType[] GetSetOfDocumets(OrderStateKey key) =>
 			rules.Where(r => r.Condition(key)).SelectMany(r => r.Documents).Distinct().ToArray();

@@ -42,9 +42,9 @@ namespace Vodovoz.Services
 			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
 		}
 
-		public void SendUpdToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleParametersProvider)
+		public void SendUpdToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
-			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleParametersProvider)
+			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings)
 				&& !emailRepository.HasSendedEmailForUpd(order.Id))
 			{
 				SendUpdToEmail(uow, order);
@@ -52,9 +52,9 @@ namespace Vodovoz.Services
 		}
 
 		public void SendBillForClosingDocumentOrderToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider)
+			IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
-			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleParametersProvider)
+			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings)
 				&& !emailRepository.HaveSendedEmailForBill(order.Id)
 				&& orderRepository.GetEdoContainersByOrderId(uow, order.Id).Count(x => x.Type == Type.Bill) == 0)
 			{

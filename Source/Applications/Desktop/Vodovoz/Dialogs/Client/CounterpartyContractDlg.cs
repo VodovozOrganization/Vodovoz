@@ -48,8 +48,8 @@ namespace Vodovoz
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;

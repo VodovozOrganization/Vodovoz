@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Logistic
 
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
-		private IDeliveryRulesSettings _deliveryRulesParametersProvider => ScopeProvider.Scope
+		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
 			.Resolve<IDeliveryRulesSettings>();
 		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
 			.Resolve<IEmployeeRepository>();
@@ -1003,9 +1003,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Зарплата
 
-		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver, _deliveryRulesParametersProvider);
+		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver, _deliveryRulesSettings);
 
-		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder, _deliveryRulesParametersProvider);
+		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder, _deliveryRulesSettings);
 
 		public virtual void SaveWageCalculationMethodics()
 		{

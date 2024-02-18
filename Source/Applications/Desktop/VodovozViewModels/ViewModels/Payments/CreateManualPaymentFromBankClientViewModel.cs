@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	{
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationSettings _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationSettings;
 		private const int _paymentNumForUpdateBalance = 120820;
 		private const string _updateBalanceTag = "Ввод остатков";
 		private int _defaultPaymentNum = 1;
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IProfitCategoryRepository profitCategoryRepository,
 			IPaymentSettings profitCategoryProvider,
 			IOrganizationRepository organizationRepository,
-			IOrganizationSettings organizationParametersProvider,
+			IOrganizationSettings organizationSettings,
 			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(profitCategoryRepository == null)
@@ -53,8 +53,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			Configure(profitCategoryRepository, profitCategoryProvider);
@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			Entity.PaymentNum = _defaultPaymentNum;
 			ProfitCategories = profitCategoryRepository.GetAllProfitCategories(UoW);
 			Entity.Date = DateTime.Today;
-			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationParametersProvider.VodovozOrganizationId);
+			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationSettings.VodovozOrganizationId);
 			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, paymentSettings.DefaultProfitCategory);
 			Entity.Status = PaymentState.undistributed;
 			Entity.IsManuallyCreated = true;
@@ -149,7 +149,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				Entity.PaymentNum =
 					_paymentsRepository.GetMaxPaymentNumFromManualPayments(
-						UoW, Entity.Counterparty.Id, _organizationParametersProvider.VodovozOrganizationId)
+						UoW, Entity.Counterparty.Id, _organizationSettings.VodovozOrganizationId)
 					+ 1;
 				_defaultPaymentNum = Entity.PaymentNum;
 			}

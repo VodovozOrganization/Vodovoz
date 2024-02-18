@@ -14,18 +14,18 @@ namespace Vodovoz.SmsInformerWorker.Services
 		private readonly ILogger<LowBalanceNotificationService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISmsSender _smsSender;
-		private readonly ISmsNotifierSettings _smsNotifierParametersProvider;
+		private readonly ISmsNotifierSettings _smsNotifierSettings;
 
 		public LowBalanceNotificationService(
 			ILogger<LowBalanceNotificationService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISmsSender smsSender,
-			ISmsNotifierSettings smsNotifierParametersProvider)
+			ISmsNotifierSettings smsNotifierSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_smsSender = smsSender ?? throw new ArgumentNullException(nameof(smsSender));
-			_smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
+			_smsNotifierSettings = smsNotifierSettings ?? throw new ArgumentNullException(nameof(smsNotifierSettings));
 		}
 
 		public void BalanceNotifierOnBalanceChange(object sender, SmsBalanceEventArgs e)
@@ -38,9 +38,9 @@ namespace Vodovoz.SmsInformerWorker.Services
 				}
 
 				decimal currentBalanceLevel = e.Balance;
-				decimal minBalanceLevel = _smsNotifierParametersProvider.LowBalanceLevel;
+				decimal minBalanceLevel = _smsNotifierSettings.LowBalanceLevel;
 
-				var unformedPhone = _smsNotifierParametersProvider.LowBalanceNotifiedPhone;
+				var unformedPhone = _smsNotifierSettings.LowBalanceNotifiedPhone;
 
 				if(string.IsNullOrWhiteSpace(unformedPhone))
 				{
@@ -51,7 +51,7 @@ namespace Vodovoz.SmsInformerWorker.Services
 					?? throw new InvalidProgramException(
 					$"Неверно заполнен номер телефона ({unformedPhone}) для уведомления о низком балансе денежных средств на счете");
 
-				string notifyText = _smsNotifierParametersProvider
+				string notifyText = _smsNotifierSettings
 					.LowBalanceNotifyText
 					.Replace("$balance$", currentBalanceLevel.ToString("0.##"));
 

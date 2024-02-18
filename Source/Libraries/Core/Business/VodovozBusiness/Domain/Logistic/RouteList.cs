@@ -69,7 +69,7 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private static IGeneralSettings _generalSettingsParametersProviderGap;
+		private static IGeneralSettings _generalSettingsSettingsGap;
 
 		private IUnitOfWorkFactory _uowFactory => ScopeProvider.Scope
 			.Resolve<IUnitOfWorkFactory>();
@@ -79,11 +79,11 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
 			.Resolve<IRouteListRepository>();
-		private IDeliveryRulesSettings _deliveryRulesParametersProvider => ScopeProvider.Scope
+		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
 			.Resolve<IDeliveryRulesSettings>();
 		private IDeliveryRepository _deliveryRepository => ScopeProvider.Scope
 			.Resolve<IDeliveryRepository>();
-		private IGeneralSettings GetGeneralSettingsParametersProvider => ScopeProvider.Scope
+		private IGeneralSettings GetGeneralSettingsSettings => ScopeProvider.Scope
 			.Resolve<IGeneralSettings>();
 		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
 			.Resolve<IRouteListCashOrganisationDistributor>();
@@ -1680,14 +1680,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool CanAddForwarder => GetGeneralSettingsParametersProvider.GetCanAddForwardersToLargus
+		public virtual bool CanAddForwarder => GetGeneralSettingsSettings.GetCanAddForwardersToLargus
 			|| Car?.CarModel.CarTypeOfUse != CarTypeOfUse.Largus
 			|| GetCarVersion?.CarOwnType != CarOwnType.Company;
 
-		public static void SetGeneralSettingsParametersProviderGap(
-			IGeneralSettings generalSettingsParametersProviderGap)
+		public static void SetGeneralSettingsSettingsGap(
+			IGeneralSettings generalSettingsSettingsGap)
 		{
-			_generalSettingsParametersProviderGap = generalSettingsParametersProviderGap;
+			_generalSettingsSettingsGap = generalSettingsSettingsGap;
 		}
 
 		public virtual void UpdateFastDeliveryMaxDistanceValue(decimal _fastDeliveryMaxDistanceValue)
@@ -1783,15 +1783,15 @@ namespace Vodovoz.Domain.Logistic
 				return maxFastDeliveryOrdersItem.MaxOrders;
 			}
 
-			return _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
+			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 		}
 
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
 			if(Driver != null)
 			{
-				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
-				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
+				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
 
 				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
 
@@ -1849,8 +1849,8 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
-						var orderParametersProvider = validationContext.GetService<IOrderSettings>();
-						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesSettings>();
+						var orderSettings = validationContext.GetService<IOrderSettings>();
+						var deliveryRulesSettings = validationContext.GetService<IDeliveryRulesSettings>();
 
 						validationContext.Items.TryGetValue(ValidationKeyIgnoreReceiptsForOrders, out var ignoreReceiptsInOrdersParameter);
 
@@ -1872,8 +1872,8 @@ namespace Vodovoz.Domain.Logistic
 									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(orderParametersProvider);
-							orderValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
+							orderValidationContext.ServiceContainer.AddService(orderSettings);
+							orderValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)

@@ -15,24 +15,24 @@ namespace FastPaymentsAPI.Library.Managers
 {
 	public class FastPaymentManager : IFastPaymentManager
 	{
-		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
-		private readonly IOrderSettings _orderParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
+		private readonly IOrderSettings _orderSettings;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly ICashRepository _cashRepository;
 
 		public FastPaymentManager(
-			IFastPaymentSettings fastPaymentParametersProvider,
-			IOrderSettings orderParametersProvider,
+			IFastPaymentSettings fastPaymentSettings,
+			IOrderSettings orderSettings,
 			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository)
 		{
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
@@ -45,21 +45,21 @@ namespace FastPaymentsAPI.Library.Managers
 
 			if(fastPaymentWithQRNotFromOnline)
 			{
-				if(elapsedTime > _fastPaymentParametersProvider.GetQRLifetime)
+				if(elapsedTime > _fastPaymentSettings.GetQRLifetime)
 				{
 					return true;
 				}
 			}
 			else if(fastPaymentFromOnline)
 			{
-				if(elapsedTime > _fastPaymentParametersProvider.GetOnlinePayByQRLifetime)
+				if(elapsedTime > _fastPaymentSettings.GetOnlinePayByQRLifetime)
 				{
 					return true;
 				}
 			}
 			else
 			{
-				if(elapsedTime > _fastPaymentParametersProvider.GetPayUrlLifetime)
+				if(elapsedTime > _fastPaymentSettings.GetPayUrlLifetime)
 				{
 					return true;
 				}
@@ -111,12 +111,12 @@ namespace FastPaymentsAPI.Library.Managers
 			if(fastPayment.Order != null)
 			{
 				paymentFromId = fastPayment.FastPaymentPayType == FastPaymentPayType.ByCard
-					? _orderParametersProvider.GetPaymentByCardFromAvangardId
-					: _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId;
+					? _orderSettings.GetPaymentByCardFromAvangardId
+					: _orderSettings.GetPaymentByCardFromFastPaymentServiceId;
 			}
 			else
 			{
-				paymentFromId = _orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId;
+				paymentFromId = _orderSettings.GetPaymentByCardFromSiteByQrCodeId;
 			}
 
 			fastPayment.PaymentByCardFrom = uow.GetById<PaymentFrom>(paymentFromId);

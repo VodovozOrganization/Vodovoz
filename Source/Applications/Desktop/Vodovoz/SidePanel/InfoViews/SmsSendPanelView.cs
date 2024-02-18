@@ -39,7 +39,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		public SmsSendPanelView(
 			ICommonServices commonServices,
 			IFastPaymentRepository fastPaymentRepository,
-			IFastPaymentSettings fastPaymentParametersProvider)
+			IFastPaymentSettings fastPaymentSettings)
 		{
 			if(commonServices == null)
 			{

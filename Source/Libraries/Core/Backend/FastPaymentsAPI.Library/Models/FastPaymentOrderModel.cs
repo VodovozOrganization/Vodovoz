@@ -30,20 +30,20 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IFastPaymentValidator _fastPaymentValidator;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IOrderRequestManager _orderRequestManager;
 
 		public FastPaymentOrderModel(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
-			IEmailSettings emailParametersProvider,
+			IEmailSettings emailSettings,
 			IOrderRequestManager orderRequestManager)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_fastPaymentValidator = fastPaymentValidator ?? throw new ArgumentNullException(nameof(fastPaymentValidator));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_orderRequestManager = orderRequestManager ?? throw new ArgumentNullException(nameof(orderRequestManager));
 		}
 
@@ -99,8 +99,8 @@ namespace FastPaymentsAPI.Library.Models
 			{
 				From = new EmailContact
 				{
-					Name = _emailParametersProvider.DocumentEmailSenderName,
-					Email = _emailParametersProvider.DocumentEmailSenderAddress
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = new List<EmailContact>
@@ -108,7 +108,7 @@ namespace FastPaymentsAPI.Library.Models
 					new EmailContact
 					{
 						Name = "Уважаемый пользователь",
-						Email = _emailParametersProvider.InvalidSignatureNotificationEmailAddress
+						Email = _emailSettings.InvalidSignatureNotificationEmailAddress
 					}
 				},
 

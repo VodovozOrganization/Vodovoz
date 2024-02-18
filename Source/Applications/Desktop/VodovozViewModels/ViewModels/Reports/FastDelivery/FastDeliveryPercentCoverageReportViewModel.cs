@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		private const string _templatePath = @".\Reports\Logistic\FastDeliveryPercentCoverageReport.xlsx";
 
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -51,14 +51,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryRepository deliveryRepository,
 			ITrackRepository trackRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			_deliveryRulesParametersProvider =
-				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings =
+				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_scheduleRestrictionRepository =
@@ -205,7 +205,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			StartDate = EndDate = DateTime.Today.AddDays(-1);
 
 			DriverDisconnectedTimespan =
-				TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
+				TimeSpan.FromMinutes(-(int)_deliveryRulesSettings.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
 
 			StartHour = TimeSpan.FromHours(_defaultStartHour);
 			EndHour = TimeSpan.FromHours(_defaultEndHour);
@@ -294,7 +294,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					.Take(1);
 
 				var routeListMaxFastDeliveryOrdersProjection = Projections.Conditional(Restrictions.IsNull(Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery)),
-					Projections.Constant(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime),
+					Projections.Constant(_deliveryRulesSettings.MaxFastOrdersPerSpecificTime),
 					Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery));
 
 				query.Where(Restrictions.GtProperty(routeListMaxFastDeliveryOrdersProjection, Projections.SubQuery(addressCountSubquery)));

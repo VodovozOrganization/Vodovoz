@@ -31,7 +31,7 @@ namespace EmailPrepareWorker
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
@@ -44,7 +44,7 @@ namespace EmailPrepareWorker
 			IConfiguration configuration,
 			IModel channel,
 			IEmailRepository emailRepository,
-			IEmailSettings emailParametersProvider,
+			IEmailSettings emailSettings,
 			IEmailDocumentPreparer emailDocumentPreparer,
 			IEmailSendMessagePreparer emailSendMessagePreparer)
 		{
@@ -57,7 +57,7 @@ namespace EmailPrepareWorker
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_emailSendMessagePreparer = emailSendMessagePreparer ?? throw new ArgumentNullException(nameof(emailSendMessagePreparer));
 
@@ -135,14 +135,14 @@ namespace EmailPrepareWorker
 								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
 								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
 								{
-										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailParametersProvider,
+										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailSettings,
 											_emailDocumentPreparer, counterpartyEmail, _instanceId);
 
 										break;
 								}
 								case CounterpartyEmailType.UpdDocument: 
 								{
-									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailParametersProvider,
+									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailSettings,
 										_emailDocumentPreparer, counterpartyEmail, _instanceId);
 										
 									break;

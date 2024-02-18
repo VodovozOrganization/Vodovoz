@@ -332,9 +332,9 @@ namespace Vodovoz.Reports
 				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategoryParametersProvider = ScopeProvider.Scope.Resolve<IOrganizationCashTransferDocumentSettings>();
-			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
-			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
+			var cashCategorySettings = ScopeProvider.Scope.Resolve<IOrganizationCashTransferDocumentSettings>();
+			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategorySettings.CashIncomeCategoryTransferId);
+			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategorySettings.CashExpenseCategoryTransferId);
 
 			return reportInfo;
 		}

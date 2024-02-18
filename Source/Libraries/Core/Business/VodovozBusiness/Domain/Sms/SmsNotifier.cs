@@ -10,12 +10,12 @@ namespace Vodovoz.Domain.Sms
 	public class SmsNotifier
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly ISmsNotifierSettings _smsNotifierParametersProvider;
+		private readonly ISmsNotifierSettings _smsNotifierSettings;
 
-		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierSettings smsNotifierParametersProvider)
+		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierSettings smsNotifierSettings)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			this._smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
+			this._smsNotifierSettings = smsNotifierSettings ?? throw new ArgumentNullException(nameof(smsNotifierSettings));
 		}
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Sms
 		/// </summary>
 		public void NotifyIfNewClient(Order order)
 		{
-			if(!_smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
+			if(!_smsNotifierSettings.IsSmsNotificationsEnabled) {
 				return;
 			}
 
@@ -56,7 +56,7 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//получение текста сообщения
-			string messageText = _smsNotifierParametersProvider.NewClientSmsTextTemplate;
+			string messageText = _smsNotifierSettings.NewClientSmsTextTemplate;
 
 			//формирование текста сообщения
 			const string orderIdVariable = "$order_id$";
@@ -95,7 +95,7 @@ namespace Vodovoz.Domain.Sms
 		/// до сохранения самого недовоза в базу</param>
 		public void NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder undeliveredOrder, IUnitOfWork externalUow = null)
 		{
-			if(!_smsNotifierParametersProvider.IsSmsNotificationsEnabled)
+			if(!_smsNotifierSettings.IsSmsNotificationsEnabled)
 			{
 				return;
 			}
@@ -133,7 +133,7 @@ namespace Vodovoz.Domain.Sms
 			}
 			
 			//получение текста сообщения
-			var msgToSend = _smsNotifierParametersProvider.UndeliveryAutoTransferNotApprovedTextTemplate;
+			var msgToSend = _smsNotifierSettings.UndeliveryAutoTransferNotApprovedTextTemplate;
 
 			//формирование текста сообщения
 			//метки для замены в тексте сообщения из базы

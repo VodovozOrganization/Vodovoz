@@ -27,7 +27,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCache _districtCache;
 		private readonly DeliverySchedule _fastDeliverySchedule;
@@ -37,7 +37,7 @@ namespace DeliveryRulesService.Controllers
 			IUnitOfWorkFactory uowFactory,
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCache districtCache)
 		{
@@ -45,15 +45,15 @@ namespace DeliveryRulesService.Controllers
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_deliveryRulesParametersProvider =
-				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings =
+				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
 
 			using(var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{
-				_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesParametersProvider.FastDeliveryScheduleId);
+				_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesSettings.FastDeliveryScheduleId);
 			}
 		}
 
@@ -109,7 +109,7 @@ namespace DeliveryRulesService.Controllers
 						WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
 					};
 
-					var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+					var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 
 					foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 					{
@@ -179,7 +179,7 @@ namespace DeliveryRulesService.Controllers
 					WeekDayDeliveryRules = new List<ExtendedWeekDayDeliveryRuleDto>()
 				};
 					
-				var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+				var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 					
 				foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 				{
@@ -237,7 +237,7 @@ namespace DeliveryRulesService.Controllers
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 
 				var allowed =
-					!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday
+					!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday
 					&& fastDeliveryAllowed;
 
 				if(allowed)
@@ -264,7 +264,7 @@ namespace DeliveryRulesService.Controllers
 			{
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 				
-				if(!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
+				if(!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
 				{
 					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
 					todayInfo.ScheduleRestrictions.Insert(0, new ExtendedScheduleRestrictionDto
@@ -375,7 +375,7 @@ namespace DeliveryRulesService.Controllers
 				WeekDayDeliveryInfos = new List<WeekDayDeliveryInfoDTO>(),
 			};
 
-			var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+			var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 
 			foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 			{

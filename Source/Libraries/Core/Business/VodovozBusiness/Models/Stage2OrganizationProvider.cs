@@ -17,25 +17,25 @@ namespace Vodovoz.Models
 {
 	public class Stage2OrganizationProvider : IOrganizationProvider
 	{
-		private readonly IOrganizationSettings _organizationParametersProvider;
-		private readonly IOrderSettings _orderParametersProvider;
-		private readonly IGeographicGroupSettings _geographicGroupParametersProvider;
+		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IOrderSettings _orderSettings;
+		private readonly IGeographicGroupSettings _geographicGroupSettings;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 
 		public Stage2OrganizationProvider(
-			IOrganizationSettings organizationParametersProvider,
-			IOrderSettings orderParametersProvider,
-			IGeographicGroupSettings geographicGroupParametersProvider,
+			IOrganizationSettings organizationSettings,
+			IOrderSettings orderSettings,
+			IGeographicGroupSettings geographicGroupSettings,
 			IFastPaymentRepository fastPaymentRepository,
 			ICashReceiptRepository cashReceiptRepository)
 		{
-			_organizationParametersProvider = organizationParametersProvider
-				?? throw new ArgumentNullException(nameof(organizationParametersProvider));
-			_orderParametersProvider = orderParametersProvider
-				?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_geographicGroupParametersProvider = geographicGroupParametersProvider
-				?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
+			_organizationSettings = organizationSettings
+				?? throw new ArgumentNullException(nameof(organizationSettings));
+			_orderSettings = orderSettings
+				?? throw new ArgumentNullException(nameof(orderSettings));
+			_geographicGroupSettings = geographicGroupSettings
+				?? throw new ArgumentNullException(nameof(geographicGroupSettings));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
@@ -52,8 +52,8 @@ namespace Vodovoz.Models
 			}
 
 			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
-				? _organizationParametersProvider.VodovozNorthOrganizationId
-				: _organizationParametersProvider.VodovozOrganizationId;
+				? _organizationSettings.VodovozNorthOrganizationId
+				: _organizationSettings.VodovozOrganizationId;
 
 			return uow.GetById<Organization>(organizationId);
 		}
@@ -129,17 +129,17 @@ namespace Vodovoz.Models
 				case PaymentType.Barter:
 				case PaymentType.Cashless:
 				case PaymentType.ContractDocumentation:
-					organizationId = _organizationParametersProvider.VodovozOrganizationId;
+					organizationId = _organizationSettings.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					organizationId = _organizationSettings.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
-					organizationId = _organizationParametersProvider.VodovozEastOrganizationId;
+					organizationId = _organizationSettings.VodovozEastOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
-					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
+					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderSettings.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
 					break;
 				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
@@ -157,12 +157,12 @@ namespace Vodovoz.Models
 			return orderItems != null
 				&& orderItems.Any(x =>
 					x.Nomenclature.OnlineStore != null &&
-					x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
+					x.Nomenclature.OnlineStore.Id != _orderSettings.OldInternalOnlineStoreId);
 		}
 
 		private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
 		{
-			return uow.GetById<Organization>(_organizationParametersProvider.VodovozNorthOrganizationId);
+			return uow.GetById<Organization>(_organizationSettings.VodovozNorthOrganizationId);
 		}
 
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
@@ -175,17 +175,17 @@ namespace Vodovoz.Models
 				case PaymentType.Barter:
 				case PaymentType.Cashless:
 				case PaymentType.ContractDocumentation:
-					organizationId = _organizationParametersProvider.VodovozOrganizationId;
+					organizationId = _organizationSettings.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					organizationId = _organizationSettings.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
-					organizationId = _organizationParametersProvider.VodovozEastOrganizationId;
+					organizationId = _organizationSettings.VodovozEastOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
-					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId);
+					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderSettings.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
@@ -200,7 +200,7 @@ namespace Vodovoz.Models
 		private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
 		{
 			return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x =>
-				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
+				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderSettings.OldInternalOnlineStoreId);
 		}
 
 		private int GetOrganizationIdForByCard(IUnitOfWork uow, PaymentFrom paymentFrom, GeoGroup geographicGroup,
@@ -208,17 +208,17 @@ namespace Vodovoz.Models
 		{
 			if(paymentFrom == null)
 			{
-				return _organizationParametersProvider.VodovozNorthOrganizationId;
+				return _organizationSettings.VodovozNorthOrganizationId;
 			}
 			
-			if(_orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
+			if(_orderSettings.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 				&& orderCreateDate.HasValue
 				&& orderCreateDate.Value < new DateTime(2022, 08, 30, 13, 00, 00))
 			{
-				return _organizationParametersProvider.VodovozNorthOrganizationId;
+				return _organizationSettings.VodovozNorthOrganizationId;
 			}
 
-			if(_orderParametersProvider.PaymentsByCardFromAvangard.Contains(paymentFrom.Id))
+			if(_orderSettings.PaymentsByCardFromAvangard.Contains(paymentFrom.Id))
 			{
 				if(!onlineOrderId.HasValue)
 				{
@@ -231,13 +231,13 @@ namespace Vodovoz.Models
 					return GetPaymentFromOrganisationIdOrDefault(paymentFrom);
 				}
 
-				return fastPayment.Organization?.Id ?? _organizationParametersProvider.VodovozNorthOrganizationId;
+				return fastPayment.Organization?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
 			}
 
 			return GetPaymentFromOrganisationIdOrDefault(paymentFrom);
 		}
 
 		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
-			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationParametersProvider.VodovozNorthOrganizationId;
+			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
 	}
 }

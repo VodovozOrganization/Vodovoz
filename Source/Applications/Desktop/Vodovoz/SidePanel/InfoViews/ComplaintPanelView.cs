@@ -32,18 +32,18 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IComplaintsRepository complaintsRepository;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
-		private readonly IComplaintSettings _complaintParametersProvider;
+		private readonly IComplaintSettings _complaintSettings;
 		private readonly Gdk.Color _primaryBg = GdkColors.PrimaryBase;
 		private readonly Gdk.Color _secondaryBg = GdkColors.PrimaryBG;
 		private readonly Gdk.Color _red = GdkColors.DangerText;
 		private readonly string _primaryTextHtmlColor = GdkColors.PrimaryText.ToHtmlColor();
 		private readonly string _redTextHtmlColor = GdkColors.DangerText.ToHtmlColor();
 
-		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, IComplaintSettings complaintParametersProvider)
+		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, IComplaintSettings complaintSettings)
 		{
 			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
-			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 
 			Build();
 			ConfigureWidget();
@@ -284,8 +284,8 @@ namespace Vodovoz.SidePanel.InfoViews
 						NHibernateUtil.String,
 					"GROUP_CONCAT(" +
 					"CASE ?1 " +
-					$"WHEN '{_complaintParametersProvider.EmployeeResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
-					$"WHEN '{_complaintParametersProvider.SubdivisionResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
+					$"WHEN '{_complaintSettings.EmployeeResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
+					$"WHEN '{_complaintSettings.SubdivisionResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
 					$"ELSE ?4 " +
 					"END " +
 					"ORDER BY ?5 ASC SEPARATOR '\n')"),
@@ -295,10 +295,10 @@ namespace Vodovoz.SidePanel.InfoViews
 					Projections.Property(() => subdivisionAlias.Name),
 					Projections.Property(() => responsibleAlias.Name),
 					Projections.Conditional(
-						Restrictions.EqProperty(Projections.Constant(_complaintParametersProvider.EmployeeResponsibleId), Projections.Property(() => responsibleAlias.Id)),
+						Restrictions.EqProperty(Projections.Constant(_complaintSettings.EmployeeResponsibleId), Projections.Property(() => responsibleAlias.Id)),
 						Projections.Property(() => subdivisionForEmployeeAlias.Name),
 						Projections.Conditional(
-							Restrictions.EqProperty(Projections.Constant(_complaintParametersProvider.SubdivisionResponsibleId), Projections.Property(() => responsibleAlias.Id)),
+							Restrictions.EqProperty(Projections.Constant(_complaintSettings.SubdivisionResponsibleId), Projections.Property(() => responsibleAlias.Id)),
 							Projections.Property(() => subdivisionAlias.Name),
 							Projections.Property(() => responsibleAlias.Name)
 							)

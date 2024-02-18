@@ -15,18 +15,18 @@ namespace Vodovoz.Models
 {
 	internal sealed class FastPaymentSender : IFastPaymentSender
 	{
-		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
 		private readonly ISmsClientChannelFactory _smsClientFactory;
 		private readonly ISmsSettings _smsSettings;
 		private HttpClient _httpClient;
 
 		public FastPaymentSender(
-			IFastPaymentSettings fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentSettings,
 			ISmsClientChannelFactory smsClientFactory,
 			ISmsSettings smsSettings)
 		{
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
 			_smsClientFactory = smsClientFactory ?? throw new ArgumentNullException(nameof(smsClientFactory));
 			_smsSettings = smsSettings ?? throw new ArgumentNullException(nameof(smsSettings));
 		}
@@ -68,7 +68,7 @@ namespace Vodovoz.Models
 				var smsMessage = new SmsMessage
 				{
 					MessageText = $"Ссылка на оплату заказа №{orderId}\n" +
-						$"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{response.FastPaymentGuid}",
+						$"{_fastPaymentSettings.GetVodovozFastPayBaseUrl}/{response.FastPaymentGuid}",
 					MobilePhone = phoneNumber,
 					ExpiredTime = Timestamp.FromDateTime(DateTime.UtcNow.AddMinutes(10))
 				};
@@ -97,7 +97,7 @@ namespace Vodovoz.Models
 		{
 			using(_httpClient = HttpClientFactory.Create())
 			{
-				_httpClient.BaseAddress = new Uri(_fastPaymentParametersProvider.GetFastPaymentApiBaseUrl);
+				_httpClient.BaseAddress = new Uri(_fastPaymentSettings.GetFastPaymentApiBaseUrl);
 				_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 				var responseTask = await _httpClient.PostAsJsonAsync("/api/RegisterOrder", new { orderid, phoneNumber, isQr });
 

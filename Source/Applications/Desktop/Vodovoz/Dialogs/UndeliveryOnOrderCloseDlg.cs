@@ -21,7 +21,7 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly ISmsNotifierSettings _smsNotifierParametersProvider = ScopeProvider.Scope.Resolve<ISmsNotifierSettings>();
+		private readonly ISmsNotifierSettings _smsNotifierSettings = ScopeProvider.Scope.Resolve<ISmsNotifierSettings>();
 		private bool _addedCommentToOldUndelivery;
 		private OrderStatus _oldOrderStatus;
 
@@ -156,7 +156,7 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			var smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _smsNotifierParametersProvider);
+			var smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _smsNotifierSettings);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery, UoW);
 		}
 

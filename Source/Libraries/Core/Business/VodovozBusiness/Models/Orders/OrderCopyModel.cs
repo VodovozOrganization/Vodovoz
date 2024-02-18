@@ -8,12 +8,12 @@ namespace Vodovoz.Models.Orders
 {
 	public class OrderCopyModel
 	{
-		private readonly INomenclatureSettings _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
 
-		public OrderCopyModel(INomenclatureSettings nomenclatureParametersProvider, IFlyerRepository flyerRepository)
+		public OrderCopyModel(INomenclatureSettings nomenclatureSettings, IFlyerRepository flyerRepository)
 		{
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 		}
 
@@ -36,7 +36,7 @@ namespace Vodovoz.Models.Orders
 				resultOrder = new Order();
 			}	
 		
-			CopyingOrder copyingOrder = new CopyingOrder(uow, copiedOrder, resultOrder, _nomenclatureParametersProvider, _flyerRepository);
+			CopyingOrder copyingOrder = new CopyingOrder(uow, copiedOrder, resultOrder, _nomenclatureSettings, _flyerRepository);
 
 			return copyingOrder;
 		}

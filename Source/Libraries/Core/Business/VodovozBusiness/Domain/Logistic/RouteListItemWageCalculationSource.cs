@@ -15,14 +15,14 @@ namespace Vodovoz.Domain.Logistic
 	{
 		private readonly RouteListItem item;
 		private readonly EmployeeCategory employeeCategory;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 
 		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory,
-			IDeliveryRulesSettings deliveryRulesParametersProvider)
+			IDeliveryRulesSettings deliveryRulesSettings)
 		{
 			this.employeeCategory = employeeCategory;
 			this.item = item ?? throw new ArgumentNullException(nameof(item));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider)); ;
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings)); ;
 		}
 
 		#region IRouteListItemWageCalculationSource implementation
@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.Logistic
 		public WageRateTypes GetFastDeliveryWageRateType()
 		{
 			var hasFastDeliveryLate =
-				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate > _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate > _deliveryRulesSettings.MaxTimeForFastDelivery;
 
 			return hasFastDeliveryLate ? WageRateTypes.FastDeliveryWithLate : WageRateTypes.FastDelivery;
 		}

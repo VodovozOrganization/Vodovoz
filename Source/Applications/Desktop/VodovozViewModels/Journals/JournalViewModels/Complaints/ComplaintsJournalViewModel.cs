@@ -53,10 +53,10 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionSettings _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
-		private readonly IComplaintSettings _complaintParametersProvider;
-		private readonly IGeneralSettings _generalSettingsParametersProvider;
+		private readonly IComplaintSettings _complaintSettings;
+		private readonly IGeneralSettings _generalSettingsSettings;
 		private bool _canCloseComplaint;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -72,13 +72,13 @@ namespace Vodovoz.Journals.JournalViewModels
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionSettings subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
-			IComplaintSettings complaintParametersProvider,
-			IGeneralSettings generalSettingsParametersProvider,
+			IComplaintSettings complaintSettings,
+			IGeneralSettings generalSettingsSettings,
 			Action<ComplaintFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -86,10 +86,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
-			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
+			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 
 			TabName = "Журнал рекламаций";
 
@@ -121,9 +121,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			_canCloseComplaint = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 			SubdivisionQualityServiceShortName =
-				UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?";
+				UoW.GetById<Subdivision>(_subdivisionSettings.QualityServiceSubdivisionId).ShortName ?? "?";
 			SubdivisionAuditDepartmentShortName =
-				UoW.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?";
+				UoW.GetById<Subdivision>(_subdivisionSettings.AuditDepartmentSubdivisionId).ShortName ?? "?";
 			
 			RegisterComplaints();
 
@@ -277,8 +277,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			var guiltiesProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT " +
 					"CASE ?1 " +
-					$"WHEN '{_complaintParametersProvider.EmployeeResponsibleId}' THEN CONCAT('(',?5,')', ?2)" +
-					$"WHEN '{_complaintParametersProvider.SubdivisionResponsibleId}' THEN ?3 " +
+					$"WHEN '{_complaintSettings.EmployeeResponsibleId}' THEN CONCAT('(',?5,')', ?2)" +
+					$"WHEN '{_complaintSettings.SubdivisionResponsibleId}' THEN ?3 " +
 					$"ELSE ?6 " +
 					"END " +
 					" SEPARATOR ?4)"),
@@ -844,7 +844,7 @@ namespace Vodovoz.Journals.JournalViewModels
 							var currentComplaint = uowLocal.GetById<Complaint>(selectedNode.Id);
 
 							var interserctedSubdivisionsToInformIds =
-								_generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+								_generalSettingsSettings.SubdivisionsToInformComplaintHasNoDriver
 									.Intersect(currentComplaint.Guilties.Select(cgi => cgi.Subdivision.Id));
 
 							var intersectedSubdivisionsNames = currentComplaint.Guilties
@@ -852,7 +852,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
 								.Select(s => s.Name);
 
-							if(currentComplaint.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+							if(currentComplaint.ComplaintResultOfEmployees?.Id == _complaintSettings.ComplaintResultOfEmployeesIsGuiltyId
 								&& interserctedSubdivisionsToInformIds.Any()
 								&& currentComplaint.Driver is null
 								&& !_commonServices.InteractiveService.Question(

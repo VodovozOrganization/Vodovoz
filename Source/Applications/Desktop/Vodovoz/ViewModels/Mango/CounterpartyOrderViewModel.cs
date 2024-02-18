@@ -40,9 +40,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
-		private readonly IOrderSettings _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -88,10 +88,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			ITdiCompatibilityNavigation tdinavigation,
 			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
-			IOrderSettings orderParametersProvider,
+			IOrderSettings orderSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
 			int count = 5)
 		{
@@ -101,10 +101,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			tdiNavigation = tdinavigation;
 			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
@@ -265,8 +265,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				ValidationContext validationContext = new ValidationContext(order, null, new Dictionary<object, object> {
 					{ "NewStatus", OrderStatus.Canceled },
 				});
-				validationContext.ServiceContainer.AddService(_orderParametersProvider);
-				validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
+				validationContext.ServiceContainer.AddService(_orderSettings);
+				validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
 				if(!ServicesConfig.ValidationService.Validate(order, validationContext))
 				{
 					return;

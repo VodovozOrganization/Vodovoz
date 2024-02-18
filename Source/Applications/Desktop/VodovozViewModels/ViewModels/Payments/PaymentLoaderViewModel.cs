@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
-			IOrganizationSettings organizationParametersProvider,
+			IOrganizationSettings organizationSettings,
 			IPaymentSettings paymentSettings,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
@@ -61,14 +61,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
-			if(organizationParametersProvider == null)
+			if(organizationSettings == null)
 			{
-				throw new ArgumentNullException(nameof(organizationParametersProvider));
+				throw new ArgumentNullException(nameof(organizationSettings));
 			}
 
 			InteractiveService = commonServices.InteractiveService;
-			_vodovozId = organizationParametersProvider.VodovozOrganizationId;
-			_vodovozSouthId = organizationParametersProvider.VodovozSouthOrganizationId;
+			_vodovozId = organizationSettings.VodovozOrganizationId;
+			_vodovozSouthId = organizationSettings.VodovozSouthOrganizationId;
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			

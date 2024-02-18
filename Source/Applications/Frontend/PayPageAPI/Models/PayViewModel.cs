@@ -14,18 +14,18 @@ namespace PayPageAPI.Models
 		private decimal _orderSum;
 		private FastPaymentStatus _fastPaymentStatus;
 
-		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
-		private readonly IOrganizationSettings _organizationParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public PayViewModel(
-			IFastPaymentSettings fastPaymentParametersProvider,
-			IOrganizationSettings organizationParametersProvider,
+			IFastPaymentSettings fastPaymentSettings,
+			IOrganizationSettings organizationSettings,
 			FastPayment fastPayment)
 		{
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 
 			if(fastPayment == null)
 			{
@@ -40,7 +40,7 @@ namespace PayPageAPI.Models
 		public string Ticket { get; private set; }
 		public bool IsOnlineOrder { get; private set; }
 
-		public string PayUrl => $"{_fastPaymentParametersProvider.GetAvangardFastPayBaseUrl}?ticket={Ticket}";
+		public string PayUrl => $"{_fastPaymentSettings.GetAvangardFastPayBaseUrl}?ticket={Ticket}";
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
 		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
@@ -70,15 +70,15 @@ namespace PayPageAPI.Models
 
 		private void FillOfertaUrl(Organization organization)
 		{
-			if(organization == null || organization.Id == _organizationParametersProvider.VodovozNorthOrganizationId)
+			if(organization == null || organization.Id == _organizationSettings.VodovozNorthOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_vv_north.pdf";
 			}
-			else if(organization.Id == _organizationParametersProvider.VodovozSouthOrganizationId)
+			else if(organization.Id == _organizationSettings.VodovozSouthOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_vv_south.pdf";
 			}
-			else if(organization.Id == _organizationParametersProvider.VodovozEastOrganizationId)
+			else if(organization.Id == _organizationSettings.VodovozEastOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_vv_east.pdf";
 			}

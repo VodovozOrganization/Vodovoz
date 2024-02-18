@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.Goods
 {
 	public class AdditionalLoadingSettingsViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IInteractiveService _interactiveService;
 
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Goods
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryRepository deliveryRepository
 			)
 			: base(unitOfWorkFactory, navigation)
@@ -57,8 +57,8 @@ namespace Vodovoz.ViewModels.Goods
 			{
 				throw new ArgumentNullException(nameof(commonServices));
 			}
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
-				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ??
+				throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_interactiveService = commonServices.InteractiveService;
 
@@ -66,13 +66,13 @@ namespace Vodovoz.ViewModels.Goods
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
 			
 			FastDeliveryMaxDistance = _deliveryRepository.MaxDistanceToLatestTrackPointKm;
-			MaxFastOrdersPerSpecificTime = _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
+			MaxFastOrdersPerSpecificTime = _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 
-			FlyerAdditionEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
-			BottlesCount = _deliveryRulesParametersProvider.BottlesCountForFlyer;
+			FlyerAdditionEnabled = _deliveryRulesSettings.AdditionalLoadingFlyerAdditionEnabled;
+			BottlesCount = _deliveryRulesSettings.BottlesCountForFlyer;
 
-			FlyerForNewCounterpartyEnabled = _deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled;
-			FlyerForNewCounterpartyBottlesCount = _deliveryRulesParametersProvider.FlyerForNewCounterpartyBottlesCount;
+			FlyerForNewCounterpartyEnabled = _deliveryRulesSettings.FlyerForNewCounterpartyEnabled;
+			FlyerForNewCounterpartyBottlesCount = _deliveryRulesSettings.FlyerForNewCounterpartyBottlesCount;
 
 			Initialize();
 		}
@@ -276,13 +276,13 @@ namespace Vodovoz.ViewModels.Goods
 			_deliveryRepository.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance);
 			UpdateFastDeliveryMaxDistanceValueInAllNotClosedRouteLists(FastDeliveryMaxDistance);
 
-			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
-			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
+			_deliveryRulesSettings.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
+			_deliveryRulesSettings.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
 
-			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyEnabledParameter(FlyerForNewCounterpartyEnabled.ToString());
-			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyBottlesCountParameter(FlyerForNewCounterpartyBottlesCount.ToString());
+			_deliveryRulesSettings.UpdateFlyerForNewCounterpartyEnabledParameter(FlyerForNewCounterpartyEnabled.ToString());
+			_deliveryRulesSettings.UpdateFlyerForNewCounterpartyBottlesCountParameter(FlyerForNewCounterpartyBottlesCount.ToString());
 
-			_deliveryRulesParametersProvider.UpdateMaxFastOrdersPerSpecificTimeParameter(MaxFastOrdersPerSpecificTime.ToString());
+			_deliveryRulesSettings.UpdateMaxFastOrdersPerSpecificTimeParameter(MaxFastOrdersPerSpecificTime.ToString());
 			UpdateMaxFastDeliveryOrdersValueInAllNotClosedRouteLists(MaxFastOrdersPerSpecificTime);
 
 			UoW.Commit();

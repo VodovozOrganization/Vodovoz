@@ -73,8 +73,8 @@ namespace Vodovoz
 
 		private ILogger<RouteListClosingDlg> _logger;
 
-		private IOrderSettings _orderParametersProvider;
-		private IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private IOrderSettings _orderSettings;
+		private IDeliveryRulesSettings _deliveryRulesSettings;
 		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListRepository _routeListRepository;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -96,7 +96,7 @@ namespace Vodovoz
 		private IWageParameterService _wageParameterService;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private INewDriverAdvanceSettings _newDriverAdvanceParametersProvider;
+		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
@@ -165,10 +165,10 @@ namespace Vodovoz
 			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
 			_discountReasonRepository = _lifetimeScope.Resolve<IDiscountReasonRepository>();
-			_nomenclatureOnlineParametersProvider = _lifetimeScope.Resolve<INomenclatureOnlineSettings>();
+			_nomenclatureOnlineSettings = _lifetimeScope.Resolve<INomenclatureOnlineSettings>();
 
-			_orderParametersProvider = _lifetimeScope.Resolve<IOrderSettings>();
-			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
+			_orderSettings = _lifetimeScope.Resolve<IOrderSettings>();
+			_deliveryRulesSettings = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
@@ -191,7 +191,7 @@ namespace Vodovoz
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
-			_newDriverAdvanceParametersProvider = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
+			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
@@ -730,9 +730,9 @@ namespace Vodovoz
 				_orderRepository,
 				_discountReasonRepository,
 				_wageParameterService,
-				_orderParametersProvider,
-				_nomenclatureOnlineParametersProvider,
-				_deliveryRulesParametersProvider,
+				_orderSettings,
+				_nomenclatureOnlineSettings,
+				_deliveryRulesSettings,
 				NavigationManager,
 				_lifetimeScope);
 			dlg.ConfigureForRouteListAddress(node);
@@ -851,7 +851,7 @@ namespace Vodovoz
 		private IUserRepository _userRepository;
 		private IOrderRepository _orderRepository;
 		private IDiscountReasonRepository _discountReasonRepository;
-		private INomenclatureOnlineSettings _nomenclatureOnlineParametersProvider;
+		private INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 
 		Nomenclature DefaultBottle {
 			get {
@@ -1059,8 +1059,8 @@ namespace Vodovoz
 			foreach(var item in Entity.Addresses) {
 				validationContext = new ValidationContext(item.Order);
 				validationContext.Items.Add(Order.ValidationKeyIgnoreReceipts, _ignoreReceiptsForOrderIds.Contains(item.Order.Id));
-				validationContext.ServiceContainer.AddService(_orderParametersProvider);
-				validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
+				validationContext.ServiceContainer.AddService(_orderSettings);
+				validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
 				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))
 				{
 					if(string.IsNullOrWhiteSpace(orderIds)) {
@@ -1101,8 +1101,8 @@ namespace Vodovoz
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition},
 					{RouteList.ValidationKeyIgnoreReceiptsForOrders, _ignoreReceiptsForOrderIds}
 				});
-			validationContext.ServiceContainer.AddService(_orderParametersProvider);
-			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
+			validationContext.ServiceContainer.AddService(_orderSettings);
+			validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
 
 			if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
 			{
@@ -1117,7 +1117,7 @@ namespace Vodovoz
 				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
-			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(_newDriverAdvanceParametersProvider, _routeListRepository, Entity);
+			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(_newDriverAdvanceSettings, _routeListRepository, Entity);
 			bool needNewDriverAdvance = _isOpenFromCash && newDriverAdvanceModel.NeedNewDriverAdvance(UoW);
 			bool hasDriverUnclosedRouteLists = newDriverAdvanceModel.UnclosedRouteLists(UoW).Any();
 			if(needNewDriverAdvance)
@@ -1133,7 +1133,7 @@ namespace Vodovoz
 
 				if (!hasDriverUnclosedRouteLists)
 				{
-					var newDriverAdvanceSumParameter = _newDriverAdvanceParametersProvider.NewDriverAdvanceSum;
+					var newDriverAdvanceSumParameter = _newDriverAdvanceSettings.NewDriverAdvanceSum;
 					var driverWage = Entity.GetDriversTotalWage();
 					if(driverWage > 0)
 					{

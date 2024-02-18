@@ -159,9 +159,9 @@ namespace Vodovoz
 
 		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
 
-		private static readonly IDeliveryRulesSettings _deliveryRulesParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
+		private static readonly IDeliveryRulesSettings _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
 
-		private static readonly IDriverApiSettings _driverApiParametersProvider = ScopeProvider.Scope.Resolve<IDriverApiSettings>();
+		private static readonly IDriverApiSettings _driverApiSettings = ScopeProvider.Scope.Resolve<IDriverApiSettings>();
 
 		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
 
@@ -206,7 +206,7 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
-		private readonly IDeliveryScheduleSettings _deliveryScheduleParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -275,9 +275,9 @@ namespace Vodovoz
 
 		private Result _lastSaveResult;
 
-		private readonly IGeneralSettings _generalSettingsParametersProvider = ScopeProvider.Scope.Resolve<IGeneralSettings>();
+		private readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
-			&& _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
+			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
 
@@ -291,10 +291,10 @@ namespace Vodovoz
 				{
 					var driverApiConfig = new DriverApiHelperConfiguration
 					{
-						ApiBase = _driverApiParametersProvider.ApiBase,
-						NotifyOfSmsPaymentStatusChangedURI = _driverApiParametersProvider.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedURI = _driverApiParametersProvider.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedURI = _driverApiParametersProvider.NotifyOfWaitingTimeChangedURI
+						ApiBase = _driverApiSettings.ApiBase,
+						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
+						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI
 					};
 					_driverApiHelper = new DriverAPIHelper(driverApiConfig);
 				}
@@ -470,8 +470,8 @@ namespace Vodovoz
 				Entity.PaymentType = Entity.Client.PaymentMethod;
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
-				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
@@ -1468,16 +1468,16 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
-				if(Entity.DeliverySchedule?.Id != _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+				if(Entity.DeliverySchedule?.Id != _deliveryRulesSettings.FastDeliveryScheduleId)
 				{
-					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesParametersProvider.FastDeliveryScheduleId);
+					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
 				}
 
 				Entity.AddFastDeliveryNomenclatureIfNeeded();
 				return;
 			}
 
-			if(Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
+			if(Entity.DeliverySchedule?.Id == _deliveryRulesSettings.FastDeliveryScheduleId)
 			{
 				Entity.DeliverySchedule = null;
 			}
@@ -2169,7 +2169,7 @@ namespace Vodovoz
 		protected bool Validate(ValidationContext validationContext)
 		{
 			validationContext.ServiceContainer.AddService(_orderSettings);
-			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
+			validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
 			return ServicesConfig.ValidationService.Validate(Entity, validationContext);
 		}
 

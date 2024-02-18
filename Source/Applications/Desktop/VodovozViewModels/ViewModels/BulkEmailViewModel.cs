@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly ICommonServices _commonServices;
 		private readonly int _instanceId;
 		private readonly InstanceMailingConfiguration _configuration;
@@ -62,12 +62,12 @@ namespace Vodovoz.ViewModels.ViewModels
 		private bool _includeOldUnsubscribed;
 
 		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
-			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailSettings emailParametersProvider,
+			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailSettings emailSettings,
 			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_author = author ?? throw new ArgumentNullException(nameof(author));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
@@ -189,8 +189,8 @@ namespace Vodovoz.ViewModels.ViewModels
 			{
 				From = new EmailContact
 				{
-					Name = _emailParametersProvider.DocumentEmailSenderName,
-					Email = _emailParametersProvider.DocumentEmailSenderAddress
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = new List<EmailContact>
@@ -247,7 +247,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 		private string GetUnsubscribeHtmlPart(Guid guid) => $"<br/><br/><a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
 
-		private string GetUnsubscribeLink(Guid guid) => $"{_emailParametersProvider.UnsubscribeUrl}/{guid}";
+		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
 
 		#region Commands
 

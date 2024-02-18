@@ -127,15 +127,15 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public IList<VodovozOrder> GetOrdersToExport1c8(
 			IUnitOfWork uow,
-			IOrderSettings orderParametersProvider,
+			IOrderSettings orderSettings,
 			Export1cMode mode,
 			DateTime startDate,
 			DateTime endDate,
 			int? organizationId = null)
 		{
 			var oldReceiptFromYouKassa = new[] {
-				orderParametersProvider.PaymentByCardFromSiteId,
-				orderParametersProvider.PaymentByCardFromMobileAppId
+				orderSettings.PaymentByCardFromSiteId,
+				orderSettings.PaymentByCardFromMobileAppId
 			};
 
 			VodovozOrder orderAlias = null;
@@ -777,7 +777,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		public bool HasFlyersOnStock(
-			IUnitOfWork uow, IRouteListSettings routeListParametersProvider, int flyerId, int geographicGroupId)
+			IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroupId)
 		{
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;
@@ -785,9 +785,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			District districtAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
-			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
-				? routeListParametersProvider.WarehouseSofiiskayaId
-				: routeListParametersProvider.WarehouseBugriId;
+			var warehouseId = geographicGroupId == routeListSettings.SouthGeographicGroupId
+				? routeListSettings.WarehouseSofiiskayaId
+				: routeListSettings.WarehouseBugriId;
 
 			var subQueryBalance = uow.Session.QueryOver(() => operationAlias)
 				.Where(() => operationAlias.Nomenclature.Id == flyerId)

@@ -7,6 +7,6 @@ namespace UnsubscribePage.Controllers
 {
 	public interface IUnsubscribeViewModelFactory
 	{
-		UnsubscribeViewModel CreateNewUnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider);
+		UnsubscribeViewModel CreateNewUnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings);
 	}
 }

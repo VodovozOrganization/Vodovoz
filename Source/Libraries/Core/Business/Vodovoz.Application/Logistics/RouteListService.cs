@@ -47,7 +47,7 @@ namespace Vodovoz.Application.Logistics
 		private readonly IAddressTransferController _addressTransferController;
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
@@ -69,7 +69,7 @@ namespace Vodovoz.Application.Logistics
 			IAddressTransferController addressTransferController,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryRepository deliveryRepository,
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
@@ -102,8 +102,8 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider
-				?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings
+				?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_deliveryRepository = deliveryRepository 
 				?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository

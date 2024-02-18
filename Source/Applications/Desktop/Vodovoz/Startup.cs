@@ -155,7 +155,7 @@ namespace Vodovoz
 			);
 
 			//Настройка карты
-			IGMapSettings gMapParametersProviders = AppDIContainer.Resolve<IGMapSettings>();
+			IGMapSettings gMapSettingss = AppDIContainer.Resolve<IGMapSettings>();
 
 			GMapProvider.UserAgent = string.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				_applicationInfo.ProductName,
@@ -171,10 +171,10 @@ namespace Vodovoz
 			{
 				using(var httpClient = new HttpClient())
 				{
-					squidServer = gMapParametersProviders.SquidServer;
+					squidServer = gMapSettingss.SquidServer;
 					if(httpClient.GetAsync($"{squidServer}/squid-internal-static/icons/SN.png").Result.IsSuccessStatusCode)
 					{
-						GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
+						GMapProvider.WebProxy = new WebProxy(gMapSettingss.SquidServer);
 						_logger.LogInformation("Используется прокси сервер карт: {MapsProxyServerUrl}", squidServer);
 					}
 					else

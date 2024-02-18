@@ -14,16 +14,16 @@ namespace DriverAPI.Controllers.V4
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class ValuesController : VersionedController
 	{
-		private readonly IDriverApiSettings _webApiParametersProvider;
+		private readonly IDriverApiSettings _webApiSettings;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
-		/// <param name="webApiParametersProvider"></param>
+		/// <param name="webApiSettings"></param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public ValuesController(IDriverApiSettings webApiParametersProvider)
+		public ValuesController(IDriverApiSettings webApiSettings)
 		{
-			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_webApiSettings = webApiSettings ?? throw new ArgumentNullException(nameof(webApiSettings));
 		}
 
 		/// <summary>
@@ -38,7 +38,7 @@ namespace DriverAPI.Controllers.V4
 		{
 			return new CompanyNumberResponseDto()
 			{
-				Number = _webApiParametersProvider.CompanyPhoneNumber
+				Number = _webApiSettings.CompanyPhoneNumber
 			};
 		}
 	}

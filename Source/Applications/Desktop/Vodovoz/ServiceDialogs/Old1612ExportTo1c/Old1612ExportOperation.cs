@@ -17,16 +17,16 @@ namespace Vodovoz.Old1612ExportTo1c
         private readonly DateTime start;
         private readonly DateTime end;
         private readonly Export1cMode mode;
-        private readonly IOrderSettings orderParametersProvider;
+        private readonly IOrderSettings orderSettings;
         private readonly Organization organization;
         private IList<Order> orders;
 
         public int Steps => orders.Count;
         public ExportData Result { get; private set; }
 
-        public ExportOperation(Export1cMode mode, IOrderSettings orderParametersProvider, DateTime start, DateTime end, Organization organization = null)
+        public ExportOperation(Export1cMode mode, IOrderSettings orderSettings, DateTime start, DateTime end, Organization organization = null)
         {
-            this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            this.orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
             uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
             this.start = start;
             this.end = end;
@@ -38,7 +38,7 @@ namespace Vodovoz.Old1612ExportTo1c
         {
             worker.OperationName = "Подготовка данных";
             worker.ReportProgress(0, "Загрузка заказов");
-            orders = _orderRepository.GetOrdersToExport1c8(uow, orderParametersProvider, mode, start, end, organization?.Id);
+            orders = _orderRepository.GetOrdersToExport1c8(uow, orderSettings, mode, start, end, organization?.Id);
             worker.OperationName = "Выгрузка реализаций и счетов-фактур";
             worker.StepsCount = this.orders.Count;
             Result = new ExportData(uow, mode, start, end);

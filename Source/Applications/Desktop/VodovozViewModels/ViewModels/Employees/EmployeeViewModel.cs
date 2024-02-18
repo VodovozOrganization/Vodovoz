@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IAuthorizationService _authorizationService;
-		private readonly ISubdivisionSettings _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
-			ISubdivisionSettings subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
@@ -139,8 +139,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory =
 				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
-			_subdivisionParametersProvider =
-				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings =
+				subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
@@ -1116,7 +1116,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			
-			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionSettings), _subdivisionParametersProvider);
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionSettings), _subdivisionSettings);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}

@@ -43,7 +43,7 @@ namespace Vodovoz.JournalViewModels
 			INavigationManager navigationManager,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			INomenclatureRepository nomenclatureRepository,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			Action<OrderJournalFilterViewModel> filterConfig = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -51,7 +51,7 @@ namespace Vodovoz.JournalViewModels
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_closingDocumentDeliveryScheduleId =
-				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 
 			filterViewModel.Journal = this;

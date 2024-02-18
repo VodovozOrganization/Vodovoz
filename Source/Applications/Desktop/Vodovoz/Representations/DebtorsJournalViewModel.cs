@@ -41,7 +41,7 @@ namespace Vodovoz.Representations
 	{
 		private readonly IDebtorsSettings _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly IEmailSettings _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
@@ -60,13 +60,13 @@ namespace Vodovoz.Representations
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IDebtorsSettings debtorsParameters,
-			IEmailSettings emailParametersProvider,
+			IEmailSettings emailSettings,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IEmailRepository emailRepository,
 			IFileDialogService fileDialogService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
@@ -916,7 +916,7 @@ namespace Vodovoz.Representations
 						null,
 						UnitOfWorkFactory,
 						ItemsSourceQueryFunction,
-						_emailParametersProvider,
+						_emailSettings,
 						commonServices,
 						_attachmentsViewModelFactory,
 						_currentEmployee,

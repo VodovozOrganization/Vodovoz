@@ -33,9 +33,9 @@ namespace Vodovoz.Models
 			}
 		}
 
-		public void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistoryParameterProvider)
+		public void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings)
 		{
-			if(fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
+			if(fastDeliveryAvailabilityHistorySettings.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
 			{
 				return;
 			}
@@ -44,7 +44,7 @@ namespace Vodovoz.Models
 			{
 				// Такое удаление по ID быстрее. Если грузить полностью сущность, то будут подтягиваться все ТД (в мапинге сущности Not.LazyLoad()) и связанные с ней данные 
 				var availabilityHistories = uow.Session.Query<FastDeliveryAvailabilityHistory>()
-					.Where(x => x.VerificationDate < DateTime.Now.Date.AddDays(-fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryStorageDays))
+					.Where(x => x.VerificationDate < DateTime.Now.Date.AddDays(-fastDeliveryAvailabilityHistorySettings.FastDeliveryHistoryStorageDays))
 					.Select(x=> x.Id)
 					.ToList();
 
@@ -78,7 +78,7 @@ namespace Vodovoz.Models
 				}
 			}
 
-			fastDeliveryAvailabilityHistoryParameterProvider.UpdateFastDeliveryHistoryClearDate(DateTime.Now.Date.ToString());
+			fastDeliveryAvailabilityHistorySettings.UpdateFastDeliveryHistoryClearDate(DateTime.Now.Date.ToString());
 		}
 	}
 }

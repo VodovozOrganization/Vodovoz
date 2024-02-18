@@ -26,7 +26,7 @@ namespace Vodovoz.Additions.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
-		private static readonly IGeneralSettings _generalSettingsParametersProvider = ScopeProvider.Scope.Resolve<IGeneralSettings>();
+		private static readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";
@@ -250,7 +250,7 @@ namespace Vodovoz.Additions.Logistic
 					{ "Print_date", printDatestr},
 					{ "RouteListDate", routeList.Date},
 					{ "need_terminal", needTerminal },
-					{ "phones", _generalSettingsParametersProvider.GetRouteListPrintedFormPhones}
+					{ "phones", _generalSettingsSettings.GetRouteListPrintedFormPhones}
 				}
 			};
 		}

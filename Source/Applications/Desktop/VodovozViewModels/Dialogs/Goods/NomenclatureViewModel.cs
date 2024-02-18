@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
-		private readonly INomenclatureOnlineSettings _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly INomenclatureService _nomenclatureService;
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
-			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
+			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -86,8 +86,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_nomenclatureOnlineParametersProvider =
-				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
+			_nomenclatureOnlineSettings =
+				nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
@@ -222,7 +222,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				return;
 			}
 
-			if(Entity.NomenclatureOnlineGroup.Id == _nomenclatureOnlineParametersProvider.WaterNomenclatureOnlineGroupId)
+			if(Entity.NomenclatureOnlineGroup.Id == _nomenclatureOnlineSettings.WaterNomenclatureOnlineGroupId)
 			{
 				Entity.ResetNotWaterOnlineParameters();
 			}
@@ -232,22 +232,22 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				return;
 			}
 			
-			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.KulerNomenclatureOnlineCategoryId)
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.KulerNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotKulerOnlineParameters();
 			}
 			
-			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.PurifierNomenclatureOnlineCategoryId)
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.PurifierNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotPurifierOnlineParameters();
 			}
 			
-			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.WaterPumpNomenclatureOnlineCategoryId)
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.WaterPumpNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotWaterPumpOnlineParameters();
 			}
 			
-			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.CupHolderNomenclatureOnlineCategoryId)
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.CupHolderNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotCupHolderOnlineParameters();
 			}
@@ -310,19 +310,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public bool IsWaterParameters =>
 			SelectedOnlineGroup != null
-			&& SelectedOnlineGroup.Id == _nomenclatureOnlineParametersProvider.WaterNomenclatureOnlineGroupId;
+			&& SelectedOnlineGroup.Id == _nomenclatureOnlineSettings.WaterNomenclatureOnlineGroupId;
 		public bool IsWaterCoolerParameters =>
 			SelectedOnlineCategory != null
-			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.KulerNomenclatureOnlineCategoryId;
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineSettings.KulerNomenclatureOnlineCategoryId;
 		public bool IsWaterPumpParameters =>
 			SelectedOnlineCategory != null
-			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.WaterPumpNomenclatureOnlineCategoryId;
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineSettings.WaterPumpNomenclatureOnlineCategoryId;
 		public bool IsPurifierParameters =>
 			SelectedOnlineCategory != null
-			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.PurifierNomenclatureOnlineCategoryId;
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineSettings.PurifierNomenclatureOnlineCategoryId;
 		public bool IsCupHolderParameters =>
 			SelectedOnlineCategory != null
-			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.CupHolderNomenclatureOnlineCategoryId;
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineSettings.CupHolderNomenclatureOnlineCategoryId;
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }

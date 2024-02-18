@@ -12,8 +12,8 @@ namespace Vodovoz.EntityRepositories.Sale
 		IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow, bool isActiveOnly = false);
 		IList<GeoGroupVersion> GetGeographicGroupVersionsOnDate(IUnitOfWork uow, DateTime date);
 		IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
-			IUnitOfWork uow, IGeographicGroupSettings geographicGroupParametersProvider);
+			IUnitOfWork uow, IGeographicGroupSettings geographicGroupSettings);
 		IList<GeoGroup> GeographicGroupsWithoutEast(
-			IUnitOfWork uow, IGeographicGroupSettings geographicGroupParametersProvider);
+			IUnitOfWork uow, IGeographicGroupSettings geographicGroupSettings);
 	}
 }

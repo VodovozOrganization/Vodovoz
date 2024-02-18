@@ -14,7 +14,7 @@ namespace Vodovoz.Services
 		Employee GetEmployee(IUnitOfWork uow, int employeeId);
 		void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork unitOfWork,
-			IEmailSettings emailParametersProvider,
+			IEmailSettings emailSettings,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData);

@@ -17,19 +17,19 @@ namespace UnsubscribePage.Models
 
 		public UnsubscribeViewModel() { }
 
-		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider)
+		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
 		{
-			Initialize(guid, emailRepository, emailParametersProvider);
+			Initialize(guid, emailRepository, emailSettings);
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider)
+		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
 		{
-			OtherReasonId = emailParametersProvider.BulkEmailEventOtherReasonId;
+			OtherReasonId = emailSettings.BulkEmailEventOtherReasonId;
 			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Инициализация страницы отписки"))
 			{
 				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
-				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider, isForUnsubscribePage: true);
+				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailSettings, isForUnsubscribePage: true);
 			}
 			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
 		}

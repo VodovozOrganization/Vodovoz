@@ -128,7 +128,7 @@ namespace Vodovoz
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
-		private IEmailSettings _emailParametersProvider;
+		private IEmailSettings _emailSettings;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
@@ -141,7 +141,7 @@ namespace Vodovoz
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
 		private ICounterpartySettings _counterpartySettings;
-		private IOrganizationSettings _organizationParametersProvider = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+		private IOrganizationSettings _organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
 		private IDeleteEntityService _deleteEntityService;
@@ -321,7 +321,7 @@ namespace Vodovoz
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
-			_emailParametersProvider = _lifetimeScope.Resolve<IEmailSettings>();
+			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -340,7 +340,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 
-			_vodovozOrganization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
+			_vodovozOrganization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 			ConfigureTabInfo();
 			ConfigureTabContacts();
@@ -776,7 +776,7 @@ namespace Vodovoz
 			var emailsViewModel = new EmailsViewModel(
 				UoWGeneric,
 				Entity.Emails,
-				_emailParametersProvider,
+				_emailSettings,
 				_externalCounterpartyRepository,
 				_commonServices.InteractiveService,
 				Entity.PersonType);
@@ -1998,7 +1998,7 @@ namespace Vodovoz
 
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
 		{
-			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
 			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
 			{
@@ -2018,7 +2018,7 @@ namespace Vodovoz
 
 		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
 		{
-			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
 			var subscribingEvent = new SubscribingBulkEmailEvent
 			{
@@ -2253,7 +2253,7 @@ namespace Vodovoz
 					}
 
 					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					var organization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
+					var organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, organization.Name, Entity.EdoOperator.Code,
 						email.Address, document.FileName, document.ByteFile).Result;

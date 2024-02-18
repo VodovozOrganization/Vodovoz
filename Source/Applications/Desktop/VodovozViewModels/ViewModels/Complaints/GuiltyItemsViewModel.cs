@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ICommonServices _commonServices;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly ISubdivisionSettings _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 
 		public GuiltyItemsViewModel(
 			Complaint entity,
@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionSettings subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			bool isForSalesDepartment = false
 		) : base(entity, commonServices)
 		{
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_container = container ?? throw new ArgumentNullException(nameof(container));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 		}
@@ -88,7 +88,7 @@ namespace Vodovoz.ViewModels.Complaints
 				_commonServices,
 				_subdivisionRepository,
 				_employeeJournalFactory,
-				_subdivisionParametersProvider,
+				_subdivisionSettings,
 				UoW
 			);
 

@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IWageParameterService wageParameterService,
 			ITrackRepository trackRepository,
 			OsrmClient osrmClient,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			IAddressTransferController addressTransferController,
 			int routeListAddressId)
@@ -74,10 +74,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title);
 
-			_driverOfflineTimeSpan = _deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint;
+			_driverOfflineTimeSpan = _deliveryRulesSettings.MaxTimeOffsetForLatestTrackPoint;
 
 			CancelCommand = new DelegateCommand(Cancel, () => CanCancel);
 			TransferCommand = new DelegateCommand(Transfer, () => CanTransfer);

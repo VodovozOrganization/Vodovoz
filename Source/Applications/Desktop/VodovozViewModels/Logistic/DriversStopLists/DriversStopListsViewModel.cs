@@ -41,14 +41,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IGeneralSettings generalSettingsParametersProvider
+			IGeneralSettings generalSettingsSettings
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			if(generalSettingsParametersProvider is null)
+			if(generalSettingsSettings is null)
 			{
-				throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+				throw new ArgumentNullException(nameof(generalSettingsSettings));
 			}
 
 			Title = "Снятие стоп-листов";
@@ -57,10 +57,10 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
 
 			_driversUnclosedRouteListsMaxCountParameter =
-				generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+				generalSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
 
 			_driversRouteListsDebtsMaxSumParameter =
-				generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+				generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}

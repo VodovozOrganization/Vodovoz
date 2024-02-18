@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionSettings subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			ISubdivisionRepository subdivisionRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ILifetimeScope lifetimeScope,
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels
 				commonServices,
 				_subdivisionRepository,
 				employeeJournalFactory,
-				subdivisionParametersProvider);
+				subdivisionSettings);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
 		}

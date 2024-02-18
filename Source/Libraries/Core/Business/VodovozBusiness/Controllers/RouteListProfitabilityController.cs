@@ -27,7 +27,7 @@ namespace Vodovoz.Controllers
 		public RouteListProfitabilityController(
 			ILogger<RouteListProfitabilityController> logger,
 			IRouteListProfitabilityFactory routeListProfitabilityFactory,
-			INomenclatureSettings nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureSettings,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
 			IRouteListProfitabilityRepository routeListProfitabilityRepository,
 			IRouteListRepository routeListRepository)
@@ -41,7 +41,7 @@ namespace Vodovoz.Controllers
 				routeListProfitabilityRepository ?? throw new ArgumentNullException(nameof(routeListProfitabilityRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_paidDeliveriesNomenclaturesIds =
-				(nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider)))
+				(nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings)))
 				.PaidDeliveriesNomenclaturesIds;
 		}
 

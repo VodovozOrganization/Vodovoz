@@ -74,7 +74,7 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IFileDialogService fileDialogService,
-			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -85,7 +85,7 @@ namespace Vodovoz.JournalViewModels
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_closingDocumentDeliveryScheduleId =
-				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));

@@ -6,18 +6,18 @@ namespace Fias.Client
 {
 	internal class FiasApiClientFactory : IFiasApiClientFactory
 	{
-		private readonly IFiasApiSettings _fiasApiParametersProvider;
+		private readonly IFiasApiSettings _fiasApiSettings;
 		private readonly GeocoderCache _geocoderCache;
 
-		public FiasApiClientFactory(IFiasApiSettings fiasApiParametersProvider, GeocoderCache geocoderCache)
+		public FiasApiClientFactory(IFiasApiSettings fiasApiSettings, GeocoderCache geocoderCache)
 		{
-			_fiasApiParametersProvider = fiasApiParametersProvider ?? throw new ArgumentNullException(nameof(fiasApiParametersProvider));
+			_fiasApiSettings = fiasApiSettings ?? throw new ArgumentNullException(nameof(fiasApiSettings));
 			_geocoderCache = geocoderCache ?? throw new ArgumentNullException(nameof(geocoderCache));
 		}
 
 		public IFiasApiClient CreateClient()
 		{
-			return new FiasApiClient(_fiasApiParametersProvider.FiasApiBaseUrl, _fiasApiParametersProvider.FiasApiToken, _geocoderCache);
+			return new FiasApiClient(_fiasApiSettings.FiasApiBaseUrl, _fiasApiSettings.FiasApiToken, _geocoderCache);
 		}
 	}
 }

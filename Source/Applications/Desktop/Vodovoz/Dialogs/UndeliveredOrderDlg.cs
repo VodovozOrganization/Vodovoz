@@ -27,7 +27,7 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly ISubdivisionSettings _subdivisionParametersProvider = ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
+		private readonly ISubdivisionSettings _subdivisionSettings = ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
@@ -95,7 +95,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(isForSalesDepartment)
 			{
-				var salesDepartmentId = _subdivisionParametersProvider.GetSalesSubdivisionId();
+				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
 				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
 

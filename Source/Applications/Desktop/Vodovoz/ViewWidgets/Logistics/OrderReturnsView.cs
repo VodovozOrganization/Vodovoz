@@ -58,13 +58,13 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
-		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INavigationManager _navigationManager;
-		private readonly IOrderSettings _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
-		private readonly INomenclatureOnlineSettings _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
@@ -101,9 +101,9 @@ namespace Vodovoz
 			IOrderRepository orderRepository,
 			IDiscountReasonRepository discountReasonRepository,
 			IWageParameterService wageParameterService,
-			IOrderSettings orderParametersProvider,
-			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
-			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IOrderSettings orderSettings,
+			INomenclatureOnlineSettings nomenclatureOnlineSettings,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{
@@ -133,9 +133,9 @@ namespace Vodovoz
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_nomenclatureOnlineParametersProvider = nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
@@ -717,8 +717,8 @@ namespace Vodovoz
 				{ Order.ValidationKeyIgnoreReceipts, IgnoreReceipt }
 			});
 
-			validationContext.ServiceContainer.AddService(_orderParametersProvider);
-			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
+			validationContext.ServiceContainer.AddService(_orderSettings);
+			validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
 
 			_routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(_routeListItem.Order, validationContext);
 			_routeListItem.Order.CheckAndSetOrderIsService();
@@ -742,8 +742,8 @@ namespace Vodovoz
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
-			var orderParametersProvider = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			_routeListItem.Order.CalculateBottlesStockDiscounts(orderParametersProvider, true);
+			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			_routeListItem.Order.CalculateBottlesStockDiscounts(orderSettings, true);
 		}
 
 		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)
