@@ -10,7 +10,6 @@ namespace Vodovoz.Core.DataService
 		IStandartDiscountsService, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
-		ISmsNotificationServiceSettings,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
@@ -230,29 +229,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IWageParametersProvider implementation
-
-		#region ISmsNotificationServiceSettings implementation
-
-		public int MaxUnsendedSmsNotificationsForWorkingService
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("MaxUnsendedSmsNotificationsForWorkingService"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных смс уведомлений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService).");
-				}
-				string value = _parametersProvider.GetParameterValue("MaxUnsendedSmsNotificationsForWorkingService");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных смс уведомлений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService)");
-				}
-
-				return result;
-			}
-		}
-
-		#endregion ISmsNotificationServiceSettings implementation
 
 		#region ITerminalNomenclatureProvider
 

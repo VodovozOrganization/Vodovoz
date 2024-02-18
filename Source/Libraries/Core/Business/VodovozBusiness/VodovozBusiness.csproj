@@ -1249,7 +1249,6 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\ISmsNotificationRepository.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
-    <Compile Include="Services\ISmsNotificationServiceSettings.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />
