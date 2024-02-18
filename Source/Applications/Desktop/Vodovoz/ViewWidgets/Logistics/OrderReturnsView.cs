@@ -596,6 +596,7 @@ namespace Vodovoz
 
 			if(_orderNode.CompletedChange == OrderNode.ChangedType.Both)
 			{
+				var _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 				//Сначала ставим точку доставки чтобы при установке клиента она была доступна,
 				//иначе при записи клиента убирается не его точка доставки и будет ошибка при
 				//изменении документов которые должны меняться при смене клиента потомучто точка
@@ -603,7 +604,7 @@ namespace Vodovoz
 				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
 				_routeListItem.Order.Client = _orderNode.Client;
 				_routeListItem.Order.UpdateBottleMovementOperation(
-					UoW, new BaseParametersProvider(_parametersProvider), _routeListItem.BottlesReturned);
+					UoW, _nomenclatureSettings, _routeListItem.BottlesReturned);
 			}
 		}
 

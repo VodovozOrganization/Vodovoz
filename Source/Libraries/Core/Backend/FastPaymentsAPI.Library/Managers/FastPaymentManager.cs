@@ -8,6 +8,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 
 namespace FastPaymentsAPI.Library.Managers
@@ -16,7 +17,7 @@ namespace FastPaymentsAPI.Library.Managers
 	{
 		private readonly IFastPaymentSettings _fastPaymentParametersProvider;
 		private readonly IOrderSettings _orderParametersProvider;
-		private readonly IStandartNomenclatures _standartNomenclatures;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly ICashRepository _cashRepository;
@@ -24,7 +25,7 @@ namespace FastPaymentsAPI.Library.Managers
 		public FastPaymentManager(
 			IFastPaymentSettings fastPaymentParametersProvider,
 			IOrderSettings orderParametersProvider,
-			IStandartNomenclatures standartNomenclatures,
+			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository)
@@ -32,7 +33,7 @@ namespace FastPaymentsAPI.Library.Managers
 			_fastPaymentParametersProvider =
 				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_standartNomenclatures = standartNomenclatures ?? throw new ArgumentNullException(nameof(standartNomenclatures));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
@@ -86,7 +87,7 @@ namespace FastPaymentsAPI.Library.Managers
 						fastPayment.SetPerformedStatusForOrder(
 							uow,
 							statusDate,
-							_standartNomenclatures,
+							_nomenclatureSettings,
 							_routeListItemRepository,
 							_selfDeliveryRepository,
 							_cashRepository);

@@ -31,6 +31,7 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -282,7 +283,7 @@ namespace Vodovoz
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
 			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
+			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			var callTaskWorker = new CallTaskWorker(
 				ServicesConfig.UnitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
@@ -292,7 +293,7 @@ namespace Vodovoz
 				employeeSettings,
 				ServicesConfig.CommonServices.UserService,
 				ErrorReporter.Instance);
-			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
+			if(Entity.FullyShiped(UoW, nomenclatureSettings, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");

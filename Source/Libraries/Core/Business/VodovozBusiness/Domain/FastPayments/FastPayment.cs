@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.FastPayments
 {
@@ -160,7 +161,7 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			IStandartNomenclatures standartNomenclatures,
+			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository)
@@ -176,7 +177,7 @@ namespace Vodovoz.Domain.FastPayments
 			{
 				Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
 					uow,
-					standartNomenclatures,
+					nomenclatureSettings,
 					routeListItemRepository,
 					selfDeliveryRepository,
 					cashRepository);

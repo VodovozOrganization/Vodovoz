@@ -6,7 +6,6 @@ using Vodovoz.Services;
 namespace Vodovoz.Core.DataService
 {
 	public class BaseParametersProvider : 
-		IStandartNomenclatures, 
 		IStandartDiscountsService, 
 		IWageParametersProvider,
 		IVpbxSettings,
@@ -18,39 +17,6 @@ namespace Vodovoz.Core.DataService
 		{
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
-		
-		#region IStandartNomenclatures
-
-		public int GetForfeitId()
-		{
-			if(!_parametersProvider.ContainsParameter("forfeit_nomenclature_id"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию (forfeit_nomenclature_id).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("forfeit_nomenclature_id"));
-		}
-		
-		public int GetReturnedBottleNomenclatureId
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("returned_bottle_nomenclature_id"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение id стандартной номенклатуры на возврат (returned_bottle_nomenclature_id)");
-				}
-
-				string value = _parametersProvider.GetParameterValue("returned_bottle_nomenclature_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение id стандартной номенклатуры на возврат (returned_bottle_nomenclature_id)");
-				}
-
-				return result;
-			}
-		}
-
-		#endregion
 
 		#region IStandartDiscountsService
 

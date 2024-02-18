@@ -570,7 +570,6 @@ namespace Vodovoz
 					#region ParameterProviders
 
 					builder.RegisterType<BaseParametersProvider>()
-						.As<IStandartNomenclatures>()
 						.As<IStandartDiscountsService>()
 						.As<IWageParametersProvider>()
 						.As<IWageParametersProvider>()

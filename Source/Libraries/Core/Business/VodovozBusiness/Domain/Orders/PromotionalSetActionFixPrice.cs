@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -85,12 +86,10 @@ namespace Vodovoz.Domain.Orders
 		{
 		}
 
-		public override bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
+		public override bool IsValidForOrder(Order order, INomenclatureSettings nomenclatureSettings)
 		{
 			if(!IsForZeroDebt)
 				return true;
-
-			var forfeitId = standartNomenclatures.GetForfeitId();
 
 			BottlesRepository bottlesRepository = new BottlesRepository();
 
@@ -132,7 +131,7 @@ namespace Vodovoz.Domain.Orders
 			foreach(var o in orders1) {
 				if(o.OrderDepositItems != null && o.OrderItems == null)
 					orders2.Add(o);
-				if(o.OrderItems.All(i => i.Nomenclature.Id == forfeitId))
+				if(o.OrderItems.All(i => i.Nomenclature.Id == nomenclatureSettings.ForfeitId))
 					orders2.Add(o);
 				if(o.OrderItems == null)
 					orders2.Add(o);

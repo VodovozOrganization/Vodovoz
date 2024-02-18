@@ -59,6 +59,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -106,6 +107,9 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IOrderRepository>();
 		private IGlobalSettings _globalSettings => ScopeProvider.Scope
 			.Resolve<IGlobalSettings>();
+		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
+			.Resolve<INomenclatureSettings>();
+
 
 		private CarVersion _carVersion;
 		private Car _car;
@@ -2057,10 +2061,10 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual void UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
+		public virtual void UpdateBottlesMovementOperation()
 		{
 			foreach(RouteListItem address in addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
-				address.Order.UpdateBottleMovementOperation(UoW, standartNomenclatures, returnByStock: address.BottlesReturned);
+				address.Order.UpdateBottleMovementOperation(UoW, _nomenclatureSettings, returnByStock: address.BottlesReturned);
 		}
 
 		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations()
@@ -2347,7 +2351,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var controller =
 				new RouteListClosingDocumentsController(
-					_baseParametersProvider, _employeeRepository, _routeListRepository, _baseParametersProvider);
+					_nomenclatureSettings, _employeeRepository, _routeListRepository, _baseParametersProvider);
 			controller.UpdateDocuments(this, uow);
 		}
 
@@ -2539,7 +2543,7 @@ namespace Vodovoz.Domain.Logistic
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			UpdateBottlesMovementOperation(_baseParametersProvider);
+			UpdateBottlesMovementOperation();
 			depositsOperations.ForEach(op => UoW.Save(op));
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 

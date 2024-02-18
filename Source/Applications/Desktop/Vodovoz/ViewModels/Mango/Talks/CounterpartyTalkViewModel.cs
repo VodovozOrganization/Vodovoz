@@ -26,6 +26,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
@@ -39,8 +40,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
@@ -63,8 +64,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
+			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider,
 			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(tdinavigation, manager)
 		{
@@ -77,8 +78,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 			_deliveryPointJournalFactory =
@@ -92,7 +93,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
 						client, _lifetimeScope, _unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
-						_employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider, _deliveryRulesParametersProvider);
+						_employeeJournalFactory, _counterpartyJournalFactory, _deliveryRulesParametersProvider, _nomenclatureSettings);
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -147,8 +148,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_orderParametersProvider,
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
-						_parametersProvider,
-						_deliveryRulesParametersProvider);
+						_deliveryRulesParametersProvider,
+						_nomenclatureSettings);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -174,8 +175,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				CounterpartyOrderViewModel model =
 					new CounterpartyOrderViewModel(
 						client, _lifetimeScope, _unitOfWorkFactory, _tdiNavigation, _routedListRepository, MangoManager,
-						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider,
-						_deliveryRulesParametersProvider);
+						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory,
+						_deliveryRulesParametersProvider, _nomenclatureSettings);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;

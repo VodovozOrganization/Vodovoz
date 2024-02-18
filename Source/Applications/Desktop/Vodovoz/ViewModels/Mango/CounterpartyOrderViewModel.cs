@@ -21,8 +21,10 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database.Nomenclature;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -44,10 +46,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IOrderSettings _orderParametersProvider;
 
 		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IParametersProvider _parametersProvider;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
@@ -92,8 +94,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IOrderSettings orderParametersProvider,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IParametersProvider parametersProvider,
 			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			INomenclatureSettings nomenclatureSettings,
 			int count = 5)
 		{
 			Client = client;
@@ -105,8 +107,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -275,7 +277,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 				ITdiPage page = tdiNavigation.OpenTdiTab<UndeliveryOnOrderCloseDlg, Order, IUnitOfWork>(null, order, UoW);
 				page.PageClosed += (sender, e) => {
-					order.SetUndeliveredStatus(UoW, new BaseParametersProvider(_parametersProvider), callTaskWorker);
+					order.SetUndeliveredStatus(UoW, _nomenclatureSettings, callTaskWorker);
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {

@@ -134,6 +134,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz
 {
@@ -159,6 +160,8 @@ namespace Vodovoz
 
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
+		private static readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
 		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
@@ -2662,7 +2665,7 @@ namespace Vodovoz
 				}
 
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(
-					UoW, _baseParametersProvider, new RouteListItemRepository(), new CashRepository());
+					UoW, _nomenclatureSettings, new RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.Closed, CallTaskWorker);
@@ -3352,7 +3355,7 @@ namespace Vodovoz
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
-				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity, _baseParametersProvider));
+				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity, _nomenclatureSettings));
 
 				if(Entity.Id == 0
 					&& Entity.PaymentType == PaymentType.Cashless)
@@ -3711,7 +3714,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) =>
 			{
-				Entity.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
+				Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
 
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 				if(routeListItem != null)

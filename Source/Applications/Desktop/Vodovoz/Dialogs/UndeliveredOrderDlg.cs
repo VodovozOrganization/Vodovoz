@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -137,9 +138,10 @@ namespace Vodovoz.Dialogs
 				return false;
 			}
 
+			var _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			if(UndeliveredOrder.Id == 0)
 			{
-				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
+				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
 			}
 
 			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();

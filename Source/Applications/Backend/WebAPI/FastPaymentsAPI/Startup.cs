@@ -139,7 +139,6 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
-			services.AddSingleton<IStandartNomenclatures, BaseParametersProvider>();
 			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
 			services.AddSingleton<ISelfDeliveryRepository, SelfDeliveryRepository>();
 			services.AddSingleton<ICashRepository, CashRepository>();

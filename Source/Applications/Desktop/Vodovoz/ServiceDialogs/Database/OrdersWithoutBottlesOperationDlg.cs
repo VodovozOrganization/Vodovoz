@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -13,6 +14,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -65,8 +67,8 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
-			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures, new RouteListItemRepository(), new CashRepository()));
+			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , nomenclatureSettings, new RouteListItemRepository(), new CashRepository()));
 			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
 				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",
 				orders.Count(x => x.BottlesMovementOperation != null))){

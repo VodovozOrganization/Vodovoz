@@ -11,25 +11,26 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Controllers
 {
     public class RouteListClosingDocumentsController : IRouteListClosingDocumentsController
     {
         public RouteListClosingDocumentsController(
-            IStandartNomenclatures standartNomenclaturesParameters,
+			INomenclatureSettings nomenclatureSettings,
             IEmployeeRepository employeeRepository,
             IRouteListRepository routeListRepository,
             ITerminalNomenclatureProvider terminalNomenclatureProvider)
         {
-            this.standartNomenclaturesParameters = standartNomenclaturesParameters ?? throw new ArgumentNullException(nameof(standartNomenclaturesParameters));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
             this.terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
         }
 
-        private readonly IStandartNomenclatures standartNomenclaturesParameters;
-        private readonly IEmployeeRepository employeeRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IEmployeeRepository employeeRepository;
         private readonly IRouteListRepository routeListRepository;
         private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider;
 
@@ -66,7 +67,7 @@ namespace Vodovoz.Controllers
 
         private void CreateOrUpdateDocuments(IUnitOfWork uow, RouteList routeList)
         {
-            var standartReturnNomenclature = uow.GetById<Nomenclature>(standartNomenclaturesParameters.GetReturnedBottleNomenclatureId);
+            var standartReturnNomenclature = uow.GetById<Nomenclature>(_nomenclatureSettings.ReturnedBottleNomenclatureId);
 
             var deliveryDocuments = uow.Session.QueryOver<DeliveryDocument>()
                 .WhereRestrictionOn(x => x.RouteListItem.Id)

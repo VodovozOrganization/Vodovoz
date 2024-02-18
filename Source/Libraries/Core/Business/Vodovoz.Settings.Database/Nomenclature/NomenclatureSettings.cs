@@ -26,5 +26,9 @@ namespace Vodovoz.Settings.Database.Nomenclature
 		public int[] EquipmentForCheckProductGroupsIds => _settingsController
 			.GetValue<string>(nameof(EquipmentForCheckProductGroupsIds))
 			.FromStringToIntArray();
+
+		public int ForfeitId => _settingsController.GetIntValue("forfeit_nomenclature_id");
+
+		public int ReturnedBottleNomenclatureId => _settingsController.GetIntValue("returned_bottle_nomenclature_id");
 	}
 }
