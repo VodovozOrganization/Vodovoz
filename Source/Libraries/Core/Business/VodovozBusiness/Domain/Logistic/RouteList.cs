@@ -56,6 +56,7 @@ using Autofac;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Common;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -77,8 +78,8 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<BaseParametersProvider>();
 		private INomenclatureParametersProvider _nomenclatureParametersProvider => ScopeProvider.Scope
 			.Resolve<INomenclatureParametersProvider>();
-		private CashDistributionCommonOrganisationProvider _commonOrganisationProvider => ScopeProvider.Scope
-			.Resolve<CashDistributionCommonOrganisationProvider>();
+		private IOrganizationRepository _organizationRepository => ScopeProvider.Scope
+			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
 			.Resolve<IRouteListRepository>();
 		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider => ScopeProvider.Scope
@@ -2186,7 +2187,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
-				Organisation = _commonOrganisationProvider.GetCommonOrganisation(UoW),
+				Organisation = _organizationRepository.GetCommonOrganisation(UoW),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,

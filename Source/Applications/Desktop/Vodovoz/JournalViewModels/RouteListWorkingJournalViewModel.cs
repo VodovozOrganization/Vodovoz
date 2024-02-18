@@ -41,6 +41,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -56,6 +57,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly decimal _routeListProfitabilityIndicator;
 
 		public RouteListWorkingJournalViewModel(
@@ -73,6 +75,7 @@ namespace Vodovoz.JournalViewModels
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
+			IOrganizationRepository organizationRepository,
 			INavigationManager navigationManager)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -87,6 +90,7 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
@@ -456,6 +460,7 @@ namespace Vodovoz.JournalViewModels
 								new EmployeeJournalFactory(NavigationManager),
 								_financialCategoriesGroupsSettings,
 								new CarJournalFactory(NavigationManager),
+								_organizationRepository,
 								_lifetimeScope
 							)
 						);

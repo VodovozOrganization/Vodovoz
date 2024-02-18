@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace Vodovoz.Tools.CommerceML
 	public class Export
 	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+        private readonly IOrganizationRepository _organizationRepository;
         private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
         #region Глобальные настройки экспорта
@@ -88,9 +88,10 @@ namespace Vodovoz.Tools.CommerceML
 
 #endregion
 
-		public Export(IUnitOfWork uow )
+		public Export(IUnitOfWork uow, IOrganizationRepository organizationRepository)
 		{
 			UOW = uow;
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		public void RunToDirectory(string dir)

@@ -30,6 +30,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -64,6 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private ILifetimeScope _lifetimeScope;
@@ -108,7 +110,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
-			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
 			ISubdivisionSettings subdivisionParametersProvider,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
@@ -122,6 +123,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			BaseParametersProvider baseParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
+			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
@@ -145,15 +147,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
-
-			if(commonOrganisationProvider == null)
-			{
-				throw new ArgumentNullException(nameof(commonOrganisationProvider));
-			}
 
 			if(validationContextFactory == null)
 			{
@@ -166,7 +164,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			if(Entity.Id == 0)
 			{
-				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+				Entity.OrganisationForSalary = _organizationRepository.GetCommonOrganisation(UoW);
 				FillHiddenCategories(traineeToEmployee);
 
 				TabName = "Новый сотрудник";

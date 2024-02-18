@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSProjectsLib;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.CommerceML;
 
@@ -70,7 +72,8 @@ namespace Vodovoz.Dialogs.OnlineStore
 				var directory = fileChooser.Filename;
 				fileChooser.Destroy();
 
-				var export = new Export(uow);
+				var organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
+				var export = new Export(uow, organizationRepository);
 				export.ProgressUpdated += Export_ProgressUpdated;
 
 				export.RunToDirectory(directory);
@@ -107,7 +110,8 @@ namespace Vodovoz.Dialogs.OnlineStore
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)
 		{
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
-				var export = new Export(uow);
+				var organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
+				var export = new Export(uow, organizationRepository);
 				export.ProgressUpdated += Export_ProgressUpdated;
 
 				export.RunToSite();

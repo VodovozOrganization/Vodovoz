@@ -122,7 +122,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
