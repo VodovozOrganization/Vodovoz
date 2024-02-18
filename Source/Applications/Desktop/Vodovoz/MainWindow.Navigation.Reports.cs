@@ -24,6 +24,7 @@ using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Reports;
@@ -1137,8 +1138,8 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
-		var paramProvider = new ParametersProvider();
 		var reportSettings = _autofacScope.Resolve<IReportSettings>();
+		var archiveSettings = _autofacScope.Resolve<IArchiveDataSettings>();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
@@ -1146,7 +1147,9 @@ public partial class MainWindow
 				new OrderChangesReport(
 					reportSettings,
 					ServicesConfig.InteractiveService,
-					new ArchiveDataSettings(paramProvider))));
+					archiveSettings)
+				)
+			);
 	}
 
 	/// <summary>

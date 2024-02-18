@@ -11,6 +11,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database.Common;
 using Vodovoz.Tools;
 
 namespace MonitoringArchivingWorker

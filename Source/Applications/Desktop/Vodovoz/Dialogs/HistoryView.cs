@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Exceptions;
@@ -20,6 +21,7 @@ using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Attributes;
@@ -76,7 +78,7 @@ namespace Vodovoz.Dialogs
 
 			ConfigureDataTrees();
 
-			var archiveSettings = new ArchiveDataSettings(new ParametersProvider());
+			var archiveSettings = ScopeProvider.Scope.Resolve<IArchiveDataSettings>();
 
 			if(archiveSettings.GetDatabaseNameForOldMonitoringAvailable == UoW.Session.Connection.Database)
 			{

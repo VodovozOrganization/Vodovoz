@@ -10,9 +10,9 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using Vodovoz.Parameters;
 using QS.Project.Services;
 using Vodovoz.Settings.Reports;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ReportsParameters.Orders
 {

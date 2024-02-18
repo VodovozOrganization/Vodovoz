@@ -4,7 +4,7 @@ using QS.HistoryLog.Repositories;
 using System;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Tools
 {
