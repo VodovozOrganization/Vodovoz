@@ -8,7 +8,6 @@ namespace Vodovoz.Core.DataService
 	public class BaseParametersProvider : 
 		IStandartNomenclatures, 
 		IStandartDiscountsService, 
-		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
@@ -65,78 +64,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion
-
-		#region ISmsNotifierParameters implementation
-
-		public bool IsSmsNotificationsEnabled
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("is_sms_notification_enabled"))
-				{
-					throw new InvalidProgramException("В параметрах базы не настроен параметр для включения смс уведомлений (is_sms_notification_enabled).");
-				}
-				string value = _parametersProvider.GetParameterValue("is_sms_notification_enabled");
-				if(value == "true" || value == "1")
-				{
-					return true;
-				}
-				return false;
-			}
-		}
-
-		public string GetNewClientSmsTextTemplate()
-		{
-			if(!_parametersProvider.ContainsParameter("new_client_sms_text_template"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен шаблон для смс уведомлений новых клиентов (new_client_sms_text_template).");
-			}
-			return _parametersProvider.GetParameterValue("new_client_sms_text_template");
-		}
-
-		public decimal GetLowBalanceLevel()
-		{
-			if(!_parametersProvider.ContainsParameter("low_balance_level_for_sms_notifications"))
-			{
-				throw new InvalidProgramException("В параметрах базы не указан минимальный уровень средств на счете при котором будет отправляться уведомление о низком уровне средст на счете (low_balance_level_for_sms_notifications).");
-			}
-			string balanceString = _parametersProvider.GetParameterValue("low_balance_level_for_sms_notifications");
-
-			if(!decimal.TryParse(balanceString, out decimal balance))
-			{
-				throw new InvalidProgramException("В параметрах базы неверно заполнен (невозможно преобразовать в число) минимальный уровень средств на счете при котором будет отправляться уведомление о низком уровне средст на счете (low_balance_level_for_sms_notifications)");
-			}
-			return balance;
-		}
-
-		public string GetLowBalanceNotifiedPhone()
-		{
-			if(!_parametersProvider.ContainsParameter("low_balance_sms_notified_phone"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен телефон на который будут отправляться сообщения о низком балансе денежных средств на счете для отпарвки смс уведомлений (low_balance_sms_notified_phone).");
-			}
-			return _parametersProvider.GetParameterValue("low_balance_sms_notified_phone");
-		}
-
-		public string GetLowBalanceNotifyText()
-		{
-			if(!_parametersProvider.ContainsParameter("low_balance_sms_notify_text"))
-			{
-				throw new InvalidProgramException("Текст сообщения о низком балансе средств на счете для отправки смс уведомлений (low_balance_sms_notify_text).");
-			}
-			return _parametersProvider.GetParameterValue("low_balance_sms_notify_text");
-		}
-		
-		public string GetUndeliveryAutoTransferNotApprovedTextTemplate()
-		{
-			if(!_parametersProvider.ContainsParameter("undelivery_autotransport_notapproved_sms_text_template")) 
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен шаблон для смс уведомлений о переносе при недовозе  без согласования(undelivery_autotransport_notapproved_sms_text_template).");
-			}
-			return _parametersProvider.GetParameterValue("undelivery_autotransport_notapproved_sms_text_template");
-		}
-
-		#endregion ISmsNotifierParameters implementation
 
 		#region IWageParametersProvider implementation
 

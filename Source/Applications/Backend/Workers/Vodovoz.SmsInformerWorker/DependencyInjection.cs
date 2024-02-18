@@ -19,8 +19,6 @@ namespace Vodovoz.SmsInformerWorker
 			.AddSingleton<ISmsSender, SmsRuSendController>()
 			.AddSingleton<ISmsBalanceNotifier, SmsRuSendController>()
 			.AddSingleton<ISmsNotificationRepository, SmsNotificationRepository>()
-			.AddSingleton<ISmsNotifierParametersProvider, BaseParametersProvider>()
-			.AddSingleton<IParametersProvider, ParametersProvider>()
 			;
 
 		public static IServiceCollection ConfigureSmsInformerWorker(this IServiceCollection services, HostBuilderContext context) => services

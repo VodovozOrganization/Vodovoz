@@ -10,12 +10,12 @@ namespace Vodovoz.Domain.Sms
 	public class SmsNotifier
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
+		private readonly ISmsNotifierSettings _smsNotifierParametersProvider;
 
-		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierParametersProvider smsNotifierParametersProvider)
+		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierSettings smsNotifierParametersProvider)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			this.smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
+			this._smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
 		}
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Sms
 		/// </summary>
 		public void NotifyIfNewClient(Order order)
 		{
-			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
+			if(!_smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
 				return;
 			}
 
@@ -56,7 +56,7 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//получение текста сообщения
-			string messageText = smsNotifierParametersProvider.GetNewClientSmsTextTemplate();
+			string messageText = _smsNotifierParametersProvider.NewClientSmsTextTemplate;
 
 			//формирование текста сообщения
 			const string orderIdVariable = "$order_id$";
@@ -95,7 +95,7 @@ namespace Vodovoz.Domain.Sms
 		/// до сохранения самого недовоза в базу</param>
 		public void NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder undeliveredOrder, IUnitOfWork externalUow = null)
 		{
-			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled)
+			if(!_smsNotifierParametersProvider.IsSmsNotificationsEnabled)
 			{
 				return;
 			}
@@ -133,7 +133,7 @@ namespace Vodovoz.Domain.Sms
 			}
 			
 			//получение текста сообщения
-			var msgToSend = smsNotifierParametersProvider.GetUndeliveryAutoTransferNotApprovedTextTemplate();
+			var msgToSend = _smsNotifierParametersProvider.UndeliveryAutoTransferNotApprovedTextTemplate;
 
 			//формирование текста сообщения
 			//метки для замены в тексте сообщения из базы

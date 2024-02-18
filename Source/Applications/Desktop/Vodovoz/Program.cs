@@ -573,7 +573,6 @@ namespace Vodovoz
 						.As<IStandartNomenclatures>()
 						.As<IStandartDiscountsService>()
 						.As<IWageParametersProvider>()
-						.As<ISmsNotifierParametersProvider>()
 						.As<IWageParametersProvider>()
 						.As<IErrorSendSettings>()
 						.As<IVpbxSettings>()

@@ -14,13 +14,13 @@ namespace Vodovoz.SmsInformerWorker.Services
 		private readonly ILogger<LowBalanceNotificationService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISmsSender _smsSender;
-		private readonly ISmsNotifierParametersProvider _smsNotifierParametersProvider;
+		private readonly ISmsNotifierSettings _smsNotifierParametersProvider;
 
 		public LowBalanceNotificationService(
 			ILogger<LowBalanceNotificationService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISmsSender smsSender,
-			ISmsNotifierParametersProvider smsNotifierParametersProvider)
+			ISmsNotifierSettings smsNotifierParametersProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -38,9 +38,9 @@ namespace Vodovoz.SmsInformerWorker.Services
 				}
 
 				decimal currentBalanceLevel = e.Balance;
-				decimal minBalanceLevel = _smsNotifierParametersProvider.GetLowBalanceLevel();
+				decimal minBalanceLevel = _smsNotifierParametersProvider.LowBalanceLevel;
 
-				var unformedPhone = _smsNotifierParametersProvider.GetLowBalanceNotifiedPhone();
+				var unformedPhone = _smsNotifierParametersProvider.LowBalanceNotifiedPhone;
 
 				if(string.IsNullOrWhiteSpace(unformedPhone))
 				{
@@ -52,7 +52,7 @@ namespace Vodovoz.SmsInformerWorker.Services
 					$"Неверно заполнен номер телефона ({unformedPhone}) для уведомления о низком балансе денежных средств на счете");
 
 				string notifyText = _smsNotifierParametersProvider
-					.GetLowBalanceNotifyText()
+					.LowBalanceNotifyText
 					.Replace("$balance$", currentBalanceLevel.ToString("0.##"));
 
 				using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot();
