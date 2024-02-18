@@ -15,7 +15,6 @@ namespace Vodovoz.Core.DataService
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
-		IEmailServiceSettings,
 		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
 		IMailjetParametersProvider,
@@ -360,28 +359,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion ISalesReceiptsServiceSettings implementation
-
-		#region IEmailServiceSettings implementation
-
-		public int MaxEmailsInQueueForWorkingService {
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("MaxEmailsInQueueForWorkingService"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество писем в очереди на отправку для рабочей службы (MaxEmailsInQueueForWorkingService).");
-				}
-				string value = _parametersProvider.GetParameterValue("MaxEmailsInQueueForWorkingService");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество писем в очереди на отправку для рабочей службы (MaxEmailsInQueueForWorkingService)");
-				}
-
-				return result;
-			}
-		}
-
-		#endregion IEmailServiceSettings implementation
 
 		#region IProfitCategoryProvider
 

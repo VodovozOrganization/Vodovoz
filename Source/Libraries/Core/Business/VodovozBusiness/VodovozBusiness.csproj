@@ -1253,7 +1253,6 @@
     <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
     <Compile Include="Services\ISmsNotificationServiceSettings.cs" />
     <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
-    <Compile Include="Services\IEmailServiceSettings.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />
