@@ -79,6 +79,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			RoboatsJournalsFactory roboatsJournalsFactory,
 			ILifetimeScope lifetimeScope,
 			ICoordinatesParser coordinatesParser,
+			IExternalCounterpartyController externalCounterpartyController,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -110,10 +111,15 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			}
+			
+			if(externalCounterpartyController == null)
+			{
+				throw new ArgumentNullException(nameof(externalCounterpartyController));
+			}
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));;
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -126,7 +132,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				contactsParameters,
 				_roboatsJournalsFactory,
 				CommonServices,
-				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), CommonServices.InteractiveService))
+				externalCounterpartyController)
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,

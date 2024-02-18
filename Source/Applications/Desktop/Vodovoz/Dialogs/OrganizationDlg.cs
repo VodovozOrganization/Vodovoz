@@ -1,16 +1,13 @@
 ﻿using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Services;
 using QS.Validation;
 using QS.ViewModels.Extension;
 using System;
+using Autofac;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using QS.Services;
@@ -22,13 +19,12 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
-		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
-		private readonly IExternalCounterpartyController _externalCounterpartyController =
-			new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
-		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
+		private IPhoneRepository _phoneRepository;
+		private ICommonServices _commonServices;
+		private IExternalCounterpartyController _externalCounterpartyController;
+		private IContactParametersProvider _contactsParameters;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private PhonesViewModel _phonesViewModel;
 
@@ -44,14 +40,14 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		public OrganizationDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization> (id);
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		public OrganizationDlg (Organization sub) : this (sub.Id)
@@ -67,6 +63,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
+			ResolveDependencies();
 			notebookMain.Visible = IsCanEditEntity || permissionResult.CanRead;
 
 			accountsview1.CanEdit = IsCanEditEntity;
@@ -108,6 +105,15 @@ namespace Vodovoz
 			versionsView.ViewModel = organizationVersionsViewModel;
 		}
 
+		private void ResolveDependencies()
+		{
+			_organizationVersionsViewModelFactory = _lifetimeScope.Resolve<IOrganizationVersionsViewModelFactory>();
+			_phoneRepository = _lifetimeScope.Resolve<IPhoneRepository>();
+			_commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
+			_contactsParameters = _lifetimeScope.Resolve<IContactParametersProvider>();
+		}
+
 		public override bool Save ()
 		{
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
@@ -139,6 +145,17 @@ namespace Vodovoz
 		{
 			if (radioTabAccounts.Active)
 				notebookMain.CurrentPage = 1;
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			
+			base.Destroy();
 		}
 	}
 }

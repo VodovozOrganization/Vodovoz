@@ -70,8 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
 
 				var question = externalCounterparties.Any()
-					? "Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
-					"Вы действительно хотите его заархивировать?"
+					? _externalCounterpartyController.PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите его заархивировать?"
 					: "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
 				
 				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))

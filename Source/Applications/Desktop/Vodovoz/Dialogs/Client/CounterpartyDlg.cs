@@ -122,11 +122,8 @@ namespace Vodovoz
 		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
-		private readonly IExternalCounterpartyController _externalCounterpartyController =
-			new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
-			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private IExternalCounterpartyController _externalCounterpartyController;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailParametersProvider _emailParametersProvider;
@@ -317,6 +314,7 @@ namespace Vodovoz
 			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
 			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();

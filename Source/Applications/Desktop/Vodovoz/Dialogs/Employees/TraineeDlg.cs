@@ -13,6 +13,7 @@ using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using QS.Attachments.ViewModels.Widgets;
+using QS.Deletion.Configuration;
 using QS.Project.Domain;
 using Vodovoz.EntityRepositories;
 using QS.Services;
@@ -32,7 +33,9 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IExternalCounterpartyController _externalCounterpartyController =
-			new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
+			new ExternalCounterpartyController(
+				new DeleteEntityGUIService(new DeleteConfiguration(), Startup.MainWin.NavigationManager, ServicesConfig.InteractiveService),
+				new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 
 		private AttachmentsViewModel _attachmentsViewModel;

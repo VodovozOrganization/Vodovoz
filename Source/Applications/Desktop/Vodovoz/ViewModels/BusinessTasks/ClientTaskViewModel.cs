@@ -185,7 +185,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				_contactsParameters,
 				_roboAtsCounterpartyJournalFactory,
 				CommonServices,
-				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), CommonServices.InteractiveService))
+				_lifetimeScope.Resolve<IExternalCounterpartyController>())
 			{
 				ReadOnly = true
 			};

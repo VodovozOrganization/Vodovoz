@@ -51,7 +51,7 @@ namespace Vodovoz.Dialogs
 
 		public CallTaskDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
@@ -80,7 +80,7 @@ namespace Vodovoz.Dialogs
 
 		public CallTaskDlg(int callTaskId)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
@@ -103,8 +103,7 @@ namespace Vodovoz.Dialogs
 			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
-			_externalCounterpartyController =
-				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), _commonServices.InteractiveService);
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
 
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;
 			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
