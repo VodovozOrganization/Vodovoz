@@ -20,6 +20,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -30,11 +31,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IGlobalSettings _globalSettings;
 
-		public DeliveryRepository(IUnitOfWorkFactory uowFactory, IDeliveryRulesSettings deliveryRulesSettings)
+		public DeliveryRepository(IUnitOfWorkFactory uowFactory, IDeliveryRulesSettings deliveryRulesSettings, IGlobalSettings globalSettings)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 		}
 
 		#region Получение районов по координатам
@@ -255,8 +258,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Where(() => tpInner.Track.Id == t.Id)
 				.Select(Projections.Max(() => tpInner.TimeStamp));
 
-			var globalSettings = new GlobalSettings(new ParametersProvider());
-
 			//МЛ только в пути и с погруженным запасом
 			var routeListNodes = uow.Session.QueryOver(() => rl)
 				.JoinEntityAlias(() => t, () => t.RouteList.Id == rl.Id)
@@ -279,7 +280,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
 				var proposedRoute = OsrmClientFactory.Instance
-					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, globalSettings.ExcludeToll)?.Routes?
+					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll)?.Routes?
 					.FirstOrDefault();
 				
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;

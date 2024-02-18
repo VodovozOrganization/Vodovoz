@@ -332,7 +332,9 @@ namespace Vodovoz.Additions.Logistic
 			};
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			using(var calc = new RouteGeometryCalculator(ServicesConfig.UnitOfWorkFactory))
+			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
+			using(var calc = new RouteGeometryCalculator(uowFactory, globalSettings))
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}

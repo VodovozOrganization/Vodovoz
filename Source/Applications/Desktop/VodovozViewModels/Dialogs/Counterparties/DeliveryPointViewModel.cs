@@ -28,6 +28,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -62,6 +63,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
 		private readonly ICoordinatesParser _coordinatesParser;
 		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IGlobalSettings _globalSettings;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private string _districtOnMap;
@@ -87,6 +89,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			ICoordinatesParser coordinatesParser,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRepository deliveryRepository,
+			IGlobalSettings globalSettings,
 			IPhoneTypeSettings phoneTypeSettings,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -124,6 +127,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
@@ -378,7 +382,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				return;
 			}
 
-			Entity.SetСoordinates(latitude, longitude, _deliveryRepository, UoW);
+			Entity.SetСoordinates(latitude, longitude, _deliveryRepository, _globalSettings, UoW);
 			Entity.СoordsLastChangeUser = _currentUser ?? (_currentUser = _userRepository.GetCurrentUser(UoW));
 		}
 

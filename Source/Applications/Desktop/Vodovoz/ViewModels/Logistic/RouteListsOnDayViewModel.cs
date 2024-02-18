@@ -40,6 +40,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -61,6 +62,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IGlobalSettings _globalSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		private bool _excludeTrucks;
@@ -87,6 +89,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			ICarModelJournalFactory carModelJournalFactory,
 			IRouteOptimizer routeOptimizer,
+			IGlobalSettings globalSettings,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -108,12 +111,13 @@ namespace Vodovoz.ViewModels.Logistic
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			DistanceCalculator = new RouteGeometryCalculator(_uowFactory);
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));

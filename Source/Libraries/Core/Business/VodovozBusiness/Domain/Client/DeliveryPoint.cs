@@ -20,7 +20,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Client
 {
@@ -825,7 +825,12 @@ namespace Vodovoz.Domain.Client
 		/// <param name="longitude">Долгота</param>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города
 		/// для определения расстояния до базы</param>
-		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IDeliveryRepository deliveryRepository, IUnitOfWork uow = null)
+		public virtual bool SetСoordinates(
+			decimal? latitude, 
+			decimal? longitude, 
+			IDeliveryRepository deliveryRepository, 
+			IGlobalSettings globalSettings, 
+			IUnitOfWork uow = null)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
@@ -849,7 +854,7 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 
-			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, GetGlobalSettings().ExcludeToll);
+			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, globalSettings.ExcludeToll);
 
 			if(result == null)
 			{
@@ -873,15 +878,6 @@ namespace Vodovoz.Domain.Client
 			return string.Equals(_streetType, StreetTypeShort, StringComparison.CurrentCultureIgnoreCase)
 				? $"{StreetTypeShort} "
 				: $"{StreetTypeShort}. ";
-		}
-
-		private IGlobalSettings GetGlobalSettings()
-		{
-			if(_globalSettings == null)
-			{
-				_globalSettings = new GlobalSettings(new ParametersProvider());
-			}
-			return _globalSettings;
 		}
 
 		#region IValidatableObject Implementation

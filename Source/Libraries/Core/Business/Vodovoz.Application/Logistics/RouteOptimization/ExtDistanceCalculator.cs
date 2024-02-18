@@ -15,8 +15,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
-using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 {

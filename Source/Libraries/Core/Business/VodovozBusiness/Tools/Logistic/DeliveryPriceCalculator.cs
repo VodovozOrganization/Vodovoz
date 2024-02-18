@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+﻿using Autofac;
+using NetTopologySuite.Geometries;
 using QS.Osrm;
 using QS.Project.Services;
 using System;
@@ -9,8 +10,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -19,7 +19,7 @@ namespace Vodovoz.Tools.Logistic
 		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
-		private static readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private static readonly IGlobalSettings _globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;

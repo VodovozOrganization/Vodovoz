@@ -834,7 +834,6 @@
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
-    <Compile Include="Parameters\GlobalSettings.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
@@ -867,7 +866,6 @@
     <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
-    <Compile Include="Services\IGlobalSettings.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />

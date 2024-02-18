@@ -1,4 +1,5 @@
-﻿using GMap.NET;
+﻿using Autofac;
+using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
@@ -12,13 +13,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Dialogs.Logistic
 {
@@ -26,7 +27,7 @@ namespace Dialogs.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly IGlobalSettings _globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
 
 		#region Поля
 
