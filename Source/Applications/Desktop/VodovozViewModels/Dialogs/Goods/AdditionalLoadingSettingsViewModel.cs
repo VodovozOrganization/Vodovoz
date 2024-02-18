@@ -14,7 +14,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -22,7 +23,8 @@ namespace Vodovoz.ViewModels.Goods
 {
 	public class AdditionalLoadingSettingsViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IInteractiveService _interactiveService;
 
 		private DelegateCommand<IList<AdditionalLoadingNomenclatureDistribution>> _removeNomenclatureDistributionCommand;
@@ -42,7 +44,9 @@ namespace Vodovoz.ViewModels.Goods
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRepository deliveryRepository
+			)
 			: base(unitOfWorkFactory, navigation)
 		{
 			if(scope == null)
@@ -55,12 +59,13 @@ namespace Vodovoz.ViewModels.Goods
 			}
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
 				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_interactiveService = commonServices.InteractiveService;
 
 			CanEdit = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
 			
-			FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
+			FastDeliveryMaxDistance = _deliveryRepository.MaxDistanceToLatestTrackPointKm;
 			MaxFastOrdersPerSpecificTime = _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
 
 			FlyerAdditionEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
@@ -268,7 +273,7 @@ namespace Vodovoz.ViewModels.Goods
 				UoW.Save(priority);
 			}
 
-			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance);
+			_deliveryRepository.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance);
 			UpdateFastDeliveryMaxDistanceValueInAllNotClosedRouteLists(FastDeliveryMaxDistance);
 
 			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());

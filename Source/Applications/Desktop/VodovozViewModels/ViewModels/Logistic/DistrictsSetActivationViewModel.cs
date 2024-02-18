@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +17,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools.Logistic;
 
@@ -25,7 +26,7 @@ namespace Vodovoz.ViewModels.Logistic
 	public sealed class DistrictsSetActivationViewModel : EntityTabViewModelBase<DistrictsSet>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
 		private readonly IEmployeeRepository _employeeRepository;
-
+		private readonly IDeliveryRepository _deliveryRepository;
 		private bool _activationInProgress;
 		private string _activationStatus;
 		private DistrictsSet _activeDistrictsSet;
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeRepository employeeRepository,
+			IDeliveryRepository deliveryRepository,
 			INavigationManager navigation = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -52,6 +54,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Take(1)
 				.SingleOrDefault();
 			_employeeRepository = employeeRepository;
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 		}
 
 		public override bool HasChanges => false;
@@ -184,7 +187,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			foreach(var dp in deliveryPoints)
 			{
-				if(dp.FindAndAssociateDistrict(uow, districtsSet))
+				if(dp.FindAndAssociateDistrict(uow, _deliveryRepository, districtsSet))
 				{
 					uow.Save(dp);
 				}

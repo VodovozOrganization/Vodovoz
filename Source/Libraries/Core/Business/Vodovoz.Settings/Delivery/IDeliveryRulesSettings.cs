@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 
-namespace Vodovoz.Services
+namespace Vodovoz.Settings.Delivery
 {
-	public interface IDeliveryRulesParametersProvider
+	public interface IDeliveryRulesSettings
 	{
 		bool IsStoppedOnlineDeliveriesToday { get; }
 		void UpdateOnlineDeliveriesTodayParameter(string value);
@@ -23,17 +23,14 @@ namespace Vodovoz.Services
 		int DriverGoodWeightLiftPerHandInKg { get; }
 		int MaxFastOrdersPerSpecificTime { get; }
 		TimeSpan SpecificTimeForMaxFastOrdersCount { get; }
-		double MaxDistanceToLatestTrackPointKm { get; }
 		int FlyerForNewCounterpartyBottlesCount { get; }
 		bool FlyerForNewCounterpartyEnabled { get; }
 		double CarsMonitoringResfreshInSeconds { get; }
 
-		void UpdateFastDeliveryMaxDistanceParameter(double value);
 		void UpdateFlyerForNewCounterpartyBottlesCountParameter(string value);
 		void UpdateFlyerForNewCounterpartyEnabledParameter(string value);
 		void UpdateMaxFastOrdersPerSpecificTimeParameter(string toString);
 
-		double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime);
 
 		#endregion
 	}

@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
@@ -69,7 +70,8 @@ namespace Vodovoz.SidePanel
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
-					return new CarsMonitoringInfoPanelView(ServicesConfig.UnitOfWorkFactory, new DeliveryRulesParametersProvider(new ParametersProvider()), Startup.MainWin.NavigationManager);
+					var _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
+					return new CarsMonitoringInfoPanelView(ServicesConfig.UnitOfWorkFactory, _deliveryRulesSettings, Startup.MainWin.NavigationManager);
 				default:
 					throw new NotSupportedException();
 			}

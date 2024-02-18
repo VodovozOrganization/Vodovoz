@@ -57,6 +57,8 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Common;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.EntityRepositories.Delivery;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -82,8 +84,10 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
 			.Resolve<IRouteListRepository>();
-		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryRulesParametersProvider>();
+		private IDeliveryRulesSettings _deliveryRulesParametersProvider => ScopeProvider.Scope
+			.Resolve<IDeliveryRulesSettings>();
+		private IDeliveryRepository _deliveryRepository => ScopeProvider.Scope
+			.Resolve<IDeliveryRepository>();
 		private IGeneralSettings GetGeneralSettingsParametersProvider => ScopeProvider.Scope
 			.Resolve<IGeneralSettings>();
 		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
@@ -1763,7 +1767,7 @@ namespace Vodovoz.Domain.Logistic
 				return fastDeliveryMaxDistanceItem.Distance;
 			}
 
-			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
+			return (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
 		public virtual int GetMaxFastDeliveryOrdersValue(DateTime? date = null)
@@ -1849,7 +1853,7 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
 						var orderParametersProvider = validationContext.GetService<IOrderSettings>();
-						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesParametersProvider>();
+						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesSettings>();
 
 						validationContext.Items.TryGetValue(ValidationKeyIgnoreReceiptsForOrders, out var ignoreReceiptsInOrdersParameter);
 

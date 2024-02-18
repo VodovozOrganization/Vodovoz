@@ -1,4 +1,4 @@
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -27,10 +27,12 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -44,8 +46,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
@@ -95,7 +97,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ITrackRepository trackRepository,
 			IRouteListRepository routeListRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRepository deliveryRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IGeographicGroupRepository geographicGroupRepository,
 			IGeographicGroupParametersProvider geographicGroupParametersProvider,
@@ -106,6 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			_geographicGroupParametersProvider = geographicGroupParametersProvider;
@@ -685,7 +689,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				savedRow.RowNumber = ++rowNum;
 				if (savedRow.FastDeliveryMaxDistance == null)
 				{
-					savedRow.FastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(ShowHistory ? HistoryDateTime : DateTime.Now);
+					savedRow.FastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(ShowHistory ? HistoryDateTime : DateTime.Now);
 				}
 
 				savedRow.MaxFastDeliveryOrders = driversNodes[i].Max(x => x.MaxFastDeliveryOrders);

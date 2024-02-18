@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace DeliveryRulesService.Controllers
 {
@@ -31,7 +32,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IFiasApiClientFactory _fiasApiClientFactory;
 		private readonly IFiasApiClient _fiasApiClient;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCache _districtCache;
@@ -44,7 +45,7 @@ namespace DeliveryRulesService.Controllers
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
 			IFiasApiClientFactory fiasApiClientFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCache districtCache)
@@ -542,7 +543,6 @@ namespace DeliveryRulesService.Controllers
 				(double)latitude,
 				(double)longitude,
 				isGetClosestByRoute: false,
-				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
 
 			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);

@@ -8,7 +8,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.Models
 {
@@ -16,13 +16,13 @@ namespace Vodovoz.Models
 	{
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IFlyerRepository _flyerRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly IStockRepository _stockRepository;
 		private IList<Flyer> _activeFlyers;
 		private IDictionary<int, decimal> _flyersInStock;
 
 		public AdditionalLoadingModel(IEmployeeRepository employeeRepository, IFlyerRepository flyerRepository,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IStockRepository stockRepository)
+			IDeliveryRulesSettings deliveryRulesParametersProvider, IStockRepository stockRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));

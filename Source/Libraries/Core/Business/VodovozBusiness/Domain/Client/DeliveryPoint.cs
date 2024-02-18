@@ -99,9 +99,6 @@ namespace Vodovoz.Domain.Client
 		private bool _addCertificatesAlways;
 		private DeliveryPointCategory _category;
 
-		//FIXME вынести зависимость
-		private readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
-
 		public DeliveryPoint()
 		{
 			CompiledAddress = string.Empty;
@@ -790,9 +787,9 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
 		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow)
+		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow, IDeliveryRepository deliveryRepository)
 		{
-			return !CoordinatesExist ? new List<District>() : _deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
+			return !CoordinatesExist ? new List<District>() : deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
 		}
 
 		/// <summary>
@@ -801,14 +798,14 @@ namespace Vodovoz.Domain.Client
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
 		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
-		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
+		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, IDeliveryRepository deliveryRepository, DistrictsSet districtsSet = null)
 		{
 			if(!CoordinatesExist)
 			{
 				return false;
 			}
 
-			District foundDistrict = _deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
+			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
 
 			if(foundDistrict == null)
 			{
@@ -828,14 +825,14 @@ namespace Vodovoz.Domain.Client
 		/// <param name="longitude">Долгота</param>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города
 		/// для определения расстояния до базы</param>
-		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IUnitOfWork uow = null)
+		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IDeliveryRepository deliveryRepository, IUnitOfWork uow = null)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
 
 			OnPropertyChanged(nameof(CoordinatesExist));
 
-			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow, deliveryRepository))
 			{
 				return true;
 			}

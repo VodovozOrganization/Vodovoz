@@ -40,6 +40,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
@@ -60,7 +61,7 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly IParametersProvider _parametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly INavigationManager _navigationManager;
 		private readonly IOrderSettings _orderParametersProvider;
 		private readonly IOrderRepository _orderRepository;
@@ -106,7 +107,7 @@ namespace Vodovoz
 			IParametersProvider parametersProvider,
 			IOrderSettings orderParametersProvider,
 			INomenclatureOnlineSettings nomenclatureOnlineParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{

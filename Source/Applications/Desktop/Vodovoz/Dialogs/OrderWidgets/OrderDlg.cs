@@ -131,6 +131,7 @@ using Vodovoz.Settings.Roboats;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz
 {
@@ -160,13 +161,12 @@ namespace Vodovoz
 
 		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
 
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
-			new DeliveryRulesParametersProvider(_parametersProvider);
+		private static readonly IDeliveryRulesSettings _deliveryRulesParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
 
 		private static readonly IDriverApiParametersProvider _driverApiParametersProvider =
 			new DriverApiParametersProvider(_parametersProvider);
 
-		private static readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
+		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
 
 		private IOrderService _orderService;
 		private IEdoService _edoService;
@@ -1516,7 +1516,6 @@ namespace Vodovoz
 				(double)Entity.DeliveryPoint.Latitude.Value,
 				(double)Entity.DeliveryPoint.Longitude.Value,
 				isGetClosestByRoute: false,
-				_deliveryRulesParametersProvider,
 				Entity.GetAllGoodsToDeliver(),
 				Entity
 			);
@@ -2414,7 +2413,6 @@ namespace Vodovoz
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
-					_deliveryRulesParametersProvider,
 					Entity.GetAllGoodsToDeliver(),
 					Entity
 				);
@@ -2631,7 +2629,7 @@ namespace Vodovoz
 				return Result.Failure(Errors.Orders.Order.Validation);
 			}
 
-			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
+			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW, _deliveryRepository).Any())
 			{
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 			}

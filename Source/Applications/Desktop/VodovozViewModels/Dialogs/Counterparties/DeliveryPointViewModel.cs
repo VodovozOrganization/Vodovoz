@@ -378,7 +378,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				return;
 			}
 
-			Entity.SetСoordinates(latitude, longitude, UoW);
+			Entity.SetСoordinates(latitude, longitude, _deliveryRepository, UoW);
 			Entity.СoordsLastChangeUser = _currentUser ?? (_currentUser = _userRepository.GetCurrentUser(UoW));
 		}
 

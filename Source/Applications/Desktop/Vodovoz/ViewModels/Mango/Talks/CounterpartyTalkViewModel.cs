@@ -19,13 +19,13 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IParametersProvider _parametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private ILifetimeScope _lifetimeScope;
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			INomenclatureRepository nomenclatureRepository,
 			IOrderRepository orderRepository,
 			IParametersProvider parametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(tdinavigation, manager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));

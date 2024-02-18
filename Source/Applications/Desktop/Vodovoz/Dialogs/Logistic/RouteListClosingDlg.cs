@@ -64,6 +64,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz
 {
@@ -76,7 +77,7 @@ namespace Vodovoz
 
 		private IParametersProvider _parametersProvider;
 		private IOrderSettings _orderParametersProvider;
-		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private IRouteListRepository _routeListRepository;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -171,7 +172,7 @@ namespace Vodovoz
 
 			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
 			_orderParametersProvider = _lifetimeScope.Resolve<IOrderSettings>();
-			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
+			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
 			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();

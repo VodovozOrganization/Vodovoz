@@ -8,7 +8,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Exceptions;
 
 namespace Vodovoz.Domain.Logistic
@@ -17,10 +17,10 @@ namespace Vodovoz.Domain.Logistic
 	{
 		private readonly RouteListItem item;
 		private readonly EmployeeCategory employeeCategory;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 
 		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesSettings deliveryRulesParametersProvider)
 		{
 			this.employeeCategory = employeeCategory;
 			this.item = item ?? throw new ArgumentNullException(nameof(item));

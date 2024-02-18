@@ -12,11 +12,12 @@ using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
@@ -25,7 +26,8 @@ namespace Vodovoz.Journals.JournalViewModels
 {
 	public sealed class DistrictsSetJournalViewModel : FilterableSingleEntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode, DistrictsSetJournalFilterViewModel>
 	{
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
 
 		public DistrictsSetJournalViewModel(
@@ -35,7 +37,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeRepository employeeRepository,
 			IEntityDeleteWorker entityDeleteWorker,
 			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRepository deliveryRepository,
 			INavigationManager navigation,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
@@ -47,7 +50,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
 			canCreate = permissionResult.CanCreate;
@@ -281,7 +284,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(selectedNode.Id),
 								unitOfWorkFactory,
 								commonServices,
-								new EmployeeRepository()
+								new EmployeeRepository(),
+								_deliveryRepository
 								)
 						);
 

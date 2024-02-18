@@ -16,7 +16,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -32,7 +32,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private DelegateCommand _refreshMonitoring;
 
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly INavigationManager _navigationManager;
 		private FilterOrdersEnum _filterOrders;
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
@@ -45,7 +45,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			INavigationManager navigationManager)
 			: base()
 		{

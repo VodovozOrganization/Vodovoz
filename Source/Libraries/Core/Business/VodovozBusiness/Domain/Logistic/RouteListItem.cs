@@ -22,7 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -41,8 +41,8 @@ namespace Vodovoz.Domain.Logistic
 		private RouteListItem _transferredTo;
 
 
-		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryRulesParametersProvider>();
+		private IDeliveryRulesSettings _deliveryRulesParametersProvider => ScopeProvider.Scope
+			.Resolve<IDeliveryRulesSettings>();
 		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
 			.Resolve<IEmployeeRepository>();
 		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope

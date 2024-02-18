@@ -36,6 +36,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -1250,6 +1251,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+			var deliveryRepository = validationContext.GetRequiredService<IDeliveryRepository>();
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1360,7 +1362,7 @@ namespace Vodovoz.Domain.Orders
 						);
 
 					//FIXME Исправить изменение данных. В валидации нельзя менять объекты.
-					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
+					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW, deliveryRepository))
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
@@ -1533,7 +1535,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(PaymentType) });
 			}
 
-			var deliveryParameters = validationContext.GetService<IDeliveryRulesParametersProvider>();
+			var deliveryParameters = validationContext.GetService<IDeliveryRulesSettings>();
 			var isFastDeliverySchedule = DeliverySchedule?.Id == deliveryParameters.FastDeliveryScheduleId;
 			if(IsFastDelivery != isFastDeliverySchedule)
 			{

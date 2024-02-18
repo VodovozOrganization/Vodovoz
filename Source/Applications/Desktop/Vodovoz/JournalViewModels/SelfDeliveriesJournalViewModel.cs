@@ -28,6 +28,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
@@ -41,7 +42,7 @@ namespace Vodovoz.Representations
 		private readonly Employee _currentEmployee;
 		private readonly IOrderPaymentSettings _orderPaymentSettings;
 		private readonly IOrderSettings _orderParametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly bool _userCanChangePayTypeToByCard;
 
 		public SelfDeliveriesJournalViewModel(
@@ -51,7 +52,7 @@ namespace Vodovoz.Representations
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			IEmployeeService employeeService,
 			INavigationManager navigationManager,
 			Action<OrderJournalFilterViewModel> filterConfig = null) 

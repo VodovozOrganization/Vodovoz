@@ -16,10 +16,11 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryPercentCoverageReport;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.EntityRepositories.Delivery;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 {
@@ -30,7 +31,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		private const string _templatePath = @".\Reports\Logistic\FastDeliveryPercentCoverageReport.xlsx";
 
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IInteractiveService _interactiveService;
 
@@ -49,13 +51,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
+			IDeliveryRepository deliveryRepository,
 			ITrackRepository trackRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_scheduleRestrictionRepository =
 				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
@@ -312,12 +316,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				var serviceRadiusAtDateTime =
 					carsCount > 0 
 					? lastDriversCoordinates.Average(d => d.FastDeliveryRadius)
-					: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
+					: _deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(date);
 
 				var actualServiceRadiusAtDateTime =
 					actualCarsCount > 0
 						? actualLastDriversCoordinates.Average(d => d.FastDeliveryRadius)
-						: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
+						: _deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(date);
 
 				var activeDistrictsAtDateTime =
 					_scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);

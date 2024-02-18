@@ -8,7 +8,7 @@ using QS.Utilities.Extensions;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Cash
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(orderPaymentSettings == null)

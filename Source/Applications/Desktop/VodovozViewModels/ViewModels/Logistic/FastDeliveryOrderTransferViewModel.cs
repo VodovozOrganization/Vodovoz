@@ -16,7 +16,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.ViewModels.Extensions;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesParametersProvider;
 		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IWageParameterService wageParameterService,
 			ITrackRepository trackRepository,
 			OsrmClient osrmClient,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesParametersProvider,
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			IAddressTransferController addressTransferController,
 			int routeListAddressId)
