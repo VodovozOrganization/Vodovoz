@@ -36,6 +36,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
@@ -65,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
-		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IWageSettings _wageSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
@@ -123,7 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
 			IUserRepository userRepository,
-			BaseParametersProvider baseParametersProvider,
+			IWageSettings wageSettings,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
 			IOrganizationRepository organizationRepository,
@@ -151,7 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
@@ -1246,7 +1247,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _baseParametersProvider, CommonServices.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _wageSettings, CommonServices.InteractiveService);
 
 			UoWGeneric.Save(Entity);
 

@@ -19,12 +19,12 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IWageParametersProvider _wageParametersProvider;
+		private readonly IWageSettings _wageParametersProvider;
 		private readonly ICommonServices _commonServices;
 
 		private readonly GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
 
-		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageParametersProvider wageParametersProvider,
+		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageSettings wageParametersProvider,
 			ICommonServices commonServices)
 		{
 			_wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
@@ -59,8 +59,8 @@ namespace Vodovoz.ReportsParameters.Sales
 				Parameters = new Dictionary<string, object>
 				{
 					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
-					{ "cityId", _wageParametersProvider.GetCityWageDistrictId },
-					{ "suburbId", _wageParametersProvider.GetSuburbWageDistrictId },
+					{ "cityId", _wageParametersProvider.CityWageDistrictId },
+					{ "suburbId", _wageParametersProvider.SuburbWageDistrictId },
 				}
 			};
 		}

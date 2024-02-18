@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -29,7 +29,6 @@ namespace Vodovoz
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
 			.AddScoped<IWageCalculationRepository, WageCalculationRepository>()
-			.AddScoped<IWageParametersProvider, BaseParametersProvider>()
 			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
 			.AddScoped<IProfitabilityConstantsRepository, ProfitabilityConstantsRepository>()
 			.AddScoped<IRouteListProfitabilityRepository, RouteListProfitabilityRepository>()

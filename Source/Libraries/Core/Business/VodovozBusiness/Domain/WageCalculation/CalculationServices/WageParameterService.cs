@@ -11,9 +11,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 	public class WageParameterService : IWageParameterService
 	{
 		private readonly IWageCalculationRepository wageCalculationRepository;
-		private readonly IWageParametersProvider wageParametersProvider;
+		private readonly IWageSettings wageParametersProvider;
 
-		public WageParameterService(IWageCalculationRepository wageCalculationRepository, IWageParametersProvider wageParametersProvider)
+		public WageParameterService(IWageCalculationRepository wageCalculationRepository, IWageSettings wageParametersProvider)
 		{
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
@@ -48,7 +48,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			if(startedWageParameter == null || !startedWageParameter.IsStartedWageParameter) return;
 
 			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee).OrderBy(x => x);
-			int daysWorkedNeeded = wageParametersProvider.GetDaysWorkedForMinRatesLevel();
+			int daysWorkedNeeded = wageParametersProvider.DaysWorkedForMinRatesLevel;
 
 			if(workedDays.Count() < daysWorkedNeeded || daysWorkedNeeded < 1) return;
 

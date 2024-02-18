@@ -12,14 +12,17 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using NHibernate.Criterion;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Services;
+using Autofac;
 
 namespace Vodovoz.ServiceDialogs
 {
     [System.ComponentModel.ToolboxItem(true)]
     public partial class RecalculateDriverWageDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
     {
-	    private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
-	    private readonly WageParameterService _wageParameterService;
+	    private readonly IWageCalculationRepository _wageCalculationRepository = ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
+		private readonly IWageSettings _wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
+		private readonly WageParameterService _wageParameterService;
 	    public IUnitOfWork UoW { get; }
 
 	    public RecalculateDriverWageDlg()
@@ -27,10 +30,9 @@ namespace Vodovoz.ServiceDialogs
             this.Build();
             TabName = "Пересчет ЗП водителей";
             UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            _wageParameterService = new WageParameterService(_wageCalculationRepository, _wageSettings);
             ConfigureDlg();
-            _wageParameterService =
-	            new WageParameterService(_wageCalculationRepository, new BaseParametersProvider(new ParametersProvider()));
-        }
+		}
 
         private void ConfigureDlg()
         {

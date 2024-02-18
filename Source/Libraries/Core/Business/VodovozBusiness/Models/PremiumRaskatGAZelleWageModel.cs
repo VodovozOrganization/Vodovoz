@@ -17,11 +17,11 @@ namespace Vodovoz.Models
 	public class PremiumRaskatGAZelleWageModel
 	{
 		private readonly IEmployeeRepository employeeRepository;
-		private readonly IWageParametersProvider wageParametersProvider;
+		private readonly IWageSettings wageParametersProvider;
 		private readonly IPremiumRaskatGAZelleSettings premiumRaskatGAZelleParametersProvider;
 		private readonly RouteList routeList;
 
-		public PremiumRaskatGAZelleWageModel(IEmployeeRepository employeeRepository, IWageParametersProvider wageParametersProvider,
+		public PremiumRaskatGAZelleWageModel(IEmployeeRepository employeeRepository, IWageSettings wageParametersProvider,
 			IPremiumRaskatGAZelleSettings premiumRaskatGaZelleParametersProvider, RouteList routeList)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -100,7 +100,7 @@ namespace Vodovoz.Models
 					.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 					.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
+					.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.SuburbWageDistrictId &&
 								 routeListAdressesAlias.RouteList.Id == routeList.Id)
 					.Take(1).SingleOrDefault();
 

@@ -24,6 +24,7 @@ using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
@@ -1322,11 +1323,13 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
 	{
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var wageSettings = _autofacScope.Resolve<IWageSettings>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-				ServicesConfig.UnitOfWorkFactory,
-				new BaseParametersProvider(new ParametersProvider()),
+				uowFactory,
+				wageSettings,
 				ServicesConfig.CommonServices)));
 	}
 

@@ -546,7 +546,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository,
-			IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
+			IWageSettings wageParametersProvider, IInteractiveService interactiveService)
 		{
 			if(wageRepository == null)
 			{

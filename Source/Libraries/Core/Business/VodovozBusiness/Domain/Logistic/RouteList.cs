@@ -2549,7 +2549,8 @@ namespace Vodovoz.Domain.Logistic
 
 			UpdateWageOperation();
 			var premiumRaskatSettings = ScopeProvider.Scope.Resolve<IPremiumRaskatGAZelleSettings>();
-			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, _baseParametersProvider,
+			var wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, wageSettings,
 				premiumRaskatSettings, this);
 			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}

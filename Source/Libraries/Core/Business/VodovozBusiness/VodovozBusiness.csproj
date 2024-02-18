@@ -1229,7 +1229,6 @@
     <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
     <Compile Include="EntityRepositories\Store\CarLoadDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarLoadDocumentRepository.cs" />
-    <Compile Include="Services\IWageParametersProvider.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
     <Compile Include="Domain\WageCalculation\AdvancedWageParameter\AdvancedWageParameter.cs" />
