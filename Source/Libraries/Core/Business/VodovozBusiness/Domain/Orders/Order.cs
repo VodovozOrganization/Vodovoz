@@ -49,6 +49,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database.Orders;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
@@ -5002,7 +5003,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(_educationalInstitutionDeliveryPointCategoryId == default(int))
 				{
-					var deliveryPointParametersProvider = new DeliveryPointParametersProvider(new ParametersProvider());
+					var deliveryPointParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryPointSettings>();
 					_educationalInstitutionDeliveryPointCategoryId = deliveryPointParametersProvider.EducationalInstitutionDeliveryPointCategoryId;
 				}
 

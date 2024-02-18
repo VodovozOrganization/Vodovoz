@@ -834,7 +834,6 @@
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
-    <Compile Include="Parameters\DeliveryPointParametersProvider.cs" />
     <Compile Include="Parameters\EmployeeSettings.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
@@ -876,7 +875,6 @@
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
-    <Compile Include="Services\IDeliveryPointParametersProvider.cs" />
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />
     <Compile Include="Services\IGlobalSettings.cs" />
