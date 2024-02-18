@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Core.DataService
 {
@@ -14,7 +12,6 @@ namespace Vodovoz.Core.DataService
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
-		IProfitCategoryProvider,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
 	{
@@ -299,19 +296,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion ISalesReceiptsServiceSettings implementation
-
-		#region IProfitCategoryProvider
-
-		public int GetDefaultProfitCategory()
-		{
-			if(!_parametersProvider.ContainsParameter("default_profit_category_id"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (default_profit_category_id).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("default_profit_category_id"));
-		}
-
-		#endregion IProfitCategoryProvider
 
 		#region ITerminalNomenclatureProvider
 

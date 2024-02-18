@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			INavigationManager navigationManager,
 			IPaymentsRepository paymentsRepository,
 			IProfitCategoryRepository profitCategoryRepository,
-			IProfitCategoryProvider profitCategoryProvider,
+			IPaymentSettings profitCategoryProvider,
 			IOrganizationRepository organizationRepository,
 			IOrganizationSettings organizationParametersProvider,
 			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -107,13 +107,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return base.BeforeSave();
 		}
 
-		private void Configure(IProfitCategoryRepository profitCategoryRepository, IProfitCategoryProvider profitCategoryProvider)
+		private void Configure(IProfitCategoryRepository profitCategoryRepository, IPaymentSettings paymentSettings)
 		{
 			Entity.PaymentNum = _defaultPaymentNum;
 			ProfitCategories = profitCategoryRepository.GetAllProfitCategories(UoW);
 			Entity.Date = DateTime.Today;
 			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationParametersProvider.VodovozOrganizationId);
-			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, profitCategoryProvider.GetDefaultProfitCategory());
+			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, paymentSettings.DefaultProfitCategory);
 			Entity.Status = PaymentState.undistributed;
 			Entity.IsManuallyCreated = true;
 		}

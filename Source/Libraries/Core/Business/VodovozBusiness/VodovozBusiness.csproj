@@ -1285,7 +1285,6 @@
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\ProfitCategory.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />
-    <Compile Include="Services\IProfitCategoryProvider.cs" />
     <Compile Include="Domain\Operations\CashlessMovementOperation.cs" />
     <Compile Include="Domain\Payments\PaymentItem.cs" />
     <Compile Include="Domain\Payments\TransferDocument.cs" />

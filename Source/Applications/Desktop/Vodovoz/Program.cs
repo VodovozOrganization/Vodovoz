@@ -578,7 +578,6 @@ namespace Vodovoz
 						.As<ISmsNotificationServiceSettings>()
 						.As<ISalesReceiptsServiceSettings>()
 						.As<IErrorSendSettings>()
-						.As<IProfitCategoryProvider>()
 						.As<IVpbxSettings>()
 						.As<ITerminalNomenclatureProvider>()
 						.AsSelf();

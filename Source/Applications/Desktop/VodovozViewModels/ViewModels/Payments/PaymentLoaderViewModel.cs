@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IProfitCategoryProvider _profitCategoryProvider;
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
 			IOrganizationSettings organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider,
+			IPaymentSettings paymentSettings,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository) 
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
-			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -254,7 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			var countDuplicates = 0;
 			
 			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
-			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_profitCategoryProvider.GetDefaultProfitCategory());
+			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_paymentSettings.DefaultProfitCategory);
 			var paymentsToVodovoz = 
 				Parser.TransferDocuments.Where(x => 
 					x.RecipientInn == _organisations[0].INN
