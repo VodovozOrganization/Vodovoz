@@ -13,5 +13,6 @@ namespace Vodovoz.Settings.Database.Delivery
 		}
 
 		public int ClosingDocumentDeliveryScheduleId => _settingsController.GetIntValue("closing_document_delivery_schedule_id");
+		public int DefaultDeliveryDayScheduleId => _settingsController.GetIntValue("default_delivery_day_schedule_id");
 	}
 }

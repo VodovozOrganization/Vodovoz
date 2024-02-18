@@ -39,7 +39,6 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
@@ -83,7 +82,6 @@ namespace Vodovoz.ViewModels.Logistic
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
-			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
@@ -93,10 +91,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
-			if(defaultDeliveryDayScheduleSettings == null)
-			{
-				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
-			}
 			if(geographicGroupRepository == null)
 			{
 				throw new ArgumentNullException(nameof(geographicGroupRepository));
@@ -169,7 +163,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			_defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+				UoW.GetById<DeliveryDaySchedule>(deliveryScheduleParametersProvider.DefaultDeliveryDayScheduleId);
 			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
 			NHibernateUtil.Initialize(_defaultDeliveryDaySchedule.Shifts);
 

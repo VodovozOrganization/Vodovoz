@@ -3,5 +3,6 @@
 	public interface IDeliveryScheduleSettings
 	{
 		int ClosingDocumentDeliveryScheduleId { get; }
+		int DefaultDeliveryDayScheduleId { get; }
 	}
 }

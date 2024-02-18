@@ -576,7 +576,6 @@ namespace Vodovoz
 						.As<IWageParametersProvider>()
 						.As<ISmsNotifierParametersProvider>()
 						.As<IWageParametersProvider>()
-						.As<IDefaultDeliveryDayScheduleSettings>()
 						.As<ISmsNotificationServiceSettings>()
 						.As<ISalesReceiptsServiceSettings>()
 						.As<IEmailServiceSettings>()

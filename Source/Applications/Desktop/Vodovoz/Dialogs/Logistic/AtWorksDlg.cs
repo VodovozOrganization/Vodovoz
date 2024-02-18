@@ -32,6 +32,7 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
@@ -52,7 +53,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private readonly ILogger<AtWorksDlg> _logger;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICarRepository _carRepository;
@@ -81,7 +82,7 @@ namespace Vodovoz.Dialogs.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
@@ -113,7 +114,7 @@ namespace Vodovoz.Dialogs.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -129,7 +130,7 @@ namespace Vodovoz.Dialogs.Logistic
 			_canReturnDriver = permissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
 
 			_defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+				UoW.GetById<DeliveryDaySchedule>(_deliveryScheduleSettings.DefaultDeliveryDayScheduleId);
 
 			_cachedGeographicGroups = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
 

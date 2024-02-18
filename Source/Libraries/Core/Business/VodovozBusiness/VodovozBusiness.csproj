@@ -1287,7 +1287,6 @@
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
-    <Compile Include="Services\IDefaultDeliveryDayScheduleSettings.cs" />
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\ProfitCategory.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />

@@ -36,7 +36,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -69,6 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private ILifetimeScope _lifetimeScope;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
@@ -125,6 +126,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			INavigationManager navigationManager,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -149,6 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
@@ -484,7 +487,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							_unitOfWorkFactory,
 							CommonServices,
-							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -509,7 +511,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							_unitOfWorkFactory,
 							CommonServices,
-							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -568,7 +569,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							UoW,
 							_unitOfWorkFactory,
 							CommonServices,
-							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -642,7 +642,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							newDriverWorkScheduleSet,
 							UoW,
 							CommonServices,
-							_baseParametersProvider,
+							_deliveryScheduleSettings,
 							_employeeRepository
 						);
 			
@@ -664,7 +664,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							SelectedDriverScheduleSet,
 							UoW,
 							CommonServices,
-							_baseParametersProvider,
+							_deliveryScheduleSettings,
 							_employeeRepository
 						);
 						TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
