@@ -150,6 +150,7 @@ using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using QS.HistoryLog;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Counterparty;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -578,7 +579,7 @@ namespace Vodovoz
 						.As<IWageParametersProvider>()
 						.As<ISmsNotificationServiceSettings>()
 						.As<ISalesReceiptsServiceSettings>()
-						.As<IErrorSendParameterProvider>()
+						.As<IErrorSendSettings>()
 						.As<IProfitCategoryProvider>()
 						.As<IMailjetParametersProvider>()
 						.As<IVpbxSettings>()

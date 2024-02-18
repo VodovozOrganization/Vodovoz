@@ -137,10 +137,11 @@ namespace Vodovoz
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
 			var baseParameters = new BaseParametersProvider(parametersProvider);
 
-			bool canAutomaticallyErrorSend = LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend();
+			var errorSendSettings = AppDIContainer.Resolve<IErrorSendSettings>();
+			bool canAutomaticallyErrorSend = LoginDialog.BaseName == errorSendSettings.DefaultBaseForErrorSend;
 			ErrorReporter.Instance.DatabaseName = LoginDialog.BaseName;
 			ErrorReporter.Instance.AutomaticallySendEnabled = canAutomaticallyErrorSend;
-			ErrorReporter.Instance.SendedLogRowCount = baseParameters.GetRowCountForErrorLog();
+			ErrorReporter.Instance.SendedLogRowCount = errorSendSettings.RowCountForErrorLog;
 
 			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, ServicesConfig.UserService, ServicesConfig.UnitOfWorkFactory);
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;

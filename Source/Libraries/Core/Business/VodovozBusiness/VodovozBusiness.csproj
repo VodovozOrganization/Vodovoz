@@ -1277,7 +1277,6 @@
     <Compile Include="Domain\Orders\UndeliveryProblemSource.cs" />
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
-    <Compile Include="Services\IErrorSendParameterProvider.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorReporter.cs" />

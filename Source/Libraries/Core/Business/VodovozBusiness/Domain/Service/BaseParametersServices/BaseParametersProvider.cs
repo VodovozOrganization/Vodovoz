@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Core.DataService
 {
@@ -15,7 +16,6 @@ namespace Vodovoz.Core.DataService
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
-		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
 		IMailjetParametersProvider,
 		IVpbxSettings,
@@ -57,28 +57,6 @@ namespace Vodovoz.Core.DataService
 
 				return result;
 			}
-		}
-
-		#endregion
-
-		#region IErrorSendParameterProvider
-
-		public string GetDefaultBaseForErrorSend()
-		{
-			if(!_parametersProvider.ContainsParameter("base_for_error_send"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроена база для отправки сообщений об ошибку (base_for_error_send).");
-			}
-			return _parametersProvider.GetParameterValue("base_for_error_send");
-		}
-
-		public int GetRowCountForErrorLog()
-		{
-			if(!_parametersProvider.ContainsParameter("row_count_for_error_log"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("row_count_for_error_log"));
 		}
 
 		#endregion
