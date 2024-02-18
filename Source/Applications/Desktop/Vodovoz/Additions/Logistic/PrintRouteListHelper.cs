@@ -1,4 +1,5 @@
-﻿using GMap.NET.GtkSharp;
+﻿using Autofac;
+using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -17,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Parameters;
 using Vodovoz.Presentation.Reports.Factories;
+using Vodovoz.Settings.Common;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -26,8 +28,7 @@ namespace Vodovoz.Additions.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
-		private static readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider =
-			new GeneralSettingsParametersProvider(new ParametersProvider());
+		private static readonly IGeneralSettings _generalSettingsParametersProvider = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";

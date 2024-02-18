@@ -130,6 +130,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -277,7 +278,7 @@ namespace Vodovoz
 
 		private Result _lastSaveResult;
 
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
+		private readonly IGeneralSettings _generalSettingsParametersProvider = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
 			&& _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;

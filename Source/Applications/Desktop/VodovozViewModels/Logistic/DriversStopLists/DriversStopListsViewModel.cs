@@ -17,7 +17,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider
+			IGeneralSettings generalSettingsParametersProvider
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

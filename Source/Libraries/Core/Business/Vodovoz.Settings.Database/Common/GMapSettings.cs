@@ -1,7 +1,8 @@
 ﻿using System;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 
-namespace Vodovoz.Parameters
+namespace Vodovoz.Settings.Database.Common
 {
 	public class GMapSettings : IGMapSettings
 	{
@@ -11,7 +12,7 @@ namespace Vodovoz.Parameters
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
-		
+
 		public string SquidServer => _settingsController.GetStringValue("squidServer");
 	}
 }

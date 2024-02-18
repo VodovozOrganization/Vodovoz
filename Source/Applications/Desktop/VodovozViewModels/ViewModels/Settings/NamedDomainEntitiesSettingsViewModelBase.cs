@@ -7,7 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		protected NamedDomainEntitiesSettingsViewModelBase(
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsParametersProvider,
 			string parameterName)
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		protected ICommonServices CommonServices { get; }
 		protected IUnitOfWorkFactory UnitOfWorkFactory { get; }
-		protected IGeneralSettingsParametersProvider GeneralSettingsParametersProvider { get; }
+		protected IGeneralSettings GeneralSettingsParametersProvider { get; }
 		public DelegateCommand AddEntityCommand { get; private set; }
 		public DelegateCommand RemoveEntityCommand { get; private set; }
 		public DelegateCommand SaveEntitiesCommand { get; private set; }

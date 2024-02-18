@@ -10,7 +10,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Store;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsParametersProvider,
 			string parameterName) : base(commonServices, unitOfWorkFactory, generalSettingsParametersProvider, parameterName)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));

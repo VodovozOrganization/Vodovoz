@@ -22,7 +22,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -37,6 +36,7 @@ using Vodovoz.NHibernateProjections.Employees;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IGeneralSettings _generalSettingsParametersProvider;
 		private ILifetimeScope _scope;
 		private string _subdivisionQualityServiceShortName;
 		private string _subdivisionAuditDepartmentShortName;
@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
 			IComplaintParametersProvider complaintParametersProvider,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsParametersProvider,
 			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));

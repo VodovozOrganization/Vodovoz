@@ -844,14 +844,12 @@
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\FastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
-    <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\EmailParametersProvider.cs" />
     <Compile Include="Parameters\GlobalSettings.cs" />
     <Compile Include="Parameters\IArchiveDataSettings.cs" />
     <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\IEmailParametersProvider.cs" />
-    <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />

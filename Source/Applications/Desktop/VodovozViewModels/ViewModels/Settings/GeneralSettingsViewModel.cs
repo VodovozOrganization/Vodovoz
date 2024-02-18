@@ -6,7 +6,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private const int _carLoadDocumentInfoStringMaxLength = 80;
 		private const int _billAdditionalInfoMaxLength = 140;
 
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IGeneralSettings _generalSettingsParametersProvider;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 
 		public GeneralSettingsViewModel(
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsParametersProvider,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,

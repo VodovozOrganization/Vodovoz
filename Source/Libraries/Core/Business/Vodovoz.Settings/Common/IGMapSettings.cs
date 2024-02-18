@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Parameters
+﻿namespace Vodovoz.Settings.Common
 {
 	public interface IGMapSettings
 	{

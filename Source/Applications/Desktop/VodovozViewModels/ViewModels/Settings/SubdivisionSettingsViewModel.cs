@@ -12,7 +12,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -21,14 +21,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INavigationManager _navigationManager;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IGeneralSettings _generalSettingsParametersProvider;
 		private GenericObservableList<Subdivision> _observableSubdivisions = new GenericObservableList<Subdivision>();
 		private Subdivision _selectedSubdivision;
 		private readonly List<int> _subdivisionsToAdd = new List<int>();
 		private readonly List<int> _subdivisionsToRemoves = new List<int>();
 
 		public SubdivisionSettingsViewModel(ICommonServices commonServices, IUnitOfWorkFactory unitOfWorkFactory,
-			INavigationManager navigationManager, IGeneralSettingsParametersProvider generalSettingsParametersProvider, string parameterName)
+			INavigationManager navigationManager, IGeneralSettings generalSettingsParametersProvider, string parameterName)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

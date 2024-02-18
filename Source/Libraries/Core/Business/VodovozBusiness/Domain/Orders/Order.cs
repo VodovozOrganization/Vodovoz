@@ -47,6 +47,7 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
@@ -83,8 +84,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IEmailRepository>();
 		private IEmailService _emailService => ScopeProvider.Scope
 			.Resolve<IEmailService>();
-		private IGeneralSettingsParametersProvider _generalSettingsParameters => ScopeProvider.Scope
-			.Resolve<IGeneralSettingsParametersProvider>();
+		private IGeneralSettings _generalSettingsParameters => ScopeProvider.Scope
+			.Resolve<IGeneralSettings>();
 		private IOrderSettings _orderParametersProvider => ScopeProvider.Scope
 			.Resolve<IOrderSettings>();
 		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope

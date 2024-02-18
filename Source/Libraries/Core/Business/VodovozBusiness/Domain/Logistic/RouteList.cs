@@ -55,6 +55,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Autofac;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -66,7 +67,7 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private static IGeneralSettingsParametersProvider _generalSettingsParametersProviderGap;
+		private static IGeneralSettings _generalSettingsParametersProviderGap;
 
 		private IUnitOfWorkFactory _uowFactory => ScopeProvider.Scope
 			.Resolve<IUnitOfWorkFactory>();
@@ -82,8 +83,8 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IRouteListRepository>();
 		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider => ScopeProvider.Scope
 			.Resolve<IDeliveryRulesParametersProvider>();
-		private IGeneralSettingsParametersProvider GetGeneralSettingsParametersProvider => ScopeProvider.Scope
-			.Resolve<IGeneralSettingsParametersProvider>();
+		private IGeneralSettings GetGeneralSettingsParametersProvider => ScopeProvider.Scope
+			.Resolve<IGeneralSettings>();
 		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
 			.Resolve<IRouteListCashOrganisationDistributor>();
 		private IExpenseCashOrganisationDistributor expenseCashOrganisationDistributor => ScopeProvider.Scope
@@ -1682,7 +1683,7 @@ namespace Vodovoz.Domain.Logistic
 			|| GetCarVersion?.CarOwnType != CarOwnType.Company;
 
 		public static void SetGeneralSettingsParametersProviderGap(
-			IGeneralSettingsParametersProvider generalSettingsParametersProviderGap)
+			IGeneralSettings generalSettingsParametersProviderGap)
 		{
 			_generalSettingsParametersProviderGap = generalSettingsParametersProviderGap;
 		}

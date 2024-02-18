@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 
-namespace Vodovoz.Parameters
+namespace Vodovoz.Settings.Database.Common
 {
-	public class GeneralSettingsParametersProvider : IGeneralSettingsParametersProvider
+	[Obsolete("Необходимо разнести настройки по соответствующим теме классам")]
+	public class GeneralSettings : IGeneralSettings
 	{
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ISettingsController _settingsController;
 		private const string _routeListPrintedFormPhones = "route_list_printed_form_phones";
 		private const string _canAddForwarderToLargus = "can_add_forwarders_to_largus";
 		private const string _orderAutoComment = "OrderAutoComment";
@@ -20,20 +23,20 @@ namespace Vodovoz.Parameters
 		private const string _billAdditionalInfo = "bill_additional_info";
 		private const string _carLoadDocumentInfoString = "car_load_document_info_string";
 
-		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
+		public GeneralSettings(ISettingsController settingsController)
 		{
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
-		public string GetRouteListPrintedFormPhones => _parametersProvider.GetStringValue(_routeListPrintedFormPhones);
+		public string GetRouteListPrintedFormPhones => _settingsController.GetStringValue(_routeListPrintedFormPhones);
 
 		public void UpdateRouteListPrintedFormPhones(string text) =>
-			_parametersProvider.CreateOrUpdateParameter(_routeListPrintedFormPhones, text);
+			_settingsController.CreateOrUpdateSetting(_routeListPrintedFormPhones, text);
 
-		public bool GetCanAddForwardersToLargus => _parametersProvider.GetValue<bool>(_canAddForwarderToLargus);
+		public bool GetCanAddForwardersToLargus => _settingsController.GetValue<bool>(_canAddForwarderToLargus);
 
-		public string OrderAutoComment => _parametersProvider.GetStringValue(_orderAutoComment);
-		
+		public string OrderAutoComment => _settingsController.GetStringValue(_orderAutoComment);
+
 		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
 		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
 		public string WarehousesForPricesAndStocksIntegrationName => _warehousesForPricesAndStocksIntegrationName;
@@ -43,10 +46,10 @@ namespace Vodovoz.Parameters
 		public int[] WarehousesForPricesAndStocksIntegration => GetWarehousesForPricesAndStocksIntegration();
 
 		public void UpdateOrderAutoComment(string value) =>
-			_parametersProvider.CreateOrUpdateParameter(_orderAutoComment, value);
+			_settingsController.CreateOrUpdateSetting(_orderAutoComment, value);
 
 		public void UpdateCanAddForwardersToLargus(bool value) =>
-			_parametersProvider.CreateOrUpdateParameter(_canAddForwarderToLargus, value.ToString());
+			_settingsController.CreateOrUpdateSetting(_canAddForwarderToLargus, value.ToString());
 
 		public void UpdateSubdivisionsForParameter(List<int> subdivisionsToAdd, List<int> subdivisionsToRemoves, string parameterName)
 		{
@@ -70,31 +73,31 @@ namespace Vodovoz.Parameters
 				.Distinct()
 				.ToArray();
 
-			_parametersProvider.CreateOrUpdateParameter(parameterName, string.Join(", ", result));
+			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", result));
 		}
 
 		public void UpdateWarehousesIdsForParameter(IEnumerable<int> warehousesIds, string parameterName)
 		{
-			_parametersProvider.CreateOrUpdateParameter(parameterName, string.Join(", ", warehousesIds));
+			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", warehousesIds));
 		}
 
-		public int DriversUnclosedRouteListsHavingDebtMaxCount => _parametersProvider.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
+		public int DriversUnclosedRouteListsHavingDebtMaxCount => _settingsController.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
 
 		public void UpdateDriversUnclosedRouteListsHavingDebtMaxCount(int value) =>
-			_parametersProvider.CreateOrUpdateParameter(_driversUnclosedRouteListsHavingDebtMaxCount, value.ToString());
+			_settingsController.CreateOrUpdateSetting(_driversUnclosedRouteListsHavingDebtMaxCount, value.ToString());
 
-		public int DriversRouteListsMaxDebtSum => _parametersProvider.GetValue<int>(_driversRouteListsMaxDebtSum);
+		public int DriversRouteListsMaxDebtSum => _settingsController.GetValue<int>(_driversRouteListsMaxDebtSum);
 
 		public void UpdateDriversRouteListsMaxDebtSum(decimal value) =>
-			_parametersProvider.CreateOrUpdateParameter(_driversRouteListsMaxDebtSum, value.ToString());
-		public bool GetIsClientsSecondOrderDiscountActive => _parametersProvider.GetValue<bool>(_isClientsSecondOrderDiscountActive);
+			_settingsController.CreateOrUpdateSetting(_driversRouteListsMaxDebtSum, value.ToString());
+		public bool GetIsClientsSecondOrderDiscountActive => _settingsController.GetValue<bool>(_isClientsSecondOrderDiscountActive);
 
 		public void UpdateIsClientsSecondOrderDiscountActive(bool value) =>
-			_parametersProvider.CreateOrUpdateParameter(_isClientsSecondOrderDiscountActive, value.ToString());
+			_settingsController.CreateOrUpdateSetting(_isClientsSecondOrderDiscountActive, value.ToString());
 
-		public bool GetIsOrderWaitUntilActive => _parametersProvider.GetValue<bool>(_isOrderWaitUntilActive);
+		public bool GetIsOrderWaitUntilActive => _settingsController.GetValue<bool>(_isOrderWaitUntilActive);
 		public void UpdateIsOrderWaitUntilActive(bool value) =>
-			_parametersProvider.CreateOrUpdateParameter(_isOrderWaitUntilActive, value.ToString());
+			_settingsController.CreateOrUpdateSetting(_isOrderWaitUntilActive, value.ToString());
 
 		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
 		{
@@ -111,20 +114,54 @@ namespace Vodovoz.Parameters
 			return ParseIdsFromString(_warehousesForPricesAndStocksIntegrationName);
 		}
 
-		public string GetBillAdditionalInfo => _parametersProvider.GetParameterValue(_billAdditionalInfo, true);
+		public string GetBillAdditionalInfo
+		{
+			get
+			{
+				try
+				{
+					return _settingsController.GetStringValue(_billAdditionalInfo);
+				}
+				catch(SettingException)
+				{
+					return "";
+				}
+			}
+		}
 
 		public void UpdateBillAdditionalInfo(string value) =>
-			_parametersProvider.CreateOrUpdateParameter(_billAdditionalInfo, value);
+			_settingsController.CreateOrUpdateSetting(_billAdditionalInfo, value);
 
-		public string GetCarLoadDocumentInfoString => _parametersProvider.GetParameterValue(_carLoadDocumentInfoString, true);
+		public string GetCarLoadDocumentInfoString
+		{
+			get
+			{
+				try
+				{
+					return _settingsController.GetStringValue(_carLoadDocumentInfoString);
+				}
+				catch(SettingException)
+				{
+					return "";
+				}
+			}
+		}
 
 		public void UpdateCarLoadDocumentInfoString(string value) =>
-			_parametersProvider.CreateOrUpdateParameter(_carLoadDocumentInfoString, value);
+			_settingsController.CreateOrUpdateSetting(_carLoadDocumentInfoString, value);
 
-		private int[] ParseIdsFromString(string parameterName, bool allowEmpty = true)
+		private int[] ParseIdsFromString(string parameterName)
 		{
-			var parameterValue = _parametersProvider.GetParameterValue(parameterName, allowEmpty);
-			var splitedIds = parameterValue.Split(new string[] {", "}, StringSplitOptions.RemoveEmptyEntries);
+			string parameterValue;
+			try
+			{
+				parameterValue = _settingsController.GetStringValue(parameterName);
+			}
+			catch(SettingException)
+			{
+				parameterValue = "";
+			}
+			var splitedIds = parameterValue.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
 			return splitedIds
 				.Select(x => int.Parse(x))
 				.ToArray();

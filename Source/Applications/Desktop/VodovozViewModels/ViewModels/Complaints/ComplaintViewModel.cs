@@ -28,8 +28,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private DelegateCommand _changeDeliveryPointCommand;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IGeneralSettings _generalSettingsParametersProvider;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionSettings subdivisionParametersProvider,
 			IRouteListItemRepository routeListItemRepository,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsParametersProvider,
 			IComplaintParametersProvider complaintParametersProvider,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)

@@ -26,8 +26,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.NHibernateProjections.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -55,7 +55,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IGeneralSettings _generalSettingsParametersProvider;
 		private bool _canCloseComplaint;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -77,7 +77,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
 			IComplaintParametersProvider complaintParametersProvider,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsParametersProvider,
 			Action<ComplaintFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{

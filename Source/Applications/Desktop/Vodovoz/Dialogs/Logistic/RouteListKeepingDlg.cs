@@ -29,7 +29,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -43,6 +42,7 @@ using Vodovoz.ViewModels.Employees;
 using QS.Project.Domain;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Settings.Roboats;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -53,7 +53,7 @@ namespace Vodovoz
 		private IDeliveryShiftRepository _deliveryShiftRepository;
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IWageParameterService _wageParameterService;
-		private IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private IGeneralSettings _generalSettingsParametersProvider;
 		private readonly bool _isOrderWaitUntilActive;
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
@@ -123,7 +123,7 @@ namespace Vodovoz
 			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
-			_generalSettingsParametersProvider = _lifetimeScope.Resolve<IGeneralSettingsParametersProvider>();
+			_generalSettingsParametersProvider = _lifetimeScope.Resolve<IGeneralSettings>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}

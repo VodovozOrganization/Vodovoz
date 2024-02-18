@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -54,7 +56,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		{
 			get
 			{
-				var generalSettingsParameters = new GeneralSettingsParametersProvider(new ParametersProvider());
+				var generalSettingsParameters = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 				return generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 			}
 		}
