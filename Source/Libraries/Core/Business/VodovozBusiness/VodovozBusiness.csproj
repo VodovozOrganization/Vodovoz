@@ -882,8 +882,6 @@
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
-    <Compile Include="Parameters\CarEventSettings.cs" />
-    <Compile Include="Services\ICarEventSettings.cs" />
     <Compile Include="Services\IDeliveryPointParametersProvider.cs" />
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />

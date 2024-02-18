@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Vodovoz.Services
+namespace Vodovoz.Settings.Logistics
 {
 	public interface ICarEventSettings
 	{
-		int CarEventStartNewPeriodDay { get;  }
+		int CarEventStartNewPeriodDay { get; }
 		int CompensationFromInsuranceByCourtId { get; }
 	}
 }
