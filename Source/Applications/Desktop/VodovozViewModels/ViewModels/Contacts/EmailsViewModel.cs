@@ -9,14 +9,14 @@ using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class EmailsViewModel : WidgetViewModelBase
 	{
 		private IUnitOfWork _uow;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 
 		private PersonType _personType;
@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public EmailsViewModel(
 			IUnitOfWork uow,
 			IList<Email> emailList,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IInteractiveService interactiveService,
 			PersonType personType)

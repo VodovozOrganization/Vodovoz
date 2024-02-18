@@ -3,18 +3,18 @@ using Mailjet.Api.Abstractions;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class UpdSendEmailMessageBuilder : SendEmailMessageBuilder
 	{
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 
-		public UpdSendEmailMessageBuilder(IEmailParametersProvider emailParametersProvider,
+		public UpdSendEmailMessageBuilder(IEmailSettings emailParametersProvider,
 			IEmailDocumentPreparer emailDocumentPreparer, CounterpartyEmail counterpartyEmail, int instanceId) 
 			: base(emailParametersProvider, emailDocumentPreparer, counterpartyEmail, instanceId)
 		{

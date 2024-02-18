@@ -2099,7 +2099,7 @@ namespace Vodovoz
 				new SendDocumentByEmailViewModel(
 					ServicesConfig.UnitOfWorkFactory,
 					_emailRepository,
-					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_lifetimeScope.Resolve<IEmailSettings>(),
 					_currentEmployee,
 					ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);

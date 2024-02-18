@@ -20,7 +20,7 @@ using RabbitMQ.MailSending;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using VodovozInfrastructure.Configuration;
 
 namespace FastPaymentsAPI.Library.Models
@@ -30,14 +30,14 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IFastPaymentValidator _fastPaymentValidator;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IOrderRequestManager _orderRequestManager;
 
 		public FastPaymentOrderModel(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			IOrderRequestManager orderRequestManager)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));

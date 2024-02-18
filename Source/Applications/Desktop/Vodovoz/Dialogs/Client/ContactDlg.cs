@@ -8,8 +8,8 @@ using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -57,7 +57,7 @@ namespace Vodovoz
 				new EmailsViewModel(
 					UoWGeneric,
 					Entity.Emails,
-					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_lifetimeScope.Resolve<IEmailSettings>(),
 					_externalCounterpartyRepository,
 					_interactiveService,
 					Entity.Counterparty.PersonType);

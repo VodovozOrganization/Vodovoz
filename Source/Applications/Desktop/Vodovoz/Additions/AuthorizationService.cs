@@ -14,7 +14,7 @@ using System.Text.Json;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.User;
 using Vodovoz.Tools;
@@ -30,7 +30,7 @@ namespace Vodovoz.Additions
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly int _humanResourcesSubdivisionId;
 		private readonly int _developersSubdivisionId;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.Additions
 			IUserRoleSettings userRoleSettings,
 			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			ISubdivisionSettings subdivisionParametersProvider,
 			ILogger<AuthorizationService> logger)
 		{

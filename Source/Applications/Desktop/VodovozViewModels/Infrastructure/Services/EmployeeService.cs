@@ -13,9 +13,9 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using VodovozInfrastructure.Configuration;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Infrastructure.Services
 {
@@ -71,7 +71,7 @@ namespace Vodovoz.Infrastructure.Services
 
 		public void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork uow,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData)

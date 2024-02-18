@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
-using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -26,17 +25,16 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Infrastructure.Print;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -45,6 +43,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IEdoService _edoService;
 		private ILifetimeScope _lifetimeScope;
 		private UserSettings _currentUserSettings;
@@ -74,6 +73,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
+			IEmailSettings emailSettings,
 			IEdoService edoService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -81,6 +81,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
@@ -122,13 +123,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-			var loggerFactory = new LoggerFactory();
-			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
 					uowFactory,
 					new EmailRepository(uowFactory),
-					new EmailParametersProvider(settingsController),
+					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,
 					UoW);

@@ -4,20 +4,20 @@ using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class SendEmailMessageBuilder
 	{
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private readonly int _instanceId;
 
 		protected SendEmailMessage _sendEmailMessage = new();
 
-		public SendEmailMessageBuilder(IEmailParametersProvider emailParametersProvider, IEmailDocumentPreparer emailDocumentPreparer,
+		public SendEmailMessageBuilder(IEmailSettings emailParametersProvider, IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail, int instanceId)
 		{
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));

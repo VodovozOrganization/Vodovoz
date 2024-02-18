@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace UnsubscribePage.Models
 {
@@ -17,13 +17,13 @@ namespace UnsubscribePage.Models
 
 		public UnsubscribeViewModel() { }
 
-		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider)
 		{
 			Initialize(guid, emailRepository, emailParametersProvider);
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider)
 		{
 			OtherReasonId = emailParametersProvider.BulkEmailEventOtherReasonId;
 			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Инициализация страницы отписки"))

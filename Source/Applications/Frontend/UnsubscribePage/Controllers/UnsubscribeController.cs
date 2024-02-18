@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnsubscribePage.Models;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace UnsubscribePage.Controllers
 {
@@ -12,9 +12,9 @@ namespace UnsubscribePage.Controllers
 	{
 		private readonly IUnsubscribeViewModelFactory _unsubscribeViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 
-		public UnsubscribeController(IUnsubscribeViewModelFactory unsubscribeViewModelFactory, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		public UnsubscribeController(IUnsubscribeViewModelFactory unsubscribeViewModelFactory, IEmailRepository emailRepository, IEmailSettings emailParametersProvider)
 		{
 			_unsubscribeViewModelFactory = unsubscribeViewModelFactory ?? throw new ArgumentNullException(nameof(unsubscribeViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));

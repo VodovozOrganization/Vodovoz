@@ -2,7 +2,7 @@
 using System;
 using UnsubscribePage.Models;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace UnsubscribePage.Controllers
 {
@@ -15,7 +15,7 @@ namespace UnsubscribePage.Controllers
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public UnsubscribeViewModel CreateNewUnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider) =>
+		public UnsubscribeViewModel CreateNewUnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailSettings emailParametersProvider) =>
 			new UnsubscribeViewModel(_uowFactory, guid, emailRepository, emailParametersProvider);
 	}
 }

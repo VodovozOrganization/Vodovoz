@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Services
 {
@@ -14,7 +14,7 @@ namespace Vodovoz.Services
 		Employee GetEmployee(IUnitOfWork uow, int employeeId);
 		void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork unitOfWork,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData);

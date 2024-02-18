@@ -23,8 +23,8 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IUserService _userService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly bool _canCalculateCounterpartyClassifications;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IUserService userService,
 			IFileDialogService fileDialogService,
 			ICounterpartyRepository counterpartyRepository,
-			IEmailParametersProvider emailParametersProvider
+			IEmailSettings emailParametersProvider
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			if(uowFactory is null)

@@ -26,8 +26,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
@@ -41,7 +41,7 @@ namespace Vodovoz.Representations
 	{
 		private readonly IDebtorsParameters _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
@@ -60,7 +60,7 @@ namespace Vodovoz.Representations
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IDebtorsParameters debtorsParameters,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IEmailRepository emailRepository,
 			IFileDialogService fileDialogService)

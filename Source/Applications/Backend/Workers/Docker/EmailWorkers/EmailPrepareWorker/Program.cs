@@ -12,9 +12,10 @@ using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
 
 namespace EmailPrepareWorker
 {
@@ -67,7 +68,7 @@ namespace EmailPrepareWorker
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 					services.AddSingleton<ISettingsController, SettingsController>();
-					services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+					services.AddSingleton<IEmailSettings, EmailSettings>();
 					services.AddSingleton<IEmailRepository, EmailRepository>();
 					services.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>();
 					services.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>();

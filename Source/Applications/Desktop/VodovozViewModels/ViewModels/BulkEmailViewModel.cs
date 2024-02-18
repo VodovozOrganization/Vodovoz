@@ -27,7 +27,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using VodovozInfrastructure.Configuration;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly ICommonServices _commonServices;
 		private readonly int _instanceId;
 		private readonly InstanceMailingConfiguration _configuration;
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels
 		private bool _includeOldUnsubscribed;
 
 		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
-			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailParametersProvider emailParametersProvider,
+			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailSettings emailParametersProvider,
 			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

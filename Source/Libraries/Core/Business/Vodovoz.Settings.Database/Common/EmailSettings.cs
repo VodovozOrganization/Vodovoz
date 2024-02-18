@@ -1,13 +1,14 @@
 ﻿using System;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 
-namespace Vodovoz.Parameters
+namespace Vodovoz.Settings.Database.Common
 {
-	public class EmailParametersProvider : IEmailParametersProvider
+	public class EmailSettings : IEmailSettings
 	{
 		private readonly ISettingsController _settingsController;
 
-		public EmailParametersProvider(ISettingsController settingsController)
+		public EmailSettings(ISettingsController settingsController)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}

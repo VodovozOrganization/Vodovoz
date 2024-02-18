@@ -99,6 +99,7 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Phones;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -127,7 +128,7 @@ namespace Vodovoz
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
-		private IEmailParametersProvider _emailParametersProvider;
+		private IEmailSettings _emailParametersProvider;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
@@ -320,7 +321,7 @@ namespace Vodovoz
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
-			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
+			_emailParametersProvider = _lifetimeScope.Resolve<IEmailSettings>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);

@@ -12,8 +12,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
@@ -245,12 +245,12 @@ namespace Vodovoz.EntityRepositories
 				.SingleOrDefault();
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailSettings emailParametersProvider)
 		{
 			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailSettings emailParametersProvider)
 		{
 			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
 		}
@@ -338,7 +338,7 @@ namespace Vodovoz.EntityRepositories
 				.Take(1);
 		}
 
-		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailParametersProvider, bool isForUnsubscribePage = false)
 		{
 			BulkEmailEventReason bulkEmailEventReasonAlias = null;
 

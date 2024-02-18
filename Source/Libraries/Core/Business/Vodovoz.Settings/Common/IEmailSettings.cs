@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Parameters
+﻿namespace Vodovoz.Settings.Common
 {
-	public interface IEmailParametersProvider
+	public interface IEmailSettings
 	{
 		string DefaultEmailSenderAddress { get; }
 		string DefaultEmailSenderName { get; }

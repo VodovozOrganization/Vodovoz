@@ -16,7 +16,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Dialogs.Email
 {
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly Employee _employee;
 		private readonly IInteractiveService _interactiveService;
 
@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
-		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider,
+		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailSettings emailParametersProvider,
 									  Employee employee, IInteractiveService interactiveService, IUnitOfWork uow = null)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

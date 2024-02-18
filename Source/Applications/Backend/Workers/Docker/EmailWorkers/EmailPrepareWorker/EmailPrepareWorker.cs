@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace EmailPrepareWorker
 {
@@ -31,7 +31,7 @@ namespace EmailPrepareWorker
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
@@ -44,7 +44,7 @@ namespace EmailPrepareWorker
 			IConfiguration configuration,
 			IModel channel,
 			IEmailRepository emailRepository,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailParametersProvider,
 			IEmailDocumentPreparer emailDocumentPreparer,
 			IEmailSendMessagePreparer emailSendMessagePreparer)
 		{

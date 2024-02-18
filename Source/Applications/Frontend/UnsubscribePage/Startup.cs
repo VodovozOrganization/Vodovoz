@@ -20,8 +20,9 @@ using UnsubscribePage.HealthChecks;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
 using VodovozHealthCheck;
 
 namespace UnsubscribePage
@@ -79,8 +80,8 @@ namespace UnsubscribePage
 				.As<IEmailRepository>()
 				.SingleInstance();
 
-			builder.RegisterType<EmailParametersProvider>()
-				.As<IEmailParametersProvider>()
+			builder.RegisterType<EmailSettings>()
+				.As<IEmailSettings>()
 				.SingleInstance();
 		}
 
