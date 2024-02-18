@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Nodes;
 
 namespace Vodovoz.Controllers
 {
@@ -56,6 +57,20 @@ namespace Vodovoz.Controllers
 		{
 			externalCounterparties = _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phoneId);
 			return externalCounterparties.Any();
+		}
+		
+		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByCounterparty(
+			IUnitOfWork uow,
+			int counterpartyId)
+		{
+			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByCounterparty(uow, counterpartyId);
+		}
+		
+		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> phonesIds)
+		{
+			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(uow, phonesIds);
 		}
 	}
 }

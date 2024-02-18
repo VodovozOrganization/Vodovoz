@@ -47,8 +47,6 @@ using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using Vodovoz.Controllers;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -73,6 +71,7 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
+using Vodovoz.Nodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
@@ -150,6 +149,7 @@ namespace Vodovoz
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private GenericObservableList<ExternalCounterpartyNode> _externalCounterparties;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -779,6 +779,7 @@ namespace Vodovoz
 					ReadOnly = !CanEdit
 				};
 			phonesView.ViewModel = _phonesViewModel;
+			_phonesViewModel.UpdateExternalCounterpartyAction += UpdateExternalCounterparties;
 
 			var emailsViewModel = new EmailsViewModel(
 				UoWGeneric,
@@ -836,9 +837,49 @@ namespace Vodovoz
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
 
-			contactsview1.CounterpartyUoW = UoWGeneric;
-			contactsview1.Visible = true;
-			contactsview1.Sensitive = CanEdit;
+			ConfigureTreeExternalCounterparties();
+		}
+
+		private void ConfigureTreeExternalCounterparties()
+		{
+			GetExternalCounterparties();
+
+			treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
+				.AddColumn("Id внешнего пользователя")
+				.AddTextRenderer(node => node.ExternalCounterpartyId.ToString())
+				.AddColumn("Номер телефона")
+				.AddTextRenderer(node => node.Phone)
+				.AddColumn("Откуда")
+				.AddTextRenderer(node => node.CounterpartyFrom.GetEnumDisplayName(false))
+				.Finish();
+			
+			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;
+		}
+
+		private void GetExternalCounterparties()
+		{
+			_externalCounterparties = new GenericObservableList<ExternalCounterpartyNode>();
+			var existingExternalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByCounterparty(UoW, Entity.Id);
+
+			FillExternalCounterparties(existingExternalCounterparties);
+		}
+
+		private void UpdateExternalCounterparties()
+		{
+			_externalCounterparties.Clear();
+			var existingExternalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByPhones(UoW, Entity.Phones.Select(x => x.Id));
+			
+			FillExternalCounterparties(existingExternalCounterparties);
+		}
+
+		private void FillExternalCounterparties(IEnumerable<ExternalCounterpartyNode> existingExternalCounterparties)
+		{
+			foreach(var item in existingExternalCounterparties)
+			{
+				_externalCounterparties.Add(item);
+			}
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
@@ -2560,6 +2601,8 @@ namespace Vodovoz
 				_lifetimeScope.Dispose();
 				_lifetimeScope = null;
 			}
+			_phonesViewModel.UpdateExternalCounterpartyAction -= UpdateExternalCounterparties;
+			_phonesViewModel.Dispose();
 			base.Destroy();
 		}
 	}

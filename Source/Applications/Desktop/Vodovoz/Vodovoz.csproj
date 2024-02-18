@@ -430,7 +430,6 @@
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\DialogsFactory.cs" />
     <Compile Include="Factories\EmployeeWageParametersFactory.cs" />
-    <Compile Include="Factories\PhonesViewModelFactory.cs" />
     <Compile Include="Factories\ValidationContextFactory.cs" />
     <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
     <Compile Include="Filters\ViewModels\DebtorsTaskStatus.cs" />

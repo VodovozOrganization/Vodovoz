@@ -17,7 +17,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
-	public class PhonesViewModel : WidgetViewModelBase
+	public class PhonesViewModel : WidgetViewModelBase, IDisposable
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWork _uow;
@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		private bool _readOnly;
 		private GenericObservableList<Phone> _phonesList;
+		private IList<PhoneViewModel> _phoneViewModels = new List<PhoneViewModel>();
 
 		#region Properties
 
@@ -44,6 +45,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			get => _readOnly;
 			set => SetField(ref _readOnly, value);
 		}
+
+		public event Action UpdateExternalCounterpartyAction;
 
 		public PhonesViewModel(
 			IPhoneRepository phoneRepository,
@@ -101,14 +104,24 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			return new PhoneViewModel(
+			 var viewModel = new PhoneViewModel(
 				phone,
 				_uow,
 				_commonServices,
 				new PhoneTypeSettings(new ParametersProvider()),
 				_externalCounterpartyController);
+
+			viewModel.UpdateExternalCounterpartyAction += OnUpdateExternalCounterparty;
+			_phoneViewModels.Add(viewModel);
+
+			return viewModel;
 		}
-		
+
+		private void OnUpdateExternalCounterparty()
+		{
+			UpdateExternalCounterpartyAction?.Invoke();
+		}
+
 		#endregion
 
 		#region Commands
@@ -146,6 +159,17 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					}
 					
 					PhonesList.Remove(phone);
+					OnUpdateExternalCounterparty();
+					
+					var viewModel = _phoneViewModels.SingleOrDefault(x => x.GetPhone() == phone);
+
+					if(viewModel is null)
+					{
+						return;
+					}
+					
+					viewModel.UpdateExternalCounterpartyAction -= OnUpdateExternalCounterparty;
+					_phoneViewModels.Remove(viewModel);
 				},
 				phone => !ReadOnly
 			);
@@ -160,6 +184,16 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			PhonesList.Where(p => p.DigitsNumber.Length < _contactsParameters.MinSavePhoneLength)
 					.ToList().ForEach(p => PhonesList.Remove(p));
+		}
+
+		public void Dispose()
+		{
+			foreach(var item in _phoneViewModels)
+			{
+				item.UpdateExternalCounterpartyAction -= OnUpdateExternalCounterparty;
+			}
+			
+			_phoneViewModels.Clear();
 		}
 	}
 }

@@ -1,11 +1,9 @@
 ﻿using QS.Services;
 using QS.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Services;
 
@@ -19,17 +17,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
 		private readonly ICommonServices _commonServices;
-
-		public PhoneType SelectedPhoneType
-		{
-			get => _phone.PhoneType;
-			set => SetPhoneType(value);
-		}
-		public bool PhoneIsArchive
-		{
-			get => _phone.IsArchive;
-			set => _phone.IsArchive = value;
-		}
 
 		public PhoneViewModel(
 			Phone phone,
@@ -47,22 +34,36 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_canArchiveNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
 		}
+		
+		public PhoneType SelectedPhoneType
+		{
+			get => _phone.PhoneType;
+			set => SetPhoneType(value);
+		}
+		public bool PhoneIsArchive
+		{
+			get => _phone.IsArchive;
+			set => _phone.IsArchive = value;
+		}
+
+		public event Action UpdateExternalCounterpartyAction;
+
+		public Phone GetPhone() => _phone;
 
 		private void SetPhoneType(PhoneType phoneType)
 		{
-			if(_phone.Counterparty != null)
+			var result = _phone.Counterparty != null
+				? SetPhoneTypeToCounterpartyPhone(phoneType)
+				: DefaultSetPhoneType(phoneType);
+
+			if(result)
 			{
-				SetPhoneTypeToCounterpartyPhone(phoneType);
+				_phone.PhoneType = phoneType;
 			}
-			else
-			{
-				DefaultSetPhoneType(phoneType);
-			}
-			
-			_phone.PhoneType = phoneType;
+			OnPropertyChanged(nameof(SelectedPhoneType));
 		}
 
-		private void SetPhoneTypeToCounterpartyPhone(PhoneType phoneType)
+		private bool SetPhoneTypeToCounterpartyPhone(PhoneType phoneType)
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
@@ -75,24 +76,27 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				
 				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
 				{
-					return;
+					return false;
 				}
 
 				_externalCounterpartyController.DeleteExternalCounterparties(_uow, externalCounterparties);
 				PhoneIsArchive = true;
+				UpdateExternalCounterpartyAction?.Invoke();
 			}
 			else
 			{
 				if(!PhoneIsArchive)
 				{
-					return;
+					return false;
 				}
 
 				PhoneIsArchive = false;
 			}
+
+			return true;
 		}
 		
-		private void DefaultSetPhoneType(PhoneType phoneType)
+		private bool DefaultSetPhoneType(PhoneType phoneType)
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
@@ -100,7 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				
 				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
 				{
-					return;
+					return false;
 				}
 				
 				PhoneIsArchive = true;
@@ -112,6 +116,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					PhoneIsArchive = false;
 				}
 			}
+
+			return true;
 		}
 	}
 }

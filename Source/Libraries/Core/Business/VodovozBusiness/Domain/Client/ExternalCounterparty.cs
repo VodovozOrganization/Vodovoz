@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
 {
+	[HistoryTrace]
 	public class ExternalCounterparty : PropertyChangedBase, IDomainObject
 	{
 		private Guid _externalCounterpartyId;
@@ -49,7 +51,8 @@ namespace Vodovoz.Domain.Client
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-
+		
+		[Display(Name = "Откуда")]
 		public virtual CounterpartyFrom CounterpartyFrom { get; }
 	}
 
