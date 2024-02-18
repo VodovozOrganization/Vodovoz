@@ -132,6 +132,7 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Database.Logistics;
 
 namespace Vodovoz
 {
@@ -163,8 +164,7 @@ namespace Vodovoz
 
 		private static readonly IDeliveryRulesSettings _deliveryRulesParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
 
-		private static readonly IDriverApiParametersProvider _driverApiParametersProvider =
-			new DriverApiParametersProvider(_parametersProvider);
+		private static readonly IDriverApiSettings _driverApiParametersProvider = ScopeProvider.Scope.Resolve<IDriverApiSettings>();
 
 		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
 
@@ -2505,7 +2505,7 @@ namespace Vodovoz
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
 
-			if(routeListToAddFastDeliveryOrder != null && DriverApiParametersProvider.NotificationsEnabled)
+			if(routeListToAddFastDeliveryOrder != null && DriverApiSettings.NotificationsEnabled)
 			{
 				NotifyDriverOfFastDeliveryOrderAddedAsync();
 			}

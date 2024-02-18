@@ -984,8 +984,6 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
-    <Compile Include="Services\IDriverApiParametersProvider.cs" />
-    <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserSettings.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />

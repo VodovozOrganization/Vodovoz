@@ -39,8 +39,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
@@ -129,6 +130,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
+			var settingsController = AppDIContainer.Resolve<ISettingsController>();
 			var parametersProvider = new ParametersProvider();
 			parametersProvider.RefreshParameters();
 
@@ -228,7 +230,7 @@ namespace Vodovoz
 
 			if(ChangePassword(applicationConfigurator) && CanLogin())
 			{
-				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, parametersProvider);
+				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, settingsController);
 			}
 			else
 			{
@@ -320,20 +322,20 @@ namespace Vodovoz
 		private static void StartMainWindow(
 			string loginDialogName,
 			IApplicationConfigurator applicationConfigurator,
-			IParametersProvider parametersProvider)
+			ISettingsController settingsController)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint("Закончена настройка удаления");
 
-			if(parametersProvider.ContainsParameter("sms_payment_send_enabled_database") && parametersProvider.ContainsParameter("sms_payment_send_service_address"))
+			if(settingsController.ContainsSetting("sms_payment_send_enabled_database") && settingsController.ContainsSetting("sms_payment_send_service_address"))
 			{
-				if(parametersProvider.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName)
+				if(settingsController.GetStringValue("sms_payment_send_enabled_database") == loginDialogName)
 				{
-					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));
+					SmsPaymentServiceSetting.Init(settingsController.GetStringValue("sms_payment_send_service_address"));
 				}
 			}
-			DriverApiParametersProvider.InitializeNotifications(parametersProvider, loginDialogName);
+			DriverApiSettings.InitializeNotifications(settingsController, loginDialogName);
 
 			CreateTempDir();
 

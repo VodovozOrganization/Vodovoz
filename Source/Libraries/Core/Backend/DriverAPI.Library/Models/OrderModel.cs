@@ -18,8 +18,8 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Services;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Library.Models
 {
@@ -30,7 +30,7 @@ namespace DriverAPI.Library.Models
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly OrderConverter _orderConverter;
-		private readonly IDriverApiParametersProvider _webApiParametersProvider;
+		private readonly IDriverApiSettings _webApiParametersProvider;
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentModel _aPISmsPaymentModel;
 		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
@@ -49,7 +49,7 @@ namespace DriverAPI.Library.Models
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			OrderConverter orderConverter,
-			IDriverApiParametersProvider webApiParametersProvider,
+			IDriverApiSettings webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentModel aPISmsPaymentModel,
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
