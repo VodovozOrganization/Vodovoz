@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Parameters
+﻿namespace Vodovoz.Settings.Logistics
 {
-	public interface INewDriverAdvanceParametersProvider
+	public interface INewDriverAdvanceSettings
 	{
 		int NewDriverAdvanceFirstDay { get; }
 		int NewDriverAdvanceLastDay { get; }

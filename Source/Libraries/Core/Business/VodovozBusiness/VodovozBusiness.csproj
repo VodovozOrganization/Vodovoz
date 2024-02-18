@@ -896,10 +896,8 @@
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />
     <Compile Include="Services\IGlobalSettings.cs" />
-    <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
-    <Compile Include="Parameters\NewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />

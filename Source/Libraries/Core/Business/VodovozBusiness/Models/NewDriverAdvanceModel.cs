@@ -6,19 +6,19 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Models
 {
 	public class NewDriverAdvanceModel
 	{
-		private readonly INewDriverAdvanceParametersProvider _newDriverAdvanceParametersProvider;
+		private readonly INewDriverAdvanceSettings _newDriverAdvanceParametersProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly RouteList _routeList;
 		private IList<NewDriverAdvanceRouteListNode> _unclosedRouteLists;
 
-		public NewDriverAdvanceModel(INewDriverAdvanceParametersProvider newDriverAdvanceParametersProvider, IRouteListRepository routeListRepository, RouteList routeList)
+		public NewDriverAdvanceModel(INewDriverAdvanceSettings newDriverAdvanceParametersProvider, IRouteListRepository routeListRepository, RouteList routeList)
 		{
 			_newDriverAdvanceParametersProvider = newDriverAdvanceParametersProvider ?? throw new ArgumentNullException(nameof(newDriverAdvanceParametersProvider));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));

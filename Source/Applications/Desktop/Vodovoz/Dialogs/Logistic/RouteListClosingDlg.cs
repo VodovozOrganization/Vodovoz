@@ -63,6 +63,7 @@ using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz
 {
@@ -97,7 +98,7 @@ namespace Vodovoz
 		private IWageParameterService _wageParameterService;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private INewDriverAdvanceParametersProvider _newDriverAdvanceParametersProvider;
+		private INewDriverAdvanceSettings _newDriverAdvanceParametersProvider;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
@@ -193,7 +194,7 @@ namespace Vodovoz
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
-			_newDriverAdvanceParametersProvider = _lifetimeScope.Resolve<INewDriverAdvanceParametersProvider>();
+			_newDriverAdvanceParametersProvider = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
