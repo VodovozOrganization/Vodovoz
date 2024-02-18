@@ -846,7 +846,6 @@
     <Compile Include="Parameters\GlobalSettings.cs" />
     <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
-    <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
@@ -876,7 +875,6 @@
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\EmailService.cs" />
-    <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />

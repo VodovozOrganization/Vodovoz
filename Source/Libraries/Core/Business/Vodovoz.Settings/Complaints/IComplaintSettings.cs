@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Services
+﻿namespace Vodovoz.Settings.Complaints
 {
-	public interface IComplaintParametersProvider
+	public interface IComplaintSettings
 	{
 		int SubdivisionResponsibleId { get; }
 		int EmployeeResponsibleId { get; }

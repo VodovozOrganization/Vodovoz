@@ -1,10 +1,11 @@
-﻿using QS.DomainModel.Entity;
+﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Complaints;
 
 namespace Vodovoz.Domain.Client
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Domain.Client
 	[HistoryTrace]
 	public class Responsible : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		private IComplaintParametersProvider _complaintParameterProvider;
+		private IComplaintSettings _complaintParameterProvider;
 
 		private string _name;
 		private bool _isArchived;
@@ -39,11 +40,11 @@ namespace Vodovoz.Domain.Client
 		public virtual bool IsSubdivisionResponsible => Id == GetComplaintParameterProvider().SubdivisionResponsibleId;
 		public virtual bool IsEmployeeResponsible => Id == GetComplaintParameterProvider().EmployeeResponsibleId;
 
-		private IComplaintParametersProvider GetComplaintParameterProvider()
+		private IComplaintSettings GetComplaintParameterProvider()
 		{
 			if(_complaintParameterProvider == null)
 			{
-				_complaintParameterProvider = new ComplaintParametersProvider(new ParametersProvider());
+				_complaintParameterProvider = ScopeProvider.Scope.Resolve<IComplaintSettings>();
 			}
 
 			return _complaintParameterProvider;

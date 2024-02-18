@@ -20,7 +20,8 @@ using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.Extensions;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Database.Complaints;
 using Vodovoz.SidePanel.InfoProviders;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
@@ -31,14 +32,14 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IComplaintsRepository complaintsRepository;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
-		private readonly ComplaintParametersProvider _complaintParametersProvider;
+		private readonly IComplaintSettings _complaintParametersProvider;
 		private readonly Gdk.Color _primaryBg = GdkColors.PrimaryBase;
 		private readonly Gdk.Color _secondaryBg = GdkColors.PrimaryBG;
 		private readonly Gdk.Color _red = GdkColors.DangerText;
 		private readonly string _primaryTextHtmlColor = GdkColors.PrimaryText.ToHtmlColor();
 		private readonly string _redTextHtmlColor = GdkColors.DangerText.ToHtmlColor();
 
-		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, ComplaintParametersProvider complaintParametersProvider)
+		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, IComplaintSettings complaintParametersProvider)
 		{
 			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));

@@ -37,6 +37,7 @@ using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -49,7 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionSettings _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
-		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IComplaintSettings _complaintParametersProvider;
 		private readonly IGeneralSettings _generalSettingsParametersProvider;
 		private ILifetimeScope _scope;
 		private string _subdivisionQualityServiceShortName;
@@ -74,7 +75,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			IFileDialogService fileDialogService,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
-			IComplaintParametersProvider complaintParametersProvider,
+			IComplaintSettings complaintParametersProvider,
 			IGeneralSettings generalSettingsParametersProvider,
 			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{

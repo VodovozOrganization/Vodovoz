@@ -14,7 +14,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Services;
+using Vodovoz.Settings.Complaints;
 using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.QualityControl.Reports
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
-			IComplaintParametersProvider complaintParametersProvider,
+			IComplaintSettings complaintParametersProvider,
 			IGenericRepository<Subdivision> subdivisionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{

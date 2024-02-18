@@ -1,4 +1,5 @@
-﻿using Gtk;
+﻿using Autofac;
+using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
@@ -14,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Complaints;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
@@ -43,7 +45,8 @@ namespace Vodovoz.SidePanel
 						new EmployeeRepository(),
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
-					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), new ComplaintParametersProvider(new ParametersProvider()));
+					var complaintSettigs = ScopeProvider.Scope.Resolve<IComplaintSettings>();
+					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), complaintSettigs);
 				case PanelViewType.SmsSendPanelView:
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,

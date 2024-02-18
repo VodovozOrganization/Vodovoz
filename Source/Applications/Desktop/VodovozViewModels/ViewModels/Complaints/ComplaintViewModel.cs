@@ -30,6 +30,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGeneralSettings _generalSettingsParametersProvider;
-		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IComplaintSettings _complaintParametersProvider;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -88,7 +89,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionSettings subdivisionParametersProvider,
 			IRouteListItemRepository routeListItemRepository,
 			IGeneralSettings generalSettingsParametersProvider,
-			IComplaintParametersProvider complaintParametersProvider,
+			IComplaintSettings complaintParametersProvider,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
