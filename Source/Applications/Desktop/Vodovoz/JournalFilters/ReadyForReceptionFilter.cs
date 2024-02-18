@@ -22,7 +22,7 @@ namespace Vodovoz
 
         protected override void ConfigureWithUow()
 		{
-            var warehousesList = new StoreDocumentHelper(new UserSettingsGetter())
+            var warehousesList = new StoreDocumentHelper(new UserSettingsService())
 	            .GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
                 .OrderBy(w => w.Name).ToList();
             

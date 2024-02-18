@@ -7,8 +7,7 @@ namespace Vodovoz.Core.DataService
 {
 	public class BaseParametersProvider : 
 		IStandartDiscountsService, 
-		IWageParametersProvider,
-		IVpbxSettings
+		IWageParametersProvider
 	{
 		private readonly IParametersProvider _parametersProvider;
 		
@@ -121,33 +120,5 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IWageParametersProvider implementation
-
-		#region IVpbxSettings
-
-		public string VpbxApiKey
-		{ 
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("vpbx_api_key"))
-				{
-					throw new InvalidProgramException("В параметрах базы не настроены ключи доступа к Манго(vpbx_api_key).");
-				}
-				return _parametersProvider.GetParameterValue("vpbx_api_key");
-			}
-		}
-
-		public string VpbxApiSalt
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("vpbx_api_salt"))
-				{
-					throw new InvalidProgramException("В параметрах базы не настроены ключи доступа к Манго(vpbx_api_salt).");
-				}
-				return _parametersProvider.GetParameterValue("vpbx_api_salt");
-			}
-		}
-
-		#endregion
 	}
 }

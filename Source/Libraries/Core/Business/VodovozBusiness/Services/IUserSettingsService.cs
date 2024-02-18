@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Services
 {
-	public interface IUserSettings
+	public interface IUserSettingsService
 	{
 		UserSettings Settings { get; }
 	}

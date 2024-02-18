@@ -983,7 +983,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
-    <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\IUserSettingsService.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
@@ -1296,7 +1296,6 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
-    <Compile Include="Services\IVpbxSettings.cs" />
     <Compile Include="Domain\Client\AdditionalAgreement.cs" />
     <Compile Include="Models\IFixedPricesModel.cs" />
     <Compile Include="Models\CounterpartyFixedPricesModel.cs" />

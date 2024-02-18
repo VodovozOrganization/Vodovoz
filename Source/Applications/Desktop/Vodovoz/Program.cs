@@ -390,7 +390,7 @@ namespace Vodovoz
 					builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 					builder.RegisterType<UserPermissionsExporter>().AsSelf();
 					builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
-					builder.RegisterType<UserSettingsGetter>().As<IUserSettings>();
+					builder.RegisterType<UserSettingsService>().As<IUserSettingsService>();
 					builder.RegisterType<StoreDocumentHelper>().AsSelf();
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
@@ -568,14 +568,6 @@ namespace Vodovoz
 					#endregion
 
 					#region ParameterProviders
-
-					builder.RegisterType<BaseParametersProvider>()
-						.As<IStandartDiscountsService>()
-						.As<IWageParametersProvider>()
-						.As<IWageParametersProvider>()
-						.As<IErrorSendSettings>()
-						.As<IVpbxSettings>()
-						.AsSelf();
 
 					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
 						.Where(t => t.Name.EndsWith("Provider")

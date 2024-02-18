@@ -29,7 +29,7 @@ namespace Vodovoz
 		}
 	}
 	
-	public class UserSettingsGetter : IUserSettings
+	public class UserSettingsService : IUserSettingsService
 	{
 		public UserSettings Settings => CurrentUserSettings.Settings;
 	}
