@@ -10,11 +10,8 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Services;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.Settings.Database.Phones;
-using Vodovoz.Settings.Phones;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
@@ -22,10 +19,10 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 	{
 		private ICommonServices commonServices;
 		private GenericObservableList<Phone> phonesList;
-		private IContactParametersProvider contactsParameters;
+		private IContactSettings contactsParameters;
 		private IPhoneRepository phoneRepository;
 
-		public PhonesViewModel(IPhoneTypeSettings phoneTypeSettings, IPhoneRepository phoneRepository, IUnitOfWork uow, IContactParametersProvider contactsParameters, ICommonServices commonServices)
+		public PhonesViewModel(IPhoneTypeSettings phoneTypeSettings, IPhoneRepository phoneRepository, IUnitOfWork uow, IContactSettings contactsParameters, ICommonServices commonServices)
 		{
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
@@ -44,7 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			CreateCommands();
 		}
 
-		public PhonesViewModel(IPhoneTypeSettings phoneTypeSettings, IPhoneRepository phoneRepository, IUnitOfWork uow, IContactParametersProvider contactsParameters, RoboatsJournalsFactory roboatsJournalsFactory,
+		public PhonesViewModel(IPhoneTypeSettings phoneTypeSettings, IPhoneRepository phoneRepository, IUnitOfWork uow, IContactSettings contactsParameters, RoboatsJournalsFactory roboatsJournalsFactory,
 			ICommonServices commonServices) : this(phoneTypeSettings, phoneRepository, uow, contactsParameters, commonServices)
 		{
 			if(roboatsJournalsFactory == null)

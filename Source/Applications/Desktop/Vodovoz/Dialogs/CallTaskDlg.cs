@@ -19,7 +19,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Models;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -28,9 +27,9 @@ using Vodovoz.Core.Domain.Employees;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
-using Vodovoz.Settings.Phones;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.Dialogs
 {
@@ -49,7 +48,7 @@ namespace Vodovoz.Dialogs
 		private string _lastComment;
 		private readonly ICommonServices _commonServices;
 		private IParametersProvider _parametersProvider;
-		private IContactParametersProvider _contactsParameters;
+		private IContactSettings _contactsSettings;
 
 		public CallTaskDlg()
 		{
@@ -98,8 +97,7 @@ namespace Vodovoz.Dialogs
 		private void ConfigureDlg()
 		{
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
-			_parametersProvider = new ParametersProvider();
-			_contactsParameters = new ContactParametersProvider(_parametersProvider);
+			_contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
 			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
@@ -142,10 +140,10 @@ namespace Vodovoz.Dialogs
 
 			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsParameters,  _commonServices);
+			ClientPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings,  _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsParameters, _commonServices);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)

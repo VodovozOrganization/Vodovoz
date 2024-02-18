@@ -1,6 +1,6 @@
-﻿using Vodovoz.Settings.Phones;
+﻿using Vodovoz.Settings.Contacts;
 
-namespace Vodovoz.Settings.Database.Phones
+namespace Vodovoz.Settings.Database.Contacts
 {
 	public class PhoneTypeSettings : IPhoneTypeSettings
 	{

@@ -98,8 +98,8 @@ using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Settings.Organizations;
-using Vodovoz.Settings.Phones;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz
 {
@@ -124,7 +124,7 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
 		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
-		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
@@ -765,7 +765,7 @@ namespace Vodovoz
 		{
 			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
-				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,

@@ -21,7 +21,6 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
@@ -29,7 +28,7 @@ using Vodovoz.ViewModels.ViewModels;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
-using Vodovoz.Settings.Phones;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -77,7 +76,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly IContactParametersProvider _contactsParameters;
+		private readonly IContactSettings _contactsParameters;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
@@ -88,7 +87,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactsParameters,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -134,7 +133,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactsParameters,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ILifetimeScope lifetimeScope,
 			int counterpartyId,

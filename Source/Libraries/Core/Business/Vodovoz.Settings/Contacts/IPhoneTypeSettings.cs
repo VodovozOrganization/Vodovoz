@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Settings.Phones
+﻿namespace Vodovoz.Settings.Contacts
 {
 	public interface IPhoneTypeSettings
 	{

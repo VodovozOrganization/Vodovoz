@@ -28,8 +28,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
-using Vodovoz.Services;
-using Vodovoz.Settings.Phones;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -73,7 +72,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			INavigationManager navigationManager,
 			IGtkTabsOpener gtkTabsOpener,
 			IPhoneRepository phoneRepository,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactsParameters,
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,

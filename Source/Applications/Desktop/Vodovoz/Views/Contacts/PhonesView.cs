@@ -14,8 +14,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings.Phones;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
 
@@ -29,7 +28,7 @@ namespace Vodovoz.Views.Contacts
 		private IList<PhoneType> phoneTypes;
 		private IUnitOfWork uow;
 		private IPhoneRepository phoneRepository;
-		private static readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private static readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 
 		private bool isReadOnly;
 		public bool IsReadOnly {
@@ -134,7 +133,7 @@ namespace Vodovoz.Views.Contacts
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var phone = new Phone().Init(_contactsParameters);
+			var phone = new Phone().Init(_contactsSettings);
 			phone.Counterparty = Counterparty;
 			PhonesList.Add(phone);
 		}
@@ -267,7 +266,7 @@ namespace Vodovoz.Views.Contacts
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			PhonesList.Where(p => p.DigitsNumber.Length < _contactsParameters.MinSavePhoneLength)
+			PhonesList.Where(p => p.DigitsNumber.Length < _contactsSettings.MinSavePhoneLength)
 				.ToList().ForEach(p => PhonesList.Remove(p));
 		}
 	}

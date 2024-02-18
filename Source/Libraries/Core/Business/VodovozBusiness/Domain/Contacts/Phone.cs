@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
-using Vodovoz.Services;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.Domain.Contacts
 {
@@ -75,7 +75,7 @@ namespace Vodovoz.Domain.Contacts
 		#endregion
 
 		/// <summary>
-		/// Обязательно вызвать <see cref="Init(IContactParametersProvider)"/> после вызова конструктора
+		/// Обязательно вызвать <see cref="Init(IContactSettings)"/> после вызова конструктора
 		/// </summary>
 		public Phone()
 		{
@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Contacts
 			_comment = comment;
 		}
 
-		public virtual Phone Init(IContactParametersProvider contactsParameters)
+		public virtual Phone Init(IContactSettings contactsParameters)
 		{
 			Number = String.Empty;
 			Additional = String.Empty;
