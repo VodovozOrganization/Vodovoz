@@ -830,7 +830,6 @@
     <Compile Include="Nodes\PromotionalSetItemBalanceNode.cs" />
     <Compile Include="Nodes\PromotionalSetOnlineParametersData.cs" />
     <Compile Include="Nodes\PromotionalSetOnlineParametersNode.cs" />
-    <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
@@ -844,7 +843,6 @@
     <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\GlobalSettings.cs" />
-    <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />

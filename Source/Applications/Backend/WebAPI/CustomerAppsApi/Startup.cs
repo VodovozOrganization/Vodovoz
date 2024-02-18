@@ -104,7 +104,6 @@ namespace CustomerAppsApi
 				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
 				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
-				.AddSingleton<ICounterpartySettings, CounterpartySettings>()
 				.AddSingleton<ICameFromConverter, CameFromConverter>()
 				.AddSingleton<ISourceConverter, SourceConverter>()
 				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()

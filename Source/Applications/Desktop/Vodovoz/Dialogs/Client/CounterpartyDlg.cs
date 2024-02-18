@@ -71,9 +71,13 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Specifications.Orders.EdoContainers;
@@ -81,8 +85,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Counterparties;
-using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
@@ -96,10 +100,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
-using Vodovoz.Settings.Roboats;
-using Vodovoz.Settings.Organizations;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz
 {

@@ -148,6 +148,7 @@ using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using QS.HistoryLog;
+using Vodovoz.Settings.Counterparty;
 
 namespace Vodovoz
 {
