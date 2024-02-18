@@ -149,6 +149,7 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using QS.HistoryLog;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Settings.Database.Counterparty;
 
 namespace Vodovoz
 {
@@ -762,7 +763,7 @@ namespace Vodovoz
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 
-						.AddScoped<IDebtorsParameters, DebtorsParameters>()
+						.AddScoped<IDebtorsSettings, DebtorsSettings>()
 						.AddFiasClient()
 						.AddScoped<RevisionBottlesAndDeposits>()
 						.AddTransient<IReportExporter, ReportExporterAdapter>()

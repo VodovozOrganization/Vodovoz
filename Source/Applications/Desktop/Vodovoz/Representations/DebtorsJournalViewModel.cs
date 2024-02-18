@@ -26,8 +26,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Services;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
@@ -39,7 +39,7 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
-		private readonly IDebtorsParameters _debtorsParameters;
+		private readonly IDebtorsSettings _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IEmailSettings _emailParametersProvider;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
@@ -59,7 +59,7 @@ namespace Vodovoz.Representations
 			INavigationManager navigationManager,
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			IDebtorsParameters debtorsParameters,
+			IDebtorsSettings debtorsParameters,
 			IEmailSettings emailParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IEmailRepository emailRepository,

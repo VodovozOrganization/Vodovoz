@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Services
+﻿namespace Vodovoz.Settings.Counterparty
 {
-	public interface IDebtorsParameters
+	public interface IDebtorsSettings
 	{
 		int GetSuspendedCounterpartyId { get; }
 
