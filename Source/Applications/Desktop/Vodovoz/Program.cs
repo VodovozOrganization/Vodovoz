@@ -571,7 +571,6 @@ namespace Vodovoz
 
 					builder.RegisterType<BaseParametersProvider>()
 						.As<IStandartNomenclatures>()
-						.As<IImageProvider>()
 						.As<IStandartDiscountsService>()
 						.As<IPersonProvider>()
 						.As<IWageParametersProvider>()

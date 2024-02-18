@@ -17,6 +17,8 @@ using Vodovoz.TempAdapters;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Extensions;
 using QS.Project.Services;
+using Autofac;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.JournalViewers
 {
@@ -49,7 +51,7 @@ namespace Vodovoz.JournalViewers
 			evmeEmployee.ChangedByUser += OnEvmeEmployeeChangedByUser;
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()), new FileDialogService());
+			_callTasksVm = new CallTasksVM(new FileDialogService());
 			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			_callTasksVm.Filter =

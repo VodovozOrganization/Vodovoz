@@ -9,7 +9,6 @@ namespace Vodovoz.Core.DataService
 {
 	public class BaseParametersProvider : 
 		IStandartNomenclatures, 
-		IImageProvider, 
 		IStandartDiscountsService, 
 		IPersonProvider, 
 		ISmsNotifierParametersProvider,
@@ -92,19 +91,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_задач_по_залогам).");
 			}
 			return int.Parse(_parametersProvider.GetParameterValue("сотрудник_по_умолчанию_для_задач_по_залогам"));
-		}
-
-		#endregion
-
-		#region IImageProvider
-
-		public int GetCrmIndicatorId()
-		{
-			if(!_parametersProvider.ContainsParameter("crm_importance_indicator_id"))
-			{
-				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
-			}
-			return int.Parse(_parametersProvider.GetParameterValue("crm_importance_indicator_id"));
 		}
 
 		#endregion

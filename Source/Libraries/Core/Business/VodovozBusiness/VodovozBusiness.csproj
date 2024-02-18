@@ -1116,7 +1116,6 @@
     <Compile Include="Domain\Orders\PromotionalSet.cs" />
     <Compile Include="Domain\Orders\PromotionalSetItem.cs" />
     <Compile Include="Services\IStandartNomenclatures.cs" />
-    <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Services\IStandartDiscountsService.cs" />
     <Compile Include="EntityRepositories\Subdivisions\ISubdivisionRepository.cs" />
     <Compile Include="EntityRepositories\Subdivisions\SubdivisionRepository.cs" />
