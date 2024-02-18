@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -34,7 +35,7 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly ICarUnloadRepository _carUnloadRepository;
@@ -49,7 +50,7 @@ namespace Vodovoz
 		public ReturnsReceptionView()
 		{
 			var baseParameters = new BaseParametersProvider(new ParametersProvider());
-			_terminalNomenclatureProvider = baseParameters;
+			_nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>(); ;
 			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
 			_carUnloadRepository = new CarUnloadRepository();
 			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
@@ -99,7 +100,7 @@ namespace Vodovoz
 			get => warehouse;
 			set {
 				warehouse = value;
-				FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+				FillListReturnsFromRoute(_nomenclatureSettings.NomenclatureIdForTerminal);
 			}
 		}
 
@@ -111,7 +112,7 @@ namespace Vodovoz
 					return;
 				routeList = value;
 				if(routeList != null) {
-					FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+					FillListReturnsFromRoute(_nomenclatureSettings.NomenclatureIdForTerminal);
 				} else {
 					ReceptionReturnsList.Clear();
 				}

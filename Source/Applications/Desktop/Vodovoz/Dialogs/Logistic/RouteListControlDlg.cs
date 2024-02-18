@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -24,7 +25,7 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ILogger<RouteListControlDlg> _logger;
-		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListRepository _routeListRepository;
 
@@ -36,7 +37,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			_logger = _lifetimeScope.Resolve<ILogger<RouteListControlDlg>>();
-			_baseParametersProvider = _lifetimeScope.Resolve<BaseParametersProvider>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 		}
@@ -93,7 +94,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _baseParametersProvider.GetNomenclatureIdForTerminal);
+			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _nomenclatureSettings.NomenclatureIdForTerminal);
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;

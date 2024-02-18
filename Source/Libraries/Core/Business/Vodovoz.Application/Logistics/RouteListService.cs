@@ -22,7 +22,6 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
@@ -35,7 +34,6 @@ namespace Vodovoz.Application.Logistics
 	public class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGenericRepository<RouteListSpecialCondition> _routeListSpecialConditionRepository;
@@ -58,7 +56,6 @@ namespace Vodovoz.Application.Logistics
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IGenericRepository<RouteListSpecialCondition> routeListSpecialConditionRepository,
@@ -81,8 +78,6 @@ namespace Vodovoz.Application.Logistics
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_terminalNomenclatureProvider = terminalNomenclatureProvider
-				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository
@@ -130,7 +125,7 @@ namespace Vodovoz.Application.Logistics
 			CarLoadDocument withDocument = null)
 		{
 			notLoadedGoods = new List<GoodsInRouteListResult>();
-			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 
 			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(unitOfWork, routeList);
 

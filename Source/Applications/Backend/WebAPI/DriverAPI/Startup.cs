@@ -287,10 +287,7 @@ namespace DriverAPI
 			services.AddScoped<IParametersProvider, ParametersProvider>();
 			services.AddScoped<IOrderSettings, OrderSettings>();
 			services.AddScoped<IDriverApiSettings, DriverApiSettings>();
-			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-
-			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 
 			services.AddDriverApiLibrary();
 

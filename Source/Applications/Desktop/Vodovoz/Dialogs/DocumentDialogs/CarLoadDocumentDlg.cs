@@ -28,6 +28,7 @@ using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -44,7 +45,7 @@ namespace Vodovoz
 		private IEmployeeRepository _employeeRepository;
 		private IRouteListRepository _routeListRepository;
 		private IRouteListService _routeListService;
-		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private IEventsQrPlacer _eventsQrPlacer;
 
@@ -92,7 +93,7 @@ namespace Vodovoz
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
-			_terminalNomenclatureProvider = _lifetimeScope.Resolve<ITerminalNomenclatureProvider>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListDailyNumberProvider = _lifetimeScope.Resolve<IRouteListDailyNumberProvider>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 		}
@@ -233,7 +234,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.UpdateOperations(UoW, _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+			Entity.UpdateOperations(UoW, _nomenclatureSettings.NomenclatureIdForTerminal);
 
 			_logger.LogInformation("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();

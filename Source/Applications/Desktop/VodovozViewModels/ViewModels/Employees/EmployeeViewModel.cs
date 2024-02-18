@@ -37,6 +37,7 @@ using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -69,6 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private ILifetimeScope _lifetimeScope;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
@@ -126,6 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			INavigationManager navigationManager,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope,
+			INomenclatureSettings nomenclatureSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
@@ -151,6 +154,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			
@@ -293,7 +297,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				    CommonServices,
 				    UoW,
 					_unitOfWorkFactory,
-					_baseParametersProvider));
+					_nomenclatureSettings));
 
 		public bool CanReadEmployeeDocuments { get; private set; }
 		public bool CanAddEmployeeDocument { get; private set; }

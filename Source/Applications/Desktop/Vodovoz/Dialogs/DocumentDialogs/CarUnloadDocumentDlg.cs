@@ -28,6 +28,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
@@ -41,7 +42,7 @@ namespace Vodovoz
 	{
 		private static NLog.Logger _logger;
 
-		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private INomenclatureSettings _nomenclatureSettings;
 
 		private IEmployeeRepository _employeeRepository;
 		private ITrackRepository _trackRepository;
@@ -108,7 +109,7 @@ namespace Vodovoz
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
-			_terminalNomenclatureProvider = _lifetimeScope.Resolve<ITerminalNomenclatureProvider>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
@@ -250,7 +251,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(!UpdateReceivedItemsOnEntity(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal))
+			if(!UpdateReceivedItemsOnEntity(_nomenclatureSettings.NomenclatureIdForTerminal))
 			{
 				return false;
 			}

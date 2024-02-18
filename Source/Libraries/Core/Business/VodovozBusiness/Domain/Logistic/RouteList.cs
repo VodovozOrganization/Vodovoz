@@ -1120,7 +1120,7 @@ namespace Vodovoz.Domain.Logistic
 			//Терминал для оплаты 
 			//TODO Если используются операции по водителю с терминалами, переделать на них.
 
-			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(terminalId);
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
@@ -1622,7 +1622,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
@@ -2351,7 +2351,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var controller =
 				new RouteListClosingDocumentsController(
-					_nomenclatureSettings, _employeeRepository, _routeListRepository, _baseParametersProvider);
+					_nomenclatureSettings, _employeeRepository, _routeListRepository);
 			controller.UpdateDocuments(this, uow);
 		}
 

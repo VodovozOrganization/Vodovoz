@@ -8,8 +8,7 @@ namespace Vodovoz.Core.DataService
 	public class BaseParametersProvider : 
 		IStandartDiscountsService, 
 		IWageParametersProvider,
-		IVpbxSettings,
-		ITerminalNomenclatureProvider
+		IVpbxSettings
 	{
 		private readonly IParametersProvider _parametersProvider;
 		
@@ -122,28 +121,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IWageParametersProvider implementation
-
-		#region ITerminalNomenclatureProvider
-
-		public int GetNomenclatureIdForTerminal
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("terminal_nomenclature_id")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено значение ключа номенклатуры терминал для оплаты (terminal_nomenclature_id)");
-				}
-
-				string value = _parametersProvider.GetParameterValue("terminal_nomenclature_id");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение ключа номенклатуры терминал для оплаты (terminal_nomenclature_id)");
-				}
-
-				return result;
-			}
-		}
-
-		#endregion
 
 		#region IVpbxSettings
 

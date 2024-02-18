@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -34,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private string _title;
 		private int _terminalId;
 		private DriverAttachedTerminalDocumentBase _entity;
@@ -50,15 +51,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ICommonServices commonServices,
 			IUnitOfWork uow,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider)
+			INomenclatureSettings nomenclatureSettings)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			_driver = driver ?? throw new ArgumentNullException(nameof(driver));
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_terminalNomenclatureProvider =
-				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					Author = _author,
 					Driver = _driver
 				};
-				_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+				_terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 				returnDocument.CreateMovementOperations(income, UoW.GetById<Nomenclature>(_terminalId));
 
 				UpdateEntityAndRelatedProperties(returnDocument, true);
@@ -141,7 +141,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				return;
 			}
-			_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			_terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(_terminalId);
 			var filter = new NomenclatureBalanceByStockFilterViewModel(_warehouseRepository)
 			{
@@ -172,7 +172,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					Author = _author,
 					Driver = _driver
 				};
-				_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+				_terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 				giveoutDocument.CreateMovementOperations(writeoff, terminal);
 
 				UpdateEntityAndRelatedProperties(giveoutDocument, true);

@@ -575,7 +575,6 @@ namespace Vodovoz
 						.As<IWageParametersProvider>()
 						.As<IErrorSendSettings>()
 						.As<IVpbxSettings>()
-						.As<ITerminalNomenclatureProvider>()
 						.AsSelf();
 
 					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))

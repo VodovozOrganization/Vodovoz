@@ -16,6 +16,7 @@ using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
@@ -37,7 +38,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
@@ -57,7 +58,7 @@ namespace Vodovoz.ViewModels.Logistic
 				  gtkTabsOpener,
 				  stockRepository,
 				  reportPrinter,
-				  terminalNomenclatureProvider,
+				  nomenclatureSettings,
 				  commonServices,
 				  routeListProfitabilitySettings,
 				  warehousePermissionService,

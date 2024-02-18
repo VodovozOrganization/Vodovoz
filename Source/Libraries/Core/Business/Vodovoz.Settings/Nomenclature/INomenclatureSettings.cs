@@ -6,5 +6,7 @@
 		int[] EquipmentForCheckProductGroupsIds { get; }
 		int ForfeitId { get; }
 		int ReturnedBottleNomenclatureId { get; }
+		int NomenclatureIdForTerminal { get; }
+
 	}
 }

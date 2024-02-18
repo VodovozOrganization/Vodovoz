@@ -30,5 +30,7 @@ namespace Vodovoz.Settings.Database.Nomenclature
 		public int ForfeitId => _settingsController.GetIntValue("forfeit_nomenclature_id");
 
 		public int ReturnedBottleNomenclatureId => _settingsController.GetIntValue("returned_bottle_nomenclature_id");
+
+		public int NomenclatureIdForTerminal => _settingsController.GetIntValue("terminal_nomenclature_id");
 	}
 }
