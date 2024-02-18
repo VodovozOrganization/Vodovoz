@@ -209,7 +209,7 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
-		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider = new DeliveryScheduleParametersProvider(_parametersProvider);
+		private readonly IDeliveryScheduleSettings _deliveryScheduleParametersProvider = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory

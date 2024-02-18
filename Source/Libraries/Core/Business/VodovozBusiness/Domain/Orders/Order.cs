@@ -90,8 +90,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IGeneralSettings>();
 		private IOrderSettings _orderParametersProvider => ScopeProvider.Scope
 			.Resolve<IOrderSettings>();
-		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryScheduleParametersProvider>();
+		private IDeliveryScheduleSettings _deliveryScheduleParametersProvider => ScopeProvider.Scope
+			.Resolve<IDeliveryScheduleSettings>();
 		private OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery => ScopeProvider.Scope
 			.Resolve<OrderItemComparerForCopyingFromUndelivery>();
 

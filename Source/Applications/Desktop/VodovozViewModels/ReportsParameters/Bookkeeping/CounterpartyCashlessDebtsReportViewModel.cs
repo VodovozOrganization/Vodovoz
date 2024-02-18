@@ -14,7 +14,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 {
@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

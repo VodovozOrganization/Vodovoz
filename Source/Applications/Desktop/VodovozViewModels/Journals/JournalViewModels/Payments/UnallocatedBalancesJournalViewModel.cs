@@ -22,7 +22,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Payments;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			ILifetimeScope scope,
 			IDeleteEntityService deleteEntityService = null,
 			params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)

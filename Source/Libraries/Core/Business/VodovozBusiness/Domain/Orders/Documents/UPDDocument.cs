@@ -9,7 +9,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -21,8 +21,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		private IOrganizationSettings _organizationParametersProvider => ScopeProvider.Scope
 			.Resolve<IOrganizationSettings>();
 
-		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryScheduleParametersProvider>();
+		private IDeliveryScheduleSettings _deliveryScheduleParametersProvider => ScopeProvider.Scope
+			.Resolve<IDeliveryScheduleSettings>();
 
 		private int? _beveragesWorldOrganizationId;
 

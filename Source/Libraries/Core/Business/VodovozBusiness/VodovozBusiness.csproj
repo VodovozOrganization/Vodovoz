@@ -835,7 +835,6 @@
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
     <Compile Include="Parameters\EmployeeSettings.cs" />
-    <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\FastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
@@ -993,7 +992,6 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
-    <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IFiasApiParametersProvider.cs" />

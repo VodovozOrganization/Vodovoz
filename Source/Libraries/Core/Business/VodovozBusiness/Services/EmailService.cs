@@ -8,6 +8,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
@@ -41,7 +42,7 @@ namespace Vodovoz.Services
 			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
 		}
 
-		public void SendUpdToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
+		public void SendUpdToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleParametersProvider)
 		{
 			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleParametersProvider)
 				&& !emailRepository.HasSendedEmailForUpd(order.Id))
@@ -51,7 +52,7 @@ namespace Vodovoz.Services
 		}
 
 		public void SendBillForClosingDocumentOrderToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider)
 		{
 			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleParametersProvider)
 				&& !emailRepository.HaveSendedEmailForBill(order.Id)

@@ -25,8 +25,9 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Database.Organizations;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.Orders;
 using VodovozHealthCheck;
@@ -118,7 +119,7 @@ namespace TaxcomEdoApi
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IOrganizationSettings, OrganizationSettings>();
-			services.AddSingleton<IDeliveryScheduleParametersProvider, DeliveryScheduleParametersProvider>();
+			services.AddSingleton<IDeliveryScheduleSettings, DeliveryScheduleSettings>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
 			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));

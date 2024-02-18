@@ -33,7 +33,6 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Orders;
@@ -44,6 +43,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -74,7 +74,7 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IFileDialogService fileDialogService,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

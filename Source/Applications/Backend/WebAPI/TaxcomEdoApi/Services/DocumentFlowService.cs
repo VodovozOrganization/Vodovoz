@@ -23,7 +23,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
@@ -48,7 +48,7 @@ namespace TaxcomEdoApi.Services
 		private readonly X509Certificate2 _certificate;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly TaxcomEdoApiHealthCheck _taxcomEdoApiHealthCheck;
-		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleParametersProvider;
 		private const int _delaySec = 90;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
@@ -72,7 +72,7 @@ namespace TaxcomEdoApi.Services
 			X509Certificate2 certificate,
 			PrintableDocumentSaver printableDocumentSaver,
 			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));

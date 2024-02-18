@@ -10,7 +10,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 
 namespace Vodovoz.Application.Payments
@@ -28,7 +28,7 @@ namespace Vodovoz.Application.Payments
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider)
 		{
 			_paymentRepository = paymentRepository
 				?? throw new ArgumentNullException(nameof(paymentRepository));

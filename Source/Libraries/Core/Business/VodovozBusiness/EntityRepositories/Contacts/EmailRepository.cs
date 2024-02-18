@@ -12,8 +12,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Services;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
@@ -101,7 +101,7 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleParametersProvider)
 		{
 				var result = (from address in uow.GetAll<RouteListItem>()
 					where address.Order.Id == order.Id

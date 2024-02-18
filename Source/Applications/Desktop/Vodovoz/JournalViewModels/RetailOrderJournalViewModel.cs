@@ -25,12 +25,12 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -51,7 +51,7 @@ namespace Vodovoz.JournalViewModels
 			INavigationManager navigationManager,
 			INomenclatureRepository nomenclatureRepository,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{

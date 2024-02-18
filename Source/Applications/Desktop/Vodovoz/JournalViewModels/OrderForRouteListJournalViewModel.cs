@@ -24,9 +24,9 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.Services;
 using QS.Navigation;
 using QS.Deletion;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -41,7 +41,7 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			Action<OrderJournalFilterViewModel> filterConfig = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));

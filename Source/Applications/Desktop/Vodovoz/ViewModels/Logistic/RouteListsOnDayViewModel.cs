@@ -40,6 +40,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
@@ -71,7 +72,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleParametersProvider,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
