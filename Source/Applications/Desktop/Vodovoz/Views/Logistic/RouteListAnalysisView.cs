@@ -34,9 +34,9 @@ namespace Vodovoz.Views.Logistic
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
-			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(ViewModel.NavigationManager).CreateCarAutocompleteSelectorFactory(ViewModel.LifetimeScope));
-			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entityVMEntryCar.CompletionPopupSetWidth(false);
+			//entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(ViewModel.NavigationManager).CreateCarAutocompleteSelectorFactory(ViewModel.LifetimeScope));
+			//entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			//entityVMEntryCar.CompletionPopupSetWidth(false);
 
 			entityVMEntryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			entityVMEntryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
