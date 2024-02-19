@@ -513,6 +513,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeReportViewModel, DeliveryTimeReportView>()
 				.RegisterWidgetForWidgetViewModel<CarOwnershipReportViewModel, CarOwnershipReportView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyCashlessDebtsReportViewModel, CounterpartyCashlessDebtsReportView>()
+				.RegisterWidgetForWidgetViewModel<WarehouseJournalFilterViewModel, WarehouseJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

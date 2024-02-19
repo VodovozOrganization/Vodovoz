@@ -43,6 +43,9 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
+using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Presentation.WebApi.BuildVersion;
 
 namespace DriverAPI
 {
@@ -149,7 +152,11 @@ namespace DriverAPI
 			// Регистрация контроллеров
 
 			services.AddControllersWithViews();
-			services.AddControllers();
+
+			var commonWebApiPresentationAssembly = typeof(BuildVersionController).Assembly;
+
+			services.AddControllers()
+				.AddApplicationPart(commonWebApiPresentationAssembly);
 			
 			services.AddApiVersioning(config =>
 			{
