@@ -84,11 +84,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			}
 			else
 			{
-				if(!PhoneIsArchive)
-				{
-					return false;
-				}
-
 				PhoneIsArchive = false;
 			}
 
@@ -110,10 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			}
 			else
 			{
-				if(PhoneIsArchive)
-				{
-					PhoneIsArchive = false;
-				}
+				PhoneIsArchive = false;
 			}
 
 			return true;
