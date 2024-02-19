@@ -14,7 +14,7 @@ namespace Vodovoz
 
 		private global::Gtk.Table table3;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
@@ -121,13 +121,11 @@ namespace Vodovoz
 			this.table3.RowSpacing = ((uint)(6));
 			this.table3.ColumnSpacing = ((uint)(6));
 			// Container child table3.Gtk.Table+TableChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Sensitive = false;
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.table3.Add(this.entityviewmodelentryCar);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table3[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.table3.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table3[this.entityentryCar]));
 			w6.TopAttach = ((uint)(2));
 			w6.BottomAttach = ((uint)(3));
 			w6.LeftAttach = ((uint)(1));
@@ -140,6 +138,8 @@ namespace Vodovoz
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.table3.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table3[this.evmeDriver]));
 			w7.TopAttach = ((uint)(1));
@@ -417,6 +417,7 @@ namespace Vodovoz
 			this.ydatepicker.Date = new global::System.DateTime(0);
 			this.ydatepicker.IsEditable = true;
 			this.ydatepicker.AutoSeparation = false;
+			this.ydatepicker.HideButtonClearDate = false;
 			this.table3.Add(this.ydatepicker);
 			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table3[this.ydatepicker]));
 			w30.LeftAttach = ((uint)(1));
