@@ -134,11 +134,11 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-			entityviewmodelentryCar.CanEditReference = false;
-			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.Sensitive = _logisticanEditing;
+			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
+			//entityviewmodelentryCar.CanEditReference = false;
+			//entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			//entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			//entityviewmodelentryCar.Sensitive = _logisticanEditing;
 
 			_deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
 			var deliveryfreebalanceview = new DeliveryFreeBalanceView(_deliveryFreeBalanceViewModel);
