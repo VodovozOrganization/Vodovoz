@@ -26,6 +26,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
+using VodovozHealthCheck.Dto;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
@@ -103,6 +104,8 @@ namespace TaxcomEdoApi.Services
 
 		private async Task StartWorkingAsync(CancellationToken stoppingToken)
 		{
+			_taxcomEdoApiHealthCheck.HealthResult = new VodovozHealthResultDto { IsHealthy = true };
+
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				await DelayAsync(stoppingToken);
@@ -111,7 +114,8 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					_taxcomEdoApiHealthCheck.IsHealthy = await CreateAndSendUpd(uow, startDate);
+					
+					await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
 					await ProcessOutgoingDocuments(uow);
 					await ProcessIngoingDocuments(uow);
@@ -119,10 +123,8 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private Task<bool> CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
+		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
 		{
-			var isHealthy = true;
-
 			try
 			{
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
@@ -206,17 +208,19 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
-				isHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе получения заказов для формирования УПД: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования УПД");
 			}
 
-			return Task.FromResult(isHealthy);
+			return Task.CompletedTask;
 		}
 
 		private Task CreateAndSendBills(IUnitOfWork uow)
 		{
 			try
-			{
+			{				
 				var startDate = DateTime.Today.AddDays(-3);
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
 				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
@@ -295,6 +299,9 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе получения заказов для формирования счетов: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования счетов");
 			}
 
@@ -572,6 +579,9 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе обработки исходящих документов: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе обработки исходящих документов");
 			}
 			finally
@@ -636,6 +646,9 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе обработки входящих документов: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе обработки входящих документов");
 			}
 			finally
