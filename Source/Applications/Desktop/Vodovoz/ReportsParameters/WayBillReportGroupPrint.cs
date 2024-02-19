@@ -87,7 +87,7 @@ namespace Vodovoz.ReportsParameters
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			//Выбор автомобиля
-			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
+			//entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 
 			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportClicked;
 		}
@@ -148,7 +148,7 @@ namespace Vodovoz.ReportsParameters
 				{
 					{ "date", datepickerSingleReport.Date },
 					{ "driver_id", (entityDriverSingleReport?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entityCarSingleReport?.Subject as Car)?.Id ?? -1 },
+					//{ "car_id", (entityCarSingleReport?.Subject as Car)?.Id ?? -1 },
 					{ "time", timeHourEntrySingleReport.Text + ":" + timeMinuteEntrySingleReport.Text },
 					{ "need_date", !datepickerSingleReport.IsEmpty }
 				}

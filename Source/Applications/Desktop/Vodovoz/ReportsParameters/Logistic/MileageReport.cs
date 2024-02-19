@@ -39,9 +39,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			ycheckbutton1.Toggled += (sender, args) =>
 			{
-				entityviewmodelentryCar.Sensitive = !ycheckbutton1.Active;
+				//entityviewmodelentryCar.Sensitive = !ycheckbutton1.Active;
 				entityviewmodelentryEmployee.Sensitive = !ycheckbutton1.Active;
-				entityviewmodelentryCar.Subject = null;
+				//entityviewmodelentryCar.Subject = null;
 				entityviewmodelentryEmployee.Subject = null;
 			};
 
@@ -53,7 +53,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
+			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 		}
 
 		#region IParametersWidget implementation
@@ -72,7 +72,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{ "end_date", dateperiodpicker.EndDateOrNull },
 				{ "our_cars_only", ycheckbutton1.Active },
 				{ "any_status", checkAnyStatus.Active },
-				{ "car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0 },
+				//{ "car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0 },
 				{ "employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0 },
 				{ "difference_km", validatedentryDifference.Text }
 			};

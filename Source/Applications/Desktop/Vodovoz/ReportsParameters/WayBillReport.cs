@@ -41,7 +41,7 @@ namespace Vodovoz.ReportsParameters
 			entryDriver.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			entryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
+			//entryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 		}
 
 		#region IParametersWidget implementation
@@ -61,7 +61,7 @@ namespace Vodovoz.ReportsParameters
 				{
 					{ "date", datepicker.Date },
 					{ "driver_id", (entryDriver?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
+					//{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
 					{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
 					{ "need_date", !datepicker.IsEmpty }
 				}
