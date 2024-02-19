@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DriverAPIHelper.cs" />
     <Compile Include="DTO\PaymentResult.cs" />
     <Compile Include="DTO\RequestBody.cs" />
     <Compile Include="DTO\SendPaymentRequest.cs" />
@@ -57,7 +56,6 @@
     <Compile Include="DTO\SmsPaymentDTO.cs" />
     <Compile Include="DTO\StatusCode.cs" />
     <Compile Include="ISmsPaymentDTOFactory.cs" />
-    <Compile Include="ISmsPaymentStatusNotificationReciever.cs" />
     <Compile Include="ISmsPaymentValidator.cs" />
     <Compile Include="PaymentControllers\BitrixPaymentController.cs" />
     <Compile Include="PaymentControllers\IPaymentController.cs" />

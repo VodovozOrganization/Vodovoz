@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		public EmployeeFilterViewModel(params EmployeeCategory[] hideEmployeeCategories)
 		{
 			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 			HasAccessToDriverTerminal = cashier || logistician;
 			CanSortByPriority = cashier;
 			HideEmployeeCategories = hideEmployeeCategories;

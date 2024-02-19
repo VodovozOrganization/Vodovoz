@@ -12,7 +12,13 @@ namespace Vodovoz.EntityRepositories.Payments
 		IList<PaymentByCardOnlineNode> GetPaymentsByTwoMonths(IUnitOfWork uow, DateTime date);
 		IEnumerable<string> GetAllShopsFromTinkoff(IUnitOfWork uow);
 		bool NotManuallyPaymentFromBankClientExists(
-			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber);
+			IUnitOfWork uow,
+			DateTime date,
+			int number,
+			string organisationInn,
+			string counterpartyInn,
+			string accountNumber,
+			decimal sum);
 		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId);
 		int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId);
 		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider);

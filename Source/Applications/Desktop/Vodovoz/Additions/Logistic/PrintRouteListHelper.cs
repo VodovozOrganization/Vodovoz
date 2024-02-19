@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Parameters;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -108,10 +110,17 @@ namespace Vodovoz.Additions.Logistic
 				}
 				else
 				{
+					var columnShortName = string.IsNullOrEmpty(column.ShortName) ? "" : $"\n{column.ShortName}";
+
 					CellColumnValue += GetCellTag(
-						TextBoxNumber++, $"=Iif({{{_waterTagNamePrefix}{column.Id}}} = 0, \"\", {{{_waterTagNamePrefix}{column.Id}}})",
+						TextBoxNumber++,
+						$"=Iif({{{_waterTagNamePrefix}{column.Id}}} = 0, \"\", {{{_waterTagNamePrefix}{column.Id}}} + '{columnShortName}')",
 						"C",
-						isClosed);
+						isClosed,
+						true,
+						column.IsHighlighted,
+						column.IsHighlighted ? $"=Iif({{{_waterTagNamePrefix}{column.Id}}} = 0, 'White', 'Lightgrey')" : "",
+						"0pt");
 				}
 
 				//Ячейка с запасом. Пока там пусто
@@ -210,6 +219,15 @@ namespace Vodovoz.Additions.Logistic
 			RdlText = RdlText.Replace("<!--fields-->", Fields);
 			RdlText = RdlText.Replace("<!--table_cell_total_without_stock-->", TotalSum);
 
+			if(!isClosed)
+			{
+				var qrPlacer = new EventsQrPlacer(
+					new CustomReportFactory(new CustomPropertiesFactory(), new CustomReportItemFactory(), new RdlTextBoxFactory()),
+					new DriverWarehouseEventRepository());
+
+				qrPlacer.AddQrEventForDocument(uow, routeList.Id, ref RdlText);
+			}
+
 			var TempFile = Path.GetTempFileName();
 			using(StreamWriter sw = new StreamWriter(TempFile))
 			{
@@ -248,7 +266,7 @@ namespace Vodovoz.Additions.Logistic
 				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
-		private static string GetCellTag(int id, string value, string formatString, bool isClosed, bool canGrow = false)
+		private static string GetCellTag(int id, string value, string formatString, bool isClosed, bool canGrow = false, bool isBoldText = false, string cellBackgroundString = "", string paddingValue = "10pt")
 		{
 			var canGrowText = canGrow ? "true" : "false";
 			return $"<TableCell><ReportItems>" +
@@ -259,8 +277,11 @@ namespace Vodovoz.Additions.Logistic
 				   $"<TextAlign>Center</TextAlign><Format>{ formatString }</Format><VerticalAlign>Middle</VerticalAlign>" +
 				   (isClosed
 				   ? $"<BackgroundColor>=Iif((Fields!Status.Value = \"{ RouteListItemStatus.EnRoute }\") or (Fields!Status.Value = \"{ RouteListItemStatus.Completed }\"), White, Lightgrey)</BackgroundColor>"
-				   : "") +
-				   $"<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
+				   : !string.IsNullOrEmpty(cellBackgroundString)
+						? $"<BackgroundColor>{cellBackgroundString}</BackgroundColor>"
+						: "") +
+				   (isBoldText ? $"<FontWeight >Bold</FontWeight>" : "") +
+				   $"<PaddingTop>{paddingValue}</PaddingTop><PaddingBottom>{paddingValue}</PaddingBottom></Style>" +
 				   $"<CanGrow>{canGrowText}</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 

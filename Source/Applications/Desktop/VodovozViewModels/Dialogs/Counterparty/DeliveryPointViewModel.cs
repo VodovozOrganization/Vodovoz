@@ -9,6 +9,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -19,20 +20,28 @@ using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -50,9 +59,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
+		private readonly ICoordinatesParser _coordinatesParser;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private string _districtOnMap;
+		private bool _showDistrictBorders;
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
@@ -63,7 +75,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
@@ -72,6 +83,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
 			ILifetimeScope lifetimeScope,
+			ICoordinatesParser coordinatesParser,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			IDeliveryRepository deliveryRepository,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -105,14 +119,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));			
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
-			NomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
@@ -139,11 +152,22 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
 
+			DefaultWaterNomenclatureViewModel = new CommonEEVMBuilderFactory<DeliveryPoint>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(dp => dp.DefaultWaterNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.water;
+					filter.RestrictDilers = true;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch(e.PropertyName)
 				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
-					case nameof(Entity.District):
+					case nameof(Entity.Latitude):
+					case nameof(Entity.Longitude):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 						break;
 				}
@@ -159,6 +183,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			OpenCounterpartyCommand = new DelegateCommand(
 				OpenCounterparty,
 				() => Entity.Counterparty != null);
+
+			AllActiveDistrictsWithBorders = scheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
 		}
 
 		#region Свойства
@@ -186,18 +212,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		//widget init
 		public FixedPricesViewModel FixedPricesViewModel =>
 			_fixedPricesViewModel ??
-			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this, _lifetimeScope));
+			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, this, NavigationManager, LifetimeScope));
 
 		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
 			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());
 
+		public ILifetimeScope LifetimeScope { get; }
 		public PhonesViewModel PhonesViewModel { get; }
 		public ICitiesDataLoader CitiesDataLoader { get; }
 		public IStreetsDataLoader StreetsDataLoader { get; }
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
-		public INomenclatureJournalFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
+
+		public IEntityEntryViewModel DefaultWaterNomenclatureViewModel { get; }
 
 		public override bool HasChanges
 		{
@@ -220,7 +248,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-
 		#endregion
 
 		#region IDeliveryPointInfoProvider
@@ -235,6 +262,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		{
 			CurrentPage = 1;
 		}
+
+		public District GetAccurateDistrict() =>
+			Entity.CoordinatesExist
+				? _deliveryRepository.GetAccurateDistrict(UoW, Entity.Latitude.Value, Entity.Longitude.Value)
+				: null;
 
 		public override bool Save(bool close)
 		{
@@ -280,6 +312,19 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 					}
 				}
 
+				if(Entity.CoordinatesExist)
+				{
+					var accurateDistrict = _deliveryRepository.GetAccurateDistrict(UoW, Entity.Latitude.Value, Entity.Longitude.Value);
+
+					if(accurateDistrict == null
+						&& !CommonServices.InteractiveService.Question(
+							"Точный район доставки по координатам не определён. Сохранить ТД без точного района?",
+							"Проверьте координаты!"))
+					{
+						return false;
+					}
+				}
+
 				if(UoW.IsNew)
 				{
 					ShowAddressesWithFixedPrices();
@@ -309,28 +354,16 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public void SetCoordinatesFromBuffer(string buffer)
 		{
-			var error = true;
-			var coordinates = buffer?.Split(',');
-
-			if(coordinates?.Length == 2)
+			var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
+			
+			if(!result.ParsedCoordinates.HasValue)
 			{
-				coordinates[0] = coordinates[0].Replace('.', ',');
-				coordinates[1] = coordinates[1].Replace('.', ',');
-
-				var goodLat = decimal.TryParse(coordinates[0].Trim(), out decimal latitude);
-				var goodLon = decimal.TryParse(coordinates[1].Trim(), out decimal longitude);
-
-				if(goodLat && goodLon)
-				{
-					WriteCoordinates(latitude, longitude, true);
-					error = false;
-				}
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage);
 			}
-
-			if(error)
+			else
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					"Буфер обмена не содержит координат или содержит неправильные координаты");
+				var parsedCoordinates = result.ParsedCoordinates.Value;
+				WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude, true);
 			}
 		}
 
@@ -370,6 +403,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
+		public IList<District> AllActiveDistrictsWithBorders { get; }
 		public string CityBeforeChange { get; set; }
 		public string StreetBeforeChange { get; set; }
 		public string BuildingBeforeChange { get; set; }
@@ -477,7 +511,18 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			};
 		}
 
+
 		public bool IsDisposed { get; private set; }
+		public string DistrictOnMapText 
+		{
+			get => _districtOnMap; 
+			set => SetField(ref _districtOnMap, value); 
+		}
+		public bool ShowDistrictBorders 
+		{ 
+			get => _showDistrictBorders; 
+			set => SetField(ref _showDistrictBorders, value);
+		}
 
 		public override void Dispose()
 		{

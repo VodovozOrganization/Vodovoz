@@ -51,7 +51,7 @@ namespace Vodovoz.Views.Warehouse
 			lstWarehouse.Binding.AddBinding(ViewModel, vm => vm.Warehouses, w => w.ItemsList).InitializeFromSource();
 			lstWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			
-			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityVMEntryClient.Binding.AddBinding(ViewModel.Entity, s => s.Contractor, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = !ViewModel.UserHasOnlyAccessToWarehouseAndComplaints;
 			

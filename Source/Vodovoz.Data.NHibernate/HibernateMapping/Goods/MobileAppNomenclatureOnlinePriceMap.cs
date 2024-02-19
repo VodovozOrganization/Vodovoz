@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Goods
 	{
 		public MobileAppNomenclatureOnlinePriceMap()
 		{
-			DiscriminatorValue(nameof(NomenclatureOnlineParameterType.ForMobileApp));
+			DiscriminatorValue(nameof(GoodsOnlineParameterType.ForMobileApp));
 		}
 	}
 }

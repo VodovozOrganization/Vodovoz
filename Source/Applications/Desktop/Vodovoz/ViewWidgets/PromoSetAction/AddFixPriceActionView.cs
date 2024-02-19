@@ -1,12 +1,5 @@
-﻿using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using QS.Views.GtkUI;
-using Vodovoz.Domain.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Journals.JournalViewModels;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Orders;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewWidgets.PromoSetAction
 {
@@ -15,16 +8,14 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 	{
 		public AddFixPriceActionView(AddFixPriceActionViewModel viewModel)
 		{
-			this.Build();
+			Build();
 			ViewModel = viewModel;
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, vm => vm.Nomenclature, w => w.Subject);
-			entityviewmodelentryNomenclature.CanEditReference = true;
+			entryNomenclature.ViewModel = ViewModel.NomenclatureViewModel;
 
 			yspinbuttonPrice.Binding.AddBinding(ViewModel, vm => vm.Price, w => w.ValueAsDecimal);
 
@@ -33,6 +24,5 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 			buttonCancel.Clicked += (sender, e) => { ViewModel.CancelCommand.Execute(); };
 			ybuttonAccept.Clicked += (sender, e) => { ViewModel.AcceptCommand.Execute(); };
 		}
-
 	}
 }

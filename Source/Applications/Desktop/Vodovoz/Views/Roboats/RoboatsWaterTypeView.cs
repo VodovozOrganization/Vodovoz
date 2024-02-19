@@ -1,5 +1,4 @@
 ﻿using QS.Views.GtkUI;
-using System;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 
@@ -11,19 +10,15 @@ namespace Vodovoz.Views.Roboats
 
 		public RoboatsWaterTypeView(RoboatsWaterTypeViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
 			labelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
-			entryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryNomenclature.Binding
-				.AddBinding(ViewModel.Entity, e => e.Nomenclature, w => w.Subject)
-				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
-			entryNomenclature.CanOpenWithoutTabParent = true;
+
+			entryNomenclature.ViewModel = ViewModel.NomenclatureViewModel;
 
 			buttonSave.Clicked += (s, e) => ViewModel.Save(true);
 			buttonSave.Sensitive = ViewModel.CanEdit;

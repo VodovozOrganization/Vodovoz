@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using Mango.Core.Settings;
 using Mango.Service.Calling;
 using Mango.Service.Extensions;
 using Mango.Service.Services;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Settings.Mango;
 
 namespace Mango.Service.HostedServices
 {
@@ -19,6 +21,7 @@ namespace Mango.Service.HostedServices
 	{
 		private readonly ILogger<NotificationHostedService> _logger;
 		private readonly PhonebookHostedService _phonebookService;
+		private readonly IMangoUserSettngs _mangoUserSettngs;
 		private readonly IConfiguration _configuration;
 		private readonly ICallerService _callerService;
 
@@ -27,11 +30,13 @@ namespace Mango.Service.HostedServices
 		public NotificationHostedService(
 			ILogger<NotificationHostedService> logger,
 			PhonebookHostedService phonebookService,
+			IMangoUserSettngs mangoUserSettngs,
 			IConfiguration configuration,
 			ICallerService callerService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_phonebookService = phonebookService ?? throw new ArgumentNullException(nameof(phonebookService));
+			_mangoUserSettngs = mangoUserSettngs ?? throw new ArgumentNullException(nameof(mangoUserSettngs));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_callerService = callerService ?? throw new ArgumentNullException(nameof(callerService));
 			_logger.LogInformation("Создание службы уведомлений");
@@ -79,6 +84,11 @@ namespace Mango.Service.HostedServices
 		#region Отправка уведомления
 		public void NewEvent(CallInfo info)
 		{
+			if(info.LastEvent.To.AcdGroup == _mangoUserSettngs.TestCallsGroup)
+			{
+				return;
+			}
+
 			if(!string.IsNullOrEmpty(info.LastEvent.To.Extension))
 			{
 				SendIncome(info);

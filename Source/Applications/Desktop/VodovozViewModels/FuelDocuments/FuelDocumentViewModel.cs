@@ -328,7 +328,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public virtual bool CanChangeDate =>
 			CanEdit
-			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number",
+			&& CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
 				CommonServices.UserService.CurrentUserId);
 
 		public virtual decimal Balance

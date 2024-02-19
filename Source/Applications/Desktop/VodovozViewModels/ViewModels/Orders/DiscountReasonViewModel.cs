@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -14,6 +16,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -21,9 +25,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureAutocompleteSelectorFactory;
+		private ILifetimeScope _lifetimeScope;
 		private Nomenclature _selectedNomenclature;
 		private ProductGroup _selectedProductGroup;
+		
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addProductGroupCommand;
 		private DelegateCommand _removeNomenclatureCommand;
@@ -31,19 +36,19 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private DelegateCommand<bool> _updateSelectedCategoriesCommand;
 		
 		public DiscountReasonViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IDiscountReasonRepository discountReasonRepository,
 			IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
-			_nomenclatureAutocompleteSelectorFactory =
-				(nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory)))
-				.GetDefaultNomenclatureSelectorFactory();
+			
 			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 
 			InitializeNomenclatureCategoriesList();
@@ -82,18 +87,22 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
 					() =>
 					{
-						var journalViewModel = _nomenclatureAutocompleteSelectorFactory.CreateAutocompleteSelector();
-						journalViewModel.OnEntitySelectedResult += (s, ea) =>
-						{
-							var selectedNode = ea.SelectedNodes.FirstOrDefault();
-							if(selectedNode == null)
+						NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this,
+							OpenPageOptions.AsSlave,
+							vm =>
 							{
-								return;
-							}
+								vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+								vm.OnSelectResult += (s, ea) =>
+								{
+									var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
+									if(selectedNode == null)
+									{
+										return;
+									}
 
-							Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
-						};
-						TabParent.AddSlaveTab(this, journalViewModel);
+									Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
+								};
+							});
 					}
 				)
 			);
@@ -187,6 +196,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				DiscountReasonNomenclatureCategory = discountNomenclatureCategory,
 				IsSelected = Entity.NomenclatureCategories.Contains(discountNomenclatureCategory)
 			};
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

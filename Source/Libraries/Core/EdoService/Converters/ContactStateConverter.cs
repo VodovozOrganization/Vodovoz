@@ -1,7 +1,7 @@
 ﻿using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 
-namespace EdoService.Converters
+namespace EdoService.Library.Converters
 {
 	public class ContactStateConverter : IContactStateConverter
 	{

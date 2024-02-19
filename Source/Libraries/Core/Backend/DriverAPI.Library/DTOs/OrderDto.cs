@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DriverAPI.Library.DTOs
 {
@@ -36,6 +37,11 @@ namespace DriverAPI.Library.DTOs
 		/// Количество пустых бутылей
 		/// </summary>
 		public int EmptyBottlesToReturn { get; set; }
+
+		/// <summary>
+		/// Возвращаемое количество бутылей по акции "бутыль"
+		/// </summary>
+		public int BottlesByStockActualCount { get; set; }
 
 		/// <summary>
 		/// Имя контрагента
@@ -116,5 +122,10 @@ namespace DriverAPI.Library.DTOs
 		/// Отзвон за
 		/// </summary>
 		public int? CallBeforeArrivalMinutes { get; internal set; }
+
+		/// <summary>
+		/// Ожидание до
+		/// </summary>
+		public TimeSpan? WaitUntilTime { get; set; }
 	}
 }

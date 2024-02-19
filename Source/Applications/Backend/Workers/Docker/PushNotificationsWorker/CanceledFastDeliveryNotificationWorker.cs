@@ -97,10 +97,12 @@ namespace PushNotificationsWorker
 							routeListAddress.Id,
 							routeListAddress.Order.Id);
 
-						if(!string.IsNullOrWhiteSpace(routeListAddress.RouteList.Driver.AndroidToken))
+						var userApp = routeListAddress.RouteList.Driver.DriverAppUser;
+
+						if(userApp != null && !string.IsNullOrWhiteSpace(userApp.Token))
 						{
 							await _firebaseService.SendFastDeliveryAddressCanceledMessage(
-								routeListAddress.RouteList.Driver.AndroidToken,
+								userApp.Token,
 								routeListAddress.Order.Id);
 						}
 

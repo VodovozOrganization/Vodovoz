@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Database;
@@ -87,7 +88,8 @@ namespace ExternalCounterpartyAssignNotifier
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 		}

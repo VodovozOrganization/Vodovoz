@@ -1,37 +1,43 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using System;
+using System.Linq;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Flyers
 {
 	public class FlyerViewModel : EntityTabViewModelBase<Flyer>
 	{
 		private readonly IFlyerRepository _flyerRepository;
+		private ILifetimeScope _lifetimeScope;
 		private DateTime? _flyerStartDate;
 		private DateTime? _flyerEndDate;
+		
 		private DelegateCommand _activateFlyerCommand;
 		private DelegateCommand _deactivateFlyerCommand;
 		private FlyerActionTime _currentFlyerActionTime;
 
 		public FlyerViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			IFlyerRepository flyerRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IFlyerRepository flyerRepository,
+			INavigationManager navigationManager) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			FlyerAutocompleteSelectorFactory =
-				(nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory)))
-				.CreateNomenclatureForFlyerJournalFactory();
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 
 			if(!uowBuilder.IsNewEntity)
@@ -41,9 +47,17 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 			
 			SetCurrentFlyerActionTime();
 			AddServiceToValidationContext();
-		}
 
-		public IEntityAutocompleteSelectorFactory FlyerAutocompleteSelectorFactory { get; }
+			NomenclatureViewModel = new CommonEEVMBuilderFactory<Flyer>(this, Entity, UoW, navigationManager, _lifetimeScope)
+				.ForProperty(x => x.FlyerNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.additional;
+					filter.RestrictArchive = false;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+		}
 
 		public DateTime? FlyerStartDate
 		{
@@ -74,6 +88,8 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 		public bool CanActivateFlyer => FlyerStartDate.HasValue;
 		public bool CanDeactivateFlyer => FlyerEndDate.HasValue;
 		
+		public IEntityEntryViewModel NomenclatureViewModel { get; }
+
 		public DelegateCommand ActivateFlyerCommand => _activateFlyerCommand ?? (_activateFlyerCommand = new DelegateCommand(
 			() =>
 			{
@@ -155,6 +171,12 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 		private void AddServiceToValidationContext()
 		{
 			ValidationContext.ServiceContainer.AddService(typeof(IFlyerRepository), _flyerRepository);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

@@ -6,6 +6,7 @@ namespace Vodovoz.FilterViewModels.Organization
 	public class SubdivisionFilterViewModel : FilterViewModelBase<SubdivisionFilterViewModel>
 	{
 		private int[] _excludedSubdivisionsIds = Array.Empty<int>();
+		private int[] _includedSubdivisionsIds = Array.Empty<int>();
 		private SubdivisionType? _subdivisionType;
 		private bool _onlyCashSubdivisions;
 		private bool _showArchieved = false;
@@ -15,6 +16,12 @@ namespace Vodovoz.FilterViewModels.Organization
 		{
 			get => _excludedSubdivisionsIds;
 			set => UpdateFilterField(ref _excludedSubdivisionsIds, value);
+		}
+
+		public int[] IncludedSubdivisionsIds
+		{
+			get => _includedSubdivisionsIds;
+			set => UpdateFilterField(ref _includedSubdivisionsIds, value);
 		}
 
 		public SubdivisionType? SubdivisionType

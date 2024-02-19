@@ -90,7 +90,13 @@ namespace Vodovoz
 				.AddBinding(Entity, s => s.OwningSubdivision, w => w.SelectedItem)
 				.InitializeFromSource();
 			ySpecCmbOwner.Sensitive = CanEdit;
+			
+			entryAddress.IsEditable = CanEdit;
+			entryAddress.Binding
+				.AddBinding(Entity, e => e.Address, w => w.Text)
+				.InitializeFromSource();
 
+			entryMovementNotificationsSubdivisionRecipient.Sensitive = CanEdit;
 			entryMovementNotificationsSubdivisionRecipient.ViewModel = new LegacyEEVMBuilderFactory<Warehouse>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(e => e.MovementDocumentsNotificationsSubdivisionRecipient)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()

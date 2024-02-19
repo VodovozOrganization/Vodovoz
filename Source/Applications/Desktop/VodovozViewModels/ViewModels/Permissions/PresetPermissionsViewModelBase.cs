@@ -4,7 +4,6 @@ using System.Data.Bindings.Collections.Generic;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Permissions;
-using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;

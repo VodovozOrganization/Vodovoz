@@ -4,6 +4,6 @@ namespace EmailPrepareWorker.Prepares
 {
 	public interface IEmailSendMessagePreparer
 	{
-		byte[] PrepareMessage(SendEmailMessageBuilder builder);
+		byte[] PrepareMessage(SendEmailMessageBuilder builder, string connectionString);
 	}
 }

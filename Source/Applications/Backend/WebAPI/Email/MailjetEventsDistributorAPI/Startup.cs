@@ -9,7 +9,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
 using RabbitMQ.Infrastructure;
+using System.Reflection;
 using VodovozHealthCheck;
 
 namespace MailjetEventsDistributorAPI
@@ -41,6 +44,8 @@ namespace MailjetEventsDistributorAPI
 			services.AddTransient<RabbitMQConnectionFactory>();
 			services.AddTransient<IInstanceData, InstanceData>();
 
+			services.AddSingleton(x => UnitOfWorkFactory.GetDefaultFactory);
+
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
@@ -48,6 +53,18 @@ namespace MailjetEventsDistributorAPI
 			});
 
 			services.ConfigureHealthCheckService<MailjetEventsDistributeHealthCheck>();
+
+			var connectionString = Configuration.GetSection("ConnectionStrings").GetValue<string>("Default");
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
+
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[] {});
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

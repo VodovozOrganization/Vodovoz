@@ -228,6 +228,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				return false;
 			}
 
+			if(Entity.IsDeliveriesClosed && Entity.CloseDeliveryDebtType is null)
+			{
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Необходимо выбрать тип задолженности");
+				return false;
+			}
+
 			if(!CanCloseDelivery)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для открытия/закрытия поставок");

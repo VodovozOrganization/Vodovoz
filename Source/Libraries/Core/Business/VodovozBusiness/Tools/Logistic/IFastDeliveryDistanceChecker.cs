@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Client;
+﻿using Vodovoz.Core.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Tools.Logistic

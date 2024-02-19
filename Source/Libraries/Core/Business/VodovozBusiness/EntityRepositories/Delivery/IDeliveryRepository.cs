@@ -22,6 +22,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 		/// </summary>
 		IEnumerable<District> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude, DistrictsSet districtsSet = null);
 
+		District GetAccurateDistrict(IUnitOfWork uow, decimal latitude, decimal longitude);
+
 		#region MyRegion
 
 		FastDeliveryAvailabilityHistory GetRouteListsForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool isGetClosestByRoute,

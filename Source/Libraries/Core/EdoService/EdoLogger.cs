@@ -1,9 +1,8 @@
-﻿using System;
-using NLog;
+﻿using NLog;
+using System;
 using System.Net.Http;
-using System.Text;
 
-namespace EdoService
+namespace EdoService.Library
 {
 	public class EdoLogger : IEdoLogger
 	{

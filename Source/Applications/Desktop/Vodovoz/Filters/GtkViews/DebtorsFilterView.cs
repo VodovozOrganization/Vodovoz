@@ -22,7 +22,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+
+			entryNomenclature.ViewModel = ViewModel.NomenclatureViewModel;
 
 			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yvalidatedentryDebtFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -43,10 +44,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			entityVMEntryDeliveryPoint.Binding
 				.AddBinding(ViewModel, x => x.Address, x => x.Subject)
-				.InitializeFromSource();
-
-			entityviewmodelentryNomenclature.Binding
-				.AddBinding(ViewModel, x => x.LastOrderNomenclature, x => x.Subject)
 				.InitializeFromSource();
 
 			yvalidatedentryDebtTo.Binding

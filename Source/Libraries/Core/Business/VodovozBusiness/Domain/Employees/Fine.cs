@@ -19,7 +19,8 @@ namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "штрафы сотрудникам",
-		Nominative = "штраф сотрудникам")]
+		Nominative = "штраф сотрудникам",
+		GenitivePlural = "штрафов")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Fine : PropertyChangedBase, IDomainObject, IValidatableObject

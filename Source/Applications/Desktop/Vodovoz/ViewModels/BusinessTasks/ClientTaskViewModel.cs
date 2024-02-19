@@ -26,9 +26,9 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Factories;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -69,11 +69,10 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		public readonly IEmployeeRepository employeeRepository;
 		public readonly IBottlesRepository bottleRepository;
-		public readonly ICallTaskRepository callTaskRepository;
 		public readonly IPhoneRepository phoneRepository;
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
-		private readonly CounterpartyContractFactory counterpartyContractFactory;
+		private readonly ICounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -82,13 +81,12 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
 			IBottlesRepository bottleRepository,
-			ICallTaskRepository callTaskRepository,
 			IPhoneRepository phoneRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
+			ICounterpartyContractFactory counterpartyContractFactory,
 			IContactParametersProvider contactsParameters,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
@@ -98,7 +96,6 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
-			this.callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
@@ -118,7 +115,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				TabName = Entity.Counterparty?.Name;
 			}
 
-			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
 			Initialize();
 			CreateCommands();
@@ -128,14 +125,13 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
 			IBottlesRepository bottleRepository,
-			ICallTaskRepository callTaskRepository,
 			IPhoneRepository phoneRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
+			ICounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactParametersProvider contactsParameters,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -144,7 +140,6 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			int deliveryPointId)
 			: this(employeeRepository,
 					bottleRepository,
-				  	callTaskRepository,
 					phoneRepository,
 					uowBuilder,
 					unitOfWorkFactory,

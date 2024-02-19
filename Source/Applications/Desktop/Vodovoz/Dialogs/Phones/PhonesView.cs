@@ -118,6 +118,7 @@ namespace Vodovoz.Dialogs.Phones
 				hBox.PackStart(labelName, false, false, 0);
 
 				var entityviewmodelentryName = new EntityViewModelEntry();
+				entityviewmodelentryName.CanDisposeEntitySelectorFactory = false;
 				entityviewmodelentryName.Binding.AddBinding(ViewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference)
 					.InitializeFromSource();
 				entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject)
@@ -136,6 +137,7 @@ namespace Vodovoz.Dialogs.Phones
 				hBox.PackStart(labelPatronymic, false, false, 0);
 
 				var entityviewmodelentryPatronymic = new EntityViewModelEntry();
+				entityviewmodelentryPatronymic.CanDisposeEntitySelectorFactory = false;
 				entityviewmodelentryPatronymic.Binding
 					.AddBinding(ViewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
 				entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject)

@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -22,12 +23,15 @@ namespace Vodovoz.Domain.Orders.Documents
 		private Guid? _internalId;
 		private Guid? _docFlowId;
 		private Order _order;
+		private OrderWithoutShipmentForAdvancePayment _orderWithoutShipmentForAdvancePayment;
+		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
+		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 		private Counterparty _counterparty;
 		private byte[] _container;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
-		
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Доставлено")]
@@ -71,7 +75,28 @@ namespace Vodovoz.Domain.Orders.Documents
 			get => _order;
 			set => SetField(ref _order, value);
 		}
-		
+
+		[Display(Name = "Счет без отгрузки на предоплату")]
+		public virtual OrderWithoutShipmentForAdvancePayment OrderWithoutShipmentForAdvancePayment
+		{
+			get => _orderWithoutShipmentForAdvancePayment;
+			set => SetField(ref _orderWithoutShipmentForAdvancePayment, value);
+		}
+
+		[Display(Name = "Cчет без отгрузки на долг")]
+		public virtual OrderWithoutShipmentForDebt OrderWithoutShipmentForDebt
+		{
+			get => _orderWithoutShipmentForDebt;
+			set => SetField(ref _orderWithoutShipmentForDebt, value);
+		}
+
+		[Display(Name = "Cчет без отгрузки на постоплату")]
+		public virtual OrderWithoutShipmentForPayment OrderWithoutShipmentForPayment
+		{
+			get => _orderWithoutShipmentForPayment;
+			set => SetField(ref _orderWithoutShipmentForPayment, value);
+		}
+
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty
 		{
@@ -138,11 +163,21 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Подготовка к отправке")]
 		PreparingToSend
 	}
+
+	/// <summary>
+	/// WS - используется потому, что enum в NHibernate не может быть более 36 символов для 1 значения
+	/// </summary>
 	public enum Type
 	{
 		[Display(Name = "УПД")]
 		Upd,
 		[Display(Name = "Счёт")]
-		Bill
+		Bill,
+		[Display(Name = "Счет без отгрузки на предоплату")]
+		BillWSForAdvancePayment,
+		[Display(Name = "Cчет без отгрузки на долг")]
+		BillWSForDebt,
+		[Display(Name = "Cчет без отгрузки на постоплату")]
+		BillWSForPayment
 	}
 }

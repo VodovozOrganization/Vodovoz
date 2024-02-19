@@ -1,5 +1,5 @@
-﻿using EdoService.Converters;
-using EdoService.Dto;
+﻿using EdoService.Library.Converters;
+using EdoService.Library.Dto;
 using NLog;
 using System;
 using System.IO;
@@ -11,7 +11,7 @@ using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
 
-namespace EdoService.Services
+namespace EdoService.Library.Services
 {
 	public class ContactListService : IContactListService
 	{
@@ -182,21 +182,21 @@ namespace EdoService.Services
 					? $"{_edoSettings.TaxcomGetContactListUpdatesUri}?DATE={dateLastRequest}"
 					: $"{_edoSettings.TaxcomGetContactListUpdatesUri}?DATE={dateLastRequest}&STATUS={status}";
 
-				var request = new HttpRequestMessage(HttpMethod.Get, uri);
-				request.Headers.Add("Assistant-Key", key);
+			var request = new HttpRequestMessage(HttpMethod.Get, uri);
+			request.Headers.Add("Assistant-Key", key);
 
-				var response = await _httpClient.SendAsync(request);
+			var response = await _httpClient.SendAsync(request);
 
-				if(response.IsSuccessStatusCode)
-				{
-					var responseBody = await response.Content.ReadAsStreamAsync();
-					
-					return ContactListSerializer.DeserializeContactList(responseBody);
-				}
+			if(response.IsSuccessStatusCode)
+			{
+				var responseBody = await response.Content.ReadAsStreamAsync();
 
-				_edoLogger.LogError(response);
+				return ContactListSerializer.DeserializeContactList(responseBody);
+			}
 
-				return null;
+			_edoLogger.LogError(response);
+
+			return null;
 		}
 	}
 }

@@ -14,7 +14,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NLog.Web;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
 using System;
+using System.Reflection;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Mango;
+using Vodovoz.Settings.Mango;
 
 namespace Mango.Service
 {
@@ -45,6 +53,7 @@ namespace Mango.Service
 			_loggerFactory = LoggerFactory.Create(logging =>
 				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName)));
 
+
 			var dbSection = Configuration.GetSection("DomainDB");
 			if(!dbSection.Exists())
 			{
@@ -59,6 +68,8 @@ namespace Mango.Service
 			connectionStringBuilder.SslMode = MySqlSslMode.None;
 			connectionStringBuilder.DefaultCommandTimeout = 5;
 
+			CreateBaseConfig(connectionStringBuilder);
+
 			services.AddSingleton(x =>
 				new MySqlConnection(connectionStringBuilder.ConnectionString));
 
@@ -67,6 +78,11 @@ namespace Mango.Service
 				Configuration["Mango:VpbxApiKey"], 
 				Configuration["Mango:VpbxApiSalt"])
 			);
+
+			services.AddSingleton<IDataBaseInfo>((sp) => new DataBaseLocalInfo(connectionStringBuilder.Database));
+			services.AddSingleton<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
+			services.AddSingleton<ISettingsController, SettingsController>();
+			services.AddSingleton<IMangoUserSettngs, MangoUserSettings>();
 
 			services.AddSingleton<CallsHostedService>();
 			services.AddHostedService(provider => provider.GetService<CallsHostedService>());
@@ -78,10 +94,10 @@ namespace Mango.Service
 			services.AddHostedService(provider => provider.GetService<NotificationHostedService>());
 
 			services.AddSingleton<ICallerService, CallerService>();
-			services.AddScoped<ICallEventHandler, MangoHandler>();
+			services.AddSingleton<ICallEventHandler, MangoHandler>();
 
 			var messageTransportSettings = new MessageTransportSettings(Configuration);
-			services.AddSingleton<IMessageTransportSettings>(messageTransportSettings);
+			services.AddSingleton<IMessageTransportSettings>((sp) => messageTransportSettings);
 
 			services.ConfigureMangoServices();
 			services.AddCallsPublishing(messageTransportSettings);
@@ -102,5 +118,42 @@ namespace Mango.Service
 			app.UseRouting();
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
+
+		private void CreateBaseConfig(MySqlConnectionStringBuilder conStrBuilder)
+		{
+			var connectionString = conStrBuilder.ConnectionString;
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.Dialect<MySQL57SpatialExtendedDialect>()
+				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>();
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[]
+				{
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+				}
+			);
+		}
+	}
+
+	public class DataBaseLocalInfo : IDataBaseInfo
+	{
+		public DataBaseLocalInfo(string database)
+		{
+			Name = database;
+		}
+
+		public string Name { get; }
+
+		public bool IsDemo => false;
+
+		public Guid? BaseGuid => null;
+
+		public Version Version => null;
 	}
 }

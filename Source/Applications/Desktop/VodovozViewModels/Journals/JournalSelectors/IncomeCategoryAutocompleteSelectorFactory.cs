@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 
 		public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
 		{
-			var selectorViewModel = _lifetimeScope.Resolve<IncomeCategoryJournalViewModel>();
+			var selectorViewModel = LifetimeScope.Resolve<IncomeCategoryJournalViewModel>();
 
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 

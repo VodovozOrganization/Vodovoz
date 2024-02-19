@@ -13,6 +13,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
+using QS.Project.Journal;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private IList<CarOwnType> _restrictedCarOwnTypes;
 		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
 		private DelegateCommand _infoCommand;
+		private int[] _excludeIds;
 
 		public RouteListJournalFilterViewModel()
 		{
@@ -64,10 +66,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 
 			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 			HasAccessToDriverTerminal = cashier || logistician;
 
 			SubscribeOnCheckChanged();
+		}
+
+		public int[] ExcludeIds
+		{
+			get => _excludeIds;
+			set => UpdateFilterField(ref _excludeIds, value);
 		}
 
 		public IList<SaleGeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<SaleGeoGroup>().ToList());

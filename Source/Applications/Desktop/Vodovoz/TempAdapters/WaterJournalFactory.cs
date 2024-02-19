@@ -1,7 +1,8 @@
-﻿using Autofac;
+using Autofac;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using System;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Goods;
 using Vodovoz.JournalViewModels;
 
@@ -9,7 +10,7 @@ namespace Vodovoz.TempAdapters
 {
 	public class WaterJournalFactory : IEntityAutocompleteSelectorFactory
 	{
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 
 		public WaterJournalFactory(ILifetimeScope lifetimeScope)
 		{
@@ -28,6 +29,11 @@ namespace Vodovoz.TempAdapters
 
 			waterJournal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
 			return waterJournal;
+		}
+
+		public void Dispose()
+		{
+			_lifetimeScope = null;
 		}
 	}
 }

@@ -9,9 +9,12 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -47,26 +50,31 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			IList<BillDocumentEmail> result;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
-				BillDocumentEmail orderDocumentEmailAlias = null;
-				OrderDocument orderDocumentAlias = null;
+				var result =
+					(
+						from billEmail in uow.Session.Query<BillDocumentEmail>()
+						where !new[] { StoredEmailStates.SendingError, StoredEmailStates.Undelivered }.Contains(billEmail.StoredEmail.State)
+							&& billEmail.OrderDocument.Order.Id == orderId
 
-				result = uow.Session.QueryOver<BillDocumentEmail>(() => orderDocumentEmailAlias)
-					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
-					.Where(() => orderDocumentAlias.Order.Id == orderId)
-					.JoinQueryOver(ode => ode.StoredEmail)
-					.Where(se => se.State != StoredEmailStates.SendingError 
-					             && se.State != StoredEmailStates.Undelivered)
-					.WithSubquery.WhereExists(
-						QueryOver.Of<BillDocument>()
-							.Where(bd => bd.Id == orderDocumentEmailAlias.OrderDocument.Id)
-							.Select(bd => bd.Id))
-					.List();
+						let billDocument = from billDoc in uow.Session.Query<BillDocument>()
+										   where billDoc.Id == billEmail.OrderDocument.Id
+										   select billDoc
+
+						let specBillDocument = from specBillDoc in uow.Session.Query<SpecialBillDocument>()
+											   where specBillDoc.Id == billEmail.OrderDocument.Id
+											   select specBillDoc
+
+						where billDocument != null || specBillDocument != null
+
+						select billEmail.Id
+
+					)
+					.Count() > 0;
+
+				return result;
 			}
-
-			return result.Any();
 		}
 
 		public bool HasSendedEmailForUpd(int orderId)
@@ -86,21 +94,28 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendUpdByEmail(int orderId)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Проверка, нужно ли отправлять УПД по email?"))
-			{
-				return (from address in uow.GetAll<RouteListItem>()
-						where address.Order.Id == orderId
-							  && (address.Order.IsFastDelivery 
-							      || (
-								      address.Status != RouteListItemStatus.Transfered
-								      && address.AddressTransferType != null
-								      && address.AddressTransferType == AddressTransferType.FromFreeBalance)
-							      )
+				var result = (from address in uow.GetAll<RouteListItem>()
+					where address.Order.Id == order.Id
+						&& 
+						(							
+								address.Order.IsFastDelivery 
+								|| (
+										address.Status != RouteListItemStatus.Transfered
+										&& address.AddressTransferType != null
+										&& address.AddressTransferType == AddressTransferType.FromFreeBalance
+									)						   
+						|| (
+								(!address.Order.Client.NeedSendBillByEdo || address.Order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+								&& address.Order.DeliverySchedule.Id == deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId
+								&& order.OrderStatus == OrderStatus.Closed
+							)
+						)						
 						select address.Id)
 					.Any();
-			}
+
+				return result;
 		}
 
 		public bool CanSendByTimeout(string address, int orderId, OrderDocumentType type)

@@ -1,6 +1,7 @@
 ﻿using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using System;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.Project.Services;
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
 	public class FastDeliveryAvailabilityFilterViewModel : FilterViewModelBase<FastDeliveryAvailabilityFilterViewModel>
 	{
+		private ILifetimeScope _lifetimeScope;
 		private DateTime? _verificationDateFrom;
 		private DateTime? _verificationDateEndTo;
 		private Counterparty _counterparty;
@@ -30,10 +32,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DelegateCommand _failsReportCommand;
 
 		public FastDeliveryAvailabilityFilterViewModel(
+			ILifetimeScope lifetimeScope,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IDistrictJournalFactory districtJournalFactory)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -48,7 +52,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 			CounterpartySelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			IsValid = false;
 			IsVerificationFromSite = false;
@@ -142,6 +146,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		));
 
 		public void InitFailsReport() => OnPropertyChanged(nameof(IsNomenclatureNotInStock));
-		
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

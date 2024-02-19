@@ -14,6 +14,7 @@ using QS.Project.Domain;
 using System.Linq;
 using System.Reflection;
 using Vodovoz;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
@@ -125,7 +126,9 @@ namespace RoboatsCallsWorker
 					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 		}

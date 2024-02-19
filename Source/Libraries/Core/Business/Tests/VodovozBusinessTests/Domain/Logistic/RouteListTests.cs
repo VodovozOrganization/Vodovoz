@@ -45,7 +45,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
-			routeListItemRepository.GetTransferedFrom(uow, routeListItemRemovingMock).Returns(routeListItemSourceMock);
+			routeListItemRepository.GetTransferredFrom(uow, routeListItemRemovingMock).Returns(routeListItemSourceMock);
 
 			RouteList routeListUnderTest = new RouteList {
 				UoW = uow

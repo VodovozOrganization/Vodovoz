@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -776,10 +777,9 @@ namespace Vodovoz.Domain.Client
 		public virtual Point NetTopologyPoint => CoordinatesExist ? new Point((double)Latitude, (double)Longitude) : null;
 
 		public virtual PointOnEarth PointOnEarth => new PointOnEarth(Latitude.Value, Longitude.Value);
+		public virtual PointCoordinates PointCoordinates => new PointCoordinates(Latitude, Longitude);
 
 		public virtual GMap.NET.PointLatLng GmapPoint => new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
-
-		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
 		public virtual bool HasFixedPrices => NomenclatureFixedPrices.Any();
 
@@ -1008,13 +1008,13 @@ namespace Vodovoz.Domain.Client
 						"Необходимо заполнить поле \"Организация\"",
 						new[] { this.GetPropertyName(o => o.Organization) });
 				}
+			}
 
-				if(Organization?.Length > 45)
-				{
-					yield return new ValidationResult(
-						"Длина строки \"Организация\" не должна превышать 45 символов",
-						new[] { this.GetPropertyName(o => o.Organization) });
-				}
+			if(Organization?.Length > 45)
+			{
+				yield return new ValidationResult(
+					"Длина строки \"Организация\" не должна превышать 45 символов",
+					new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices

@@ -1,9 +1,6 @@
 ﻿using Mango.Core.Dto;
 using MassTransit;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Mango.CallsPublishing
 {
@@ -14,7 +11,8 @@ namespace Mango.CallsPublishing
 		/// </summary>
 		public static void ConfigureMangoMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<CallEvent>(x => x.SetEntityName("mango.call_event"));
+			configurator.Message<MangoCallEvent>(x => x.SetEntityName("mango.call_event"));
+			configurator.Send<MangoCallEvent>(x => x.UseRoutingKeyFormatter(ctx => $"acdgroup-{ctx.Message.To.AcdGroup}."));
 		}
 
 		/// <summary>
@@ -24,9 +22,9 @@ namespace Mango.CallsPublishing
 		{
 			configurator.ConfigureMangoMessageTopology(context);
 
-			configurator.Publish<CallEvent>(x =>
+			configurator.Publish<MangoCallEvent>(x =>
 			{
-				x.ExchangeType = ExchangeType.Fanout;
+				x.ExchangeType = ExchangeType.Topic;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});

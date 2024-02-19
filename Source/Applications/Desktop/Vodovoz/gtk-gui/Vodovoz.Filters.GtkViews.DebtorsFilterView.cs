@@ -38,7 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table2;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryNomenclature;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gtk.HBox hbox5;
 
@@ -114,6 +114,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
 			this.entityVMEntryDeliveryPoint.CanEditReference = false;
+			this.entityVMEntryDeliveryPoint.CanDisposeEntitySelectorFactory = false;
 			this.entityVMEntryDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryDeliveryPoint);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
@@ -128,6 +129,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceClient.Name = "entryreferenceClient";
 			this.entryreferenceClient.CanEditReference = false;
+			this.entryreferenceClient.CanDisposeEntitySelectorFactory = false;
 			this.entryreferenceClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryreferenceClient);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
@@ -275,13 +277,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
-			this.entityviewmodelentryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryNomenclature.Name = "entityviewmodelentryNomenclature";
-			this.entityviewmodelentryNomenclature.CanEditReference = false;
-			this.entityviewmodelentryNomenclature.CanOpenWithoutTabParent = false;
-			this.table2.Add(this.entityviewmodelentryNomenclature);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.entityviewmodelentryNomenclature]));
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryNomenclature.Name = "entryNomenclature";
+			this.table2.Add(this.entryNomenclature);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.entryNomenclature]));
 			w16.TopAttach = ((uint)(2));
 			w16.BottomAttach = ((uint)(3));
 			w16.LeftAttach = ((uint)(1));

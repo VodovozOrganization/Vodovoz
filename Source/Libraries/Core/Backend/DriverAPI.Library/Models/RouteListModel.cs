@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -99,7 +100,7 @@ namespace DriverAPI.Library.Models
 		/// <returns>Список идентификаторов</returns>
 		public IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login)
 		{
-			var driver = _employeeRepository.GetDriverByAndroidLogin(_unitOfWork, login)
+			var driver = _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login)
 				?? throw new DataNotFoundException(nameof(login), $"Водитель не найден");
 
 			return _routeListRepository.GetDriverRouteListsIds(
@@ -127,7 +128,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute
-			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
+				|| routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteListId} в статусе {RouteListStatus}" +
 					" адреса {RouteListAddressId} в статусе {RouteListAddressStatus} водителем {DriverId}",

@@ -38,6 +38,8 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.ySpinButton spinMinWaterAmount;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonArchive;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -86,7 +88,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -139,7 +141,7 @@ namespace Vodovoz
 			this.label10 = new global::Gtk.Label();
 			this.label10.Name = "label10";
 			this.label10.Xalign = 1F;
-			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\nкол-во бутылей:");
+			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\r\nкол-во бутылей:");
 			this.label10.Justify = ((global::Gtk.Justification)(1));
 			this.datatable1.Add(this.label10);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label10]));
@@ -227,11 +229,25 @@ namespace Vodovoz
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.ycheckbuttonArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonArchive.CanFocus = true;
+			this.ycheckbuttonArchive.Name = "ycheckbuttonArchive";
+			this.ycheckbuttonArchive.Label = global::Mono.Unix.Catalog.GetString("Архив");
+			this.ycheckbuttonArchive.DrawIndicator = true;
+			this.ycheckbuttonArchive.UseUnderline = true;
+			this.datatable1.Add(this.ycheckbuttonArchive);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ycheckbuttonArchive]));
+			w18.TopAttach = ((uint)(5));
+			w18.BottomAttach = ((uint)(6));
+			w18.RightAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox3.Add(this.datatable1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.datatable1]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.datatable1]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.Add(this.vbox3);
 			if ((this.Child != null))
 			{

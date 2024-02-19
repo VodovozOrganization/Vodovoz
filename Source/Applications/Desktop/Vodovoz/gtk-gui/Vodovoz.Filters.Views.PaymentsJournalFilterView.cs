@@ -20,6 +20,8 @@ namespace Vodovoz.Filters.Views
 
 		private global::Gamma.GtkWidgets.yCheckButton chkHideAllocatedPayments;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkHideCancelledPayments;
+
 		private global::Gamma.GtkWidgets.yHBox hboxCounterparty;
 
 		private global::Gamma.GtkWidgets.yLabel lblCounterparty;
@@ -109,11 +111,23 @@ namespace Vodovoz.Filters.Views
 			w6.Position = 5;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vboxMain.Add(this.hboxMain);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxMain]));
-			w7.Position = 0;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.chkHideCancelledPayments = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkHideCancelledPayments.CanFocus = true;
+			this.chkHideCancelledPayments.Name = "chkHideCancelledPayments";
+			this.chkHideCancelledPayments.Label = global::Mono.Unix.Catalog.GetString("Скрыть отмененные");
+			this.chkHideCancelledPayments.DrawIndicator = true;
+			this.chkHideCancelledPayments.UseUnderline = true;
+			this.hboxMain.Add(this.chkHideCancelledPayments);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.chkHideCancelledPayments]));
+			w7.Position = 6;
 			w7.Expand = false;
 			w7.Fill = false;
+			this.vboxMain.Add(this.hboxMain);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxMain]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hboxCounterparty = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxCounterparty.Name = "hboxCounterparty";
@@ -123,18 +137,18 @@ namespace Vodovoz.Filters.Views
 			this.lblCounterparty.Name = "lblCounterparty";
 			this.lblCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString("Контрагент:");
 			this.hboxCounterparty.Add(this.lblCounterparty);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.lblCounterparty]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.lblCounterparty]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hboxCounterparty.Gtk.Box+BoxChild
 			this.counterpartyEntry = new global::QS.Views.Control.EntityEntry();
 			this.counterpartyEntry.Events = ((global::Gdk.EventMask)(256));
 			this.counterpartyEntry.Name = "counterpartyEntry";
 			this.hboxCounterparty.Add(this.counterpartyEntry);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.counterpartyEntry]));
-			w9.Position = 1;
-			w9.Expand = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.counterpartyEntry]));
+			w10.Position = 1;
+			w10.Expand = false;
 			// Container child hboxCounterparty.Gtk.Box+BoxChild
 			this.chkPaymentsWithoutCounterparty = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkPaymentsWithoutCounterparty.CanFocus = true;
@@ -143,15 +157,15 @@ namespace Vodovoz.Filters.Views
 			this.chkPaymentsWithoutCounterparty.DrawIndicator = true;
 			this.chkPaymentsWithoutCounterparty.UseUnderline = true;
 			this.hboxCounterparty.Add(this.chkPaymentsWithoutCounterparty);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.chkPaymentsWithoutCounterparty]));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
-			this.vboxMain.Add(this.hboxCounterparty);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxCounterparty]));
-			w11.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxCounterparty[this.chkPaymentsWithoutCounterparty]));
+			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
+			this.vboxMain.Add(this.hboxCounterparty);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxCounterparty]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

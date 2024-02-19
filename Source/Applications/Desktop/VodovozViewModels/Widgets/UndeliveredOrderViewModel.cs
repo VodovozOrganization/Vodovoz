@@ -51,7 +51,6 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly bool _canReadDetalization;
 		private string _newResultText;
 		private DelegateCommand _addFineCommand;
-		private DelegateCommand _chooseOrderCommand;
 		private DelegateCommand _oldOrderSelectCommand;
 		private DelegateCommand _newOrderSelectCommand;
 		private DelegateCommand _beforeSaveCommand;
@@ -535,7 +534,8 @@ namespace Vodovoz.ViewModels.Widgets
 				var filter = Scope.Resolve<OrderJournalFilterViewModel>();
 				filter.SetAndRefilterAtOnce(
 					x => x.RestrictCounterparty = Entity.OldOrder?.Client,
-					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
+					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment },
+					x => x.ViewTypes = ViewTypes.Order
 				);
 
 				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
@@ -556,7 +556,7 @@ namespace Vodovoz.ViewModels.Widgets
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
 							"Перенесённый заказ не может совпадать с недовезённым!");
-						_chooseOrderCommand.Execute();
+						ChooseOrderCommand.Execute();
 						return;
 					}
 

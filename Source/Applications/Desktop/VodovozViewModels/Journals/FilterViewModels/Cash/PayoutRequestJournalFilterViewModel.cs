@@ -1,10 +1,17 @@
 ﻿using QS.Project.Filter;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using System;
+using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
 {
@@ -20,7 +27,21 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private bool _canSetAccountable = true;
 		private bool _canSetCounterparty = true;
 		private PayoutDocumentsSortOrder _documentsSortOrder = PayoutDocumentsSortOrder.ByCreationDate;
+		private Subdivision _accountableSubdivision;
+		private PayoutRequestsJournalViewModel _journalViewModel;
+		private int[] _includedAccountableSubdivision = Array.Empty<int>();
 
+		public PayoutRequestJournalFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory)
+		{
+			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+		}
+		
 		public virtual Employee Author
 		{
 			get => _author;
@@ -116,16 +137,45 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => UpdateFilterField(ref _documentsSortOrder, value);
 		}
 
-		public PayoutRequestJournalFilterViewModel(
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory)
+		public virtual Subdivision AccountableSubdivision
 		{
-			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			get => _accountableSubdivision;
+			set => UpdateFilterField(ref _accountableSubdivision, value);
+		}
+
+		public virtual PayoutRequestsJournalViewModel JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+
+				var accountableSubdivisionViewModelBuilder =
+					new CommonEEVMBuilderFactory<PayoutRequestJournalFilterViewModel>(_journalViewModel, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope);
+
+				AccountableSubdivisionViewModel = accountableSubdivisionViewModelBuilder
+					.ForProperty(x => x.AccountableSubdivision)
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+						filter =>
+						{
+							filter.IncludedSubdivisionsIds = IncludedAccountableSubdivision;
+						})
+					.Finish();
+
+				AccountableSubdivisionViewModel.IsEditable = IncludedAccountableSubdivision.Length > 0;
+			}
+		}
+
+		public int[] IncludedAccountableSubdivision
+		{
+			get => _includedAccountableSubdivision;
+			set => SetField(ref _includedAccountableSubdivision, value);
 		}
 
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public IEntityEntryViewModel AccountableSubdivisionViewModel { get; private set; }
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		public PayoutRequestUserRole GetUserRole()
 		{
@@ -153,13 +203,20 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			{
 				return PayoutRequestUserRole.Accountant;
 			}
-			
+
 			if(CheckRole("role_security_service_cash_request", userId))
 			{
 				return PayoutRequestUserRole.SecurityService;
 			}
 
 			return PayoutRequestUserRole.Other;
+		}
+
+		public override void Dispose()
+		{
+			_journalViewModel = null;
+
+			base.Dispose();
 		}
 	}
 }

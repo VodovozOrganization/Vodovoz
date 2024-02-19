@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.Utilities;
 using MySqlConnector;
 using NLog;
@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers;
 using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
@@ -37,6 +39,7 @@ using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -48,9 +51,11 @@ using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.Warehouse;
 using VodovozInfrastructure.Configuration;
@@ -88,8 +93,8 @@ namespace Vodovoz.Configuration
                 .AdoNetBatchSize(100)
                 .Driver<LoggedMySqlClientDriver>();
 
-            // Настройка ORM
-            OrmConfig.ConfigureOrm(
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
@@ -99,7 +104,8 @@ namespace Vodovoz.Configuration
                     Assembly.GetAssembly(typeof(HistoryMain)),
                     Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
                     Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(CompletedDriverWarehouseEventProxyMap))
 				},
 				cnf => {
                     cnf.DataBaseIntegration(
@@ -108,7 +114,9 @@ namespace Vodovoz.Configuration
 							dbi.Timeout = 120;
 						}
                     );
-                }
+
+					cnf.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+				}
             );
 
 			HistoryMain.Enable(dbConnectionStringBuilder);
@@ -181,12 +189,10 @@ namespace Vodovoz.Configuration
                     .Column("Тип", x => x.Nomenclature.Kind.Name).SearchColumn("Серийный номер", x => x.Serial)
                     .Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString()).End(),
                 //Логисткика
-                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
+                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateViewModel>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString())
                     .Column("Статус", x => x.Status.GetEnumTitle())
                     .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
-                OrmObjectMapping<RouteColumn>.Create().DefaultTableView().Column("Код", x => x.Id.ToString())
-                    .SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<DeliveryShift>.Create().Dialog<DeliveryShiftDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
                     .SearchColumn("Диапазон времени", x => x.DeliveryTime).End(),
                 OrmObjectMapping<DeliveryDaySchedule>.Create().Dialog<DeliveryDayScheduleDlg>().DefaultTableView()

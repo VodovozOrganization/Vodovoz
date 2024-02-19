@@ -8,6 +8,6 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 		Nominative = "параметры номенклатуры для мобильного приложения")]
 	public class MobileAppNomenclatureOnlineParameters : NomenclatureOnlineParameters
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForMobileApp;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForMobileApp;
 	}
 }

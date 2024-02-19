@@ -9,10 +9,7 @@ namespace Vodovoz.Domain.Employees
 	public interface IEmployee : IPersonnel
 	{
 		EmployeeCategory Category { get; set; }
-		string AndroidLogin { get; set; }
-		string AndroidPassword { get; set; }
-		string AndroidSessionKey { get; set; }
-		string AndroidToken { get; set; }
+		IList<ExternalApplicationUser> ExternalApplicationsUsers { get; set; }
 		EmployeeStatus Status { get; set; }
 		User User { get; set; }
 		Subdivision Subdivision { get; set; }

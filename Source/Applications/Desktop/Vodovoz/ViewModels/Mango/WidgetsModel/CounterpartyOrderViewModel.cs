@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -17,7 +18,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Mango;
@@ -28,6 +28,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Mango
 {
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.Mango
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
+		private ILifetimeScope _lifetimeScope;
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
@@ -43,7 +45,6 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
@@ -79,7 +80,9 @@ namespace Vodovoz.ViewModels.Mango
 
 		#region Конструкторы
 
-		public CounterpartyOrderViewModel(Counterparty client,
+		public CounterpartyOrderViewModel(
+			Counterparty client,
+			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
 			IRouteListRepository routedListRepository,
@@ -87,19 +90,18 @@ namespace Vodovoz.ViewModels.Mango
 			IOrderParametersProvider orderParametersProvider,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository,
 			IParametersProvider parametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			int count = 5)
 		{
 			Client = client;
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			tdiNavigation = tdinavigation;
 			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
@@ -215,7 +217,7 @@ namespace Vodovoz.ViewModels.Mango
 				order.OrderStatus == OrderStatus.Accepted ||
 				order.OrderStatus == OrderStatus.OnLoading
 			) {
-				tdiNavigation.OpenTdiTab<RouteListCreateDlg>(null);
+				tdiNavigation.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 			} else if(order.OrderStatus == OrderStatus.OnTheWay ||
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed
@@ -293,8 +295,7 @@ namespace Vodovoz.ViewModels.Mango
 			if (order != null)
 			{
 				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
-				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
@@ -313,6 +314,7 @@ namespace Vodovoz.ViewModels.Mango
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			RefreshOrders = null;
+			_lifetimeScope = null;
 			UoW?.Dispose();
 		}
 	}

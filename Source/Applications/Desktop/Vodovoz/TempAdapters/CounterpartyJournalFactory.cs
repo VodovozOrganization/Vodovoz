@@ -7,18 +7,12 @@ namespace Vodovoz.TempAdapters
 {
 	public class CounterpartyJournalFactory : ICounterpartyJournalFactory
 	{
-		private readonly ILifetimeScope _lifetimeScope;
+		public IEntityAutocompleteSelectorFactory CreateCounterpartyAutocompleteSelectorFactory(ILifetimeScope lifetimeScope) =>
+			new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(
+				typeof(Counterparty),
+				() => CreateJournalViewModel(lifetimeScope));
 
-		public CounterpartyJournalFactory(ILifetimeScope lifetimeScope)
-		{
-			_lifetimeScope = lifetimeScope;
-		}
-
-		public IEntityAutocompleteSelectorFactory CreateCounterpartyAutocompleteSelectorFactory()
-		{
-			return new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty), CreateJournalViewModel);
-		}
-
-		private CounterpartyJournalViewModel CreateJournalViewModel() => _lifetimeScope.Resolve<CounterpartyJournalViewModel>();
+		private CounterpartyJournalViewModel CreateJournalViewModel(ILifetimeScope lifetimeScope) =>
+			lifetimeScope.Resolve<CounterpartyJournalViewModel>();
 	}
 }

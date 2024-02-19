@@ -243,7 +243,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private void ConfigureAndCheckPermissions()
 		{
 			var currentPermissionService = CommonServices.CurrentPermissionService;
-			var canUpdate = currentPermissionService.ValidatePresetPermission("logistican") && PermissionResult.CanUpdate;
+			var canUpdate = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician) && PermissionResult.CanUpdate;
 			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 
 			CanEdit = (canUpdate && canConfirmMileage)

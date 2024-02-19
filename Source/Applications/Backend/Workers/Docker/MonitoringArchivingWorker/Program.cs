@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Vodovoz.Tools;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
@@ -87,7 +88,8 @@ namespace MonitoringArchivingWorker
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 		}

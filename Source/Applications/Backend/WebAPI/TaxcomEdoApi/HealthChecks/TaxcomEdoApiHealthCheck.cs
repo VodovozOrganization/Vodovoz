@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using VodovozHealthCheck;
@@ -13,8 +13,8 @@ namespace TaxcomEdoApi.HealthChecks
 		{
 		}
 
-		protected override Task<VodovozHealthResultDto> GetHealthResult() => Task.FromResult<VodovozHealthResultDto>(new() { IsHealthy = IsHealthy });
+		protected override Task<VodovozHealthResultDto> GetHealthResult() => Task.FromResult(HealthResult);
 
-		public bool IsHealthy { get; set; }
+		public VodovozHealthResultDto HealthResult { get; set; }
 	}
 }

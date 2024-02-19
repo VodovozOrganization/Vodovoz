@@ -3,6 +3,7 @@ using GMap.NET.GtkSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Vodovoz.Core.Domain;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic

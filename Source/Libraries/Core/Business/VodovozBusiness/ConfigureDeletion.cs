@@ -26,6 +26,7 @@ using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -679,11 +680,14 @@ namespace Vodovoz
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District)
 				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.District)
 				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District)
+				.AddDeleteDependence<DistrictCopyItem>(item => item.District)
+				.AddDeleteDependence<DistrictCopyItem>(item => item.CopiedToDistrict)
 				.AddRemoveFromDependence<DistrictsSet>(x => x.Districts);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();
+			DeleteConfig.AddHibernateDeleteInfo<DistrictCopyItem>();
 
 			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
 				.AddClearDependence<District>(i => i.TariffZone);
@@ -1193,6 +1197,7 @@ namespace Vodovoz
 
 			DeleteConfig.ExistingDeleteRule<Account>()
 						.AddRemoveFromDependence<Personnel>(x => x.Accounts)
+						.AddClearDependence<Counterparty>(item => item.OurOrganizationAccountForBills)
 						;
 
 			#endregion

@@ -23,6 +23,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Type).Column("type");
 
 			References(x => x.Order).Column("order_id");
+			References(x => x.OrderWithoutShipmentForAdvancePayment).Column("order_without_shipment_for_advence_payment_id");
+			References(x => x.OrderWithoutShipmentForDebt).Column("order_without_shipment_for_debt_id");
+			References(x => x.OrderWithoutShipmentForPayment).Column("order_without_shipment_for_payment_id");
 			References(x => x.Counterparty).Column("counterparty_id");
 		}
 	}

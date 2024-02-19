@@ -22,7 +22,6 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
@@ -52,6 +51,8 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
+using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace DriverAPI
 {
@@ -108,6 +109,7 @@ namespace DriverAPI
 
 			// Аутентификация
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			services.Configure<IdentityOptions>(options =>
@@ -269,11 +271,12 @@ namespace DriverAPI
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(EmployeeWithLoginMap)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
@@ -324,6 +327,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddScoped<ICarRepository, CarRepository>();
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();

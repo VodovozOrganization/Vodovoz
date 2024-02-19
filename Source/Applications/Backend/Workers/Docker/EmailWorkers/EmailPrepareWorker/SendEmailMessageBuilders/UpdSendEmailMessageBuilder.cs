@@ -34,13 +34,13 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			return this;
 		}
 
-		public override SendEmailMessageBuilder AddAttachment()
+		public override SendEmailMessageBuilder AddAttachment(string connectionString)
 		{
 			var document = _counterpartyEmail.EmailableDocument;
 
 			var attachments = new List<EmailAttachment>
 			{
-				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
+				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
 			_sendEmailMessage.Attachments = attachments;

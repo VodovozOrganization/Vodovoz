@@ -26,11 +26,11 @@ namespace Vodovoz.ViewModels.Users
 {
 	public class UserSettingsViewModel : EntityTabViewModelBase<UserSettings>, ITDICloseControlTab
 	{
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
+		private ILifetimeScope _lifetimeScope;
 		private DelegateCommand _updateFixedPricesCommand;
 		private bool _sortingSettingsUpdated;
 		private bool _isFixedPricesUpdating;
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Users
 			InteractiveService = commonServices.InteractiveService;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			
 			SetPermissions();
 
@@ -248,6 +248,12 @@ namespace Vodovoz.ViewModels.Users
 			var availableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser).ToList();
 
 			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

@@ -67,7 +67,7 @@ namespace DriverAPI.Controllers.V4
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_wakeUpDriverClientService.Subscribe(driver, enablePushNotificationsRequest.Token);
-			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
+			_employeeData.EnablePushNotifications(driver.DriverAppUser, enablePushNotificationsRequest.Token);
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace DriverAPI.Controllers.V4
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_wakeUpDriverClientService.UnSubscribe(driver);
-			_employeeData.DisablePushNotifications(driver);
+			_employeeData.DisablePushNotifications(driver.DriverAppUser);
 
 		}
 
@@ -148,6 +148,28 @@ namespace DriverAPI.Controllers.V4
 			{
 				_logger.LogInformation("Отправка PUSH-сообщения о добавлении заказа ({OrderId}) для доставки за час", orderId);
 				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ {orderId} с доставкой за час");
+			}
+		}
+
+		/// <summary>
+		/// Уведомления об изменении времени ожидания
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("NotifyOfWaitingTimeChanged")]
+		[ApiExplorerSettings(IgnoreApi = true)]
+		public async Task NotifyOfWaitingTimeChanged([FromBody] int orderId)
+		{
+			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {OrderId} не подписан на PUSH-сообщения.", orderId);
+			}
+			else
+			{
+				_logger.LogInformation("Отправка PUSH-сообщения об изменении времени ожидания заказа ({OrderId})", orderId);
+				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление об изменении времени ожидания заказа", $"Время ожидания заказа {orderId} изменено");
 			}
 		}
 	}

@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			DiscriminateSubClassesOnColumn("employee_type");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.EmployeeType).Column("employee_type").CustomType<EmployeeTypeStringType>().Update().Not.Insert();
+			Map(x => x.EmployeeType).Column("employee_type").Not.Update().Not.Insert().Access.ReadOnly();
 			Map(x => x.CreationDate).Column("creation_date").ReadOnly();
 			Map(x => x.Name).Column("name");
 			Map(x => x.LastName).Column("last_name");
@@ -41,12 +41,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 				DiscriminatorValue(EmployeeType.Employee.ToString());
 				Map(x => x.InnerPhone).Column("inner_phone");
 				Map(x => x.Email).Column("email_address");
-				Map(x => x.Category).Column("category").CustomType<EmployeeCategoryStringType>();
-				Map(x => x.Status).Column("status").CustomType<EmployeeStatusStringType>();
-				Map(x => x.AndroidLogin).Column("android_login");
-				Map(x => x.AndroidPassword).Column("android_password");
-				Map(x => x.AndroidSessionKey).Column("android_session_key");
-				Map(x => x.AndroidToken).Column("android_token");
+				Map(x => x.Category).Column("category");
+				Map(x => x.Status).Column("status");
 				Map(x => x.FirstWorkDay).Column("first_work_day");
 				Map(x => x.DateHired).Column("date_hired");
 				Map(x => x.DateCalculated).Column("date_calculated");
@@ -61,9 +57,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 				Map(x => x.Gender).Column("gender").CustomType<GenderStringType>();
 				Map(x => x.MinRouteAddresses).Column("min_route_addresses");
 				Map(x => x.MaxRouteAddresses).Column("max_route_addresses");
-				Map(x => x.DriverType).Column("driver_type").CustomType<DriverTypeStringType>();
+				Map(x => x.DriverType).Column("driver_type");
 				Map(x => x.SkillLevel).Column("skill_level");
 				Map(x => x.Comment).Column("comment");
+				Map(x => x.HasAccessToWarehouseApp).Column("has_access_to_warehouse_app");
 
 				References(x => x.Subdivision).Column("subdivision_id");
 				References(x => x.User).Column("user_id");
@@ -84,6 +81,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 				HasMany(x => x.DriverDistrictPrioritySets)
 					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("driver_id")
 					.OrderBy("date_created DESC");
+				
+				HasMany(x => x.ExternalApplicationsUsers)
+					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			}
 		}
 

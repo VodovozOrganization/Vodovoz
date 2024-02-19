@@ -27,5 +27,7 @@ namespace Vodovoz.Domain.Logistic
 		public static int OrdersRequireTrifle => 3;
 
 		public static int RouteListRequireAdditionalLoading => 4;
+
+		public static int EquipmentCheckRequired => 5;
 	}
 }

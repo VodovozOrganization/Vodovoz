@@ -46,6 +46,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -354,9 +355,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
-					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+							vm.OnSelectResult += OnMissingNomenclatureSelectedResult;
+						});
 				}
 			));
 		
@@ -1003,14 +1009,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			}
 		}
 
-		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			foreach(var node in e.SelectedNodes)
+			foreach(var node in selectedNodes)
 			{
 				if(Entity.ObservableNomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 				{

@@ -68,7 +68,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			return this;
 		}
 
-		public virtual SendEmailMessageBuilder AddAttachment()
+		public virtual SendEmailMessageBuilder AddAttachment(string connectionString)
 		{
 			var inlinedAttachments = new List<InlinedEmailAttachment>();
 
@@ -91,7 +91,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 			var attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>
 			{
-				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
+				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
 			_sendEmailMessage.Attachments = attachments;

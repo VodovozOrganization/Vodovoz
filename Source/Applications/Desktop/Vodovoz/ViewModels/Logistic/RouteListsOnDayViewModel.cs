@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -8,6 +8,7 @@ using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -15,11 +16,12 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -58,6 +60,9 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+
+		private bool _excludeTrucks;
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -78,6 +83,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			ICarModelJournalFactory carModelJournalFactory,
+			IRouteOptimizer routeOptimizer,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -97,6 +103,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
+			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
@@ -106,7 +113,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 
-			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 
@@ -151,7 +158,6 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 				}
 			}
-			Optimizer = new RouteOptimizer(commonServices.InteractiveService, new GeographicGroupRepository());
 
 			_defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
@@ -197,6 +203,11 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public bool ExcludeTrucks
+		{
+			get => _excludeTrucks;
+			set => SetField(ref _excludeTrucks, value);
+		}
 		public ICommonServices CommonServices { get; }
 		public ILifetimeScope LifetimeScope { get; }
 		public ICarRepository CarRepository { get; }
@@ -207,15 +218,15 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void CreateCommands()
 		{
-			CreateSaveCommand();
-			CreateRemoveRLItemCommand();
-			CreateOpenOrderOrRouteListCommand();
-			CreateAddDriverCommand();
-			CreateRemoveDriverCommand();
-			CreateAddForwarderCommand();
-			CreateRemoveForwarderCommand();
-			CreateRebuilOneRouteCommand();
-			CreateShowWarningsCommand();
+			SaveCommand = CreateSaveCommand();
+			RemoveRLItemCommand = CreateRemoveRLItemCommand();
+			OpenOrderOrRouteListCommand = CreateOpenOrderOrRouteListCommand();
+			AddDriverCommand = CreateAddDriverCommand();
+			RemoveDriverCommand = CreateRemoveDriverCommand();
+			AddForwarderCommand = CreateAddForwarderCommand();
+			RemoveForwarderCommand = CreateRemoveForwarderCommand();
+			RebuilOneRouteCommand = CreateRebuilOneRouteCommand();
+			ShowWarningsCommand = CreateShowWarningsCommand();
 		}
 
 		public event EventHandler AutoroutingResultsSaved;
@@ -224,9 +235,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand SaveCommand { get; private set; }
 
-		private void CreateSaveCommand()
+		private DelegateCommand CreateSaveCommand()
 		{
-			SaveCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() =>
 				{
 					if(SaveAutoroutingResults())
@@ -244,9 +255,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<RouteListItem> RemoveRLItemCommand { get; private set; }
 
-		private void CreateRemoveRLItemCommand()
+		private DelegateCommand<RouteListItem> CreateRemoveRLItemCommand()
 		{
-			RemoveRLItemCommand = new DelegateCommand<RouteListItem>(
+			return new DelegateCommand<RouteListItem>(
 				i =>
 				{
 					var route = i.RouteList;
@@ -268,6 +279,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
+
+					ReCalculateRouteListProfitability(route);
+
 				},
 				i => i != null
 			);
@@ -279,9 +293,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<object> OpenOrderOrRouteListCommand { get; private set; }
 
-		private void CreateOpenOrderOrRouteListCommand()
+		private DelegateCommand<object> CreateOpenOrderOrRouteListCommand()
 		{
-			OpenOrderOrRouteListCommand = new DelegateCommand<object>(
+			return new DelegateCommand<object>(
 				obj =>
 				{
 					//Открываем заказ
@@ -305,7 +319,7 @@ namespace Vodovoz.ViewModels.Logistic
 								return;
 							}
 						}
-						_gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(rl.Id));
 					}
 				},
 				i => true
@@ -318,9 +332,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand AddDriverCommand { get; private set; }
 
-		private void CreateAddDriverCommand()
+		private DelegateCommand CreateAddDriverCommand()
 		{
-			AddDriverCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() =>
 				{
 					var drvJournalViewModel = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
@@ -380,9 +394,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<AtWorkDriver[]> RemoveDriverCommand { get; private set; }
 
-		private void CreateRemoveDriverCommand()
+		private DelegateCommand<AtWorkDriver[]> CreateRemoveDriverCommand()
 		{
-			RemoveDriverCommand = new DelegateCommand<AtWorkDriver[]>(
+			return new DelegateCommand<AtWorkDriver[]>(
 				driversToDel =>
 				{
 					if(driversToDel == null)
@@ -418,9 +432,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand AddForwarderCommand { get; private set; }
 
-		private void CreateAddForwarderCommand()
+		private DelegateCommand CreateAddForwarderCommand()
 		{
-			AddForwarderCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() =>
 				{
 					var fwdJournalViewModel = _employeeJournalFactory.CreateWorkingForwarderEmployeeJournal();
@@ -455,9 +469,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<AtWorkForwarder[]> RemoveForwarderCommand { get; private set; }
 
-		private void CreateRemoveForwarderCommand()
+		private DelegateCommand<AtWorkForwarder[]> CreateRemoveForwarderCommand()
 		{
-			RemoveForwarderCommand = new DelegateCommand<AtWorkForwarder[]>(
+			return new DelegateCommand<AtWorkForwarder[]>(
 				forwardersToDel =>
 				{
 					foreach(var forwarder in forwardersToDel)
@@ -480,9 +494,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<object> RebuilOneRouteCommand { get; private set; }
 
-		private void CreateRebuilOneRouteCommand()
+		private DelegateCommand<object> CreateRebuilOneRouteCommand()
 		{
-			RebuilOneRouteCommand = new DelegateCommand<object>(
+			 return new DelegateCommand<object>(
 				obj =>
 				{
 					RouteList route = obj is RouteListItem routeListItem ? routeListItem.RouteList : obj as RouteList;
@@ -508,9 +522,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand ShowWarningsCommand { get; private set; }
 
-		private void CreateShowWarningsCommand()
+		private DelegateCommand CreateShowWarningsCommand()
 		{
-			ShowWarningsCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() => ShowWarningMessage(string.Join("\n", Optimizer.WarningMessages.Select(x => "⚠ " + x))),
 				() => true
 			);
@@ -636,8 +650,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private RouteOptimizer optimizer;
-		public virtual RouteOptimizer Optimizer
+		private IRouteOptimizer optimizer;
+		public virtual IRouteOptimizer Optimizer
 		{
 			get => optimizer;
 			set => SetField(ref optimizer, value);
@@ -794,10 +808,20 @@ namespace Vodovoz.ViewModels.Logistic
 			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
 			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
 			var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+			
+			var distanceFromBase =
+				firstDP != null && geoGroupVersion != null
+					? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion.PointCoordinates, firstDP.PointCoordinates)
+					: 0;
+			
+			var timeFromBase =
+				firstDP != null && geoGroupVersion != null
+					? DistanceCalculator.TimeFromBase(geoGroupVersion.PointCoordinates, firstDP.PointCoordinates)
+					: 0;
 
 			return $"Первый адрес: {routeList.FirstAddressTime:t}\n" +
-				$"Путь со склада: {(firstDP != null && geoGroupVersion != null ? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, firstDP) * 0.001 : 0):N1} км." +
-				$" ({(firstDP != null && geoGroupVersion != null ? DistanceCalculator.TimeFromBase(geoGroupVersion, firstDP) / 60 : 0)} мин.)\n" +
+				$"Путь со склада: {(distanceFromBase * 0.001):N1} км." +
+				$" ({ timeFromBase / 60 } мин.)\n" +
 				$"Выезд со склада: {routeList.OnLoadTimeEnd:t}\nПогрузка на складе: {routeList.TimeOnLoadMinuts} минут";
 		}
 
@@ -1006,10 +1030,30 @@ namespace Vodovoz.ViewModels.Logistic
 						return null;
 					}
 
-					return $"{(double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, rli.Order.DeliveryPoint) / 1000:N1}км";
+					return $"{(double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion.PointCoordinates, rli.Order.DeliveryPoint.PointCoordinates) / 1000:N1}км";
 				}
 
-				return $"{(double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000:N1}км";
+				return $"{(double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint.PointCoordinates, rli.Order.DeliveryPoint.PointCoordinates) / 1000:N1}км";
+			}
+
+			return null;
+		}
+
+		public decimal? GetGrossMarginPercentage(object row)
+		{
+			if(row is RouteList rl)
+			{
+				return rl?.RouteListProfitability?.GrossMarginPercents;
+			}
+
+			return null;
+		}
+
+		public decimal? GetGrossMarginMoney(object row)
+		{
+			if(row is RouteList rl)
+			{
+				return rl?.RouteListProfitability?.GrossMarginSum;
 			}
 
 			return null;
@@ -1229,43 +1273,68 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			(int OrderId, decimal Count) resultAlias = default;
+			
+			_logger.LogInformation("Начали расчет параметров");
 
-			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											 .GetExecutableQueryOver(UoW.Session)
-											 .Select(Projections.Count<Order>(x => x.Id))
-											 .Where(o => !o.IsContractCloser)
-											 .And(o => o.OrderAddressType != OrderAddressType.Service)
-											 .SingleOrDefault<int>();
+			var totalOrders =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.Where(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.Select(Projections.CountDistinct<Order>(x => x.Id))
+					.SingleOrDefault<int>();
 
-			decimal totalBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var totalBottles = 
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
 
-			decimal total6LBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var total6LBottles =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
 
-			decimal total600mlBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var total600mlBottles =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
+			
+			_logger.LogInformation("Закончили расчет параметров");
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
@@ -1384,6 +1453,7 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 				routeList.RecalculatePlanTime(DistanceCalculator);
 				routeList.RecalculatePlanedDistance(DistanceCalculator);
+
 				UoW.Save(routeList);
 			}
 			else
@@ -1462,9 +1532,26 @@ namespace Vodovoz.ViewModels.Logistic
 		public void SaveRouteList(RouteList routeList, Action<string> actionUpdateInfo = null)
 		{
 			RebuildAllRoutes(actionUpdateInfo);
+
+			ReCalculateRouteListProfitability(routeList);
+
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
+		}
+
+		private void ReCalculateRouteListProfitability(RouteList routeList)
+		{
+			var transaction = UoW.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				UoW.Session.BeginTransaction();
+			}
+
+			UoW.Session.Flush();
+
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
 		}
 
 		public void RebuildAllRoutes(Action<string> actionUpdateInfo = null)
@@ -1636,7 +1723,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime);
+			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime, message => CommonServices.InteractiveService.Question(message));
 
 			if(optimizer.ProposedRoutes.Any())
 			{
@@ -1860,6 +1947,16 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public bool CanСreateRoutelistInPastPeriod { get; }
+
+		public IRouteListProfitabilityController RouteListProfitabilityController => _routeListProfitabilityController;
+
+		public static GuiltyTypes[] GuiltyTypesForMarkUndeliveries => new[] 
+		{
+			GuiltyTypes.Driver,
+			GuiltyTypes.Department,
+			GuiltyTypes.ForceMajor,
+			GuiltyTypes.DirectorLO
+		};
 
 		public override void Dispose()
 		{

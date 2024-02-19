@@ -8,21 +8,22 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Gamma.Utilities;
+using Microsoft.Extensions.Options;
 
 
 namespace Sms.External.SmsRu
 {
 	public partial class SmsRuSendController : ISmsSender, ISmsBalanceNotifier
 	{
-		private readonly ISmsRuConfiguration _configuration;
+		private readonly SmsRuConfiguration _configuration;
 		private readonly static Logger logger = LogManager.GetCurrentClassLogger();
 		private const string _balanceStringPrefix = "balance=";
 		private readonly string _baseUrl;
 
-		public SmsRuSendController(ISmsRuConfiguration configuration)
+		public SmsRuSendController(IOptions<SmsRuConfiguration> configuration)
 		{
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-			_baseUrl = configuration.BaseUrl;
+			_configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
+			_baseUrl = configuration.Value.BaseUrl;
 		}
 
 		public BalanceResponse GetBalanceResponse

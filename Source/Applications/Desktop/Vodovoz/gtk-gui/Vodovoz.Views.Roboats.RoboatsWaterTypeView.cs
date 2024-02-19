@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Roboats
 
 		private global::Gtk.HBox boxRoboatsHolder;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryNomenclature;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gtk.Label labelId;
 
@@ -88,11 +88,9 @@ namespace Vodovoz.Views.Roboats
 			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
 			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.entryNomenclature.Name = "entryNomenclature";
-			this.entryNomenclature.CanEditReference = false;
-			this.entryNomenclature.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryNomenclature);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entryNomenclature]));
 			w7.TopAttach = ((uint)(1));

@@ -6,6 +6,6 @@ namespace EmailPrepareWorker.Prepares
 {
 	public interface IEmailDocumentPreparer
 	{
-		EmailAttachment PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType);
+		EmailAttachment PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType, string connectionString);
 	}
 }

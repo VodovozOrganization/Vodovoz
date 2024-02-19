@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
 {
 	/// <summary>
 	/// Контроллер рекламаций водителей
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverComplaintsController : VersionedController
 	{
 		private readonly IDriverComplaintModel _iAPIDriverComplaintData;

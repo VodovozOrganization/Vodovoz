@@ -25,7 +25,6 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class M2ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<M2ProxyDocument>, IEditableDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
@@ -90,7 +89,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
 			var supplierFactory = _lifetimeScope.Resolve<ICounterpartyJournalFactory>();
-			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 
 			yETicketNr.Binding.AddBinding(Entity, x => x.TicketNumber, w => w.Text).InitializeFromSource();

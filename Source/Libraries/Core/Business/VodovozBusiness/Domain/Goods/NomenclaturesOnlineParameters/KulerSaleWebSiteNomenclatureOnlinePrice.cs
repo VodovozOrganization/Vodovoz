@@ -8,6 +8,6 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 		Nominative = "онлайн цена номенклатуры для сайта Кулер Сэйл")]
 	public class KulerSaleWebSiteNomenclatureOnlinePrice : NomenclatureOnlinePrice
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForKulerSaleWebSite;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForKulerSaleWebSite;
 	}
 }

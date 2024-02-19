@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -45,8 +45,10 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Logistic;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
+using Vodovoz.Rent;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Cash;
@@ -96,6 +98,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Orders;
@@ -176,6 +179,15 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
+using Vodovoz.ViewModels.ReportsParameters.Production;
+using Vodovoz.Views.ReportsParameters.Production;
+using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
+using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ReportsParameters.Bookkeeping;
 
 namespace Vodovoz
 {
@@ -239,6 +251,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EmployeeWageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
+				.RegisterWidgetForTabViewModel<RouteListCreateViewModel, RouteListCreateView>()
 				.RegisterWidgetForTabViewModel<RouteListFastDeliveryMaxDistanceViewModel, RouteListFastDeliveryMaxDistanceView>()
 				.RegisterWidgetForTabViewModel<RouteListMaxFastDeliveryOrdersViewModel, RouteListMaxFastDeliveryOrdersView>()
 				.RegisterWidgetForTabViewModel<DriversStopListsViewModel, DriversStopListsView>()
@@ -316,6 +329,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListTransferringViewModel, RouteListAddressesTransferringView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
@@ -337,6 +351,11 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<RegradingOfGoodsReasonViewModel, RegradingOfGoodsReasonView>()
 				.RegisterWidgetForTabViewModel<CounterpartyClassificationCalculationViewModel, CounterpartyClassificationCalculationView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineGroupViewModel, NomenclatureOnlineGroupView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
+				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
+				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
+				.RegisterWidgetForTabViewModel<RouteColumnViewModel, RouteColumnView>()
 				;
 
 			//Регистрация виджетов
@@ -465,7 +484,17 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
+				.RegisterWidgetForWidgetViewModel<FreeRentPackagesFilterViewModel, FreeRentPackagesFilterView>()
+				.RegisterWidgetForWidgetViewModel<ClientBalanceFilterViewModel, ClientBalanceFilter>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
+				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryTimeReportViewModel, DeliveryTimeReportView>()
+				.RegisterWidgetForWidgetViewModel<CarOwnershipReportViewModel, CarOwnershipReportView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyCashlessDebtsReportViewModel, CounterpartyCashlessDebtsReportView>()
+				.RegisterWidgetForWidgetViewModel<WarehouseJournalFilterViewModel, WarehouseJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<PaymentsDiscrepanciesAnalysisViewModel, PaymentsDiscrepanciesAnalysisView>()
 				;
 

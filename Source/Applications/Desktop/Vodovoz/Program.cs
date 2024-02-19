@@ -1,6 +1,8 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using EdoService;
+using EdoService.Library;
 using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -48,14 +50,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
-using Vodovoz.Additions.Logistic.RouteOptimization;
-using Vodovoz.Application.Services;
-using Vodovoz.Application.Services.Logistics;
+using Vodovoz.Application;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.Core;
+using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -79,6 +81,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
@@ -90,18 +93,17 @@ using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
-using Vodovoz.ReportsParameters.Production;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
@@ -116,6 +118,7 @@ using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
@@ -186,6 +189,7 @@ namespace Vodovoz
 					builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 					builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 					builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.Register(с => ServicesConfig.UserService).As<IUserService>();
@@ -347,8 +351,8 @@ namespace Vodovoz
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
-
-					builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
+					builder.RegisterType<EdoService.Library.EdoService>().As<IEdoService>();
+					builder.RegisterType<EmailService>().As<IEmailService>();
 
 					#endregion
 
@@ -417,7 +421,6 @@ namespace Vodovoz
 
 					#region Reports
 
-					builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
 					builder.RegisterType<OrderChangesReport>().AsSelf();
 					builder.RegisterType<CashFlow>().AsSelf();
 					builder.RegisterType<WayBillReportGroupPrint>().AsSelf();
@@ -440,10 +443,8 @@ namespace Vodovoz
 					builder.RegisterType<DriversWageBalanceReport>().AsSelf();
 					builder.RegisterType<DeliveriesLateReport>().AsSelf();
 					builder.RegisterType<QualityReport>().AsSelf();
-					builder.RegisterType<ProducedProductionReport>().AsSelf();
 					builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
-					builder.RegisterType<RoutesListRegisterReport>().AsSelf();
-					builder.RegisterType<DeliveryTimeReport>().AsSelf();
+					builder.RegisterType<RoutesListRegisterReport>().AsSelf();					
 					builder.RegisterType<OrdersByDistrictReport>().AsSelf();
 					builder.RegisterType<CompanyTrucksReport>().AsSelf();
 					builder.RegisterType<LastOrderByDeliveryPointReport>().AsSelf();
@@ -529,7 +530,6 @@ namespace Vodovoz
 						.As<IDriverServiceParametersProvider>()
 						.As<IErrorSendParameterProvider>()
 						.As<IProfitCategoryProvider>()
-						.As<IPotentialFreePromosetsReportDefaultsProvider>()
 						.As<IMailjetParametersProvider>()
 						.As<IVpbxSettings>()
 						.As<ITerminalNomenclatureProvider>()
@@ -639,19 +639,25 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddSingleton<Startup>()
-							.AddScoped<IRouteListService, RouteListService>()
-							.AddScoped<RouteGeometryCalculator>()
-							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
-							.AddScoped<IDebtorsParameters, DebtorsParameters>()
-							.AddFiasClient()							
-							.AddScoped<RevisionBottlesAndDeposits>()
-							.AddTransient<IReportExporter, ReportExporterAdapter>()
-							.AddScoped<SelectPaymentTypeViewModel>()
-							.AddTransient<IReportExporter, ReportExporterAdapter>()
-							.AddScoped<IRouteOptimizer, RouteOptimizer>()
-							.AddScoped<CsvParser>()
-							;
+						.AddScoped<RouteGeometryCalculator>()
+						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+						.AddScoped<IDebtorsParameters, DebtorsParameters>()
+						.AddFiasClient()							
+						.AddScoped<RevisionBottlesAndDeposits>()
+						.AddTransient<IReportExporter, ReportExporterAdapter>()
+						.AddScoped<SelectPaymentTypeViewModel>()
+						.AddScoped<ICoordinatesParser, CoordinatesParser>()
+						.AddScoped<ICustomReportFactory, CustomReportFactory>()
+						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
+						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
+						.AddScoped<IDriverWarehouseEventRepository, DriverWarehouseEventRepository>()
+						.AddScoped<ICompletedDriverWarehouseEventProxyRepository, CompletedDriverWarehouseEventProxyRepository>()
+						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
+						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
+						.AddScoped<CsvParser>()
+						.AddApplication()
+						.AddBusiness();
 				});
 	}
 }

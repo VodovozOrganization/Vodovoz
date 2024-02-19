@@ -16,6 +16,7 @@ using System;
 using System.Reflection;
 using UnsubscribePage.Controllers;
 using UnsubscribePage.HealthChecks;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
@@ -141,6 +142,7 @@ namespace UnsubscribePage
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

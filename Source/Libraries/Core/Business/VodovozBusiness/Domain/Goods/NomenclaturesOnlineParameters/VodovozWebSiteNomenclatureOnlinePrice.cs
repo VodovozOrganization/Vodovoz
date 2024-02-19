@@ -8,6 +8,6 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 		Nominative = "онлайн цена номенклатуры для сайта ВВ")]
 	public class VodovozWebSiteNomenclatureOnlinePrice : NomenclatureOnlinePrice
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForVodovozWebSite;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForVodovozWebSite;
 	}
 }

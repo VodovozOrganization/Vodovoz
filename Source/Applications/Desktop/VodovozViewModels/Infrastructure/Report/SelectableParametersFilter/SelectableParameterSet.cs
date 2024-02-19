@@ -152,14 +152,16 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 				OutputParameters = new GenericObservableList<SelectableParameter>(
 					Parameters
 						.Where(x => x.Children.Any()
-							|| x.Title.ToLower().Contains(_searchValue == null ? "" : _searchValue.ToLower()))
+							|| x.Title.ToLower().Contains(_searchValue == null ? "" : _searchValue.ToLower())
+							|| x.Value.ToString() == _searchValue)
 						.ToList());
 			}
 			else
 			{
 				OutputParameters = new GenericObservableList<SelectableParameter>(
 					Parameters
-						.Where(x => x.Title.ToLower().Contains(_searchValue == null ? "" : _searchValue.ToLower()))
+						.Where(x => x.Title.ToLower().Contains(_searchValue == null ? "" : _searchValue.ToLower())
+							|| x.Value.ToString() == _searchValue)
 						.ToList());
 			}
 		}
