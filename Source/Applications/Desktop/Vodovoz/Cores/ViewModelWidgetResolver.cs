@@ -221,11 +221,11 @@ namespace Vodovoz.Core
 				throw new ArgumentException($"Тип {widgetType.Name} не является подтипом {typeof(Widget).Name}");
 			}
 
-			if(viewModelWidgets.ContainsKey(viewModelType))
+			if(_viewModelWidgets.ContainsKey(viewModelType))
 			{
 				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
 			}
-			viewModelWidgets.Add(viewModelType, widgetType);
+			_viewModelWidgets.Add(viewModelType, widgetType);
 
 			return this;
 		}
@@ -259,11 +259,11 @@ namespace Vodovoz.Core
 				throw new ArgumentException($"Тип {widgetType.Name} не является подтипом {typeof(Widget).Name}");
 			}
 
-			if(viewModelWidgets.ContainsKey(viewModelType))
+			if(_viewModelWidgets.ContainsKey(viewModelType))
 			{
 				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
 			}
-			viewModelWidgets.Add(viewModelType, widgetType);
+			_viewModelWidgets.Add(viewModelType, widgetType);
 
 			return this;
 		}
