@@ -71,10 +71,10 @@ namespace Vodovoz.Dialogs.Employees
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
+			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
+			//entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
+			//entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			//entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
 
 			RefreshParserRootObject();
 
@@ -142,7 +142,7 @@ namespace Vodovoz.Dialogs.Employees
 			bool isNewDoc = !(Entity.Id > 0);
 			evmeOrganisation.Sensitive = isNewDoc;
 			evmeDriver.Sensitive = isNewDoc;
-			entityviewmodelentryCar.Sensitive = isNewDoc;
+			//entityviewmodelentryCar.Sensitive = isNewDoc;
 			if(Entity.Organization == null 
 				|| Entity.Car == null 
 				|| Entity.Driver == null

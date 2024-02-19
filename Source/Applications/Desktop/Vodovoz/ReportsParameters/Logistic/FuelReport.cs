@@ -44,8 +44,8 @@ namespace Vodovoz.Reports
 			);
 			var driverFactory = new EmployeeJournalFactory(navigationManager, filterDriver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(lifetimeScope));
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(lifetimeScope));
+			//entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			var officeFilter = new EmployeeFilterViewModel();
 			officeFilter.SetAndRefilterAtOnce(
@@ -107,7 +107,7 @@ namespace Vodovoz.Reports
 			}
 
 			if(radioCar.Active) {
-				parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id);
+				//parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id);
 				parameters.Add("driver_id", -1);
 				parameters.Add("include_car_models", new int[] { 0 });
 				parameters.Add("exclude_car_models", new int[] { 0 });
@@ -140,9 +140,9 @@ namespace Vodovoz.Reports
 				errorString += "Не заполнена дата\n Не заполнен водитель\n";
 			}
 
-			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | entityviewmodelentryCar.Subject == null)) {
-				errorString += "Не заполнена дата\n Не заполнен автомобиль\n";
-			}
+			//if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | entityviewmodelentryCar.Subject == null)) {
+				//errorString += "Не заполнена дата\n Не заполнен автомобиль\n";
+			//}
 				
 			if(radioSumm.Active && dateperiodpicker.StartDateOrNull == null)
 				errorString += "Не заполнена дата\n";
@@ -166,7 +166,7 @@ namespace Vodovoz.Reports
 
 			yCheckButtonDatailedSummary.Hide();
 
-			entityviewmodelentryCar.Subject = null;
+			//entityviewmodelentryCar.Subject = null;
 			evmeAuthor.Subject = null;
 
 			yvboxCarModel.Visible = false;
@@ -200,7 +200,7 @@ namespace Vodovoz.Reports
 
 			yCheckButtonDatailedSummary.Show();
 
-			entityviewmodelentryCar.Subject = null;
+			//entityviewmodelentryCar.Subject = null;
 			evmeDriver.Subject = null;
 
 			yvboxCarModel.Visible = true;
