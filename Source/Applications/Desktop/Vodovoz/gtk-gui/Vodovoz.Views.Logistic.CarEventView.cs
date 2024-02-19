@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton checkbuttonDoNotShowInOperation;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCarEventType;
 
@@ -147,13 +147,11 @@ namespace Vodovoz.Views.Logistic
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.entityviewmodelentryCar);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.table1.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryCar]));
 			w7.TopAttach = ((uint)(2));
 			w7.BottomAttach = ((uint)(3));
 			w7.LeftAttach = ((uint)(1));
@@ -165,6 +163,7 @@ namespace Vodovoz.Views.Logistic
 			this.entityviewmodelentryCarEventType.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCarEventType.Name = "entityviewmodelentryCarEventType";
 			this.entityviewmodelentryCarEventType.CanEditReference = true;
+			this.entityviewmodelentryCarEventType.CanDisposeEntitySelectorFactory = false;
 			this.entityviewmodelentryCarEventType.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityviewmodelentryCarEventType);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCarEventType]));
@@ -191,6 +190,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
