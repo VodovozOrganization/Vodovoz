@@ -329,6 +329,7 @@ namespace Vodovoz.Application.Orders.Services
 			order.RecalculateItemsPrice();
 			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
+			order.IsDoNotMakeCallBeforeArrival = true;
 			return order;
 		}
 	}
