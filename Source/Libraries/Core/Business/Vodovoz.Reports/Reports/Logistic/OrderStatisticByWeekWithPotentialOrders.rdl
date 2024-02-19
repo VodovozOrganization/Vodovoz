@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -2510,12 +2510,12 @@
         </Footer>
       </Table>
       <Textbox Name="Textbox21">
-        <Height>12pt</Height>
-        <Width>5in</Width>
+        <Height>13.50pt</Height>
+        <Width>812.10pt</Width>
         <Value>=Parameters!selected_filters</Value>
         <ZIndex>0</ZIndex>
-        <Left>7.0pt</Left>
-        <Top>0.2pt</Top>
+        <Left>7.00pt</Left>
+        <Top>0.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -4557,7 +4557,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -4691,7 +4691,7 @@ ORDER BY week_begin
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -4803,7 +4803,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="PotentialOrders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -4942,7 +4942,7 @@ ORDER BY week_begin
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>
