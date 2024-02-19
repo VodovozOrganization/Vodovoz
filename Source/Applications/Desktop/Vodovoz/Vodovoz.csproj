@@ -1176,7 +1176,7 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeFilterView.cs" />
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
-    <Compile Include="VodovozGtkServicesConfig.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
     <Compile Include="Infrastructure\Services\IRepresentationEntityPicker.cs" />

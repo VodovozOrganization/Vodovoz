@@ -1,15 +1,12 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Search;
 using QS.Project.Search.GtkUI;
 using QS.Report.ViewModels;
 using QS.Report.Views;
-using QS.Widgets.GtkUI;
 using QSProjectsLib;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using Vodovoz.AdministrationTools;
@@ -19,15 +16,12 @@ using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Cash.Reports;
 using Vodovoz.Cash.Transfer;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
 using Vodovoz.Counterparties;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.Organizations;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Filters.Views;
@@ -45,19 +39,22 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Logistic;
 using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Pacs;
-using Vodovoz.Logistic;
 using Vodovoz.Presentation.ViewModels.PaymentType;
+using Vodovoz.Presentation.ViewModels.Reports.PACS;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.Rent;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Cash;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
+using Vodovoz.ReportsParameters.PACS;
 using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Sales;
-using Vodovoz.Services.Permissions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.ViewModels.BaseParameters;
@@ -85,7 +82,6 @@ using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Goods;
-using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -112,8 +108,12 @@ using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
+using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.Users;
@@ -134,6 +134,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.ViewModels.ViewModels.Sale;
@@ -170,6 +171,7 @@ using Vodovoz.Views.Print;
 using Vodovoz.Views.Proposal;
 using Vodovoz.Views.Rent;
 using Vodovoz.Views.Reports;
+using Vodovoz.Views.ReportsParameters.Production;
 using Vodovoz.Views.Retail;
 using Vodovoz.Views.Roboats;
 using Vodovoz.Views.Sale;
@@ -186,18 +188,6 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
-using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
-using Vodovoz.ViewModels.ReportsParameters.Production;
-using Vodovoz.Views.ReportsParameters.Production;
-using QS.Project.Services;
-using Vodovoz.Presentation.ViewModels.Reports.PACS;
-using Vodovoz.ReportsParameters.PACS;
-using Vodovoz.ViewModels.ReportsParameters.Logistic;
-using Vodovoz.ReportsParameters.Logistic;
-using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
-using Vodovoz.ReportsParameters.Logistic;
-using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
-using Vodovoz.ReportsParameters.Bookkeeping;
 
 namespace Vodovoz
 {
@@ -207,24 +197,6 @@ namespace Vodovoz
 
 		static void CreateProjectParam()
 		{
-			UserDialog.RequestWidth = 900;
-			UserDialog.RequestHeight = 700;
-
-			UserDialog.UserPermissionViewsCreator = () => new List<IUserPermissionTab> {
-				new SubdivisionForUserEntityPermissionWidget(),
-				new PresetPermissionsView()
-			};
-
-			UserDialog.PermissionViewsCreator = () => new List<IPermissionsView>
-			{
-				new PermissionMatrixView(
-					new PermissionMatrix<WarehousePermissionsType, Warehouse>(), "Доступ к складам", "warehouse_access")
-			};
-
-			var warehousePermissionService = new WarehousePermissionService(ServicesConfig.UnitOfWorkFactory)
-			{
-				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
-			};
 		}
 
 		static void ConfigureViewModelWidgetResolver()

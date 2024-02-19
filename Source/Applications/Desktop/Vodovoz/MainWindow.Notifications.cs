@@ -13,13 +13,6 @@ using Vodovoz.Extensions;
 public partial class MainWindow
 {
 	#region Уведомления об отправленных перемещениях и о наличии рекламаций
-	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
-	{
-		var currentEmployee =
-			VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(uow, ServicesConfig.UserService.CurrentUserId);
-
-		return currentEmployee?.Subdivision.Id ?? 0;
-	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
 	private void OnBtnUpdateNotificationClicked(object sender, EventArgs e)

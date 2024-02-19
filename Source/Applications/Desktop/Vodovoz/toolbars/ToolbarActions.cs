@@ -38,6 +38,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
@@ -602,12 +603,14 @@ public partial class MainWindow : Window
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
 	{
 		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var employeeService = _autofacScope.Resolve<IEmployeeService>();
 
 		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
 			filter,
-			ServicesConfig.UnitOfWorkFactory,
+			uowFactory,
 			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
+			employeeService,
 			new EntityDeleteWorker(),
 			true,
 			true
@@ -653,6 +656,7 @@ public partial class MainWindow : Window
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
 		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var employeeService = _autofacScope.Resolve<IEmployeeService>();
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
 			uowFactory, PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
 
@@ -668,10 +672,10 @@ public partial class MainWindow : Window
 			{
 				HidenByDefault = true
 			},
-			ServicesConfig.UnitOfWorkFactory,
+			uowFactory,
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator,
-			VodovozGtkServicesConfig.EmployeeService)
+			employeeService)
 		);
 	}
 

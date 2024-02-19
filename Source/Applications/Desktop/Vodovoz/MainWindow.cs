@@ -29,6 +29,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Presentation.ViewModels.Pacs;
+using Vodovoz.Services;
 using Vodovoz.Settings.Tabs;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Mango;
@@ -236,7 +237,9 @@ public partial class MainWindow : Gtk.Window
 
 		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
+			var employeeService = _autofacScope.Resolve<IEmployeeService>();
+
+			_currentUserSubdivisionId = employeeService.GetEmployeeForCurrentUser()?.Subdivision?.Id ?? 0;
 			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
 			_movementsNotificationsController = _autofacScope
 				.Resolve<IMovementDocumentsNotificationsController>(

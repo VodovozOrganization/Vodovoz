@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
 using QS;
+using QS.Project;
 using QS.Project.Core;
 using QS.Project.DB;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;

@@ -36,6 +36,7 @@ using QS.HistoryLog;
 using QS.Navigation;
 using QS.Osrm;
 using QS.Permissions;
+using QS.Project;
 using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
@@ -96,7 +97,6 @@ using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Mango;
@@ -143,6 +143,7 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
+using Vodovoz.Data.NHibernate;
 
 namespace Vodovoz
 {
@@ -367,12 +368,8 @@ namespace Vodovoz
 
 					#region Services
 
-					builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
-					builder.RegisterType<FileDialogService>().As<IFileDialogService>();
-					builder.Register(c => PermissionExtensionSingletonStore.GetInstance()).As<IPermissionExtensionStore>();
-					builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 					builder.RegisterType<EmployeeService>().As<IEmployeeService>();
-					builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
+					builder.RegisterType<FileDialogService>().As<IFileDialogService>();
 					builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 					builder.RegisterType<ObjectValidator>().As<IValidator>().AsSelf();
 					builder.RegisterType<WarehousePermissionService>().As<IWarehousePermissionService>().AsSelf();
@@ -382,7 +379,6 @@ namespace Vodovoz
 					builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
 					builder.RegisterType<UserSettingsService>().As<IUserSettingsService>();
 					builder.RegisterType<StoreDocumentHelper>().AsSelf();
-					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
 					builder.RegisterType<EdoService.Library.EdoService>().As<IEdoService>();
@@ -703,6 +699,7 @@ namespace Vodovoz
 						.AddDesktop()
 						.AddGuiTrackedUoW()
 						.AddObjectValidatorWithGui()
+						.AddPermissionValidation()
 						.AddGuiInteracive()
 
 						.AddScoped<IRouteListService, RouteListService>()
@@ -746,6 +743,8 @@ namespace Vodovoz
 						;
 
 					services.AddStaticHistoryTracker();
+					services.AddStaticScopeForEntity();
+					services.AddStaticServicesConfig();
 
 					services.AddPacsMassTransitNotHosted(
 						(context, rabbitCfg) =>

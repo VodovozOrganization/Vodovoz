@@ -4,17 +4,21 @@ using Gtk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
 using QS.Configuration;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.UoW;
 using QS.ErrorReporting;
+using QS.Permissions;
 using QS.Project.DB.Passwords;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Versioning;
+using QS.Services;
 using QS.Utilities.Debug;
 using QS.Utilities.Text;
 using QS.Validation;
@@ -76,8 +80,6 @@ namespace Vodovoz
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 
-			ScopeProvider.Scope = AppDIContainer;
-
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
@@ -114,6 +116,10 @@ namespace Vodovoz
 
 			LoginDialog.Destroy();
 
+			// Запрос поключения к базе, необходимо из-за того,
+			// что необходима инициализация статики при настройке подключения базы
+			AppDIContainer.Resolve<ISessionFactory>();
+
 			PerformanceHelper.StartMeasurement("Замер запуска приложения");
 			GetPermissionsSettings();
 			//Настройка базы
@@ -123,9 +129,13 @@ namespace Vodovoz
 			CreateProjectParam();
 
 			PerformanceHelper.AddTimePoint("Закончена настройка базы");
-			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
-			var settingsController = AppDIContainer.Resolve<ISettingsController>();
+			var permissionService = AppDIContainer.Resolve<IPermissionService>();
+			var userService = AppDIContainer.Resolve<IUserService>();
+
+			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
+			PermissionsSettings.PermissionService = permissionService;
+			PermissionsSettings.CurrentPermissionService = new CurrentPermissionServiceAdapter(permissionService, userService);
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
 
@@ -195,7 +205,7 @@ namespace Vodovoz
 
 			PerformanceHelper.StartPointsGroup("Главное окно");
 
-			var baseVersionChecker = new CheckBaseVersion(_applicationInfo, new ParametersService(QS.Project.DB.Connection.ConnectionDB));
+			var baseVersionChecker = new CheckBaseVersion(_applicationInfo, new ParametersService(Connection.ConnectionDB));
 			if(baseVersionChecker.Check())
 			{
 				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, baseVersionChecker.TextMessage, "Несовпадение версии");
@@ -221,6 +231,7 @@ namespace Vodovoz
 				return;
 			}
 
+			var settingsController = AppDIContainer.Resolve<ISettingsController>();
 			if(ChangePassword(applicationConfigurator) && CanLogin())
 			{
 				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, settingsController);
