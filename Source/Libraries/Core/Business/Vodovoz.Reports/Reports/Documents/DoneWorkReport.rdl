@@ -210,12 +210,12 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         </Style>
       </Textbox>
       <Textbox Name="Textbox34">
-        <Height>16.50pt</Height>
+        <Height>12.75pt</Height>
         <Width>119.51pt</Width>
         <Value>/                               /</Value>
         <ZIndex>0</ZIndex>
-        <Left>371.8pt</Left>
-        <Top>558.8pt</Top>
+        <Left>392.6pt</Left>
+        <Top>558.0pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -232,8 +232,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
         <ZIndex>0</ZIndex>
-        <Left>365.1pt</Left>
-        <Top>642.5pt</Top>
+        <Left>385.1pt</Left>
+        <Top>645.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -244,12 +244,12 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         </Style>
       </Textbox>
       <Textbox Name="Textbox36">
-        <Height>16.51pt</Height>
-        <Width>120.29pt</Width>
+        <Height>11.26pt</Height>
+        <Width>119.54pt</Width>
         <Value>/                               /</Value>
         <ZIndex>0</ZIndex>
-        <Left>371.9pt</Left>
-        <Top>626.7pt</Top>
+        <Left>391.9pt</Left>
+        <Top>631.5pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -266,7 +266,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Width>115.02pt</Width>
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
         <ZIndex>0</ZIndex>
-        <Left>364.1pt</Left>
+        <Left>384.9pt</Left>
         <Top>578.3pt</Top>
         <Style>
           <BorderStyle />
@@ -1037,7 +1037,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>486.5pt</Width>
+            <Width>386.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1094,7 +1094,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>612.2pt</Top>
+        <Top>611.4pt</Top>
       </fyi:Grid>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>101.01pt</Height>
@@ -2029,7 +2029,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
             <Default>Solid</Default>
           </BorderStyle>
         </Style>
-        <Left>372.1pt</Left>
+        <Left>392.9pt</Left>
         <Top>573.4pt</Top>
         <ZIndex>1</ZIndex>
       </Line>
@@ -2041,8 +2041,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
             <Default>Solid</Default>
           </BorderStyle>
         </Style>
-        <Left>372.8pt</Left>
-        <Top>642.1pt</Top>
+        <Left>392.8pt</Left>
+        <Top>645.3pt</Top>
         <ZIndex>1</ZIndex>
       </Line>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
