@@ -47,9 +47,9 @@ namespace Vodovoz.Cash.Transfer
 				.AddBinding(vm => vm.EmployeeAutocompleteSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarAutocompleteSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarAutocompleteSelectorFactory);
+			//entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
+			//entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			comboboxCashSubdivisionFrom.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsFrom, w => w.ItemsList).InitializeFromSource();
