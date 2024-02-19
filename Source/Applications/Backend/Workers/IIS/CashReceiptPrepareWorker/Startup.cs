@@ -65,8 +65,6 @@ namespace CashReceiptPrepareWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterModule<DatabaseSettingsModule>();
-
 			builder.RegisterType<TrueMarkRepository>()
 				.As<ITrueMarkRepository>()
 				.SingleInstance();

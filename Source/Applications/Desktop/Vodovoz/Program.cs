@@ -294,9 +294,7 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
-					builder.RegisterModule<DatabaseSettingsModule>();
 					builder.RegisterModule<CashReceiptClientChannelModule>();
-
 					
 					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
 					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
@@ -700,6 +698,7 @@ namespace Vodovoz
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
 						.AddDatabaseInfo()
+						.AddDatabaseSingletonSettings()
 						.AddCore()
 						.AddDesktop()
 						.AddGuiTrackedUoW()

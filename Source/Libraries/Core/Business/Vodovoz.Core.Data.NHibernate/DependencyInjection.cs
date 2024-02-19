@@ -4,6 +4,7 @@ using QS;
 using QS.Project.Core;
 using QS.Project.DB;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Settings.Database;
 using MySqlConnectionStringBuilder = MySqlConnector.MySqlConnectionStringBuilder;
 
 namespace Vodovoz.Core.Data.NHibernate
@@ -35,6 +36,7 @@ namespace Vodovoz.Core.Data.NHibernate
 				.AddSpatialSqlConfiguration()
 				.AddNHibernateConfiguration()
 				.AddDatabaseInfo()
+				.AddDatabaseSingletonSettings()
 				;
 
 			services.AddStaticServicesConfig();

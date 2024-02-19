@@ -90,7 +90,6 @@ namespace RoboatsService
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 
-			builder.RegisterModule<DatabaseSettingsModule>();
 			builder.RegisterModule<SmsExternalSmsRuModule>();
 			
 			builder.RegisterType<CallTaskWorker>()

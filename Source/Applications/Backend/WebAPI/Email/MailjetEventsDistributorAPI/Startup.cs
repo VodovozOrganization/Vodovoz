@@ -13,6 +13,7 @@ using NLog.Web;
 using QS.Project.Core;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
 
 namespace MailjetEventsDistributorAPI
@@ -52,6 +53,7 @@ namespace MailjetEventsDistributorAPI
 				.AddSpatialSqlConfiguration()
 				.AddNHibernateConfiguration()
 				.AddDatabaseInfo()
+				.AddDatabaseSingletonSettings()
 				.AddCore()
 				.AddTrackedUoW();
 

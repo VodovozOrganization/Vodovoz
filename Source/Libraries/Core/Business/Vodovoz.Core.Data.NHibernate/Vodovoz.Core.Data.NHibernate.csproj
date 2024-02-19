@@ -17,6 +17,7 @@
 	  <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	  <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 	  <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+	  <ProjectReference Include="..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

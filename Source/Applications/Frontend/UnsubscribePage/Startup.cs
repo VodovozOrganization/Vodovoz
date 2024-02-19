@@ -70,8 +70,6 @@ namespace UnsubscribePage
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
-			builder.RegisterModule<DatabaseSettingsModule>();
-
 			builder.RegisterType<UnsubscribeViewModelFactory>()
 				.As<IUnsubscribeViewModelFactory>()
 				.SingleInstance();

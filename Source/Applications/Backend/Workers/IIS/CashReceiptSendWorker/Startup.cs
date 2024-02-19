@@ -65,8 +65,6 @@ namespace CashReceiptSendWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterModule<DatabaseSettingsModule>();
-
 			builder.RegisterType<CashReceiptRepository>()
 				.As<ICashReceiptRepository>()
 				.InstancePerDependency();
