@@ -49,19 +49,18 @@ namespace EmailPrepareWorker.Prepares
 
 		public EmailAttachment PrepareOfferAgreementDocument(CounterpartyContract contract, string connectionString)
 		{
-			using(var fileWorker = new FileWorker())
+			using var fileWorker = new FileWorker();
+
+			var renderedFilePath = fileWorker.PrepareToExportODT(contract.DocumentTemplate, FileEditMode.Document);
+
+			var content = Convert.ToBase64String(File.ReadAllBytes(renderedFilePath));
+
+			return new EmailAttachment
 			{
-				var renderedFilePath = fileWorker.PrepareToExportODT(contract.DocumentTemplate, FileEditMode.Document);
-
-				var content = Convert.ToBase64String(File.ReadAllBytes(renderedFilePath));
-
-				return new EmailAttachment
-				{
-					Filename = "Договор оферты.odt",
-					ContentType = "application/vnd.oasis.opendocument.text",
-					Base64Content = content
-				};
-			}
+				Filename = "Договор оферты.odt",
+				ContentType = "application/vnd.oasis.opendocument.text",
+				Base64Content = content
+			};
 		}
 	}
 }
