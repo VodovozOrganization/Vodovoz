@@ -245,8 +245,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <Format>#,##0.00</Format>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>=Sum({cashless_payed_for_fuel}, "Data")</Value>
                     </Textbox>
@@ -362,7 +362,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CASE
@@ -427,7 +427,7 @@ HAVING COUNT(fwdi.id) &gt; 0
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="car_type">
           <DataField>car_type</DataField>
           <TypeName>System.String</TypeName>
@@ -449,8 +449,11 @@ HAVING COUNT(fwdi.id) &gt; 0
     <DataSet Name="fuel_types">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT ft.name, ft.cost
-FROM fuel_types ft </CommandText>
+        <CommandText>SELECT ft.name, fpv.fuel_price as cost
+FROM fuel_types ft
+LEFT JOIN fuel_price_version fpv ON fpv.fuel_type_id = ft.id
+WHERE fpv.start_date &lt;= NOW()  and (fpv.end_date &gt; NOW() OR fpv.end_date IS NULL)
+;</CommandText>
       </Query>
       <Fields>
         <Field Name="name">
@@ -475,7 +478,7 @@ FROM fuel_types ft </CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
