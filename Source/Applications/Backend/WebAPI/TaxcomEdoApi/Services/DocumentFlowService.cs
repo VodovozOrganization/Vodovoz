@@ -114,11 +114,11 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					
 					await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
 					await ProcessOutgoingDocuments(uow);
-					await ProcessIngoingDocuments(uow);
+					// Пока не требуется обработка и хранение входящих документов, будет дорабатываться позже
+					// await ProcessIngoingDocuments(uow);
 				}
 			}
 		}
