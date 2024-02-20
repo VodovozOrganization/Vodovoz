@@ -21,9 +21,5 @@ namespace EventsApi.Library.Dtos
 		/// Фамилия и инициалы сотрудника, завершившего событие
 		/// </summary>
 		public string EmployeeName { get; set; }
-		/// <summary>
-		/// Расстояние от места сканирования (м
-		/// </summary>
-		public virtual decimal DistanceMetersFromScanningLocation { get; set; }
 	}
 }

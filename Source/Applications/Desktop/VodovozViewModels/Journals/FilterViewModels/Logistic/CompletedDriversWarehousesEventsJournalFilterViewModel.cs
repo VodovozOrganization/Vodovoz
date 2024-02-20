@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DateTime? _endDate = DateTime.Today;
 		private bool _orderByEventDateDesc = true;
 		private Car _car;
-		private ComparisonSings _distanceCriterion;
+		private ComparisonSings _distanceCriterion = ComparisonSings.LessOrEqual;
 
 		public CompletedDriversWarehousesEventsJournalFilterViewModel(
 			DialogViewModelBase journalViewModel,
