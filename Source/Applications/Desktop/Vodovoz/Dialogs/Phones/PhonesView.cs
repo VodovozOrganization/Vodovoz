@@ -232,6 +232,8 @@ namespace Vodovoz.Dialogs.Phones
 				child.Destroy();
 				vboxPhones.Remove(child);
 			}
+			
+			ViewModel.Dispose();
 
 			foreach(var phone in ViewModel.PhonesList)
 			{
