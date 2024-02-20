@@ -60,7 +60,8 @@ namespace EmailPrepareWorker.Prepares
 		{
 			using var fileWorker = new FileWorker();
 
-			if(!contract.UpdateContractTemplate(unitOfWork, _docTemplateRepository))
+			if(contract.DocumentTemplate is null
+				&& !contract.UpdateContractTemplate(unitOfWork, _docTemplateRepository))
 			{
 				return null;
 			}

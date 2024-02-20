@@ -1,4 +1,4 @@
-using EmailPrepareWorker.Prepares;
+﻿using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,7 +7,9 @@ using RabbitMQ.Client;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
@@ -65,7 +67,7 @@ namespace EmailPrepareWorker
 
 			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
 
-			_logger.LogInformation("Запущено сборка от {BuildDate}",
+			_logger.LogInformation("Запущена сборка от {BuildDate}",
 				new DateTime(2000, 1, 1)
 					.AddDays(assemblyVersion.Build)
 					.AddSeconds(assemblyVersion.Revision * 2));
@@ -162,10 +164,14 @@ namespace EmailPrepareWorker
 							}
 					}
 
-					var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
-
 					var properties = _channel.CreateBasicProperties();
 					properties.Persistent = true;
+
+					var message = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
+					var serializedMessage = JsonSerializer.Serialize(message);
+					var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+
+					_logger.LogInformation("Подготовлено {AttachmentsCount} вложений", message.Attachments.Count);
 
 					_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
 
