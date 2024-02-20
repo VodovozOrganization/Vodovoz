@@ -75,8 +75,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			RouteListStatus.New,
 			RouteListStatus.InLoading,
-			RouteListStatus.EnRoute,
-			RouteListStatus.OnClosing
+			RouteListStatus.EnRoute
 		};
 
 		private const int _defaultTargetRouteListStartDateOffsetDays = -3;
