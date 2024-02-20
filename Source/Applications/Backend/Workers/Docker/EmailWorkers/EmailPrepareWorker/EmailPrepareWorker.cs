@@ -63,6 +63,13 @@ namespace EmailPrepareWorker
 
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
+			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
+
+			_logger.LogInformation("Запущено сборка от {BuildDate}",
+				new DateTime(2000, 1, 1)
+					.AddDays(assemblyVersion.Build)
+					.AddSeconds(assemblyVersion.Revision * 2));
+
 			_emailSendKey = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendKeyParameter);
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
