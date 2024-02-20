@@ -19,6 +19,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DateTime? _endDate = DateTime.Today;
 		private bool _orderByEventDateDesc = true;
 		private Car _car;
+		private ComparisonSings _distanceCriterion;
 
 		public CompletedDriversWarehousesEventsJournalFilterViewModel(
 			DialogViewModelBase journalViewModel,
@@ -114,6 +116,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _orderByEventDateDesc;
 			set => UpdateFilterField(ref _orderByEventDateDesc, value);
+		}
+
+		public ComparisonSings DistanceCriterion
+		{
+			get => _distanceCriterion;
+			set => UpdateFilterField(ref _distanceCriterion, value);
 		}
 
 		public IEnumerable<int> GetSelectedDrivers()
