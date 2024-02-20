@@ -21,6 +21,9 @@ namespace Vodovoz.Domain.Permissions
 		private IList<PrivilegeBase> _privileges = new List<PrivilegeBase>();
 		private GenericObservableList<PrivilegeBase> _observablePrivileges;
 		private GenericObservableList<AvailableDatabase> _observableAvailableDatabases;
+
+		public static string UserRoleName = "USER";
+		public static string UserFinancierRoleName = "USER_FINANCIER";
 		
 		public virtual int Id { get; set; }
 
