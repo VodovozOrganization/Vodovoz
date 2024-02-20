@@ -30,6 +30,17 @@ namespace Vodovoz.Presentation.WebApi.Common
 			return MapErrors(httpContext.Request.Path, result.Errors, statusCode);
 		}
 
+		protected IActionResult MapResult<TValue>(HttpContext httpContext, Result<TValue> result, int? statusCode = null)
+		{
+			if(result.IsSuccess)
+			{
+				httpContext.Response.StatusCode = statusCode ?? StatusCodes.Status200OK;
+				return new ObjectResult(result.Value);
+			}
+
+			return MapErrors(httpContext.Request.Path, result.Errors, statusCode);
+		}
+
 		private IActionResult MapErrors(
 			string instance,
 			IEnumerable<Error> errors,
