@@ -83,8 +83,6 @@ namespace Vodovoz.Dialogs
 
 		public bool Save(bool needClose = true, bool forceSave = false)
 		{
-			UoW.Session.Refresh(undelivery.OldOrder);
-
 			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelationWithCancellation().Contains(undelivery.OldOrder.OrderStatus);
 			var isSelfDeliveryOnLoadingOrder = order.SelfDelivery && undelivery.OldOrder.OrderStatus == OrderStatus.OnLoading;
 

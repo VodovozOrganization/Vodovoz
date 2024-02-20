@@ -19,6 +19,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -45,6 +47,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
@@ -357,18 +360,10 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
-			if(_routeListItem.Order.PaymentType == PaymentType.PaidOnline)
-			{
-				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
-					.Where(
-						p => !p.IsArchive
-						|| _routeListItem.Order.PaymentByCardFrom.Id == p.Id
-				).List();
-			}
-			else
-			{
-				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
-			}
+			ySpecPaymentFrom.ItemsList =
+				_routeListItem.Order.PaymentType == PaymentType.PaidOnline
+					? GetActivePaymentFromWithSelected(_routeListItem.Order.PaymentByCardFrom)
+					: UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
 
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
@@ -400,6 +395,18 @@ namespace Vodovoz
 
 			OnlineOrderVisible();
 			OnClientEntryViewModelChanged(null, null);
+		}
+		
+		private IEnumerable<PaymentFrom> GetActivePaymentFromWithSelected(IDomainObject selectedPaymentFrom)
+		{
+			var selectedPaymentFromId = selectedPaymentFrom?.Id ?? 0; 
+			PaymentFrom paymentFromAlias = null;
+			
+			return UoW.Session.QueryOver(() => paymentFromAlias)
+				.Where(Restrictions.Or(
+					Restrictions.WhereNot(() => paymentFromAlias.IsArchive),
+					Restrictions.IdEq(selectedPaymentFromId)))
+				.List();
 		}
 
 		private void OnSpinActualCountEdited(object o, EditedArgs args)
