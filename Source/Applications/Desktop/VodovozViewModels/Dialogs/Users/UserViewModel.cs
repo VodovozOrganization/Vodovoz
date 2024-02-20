@@ -383,10 +383,22 @@ namespace Vodovoz.ViewModels
 		{
 			try
 			{
-				if(_oldCurrentUserRole != Entity.CurrentUserRole)
+				if(_oldCurrentUserRole == Entity.CurrentUserRole)
 				{
-					_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
+					return;
 				}
+
+				if(Entity.CurrentUserRole.Name != UserRole.UserRoleName
+					&& Entity.CurrentUserRole.Name != UserRole.UserFinancierRoleName)
+				{
+					_userRoleRepository.GrantRoleToUser(UoW, UserRole.UserRoleName, Entity.Login, true);
+				}
+				else
+				{
+					_userRoleRepository.RevokeRoleFromUser(UoW, UserRole.UserRoleName, Entity.Login);
+					_userRoleRepository.GrantRoleToUser(UoW, UserRole.UserRoleName, Entity.Login);
+				}
+				_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
 			}
 			catch(Exception e)
 			{
