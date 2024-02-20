@@ -1,4 +1,5 @@
 ﻿using fyiReporting.RDL;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSDocTemplates;
 using RdlEngine;
@@ -7,12 +8,20 @@ using System.IO;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories.Counterparties;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.Prepares
 {
 	public class EmailDocumentPreparer : IEmailDocumentPreparer
 	{
+		private readonly IDocTemplateRepository _docTemplateRepository;
+
+		public EmailDocumentPreparer(IDocTemplateRepository docTemplateRepository)
+		{
+			_docTemplateRepository = docTemplateRepository ?? throw new ArgumentNullException(nameof(docTemplateRepository));
+		}
+
 		public EmailAttachment PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType, string connectionString)
 		{
 			bool wasHideSignature;
@@ -47,9 +56,14 @@ namespace EmailPrepareWorker.Prepares
 			};
 		}
 
-		public EmailAttachment PrepareOfferAgreementDocument(CounterpartyContract contract, string connectionString)
+		public EmailAttachment PrepareOfferAgreementDocument(IUnitOfWork unitOfWork, CounterpartyContract contract, string connectionString)
 		{
 			using var fileWorker = new FileWorker();
+
+			if(!contract.UpdateContractTemplate(unitOfWork, _docTemplateRepository))
+			{
+				return null;
+			}
 
 			var renderedFilePath = fileWorker.PrepareToExportODT(contract.DocumentTemplate, FileEditMode.Document);
 

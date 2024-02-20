@@ -1,5 +1,6 @@
 ﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
@@ -10,16 +11,20 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class UpdSendEmailMessageBuilder : SendEmailMessageBuilder
 	{
-		private readonly IEmailSettings _emailSettings;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 
-		public UpdSendEmailMessageBuilder(IEmailSettings emailSettings,
-			IEmailDocumentPreparer emailDocumentPreparer, CounterpartyEmail counterpartyEmail, int instanceId) 
+		public UpdSendEmailMessageBuilder(
+			IEmailSettings emailSettings,
+			IUnitOfWork unitOfWork,
+			IEmailDocumentPreparer emailDocumentPreparer,
+			CounterpartyEmail counterpartyEmail,
+			int instanceId) 
 			: base(emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
 		{
-			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			_emailDocumentPreparer = emailDocumentPreparer;
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 		}
 
@@ -43,9 +48,12 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
-			if(document.Order.IsFirstOrder && _counterpartyEmail.Type == CounterpartyEmailType.UpdDocument)
+			if(document.Order.IsFirstOrder
+				&& _counterpartyEmail.Type == CounterpartyEmailType.UpdDocument
+				&& _emailDocumentPreparer
+					.PrepareOfferAgreementDocument(_unitOfWork, document.Order.Contract, connectionString) is EmailAttachment additionalAgreement)
 			{
-				attachments.Add(_emailDocumentPreparer.PrepareOfferAgreementDocument(document.Order.Contract, connectionString));
+				attachments.Add(additionalAgreement);
 			}
 
 			_sendEmailMessage.Attachments = attachments;

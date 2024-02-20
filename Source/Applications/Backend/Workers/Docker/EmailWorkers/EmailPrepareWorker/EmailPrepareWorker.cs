@@ -1,4 +1,4 @@
-using EmailPrepareWorker.Prepares;
+﻿using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 
 namespace EmailPrepareWorker
@@ -27,7 +27,7 @@ namespace EmailPrepareWorker
 		private readonly string _emailSendExchange;
 
 		private readonly ILogger<EmailPrepareWorker> _logger;
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailSettings _emailSettings;
@@ -40,7 +40,7 @@ namespace EmailPrepareWorker
 
 		public EmailPrepareWorker(
 			ILogger<EmailPrepareWorker> logger,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IConfiguration configuration,
 			IModel channel,
 			IEmailRepository emailRepository,
@@ -54,7 +54,7 @@ namespace EmailPrepareWorker
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
@@ -68,10 +68,10 @@ namespace EmailPrepareWorker
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendExchangeParameter);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
-			
+
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Email prepare worker"))
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
 			{
 				_instanceId = Convert.ToInt32(unitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -110,64 +110,65 @@ namespace EmailPrepareWorker
 		{
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
+			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Document prepare worker");
+
+			var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
+
+			foreach(var counterpartyEmail in emailsToSend)
 			{
-				using(var unitOfWork = _uowFactory.CreateWithoutRoot("Document prepare worker"))
+				try
 				{
-					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
+					_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
 
-				foreach(var counterpartyEmail in emailsToSend)
-				{
-					try
+					if(counterpartyEmail.EmailableDocument == null)
 					{
-						_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
-
-						if(counterpartyEmail.EmailableDocument == null)
-						{
-							counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
-							counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
-							unitOfWork.Save(counterpartyEmail.StoredEmail);
-							unitOfWork.Commit();
-
-							continue;
-						}
-
-						switch(counterpartyEmail.Type)
-						{
-							case CounterpartyEmailType.BillDocument:
-							case CounterpartyEmailType.OrderWithoutShipmentForPayment:
-							case CounterpartyEmailType.OrderWithoutShipmentForDebt:
-							case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
-								{
-										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailSettings,
-											_emailDocumentPreparer, counterpartyEmail, _instanceId);
-
-									break;
-								}
-							case CounterpartyEmailType.UpdDocument:
-								{
-									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailSettings,
-										_emailDocumentPreparer, counterpartyEmail, _instanceId);
-
-									break;
-								}
-						}
-
-						var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
-
-						var properties = _channel.CreateBasicProperties();
-						properties.Persistent = true;
-
-						_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
-
-						counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+						counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
+						counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
 						unitOfWork.Save(counterpartyEmail.StoredEmail);
 						unitOfWork.Commit();
+
+						continue;
 					}
-					catch(Exception ex)
+
+					switch(counterpartyEmail.Type)
 					{
-						_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
+						case CounterpartyEmailType.BillDocument:
+						case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+						case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+						case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
+							{
+								emailSendMessageBuilder = new SendEmailMessageBuilder(_emailSettings,
+									_emailDocumentPreparer, counterpartyEmail, _instanceId);
+
+								break;
+							}
+						case CounterpartyEmailType.UpdDocument:
+							{
+								emailSendMessageBuilder = new UpdSendEmailMessageBuilder(
+									_emailSettings,
+									unitOfWork, 
+									_emailDocumentPreparer,
+									counterpartyEmail,
+									_instanceId);
+
+								break;
+							}
 					}
+
+					var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
+
+					var properties = _channel.CreateBasicProperties();
+					properties.Persistent = true;
+
+					_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+
+					counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+					unitOfWork.Save(counterpartyEmail.StoredEmail);
+					unitOfWork.Commit();
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
 				}
 			}
 

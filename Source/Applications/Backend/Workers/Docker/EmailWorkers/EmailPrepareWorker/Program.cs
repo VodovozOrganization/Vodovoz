@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using EmailPrepareWorker.Prepares;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +12,7 @@ using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
@@ -62,17 +63,20 @@ namespace EmailPrepareWorker
 						typeof(EmployeeWithLoginMap).Assembly,
 						typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 					);
+
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-					services.AddSingleton<ISettingsController, SettingsController>();
-					services.AddSingleton<IEmailSettings, EmailSettings>();
-					services.AddSingleton<IEmailRepository, EmailRepository>();
-					services.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>();
-					services.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
+					services.AddSingleton<ISettingsController, SettingsController>()
+						.AddSingleton<IEmailSettings, EmailSettings>()
+						.AddSingleton<ISettingsController, SettingsController>()
+						.AddSingleton<IEmailRepository, EmailRepository>()
+						.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>()
+						.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
+						.AddSingleton<IDocTemplateRepository, DocTemplateRepository>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});
