@@ -1,4 +1,4 @@
-﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using RabbitMQ.MailSending;
 using System;
@@ -92,10 +92,18 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 			_sendEmailMessage.InlinedAttachments = inlinedAttachments;
 
-			var attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>
+			var attachments = new List<EmailAttachment>
 			{
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
+
+			if(document.Order.IsFirstOrder
+				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument
+				&& _emailDocumentPreparer
+					.PrepareOfferAgreementDocument(_unitOfWork, document.Order.Contract, connectionString) is EmailAttachment additionalAgreement)
+			{
+				attachments.Add(additionalAgreement);
+			}
 
 			_sendEmailMessage.Attachments = attachments;
 

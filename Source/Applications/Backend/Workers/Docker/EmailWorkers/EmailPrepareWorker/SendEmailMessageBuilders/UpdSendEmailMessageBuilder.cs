@@ -1,4 +1,4 @@
-﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using System;
@@ -47,14 +47,6 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			{
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
-
-			if(document.Order.IsFirstOrder
-				&& _counterpartyEmail.Type == CounterpartyEmailType.UpdDocument
-				&& _emailDocumentPreparer
-					.PrepareOfferAgreementDocument(_unitOfWork, document.Order.Contract, connectionString) is EmailAttachment additionalAgreement)
-			{
-				attachments.Add(additionalAgreement);
-			}
 
 			_sendEmailMessage.Attachments = attachments;
 
