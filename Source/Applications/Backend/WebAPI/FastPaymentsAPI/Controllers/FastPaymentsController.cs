@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
-using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Notifications;

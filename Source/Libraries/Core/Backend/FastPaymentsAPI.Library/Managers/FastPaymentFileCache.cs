@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using FastPaymentsAPI.Library.DTO_s;
 using Newtonsoft.Json;
+using FastPaymentsApi.Contracts;
 
 namespace FastPaymentsAPI.Library.Managers
 {
