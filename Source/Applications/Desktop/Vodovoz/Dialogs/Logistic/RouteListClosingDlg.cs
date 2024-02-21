@@ -60,6 +60,10 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Domain.Orders;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -226,9 +230,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-			//entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			//entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			entityentryCar.ViewModel = BuildCarEntryViewModel();
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -383,6 +385,22 @@ namespace Vodovoz
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
 		}
 
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Car)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.UseViewModelDialog<CarViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
 		{
 			if(Entity.Id > 0)
@@ -448,7 +466,7 @@ namespace Vodovoz
 				evmeLogistician.Sensitive = false;
 				evmeDriver.Sensitive = false;
 				evmeForwarder.Sensitive = false;
-				//entityviewmodelentryCar.Sensitive = false;
+				entityentryCar.Sensitive = false;
 				datePickerDate.Sensitive = false;
 				hbox11.Sensitive = false;
 				routelistdiscrepancyview.Sensitive = false;
@@ -466,7 +484,7 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			//entityviewmodelentryCar.Sensitive = _canEdit;
+			entityentryCar.Sensitive = _canEdit;
 			evmeDriver.Sensitive = _canEdit;
 			evmeForwarder.Sensitive = _canEdit;
 			evmeLogistician.Sensitive = _canEdit;
