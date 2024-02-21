@@ -1,5 +1,4 @@
-﻿using DriverAPI.DTOs.V4;
-using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
