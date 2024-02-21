@@ -6,16 +6,14 @@ using QS.Project.Search.GtkUI;
 using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.ViewModels;
+using QS.ViewModels.Dialog;
 using QS.Views;
 using QS.Views.Dialog;
 using QS.Views.GtkUI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core;
-using Vodovoz.ViewModels.Permissions;
-using Vodovoz.ViewModels.ViewModels.Settings;
-using Vodovoz.Views.Settings;
-using Vodovoz.ViewWidgets.Permissions;
 
 namespace Vodovoz.Commons
 {
@@ -23,6 +21,7 @@ namespace Vodovoz.Commons
 	{
 		private readonly ILogger<ViewModelWidgetsRegistrar> _logger;
 		private readonly ViewModelWidgetResolver _viewModelWidgetResolver;
+		private readonly List<Type> _viewModelsTypesList;
 
 		public ViewModelWidgetsRegistrar(
 			ILogger<ViewModelWidgetsRegistrar> logger,
@@ -32,6 +31,8 @@ namespace Vodovoz.Commons
 				?? throw new ArgumentNullException(nameof(logger));
 			_viewModelWidgetResolver = viewModelWidgetResolver
 				?? throw new ArgumentNullException(nameof(viewModelWidgetResolver));
+
+			_viewModelsTypesList = GetViewModels();
 		}
 
 		public void RegisterateWidgets()
@@ -39,10 +40,7 @@ namespace Vodovoz.Commons
 			ViewModelWidgetResolver.Instance = _viewModelWidgetResolver;
 
 			_viewModelWidgetResolver.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
-				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>()
-				.RegisterWidgetForWidgetViewModel<PresetUserPermissionsViewModel, PresetPermissionsView>()
-				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
-				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>();
+				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>();
 
 			typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes()
 				.Where(x => x.BaseType != null
@@ -77,9 +75,27 @@ namespace Vodovoz.Commons
 				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
 				.ForEach(keyValue =>
 				{
-					_viewModelWidgetResolver.RegisterWidgetForWidgetViewModel(keyValue.Value, keyValue.Key);
-					_logger.LogInformation("Зарегистрирована {ViewModel} для {Widget}", keyValue.Value, keyValue.Key);
+					var viewModelsForCurrentView = _viewModelsTypesList.Where(type => keyValue.Value.IsAssignableFrom(type)).ToList();
+
+					foreach(var viewModel in viewModelsForCurrentView)
+					{
+						_viewModelWidgetResolver.RegisterWidgetForWidgetViewModel(viewModel, keyValue.Key);
+						_logger.LogInformation("Зарегистрирована {ViewModel} для {Widget}", viewModel, keyValue.Key);
+					}
 				});
+		}
+
+		private List<Type> GetViewModels()
+		{
+			return typeof(VodovozViewModelAssemblyFinder).Assembly.GetTypes()
+				.Concat(typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes())
+				.Concat(typeof(Vodovoz.Presentation.ViewModels.AssemblyFinder).Assembly.GetTypes())
+				.Where(type => type.IsClass
+					&& !type.IsAbstract
+					&& (typeof(ViewModelBase).IsAssignableFrom(type)
+					 || typeof(ReportParametersViewModelBase).IsAssignableFrom(type)
+					 || typeof(WindowDialogViewModelBase).IsAssignableFrom(type)))
+				.ToList();
 		}
 	}
 }
