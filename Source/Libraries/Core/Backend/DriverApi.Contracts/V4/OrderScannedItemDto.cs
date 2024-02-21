@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Models.TrueMark;
 
-namespace DriverAPI.DTOs.V4
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Отсканированные товары

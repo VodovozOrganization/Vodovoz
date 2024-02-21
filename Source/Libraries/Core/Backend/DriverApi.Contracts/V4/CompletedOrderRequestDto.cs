@@ -1,10 +1,8 @@
-﻿using DriverAPI.Library.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Models.TrueMark;
 
-namespace DriverAPI.DTOs.V4
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Запрос на завершение заказа

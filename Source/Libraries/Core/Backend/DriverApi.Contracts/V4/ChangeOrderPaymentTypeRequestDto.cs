@@ -1,8 +1,7 @@
-﻿using DriverAPI.Library.DTOs;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverAPI.DTOs.V4
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Запрос на изменения типа оплаты

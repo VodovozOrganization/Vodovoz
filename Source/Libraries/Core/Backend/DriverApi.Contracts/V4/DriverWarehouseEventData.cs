@@ -1,4 +1,4 @@
-﻿namespace EventsApi.Library.Dtos
+﻿namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Информация о событии и координатами сканирования

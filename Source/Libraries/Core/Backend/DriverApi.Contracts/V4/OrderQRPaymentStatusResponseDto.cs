@@ -1,7 +1,6 @@
-﻿using DriverAPI.Library.DTOs;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace DriverAPI.DTOs.V4
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Ответ сервера о статусе платежа по QR-коду

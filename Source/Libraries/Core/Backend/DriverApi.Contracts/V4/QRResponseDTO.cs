@@ -1,7 +1,4 @@
-﻿using System;
-using Vodovoz.Domain.FastPayments;
-
-namespace DriverAPI.Library.DTOs
+﻿namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Ответ FastPaymentApi

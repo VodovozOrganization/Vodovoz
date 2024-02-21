@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace EventsApi.Library.Dtos
+namespace DriverApi.Contracts.V4
 {
 	public class DriverWarehouseEventQrData : IValidatableObject
 	{
@@ -12,7 +12,7 @@ namespace EventsApi.Library.Dtos
 
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(EventId == default(int))
+			if(EventId == default)
 			{
 				yield return new ValidationResult("Id события не может быть равным нулю");
 			}

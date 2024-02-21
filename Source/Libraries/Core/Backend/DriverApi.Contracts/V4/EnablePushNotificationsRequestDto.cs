@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DriverAPI.DTOs.V4
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Запрос на подписку на PUSH-сообщения

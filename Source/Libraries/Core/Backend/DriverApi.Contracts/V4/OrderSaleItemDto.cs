@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.Library.DTOs
+﻿namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Товар на продажу
@@ -63,6 +63,6 @@
 		/// <summary>
 		/// Скидка
 		/// </summary>
-		public decimal Discount { get;set; }
+		public decimal Discount { get; set; }
 	}
 }

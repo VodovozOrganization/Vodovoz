@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Дополнительная информация по заказу

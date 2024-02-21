@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Статус оплаты по QR-коду

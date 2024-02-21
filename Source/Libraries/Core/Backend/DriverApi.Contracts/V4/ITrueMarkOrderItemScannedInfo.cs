@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Vodovoz.Models.TrueMark
+namespace DriverApi.Contracts.V4
 {
 	public interface ITrueMarkOrderItemScannedInfo
 	{

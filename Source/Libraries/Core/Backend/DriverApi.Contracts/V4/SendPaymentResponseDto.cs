@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.Library.DTOs
+﻿namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Ответ на попытку отправить смс для оплаты

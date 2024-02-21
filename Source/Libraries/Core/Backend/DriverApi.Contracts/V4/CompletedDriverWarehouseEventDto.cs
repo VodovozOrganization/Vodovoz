@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Text.Json.Serialization;
-using EventsApi.Library.Converters;
 
-namespace EventsApi.Library.Dtos
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Даннные о завершеном событии

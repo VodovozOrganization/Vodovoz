@@ -1,8 +1,7 @@
-﻿using DriverAPI.Library.DTOs;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverAPI.DTOs.V4
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Запрос на регистрацию координат трека

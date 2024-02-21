@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.DTOs.V4
+﻿namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Запрос на регистрацию пользователя
@@ -14,7 +14,7 @@
 		/// Пароль пользователя
 		/// </summary>
 		public string Password { get; set; }
-		
+
 		/// <summary>
 		/// Роль пользователя
 		/// </summary>

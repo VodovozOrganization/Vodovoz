@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverApi.Contracts.V4
 {
 	/// <summary>
 	/// Действие в мобильном приложении водителей

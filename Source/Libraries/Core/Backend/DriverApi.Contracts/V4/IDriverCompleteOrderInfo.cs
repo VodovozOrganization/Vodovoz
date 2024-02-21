@@ -1,6 +1,4 @@
-﻿using Vodovoz.Models.TrueMark;
-
-namespace DriverApi.Contracts.V4
+﻿namespace DriverApi.Contracts.V4
 {
 	public interface IDriverOrderShipmentInfo : ITrueMarkOrderScannedInfo
 	{
