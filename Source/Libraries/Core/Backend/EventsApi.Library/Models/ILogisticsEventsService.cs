@@ -22,7 +22,8 @@ namespace EventsApi.Library.Models
 		CompletedDriverWarehouseEventProxy CompleteDriverWarehouseEvent(
 			DriverWarehouseEventQrData qrData,
 			DriverWarehouseEventData eventData,
-			EmployeeWithLogin employee);
+			EmployeeWithLogin employee,
+			out int distanceMetersFromScanningLocation);
 
 		/// <summary>
 		/// Получение списка завершенных событий за текущий день для сотрудника

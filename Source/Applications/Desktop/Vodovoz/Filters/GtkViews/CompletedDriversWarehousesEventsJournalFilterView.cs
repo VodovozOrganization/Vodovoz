@@ -6,6 +6,7 @@ using Gtk;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using QS.Widgets.GtkUI;
 using Vodovoz.ReportsParameters;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -52,6 +53,12 @@ namespace Vodovoz.Filters.GtkViews
 			
 			chkOrderByEventDateDesc.Binding
 				.AddBinding(ViewModel, vm => vm.OrderByEventDateDesc, w => w.Active)
+				.InitializeFromSource();
+
+			enumCmbDistanceCriterion.ItemsEnum = typeof(ComparisonSings);
+			enumCmbDistanceCriterion.AddEnumToHideList(ComparisonSings.Equally, ComparisonSings.Less, ComparisonSings.More);
+			enumCmbDistanceCriterion.Binding
+				.AddBinding(ViewModel, vm => vm.DistanceCriterion, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			CreateSelectableFilter();
