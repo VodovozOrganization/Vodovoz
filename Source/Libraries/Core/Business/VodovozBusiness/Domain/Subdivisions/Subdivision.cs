@@ -42,8 +42,6 @@ namespace Vodovoz
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
-
 		[Display(Name = "Название подразделения")]
 		[Required(ErrorMessage = "Название подразделения должно быть заполнено.")]
 		public virtual string Name
