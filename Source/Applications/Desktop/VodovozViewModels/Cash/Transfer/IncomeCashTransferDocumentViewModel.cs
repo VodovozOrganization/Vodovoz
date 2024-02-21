@@ -17,6 +17,7 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Settings.Cash;
@@ -178,6 +179,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 					{
 					})
 				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
 
 			return viewModel;
 		}
