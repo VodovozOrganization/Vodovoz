@@ -68,11 +68,12 @@ namespace DriverAPI.Controllers.V4
 			
 			try
 			{
-				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(qrData, eventData, driver);
+				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(
+					qrData, eventData, driver, out var distanceMetersFromScanningLocation);
 				
 				if(completedEvent is null)
 				{
-					return Problem("Слишком большое расстояние от Qr кода", statusCode: 550);
+					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: 550);
 				}
 				
 				return Ok(
@@ -80,8 +81,7 @@ namespace DriverAPI.Controllers.V4
 					{
 						EventName = completedEvent.DriverWarehouseEvent.EventName,
 						CompletedDate = completedEvent.CompletedDate,
-						EmployeeName = completedEvent.Employee.ShortName,
-						DistanceMetersFromScanningLocation = completedEvent.DistanceMetersFromScanningLocation ?? 0m
+						EmployeeName = completedEvent.Employee.ShortName
 					});
 			}
 			catch(Exception e)
