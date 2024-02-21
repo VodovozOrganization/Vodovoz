@@ -79,6 +79,7 @@ namespace Vodovoz
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
+			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;

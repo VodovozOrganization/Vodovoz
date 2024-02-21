@@ -275,6 +275,8 @@ namespace Vodovoz
 						.As<IGtkViewResolver>()
 						.SingleInstance();
 
+					builder.RegisterType<RouteListDailyNumberProvider>()
+						.As<IRouteListDailyNumberProvider>();
 					builder.RegisterType<TrueMarkCodesPool>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
@@ -371,7 +373,6 @@ namespace Vodovoz
 					builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 					builder.RegisterType<FileDialogService>().As<IFileDialogService>();
 					builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
-					builder.RegisterType<ObjectValidator>().As<IValidator>().AsSelf();
 					builder.RegisterType<WarehousePermissionService>().As<IWarehousePermissionService>().AsSelf();
 					builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
 					builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();

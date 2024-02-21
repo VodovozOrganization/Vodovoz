@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.DB;
@@ -81,6 +82,7 @@ namespace CustomerAppsApi
 				.AddCore()
 				.AddTrackedUoW()
 
+				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IEmailRepository, EmailRepository>()
 				.AddSingleton<ISettingsController, SettingsController>()

@@ -20,8 +20,6 @@ namespace MailjetEventsDistributorAPI
 {
 	public class Startup
 	{
-		private ILogger<Startup> _logger;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -37,10 +35,8 @@ namespace MailjetEventsDistributorAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
-
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-			logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
 			services.AddMappingAssemblies()
 				.AddSingleton<MySqlConnectionStringBuilder>((provider) => {
