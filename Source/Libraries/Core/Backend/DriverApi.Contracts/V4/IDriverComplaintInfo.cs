@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.Library.Models
+﻿namespace DriverApi.Contracts.V4
 {
 	public interface IDriverComplaintInfo
 	{
