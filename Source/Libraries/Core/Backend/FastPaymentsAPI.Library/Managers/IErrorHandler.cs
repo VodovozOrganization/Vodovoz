@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.Library.DTO_s.Responses;
+﻿using FastPaymentsApi.Contracts.Responses;
 using Microsoft.Extensions.Logging;
 
 namespace FastPaymentsAPI.Library.Managers
