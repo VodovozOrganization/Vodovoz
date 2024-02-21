@@ -1,11 +1,10 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI.Library.Models
 {

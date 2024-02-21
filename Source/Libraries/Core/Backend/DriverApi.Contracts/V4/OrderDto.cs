@@ -81,7 +81,7 @@ namespace DriverApi.Contracts.V4
 		/// <summary>
 		/// Бесконтактная доставка
 		/// </summary>
-		public bool ContactlessDelivery { get; internal set; }
+		public bool ContactlessDelivery { get; set; }
 
 		/// <summary>
 		/// Врмемя добавления в маршрутный лист
@@ -121,7 +121,7 @@ namespace DriverApi.Contracts.V4
 		/// <summary>
 		/// Отзвон за
 		/// </summary>
-		public int? CallBeforeArrivalMinutes { get; internal set; }
+		public int? CallBeforeArrivalMinutes { get; set; }
 
 		/// <summary>
 		/// Ожидание до

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using EventsApi.Library.Dtos;
+﻿using DriverApi.Contracts.V4;
 using EventsApi.Library.Services;
 using GMap.NET;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.Interfaces.Logistics.Cars;

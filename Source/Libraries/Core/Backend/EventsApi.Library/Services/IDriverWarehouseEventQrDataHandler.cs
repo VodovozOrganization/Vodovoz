@@ -1,4 +1,4 @@
-﻿using EventsApi.Library.Dtos;
+﻿using DriverApi.Contracts.V4;
 
 namespace EventsApi.Library.Services
 {
