@@ -1,11 +1,11 @@
-﻿using DriverAPI.DTOs.V4;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using DriverApi.Contracts.V4;
 
 namespace DriverAPI.Controllers.V4
 {

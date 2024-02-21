@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventsApi.Library.Dtos;
+using DriverApi.Contracts.V4;
 using EventsApi.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
