@@ -11,6 +11,10 @@ using QS.Views.Dialog;
 using QS.Views.GtkUI;
 using System.Linq;
 using Vodovoz.Core;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.Views.Settings;
+using Vodovoz.ViewWidgets.Permissions;
 
 namespace Vodovoz.Extensions
 {
@@ -21,13 +25,17 @@ namespace Vodovoz.Extensions
 			ViewModelWidgetResolver.Instance = widgetResolver;
 
 			widgetResolver.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
-				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>();
+				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>()
+				.RegisterWidgetForWidgetViewModel<PresetUserPermissionsViewModel, PresetPermissionsView>()
+				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
+				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>();
 
 			typeof(WidgetResolverExtensions).Assembly.GetTypes()
 				.Where(x => x.BaseType != null
 					&& x.BaseType.IsGenericType
 					&& (x.BaseType.GetGenericTypeDefinition() == typeof(TabViewBase<>)
-						|| (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>) && typeof(TabViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First()))))
+						|| (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
+							&& typeof(TabViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First()))))
 				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
 				.ForEach(keyValue =>
 				{
