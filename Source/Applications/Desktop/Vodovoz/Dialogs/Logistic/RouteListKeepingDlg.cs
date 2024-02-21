@@ -1,15 +1,19 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -17,7 +21,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Gamma.Utilities;
 using Vodovoz.Controllers;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
@@ -33,14 +36,13 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
-using QS.Navigation;
-using Vodovoz.ViewModels.Employees;
-using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -132,13 +134,10 @@ namespace Vodovoz
 
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
-			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
+			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;			
 
-			//entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-			//entityviewmodelentryCar.CanEditReference = false;
-			//entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			//entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			//entityviewmodelentryCar.Sensitive = _logisticanEditing;
+			entityentryCar.ViewModel = BuildCarEntryViewModel();
+			entityentryCar.Sensitive = _logisticanEditing;
 
 			_deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
 			var deliveryfreebalanceview = new DeliveryFreeBalanceView(_deliveryFreeBalanceViewModel);
@@ -299,6 +298,21 @@ namespace Vodovoz
 			UpdateNodes();
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Car)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = false;
+
+			return viewModel;
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
