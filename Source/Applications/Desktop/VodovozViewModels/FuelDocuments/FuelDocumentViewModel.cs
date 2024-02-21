@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +15,7 @@ using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
@@ -23,7 +24,9 @@ using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -67,7 +70,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -84,15 +86,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			UoW = uow;
 			FuelDocument = new FuelDocument();
 			FuelDocument.UoW = UoW;
 			_autoCommit = false;
 			RouteList = rl;
+
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 
 			Configure();
 		}
@@ -109,7 +110,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -126,15 +126,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
 			FuelDocument.UoW = UoW;
 			_autoCommit = false;
 			RouteList = FuelDocument.RouteList;
+
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 
 			Configure();
 		}
@@ -153,7 +152,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -170,9 +168,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
@@ -180,6 +175,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			FuelDocument.UoW = UoW;
 			_autoCommit = true;
 			RouteList = UoW.GetById<RouteList>(rl.Id);
+
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 
 			Configure();
 		}
@@ -199,7 +196,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -217,15 +213,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
 			UoW = uow;
 			FuelDocument = uow.Root;
 			FuelDocument.UoW = UoW;
 			_autoCommit = true;
+
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 
 			TabName = "Выдача топлива";
 
@@ -367,7 +362,26 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
-		public IEntityAutocompleteSelectorFactory CarAutocompleteSelector { get; }
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel(ILifetimeScope lifetimeScope)
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<FuelDocument>(this, FuelDocument, UoW, NavigationManager, lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.IsEditable = false;
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
 
 		public void SetRouteListById(int routeListId)
 		{
