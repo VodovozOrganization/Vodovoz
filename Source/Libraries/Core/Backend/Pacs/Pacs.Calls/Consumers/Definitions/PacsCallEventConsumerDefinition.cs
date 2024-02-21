@@ -14,7 +14,7 @@ namespace Pacs.Calls.Consumers.Definitions
 		{
 			if(administratorProvider == null)
 			{
-				throw new PacsException("Невозможно получение событий звонков. Так как в системе не определен администратор.");
+				throw new PacsInitException("Невозможно получение событий звонков. Так как в системе не определен администратор.");
 			}
 			_administratorId = administratorProvider.AdministratorId.Value;
 

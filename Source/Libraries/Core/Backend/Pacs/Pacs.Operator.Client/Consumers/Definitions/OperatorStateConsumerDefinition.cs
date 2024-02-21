@@ -14,7 +14,7 @@ namespace Pacs.Operators.Client.Consumers.Definitions
 		{
 			if(operatorProvider.OperatorId == null)
 			{
-				throw new PacsException("Невозможно получение состояния оператора. Так как в системе не определен оператор.");
+				throw new PacsInitException("Невозможно получение состояния оператора. Так как в системе не определен оператор.");
 			}
 			_operatorId = operatorProvider.OperatorId.Value;
 
