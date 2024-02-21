@@ -52,6 +52,7 @@ using Vodovoz.Application;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
+using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.DataService;
@@ -644,6 +645,7 @@ namespace Vodovoz
 						.AddSingleton<IFilterWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
 						.AddSingleton<IWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
 						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness();
 				});
