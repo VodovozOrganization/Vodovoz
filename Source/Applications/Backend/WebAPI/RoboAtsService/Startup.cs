@@ -68,6 +68,7 @@ namespace RoboatsService
 			services.AddDatabaseConnection();
 			services.AddCore();
 			services.AddTrackedUoW();
+
 			services.AddStaticHistoryTracker();
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
@@ -88,7 +89,6 @@ namespace RoboatsService
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 
 			builder.RegisterModule<SmsExternalSmsRuModule>();
 			
@@ -132,8 +132,6 @@ namespace RoboatsService
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			app.ApplicationServices.GetService<SettingsController>().RefreshSettings();
-
 			if(env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			}
