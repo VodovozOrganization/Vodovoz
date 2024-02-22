@@ -144,7 +144,7 @@ namespace Vodovoz.Additions.Logistic
 				//Запрос..
 				if(isFirstColumn)
 				{
-					SqlSelect += $", CONCAT_WS(' ', REPLACE(orders.comment,'\n',' '), CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
+					SqlSelect += $", CONCAT_WS(' ', (CASE WHEN orders.call_before_arrival_minutes IS NOT NULL THEN CONCAT('Отзвон за: ',orders.call_before_arrival_minutes, ' минут.') ELSE  '' END), REPLACE(orders.comment,'\n',' '), CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
 						$" SELECT * FROM guilty_in_undelivered_orders giuo" +
 						$" INNER JOIN undelivered_orders uo ON giuo.undelivery_id = uo.id" +
