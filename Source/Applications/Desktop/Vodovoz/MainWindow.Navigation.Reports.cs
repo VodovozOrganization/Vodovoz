@@ -706,7 +706,7 @@ public partial class MainWindow
 		report.ParentTab = dlg;
 
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
+			QSReport.ReportViewDlg.GenerateHashName<WayBillReportGroupPrint>(),
 			() => dlg);
 
 		report.Destroyed += (_, _2) => scope?.Dispose();
