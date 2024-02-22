@@ -35,7 +35,6 @@ namespace Vodovoz.ReportsParameters
 	{
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly IOrganizationJournalFactory _organizationJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -48,15 +47,13 @@ namespace Vodovoz.ReportsParameters
 
 		public WayBillReportGroupPrint(
 			ILifetimeScope lifetimeScope,
-			IEmployeeJournalFactory employeeJournalFactory, 
-			ICarJournalFactory carJournalFactory, 
+			IEmployeeJournalFactory employeeJournalFactory,
 			IOrganizationJournalFactory organizationJournalFactory, 
 			IInteractiveService interactiveService,
 			ISubdivisionRepository subdivisionRepository)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
