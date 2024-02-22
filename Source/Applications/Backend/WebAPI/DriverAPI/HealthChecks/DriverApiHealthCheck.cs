@@ -1,8 +1,7 @@
-﻿using DriverAPI.DTOs.V4;
-using DriverAPI.Library.DTOs;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V4;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using EventsApi.Library.Dtos;
+using DriverApi.Contracts.V4;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Settings.Database;

@@ -18,6 +18,7 @@ using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -221,7 +222,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(_filterViewModel.DistanceFromScanning.HasValue)
 			{
-				query.Where(ce => ce.DistanceMetersFromScanningLocation == _filterViewModel.DistanceFromScanning);
+				if(_filterViewModel.DistanceCriterion == ComparisonSings.LessOrEqual)
+				{
+					query.Where(ce => ce.DistanceMetersFromScanningLocation <= _filterViewModel.DistanceFromScanning);
+				}
+				else
+				{
+					query.Where(ce => ce.DistanceMetersFromScanningLocation >= _filterViewModel.DistanceFromScanning);
+				}
 			}
 
 			var selectedDrivers = _filterViewModel.GetSelectedDrivers();

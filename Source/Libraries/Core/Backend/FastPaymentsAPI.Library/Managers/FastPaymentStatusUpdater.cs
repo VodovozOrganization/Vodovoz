@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.Library.DTO_s;
+﻿using FastPaymentsApi.Contracts;
 using FastPaymentsAPI.Library.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

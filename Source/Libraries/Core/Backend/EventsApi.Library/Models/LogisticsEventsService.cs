@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using EventsApi.Library.Dtos;
+﻿using DriverApi.Contracts.V4;
 using EventsApi.Library.Services;
 using GMap.NET;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.Interfaces.Logistics.Cars;
@@ -72,7 +72,8 @@ namespace EventsApi.Library.Models
 		public CompletedDriverWarehouseEventProxy CompleteDriverWarehouseEvent(
 			DriverWarehouseEventQrData qrData,
 			DriverWarehouseEventData eventData,
-			EmployeeWithLogin employee)
+			EmployeeWithLogin employee,
+			out int distanceMetersFromScanningLocation)
 		{
 			_logger.LogInformation("Получаем событие {EventId} из QR кода от {EmployeeType} {EmployeeName}",
 				qrData.EventId,
@@ -80,7 +81,7 @@ namespace EventsApi.Library.Models
 				employee.ShortName);
 			var driverWarehouseEvent = _unitOfWork.GetById<DriverWarehouseEvent>(qrData.EventId);
 
-			var distanceMetersFromScanningLocation = 0m;
+			distanceMetersFromScanningLocation = 0;
 			
 			_logger.LogInformation("Рассчитываем расстояние между точками для {EmployeeName} по событию {EventName}",
 				employee.ShortName,
@@ -88,7 +89,7 @@ namespace EventsApi.Library.Models
 			
 			if(!eventData.Latitude.HasValue || !eventData.Longitude.HasValue)
 			{
-				distanceMetersFromScanningLocation = 0m;
+				distanceMetersFromScanningLocation = 0;
 			}
 			else if(driverWarehouseEvent.Type == DriverWarehouseEventType.OnLocation
 				&& driverWarehouseEvent.Latitude.HasValue

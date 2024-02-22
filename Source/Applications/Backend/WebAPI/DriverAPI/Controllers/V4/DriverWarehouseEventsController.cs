@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventsApi.Library.Dtos;
+using DriverApi.Contracts.V4;
 using EventsApi.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
@@ -38,6 +40,7 @@ namespace DriverAPI.Controllers.V4
 		/// <returns>Http status OK или ошибка</returns>
 		/// <exception cref="Exception">ошибка</exception>
 		[HttpPost("CompleteDriverWarehouseEvent")]
+		[Produces("application/json", Type = typeof(CompletedDriverWarehouseEventDto))]
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
@@ -68,11 +71,12 @@ namespace DriverAPI.Controllers.V4
 			
 			try
 			{
-				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(qrData, eventData, driver);
+				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(
+					qrData, eventData, driver, out var distanceMetersFromScanningLocation);
 				
 				if(completedEvent is null)
 				{
-					return Problem("Слишком большое расстояние от Qr кода", statusCode: 550);
+					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: 550);
 				}
 				
 				return Ok(
@@ -80,8 +84,7 @@ namespace DriverAPI.Controllers.V4
 					{
 						EventName = completedEvent.DriverWarehouseEvent.EventName,
 						CompletedDate = completedEvent.CompletedDate,
-						EmployeeName = completedEvent.Employee.ShortName,
-						DistanceMetersFromScanningLocation = completedEvent.DistanceMetersFromScanningLocation ?? 0m
+						EmployeeName = completedEvent.Employee.ShortName
 					});
 			}
 			catch(Exception e)
@@ -99,6 +102,7 @@ namespace DriverAPI.Controllers.V4
 		/// </summary>
 		/// <returns>список завершенных событий</returns>
 		[HttpGet("GetTodayCompletedEvents")]
+		[Produces("application/json", Type = typeof(IEnumerable<CompletedEventDto>))]
 		public async Task<IActionResult> GetTodayCompletedEvents()
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
