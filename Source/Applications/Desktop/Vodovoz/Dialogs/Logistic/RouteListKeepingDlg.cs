@@ -136,7 +136,7 @@ namespace Vodovoz
 
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
-			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;			
+			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
 
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _logisticanEditing;
