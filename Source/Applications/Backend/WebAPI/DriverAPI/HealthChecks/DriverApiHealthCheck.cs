@@ -5,7 +5,7 @@ using DriverApi.Contracts.V4;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Dto_s;
+using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -38,13 +38,13 @@ namespace DriverAPI.HealthChecks
 
 			var healthResult = new VodovozHealthResultDto();
 
-			var loginRequestDto = new LoginRequestDto
+			var loginRequestDto = new LoginRequest
 			{
 				Username = user,
 				Password = password
 			};
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(
+			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
 				$"{baseAddress}/api/v4/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);

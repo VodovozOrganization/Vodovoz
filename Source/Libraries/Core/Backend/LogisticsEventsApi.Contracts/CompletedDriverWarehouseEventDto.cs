@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DriverApi.Contracts.V4
+namespace LogisticsEventsApi.Contracts
 {
 	/// <summary>
 	/// Даннные о завершеном событии
