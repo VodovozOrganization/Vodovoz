@@ -1,6 +1,6 @@
-﻿using DriverApi.Contracts.V4;
-using EventsApi.Library.Services;
+﻿using EventsApi.Library.Services;
 using GMap.NET;
+using LogisticsEventsApi.Contracts;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;

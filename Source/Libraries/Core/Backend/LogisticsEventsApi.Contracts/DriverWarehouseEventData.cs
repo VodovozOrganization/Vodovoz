@@ -1,4 +1,4 @@
-﻿namespace DriverApi.Contracts.V4
+﻿namespace LogisticsEventsApi.Contracts
 {
 	/// <summary>
 	/// Информация о событии и координатами сканирования

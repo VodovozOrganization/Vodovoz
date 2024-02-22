@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V4;
+﻿using LogisticsEventsApi.Contracts;
 
 namespace EventsApi.Library.Services
 {

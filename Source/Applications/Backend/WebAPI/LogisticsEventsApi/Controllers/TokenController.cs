@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Vodovoz.Core.Data.Dto_s;
+using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 
 namespace LogisticsEventsApi.Controllers
 {
@@ -51,7 +51,7 @@ namespace LogisticsEventsApi.Controllers
 		[Consumes(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async Task<IActionResult> AuthenticateAsync([FromBody] LoginRequestDto loginRequestModel)
+		public async Task<IActionResult> AuthenticateAsync([FromBody] LoginRequest loginRequestModel)
 		{
 			if(await IsValidCredentialsAsync(loginRequestModel.Username, loginRequestModel.Password))
 			{
@@ -76,7 +76,7 @@ namespace LogisticsEventsApi.Controllers
 			return await _userManager.CheckPasswordAsync(user, password) && userHasAccessByRole;
 		}
 
-		private async Task<TokenResponseDto> GenerateTokenAsync(string username)
+		private async Task<TokenResponse> GenerateTokenAsync(string username)
 		{
 			var user = await _userManager.FindByNameAsync(username);
 			var roles = await _userManager.GetRolesAsync(user);
@@ -103,7 +103,7 @@ namespace LogisticsEventsApi.Controllers
 						SecurityAlgorithms.HmacSha256)),
 				new JwtPayload(claims));
 
-			var output = new TokenResponseDto
+			var output = new TokenResponse
 			{
 				AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
 				UserName = username

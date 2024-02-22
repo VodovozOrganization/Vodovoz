@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverApi.Contracts.V4
+namespace LogisticsEventsApi.Contracts
 {
 	public class DriverWarehouseEventQrData : IValidatableObject
 	{

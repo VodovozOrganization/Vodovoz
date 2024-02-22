@@ -16,6 +16,7 @@
       <ProjectReference Include="..\..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\DriverApi.Contracts\DriverApi.Contracts.csproj" />
+      <ProjectReference Include="..\LogisticsEventsApi.Contracts\LogisticsEventsApi.Contracts.csproj" />
     </ItemGroup>
 
 </Project>
