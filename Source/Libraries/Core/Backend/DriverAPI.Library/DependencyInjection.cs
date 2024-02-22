@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using EventsApi.Library;
 using EventsApi.Library.Models;
-using EventsApi.Library.Services;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Settings.Database;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventsApi.Library.Dtos;
 using EventsApi.Library.Models;
+using LogisticsEventsApi.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -66,11 +66,12 @@ namespace LogisticsEventsApi.Controllers
 
 			try
 			{
-				var completedEvent = _warehouseEventsService.CompleteDriverWarehouseEvent(qrData, eventData, employee);
+				var completedEvent = _warehouseEventsService.CompleteDriverWarehouseEvent(
+					qrData, eventData, employee, out var distanceMetersFromScanningLocation);
 
 				if(completedEvent is null)
 				{
-					return Problem("Слишком большое расстояние от Qr кода", statusCode: 550);
+					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: 550);
 				}
 				
 				return Ok(
@@ -78,8 +79,7 @@ namespace LogisticsEventsApi.Controllers
 					{
 						EventName = completedEvent.DriverWarehouseEvent.EventName,
 						CompletedDate = completedEvent.CompletedDate,
-						EmployeeName = completedEvent.Employee.ShortName,
-						DistanceMetersFromScanningLocation = completedEvent.DistanceMetersFromScanningLocation ?? 0m
+						EmployeeName = completedEvent.Employee.ShortName
 					});
 			}
 			catch(Exception e)

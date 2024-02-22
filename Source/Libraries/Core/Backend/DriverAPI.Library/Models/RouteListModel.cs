@@ -1,16 +1,14 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
+using DriverAPI.Library.Converters;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services.Logistics;
-using static Vodovoz.Permissions.Logistic;
 
 namespace DriverAPI.Library.Models
 {

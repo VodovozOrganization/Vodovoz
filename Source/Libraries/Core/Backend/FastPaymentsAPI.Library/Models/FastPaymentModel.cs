@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Logging;

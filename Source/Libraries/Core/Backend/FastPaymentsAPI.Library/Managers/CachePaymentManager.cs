@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FastPaymentsAPI.Library.DTO_s;
+using FastPaymentsApi.Contracts;
 using FastPaymentsAPI.Library.Factories;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

@@ -147,7 +147,7 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
-		private readonly int? _defaultCallBeforeArrival = 15;
+		private readonly int? _defaultCallBeforeArrival = null;
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
 
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
@@ -676,15 +676,45 @@ namespace Vodovoz
 
 			chkCommentForDriver.Binding.AddBinding(Entity, c => c.HasCommentForDriver, w => w.Active).InitializeFromSource();
 
+			speciallistcomboboxCallBeforeArrivalMinutes.ShowSpecialStateNot = true;
+			speciallistcomboboxCallBeforeArrivalMinutes.NameForSpecialStateNot = "Не нужен";
+			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItemStrictTyped = false;
+
 			speciallistcomboboxCallBeforeArrivalMinutes.ItemsList = new int?[] { null, 15, 30, 60 };
+			
+			speciallistcomboboxCallBeforeArrivalMinutes.ItemSelected += (s, e) =>
+			{
+				Entity.CallBeforeArrivalMinutes = null;
+				Entity.IsDoNotMakeCallBeforeArrival = null;
 
-			speciallistcomboboxCallBeforeArrivalMinutes.Binding
-				.AddBinding(Entity, x => x.CallBeforeArrivalMinutes, x => x.SelectedItem)
-				.InitializeFromSource();
+				if(speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem is SpecialComboState selectedState)
+				{
+					Entity.CallBeforeArrivalMinutes = null;
+					Entity.IsDoNotMakeCallBeforeArrival = selectedState == SpecialComboState.Not;
+				}
 
-			if(UoWGeneric.IsNew)
+				if(speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem is int callBeforeArrivalMinutes)
+				{
+					Entity.CallBeforeArrivalMinutes = callBeforeArrivalMinutes;
+					Entity.IsDoNotMakeCallBeforeArrival = false;
+				}
+			};
+
+			if(UoWGeneric.IsNew
+				|| (Entity.CallBeforeArrivalMinutes is null && Entity.IsDoNotMakeCallBeforeArrival != true))
 			{
 				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = _defaultCallBeforeArrival;
+			}
+			else
+			{
+				if(Entity.CallBeforeArrivalMinutes is null)
+				{
+					speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = SpecialComboState.Not;
+				}
+				else
+				{
+					speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = Entity.CallBeforeArrivalMinutes;
+				}
 			}
 
 			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();

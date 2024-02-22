@@ -784,8 +784,6 @@
     <Compile Include="Models\TrueMark\DeliveryOrderReceiptCreator.cs" />
     <Compile Include="Models\TrueMark\FiscalDocumentRefresher.cs" />
     <Compile Include="Models\TrueMark\FiscalizationResultSaver.cs" />
-    <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
-    <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\OrderReceiptCreator.cs" />
     <Compile Include="Models\TrueMark\OrderReceiptCreatorFactory.cs" />

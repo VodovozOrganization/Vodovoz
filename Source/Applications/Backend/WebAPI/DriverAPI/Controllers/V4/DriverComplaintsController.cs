@@ -1,11 +1,10 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
 {

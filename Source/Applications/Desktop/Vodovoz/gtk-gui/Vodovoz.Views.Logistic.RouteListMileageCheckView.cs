@@ -238,6 +238,7 @@ namespace Vodovoz.Views.Logistic
 			this.datePickerDate.Date = new global::System.DateTime(0);
 			this.datePickerDate.IsEditable = false;
 			this.datePickerDate.AutoSeparation = false;
+			this.datePickerDate.HideButtonClearDate = false;
 			this.ytableMain.Add(this.datePickerDate);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.datePickerDate]));
 			w14.LeftAttach = ((uint)(1));
@@ -249,6 +250,7 @@ namespace Vodovoz.Views.Logistic
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
+			this.entityviewmodelentryCar.CanDisposeEntitySelectorFactory = false;
 			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.entityviewmodelentryCar);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.entityviewmodelentryCar]));
@@ -262,6 +264,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.evmeDriver]));
@@ -275,6 +278,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.evmeForwarder.Name = "evmeForwarder";
 			this.evmeForwarder.CanEditReference = true;
+			this.evmeForwarder.CanDisposeEntitySelectorFactory = false;
 			this.evmeForwarder.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.evmeForwarder);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.evmeForwarder]));
@@ -288,6 +292,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeLogistician.Events = ((global::Gdk.EventMask)(256));
 			this.evmeLogistician.Name = "evmeLogistician";
 			this.evmeLogistician.CanEditReference = true;
+			this.evmeLogistician.CanDisposeEntitySelectorFactory = false;
 			this.evmeLogistician.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.evmeLogistician);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.evmeLogistician]));

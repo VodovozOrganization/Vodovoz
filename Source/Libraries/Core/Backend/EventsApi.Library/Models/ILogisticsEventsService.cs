@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using EventsApi.Library.Dtos;
+﻿using LogisticsEventsApi.Contracts;
+using System.Collections.Generic;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Employees;
@@ -22,7 +22,8 @@ namespace EventsApi.Library.Models
 		CompletedDriverWarehouseEventProxy CompleteDriverWarehouseEvent(
 			DriverWarehouseEventQrData qrData,
 			DriverWarehouseEventData eventData,
-			EmployeeWithLogin employee);
+			EmployeeWithLogin employee,
+			out int distanceMetersFromScanningLocation);
 
 		/// <summary>
 		/// Получение списка завершенных событий за текущий день для сотрудника
