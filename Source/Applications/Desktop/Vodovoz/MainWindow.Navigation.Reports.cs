@@ -701,13 +701,15 @@ public partial class MainWindow
 	{
 		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
+		var report = scope.Resolve<WayBillReportGroupPrint>();
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
-			() => new QSReport.ReportViewDlg(viewModel));
+			() => dlg);
 
-		viewModel.Destroyed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
