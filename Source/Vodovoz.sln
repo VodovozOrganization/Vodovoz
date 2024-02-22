@@ -357,7 +357,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.WebApi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DriverApi.Contracts", "Libraries\Core\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj", "{A5057B0F-1022-4D60-818E-B8F68890A2AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastPaymentsApi.Contracts", "Libraries\Core\Backend\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj", "{58AD462D-7F52-4BC6-9728-D6D673298FD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastPaymentsApi.Contracts", "Libraries\Core\Backend\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj", "{58AD462D-7F52-4BC6-9728-D6D673298FD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Presentation.WebApi.Authentication.Contracts", "Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj", "{11DDB231-147F-41E6-9B4B-878FE2FD98B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -4502,6 +4504,42 @@ Global
 		{58AD462D-7F52-4BC6-9728-D6D673298FD9}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{58AD462D-7F52-4BC6-9728-D6D673298FD9}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{58AD462D-7F52-4BC6-9728-D6D673298FD9}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Debug|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Docker|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Release|x86.ActiveCfg = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Release|x86.Build.0 = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WCF|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Web|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.Web|x86.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -4671,6 +4709,7 @@ Global
 		{79D9A05A-424A-4A2A-80BB-F66C69792A8F} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
 		{A5057B0F-1022-4D60-818E-B8F68890A2AA} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 		{58AD462D-7F52-4BC6-9728-D6D673298FD9} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
+		{11DDB231-147F-41E6-9B4B-878FE2FD98B7} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
