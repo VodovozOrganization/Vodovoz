@@ -1,4 +1,4 @@
-﻿using LogisticsEventsApi.Contracts;
+using LogisticsEventsApi.Contracts;
 using System.Collections.Generic;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Logistics;

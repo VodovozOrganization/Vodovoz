@@ -679,6 +679,7 @@
     <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Common\Repository.cs" />
     <Compile Include="Errors\Edo\Edo.cs" />
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Goods\Nomenclature.cs" />

@@ -1,6 +1,7 @@
 ﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
+using DriverAPI.Library.V4.Models;
+using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер PUSH-сообщений
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize]
 	public class PushNotificationsController : VersionedController
 	{

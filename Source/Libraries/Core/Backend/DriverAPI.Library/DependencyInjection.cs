@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
+using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using EventsApi.Library;
@@ -42,27 +41,20 @@ namespace DriverAPI.Library
 			}
 
 			// Хелперы
-			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
-			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
-			services.AddScoped<IActionTimeHelper, ActionTimeHelper>();
+			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>()
+				.AddScoped<IFCMAPIHelper, FCMAPIHelper>()
+				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
-			// DAL обертки
-			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
-			services.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>();
-			services.AddScoped<IRouteListModel, RouteListModel>();
-			services.AddScoped<IOrderModel, OrderModel>();
-			services.AddScoped<IEmployeeModel, EmployeeModel>();
-			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
-			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
-			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-			services.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
+			services.AddVersion4()
+				.AddVersion5();
 
-			services.AddScoped<IGlobalSettings, GlobalSettings>();
+			services.AddScoped<IGlobalSettings, GlobalSettings>()
+				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
-			services.AddBusiness();
-			services.AddApplication();
-			services.AddDatabaseSettings();
-			services.AddDriverEventsDependencies();
+			services.AddBusiness()
+				.AddApplication()
+				.AddDatabaseSettings()
+				.AddDriverEventsDependencies();
 
 			services.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
 				.AddScoped<IEmailRepository, EmailRepository>()
@@ -74,6 +66,32 @@ namespace DriverAPI.Library
 				.AddScoped<ICashRepository, CashRepository>();
 
 			return services;
+		}
+
+		public static IServiceCollection AddVersion4(this IServiceCollection services)
+		{
+			// DAL обертки
+			return services.AddScoped<ITrackPointsModel, TrackPointsModel>()
+				.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>()
+				.AddScoped<IRouteListModel, RouteListModel>()
+				.AddScoped<IOrderModel, OrderModel>()
+				.AddScoped<IEmployeeModel, EmployeeModel>()
+				.AddScoped<ISmsPaymentModel, SmsPaymentModel>()
+				.AddScoped<IDriverComplaintModel, DriverComplaintModel>()
+				.AddScoped<IFastPaymentModel, FastPaymentModel>();
+		}
+
+		public static IServiceCollection AddVersion5(this IServiceCollection services)
+		{
+			// DAL обертки
+			return services.AddScoped<ITrackPointsService, TrackPointsService>()
+				.AddScoped<IDriverMobileAppActionRecordService, DriverMobileAppActionRecordService>()
+				.AddScoped<IRouteListService, RouteListService>()
+				.AddScoped<IOrderService, OrderService>()
+				.AddScoped<V5.Services.IEmployeeService, EmployeeService>()
+				.AddScoped<ISmsPaymentService, SmsPaymentService>()
+				.AddScoped<IDriverComplaintService, DriverComplaintService>()
+				.AddScoped<IFastPaymentService, FastPaymentService>();
 		}
 	}
 }

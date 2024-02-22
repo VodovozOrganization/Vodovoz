@@ -1,5 +1,6 @@
 ﻿using DriverApi.Contracts.V4;
-using DriverAPI.Library.Models;
+using DriverAPI.Library.V4.Models;
+using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,6 +12,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер рекламаций водителей
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverComplaintsController : VersionedController
 	{
