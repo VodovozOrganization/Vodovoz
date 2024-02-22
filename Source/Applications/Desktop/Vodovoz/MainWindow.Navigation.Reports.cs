@@ -1008,9 +1008,12 @@ public partial class MainWindow
 
 		var report = scope.Resolve<MileageReport>();
 
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
+
 		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
-			() => new QSReport.ReportViewDlg(report));
+			() => dlg);
 
 		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
