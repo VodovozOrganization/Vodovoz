@@ -28,8 +28,7 @@ namespace Vodovoz
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
-			//yentryfuel.SubjectType = typeof(FuelType);
-			//yentryfuel.Binding.AddBinding(ViewModel.FuelDocument, e => e.Fuel, w => w.Subject).InitializeFromSource();
+			entityentryFuelType.ViewModel = ViewModel.FuelTypeEntryViewModel;
 
 			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
 

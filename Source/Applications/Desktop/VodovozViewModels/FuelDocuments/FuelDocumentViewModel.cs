@@ -24,6 +24,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -94,6 +95,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			RouteList = rl;
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
 
 			Configure();
 		}
@@ -134,6 +136,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			RouteList = FuelDocument.RouteList;
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
 
 			Configure();
 		}
@@ -177,6 +180,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			RouteList = UoW.GetById<RouteList>(rl.Id);
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
 
 			Configure();
 		}
@@ -221,6 +225,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_autoCommit = true;
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
 
 			TabName = "Выдача топлива";
 
@@ -363,6 +368,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
 		public IEntityEntryViewModel CarEntryViewModel { get; }
+		public IEntityEntryViewModel FuelTypeEntryViewModel { get; }
 
 		private IEntityEntryViewModel BuildCarEntryViewModel(ILifetimeScope lifetimeScope)
 		{
@@ -379,6 +385,22 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			viewModel.IsEditable = false;
 			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
+		private IEntityEntryViewModel BuildFuelTypeEntryViewModel(ILifetimeScope lifetimeScope)
+		{
+			var fuelTypeViewModelBuilder = new CommonEEVMBuilderFactory<FuelDocument>(this, FuelDocument, UoW, NavigationManager, lifetimeScope);
+
+			var viewModel = fuelTypeViewModelBuilder
+				.ForProperty(x => x.Fuel)
+				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
+				.UseViewModelDialog<FuelTypeViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = false;
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelType)).CanUpdate;
 
 			return viewModel;
 		}
