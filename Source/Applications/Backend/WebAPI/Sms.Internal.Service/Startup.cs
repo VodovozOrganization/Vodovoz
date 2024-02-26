@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Sms.External.SmsRu;
 using Sms.Internal.Service.Authentication;
 
@@ -23,6 +25,14 @@ namespace Sms.Internal.Service
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLog();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				});
+
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);

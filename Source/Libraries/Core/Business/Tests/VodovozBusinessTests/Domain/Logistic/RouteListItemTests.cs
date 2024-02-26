@@ -8,6 +8,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {
@@ -59,8 +60,8 @@ namespace VodovozBusinessTests.Domain.Logistic
 			testRLItem.Order = order;
 			testRLItem.Order.UoW = uow;
 			testRLItem.Order.DeliveryDate = DateTime.Now;
-			var standartNom = Substitute.For<IStandartNomenclatures>();
-			standartNom.GetForfeitId().Returns(33);
+			var standartNom = Substitute.For<Vodovoz.Settings.Nomenclature.INomenclatureSettings>();
+			standartNom.ForfeitId.Returns(33);
 
 			// act
 			testRLItem.Order.UpdateBottleMovementOperation(uow,standartNom,testRLItem.BottlesReturned);

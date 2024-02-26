@@ -10,6 +10,9 @@ using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using QS.Navigation;
+using Vodovoz.Core.Domain.Employees;
+using QS.Project.Services;
 
 namespace Vodovoz.Reports
 {
@@ -23,7 +26,7 @@ namespace Vodovoz.Reports
 		public DriverWagesReport(INavigationManager navigationManager)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			UoW = UnitOfWorkFactory.CreateWithoutRoot(Title);
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Build();
 

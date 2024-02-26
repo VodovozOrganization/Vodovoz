@@ -10,7 +10,9 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using Vodovoz.Parameters;
+using QS.Project.Services;
+using Vodovoz.Settings.Reports;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -19,12 +21,12 @@ namespace Vodovoz.ReportsParameters.Orders
     {
         private List<SelectedChangeTypeNode> _changeTypes = new List<SelectedChangeTypeNode>();
         private List<SelectedIssueTypeNode> _issueTypes = new List<SelectedIssueTypeNode>();
-        private readonly IReportDefaultsProvider reportDefaultsProvider;
+        private readonly IReportSettings reportDefaultsProvider;
 		private readonly IInteractiveService _interactiveService;
 		private readonly int _monitoringPeriodAvailable;
 
 		public OrderChangesReport(
-			IReportDefaultsProvider reportDefaultsProvider,
+			IReportSettings reportDefaultsProvider,
 			IInteractiveService interactiveService,
 			IArchiveDataSettings archiveDataSettings)
         {
@@ -38,7 +40,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void Configure()
         {
-            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			chkOldMonitoring.Toggled += (sender, e) => UpdatePeriod();
 			UpdatePeriod();
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;

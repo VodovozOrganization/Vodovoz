@@ -56,6 +56,7 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
@@ -91,13 +92,7 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
-    <Compile Include="Domain\Employees\DriverTerminalRelation.cs" />
-    <Compile Include="Domain\Employees\DriverType.cs" />
-    <Compile Include="Domain\Employees\EmployeeCategory.cs" />
-    <Compile Include="Domain\Employees\EmployeeStatus.cs" />
-    <Compile Include="Domain\Employees\EmployeeType.cs" />
     <Compile Include="Domain\Employees\ExternalApplicationUser.cs" />
-    <Compile Include="Domain\Employees\Gender.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
     <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
@@ -367,7 +362,6 @@
     <Compile Include="Domain\Documents\WriteOffDocuments\WriteOffDocumentItemType.cs" />
     <Compile Include="Domain\Documents\WriteOffDocuments\WriteOffType.cs" />
     <Compile Include="Domain\Employees\CashSubdivisionSortingSettings.cs" />
-    <Compile Include="Domain\Employees\IEmployeeRegistration.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistration.cs" />
@@ -834,41 +828,10 @@
     <Compile Include="Nodes\PromotionalSetItemBalanceNode.cs" />
     <Compile Include="Nodes\PromotionalSetOnlineParametersData.cs" />
     <Compile Include="Nodes\PromotionalSetOnlineParametersNode.cs" />
-    <Compile Include="Parameters\ArchiveDataSettings.cs" />
-    <Compile Include="Parameters\CounterpartySettings.cs" />
-    <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
-    <Compile Include="Parameters\DeliveryPointParametersProvider.cs" />
-    <Compile Include="Parameters\EmployeeSettings.cs" />
-    <Compile Include="Parameters\DebtorsParameters.cs" />
-    <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
-    <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
-    <Compile Include="Parameters\FastDeliveryAvailabilityHistoryParameterProvider.cs" />
-    <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
-    <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
-    <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
-    <Compile Include="Parameters\EmailParametersProvider.cs" />
-    <Compile Include="Parameters\GlobalSettings.cs" />
-    <Compile Include="Parameters\IArchiveDataSettings.cs" />
-    <Compile Include="Parameters\ICounterpartySettings.cs" />
-    <Compile Include="Parameters\IEmailParametersProvider.cs" />
-    <Compile Include="Parameters\GMapPararmetersProviders.cs" />
-    <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
-    <Compile Include="Parameters\IGMapParametersProviders.cs" />
-    <Compile Include="Parameters\FiasApiParametersProvider.cs" />
-    <Compile Include="Parameters\IRoboatsSettings.cs" />
-    <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
-    <Compile Include="Parameters\IStoredResourcesSettings.cs" />
-    <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
-    <Compile Include="Parameters\ComplaintParameterProvider.cs" />
-    <Compile Include="Parameters\NomenclatureOnlineParametersProvider.cs" />
-    <Compile Include="Parameters\PhoneTypeSettings.cs" />
-    <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
-    <Compile Include="Parameters\StoredResourcesSettings.cs" />
-    <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
@@ -888,6 +851,7 @@
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.Documents.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
+    <Compile Include="Permissions\Pacs.cs" />
     <Compile Include="Permissions\Payment.BankClient.cs" />
     <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Order.PromotionalSet.cs" />
@@ -897,34 +861,9 @@
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\EmailService.cs" />
-    <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
-    <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
-    <Compile Include="Parameters\CarEventSettings.cs" />
-    <Compile Include="Services\ICarEventSettings.cs" />
-    <Compile Include="Services\IDeliveryPointParametersProvider.cs" />
-    <Compile Include="Services\IEmployeeSettings.cs" />
-    <Compile Include="Services\IFastPaymentParametersProvider.cs" />
-    <Compile Include="Services\IGlobalSettings.cs" />
-    <Compile Include="Parameters\RoboatsSettings.cs" />
-    <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
-    <Compile Include="Parameters\IParametersProvider.cs" />
-    <Compile Include="Parameters\IReportDefaultsProvider.cs" />
-    <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
-    <Compile Include="Parameters\NewDriverAdvanceParametersProvider.cs" />
-    <Compile Include="Parameters\ProductionWarehouseMovementReportProvider.cs" />
-    <Compile Include="Parameters\OrganizationCashTransferDocumentParametersProvider.cs" />
-    <Compile Include="Parameters\NomenclaturePlanParametersProvider.cs" />
-    <Compile Include="Parameters\OrderParametersProvider.cs" />
-    <Compile Include="Parameters\OrganizationParametersProvider.cs" />
-    <Compile Include="Parameters\ParametersProvider.cs" />
-    <Compile Include="Parameters\ReportDefaultsProvider.cs" />
-    <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
-    <Compile Include="Parameters\RouteListParametersProvider.cs" />
-    <Compile Include="Parameters\SalesReceiptsParametersProvider.cs" />
-    <Compile Include="Parameters\TabsParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1038,33 +977,10 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
-    <Compile Include="Services\ICashDistributionCommonOrganisationProvider.cs" />
-    <Compile Include="Services\IDebtorsParameters.cs" />
-    <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
-    <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
-    <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
-    <Compile Include="Services\INomenclatureOnlineParametersProvider.cs" />
-    <Compile Include="Services\INomenclatureParametersProvider.cs" />
-    <Compile Include="Services\IFiasApiParametersProvider.cs" />
-    <Compile Include="Services\IPhoneTypeSettings.cs" />
-    <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
-    <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
-    <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
-    <Compile Include="Services\IOrderParametersProvider.cs" />
-    <Compile Include="Services\IOrganizationParametersProvider.cs" />
-    <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
-    <Compile Include="Services\IRouteListParametersProvider.cs" />
-    <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
-    <Compile Include="Services\ITabsParametersProvider.cs" />
-    <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
-    <Compile Include="Services\IDriverApiParametersProvider.cs" />
-    <Compile Include="Services\DriverApiParametersProvider.cs" />
-    <Compile Include="Services\IUserRoleSettings.cs" />
-    <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\IUserSettingsService.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
-    <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Specifications\DynamicExpressionSpecification.cs" />
     <Compile Include="Specifications\ExpressionSpecification.cs" />
     <Compile Include="Specifications\ExpressionSpecificationAndExtension.cs" />
@@ -1083,7 +999,6 @@
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
-    <Compile Include="Tools\Logistic\IFastDeliveryDistanceChecker.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />
@@ -1136,9 +1051,6 @@
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
     <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
     <Compile Include="Tools\AdditionalAgreements\WaterFixedPriceGenerator.cs" />
-    <Compile Include="Domain\Employees\Personnel.cs" />
-    <Compile Include="Domain\Employees\Trainee.cs" />
-    <Compile Include="Domain\Employees\IEmployee.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialBill.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
@@ -1196,9 +1108,6 @@
     <Compile Include="ViewModelBased\TabViewModelBase.cs" />
     <Compile Include="Domain\Orders\PromotionalSet.cs" />
     <Compile Include="Domain\Orders\PromotionalSetItem.cs" />
-    <Compile Include="Services\IStandartNomenclatures.cs" />
-    <Compile Include="Services\IImageProvider.cs" />
-    <Compile Include="Services\IStandartDiscountsService.cs" />
     <Compile Include="EntityRepositories\Subdivisions\ISubdivisionRepository.cs" />
     <Compile Include="EntityRepositories\Subdivisions\SubdivisionRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\IFuelRepository.cs" />
@@ -1206,7 +1115,6 @@
     <Compile Include="Domain\Payments\OrderIdProviderForMobileApp.cs" />
     <Compile Include="Domain\Client\DeliveryPointCategory.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKind.cs" />
-    <Compile Include="Services\IPersonProvider.cs" />
     <Compile Include="EntityRepositories\Operations\BottlesRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IBottlesRepository.cs" />
@@ -1310,13 +1218,11 @@
     <Compile Include="Domain\Sms\SmsNotificationStatus.cs" />
     <Compile Include="Domain\Sms\SmsNotifier.cs" />
     <Compile Include="Domain\Sms\LowBalanceSmsNotification.cs" />
-    <Compile Include="Services\ISmsNotifierParametersProvider.cs" />
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
     <Compile Include="EntityRepositories\Store\CarUnloadRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
     <Compile Include="EntityRepositories\Store\CarLoadDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarLoadDocumentRepository.cs" />
-    <Compile Include="Services\IWageParametersProvider.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
     <Compile Include="Domain\WageCalculation\AdvancedWageParameter\AdvancedWageParameter.cs" />
@@ -1332,10 +1238,6 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\ISmsNotificationRepository.cs" />
     <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
-    <Compile Include="Services\ISmsNotificationServiceSettings.cs" />
-    <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
-    <Compile Include="Services\IEmailServiceSettings.cs" />
-    <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />
     <Compile Include="Tools\PasswordGenerator.cs" />
@@ -1346,8 +1248,6 @@
     <Compile Include="Domain\Contacts\Phone.cs" />
     <Compile Include="Domain\Contacts\Post.cs" />
     <Compile Include="Domain\Contacts\Person.cs" />
-    <Compile Include="Services\IContactParametersProvider.cs" />
-    <Compile Include="Parameters\ContactParametersProvider.cs" />
     <Compile Include="EntityRepositories\Contacts\EmailRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\IEmailRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\PhoneRepository.cs" />
@@ -1359,10 +1259,8 @@
     <Compile Include="EntityRepositories\Permissions\IPermissionRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\PermissionRepository.cs" />
     <Compile Include="Domain\Orders\UndeliveryProblemSource.cs" />
-    <Compile Include="Services\IDriverServiceParametersProvider.cs" />
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
-    <Compile Include="Services\IErrorSendParameterProvider.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorReporter.cs" />
@@ -1370,11 +1268,9 @@
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
-    <Compile Include="Services\IDefaultDeliveryDayScheduleSettings.cs" />
     <Compile Include="Domain\Payments\Payment.cs" />
     <Compile Include="Domain\Payments\ProfitCategory.cs" />
     <Compile Include="Domain\Payments\CategoryExpense.cs" />
-    <Compile Include="Services\IProfitCategoryProvider.cs" />
     <Compile Include="Domain\Operations\CashlessMovementOperation.cs" />
     <Compile Include="Domain\Payments\PaymentItem.cs" />
     <Compile Include="Domain\Payments\TransferDocument.cs" />
@@ -1384,7 +1280,6 @@
     <Compile Include="Domain\BusinessTasks\BusinessTask.cs" />
     <Compile Include="Domain\BusinessTasks\ClientTask.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
-    <Compile Include="Services\IMailjetParametersProvider.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebt.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPayment.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePayment.cs" />
@@ -1392,7 +1287,6 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
-    <Compile Include="Services\IVpbxSettings.cs" />
     <Compile Include="Domain\Client\AdditionalAgreement.cs" />
     <Compile Include="Models\IFixedPricesModel.cs" />
     <Compile Include="Models\CounterpartyFixedPricesModel.cs" />
@@ -1405,8 +1299,6 @@
     <Compile Include="Domain\Client\DeliveryPointResponsiblePerson.cs" />
     <Compile Include="Domain\Client\DeliveryPointResponsiblePersonType.cs" />
     <Compile Include="Domain\Employees\EmployeePost.cs" />
-    <Compile Include="Services\IOrderPaymentSettings.cs" />
-    <Compile Include="Parameters\OrderPaymentSettings.cs" />
     <Compile Include="VodovozBusinessAssemblyFinder.cs" />
     <Compile Include="EntityRepositories\Store\MovementDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Store\IMovementDocumentRepository.cs" />
@@ -1520,7 +1412,7 @@
       <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">
@@ -1543,6 +1435,10 @@
       <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
+      <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>
+      <Name>Pacs.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
@@ -1559,6 +1455,10 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
+      <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
+      <Name>Vodovoz.Core.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
       <Name>Vodovoz.Core.Domain</Name>
@@ -1574,6 +1474,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Common\" />
+    <Folder Include="EntityRepositories\Pacs\" />
     <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>

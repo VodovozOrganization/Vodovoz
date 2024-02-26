@@ -1,6 +1,6 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
+using QS.Utilities;
 using RoboatsService.Monitoring;
 using System;
 using System.Collections.Generic;
@@ -8,28 +8,28 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.OrderValidation
 {
 	public class ValidOrdersProvider
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallBatchRegistrator _roboatsCallRegistrator;
 
 		public ValidOrdersProvider(
 			IUnitOfWorkFactory uowFactory,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureSettings,
 			IRoboatsRepository roboatsRepository,
 			IRoboatsSettings roboatsSettings,
 			RoboatsCallBatchRegistrator roboatsCallRegistrator)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
@@ -83,7 +83,7 @@ namespace RoboatsService.OrderValidation
 				multiValidator.AddValidator(new DateOrderValidator(_roboatsSettings));
 				multiValidator.AddValidator(new PromosetOrderValidator());
 				multiValidator.AddValidator(new FiasStreetOrderValidator(_roboatsRepository));
-				multiValidator.AddValidator(new OnlyWaterOrderValidator(_nomenclatureParametersProvider));
+				multiValidator.AddValidator(new OnlyWaterOrderValidator(_nomenclatureSettings));
 				multiValidator.AddValidator(new RoboatsWaterOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new WaterRowDuplicateOrderValidator());
 				multiValidator.AddValidator(new ReasonForLeavingValidator());

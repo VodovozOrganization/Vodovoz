@@ -3,6 +3,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
 using QS.ViewModels.Extension;
@@ -56,7 +57,7 @@ namespace Vodovoz.Dialogs.Employees
 		
 		private bool SaveDoc()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			var isValid = validator.Validate(Entity);
 			if(isValid)
 			{

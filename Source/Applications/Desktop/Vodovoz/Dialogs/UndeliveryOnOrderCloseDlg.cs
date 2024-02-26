@@ -1,21 +1,16 @@
 ﻿using Autofac;
-using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
-using QS.Validation;
 using System;
 using System.Linq;
-using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Widgets;
 
@@ -26,7 +21,7 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly ISmsNotifierParametersProvider _smsNotifierParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly ISmsNotifierSettings _smsNotifierSettings = ScopeProvider.Scope.Resolve<ISmsNotifierSettings>();
 		private bool _addedCommentToOldUndelivery;
 		private OrderStatus _oldOrderStatus;
 
@@ -119,7 +114,7 @@ namespace Vodovoz.Dialogs
 
 		private bool HasOrderStatusExternalChangesOrCancellationImpossible(out OrderStatus actualOrderStatus)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
 			{
 				actualOrderStatus = uow.GetById<Order>(order.Id).OrderStatus;
 			}
@@ -134,7 +129,7 @@ namespace Vodovoz.Dialogs
 
 		private bool SaveUndelivery(bool needClose = true, bool forceSave = false)
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(undelivery))
 			{
 				return false;
@@ -159,7 +154,7 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			var smsNotifier = new SmsNotifier(_smsNotifierParametersProvider);
+			var smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _smsNotifierSettings);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery, UoW);
 		}
 

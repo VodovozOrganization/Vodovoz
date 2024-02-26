@@ -6,7 +6,7 @@ using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.FastPayments;
 
 namespace FastPaymentsAPI.Library.Managers
 {
@@ -14,21 +14,21 @@ namespace FastPaymentsAPI.Library.Managers
 	{
 		private readonly IDTOManager _dtoManager;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IOrderService _orderService;
 
 		public OrderRequestManager(
 			IDTOManager dtoManager,
 			ISignatureManager signatureManager,
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IFastPaymentSettings fastPaymentSettings,
 			IFastPaymentFactory fastPaymentApiFactory,
 			IOrderService orderService)
 		{
 			_dtoManager = dtoManager ?? throw new ArgumentNullException(nameof(dtoManager));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
 			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new ArgumentNullException(nameof(fastPaymentApiFactory));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
@@ -73,7 +73,7 @@ namespace FastPaymentsAPI.Library.Managers
 		
 		public string GetVodovozFastPayUrl(Guid fastPaymentGuid)
 		{
-			return $"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
+			return $"{_fastPaymentSettings.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
 		}
 
 		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, int shopId, string phoneNumber = null,
@@ -87,15 +87,15 @@ namespace FastPaymentsAPI.Library.Managers
 			{
 				orderRegistrationRequestDTO.ReturnQRImage = 1;
 				orderRegistrationRequestDTO.IsQR = 1;
-				orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetQRLifetime;
-				orderRegistrationRequestDTO.BackUrl = _fastPaymentParametersProvider.GetFastPaymentBackUrl;
+				orderRegistrationRequestDTO.QRTtl = _fastPaymentSettings.GetQRLifetime;
+				orderRegistrationRequestDTO.BackUrl = _fastPaymentSettings.GetFastPaymentBackUrl;
 			}
 			else
 			{
 				if(isQr)
 				{
 					orderRegistrationRequestDTO.IsQR = 1;
-					orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetPayUrlLifetime;
+					orderRegistrationRequestDTO.QRTtl = _fastPaymentSettings.GetPayUrlLifetime;
 				}
 				
 				var backUrl = GetVodovozFastPayUrl(fastPaymentGuid);
@@ -115,7 +115,7 @@ namespace FastPaymentsAPI.Library.Managers
 			var orderRegistrationRequestDTO =
 				_fastPaymentApiFactory.GetOrderRegistrationRequestDTOForOnlineOrder(registerOnlineOrderDto, signature, shopId);
 			
-			orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetOnlinePayByQRLifetime;
+			orderRegistrationRequestDTO.QRTtl = _fastPaymentSettings.GetOnlinePayByQRLifetime;
 			orderRegistrationRequestDTO.BackUrl = registerOnlineOrderDto.BackUrl;
 			orderRegistrationRequestDTO.BackUrlOk = registerOnlineOrderDto.BackUrlOk;
 			orderRegistrationRequestDTO.BackUrlFail = registerOnlineOrderDto.BackUrlFail;
@@ -128,7 +128,7 @@ namespace FastPaymentsAPI.Library.Managers
 			int shopId;
 			if(organization == null)
 			{
-				shopId = _fastPaymentParametersProvider.GetDefaultShopId;
+				shopId = _fastPaymentSettings.GetDefaultShopId;
 			}
 			else if(organization.AvangardShopId.HasValue)
 			{

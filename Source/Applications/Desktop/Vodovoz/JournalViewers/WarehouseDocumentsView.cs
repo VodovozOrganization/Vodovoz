@@ -1,4 +1,6 @@
-﻿using Gamma.Utilities;
+using System;
+using System.Linq;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
@@ -63,7 +65,7 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 
 			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
@@ -150,7 +152,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalGiveoutDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this
@@ -161,7 +163,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalReturnDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this

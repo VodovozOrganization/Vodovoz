@@ -14,14 +14,17 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelBalanceViewModel : UoWWidgetViewModelBase
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
 
-		public FuelBalanceViewModel(ISubdivisionRepository subdivisionRepository, IFuelRepository fuelRepository)
+		public FuelBalanceViewModel(IUnitOfWorkFactory uowFactory, ISubdivisionRepository subdivisionRepository, IFuelRepository fuelRepository)
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+
+			UoW = _uowFactory.CreateWithoutRoot();
 
 			ConfigEntityUpdateSubscribes();
 			Update();

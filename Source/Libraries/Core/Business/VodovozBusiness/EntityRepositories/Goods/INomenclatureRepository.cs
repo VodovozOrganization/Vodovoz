@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -74,6 +74,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow);
 		Nomenclature GetWaterStroika(IUnitOfWork uow);
 		Nomenclature GetWaterRuchki(IUnitOfWork uow);
+		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
 		/// <summary>
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>

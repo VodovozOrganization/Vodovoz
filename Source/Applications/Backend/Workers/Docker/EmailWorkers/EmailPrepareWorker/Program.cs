@@ -1,17 +1,21 @@
-﻿using EmailPrepareWorker.Prepares;
+﻿using Autofac.Extensions.DependencyInjection;
+using EmailPrepareWorker.Prepares;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using QS.DomainModel.UoW;
-using QS.Project.DB;
+using QS.HistoryLog;
+using QS.Project.Core;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
 
 namespace EmailPrepareWorker
 {
@@ -24,12 +28,14 @@ namespace EmailPrepareWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(loggingBuilder =>
+					services.AddLogging(logging =>
 					{
-						loggingBuilder.ClearProviders();
-						loggingBuilder.AddNLog("NLog.config");
+						logging.ClearProviders();
+						logging.AddNLog();
+						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					});
 
 					services.AddTransient<RabbitMQConnectionFactory>();
@@ -45,10 +51,24 @@ namespace EmailPrepareWorker
 						return channel;
 					});
 
-					services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
+					services.AddMappingAssemblies(
+						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+						typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+						typeof(QS.Banks.Domain.Bank).Assembly,
+						typeof(QS.HistoryLog.HistoryMain).Assembly,
+						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+						typeof(QS.Attachments.Domain.Attachment).Assembly,
+						typeof(EmployeeWithLoginMap).Assembly,
+						typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					);
+					services.AddDatabaseConnection();
+					services.AddCore();
+					services.AddTrackedUoW();
+					services.AddStaticHistoryTracker();
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+
 					services.AddSingleton<ISettingsController, SettingsController>();
-					services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+					services.AddSingleton<IEmailSettings, EmailSettings>();
 					services.AddSingleton<IEmailRepository, EmailRepository>();
 					services.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>();
 					services.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>();

@@ -9,7 +9,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Complaints
 	public class GuiltyItemViewModel : EntityWidgetViewModelBase<ComplaintGuiltyItem>
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private bool _isForSalesDepartment;
 
 		public GuiltyItemViewModel(
@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IUnitOfWork uow,
 			bool fromComplaintsJournalFilter = false
 		) : base(entity, commonServices)
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Complaints
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
 
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			ConfigureEntityPropertyChanges();
 			HideClientFromGuilty = !fromComplaintsJournalFilter;
 			ResponsibleList = uow.GetAll<Responsible>().Where(r => !r.IsArchived).ToList();
@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(value)
 				{
 					Entity.Responsible = ResponsibleList.FirstOrDefault(r => r.IsSubdivisionResponsible);
-					var salesSubDivisionId = _subdivisionParametersProvider.GetSalesSubdivisionId();
+					var salesSubDivisionId = _subdivisionSettings.GetSalesSubdivisionId();
 					Entity.Subdivision = UoW.GetById<Subdivision>(salesSubDivisionId);
 				}
 			}

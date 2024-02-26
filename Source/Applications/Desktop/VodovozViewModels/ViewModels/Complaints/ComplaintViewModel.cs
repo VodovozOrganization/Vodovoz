@@ -17,6 +17,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -27,8 +28,10 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -50,8 +53,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private DelegateCommand _changeDeliveryPointCommand;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
-		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IGeneralSettings _generalSettingsSettings;
+		private readonly IComplaintSettings _complaintSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -83,10 +86,10 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintResultsRepository complaintResultsRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IRouteListItemRepository routeListItemRepository,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
-			IComplaintParametersProvider complaintParametersProvider,
+			IGeneralSettings generalSettingsSettings,
+			IComplaintSettings complaintSettings,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -101,10 +104,10 @@ namespace Vodovoz.ViewModels.Complaints
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_scope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			SubdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
-			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
+			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 			if(orderSelectorFactory == null)
 			{
 				throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -274,7 +277,7 @@ namespace Vodovoz.ViewModels.Complaints
 							CommonServices,
 							_subdivisionRepository,
 							EmployeeJournalFactory,
-							SubdivisionParametersProvider);
+							SubdivisionSettings);
 				}
 
 				return _guiltyItemsViewModel;
@@ -582,7 +585,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
-		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
+		private ISubdivisionSettings SubdivisionSettings { get; }
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
@@ -659,7 +662,7 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			if(newStatus == ComplaintStatuses.Closed)
 			{
-				var subdivisionsToInformComplaintHasNoDriver = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver;
+				var subdivisionsToInformComplaintHasNoDriver = _generalSettingsSettings.SubdivisionsToInformComplaintHasNoDriver;
 
 				var subdivisionNamesToInform =
 					(from guilty in Entity.Guilties.Where(x => x.Subdivision != null)
@@ -667,7 +670,7 @@ namespace Vodovoz.ViewModels.Complaints
 						select guilty.Subdivision.Name)
 					.ToArray();
 
-				if(Entity.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+				if(Entity.ComplaintResultOfEmployees?.Id == _complaintSettings.ComplaintResultOfEmployeesIsGuiltyId
 					&& subdivisionNamesToInform.Any()
 					&& Entity.Driver is null
 					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", subdivisionNamesToInform)} без указания водителя?",

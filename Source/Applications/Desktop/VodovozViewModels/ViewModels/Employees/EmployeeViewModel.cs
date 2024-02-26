@@ -21,7 +21,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -30,13 +29,15 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -53,8 +54,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog, IAskSaveOnCloseViewModel
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IAuthorizationService _authorizationService;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
@@ -62,10 +64,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
-		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IWageSettings _wageSettings;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private ILifetimeScope _lifetimeScope;
+		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
@@ -107,8 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
-			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
@@ -118,26 +122,25 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
 			IUserRepository userRepository,
-			BaseParametersProvider baseParametersProvider,
+			IWageSettings wageSettings,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
+			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope,
+			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			EmployeeWageParametersFactory =
 				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory =
 				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
-			_subdivisionParametersProvider =
-				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings =
+				subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
@@ -147,16 +150,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
-
-			if(commonOrganisationProvider == null)
-			{
-				throw new ArgumentNullException(nameof(commonOrganisationProvider));
-			}
 
 			if(validationContextFactory == null)
 			{
@@ -169,7 +170,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			if(Entity.Id == 0)
 			{
-				Entity.OrganisationForSalary = commonOrganisationProvider.GetCommonOrganisation(UoW);
+				Entity.OrganisationForSalary = _organizationRepository.GetCommonOrganisation(UoW);
 				FillHiddenCategories(traineeToEmployee);
 
 				TabName = "Новый сотрудник";
@@ -294,7 +295,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				    _routeListRepository,
 				    CommonServices,
 				    UoW,
-				    _baseParametersProvider));
+					_unitOfWorkFactory,
+					_nomenclatureSettings));
 
 		public bool CanReadEmployeeDocuments { get; private set; }
 		public bool CanAddEmployeeDocument { get; private set; }
@@ -486,9 +488,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							newDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory.GetDefaultFactory,
+							_unitOfWorkFactory,
 							CommonServices,
-							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -511,9 +512,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							SelectedDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory.GetDefaultFactory,
+							_unitOfWorkFactory,
 							CommonServices,
-							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -570,9 +570,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							newDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory.GetDefaultFactory,
+							_unitOfWorkFactory,
 							CommonServices,
-							_baseParametersProvider,
 							_employeeRepository
 						);
 
@@ -646,7 +645,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							newDriverWorkScheduleSet,
 							UoW,
 							CommonServices,
-							_baseParametersProvider,
+							_deliveryScheduleSettings,
 							_employeeRepository
 						);
 			
@@ -668,7 +667,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							SelectedDriverScheduleSet,
 							UoW,
 							CommonServices,
-							_baseParametersProvider,
+							_deliveryScheduleSettings,
 							_employeeRepository
 						);
 						TabParent.AddSlaveTab(this, driverWorkScheduleSetViewModel);
@@ -1117,7 +1116,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			
-			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionParametersProvider), _subdivisionParametersProvider);
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionSettings), _subdivisionSettings);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}
@@ -1246,7 +1245,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _baseParametersProvider, CommonServices.InteractiveService);
+			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _wageSettings, CommonServices.InteractiveService);
 
 			UoWGeneric.Save(Entity);
 

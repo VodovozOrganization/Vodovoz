@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Services;
 using System;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -66,7 +67,7 @@ namespace Vodovoz
 			Build();
 			TabName = "Незакрытые авансы";
 			unclosedadvancesfilter1.Refiltered += Accountableslipfilter1_Refiltered;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			unclosedadvancesfilter1.UoW = UoW;
 			representationUnclosed.Selection.Changed += RepresentationUnclosed_Selection_Changed;
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));

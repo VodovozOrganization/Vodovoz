@@ -13,9 +13,10 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
@@ -37,12 +38,12 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			IUserSettings userSettings,
+			IUserSettingsService userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService)
 			: base(
@@ -57,7 +58,7 @@ namespace Vodovoz.ViewModels.Logistic
 				  gtkTabsOpener,
 				  stockRepository,
 				  reportPrinter,
-				  terminalNomenclatureProvider,
+				  nomenclatureSettings,
 				  commonServices,
 				  routeListProfitabilitySettings,
 				  warehousePermissionService,

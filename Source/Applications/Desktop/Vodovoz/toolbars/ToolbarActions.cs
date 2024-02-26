@@ -2,7 +2,6 @@
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -14,9 +13,9 @@ using QS.Report.ViewModels;
 using QSReport;
 using System;
 using Vodovoz;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -35,7 +34,6 @@ using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Old1612ExportTo1c;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
@@ -53,7 +51,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -478,7 +475,8 @@ public partial class MainWindow : Window
 	}
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
-		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
+		var subdivisionRepository = _autofacScope.Resolve<ISubdivisionRepository>();
+		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
 
 		var page = NavigationManager.OpenViewModel<SalaryByEmployeeJournalViewModel, SalaryByEmployeeJournalFilterViewModel>(null, filter);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -518,7 +516,7 @@ public partial class MainWindow : Window
 			"CRM",
 			() => new TasksView(
 								new EmployeeJournalFactory(NavigationManager),
-								new DeliveryPointRepository()), null
+								new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory)), null
 		);
 	}
 
@@ -563,14 +561,14 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		INomenclatureRepository nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		var nomenclatureRepository = _autofacScope.Resolve<INomenclatureRepository>();
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 
 		tdiMain.OpenTab(
 			"ExportImportNomenclatureCatalog",
 			() => new ExportImportNomenclatureCatalogViewModel(
 				nomenclatureRepository,
-				UnitOfWorkFactory.GetDefaultFactory,
+				uowFactory,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
 			)
@@ -605,12 +603,14 @@ public partial class MainWindow : Window
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
 	{
 		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var employeeService = _autofacScope.Resolve<IEmployeeService>();
 
 		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
 			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
+			uowFactory,
 			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
+			employeeService,
 			new EntityDeleteWorker(),
 			true,
 			true
@@ -655,8 +655,10 @@ public partial class MainWindow : Window
 
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var employeeService = _autofacScope.Resolve<IEmployeeService>();
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
-			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
+			uowFactory, PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
 
 		var employeeFilter = new EmployeeFilterViewModel
 		{
@@ -670,10 +672,10 @@ public partial class MainWindow : Window
 			{
 				HidenByDefault = true
 			},
-			UnitOfWorkFactory.GetDefaultFactory,
+			uowFactory,
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator,
-			VodovozGtkServicesConfig.EmployeeService)
+			employeeService)
 		);
 	}
 
@@ -713,7 +715,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
+			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
 		);
 	}
 
@@ -721,7 +723,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<Old1612ExportTo1cDialog>(),
-			() => new Old1612ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
+			() => new Old1612ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
 		);
 	}
 

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NSubstitute;
+﻿using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using QS.Dialog;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -19,7 +19,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
@@ -557,8 +557,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetIncomePaidSumForOrder(uow, testOrder.Id).Returns(111);
 			cashRepository.GetExpenseReturnSumForOrder(uow, testOrder.Id).Returns(111);
 
-			var standartNom = Substitute.For<IStandartNomenclatures>();
-			standartNom.GetForfeitId().Returns(33);
+			var standartNom = Substitute.For<INomenclatureSettings>();
+			standartNom.ForfeitId.Returns(33);
 
 			// act
 			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom, routeListItemRepository, cashRepository);
@@ -793,7 +793,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderUnderTest.UoW = uow;
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
-			IStandartNomenclatures standartNomenclatures = Substitute.For<IStandartNomenclatures>();
+			var standartNomenclatures = Substitute.For<INomenclatureSettings>();
 			ICashRepository cashRepository = Substitute.For<ICashRepository>();
 			cashRepository.GetIncomePaidSumForOrder(uow, orderUnderTest.Id).Returns(111m);
 			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(112m);
@@ -839,8 +839,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderUnderTest.UoW = uow;
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
-			IStandartNomenclatures standartNomenclatures = Substitute.For<IStandartNomenclatures>();
-			standartNomenclatures.GetForfeitId().Returns(100);
+			var standartNomenclatures = Substitute.For<INomenclatureSettings>();
+			standartNomenclatures.ForfeitId.Returns(100);
 			ICashRepository cashRepository = Substitute.For<ICashRepository>();
 			cashRepository.GetIncomePaidSumForOrder(uow, orderUnderTest.Id).Returns(1m);
 			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(1m);
@@ -900,8 +900,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderUnderTest.UoW = uow;
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
-			IStandartNomenclatures standartNomenclatures = Substitute.For<IStandartNomenclatures>();
-			standartNomenclatures.GetForfeitId().Returns(50);
+			var standartNomenclatures = Substitute.For<INomenclatureSettings>();
+			standartNomenclatures.ForfeitId.Returns(50);
 			ICashRepository cashRepository = Substitute.For<ICashRepository>();
 			cashRepository.GetIncomePaidSumForOrder(uow, 1).Returns(22);
 			cashRepository.GetExpenseReturnSumForOrder(uow, 1).Returns(22);

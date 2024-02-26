@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Payments
 			decimal sum);
 		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId);
 		int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId);
-		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider);
+		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings profitCategoryProvider);
 		IList<Payment> GetAllDistributedPayments(IUnitOfWork uow);
 		Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId);
 		IList<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId);
