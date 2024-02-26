@@ -85,7 +85,6 @@ namespace DriverAPI.Controllers.V5
 			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
 				user.UserName, ExternalApplicationType.DriverApp);
 
-			//TODO:Возможно есть смысл убрать, так как есть фильтр
 			try
 			{
 				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(
@@ -133,19 +132,8 @@ namespace DriverAPI.Controllers.V5
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
 				user.UserName, ExternalApplicationType.DriverApp);
-			
-			try
-			{
-				return Ok(_driverWarehouseEventsService.GetTodayCompletedEvents(driver));
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при попытке получения завершенных событий за день пользователем {Username}: {ExceptionMessage}",
-					userName,
-					e.Message);
 
-				return Problem("Внутренняя ошибка сервера");
-			}
+			return Ok(_driverWarehouseEventsService.GetTodayCompletedEvents(driver));
 		}
 	}
 }
