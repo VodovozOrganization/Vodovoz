@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
 	/// Запрос на регистрацию координат трека
 	/// </summary>
-	public class RegisterTrackCoordinateRequestDto
+	public class RegisterTrackCoordinateRequest
 	{
 		/// <summary>
 		/// Номер маршрутного листа

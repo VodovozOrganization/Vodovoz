@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
@@ -68,7 +68,7 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> EnablePushNotificationsAsync([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
+		public async Task<IActionResult> EnablePushNotificationsAsync([FromBody] EnablePushNotificationsRequest enablePushNotificationsRequest)
 		{
 			_logger.LogInformation("Запрошена подписка на PUSH-сообщения для пользователя {Username} Firebase token: {FirebaseToken}, User token: {AccessToken}",
 				HttpContext.User.Identity?.Name ?? "Unknown",

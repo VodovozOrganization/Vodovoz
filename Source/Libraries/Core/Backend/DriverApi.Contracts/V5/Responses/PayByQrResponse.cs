@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Responses
 {
 	/// <summary>
 	/// Ответ по оплате по QR-коду
 	/// </summary>
-	public class PayByQRResponseDTO
+	public class PayByQrResponse
 	{
 		/// <summary>
 		/// Доступные для смены типы оплаты
@@ -20,7 +20,7 @@ namespace DriverApi.Contracts.V5
 		/// <summary>
 		/// Статус оплаты QR-кода
 		/// </summary>
-		public QRPaymentDTOStatus? QRPaymentStatus { get; set; }
+		public QrPaymentDtoStatus? QRPaymentStatus { get; set; }
 
 		/// <summary>
 		/// Изображение QR-кода в формате Png закодированное в строку Base64

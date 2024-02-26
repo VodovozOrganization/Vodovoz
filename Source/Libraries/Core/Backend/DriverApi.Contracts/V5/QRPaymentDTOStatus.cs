@@ -6,7 +6,7 @@ namespace DriverApi.Contracts.V5
 	/// Статус оплаты по QR-коду
 	/// </summary>
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum QRPaymentDTOStatus
+	public enum QrPaymentDtoStatus
 	{
 		/// <summary>
 		/// Ожидает оплаты

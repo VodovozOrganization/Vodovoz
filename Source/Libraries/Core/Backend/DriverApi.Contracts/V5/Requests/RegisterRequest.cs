@@ -1,9 +1,9 @@
-﻿namespace DriverApi.Contracts.V5
+﻿namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
 	/// Запрос на регистрацию пользователя
 	/// </summary>
-	public class RegisterRequestDto
+	public class RegisterRequest
 	{
 		/// <summary>
 		/// Логин пользователя

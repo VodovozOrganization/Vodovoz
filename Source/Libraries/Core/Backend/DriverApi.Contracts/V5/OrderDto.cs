@@ -21,7 +21,7 @@ namespace DriverApi.Contracts.V5
 		/// <summary>
 		/// Статус оплаты по QR-коду
 		/// </summary>
-		public QRPaymentDTOStatus? QRPaymentStatus { get; set; }
+		public QrPaymentDtoStatus? QRPaymentStatus { get; set; }
 
 		/// <summary>
 		/// Время доставки

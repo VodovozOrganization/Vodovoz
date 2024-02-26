@@ -1,4 +1,6 @@
 ﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Requests;
+using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -80,7 +82,7 @@ namespace DriverAPI.Controllers.V5
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponseDto))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponse))]
 		public IActionResult GetRouteListsDetails([FromBody] int[] routeListsIds)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
@@ -101,7 +103,7 @@ namespace DriverAPI.Controllers.V5
 				resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
 			}
 
-			return Ok(new GetRouteListsDetailsResponseDto()
+			return Ok(new GetRouteListsDetailsResponse()
 			{
 				RouteLists = routeLists,
 				Orders = resortedOrders
@@ -155,7 +157,7 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
+		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequest requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddressId} пользователем {Username} User token: {AccessToken}",

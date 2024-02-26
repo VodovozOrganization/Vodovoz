@@ -1,9 +1,9 @@
-﻿namespace DriverApi.Contracts.V5
+﻿namespace DriverApi.Contracts.V5.Responses
 {
 	/// <summary>
 	/// Ответ на попытку отправить смс для оплаты
 	/// </summary>
-	public class SendPaymentResponseDto
+	public class SendPaymentResponse
 	{
 		/// <summary>
 		/// Описание ошибки

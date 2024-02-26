@@ -1,4 +1,5 @@
-﻿using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5.Requests;
+using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Converters;
 using DriverAPI.Library.V5.Services;
@@ -25,7 +26,7 @@ namespace DriverAPI.Controllers.V5
 		private readonly ILogger<FastPaymentsController> _logger;
 		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly IFastPaymentService _fastPaymentService;
-		private readonly QRPaymentConverter _qrPaymentConverter;
+		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IOrderService _orderService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
@@ -47,7 +48,7 @@ namespace DriverAPI.Controllers.V5
 			ILogger<FastPaymentsController> logger,
 			IActionTimeHelper actionTimeHelper,
 			IFastPaymentService fastPaymentService,
-			QRPaymentConverter qrPaymentConverter,
+			QrPaymentConverter qrPaymentConverter,
 			IOrderService orderService,
 			IEmployeeService employeeService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
@@ -78,7 +79,7 @@ namespace DriverAPI.Controllers.V5
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderQRPaymentStatusResponseDto))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderQrPaymentStatusResponse))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		public IActionResult GetOrderQRPaymentStatus(int orderId)
 		{
@@ -91,7 +92,7 @@ namespace DriverAPI.Controllers.V5
 				return Problem($"Не удалось получить информацию о заказе {orderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			return Ok(new OrderQRPaymentStatusResponseDto
+			return Ok(new OrderQrPaymentStatusResponse
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanReceiveQR = additionalInfo.CanReceiveQRCode,
@@ -106,9 +107,9 @@ namespace DriverAPI.Controllers.V5
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PayByQRResponseDTO))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PayByQrResponse))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		public async Task<IActionResult> PayByQRAsync(PayByQRRequestDTO payByQRRequestDTO)
+		public async Task<IActionResult> PayByQRAsync(PayByQrRequest payByQRRequestDTO)
 		{
 			var recievedTime = DateTime.Now;
 

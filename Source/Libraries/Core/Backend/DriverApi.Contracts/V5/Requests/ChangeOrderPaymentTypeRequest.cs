@@ -1,22 +1,24 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
-	/// Запрос оплаты по смс
+	/// Запрос на изменения типа оплаты
 	/// </summary>
-	public class PayBySmsRequestDto
+	public class ChangeOrderPaymentTypeRequest
 	{
 		/// <summary>
 		/// Номер заказа
 		/// </summary>
+		[Required]
 		public int OrderId { get; set; }
 
 		/// <summary>
-		/// Телефонный номер для отправки смс
+		/// Тип оплаты на который нужно сменить тип оплаты заказа
 		/// </summary>
-		public string PhoneNumber { get; set; }
+		[Required]
+		public PaymentDtoType NewPaymentType { get; set; }
 
 		/// <summary>
 		/// Время операции на стороне мобильного приложения водителя

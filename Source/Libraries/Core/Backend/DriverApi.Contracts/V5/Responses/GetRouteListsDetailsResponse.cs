@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Responses
 {
 	/// <summary>
 	/// Детализированная информация по маршрутным листам
 	/// </summary>
-	public class GetRouteListsDetailsResponseDto
+	public class GetRouteListsDetailsResponse
 	{
 		/// <summary>
 		/// Маршрутные листы

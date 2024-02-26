@@ -1,12 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
 	/// Запрос на возвращение маршрутного листа в статус В пути
 	/// </summary>
-	public class RollbackRouteListAddressStatusEnRouteRequestDto
+	public class RollbackRouteListAddressStatusEnRouteRequest
 	{
 		/// <summary>
 		/// Номер адреса маршрутного листа

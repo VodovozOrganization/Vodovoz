@@ -17,7 +17,7 @@ namespace DriverAPI.Library.V5.Converters
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly SignatureTypeConverter _signatureTypeConverter;
-		private readonly QRPaymentConverter _qrPaymentConverter;
+		private readonly QrPaymentConverter _qrPaymentConverter;
 
 		/// <summary>
 		/// Конструктор
@@ -33,7 +33,7 @@ namespace DriverAPI.Library.V5.Converters
 			SmsPaymentStatusConverter smsPaymentConverter,
 			PaymentTypeConverter paymentTypeConverter,
 			SignatureTypeConverter signatureTypeConverter,
-			QRPaymentConverter qrPaymentConverter)
+			QrPaymentConverter qrPaymentConverter)
 		{
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));

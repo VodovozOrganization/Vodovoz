@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
 	/// Запрос на завершение заказа
 	/// </summary>
-	public class UpdateOrderShipmentInfoRequestDto : IDriverOrderShipmentInfo
+	public class UpdateOrderShipmentInfoRequest : IDriverOrderShipmentInfo
 	{
 		/// <summary>
 		/// Номер заказа

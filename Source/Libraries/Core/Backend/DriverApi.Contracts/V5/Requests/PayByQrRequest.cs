@@ -1,12 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
-	/// Запрос на изменения типа оплаты
+	/// Запрос на оплату по QR-коду
 	/// </summary>
-	public class ChangeOrderPaymentTypeRequestDto
+	public class PayByQrRequest
 	{
 		/// <summary>
 		/// Номер заказа
@@ -15,10 +15,9 @@ namespace DriverApi.Contracts.V5
 		public int OrderId { get; set; }
 
 		/// <summary>
-		/// Тип оплаты на который нужно сменить тип оплаты заказа
+		/// Фактическое количество бутылей по акции
 		/// </summary>
-		[Required]
-		public PaymentDtoType NewPaymentType { get; set; }
+		public int? BottlesByStockActualCount { get; set; }
 
 		/// <summary>
 		/// Время операции на стороне мобильного приложения водителя

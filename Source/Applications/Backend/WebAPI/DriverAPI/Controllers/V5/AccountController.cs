@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -53,7 +53,7 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		public async Task<IActionResult> Post([FromBody] RegisterRequestDto loginRequestModel)
+		public async Task<IActionResult> Post([FromBody] RegisterRequest loginRequestModel)
 		{
 			var user = new IdentityUser
 			{
@@ -110,7 +110,7 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> AddRoleToUser([FromBody] RegisterRequestDto loginRequestModel)
+		public async Task<IActionResult> AddRoleToUser([FromBody] RegisterRequest loginRequestModel)
 		{
 			var user = await _userManager.FindByNameAsync(loginRequestModel.Username);
 			
@@ -157,7 +157,7 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> RemoveRoleFromUser([FromBody] RegisterRequestDto loginRequestModel)
+		public async Task<IActionResult> RemoveRoleFromUser([FromBody] RegisterRequest loginRequestModel)
 		{
 			var user = await _userManager.FindByNameAsync(loginRequestModel.Username);
 			var result = await _userManager.RemoveFromRoleAsync(user, loginRequestModel.UserRole);

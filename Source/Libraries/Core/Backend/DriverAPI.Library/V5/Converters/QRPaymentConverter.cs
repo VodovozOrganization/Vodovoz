@@ -1,4 +1,5 @@
 ﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using FastPaymentsApi.Contracts.Responses;
 using Vodovoz.Domain.FastPayments;
 
@@ -7,7 +8,7 @@ namespace DriverAPI.Library.V5.Converters
 	/// <summary>
 	/// Конвертер оплаты пл QR-коду
 	/// </summary>
-	public class QRPaymentConverter
+	public class QrPaymentConverter
 	{
 		/// <summary>
 		/// Метод конвертации в тип оплыты Api
@@ -15,7 +16,7 @@ namespace DriverAPI.Library.V5.Converters
 		/// <param name="fastPaymentStatus">Статус оплаты СБП</param>
 		/// <returns></returns>
 		/// <exception cref="ConverterException"></exception>
-		public QRPaymentDTOStatus? ConvertToAPIPaymentStatus(FastPaymentStatus? fastPaymentStatus)
+		public QrPaymentDtoStatus? ConvertToAPIPaymentStatus(FastPaymentStatus? fastPaymentStatus)
 		{
 			if(fastPaymentStatus == null)
 			{
@@ -25,11 +26,11 @@ namespace DriverAPI.Library.V5.Converters
 			switch(fastPaymentStatus)
 			{
 				case FastPaymentStatus.Processing:
-					return QRPaymentDTOStatus.WaitingForPayment;
+					return QrPaymentDtoStatus.WaitingForPayment;
 				case FastPaymentStatus.Performed:
-					return QRPaymentDTOStatus.Paid;
+					return QrPaymentDtoStatus.Paid;
 				case FastPaymentStatus.Rejected:
-					return QRPaymentDTOStatus.Cancelled;
+					return QrPaymentDtoStatus.Cancelled;
 				default:
 					throw new ConverterException(
 						nameof(fastPaymentStatus),
@@ -43,9 +44,9 @@ namespace DriverAPI.Library.V5.Converters
 		/// </summary>
 		/// <param name="qrResponseDto">DTO ответа об оплате по QR-коду</param>
 		/// <returns></returns>
-		public PayByQRResponseDTO ConvertToPayByQRResponseDto(QRResponseDTO qrResponseDto)
+		public PayByQrResponse ConvertToPayByQRResponseDto(QRResponseDTO qrResponseDto)
 		{
-			return new PayByQRResponseDTO
+			return new PayByQrResponse
 			{
 				ErrorMessage = qrResponseDto.ErrorMessage,
 				QRCode = qrResponseDto.QRCode,

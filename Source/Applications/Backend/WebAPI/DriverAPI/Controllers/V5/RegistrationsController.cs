@@ -1,4 +1,5 @@
 ﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -146,7 +147,7 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> RegisterTrackCoordinatesAsync(
-			[FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
+			[FromBody] RegisterTrackCoordinateRequest registerTrackCoordinateRequestModel)
 		{
 			_logger.LogInformation("Попытка регистрации треков для МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
 				registerTrackCoordinateRequestModel.RouteListId,

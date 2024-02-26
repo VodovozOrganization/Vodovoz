@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,14 +36,14 @@ namespace DriverAPI.Controllers.V5
 		/// <summary>
 		/// Получение телефонного номера компании
 		/// </summary>
-		/// <returns><see cref="CompanyNumberResponseDto"/></returns>
+		/// <returns><see cref="CompanyNumberResponse"/></returns>
 		[HttpGet]
 		[AllowAnonymous]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyNumberResponseDto))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyNumberResponse))]
 		public IActionResult GetCompanyPhoneNumber()
 		{
-			return Ok(new CompanyNumberResponseDto()
+			return Ok(new CompanyNumberResponse()
 			{
 				Number = _webApiParametersProvider.CompanyPhoneNumber
 			});

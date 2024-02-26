@@ -1,4 +1,5 @@
 ﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace DriverAPI.Library.V5.Services
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId);
 		void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
 		void SendSmsPaymentRequest(int orderId, string phoneNumber, int driverId);
-		Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId);
+		Task<PayByQrResponse> SendQRPaymentRequestAsync(int orderId, int driverId);
 		void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount);
 		void UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
 	}

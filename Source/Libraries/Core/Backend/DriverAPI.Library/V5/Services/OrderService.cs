@@ -1,4 +1,5 @@
 ﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Converters;
@@ -37,7 +38,7 @@ namespace DriverAPI.Library.V5.Services
 		private readonly IFastPaymentsServiceAPIHelper _fastPaymentsServiceApiHelper;
 		private readonly IUnitOfWork _uow;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly QRPaymentConverter _qrPaymentConverter;
+		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IFastPaymentService _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
@@ -56,7 +57,7 @@ namespace DriverAPI.Library.V5.Services
 			IFastPaymentsServiceAPIHelper fastPaymentsServiceApiHelper,
 			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			QRPaymentConverter qrPaymentConverter,
+			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderParametersProvider orderParametersProvider)
 		{
@@ -634,7 +635,7 @@ namespace DriverAPI.Library.V5.Services
 			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
 		}
 
-		public async Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId)
+		public async Task<PayByQrResponse> SendQRPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
@@ -660,7 +661,7 @@ namespace DriverAPI.Library.V5.Services
 			var qrResponseDto = await _fastPaymentsServiceApiHelper.SendPaymentAsync(orderId);
 			var payByQRResponseDto = _qrPaymentConverter.ConvertToPayByQRResponseDto(qrResponseDto);
 
-			if(payByQRResponseDto.QRPaymentStatus == QRPaymentDTOStatus.Paid)
+			if(payByQRResponseDto.QRPaymentStatus == QrPaymentDtoStatus.Paid)
 			{
 				payByQRResponseDto.AvailablePaymentTypes = Enumerable.Empty<PaymentDtoType>();
 				payByQRResponseDto.CanReceiveQR = false;

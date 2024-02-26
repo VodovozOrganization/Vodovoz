@@ -1,9 +1,9 @@
-﻿namespace DriverApi.Contracts.V5
+﻿namespace DriverApi.Contracts.V5.Responses
 {
 	/// <summary>
 	/// Телефонный номер компании
 	/// </summary>
-	public class CompanyNumberResponseDto
+	public class CompanyNumberResponse
 	{
 		/// <summary>
 		/// Телефонный номер компании
