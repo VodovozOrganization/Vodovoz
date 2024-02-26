@@ -572,6 +572,8 @@ namespace Vodovoz.Application.Logistics
 					&& x.WasTransfered)
 				.ToList();
 
+			var revertErrors= new List<Error>();
+
 			foreach(var address in addressesToRevert)
 			{
 				var result = RevertTransferedAddressFrom(unitOfWork, sourceRouteList, targetRouteList, address);
@@ -583,7 +585,12 @@ namespace Vodovoz.Application.Logistics
 					continue;
 				}
 
-				errors.AddRange(result.Errors.Select(x => x.Message));
+				revertErrors.AddRange(result.Errors);
+			}
+
+			if(revertErrors.Any())
+			{
+				return Result.Failure<IEnumerable<string>>(revertErrors);
 			}
 
 			sourceRouteList.CalculateWages(_wageParameterService);
@@ -814,7 +821,7 @@ namespace Vodovoz.Application.Logistics
 
 					if(!hasBalanceForTransfer)
 					{
-						return Result.Failure<string>(Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, targetRouteList.Id));
+						return Result.Failure<string>(Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, pastPlace.RouteList.Id));
 					}
 				}
 

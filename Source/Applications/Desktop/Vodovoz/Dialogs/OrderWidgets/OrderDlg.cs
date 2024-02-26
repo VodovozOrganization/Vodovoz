@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -25,6 +25,7 @@ using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
 using QS.Utilities.Extensions;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -106,6 +107,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -117,15 +119,12 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz
 {
@@ -2171,6 +2170,11 @@ namespace Vodovoz
 		{
 			try
 			{
+				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))				
+				{
+					CreateDeliveryFreeBalanceOperations();
+				}				
+
 				SetSensitivity(false);
 
 				_lastSaveResult = null;
@@ -2231,6 +2235,18 @@ namespace Vodovoz
 			{
 				SetSensitivity(true);
 			}
+		}
+
+		private void CreateDeliveryFreeBalanceOperations()
+		{
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+
+			if(routeListItem == null)
+			{
+				return;
+			}
+
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, routeListItem, forceUsePlanCount: true);
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -4148,6 +4164,12 @@ namespace Vodovoz
 			ycheckContactlessDelivery.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
+
+			var canChangeGoods = _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus)
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_goods_in_route_list");
+
+			ChangeGoodsSensitive(canChangeGoods || val);
+
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
 			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
@@ -4167,8 +4189,8 @@ namespace Vodovoz
 
 		void ChangeOrderEditable(bool val)
 		{
-			SetPadInfoSensitive(val);
-			ChangeGoodsTabSensitive(val);
+			ChangeGoodsTabSensitiveWithoutGoods(val);
+			SetPadInfoSensitive(val);			
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
@@ -4183,16 +4205,20 @@ namespace Vodovoz
 			}
 		}
 
-		private void ChangeGoodsTabSensitive(bool sensitive)
-		{
-			treeItems.Sensitive = sensitive;
-			hbox12.Sensitive = sensitive;
+		private void ChangeGoodsTabSensitiveWithoutGoods(bool sensitive)
+		{						
 			hbox11.Sensitive = sensitive;
 			hboxReturnTareReason.Sensitive = sensitive;
 			orderEquipmentItemsView.Sensitive = sensitive;
 			hbox13.Sensitive = sensitive;
 			depositrefunditemsview.Sensitive = sensitive;
 			table2.Sensitive = sensitive;
+		}
+
+		private void ChangeGoodsSensitive(bool sensitive)
+		{
+			treeItems.Sensitive = sensitive;
+			hbox12.Sensitive = sensitive;
 		}
 
 		void SetPadInfoSensitive(bool value)
