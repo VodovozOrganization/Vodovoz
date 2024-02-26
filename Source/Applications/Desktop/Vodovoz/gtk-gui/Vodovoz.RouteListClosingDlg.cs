@@ -36,7 +36,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DatePicker datePickerDate;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
@@ -380,6 +380,7 @@ namespace Vodovoz
 			this.datePickerDate.Date = new global::System.DateTime(0);
 			this.datePickerDate.IsEditable = false;
 			this.datePickerDate.AutoSeparation = false;
+			this.datePickerDate.HideButtonClearDate = false;
 			this.tblRLInfo.Add(this.datePickerDate);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.datePickerDate]));
 			w16.LeftAttach = ((uint)(1));
@@ -387,13 +388,11 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblRLInfo.Gtk.Table+TableChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
-			this.tblRLInfo.Add(this.entityviewmodelentryCar);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.tblRLInfo.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.entityentryCar]));
 			w17.LeftAttach = ((uint)(3));
 			w17.RightAttach = ((uint)(4));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -403,6 +402,7 @@ namespace Vodovoz
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.evmeDriver]));
@@ -417,6 +417,7 @@ namespace Vodovoz
 			this.evmeForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.evmeForwarder.Name = "evmeForwarder";
 			this.evmeForwarder.CanEditReference = true;
+			this.evmeForwarder.CanDisposeEntitySelectorFactory = false;
 			this.evmeForwarder.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.evmeForwarder);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.evmeForwarder]));
@@ -431,6 +432,7 @@ namespace Vodovoz
 			this.evmeLogistician.Events = ((global::Gdk.EventMask)(256));
 			this.evmeLogistician.Name = "evmeLogistician";
 			this.evmeLogistician.CanEditReference = true;
+			this.evmeLogistician.CanDisposeEntitySelectorFactory = false;
 			this.evmeLogistician.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.evmeLogistician);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.evmeLogistician]));

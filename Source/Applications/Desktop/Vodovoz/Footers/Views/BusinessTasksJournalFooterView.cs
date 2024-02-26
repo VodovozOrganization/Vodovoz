@@ -1,17 +1,15 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Views;
 using Vodovoz.Footers.ViewModels;
 
 namespace Vodovoz.Footers.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BusinessTasksJournalFooterView : Gtk.Bin
+	public partial class BusinessTasksJournalFooterView : ViewBase<BusinessTasksJournalFooterViewModel>
 	{
-		BusinessTasksJournalFooterViewModel ViewModel { get; set; }
-
 		public BusinessTasksJournalFooterView(BusinessTasksJournalFooterViewModel viewModel)
+			:base(viewModel)
 		{
 			this.Build();
-			ViewModel = viewModel;
 			Configure();
 		}
 

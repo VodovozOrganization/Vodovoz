@@ -17,6 +17,7 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Settings.Cash;
@@ -24,7 +25,9 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Cash.Transfer
 {
@@ -48,7 +51,6 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICarJournalFactory carJournalFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
@@ -72,9 +74,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 
-			CarAutocompleteSelectorFactory =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(_lifetimeScope);
+			CarEntryViewModel = BuildCarEntryViewModel();
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -165,11 +165,29 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			return viewModel;
 		}
 
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
 		#endregion EntityEntry ViewModels
 
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
-
-		public IEntityAutocompleteSelectorFactory CarAutocompleteSelectorFactory { get; }
 
 		public Employee Cashier
 		{

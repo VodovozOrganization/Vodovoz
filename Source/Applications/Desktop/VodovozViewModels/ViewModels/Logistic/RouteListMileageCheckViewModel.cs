@@ -8,6 +8,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -66,7 +68,6 @@ namespace Vodovoz.ViewModels.Logistic
 		public RouteListMileageCheckViewModel(
 			IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
-			ICarJournalFactory carJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IGtkTabsOpener gtkTabsOpener,
@@ -110,8 +111,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 
-			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 
 			LogisticianSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -128,11 +128,11 @@ namespace Vodovoz.ViewModels.Logistic
 			ConfigureAndCheckPermissions();
 		}
 
-		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory LogisticianSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
-		
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
 		public bool CanEdit
 		{
 			get => _canEdit;
@@ -239,6 +239,24 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 			}
 			));
+
+		private IEntityEntryViewModel BuildCarEntryViewModel(ILifetimeScope lifetimeScope)
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
 
 		private void ConfigureAndCheckPermissions()
 		{

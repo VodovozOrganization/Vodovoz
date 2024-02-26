@@ -34,9 +34,13 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Security.Principal;
+using Vodovoz.Commons;
 using Vodovoz.Configuration;
+using Vodovoz.Core;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
@@ -56,6 +60,7 @@ namespace Vodovoz
 		private readonly IApplicationInfo _applicationInfo;
 		private readonly IConfiguration _configuration;
 		private static IErrorReportingSettings _errorReportingSettings;
+		private readonly ViewModelWidgetsRegistrar _viewModelWidgetsRegistrar;
 		private static IPasswordValidator passwordValidator;
 
 		public static MainWindow MainWin;
@@ -65,13 +70,16 @@ namespace Vodovoz
 			ILifetimeScope lifetimeScope,
 			IApplicationInfo applicationInfo,
 			IConfiguration configuration,
-			IErrorReportingSettings errorReportingSettings)
+			IErrorReportingSettings errorReportingSettings,
+			IErrorReportingSettings errorReportingSettings,
+			ViewModelWidgetsRegistrar viewModelWidgetsRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			AppDIContainer = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_errorReportingSettings = errorReportingSettings ?? throw new ArgumentNullException(nameof(errorReportingSettings));
+			_viewModelWidgetsRegistrar = viewModelWidgetsRegistrar ?? throw new ArgumentNullException(nameof(viewModelWidgetsRegistrar));
 		}
 
 		public void Start(string[] args)
@@ -95,6 +103,9 @@ namespace Vodovoz
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
 
 			ConfigureViewModelWidgetResolver();
+
+			_viewModelWidgetsRegistrar.RegisterateWidgets();
+
 			ConfigureJournalColumnsConfigs();
 
 			QSMain.SetupFromArgs(args);

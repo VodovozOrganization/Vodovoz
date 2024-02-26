@@ -430,6 +430,7 @@
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Commons\ThemmedDiffFormater.cs" />
+    <Compile Include="Commons\ViewModelWidgetsRegistrar.cs" />
     <Compile Include="Cores\DocumentPrinter.cs" />
     <Compile Include="Cores\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
     <Compile Include="Cores\ViewFactory.cs" />
@@ -702,7 +703,6 @@
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportOperation.cs" />
     <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
-    <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryScheduleJournalFactory.cs" />

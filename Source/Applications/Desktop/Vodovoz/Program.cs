@@ -23,7 +23,6 @@ using Pacs.Operators.Client.Consumers.Definitions;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
-using QS.Deletion.Views;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
@@ -47,7 +46,6 @@ using QS.Project.Versioning;
 using QS.Report;
 using QS.Report.Repository;
 using QS.Report.ViewModels;
-using QS.Report.Views;
 using QS.Services;
 using QS.Tdi;
 using QS.Tdi.Gtk;
@@ -71,6 +69,7 @@ using Vodovoz.Application.Pacs;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
+using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Data.NHibernate;
@@ -135,7 +134,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
@@ -229,11 +227,6 @@ namespace Vodovoz
 					builder.Register<TdiNotebook>((context) => TDIMain.MainNotebook);
 					builder.RegisterType<TdiNavigationManagerAdapter>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 						.SingleInstance();
-					builder.Register(context => new ClassNamesBaseGtkViewResolver(context.Resolve<IGtkViewFactory>(),
-						typeof(InternalTalkView),
-						typeof(DeletionView),
-						typeof(RdlViewerView))
-					).As<IGtkViewResolver>();
 
 					#endregion
 
@@ -267,13 +260,6 @@ namespace Vodovoz
 					// Классы водовоза
 
 					builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
-					builder.Register(c => ViewModelWidgetResolver.Instance)
-						.AsSelf()
-						.As<ITDIWidgetResolver>()
-						.As<IFilterWidgetResolver>()
-						.As<IWidgetResolver>()
-						.As<IGtkViewResolver>()
-						.SingleInstance();
 
 					builder.RegisterType<RouteListDailyNumberProvider>()
 						.As<IRouteListDailyNumberProvider>();
@@ -721,6 +707,12 @@ namespace Vodovoz
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
+						.AddSingleton<ViewModelWidgetResolver, BasedOnNameViewModelWidgetResolver>()
+						.AddSingleton<ITDIWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<IFilterWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<IWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness()
 

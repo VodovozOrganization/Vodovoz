@@ -38,9 +38,8 @@ namespace Vodovoz.Dialogs.Fuel
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entryCar.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
+			entityentryCar.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ycomboFuelType.SetRenderTextFunc<FuelType>(x => x.Name);
 			ycomboFuelType.Binding.AddBinding(ViewModel, vm => vm.FuelTypes, w => w.ItemsList).InitializeFromSource();

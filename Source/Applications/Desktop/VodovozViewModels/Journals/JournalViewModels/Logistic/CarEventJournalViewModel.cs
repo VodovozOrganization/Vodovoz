@@ -57,6 +57,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(CarEvent),
 				typeof(CarEventType));
 
+			filterViewModel.Journal = this;
+
 			if(filterConfig != null)
 			{
 				filterViewModel.SetAndRefilterAtOnce(filterConfig);

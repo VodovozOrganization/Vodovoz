@@ -454,12 +454,10 @@ namespace Vodovoz.JournalViewModels
 								_subdivisionRepository,
 								new EmployeeRepository(),
 								_fuelRepository,
-								NavigationManagerProvider.NavigationManager,
+								NavigationManager,
 								new TrackRepository(),
 								new EmployeeJournalFactory(NavigationManager),
 								_financialCategoriesGroupsSettings,
-								new CarJournalFactory(NavigationManager),
-								_organizationRepository,
 								_lifetimeScope
 							)
 						);

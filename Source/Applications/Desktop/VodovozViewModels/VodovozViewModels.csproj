@@ -547,7 +547,6 @@
     <Compile Include="Journals\Nodes\Rent\FreeRentPackagesJournalNode.cs" />
     <Compile Include="Journals\Nodes\Rent\PaidRentPackagesJournalNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TempAdapters\ICarJournalFactory.cs" />
     <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
