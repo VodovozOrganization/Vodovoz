@@ -1,17 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NHibernate.Criterion;
 using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 
@@ -29,7 +24,7 @@ namespace Vodovoz.Presentation.WebApi.Common
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 		}
 
-		protected IActionResult MapResult(HttpContext httpContext, Result result, int? statusCode = null)
+		protected IActionResult MapResult(HttpContext httpContext, Result result, int? statusCode = null, int? errorStatusCode = null)
 		{
 			if(result.IsSuccess)
 			{
@@ -37,10 +32,10 @@ namespace Vodovoz.Presentation.WebApi.Common
 				return new NoContentResult();
 			}
 
-			return MapErrors(httpContext.Request.Path, result.Errors, statusCode);
+			return MapErrors(httpContext.Request.Path, result.Errors, errorStatusCode);
 		}
 
-		protected IActionResult MapResult<TValue>(HttpContext httpContext, Result<TValue> result, int? statusCode = null)
+		protected IActionResult MapResult<TValue>(HttpContext httpContext, Result<TValue> result, int? statusCode = null, int? errorStatusCode = null)
 		{
 			if(result.IsSuccess)
 			{
@@ -48,7 +43,7 @@ namespace Vodovoz.Presentation.WebApi.Common
 				return new ObjectResult(result.Value);
 			}
 
-			return MapErrors(httpContext.Request.Path, result.Errors, statusCode);
+			return MapErrors(httpContext.Request.Path, result.Errors, errorStatusCode);
 		}
 
 		private IActionResult MapErrors(
