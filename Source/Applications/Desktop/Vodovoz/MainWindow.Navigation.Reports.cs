@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -701,13 +701,15 @@ public partial class MainWindow
 	{
 		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
+		var report = scope.Resolve<WayBillReportGroupPrint>();
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
 
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
-			() => new QSReport.ReportViewDlg(viewModel));
+			QSReport.ReportViewDlg.GenerateHashName<WayBillReportGroupPrint>(),
+			() => dlg);
 
-		viewModel.Destroyed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -1006,9 +1008,12 @@ public partial class MainWindow
 
 		var report = scope.Resolve<MileageReport>();
 
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
+
 		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
-			() => new QSReport.ReportViewDlg(report));
+			() => dlg);
 
 		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
@@ -1216,9 +1221,12 @@ public partial class MainWindow
 
 		var report = scope.Resolve<Vodovoz.Reports.FuelReport>();
 
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
+
 		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-			() => new QSReport.ReportViewDlg(report));
+			() => dlg);
 
 		report.Destroyed += (_, _2) => scope?.Dispose();
 	}

@@ -30,8 +30,7 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
 			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel, vm => vm.CarEventType, e => e.Subject).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
 
@@ -83,7 +82,7 @@ namespace Vodovoz.Views.Logistic
 				ylabelCreateDate.Sensitive =
 				ylabelAuthor.Sensitive =
 				entityviewmodelentryCarEventType.Sensitive =
-				entityviewmodelentryCar.Sensitive =
+				entityentryCar.Sensitive =
 				evmeDriver.Sensitive =
 				ydatepickerStartEventDate.Sensitive =
 				ydatepickerEndEventDate.Sensitive =

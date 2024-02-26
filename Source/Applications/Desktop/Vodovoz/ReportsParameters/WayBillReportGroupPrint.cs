@@ -8,10 +8,15 @@ using NHibernate.Util;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Services;
 using QS.Report;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Employees;
@@ -19,15 +24,17 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class WayBillReportGroupPrint : SingleUoWWidgetBase, IParametersWidget
+	public partial class WayBillReportGroupPrint : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly IOrganizationJournalFactory _organizationJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -35,17 +42,18 @@ namespace Vodovoz.ReportsParameters
 		private List<Subdivision> _availableSubdivisionsForOneDayGroupReport;
 		private List<DriverSelectableNode> _availableDriversList = new List<DriverSelectableNode>();
 
+		private ITdiTab _parentTab;
+		private Car _car;
+
 		public WayBillReportGroupPrint(
 			ILifetimeScope lifetimeScope,
-			IEmployeeJournalFactory employeeJournalFactory, 
-			ICarJournalFactory carJournalFactory, 
+			IEmployeeJournalFactory employeeJournalFactory,
 			IOrganizationJournalFactory organizationJournalFactory, 
 			IInteractiveService interactiveService,
 			ISubdivisionRepository subdivisionRepository)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -69,6 +77,54 @@ namespace Vodovoz.ReportsParameters
 			enumcheckCarOwnTypeOneDayGroupReport.CheckStateChanged += EnumcheckCarOwnTypeOneDayGroupReportCheckStateChanged;
 		}
 
+		#region Properties
+		public Car Car
+		{
+			get => _car;
+			set
+			{
+				if(_car != value)
+				{
+					_car = value;
+
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Car)));
+				}
+			}
+		}
+
+		public ITdiTab ParentTab
+		{
+			get => _parentTab;
+			set
+			{
+				_parentTab = value;
+
+				if(entityentryCar.ViewModel == null)
+				{
+					entityentryCar.ViewModel = BuildCarEntryViewModel();
+				}
+			}
+		}
+		#endregion Properties
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var navigationManager = _lifetimeScope.BeginLifetimeScope().Resolve<INavigationManager>();
+
+			var viewModel = new LegacyEEVMBuilderFactory<WayBillReportGroupPrint>(ParentTab, this, UoW, navigationManager, _lifetimeScope)
+			.ForProperty(x => x.Car)
+			.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+				filter =>
+				{
+				})
+			.UseViewModelDialog<CarViewModel>()
+			.Finish();
+
+			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
 		#region Конфигурация элементов управления виджета отчетов
 		/// <summary>
 		/// Первичная конфигурация одиночного отчета
@@ -85,9 +141,6 @@ namespace Vodovoz.ReportsParameters
 			//Выбор водителя
 			entityDriverSingleReport.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
-
-			//Выбор автомобиля
-			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 
 			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportClicked;
 		}
@@ -134,6 +187,7 @@ namespace Vodovoz.ReportsParameters
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public string Title => "Путевой лист";
 
@@ -148,7 +202,7 @@ namespace Vodovoz.ReportsParameters
 				{
 					{ "date", datepickerSingleReport.Date },
 					{ "driver_id", (entityDriverSingleReport?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entityCarSingleReport?.Subject as Car)?.Id ?? -1 },
+					{ "car_id", Car?.Id ?? -1 },
 					{ "time", timeHourEntrySingleReport.Text + ":" + timeMinuteEntrySingleReport.Text },
 					{ "need_date", !datepickerSingleReport.IsEmpty }
 				}
