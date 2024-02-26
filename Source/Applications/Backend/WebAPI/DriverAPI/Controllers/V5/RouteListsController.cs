@@ -173,9 +173,15 @@ namespace DriverAPI.Controllers.V5
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);
 
+			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
+
+			if(timeCheckResult.IsFailure)
+			{
+				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+			}
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 				_apiRouteListService.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
 
 				return NoContent();

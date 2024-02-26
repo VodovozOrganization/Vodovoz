@@ -108,10 +108,15 @@ namespace DriverAPI.Controllers.V5
 
 			var localActionTime = routeListAddressCoordinate.ActionTimeUtc.ToLocalTime();
 
+			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
+
+			if(timeCheckResult.IsFailure)
+			{
+				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+			}
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
-
 				_routeListService.RegisterCoordinateForRouteListItem(
 					routeListAddressCoordinate.RouteListAddressId,
 					routeListAddressCoordinate.Latitude,

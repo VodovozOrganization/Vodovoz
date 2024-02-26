@@ -100,10 +100,15 @@ namespace DriverAPI.Controllers.V5
 
 			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
 
+			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
+
+			if(timeCheckResult.IsFailure)
+			{
+				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+			}
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
-
 				_orderService.CompleteOrderDelivery(
 					recievedTime,
 					driver,
@@ -151,7 +156,12 @@ namespace DriverAPI.Controllers.V5
 
 			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
 
-			_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
+			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
+
+			if(timeCheckResult.IsFailure)
+			{
+				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+			}
 
 			_orderService.UpdateOrderShipmentInfo(
 				recievedTime,
@@ -193,10 +203,15 @@ namespace DriverAPI.Controllers.V5
 
 			var resultMessage = "OK";
 
+			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
+
+			if(timeCheckResult.IsFailure)
+			{
+				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+			}
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
-
 				IEnumerable<PaymentDtoType> availableTypesToChange = _orderService.GetAvailableToChangePaymentTypes(orderId);
 
 				if(!availableTypesToChange.Contains(newPaymentType))

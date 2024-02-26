@@ -125,10 +125,15 @@ namespace DriverAPI.Controllers.V5
 			var resultMessage = "OK";
 			var localActionTime = payByQRRequestDTO.ActionTimeUtc.ToLocalTime();
 
+			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
+
+			if(timeCheckResult.IsFailure)
+			{
+				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+			}
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
-
 				if(payByQRRequestDTO.BottlesByStockActualCount.HasValue)
 				{
 					_orderService.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
