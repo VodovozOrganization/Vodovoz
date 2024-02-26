@@ -18,12 +18,13 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -33,7 +34,6 @@ namespace Vodovoz.Application.Logistics
 	public class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGenericRepository<RouteListSpecialCondition> _routeListSpecialConditionRepository;
@@ -47,7 +47,8 @@ namespace Vodovoz.Application.Logistics
 		private readonly IAddressTransferController _addressTransferController;
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
@@ -55,7 +56,6 @@ namespace Vodovoz.Application.Logistics
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IGenericRepository<RouteListSpecialCondition> routeListSpecialConditionRepository,
@@ -69,7 +69,8 @@ namespace Vodovoz.Application.Logistics
 			IAddressTransferController addressTransferController,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDeliveryRepository deliveryRepository,
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
@@ -77,8 +78,6 @@ namespace Vodovoz.Application.Logistics
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_terminalNomenclatureProvider = terminalNomenclatureProvider
-				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository
@@ -103,8 +102,10 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider
-				?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings
+				?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_deliveryRepository = deliveryRepository 
+				?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository
 				?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListProfitabilityController = routeListProfitabilityController
@@ -124,7 +125,7 @@ namespace Vodovoz.Application.Logistics
 			CarLoadDocument withDocument = null)
 		{
 			notLoadedGoods = new List<GoodsInRouteListResult>();
-			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 
 			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(unitOfWork, routeList);
 
@@ -895,7 +896,7 @@ namespace Vodovoz.Application.Logistics
 		{
 			routeList.CalculateWages(_wageParameterService);
 
-			var commonFastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
+			var commonFastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);

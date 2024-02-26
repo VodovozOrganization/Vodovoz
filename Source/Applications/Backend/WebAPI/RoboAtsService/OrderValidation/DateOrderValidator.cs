@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.OrderValidation
 {

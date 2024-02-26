@@ -8,14 +8,12 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using QS.Navigation;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
@@ -29,10 +27,12 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -50,12 +50,12 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
-		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly IExpenseSettings _expenseSettings;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly decimal _routeListProfitabilityIndicator;
 
 		public RouteListWorkingJournalViewModel(
@@ -66,13 +66,13 @@ namespace Vodovoz.JournalViewModels
 			IRouteListRepository routeListRepository,
 			IFuelRepository fuelRepository,
 			ICallTaskRepository callTaskRepository,
-			BaseParametersProvider baseParametersProvider,
 			IExpenseSettings expenseSettings,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
+			IOrganizationRepository organizationRepository,
 			INavigationManager navigationManager)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -81,12 +81,12 @@ namespace Vodovoz.JournalViewModels
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
-			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
@@ -382,14 +382,16 @@ namespace Vodovoz.JournalViewModels
 
 		protected void InitPopupActions()
 		{
+			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 			var callTaskWorker = new CallTaskWorker(
-					CallTaskSingletonFactory.GetInstance(),
-					_callTaskRepository,
-					new OrderRepository(),
-					new EmployeeRepository(),
-					_baseParametersProvider,
-					commonServices.UserService,
-					ErrorReporter.Instance);
+				UnitOfWorkFactory,
+				CallTaskSingletonFactory.GetInstance(),
+				_callTaskRepository,
+				new OrderRepository(),
+				new EmployeeRepository(),
+				employeeSettings,
+				commonServices.UserService,
+				ErrorReporter.Instance);
 
 			PopupActionsList.Add(new JournalAction(
 				"Закрытие МЛ",
@@ -447,6 +449,7 @@ namespace Vodovoz.JournalViewModels
 							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 							() => new FuelDocumentViewModel(
 								RouteList,
+								UnitOfWorkFactory,
 								commonServices,
 								_subdivisionRepository,
 								new EmployeeRepository(),
@@ -455,6 +458,7 @@ namespace Vodovoz.JournalViewModels
 								new TrackRepository(),
 								new EmployeeJournalFactory(NavigationManager),
 								_financialCategoriesGroupsSettings,
+								_organizationRepository,
 								_lifetimeScope
 							)
 						);

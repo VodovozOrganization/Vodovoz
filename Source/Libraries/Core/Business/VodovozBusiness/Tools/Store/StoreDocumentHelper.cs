@@ -13,11 +13,11 @@ namespace Vodovoz.Tools.Store
 {
 	public class StoreDocumentHelper : IStoreDocumentHelper
 	{
-		private readonly IUserSettings _userSettings;
+		private readonly IUserSettingsService _userSettings;
 		private readonly IInteractiveService _interactiveService;
 		private CurrentWarehousePermissions WarehousePermissions { get; }
 
-		public StoreDocumentHelper(IUserSettings userSettings)
+		public StoreDocumentHelper(IUserSettingsService userSettings)
 		{
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			WarehousePermissions = new CurrentWarehousePermissions();

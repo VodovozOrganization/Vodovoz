@@ -22,8 +22,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
             INavigationManager navigationManager,
 			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			if(FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value)
 			{
-				var salesSubDivisionId = subdivisionParametersProvider.GetSalesSubdivisionId();
+				var salesSubDivisionId = subdivisionSettings.GetSalesSubdivisionId();
 				FilterViewModel.RestrictInProcessAtDepartment = UoW.GetById<Subdivision>(salesSubDivisionId);
 			}
 

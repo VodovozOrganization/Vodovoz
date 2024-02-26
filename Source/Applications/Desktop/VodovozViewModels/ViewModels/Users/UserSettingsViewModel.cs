@@ -16,8 +16,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Users;
@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Users
 	public class UserSettingsViewModel : EntityTabViewModelBase<UserSettings>, ITDICloseControlTab
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
 		private ILifetimeScope _lifetimeScope;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Users
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclaturePricesRepository nomenclatureFixedPriceRepository)
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Users
 
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
@@ -138,7 +138,7 @@ namespace Vodovoz.ViewModels.Users
 		public IInteractiveService InteractiveService { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
-		public bool IsUserFromOkk => _subdivisionParametersProvider.GetOkkId()
+		public bool IsUserFromOkk => _subdivisionSettings.GetOkkId()
 		                             == _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
 
 		public bool IsUserFromRetail { get; private set; }

@@ -26,8 +26,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
@@ -39,9 +39,9 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
-		private readonly IDebtorsParameters _debtorsParameters;
+		private readonly IDebtorsSettings _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
@@ -59,14 +59,14 @@ namespace Vodovoz.Representations
 			INavigationManager navigationManager,
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			IDebtorsParameters debtorsParameters,
-			IEmailParametersProvider emailParametersProvider,
+			IDebtorsSettings debtorsParameters,
+			IEmailSettings emailSettings,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IEmailRepository emailRepository,
 			IFileDialogService fileDialogService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
@@ -916,7 +916,7 @@ namespace Vodovoz.Representations
 						null,
 						UnitOfWorkFactory,
 						ItemsSourceQueryFunction,
-						_emailParametersProvider,
+						_emailSettings,
 						commonServices,
 						_attachmentsViewModelFactory,
 						_currentEmployee,

@@ -1,7 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Osrm;
@@ -19,8 +18,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -28,7 +27,16 @@ namespace Vodovoz.EntityRepositories.Delivery
 {
 	public class DeliveryRepository : IDeliveryRepository
 	{
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IGlobalSettings _globalSettings;
+
+		public DeliveryRepository(IUnitOfWorkFactory uowFactory, IDeliveryRulesSettings deliveryRulesSettings, IGlobalSettings globalSettings)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+		}
 
 		#region Получение районов по координатам
 
@@ -161,22 +169,21 @@ namespace Vodovoz.EntityRepositories.Delivery
 			double latitude,
 			double longitude,
 			bool isGetClosestByRoute,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
 			Order fastDeliveryOrder = null)
 		{
-			var maxDistanceToTrackPoint = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
-			var driverGoodWeightLiftPerHand = deliveryRulesParametersProvider.DriverGoodWeightLiftPerHandInKg;
-			var maxFastOrdersPerSpecificTime = deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
+			var maxDistanceToTrackPoint = MaxDistanceToLatestTrackPointKm;
+			var driverGoodWeightLiftPerHand = _deliveryRulesSettings.DriverGoodWeightLiftPerHandInKg;
+			var maxFastOrdersPerSpecificTime = _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 
-			var maxTimeForFastDeliveryTimespan = deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+			var maxTimeForFastDeliveryTimespan = _deliveryRulesSettings.MaxTimeForFastDelivery;
 			
 			//Переводим всё в минуты
-			var trackPointTimeOffset = (int)deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes;
+			var trackPointTimeOffset = (int)_deliveryRulesSettings.MaxTimeOffsetForLatestTrackPoint.TotalMinutes;
 			var maxTimeForFastDelivery = (int)maxTimeForFastDeliveryTimespan.TotalMinutes;
-			var minTimeForNewOrder = (int)deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder.TotalMinutes;
-			var driverUnloadTime = (int)deliveryRulesParametersProvider.DriverUnloadTime.TotalMinutes;
-			var specificTimeForFastOrdersCount = (int)deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+			var minTimeForNewOrder = (int)_deliveryRulesSettings.MinTimeForNewFastDeliveryOrder.TotalMinutes;
+			var driverUnloadTime = (int)_deliveryRulesSettings.DriverUnloadTime.TotalMinutes;
+			var specificTimeForFastOrdersCount = (int)_deliveryRulesSettings.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
 
 			var fastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
 			{
@@ -186,9 +193,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
 				MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
 				MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
-				MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
-				DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
-				SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount,
+				MinTimeForNewFastDeliveryOrder = _deliveryRulesSettings.MinTimeForNewFastDeliveryOrder,
+				DriverUnloadTime = _deliveryRulesSettings.DriverUnloadTime,
+				SpecificTimeForMaxFastOrdersCount = _deliveryRulesSettings.SpecificTimeForMaxFastOrdersCount,
 			};
 
 			var order = fastDeliveryAvailabilityHistory.Order;
@@ -483,6 +490,65 @@ namespace Vodovoz.EntityRepositories.Delivery
 		}
 
 		#endregion
+
+		public double MaxDistanceToLatestTrackPointKm
+		{
+			get
+			{
+				using(var unitOfWork = _uowFactory.CreateWithoutRoot())
+				{
+					return unitOfWork.Query<FastDeliveryMaxDistanceParameterVersion>()
+						.Where(x => x.EndDate == null)
+						.SingleOrDefault().Value;
+				}
+			}
+		}
+
+		public double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime)
+		{
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot())
+			{
+				FastDeliveryMaxDistanceParameterVersion fastDeliveryMaxDistanceParameterVersionAlias = null;
+
+				return unitOfWork.Session.QueryOver(() => fastDeliveryMaxDistanceParameterVersionAlias)
+					.Where(Restrictions.And(
+						Restrictions.Le(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.StartDate), dateTime),
+						Restrictions.Or(
+							Restrictions.Gt(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate), dateTime),
+							Restrictions.IsNull(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate)))))
+					.SingleOrDefault().Value;
+			}
+		}
+
+		public void UpdateFastDeliveryMaxDistanceParameter(double value)
+		{
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot())
+			{
+				var activationTime = DateTime.Now;
+
+				var lastVersion = unitOfWork.Query<FastDeliveryMaxDistanceParameterVersion>()
+					.Where(x => x.EndDate == null)
+					.SingleOrDefault();
+
+				if(lastVersion.Value == value)
+				{
+					return;
+				}
+
+				lastVersion.EndDate = activationTime;
+
+				var newVersion = new FastDeliveryMaxDistanceParameterVersion
+				{
+					StartDate = activationTime,
+					Value = value
+				};
+
+				unitOfWork.Save(lastVersion);
+				unitOfWork.Save(newVersion);
+
+				unitOfWork.Commit();
+			}
+		}
 	}
 
 	public class CountUnclosedFastDeliveryAddressesNode

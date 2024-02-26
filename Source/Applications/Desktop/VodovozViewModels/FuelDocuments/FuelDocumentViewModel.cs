@@ -19,8 +19,8 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
@@ -36,10 +36,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrackRepository _trackRepository;
 
-		private readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
+		private readonly IOrganizationRepository _organizationRepository;
 
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
@@ -71,6 +71,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -83,6 +84,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -112,6 +114,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -124,6 +127,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -147,6 +151,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public FuelDocumentViewModel
 		(
 			RouteList rl,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
@@ -155,24 +160,26 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
-
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
+			var uow = _uowFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
 			FuelDocument = uow.Root;
 			FuelDocument.UoW = UoW;
@@ -200,6 +207,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -213,6 +221,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -235,7 +244,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
-			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
+			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_organizationRepository);
 
 			CreateCommands();
 
@@ -253,7 +262,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			TabName = "Выдача топлива";
-			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
+			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_organizationRepository);
 			CreateCommands();
 			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
 
@@ -473,7 +482,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			if(FuelDocument.Id == 0)
 			{
-				FuelDocument.CreateOperations(FuelRepository, _commonOrganisationProvider, _financialCategoriesGroupsSettings);
+				FuelDocument.CreateOperations(FuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
 				if(FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)

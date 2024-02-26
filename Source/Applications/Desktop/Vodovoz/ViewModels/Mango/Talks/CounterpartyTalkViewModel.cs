@@ -1,43 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
-namespace Vodovoz.ViewModels.Mango.Talks
+namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
 	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IParametersProvider _parametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private ILifetimeScope _lifetimeScope;
@@ -54,29 +55,29 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListRepository routedListRepository,
 			IInteractiveService interactiveService,
-			IOrderParametersProvider orderParametersProvider, 
+			IOrderSettings orderSettings, 
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
+			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(tdinavigation, manager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
-
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_routedListRepository = routedListRepository;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_uow = unitOfWorkFactory.CreateWithoutRoot();
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 			_deliveryPointJournalFactory =
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 
@@ -87,8 +88,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
-						client, _lifetimeScope, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
-						_employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider, _deliveryRulesParametersProvider);
+						client, _lifetimeScope, _unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderSettings,
+						_employeeJournalFactory, _counterpartyJournalFactory, _deliveryRulesSettings, _nomenclatureSettings);
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -136,15 +137,15 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					new CounterpartyOrderViewModel(
 						client,
 						_lifetimeScope,
-						UnitOfWorkFactory.GetDefaultFactory,
+						_unitOfWorkFactory,
 						_tdiNavigation,
 						_routedListRepository,
 						MangoManager,
-						_orderParametersProvider,
+						_orderSettings,
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
-						_parametersProvider,
-						_deliveryRulesParametersProvider);
+						_deliveryRulesSettings,
+						_nomenclatureSettings);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -169,9 +170,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 				CounterpartyOrderViewModel model =
 					new CounterpartyOrderViewModel(
-						client, _lifetimeScope, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository, MangoManager,
-						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider,
-						_deliveryRulesParametersProvider);
+						client, _lifetimeScope, _unitOfWorkFactory, _tdiNavigation, _routedListRepository, MangoManager,
+						_orderSettings, _employeeJournalFactory, _counterpartyJournalFactory,
+						_deliveryRulesSettings, _nomenclatureSettings);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -216,7 +217,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
+				{ "unitOfWorkFactory", _unitOfWorkFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},

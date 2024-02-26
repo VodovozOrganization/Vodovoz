@@ -1,21 +1,19 @@
-﻿using System;
-using System.Linq;
-using Gtk;
+﻿using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Extensions;
+using QS.Project.Services;
+using System;
+using System.Linq;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Representations;
-using Vodovoz.Filters.ViewModels;
-using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Representations;
 using Vodovoz.TempAdapters;
-using QS.Dialog.GtkUI.FileDialog;
-using QS.Extensions;
+using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 
 namespace Vodovoz.JournalViewers
 {
@@ -37,7 +35,7 @@ namespace Vodovoz.JournalViewers
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
 		}
@@ -48,7 +46,7 @@ namespace Vodovoz.JournalViewers
 			evmeEmployee.ChangedByUser += OnEvmeEmployeeChangedByUser;
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()), new FileDialogService());
+			_callTasksVm = new CallTasksVM(new FileDialogService());
 			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			_callTasksVm.Filter =

@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -24,6 +23,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -38,7 +38,8 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IEmployeeSettings _employeeSettings2;
+		private readonly IEmployeeSettings _employeeSettings1;
 		private readonly ITrackRepository _trackRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -70,7 +71,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			BaseParametersProvider baseParametersProvider,
 			ITrackRepository trackRepository,
 			ICallTaskRepository callTaskRepository,
 			IEmployeeRepository employeeRepository,
@@ -95,7 +95,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
-			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -155,11 +154,12 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public virtual CallTaskWorker CallTaskWorker =>
 			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
+				UnitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
 				_callTaskRepository,
 				_orderRepository,
 				_employeeRepository,
-				_baseParametersProvider,
+				_employeeSettings,
 				CommonServices.UserService,
 				_errorReporter));
 

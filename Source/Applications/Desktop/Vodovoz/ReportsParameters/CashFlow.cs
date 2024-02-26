@@ -18,13 +18,14 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -67,7 +68,7 @@ namespace Vodovoz.Reports
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			Build();
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			comboPart.ItemsEnum = typeof(ReportParts);
 
@@ -331,9 +332,9 @@ namespace Vodovoz.Reports
 				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(new ParametersProvider());
-			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
-			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
+			var cashCategorySettings = ScopeProvider.Scope.Resolve<IOrganizationCashTransferDocumentSettings>();
+			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategorySettings.CashIncomeCategoryTransferId);
+			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategorySettings.CashExpenseCategoryTransferId);
 
 			return reportInfo;
 		}

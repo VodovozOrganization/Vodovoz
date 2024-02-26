@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Client
 	[EntityPermission]
 	public class Tag : PropertyChangedBase, IDomainObject
 	{
-		private string _name;
+		private string _name = "";
 		private string _colorText;
 
 		#region Свойства
@@ -36,16 +36,5 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
-
-		public Tag()
-		{
-			Name = string.Empty;
-		}
-
-		public static IUnitOfWorkGeneric<Tag> Create()
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<Tag>();
-			return uow;
-		}
 	}
 }

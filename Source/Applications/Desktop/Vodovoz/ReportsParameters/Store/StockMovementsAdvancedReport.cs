@@ -16,6 +16,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -135,7 +136,7 @@ namespace Vodovoz.ReportsParameters.Store
 		public StockMovementsAdvancedReport()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			ConfigureFilters();
 			ytreeviewSelectedList.ColumnsConfig = columnsConfig;

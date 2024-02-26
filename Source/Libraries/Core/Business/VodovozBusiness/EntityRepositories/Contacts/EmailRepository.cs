@@ -12,14 +12,21 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
 	public class EmailRepository : IEmailRepository
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public EmailRepository(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
 		{
 			return unitOfWork.GetById<StoredEmail>(id);
@@ -50,7 +57,7 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
 				var result =
 					(
@@ -79,7 +86,7 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HasSendedEmailForUpd(int orderId)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
 			{
 				return (from documentEmail in uow.GetAll<UpdDocumentEmail>()
 						where documentEmail.OrderDocument.Order.Id == orderId
@@ -94,7 +101,7 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 				var result = (from address in uow.GetAll<RouteListItem>()
 					where address.Order.Id == order.Id
@@ -108,7 +115,7 @@ namespace Vodovoz.EntityRepositories
 									)						   
 						|| (
 								(!address.Order.Client.NeedSendBillByEdo || address.Order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
-								&& address.Order.DeliverySchedule.Id == deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId
+								&& address.Order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 								&& order.OrderStatus == OrderStatus.Closed
 							)
 						)						
@@ -122,7 +129,7 @@ namespace Vodovoz.EntityRepositories
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
 			double timeLimit = 10;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
 			{
 				if(type == OrderDocumentType.Bill || type == OrderDocumentType.SpecialBill)
 				{
@@ -238,14 +245,14 @@ namespace Vodovoz.EntityRepositories
 				.SingleOrDefault();
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailSettings emailSettings)
 		{
-			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
+			return uow.GetById<BulkEmailEventReason>(emailSettings.BulkEmailEventOtherReasonId);
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailSettings emailSettings)
 		{
-			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
+			return uow.GetById<BulkEmailEventReason>(emailSettings.BulkEmailEventOperatorReasonId);
 		}
 
 		public Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
@@ -331,7 +338,7 @@ namespace Vodovoz.EntityRepositories
 				.Take(1);
 		}
 
-		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)
 		{
 			BulkEmailEventReason bulkEmailEventReasonAlias = null;
 
@@ -343,7 +350,7 @@ namespace Vodovoz.EntityRepositories
 				query.Where(x => !x.HideForUnsubscribePage);
 			}
 
-			query.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId);
+			query.OrderBy(x => x.Id == emailSettings.BulkEmailEventOtherReasonId);
 
 			return query.List();
 		}

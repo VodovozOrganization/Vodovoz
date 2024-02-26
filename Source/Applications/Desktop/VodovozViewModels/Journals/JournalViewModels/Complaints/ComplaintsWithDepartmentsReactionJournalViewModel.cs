@@ -22,7 +22,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -36,6 +35,9 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.NHibernateProjections.Employees;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -46,10 +48,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
-		private readonly IComplaintParametersProvider _complaintParametersProvider;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IComplaintSettings _complaintSettings;
+		private readonly IGeneralSettings _generalSettingsSettings;
 		private ILifetimeScope _scope;
 		private string _subdivisionQualityServiceShortName;
 		private string _subdivisionAuditDepartmentShortName;
@@ -68,22 +70,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
-			IComplaintParametersProvider complaintParametersProvider,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IComplaintSettings complaintSettings,
+			IGeneralSettings generalSettingsSettings,
 			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
-			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
+			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			TabName = "Журнал рекламаций";
@@ -110,9 +112,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private void Configure(ICommonServices commonServices, IEmployeeService employeeService, IUserRepository userRepository)
 		{
 			SubdivisionQualityServiceShortName =
-				UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?";
+				UoW.GetById<Subdivision>(_subdivisionSettings.QualityServiceSubdivisionId).ShortName ?? "?";
 			SubdivisionAuditDepartmentShortName =
-				UoW.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?";
+				UoW.GetById<Subdivision>(_subdivisionSettings.AuditDepartmentSubdivisionId).ShortName ?? "?";
 			
 			RegisterComplaints();
 
@@ -261,8 +263,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			var guiltiesProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT " +
 					"CASE ?1 " +
-					$"WHEN '{_complaintParametersProvider.EmployeeResponsibleId}' THEN CONCAT('(',?5,')', ?2)" +
-					$"WHEN '{_complaintParametersProvider.SubdivisionResponsibleId}' THEN ?3 " +
+					$"WHEN '{_complaintSettings.EmployeeResponsibleId}' THEN CONCAT('(',?5,')', ?2)" +
+					$"WHEN '{_complaintSettings.SubdivisionResponsibleId}' THEN ?3 " +
 					$"ELSE ?6 " +
 					"END " +
 					" SEPARATOR ?4)"),
@@ -827,7 +829,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						{
 							currentComplaintVM = ResolveComplaintViewModel(currentComplaintId.Value);
 
-							var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+							var interserctedSubdivisionsToInformIds = _generalSettingsSettings.SubdivisionsToInformComplaintHasNoDriver
 									.Intersect(currentComplaintVM.Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
 
 							var intersectedSubdivisionsNames = currentComplaintVM.Entity.Guilties
@@ -835,7 +837,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
 								.Select(s => s.Name);
 
-							if(currentComplaintVM.Entity.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+							if(currentComplaintVM.Entity.ComplaintResultOfEmployees?.Id == _complaintSettings.ComplaintResultOfEmployeesIsGuiltyId
 								&& interserctedSubdivisionsToInformIds.Any()
 								&& currentComplaintVM.Entity.Driver is null
 								&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",

@@ -1,7 +1,7 @@
 ﻿using System;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {

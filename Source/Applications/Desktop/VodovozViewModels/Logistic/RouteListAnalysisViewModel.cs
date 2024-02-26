@@ -24,8 +24,9 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -50,7 +51,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ICommonServices _commonServices;
 
 		#region Constructor
@@ -71,7 +72,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IFileDialogService fileDialogService,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
@@ -92,8 +93,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_subdivisionParametersProvider =
-				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings =
+				subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			UndeliveredOrdersRepository =

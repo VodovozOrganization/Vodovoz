@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using NLog;
+﻿using NLog;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Tools;
 
@@ -171,15 +170,15 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string Title => string.Format("{0} №{1}", this.GetType().GetSubjectName(), Id);
 
 		public virtual void CreateOperations(IFuelRepository fuelRepository, 
-			CashDistributionCommonOrganisationProvider commonOrganisationProvider,
+			IOrganizationRepository organizationRepository,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			if(fuelRepository == null) {
 				throw new ArgumentNullException(nameof(fuelRepository));
 			}
 			
-			if(commonOrganisationProvider == null) {
-				throw new ArgumentNullException(nameof(commonOrganisationProvider));
+			if(organizationRepository == null) {
+				throw new ArgumentNullException(nameof(organizationRepository));
 			}
 
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
@@ -194,7 +193,7 @@ namespace Vodovoz.Domain.Logistic
 			try {
 				CreateFuelOperation();
 				CreateFuelExpenseOperation();
-				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelFinancialExpenseCategoryId, commonOrganisationProvider);
+				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelFinancialExpenseCategoryId, organizationRepository);
 			} catch(Exception ex) {
 				//восстановление исходного состояния
 				FuelOperation = null;
@@ -259,7 +258,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private void CreateFuelCashExpense(int financialExpenseCategory, 
-			CashDistributionCommonOrganisationProvider commonOrganisationProvider)
+			IOrganizationRepository organizationRepository)
 		{
 			if(FuelPaymentType.HasValue && FuelPaymentType.Value == Logistic.FuelPaymentType.Cashless)
 				return;
@@ -278,7 +277,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = Date,
 				Casher = Author,
 				Employee = Driver,
-				Organisation = commonOrganisationProvider.GetCommonOrganisation(UoW),
+				Organisation = organizationRepository.GetCommonOrganisation(UoW),
 				RelatedToSubdivision = Subdivision,
 				Description = $"Оплата топлива по МЛ №{RouteList.Id}",
 				Money = Math.Round(PayedForFuel.Value, 2, MidpointRounding.AwayFromZero)

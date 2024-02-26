@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,6 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
 using RouteListItem = Vodovoz.Domain.Logistic.RouteListItem;
 
 namespace Vodovoz.Controllers
@@ -17,12 +16,12 @@ namespace Vodovoz.Controllers
 	public class RouteListAddressKeepingDocumentController : IRouteListAddressKeepingDocumentController
 	{
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 
-		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureParametersProvider nomenclatureParametersProvider)
+		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureRepository nomenclatureRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 		}
 
 		private DeliveryFreeBalanceType GetDeliveryFreeBalanceType(RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
@@ -58,7 +57,7 @@ namespace Vodovoz.Controllers
 		{
 			var routeList = routeListItem.RouteList;
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
 			sbyte amountSign;
 			if(newStatus != RouteListItemStatus.Completed && oldStatus == RouteListItemStatus.Completed)
@@ -126,7 +125,7 @@ namespace Vodovoz.Controllers
 				bottlesAmountSign = 1;
 			}
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			var oldBottlesReturned = oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
 
 			if(bottlesAmountSign != 0 && changedRouteListItem.BottlesReturned == oldBottlesReturned)
@@ -256,7 +255,7 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
+			IUnitOfWorkFactory uowFactory, IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled)
 			{
@@ -289,7 +288,7 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			using(var uowLocal = uowFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);

@@ -1,13 +1,13 @@
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -202,9 +202,9 @@ namespace Vodovoz.Domain.Orders
 			_observablePromotionalSetActions ?? (_observablePromotionalSetActions =
 				new GenericObservableList<PromotionalSetActionBase>(_promotionalSetActions));
 
-		public virtual bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
+		public virtual bool IsValidForOrder(Order order, INomenclatureSettings nomenclatureSettings)
 		{
-			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, standartNomenclatures));
+			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, nomenclatureSettings));
 		}
 	}
 }

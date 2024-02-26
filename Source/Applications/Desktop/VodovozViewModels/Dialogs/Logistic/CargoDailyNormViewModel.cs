@@ -5,23 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.ViewModels.Dialogs.Logistic
 {
 	public class CargoDailyNormViewModel : UowDialogViewModelBase
 	{
-		private readonly IRouteListParametersProvider _routeListParametersProvider;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly CarTypeOfUse[] _excludeCarTypeOfUses;
 
 		public CargoDailyNormViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
-			IRouteListParametersProvider routeListParametersProvider,
+			IRouteListRepository routeListRepository,
 			CarTypeOfUse[] excludeCarTypeOfUses)
 			: base(unitOfWorkFactory, navigation)
 		{
-			_routeListParametersProvider = routeListParametersProvider ?? throw new ArgumentNullException(nameof(routeListParametersProvider));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_excludeCarTypeOfUses = excludeCarTypeOfUses;
 
 			Initialize();
@@ -36,7 +37,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 
 			foreach(var carTypeOfUse in carTypeOfUses)
 			{
-				var amount = _routeListParametersProvider.GetCargoDailyNorm(carTypeOfUse);
+				var amount = _routeListRepository.GetCargoDailyNorm(carTypeOfUse);
 
 				CargoDailyNormNodes.Add(
 					new CargoDailyNormNode
@@ -52,7 +53,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			var cargoDailyNormNodesDictionary =
 				CargoDailyNormNodes.ToDictionary(x => x.CarTypeOfUse, x => x.Amount);
 
-			_routeListParametersProvider.SaveCargoDailyNorms(cargoDailyNormNodesDictionary);
+			_routeListRepository.SaveCargoDailyNorms(cargoDailyNormNodesDictionary);
 
 			return true;
 		}

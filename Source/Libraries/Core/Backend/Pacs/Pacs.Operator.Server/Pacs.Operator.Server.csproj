@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+	  <RootNamespace>Pacs.Operators.Server</RootNamespace>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+	  <ProjectReference Include="..\Pacs.Core\Pacs.Core.csproj" />
+	  <ProjectReference Include="..\Pacs.Server\Pacs.Server.csproj" />
+	</ItemGroup>
+	
+</Project>

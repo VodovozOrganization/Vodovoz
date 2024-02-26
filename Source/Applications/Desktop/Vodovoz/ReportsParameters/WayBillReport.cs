@@ -29,13 +29,14 @@ namespace Vodovoz.ReportsParameters
 
 		public WayBillReport(
 			ILifetimeScope lifetimeScope,
+			IUnitOfWorkFactory uowFactory,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = uowFactory.CreateWithoutRoot();
 			Configure();
 		}
 

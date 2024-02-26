@@ -74,7 +74,7 @@
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="Iesi.Collections" Version="4.0.5" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NHibernate" Version="5.4.1" />
@@ -90,6 +90,10 @@
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
       <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj">
+      <Project>{445c399f-f7f9-43ff-8278-e0392a792f03}</Project>
+      <Name>Vodovoz.Settings</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>

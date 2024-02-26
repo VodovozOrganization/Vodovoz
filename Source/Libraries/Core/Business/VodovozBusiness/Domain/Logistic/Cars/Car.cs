@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using NHibernate.Type;
+﻿using NHibernate.Type;
 using QS.Attachments.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 

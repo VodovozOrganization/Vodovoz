@@ -33,7 +33,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -45,6 +44,12 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
+using QS.Navigation;
+using Vodovoz.ViewModels.Employees;
+using QS.Project.Domain;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Settings.Roboats;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -55,7 +60,7 @@ namespace Vodovoz
 		private IDeliveryShiftRepository _deliveryShiftRepository;
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IWageParameterService _wageParameterService;
-		private IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private IGeneralSettings _generalSettingsSettings;
 		private readonly bool _isOrderWaitUntilActive;
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
@@ -72,13 +77,13 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = $"Ведение МЛ №{Entity.Id}";
 			_allEditing = Entity.Status == RouteListStatus.EnRoute && permissionResult.CanUpdate;
 			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
 			_logisticanEditing = _isUserLogist && _allEditing;
 
-			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
+			_isOrderWaitUntilActive = _generalSettingsSettings.GetIsOrderWaitUntilActive;
 
 			ConfigureDlg();
 		}
@@ -125,7 +130,7 @@ namespace Vodovoz
 			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
-			_generalSettingsParametersProvider = _lifetimeScope.Resolve<IGeneralSettingsParametersProvider>();
+			_generalSettingsSettings = _lifetimeScope.Resolve<IGeneralSettings>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
@@ -556,7 +561,7 @@ namespace Vodovoz
 						roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 				var journal =
 					new DeliveryScheduleJournalViewModel(
-						UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
+						ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
 				journal.SelectionMode = JournalSelectionMode.Single;
 				journal.OnEntitySelectedResult += (s, args) => {
 					var selectedResult = args.SelectedNodes.First() as DeliveryScheduleJournalNode;

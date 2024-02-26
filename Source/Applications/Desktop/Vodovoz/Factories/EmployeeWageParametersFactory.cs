@@ -14,6 +14,13 @@ namespace Vodovoz.Factories
 {
 	public class EmployeeWageParametersFactory : IEmployeeWageParametersFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public EmployeeWageParametersFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
 		public EmployeeWageParametersViewModel CreateEmployeeWageParametersViewModel(Employee employee, ITdiTab tab, IUnitOfWork uow)
 		{
 			var employeeRepository = new EmployeeRepository();
@@ -21,6 +28,7 @@ namespace Vodovoz.Factories
 			var wageCalculationRepository = new WageCalculationRepository();
 			
 			var validator = new HierarchicalPresetPermissionValidator(
+				_uowFactory,
 				employeeRepository,
 				new PermissionRepository());
 
