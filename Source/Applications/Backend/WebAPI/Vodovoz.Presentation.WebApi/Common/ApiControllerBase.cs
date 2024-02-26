@@ -1,8 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NHibernate.Criterion;
+using RestSharp.Extensions;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 
@@ -59,8 +68,39 @@ namespace Vodovoz.Presentation.WebApi.Common
 				Instance = instance,
 				Title = "Произошла ошибка",
 				Status = statusCode ?? StatusCodes.Status500InternalServerError,
-				Detail = errorsList.First().Message
+				Detail = GetErrorDisplayName(errorsList.First()) ?? errorsList.First().Message
 			});
+		}
+
+		private string GetErrorDisplayName([CallerMemberName] string name = "")
+		{
+			var errorTypeString = name.Replace(name.Substring(name.LastIndexOf(".")), "");
+
+			var errorsType = GetTypeByFullyQualifiedName(errorTypeString);
+
+			var memberInfo = errorsType.GetMember(name.Substring(name.LastIndexOf(".") + 1));
+
+			var attribute = memberInfo.First().GetAttribute<DisplayAttribute>();
+
+			return attribute?.Name;
+		}
+
+		private Type GetTypeByFullyQualifiedName(string typeName)
+		{
+			var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+
+			foreach(var assembly in assemblies)
+			{
+				var type = assembly.GetType(typeName);
+
+				if(type != null)
+				{
+					return type;
+				}
+			}
+
+			throw new ArgumentException(
+				"Type " + typeName + " doesn't exist in the current app domain");
 		}
 	}
 }
