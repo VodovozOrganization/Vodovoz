@@ -120,6 +120,7 @@ namespace DriverAPI.Controllers.V5
 		public IActionResult GetRouteList(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
+
 			_logger.LogInformation("Запрос информации о МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
 				routeListId,
 				HttpContext.User.Identity?.Name ?? "Unknown",

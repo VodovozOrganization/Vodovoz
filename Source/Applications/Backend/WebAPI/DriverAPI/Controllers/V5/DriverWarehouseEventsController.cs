@@ -67,7 +67,9 @@ namespace DriverAPI.Controllers.V5
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при валидации данных Qr кода от {Username}", userName);
+				_logger.LogError(e, "Ошибка при валидации данных Qr кода от {Username}: {ExceptionMessage}",
+					userName,
+					e.Message);
 			}
 
 			if(qrData is null)
@@ -105,9 +107,10 @@ namespace DriverAPI.Controllers.V5
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при попытке завершить событие {EventId} пользователем {Username}",
+				_logger.LogError(e, "Ошибка при попытке завершить событие {EventId} пользователем {Username}: {ExceptionMessage}",
 					qrData.EventId,
-					userName);
+					userName,
+					e.Message);
 
 				return Problem("Сервис не доступен. Обратитесь в техподдержку");
 			}
@@ -133,15 +136,15 @@ namespace DriverAPI.Controllers.V5
 			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
 				user.UserName, ExternalApplicationType.DriverApp);
 			
-			//TODO:Возможно есть смысл убрать, так как есть фильтр
 			try
 			{
 				return Ok(_driverWarehouseEventsService.GetTodayCompletedEvents(driver));
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при попытке получения завершенных событий за день пользователем {Username}",
-					userName);
+				_logger.LogError(e, "Ошибка при попытке получения завершенных событий за день пользователем {Username}: {ExceptionMessage}",
+					userName,
+					e.Message);
 
 				return Problem("Внутренняя ошибка сервера");
 			}

@@ -138,7 +138,7 @@ namespace DriverAPI.Controllers.V5
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Произошла ошибка при запросе QR-кода", ex.Message);
+				_logger.LogError(ex, "Произошла ошибка при запросе QR-кода {ExceptionMessage}", ex.Message);
 
 				resultMessage = ex.Message;
 
