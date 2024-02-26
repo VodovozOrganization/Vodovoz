@@ -29,6 +29,7 @@ namespace Vodovoz.ReportsParameters
 
 		public WayBillReport(
 			ILifetimeScope lifetimeScope,
+			IUnitOfWorkFactory uowFactory,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));

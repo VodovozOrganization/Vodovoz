@@ -71,7 +71,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -115,7 +114,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -162,7 +160,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -210,7 +207,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
 			IOrganizationRepository organizationRepository,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)

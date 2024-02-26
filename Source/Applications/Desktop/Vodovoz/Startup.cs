@@ -10,7 +10,6 @@ using QS.ChangePassword.Views;
 using QS.Configuration;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.Permissions;
 using QS.Project.DB.Passwords;
@@ -36,11 +35,8 @@ using System.Reflection;
 using System.Security.Principal;
 using Vodovoz.Commons;
 using Vodovoz.Configuration;
-using Vodovoz.Core;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
@@ -71,7 +67,6 @@ namespace Vodovoz
 			IApplicationInfo applicationInfo,
 			IConfiguration configuration,
 			IErrorReportingSettings errorReportingSettings,
-			IErrorReportingSettings errorReportingSettings,
 			ViewModelWidgetsRegistrar viewModelWidgetsRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -101,8 +96,6 @@ namespace Vodovoz
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
-
-			ConfigureViewModelWidgetResolver();
 
 			_viewModelWidgetsRegistrar.RegisterateWidgets();
 

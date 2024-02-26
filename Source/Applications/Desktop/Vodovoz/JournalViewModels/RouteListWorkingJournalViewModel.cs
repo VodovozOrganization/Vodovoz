@@ -458,6 +458,7 @@ namespace Vodovoz.JournalViewModels
 								new TrackRepository(),
 								new EmployeeJournalFactory(NavigationManager),
 								_financialCategoriesGroupsSettings,
+								_organizationRepository,
 								_lifetimeScope
 							)
 						);
