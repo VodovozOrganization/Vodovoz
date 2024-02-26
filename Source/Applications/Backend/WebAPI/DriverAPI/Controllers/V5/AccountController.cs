@@ -53,7 +53,6 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> Post([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = new IdentityUser
@@ -111,7 +110,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> AddRoleToUser([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = await _userManager.FindByNameAsync(loginRequestModel.Username);
@@ -159,7 +157,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RemoveRoleFromUser([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = await _userManager.FindByNameAsync(loginRequestModel.Username);

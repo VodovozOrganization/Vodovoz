@@ -75,7 +75,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
 			await Task.CompletedTask;
@@ -91,7 +90,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RegisterRouteListAddressCoordinatesAsync(
 			[FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
@@ -147,7 +145,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RegisterTrackCoordinatesAsync(
 			[FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{

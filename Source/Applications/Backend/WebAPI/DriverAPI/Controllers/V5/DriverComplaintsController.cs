@@ -41,7 +41,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DriverComplaintReasonDto>))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public IActionResult GetDriverComplaintReasons()
 		{
 			return MapResult(HttpContext, _driverComplaintService.TryGetPinnedComplaintReasons());

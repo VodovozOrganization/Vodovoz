@@ -81,7 +81,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponseDto))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public IActionResult GetRouteListsDetails([FromBody] int[] routeListsIds)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
@@ -117,7 +116,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListDto))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public IActionResult GetRouteList(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
@@ -137,7 +135,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<int>))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> GetRouteListsIdsAsync()
 		{
 			_logger.LogInformation("Запрос доступных МЛ пользователем {Username} User token: {AccessToken}",
@@ -158,7 +155,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
@@ -209,7 +205,6 @@ namespace DriverAPI.Controllers.V5
 		/// <returns></returns>
 		[HttpPost]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> AcceptRouteListSpecialConditionsAsync([FromBody] IEnumerable<int> specialConditionsIds)
 		{
 			_logger.LogInformation("Попытка принятия условий МЛ пользователем {Username} User token: {AccessToken}",

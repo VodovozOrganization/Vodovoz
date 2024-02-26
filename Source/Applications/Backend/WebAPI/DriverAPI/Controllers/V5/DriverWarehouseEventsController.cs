@@ -54,7 +54,6 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		[ProducesResponseType(550, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
@@ -123,7 +122,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CompletedEventDto>))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> GetTodayCompletedEvents()
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";

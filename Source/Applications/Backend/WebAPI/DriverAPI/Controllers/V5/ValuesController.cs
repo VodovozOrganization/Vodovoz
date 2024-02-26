@@ -41,7 +41,6 @@ namespace DriverAPI.Controllers.V5
 		[AllowAnonymous]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyNumberResponseDto))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public IActionResult GetCompanyPhoneNumber()
 		{
 			return Ok(new CompanyNumberResponseDto()

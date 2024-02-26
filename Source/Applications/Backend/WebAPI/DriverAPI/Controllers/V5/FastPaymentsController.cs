@@ -80,7 +80,6 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderQRPaymentStatusResponseDto))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public IActionResult GetOrderQRPaymentStatus(int orderId)
 		{
 			var additionalInfo = _orderService.GetAdditionalInfo(orderId);
@@ -109,7 +108,6 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PayByQRResponseDTO))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> PayByQRAsync(PayByQRRequestDTO payByQRRequestDTO)
 		{
 			var recievedTime = DateTime.Now;

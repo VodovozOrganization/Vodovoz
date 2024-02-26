@@ -68,7 +68,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> EnablePushNotificationsAsync([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
 			_logger.LogInformation("Запрошена подписка на PUSH-сообщения для пользователя {Username} Firebase token: {FirebaseToken}, User token: {AccessToken}",
@@ -91,7 +90,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> DisablePushNotificationsAsync()
 		{
 			_logger.LogInformation("Запрошена отписка от PUSH-сообщений для пользователя {Username} User token: {AccessToken}",
@@ -115,7 +113,6 @@ namespace DriverAPI.Controllers.V5
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
@@ -133,7 +130,6 @@ namespace DriverAPI.Controllers.V5
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
 		{
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
@@ -150,7 +146,6 @@ namespace DriverAPI.Controllers.V5
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> NotifyOfFastDeliveryOrderAddedAsync([FromBody] int orderId)
 		{
 			var token = _routeListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
@@ -177,7 +172,6 @@ namespace DriverAPI.Controllers.V5
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> NotifyOfWaitingTimeChangedAsync([FromBody] int orderId)
 		{
 			var token = _routeListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
