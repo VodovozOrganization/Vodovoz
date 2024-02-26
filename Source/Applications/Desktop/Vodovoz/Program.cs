@@ -13,7 +13,6 @@ using NLog.Extensions.Logging;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
-using QS.Deletion.Views;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
@@ -35,7 +34,6 @@ using QS.Project.Versioning;
 using QS.Report;
 using QS.Report.Repository;
 using QS.Report.ViewModels;
-using QS.Report.Views;
 using QS.Services;
 using QS.Tdi;
 using QS.Validation;
@@ -54,6 +52,7 @@ using Vodovoz.Application;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
+using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.DataService;
@@ -113,7 +112,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
@@ -216,11 +214,6 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelsGtkPageFactory(context.Resolve<ILifetimeScope>())).AsSelf();
 					builder.RegisterType<TdiNavigationManagerAdapter>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 						.SingleInstance();
-					builder.Register(context => new ClassNamesBaseGtkViewResolver(context.Resolve<IGtkViewFactory>(),
-						typeof(InternalTalkView),
-						typeof(DeletionView),
-						typeof(RdlViewerView))
-					).As<IGtkViewResolver>();
 
 					#endregion
 
@@ -252,13 +245,6 @@ namespace Vodovoz
 					// Классы водовоза
 
 					builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
-					builder.Register(c => ViewModelWidgetResolver.Instance)
-						.AsSelf()
-						.As<ITDIWidgetResolver>()
-						.As<IFilterWidgetResolver>()
-						.As<IWidgetResolver>()
-						.As<IGtkViewResolver>()
-						.SingleInstance();
 
 					builder.RegisterType<TrueMarkCodesPool>()
 						.AsSelf()
@@ -654,6 +640,12 @@ namespace Vodovoz
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
+						.AddSingleton<ViewModelWidgetResolver, BasedOnNameViewModelWidgetResolver>()
+						.AddSingleton<ITDIWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<IFilterWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<IWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
+						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness();
 				});
