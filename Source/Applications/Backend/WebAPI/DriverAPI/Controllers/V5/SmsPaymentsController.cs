@@ -1,19 +1,15 @@
 ﻿using DriverApi.Contracts.V5;
-using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Converters;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Net.Mime;
-using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -25,37 +21,25 @@ namespace DriverAPI.Controllers.V5
 	public class SmsPaymentsController : VersionedController
 	{
 		private readonly ILogger<SmsPaymentsController> _logger;
-		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly ISmsPaymentService _smsPaymentService;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly IOrderService _orderService;
-		private readonly IEmployeeService _employeeService;
-		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
-		private readonly UserManager<IdentityUser> _userManager;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="configuration"></param>
-		/// <param name="actionTimeHelper"></param>
 		/// <param name="smsPaymentService"></param>
 		/// <param name="smsPaymentConverter"></param>
 		/// <param name="orderService"></param>
-		/// <param name="employeeService"></param>
-		/// <param name="driverMobileAppActionRecordService"></param>
-		/// <param name="userManager"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
 			IConfiguration configuration,
-			IActionTimeHelper actionTimeHelper,
 			ISmsPaymentService smsPaymentService,
 			SmsPaymentStatusConverter smsPaymentConverter,
-			IOrderService orderService,
-			IEmployeeService employeeService,
-			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
-			UserManager<IdentityUser> userManager) : base(logger)
+			IOrderService orderService) : base(logger)
 		{
 			if(configuration is null)
 			{
@@ -64,20 +48,12 @@ namespace DriverAPI.Controllers.V5
 
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_actionTimeHelper = actionTimeHelper
-				?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_smsPaymentService = smsPaymentService
 				?? throw new ArgumentNullException(nameof(smsPaymentService));
 			_smsPaymentConverter = smsPaymentConverter
 				?? throw new ArgumentNullException(nameof(smsPaymentConverter));
 			_orderService = orderService
 				?? throw new ArgumentNullException(nameof(orderService));
-			_employeeService = employeeService
-				?? throw new ArgumentNullException(nameof(employeeService));
-			_driverMobileAppActionRecordService = driverMobileAppActionRecordService
-				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
-			_userManager = userManager
-				?? throw new ArgumentNullException(nameof(userManager));
 		}
 
 		/// <summary>
@@ -115,51 +91,6 @@ namespace DriverAPI.Controllers.V5
 					_smsPaymentService.GetOrderSmsPaymentStatus(orderId)
 				)
 			});
-		}
-
-		/// <summary>
-		/// Эндпоинт запроса СМС для оплаты заказа
-		/// </summary>
-		/// <param name="payBySmsRequestModel"></param>
-		[HttpPost]
-		[Produces("application/json")]
-		public async Task PayBySmsAsync(PayBySmsRequestDto payBySmsRequestModel)
-		{
-			return;
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation("Запрос СМС для оплаты заказа {OrderId} на номер {PhoneNumber} пользователем {Username} User token: {AccessToken}",
-				payBySmsRequestModel.OrderId,
-				payBySmsRequestModel.PhoneNumber,
-				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
-
-			var recievedTime = DateTime.Now;
-
-			var user = await _userManager.GetUserAsync(User);
-			var driver = _employeeService.GetByAPILogin(user.UserName);
-
-			var resultMessage = "OK";
-			var localActionTimel = payBySmsRequestModel.ActionTimeUtc.ToLocalTime();
-
-			try
-			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTimel);
-
-				_orderService.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
-			}
-			catch(Exception ex)
-			{
-				resultMessage = ex.Message;
-				throw;
-			}
-			finally
-			{
-				_driverMobileAppActionRecordService.RegisterAction(driver,
-					DriverMobileAppActionType.PayBySmsClicked,
-					localActionTimel,
-					recievedTime,
-					resultMessage);
-			}
 		}
 	}
 }
