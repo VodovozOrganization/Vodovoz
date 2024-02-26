@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DriverApi.Contracts.V5;
-using EventsApi.Library.Models;
+﻿using EventsApi.Library.Models;
 using LogisticsEventsApi.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using System;
+using System.Collections.Generic;
+using System.Net.Mime;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Employees;
 
@@ -35,7 +36,7 @@ namespace DriverAPI.Controllers.V5
 		public DriverWarehouseEventsController(
 			ILogger<DriverWarehouseEventsController> logger,
 			UserManager<IdentityUser> userManager,
-			ILogisticsEventsService driverWarehouseEventsService)
+			ILogisticsEventsService driverWarehouseEventsService) : base(logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -48,8 +49,13 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="eventData">данные для завершения события</param>
 		/// <returns>Http status OK или ошибка</returns>
 		/// <exception cref="Exception">ошибка</exception>
-		[HttpPost("CompleteDriverWarehouseEvent")]
-		[Produces("application/json", Type = typeof(CompletedDriverWarehouseEventDto))]
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(550, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
@@ -77,7 +83,8 @@ namespace DriverAPI.Controllers.V5
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
 				user.UserName, ExternalApplicationType.DriverApp);
-			
+
+			//TODO:Возможно есть смысл убрать, так как есть фильтр
 			try
 			{
 				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(
@@ -110,8 +117,10 @@ namespace DriverAPI.Controllers.V5
 		/// Получение списка завершенных событий за день
 		/// </summary>
 		/// <returns>список завершенных событий</returns>
-		[HttpGet("GetTodayCompletedEvents")]
-		[Produces("application/json", Type = typeof(IEnumerable<CompletedEventDto>))]
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CompletedEventDto>))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> GetTodayCompletedEvents()
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
@@ -124,6 +133,7 @@ namespace DriverAPI.Controllers.V5
 			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
 				user.UserName, ExternalApplicationType.DriverApp);
 			
+			//TODO:Возможно есть смысл убрать, так как есть фильтр
 			try
 			{
 				return Ok(_driverWarehouseEventsService.GetTodayCompletedEvents(driver));

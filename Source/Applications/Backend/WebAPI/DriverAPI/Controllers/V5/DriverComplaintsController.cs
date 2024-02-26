@@ -1,9 +1,12 @@
 ﻿using DriverApi.Contracts.V5;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 using Vodovoz.Core.Domain.Employees;
 
 namespace DriverAPI.Controllers.V5
@@ -20,11 +23,15 @@ namespace DriverAPI.Controllers.V5
 		/// <summary>
 		/// Конструктор
 		/// </summary>
+		/// <param name="logger"></param>
 		/// <param name="driverComplaintService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public DriverComplaintsController(IDriverComplaintService driverComplaintService)
+		public DriverComplaintsController(
+			ILogger<DriverComplaintsController> logger,
+			IDriverComplaintService driverComplaintService) : base(logger)
 		{
-			_driverComplaintService = driverComplaintService ?? throw new ArgumentNullException(nameof(driverComplaintService));
+			_driverComplaintService = driverComplaintService
+				?? throw new ArgumentNullException(nameof(driverComplaintService));
 		}
 
 		/// <summary>
@@ -32,11 +39,12 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <returns>Список популярных причин</returns>
 		[HttpGet]
-		[Produces("application/json")]
-		[Route("GetDriverComplaintReasons")]
-		public IEnumerable<DriverComplaintReasonDto> GetDriverComplaintReasons()
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DriverComplaintReasonDto>))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public IActionResult GetDriverComplaintReasons()
 		{
-			return _driverComplaintService.GetPinnedComplaintReasons();
+			return MapResult(HttpContext, _driverComplaintService.TryGetPinnedComplaintReasons());
 		}
 	}
 }

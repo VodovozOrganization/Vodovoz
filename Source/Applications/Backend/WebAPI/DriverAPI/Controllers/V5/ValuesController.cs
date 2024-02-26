@@ -1,7 +1,10 @@
 ﻿using DriverApi.Contracts.V5;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Mime;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Services;
 
@@ -19,9 +22,13 @@ namespace DriverAPI.Controllers.V5
 		/// <summary>
 		/// Конструктор
 		/// </summary>
+		/// <param name="logger"></param>
 		/// <param name="webApiParametersProvider"></param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public ValuesController(IDriverApiParametersProvider webApiParametersProvider)
+		public ValuesController(
+			ILogger<ValuesController> logger,
+			IDriverApiParametersProvider webApiParametersProvider)
+			: base(logger)
 		{
 			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 		}
@@ -32,14 +39,15 @@ namespace DriverAPI.Controllers.V5
 		/// <returns><see cref="CompanyNumberResponseDto"/></returns>
 		[HttpGet]
 		[AllowAnonymous]
-		[Produces("application/json")]
-		[Route("GetCompanyPhoneNumber")]
-		public CompanyNumberResponseDto GetCompanyPhoneNumber()
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyNumberResponseDto))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public IActionResult GetCompanyPhoneNumber()
 		{
-			return new CompanyNumberResponseDto()
+			return Ok(new CompanyNumberResponseDto()
 			{
 				Number = _webApiParametersProvider.CompanyPhoneNumber
-			};
+			});
 		}
 	}
 }

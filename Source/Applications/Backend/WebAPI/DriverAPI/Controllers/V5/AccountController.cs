@@ -1,10 +1,12 @@
 ﻿using DriverApi.Contracts.V5;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers.V5
@@ -30,7 +32,7 @@ namespace DriverAPI.Controllers.V5
 		public AccountController(
 			ILogger<AccountController> logger,
 			RoleManager<IdentityRole> roleManager,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager) : base(logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -47,7 +49,12 @@ namespace DriverAPI.Controllers.V5
 		[HttpPost("Register")]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task Post([FromBody] RegisterRequestDto loginRequestModel)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> Post([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = new IdentityUser
 			{
@@ -64,21 +71,30 @@ namespace DriverAPI.Controllers.V5
 				{
 					if(userCreatedResult.Errors.Any(e => e.Code == "DuplicateUserName"))
 					{
-						throw new ArgumentException("Имя пользователя уже занято");
+						_logger.LogWarning("Имя пользователя {UserName} уже занято", loginRequestModel.Username);
+						
+						return Problem("Имя пользователя уже занято", statusCode: StatusCodes.Status400BadRequest);
 					}
 
-					throw new Exception(string.Join(", ", userCreatedResult.Errors.Select(e => e.Description)));
+					_logger.LogError("Произошел ряд ошибок при создании пользователя: {ExceptionMessages}", string.Join(", ", userCreatedResult.Errors.Select(e => e.Description)));
+
+					return Problem("Не удалось зарегистрировать пользователя");
 				}
 
 				await AddRoleToUser(loginRequestModel);
+
+				return NoContent();
 			}
-			catch
+			catch(Exception ex)
 			{
 				if(userCreatedResult != null && userCreatedResult.Succeeded)
 				{
 					await _userManager.DeleteAsync(user);
 				}
-				throw;
+
+				_logger.LogError(ex, "Произошла ошибка при создании пользователя: {ExceptionMessage}", ex.Message);
+
+				return Problem("Не удалось зарегистрировать пользователя");
 			}
 		}
 		
@@ -92,7 +108,11 @@ namespace DriverAPI.Controllers.V5
 		[HttpPost("AddRoleToUser")]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task AddRoleToUser([FromBody] RegisterRequestDto loginRequestModel)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> AddRoleToUser([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = await _userManager.FindByNameAsync(loginRequestModel.Username);
 			
@@ -115,13 +135,17 @@ namespace DriverAPI.Controllers.V5
 						user.UserName,
 						loginRequestModel.UserRole);
 					
-					return;
+					return NoContent();
 				}
-				
-				throw new Exception(string.Join(", ", roleAddedToUserResult.Errors.Select(e => e.Description)));
+
+				_logger.LogError("Произошел ряд ошибок при добавлении роли: {ExceptionMessages}", string.Join(", ", roleAddedToUserResult.Errors.Select(e => e.Description)));
+
+				return Problem("Не удалось добавить роль");
 			}
+
+			return NoContent();
 		}
-		
+
 		/// <summary>
 		/// Убирает роль у пользователя, служебный
 		/// </summary>
@@ -132,7 +156,11 @@ namespace DriverAPI.Controllers.V5
 		[HttpPost("RemoveRoleFromUser")]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task RemoveRoleFromUser([FromBody] RegisterRequestDto loginRequestModel)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> RemoveRoleFromUser([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = await _userManager.FindByNameAsync(loginRequestModel.Username);
 			var result = await _userManager.RemoveFromRoleAsync(user, loginRequestModel.UserRole);
@@ -145,12 +173,16 @@ namespace DriverAPI.Controllers.V5
 						"Пользователь {User} не имеет активной роли {Role}",
 						user.UserName,
 						loginRequestModel.UserRole);
-					
-					return;
+
+					return NoContent();
 				}
+
+				_logger.LogError("Произошел ряд ошибок при удалении роли: {ExceptionMessages}", string.Join(", ", result.Errors.Select(e => e.Description)));
 				
-				throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+				return Problem("Не удалось удалить роль");
 			}
+
+			return NoContent();
 		}
 	}
 }

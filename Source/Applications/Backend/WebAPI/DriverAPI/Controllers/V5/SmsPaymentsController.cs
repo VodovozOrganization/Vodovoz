@@ -3,12 +3,14 @@ using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Converters;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
@@ -53,7 +55,7 @@ namespace DriverAPI.Controllers.V5
 			IOrderService orderService,
 			IEmployeeService employeeService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager) : base(logger)
 		{
 			if(configuration is null)
 			{
@@ -84,28 +86,35 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns><see cref="OrderSmsPaymentStatusResponseDto"/></returns>
 		[HttpGet]
-		[Produces("application/json")]
-		[Route("GetOrderSmsPaymentStatus")]
-		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderSmsPaymentStatusResponseDto))]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public IActionResult GetOrderSmsPaymentStatus(int orderId)
 		{
 			_logger.LogInformation("Запрос состояния оплаты заказа {OrderId} пользователем {Username} User token: {AccessToken}",
 				orderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
-			var additionalInfo = _orderService.GetAdditionalInfo(orderId)
-				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
+			var additionalInfo = _orderService.GetAdditionalInfo(orderId);
 
-			var response = new OrderSmsPaymentStatusResponseDto()
+			if(additionalInfo is null)
+			{
+				_logger.LogWarning("Не удалось получить информацию о заказе {OrderId}", orderId);
+
+				return Problem("Не удалось получить информацию о заказе", statusCode: StatusCodes.Status400BadRequest);
+			}
+
+			return Ok(new OrderSmsPaymentStatusResponseDto()
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
 				SmsPaymentStatus = _smsPaymentConverter.ConvertToAPIPaymentStatus(
 					_smsPaymentService.GetOrderSmsPaymentStatus(orderId)
 				)
-			};
-
-			return response;
+			});
 		}
 
 		/// <summary>
@@ -114,7 +123,6 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="payBySmsRequestModel"></param>
 		[HttpPost]
 		[Produces("application/json")]
-		[Route("PayBySms")]
 		public async Task PayBySmsAsync(PayBySmsRequestDto payBySmsRequestModel)
 		{
 			return;

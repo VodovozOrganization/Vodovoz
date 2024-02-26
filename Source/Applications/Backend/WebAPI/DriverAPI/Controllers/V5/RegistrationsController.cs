@@ -2,6 +2,7 @@
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
 
@@ -47,15 +49,22 @@ namespace DriverAPI.Controllers.V5
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
 			IRouteListService routeListService,
 			ITrackPointsService trackPointsService,
-			IActionTimeHelper actionTimeHelper)
+			IActionTimeHelper actionTimeHelper) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_employeeService = employeeService;
-			_driverMobileAppActionRecordService = driverMobileAppActionRecordService;
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
-			_trackPointsService = trackPointsService;
-			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_userManager = userManager
+				?? throw new ArgumentNullException(nameof(userManager));
+			_employeeService = employeeService
+				?? throw new ArgumentNullException(nameof(employeeService));
+			_driverMobileAppActionRecordService = driverMobileAppActionRecordService
+				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
+			_routeListService = routeListService
+				?? throw new ArgumentNullException(nameof(routeListService));
+			_trackPointsService = trackPointsService
+				?? throw new ArgumentNullException(nameof(trackPointsService));
+			_actionTimeHelper = actionTimeHelper
+				?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		/// <summary>
@@ -64,10 +73,12 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="driverActionModels">Список действий из лога для регистрации</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("RegisterDriverActions")]
-		public async Task RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
 			await Task.CompletedTask;
+			return NoContent();
 		}
 
 		/// <summary>
@@ -76,8 +87,12 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="routeListAddressCoordinate"></param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("RegisterRouteListAddressCoordinates")]
-		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> RegisterRouteListAddressCoordinatesAsync(
+			[FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
 			_logger.LogInformation("Попытка регистрации предположительных координат для адреса {RouteListAddressId} пользователем {Username} User token: {AccessToken}",
 				routeListAddressCoordinate.RouteListAddressId,
@@ -103,11 +118,18 @@ namespace DriverAPI.Controllers.V5
 					routeListAddressCoordinate.Longitude,
 					localActionTime,
 					driver.Id);
+
+				return NoContent();
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при регистрации предположительных координат для адреса {RouteListAddressId}: {ExceptionMessage}",
+					routeListAddressCoordinate.RouteListAddressId,
+					ex.Message);
+
 				resultMessage = ex.Message;
-				throw;
+
+				return Problem("Произошла ошибка при регистрации предположительных координат");
 			}
 			finally
 			{
@@ -121,8 +143,12 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="registerTrackCoordinateRequestModel"></param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("RegisterTrackCoordinates")]
-		public async Task RegisterTrackCoordinatesAsync([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> RegisterTrackCoordinatesAsync(
+			[FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
 			_logger.LogInformation("Попытка регистрации треков для МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
 				registerTrackCoordinateRequestModel.RouteListId,
@@ -136,6 +162,8 @@ namespace DriverAPI.Controllers.V5
 				registerTrackCoordinateRequestModel.RouteListId,
 				registerTrackCoordinateRequestModel.TrackList.ToList(),
 				driver.Id);
+
+			return NoContent();
 		}
 	}
 }

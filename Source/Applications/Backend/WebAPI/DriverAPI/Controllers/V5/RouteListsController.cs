@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
@@ -59,7 +60,7 @@ namespace DriverAPI.Controllers.V5
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
 			IActionTimeHelper actionTimeHelper,
 			IRouteListService routeListService,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager) : base(logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -77,9 +78,11 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="routeListsIds">Список номеров маршрутных листов</param>
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
-		[HttpPost("GetRouteListsDetails")]
-		[Produces("application/json", Type = typeof(GetRouteListsDetailsResponseDto))]
-		public IActionResult Get([FromBody] int[] routeListsIds)
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponseDto))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public IActionResult GetRouteListsDetails([FromBody] int[] routeListsIds)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
 				routeListsIds,
@@ -111,11 +114,10 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="routeListId">Номер маршрутного листа</param>
 		/// <returns><see cref="RouteListDto"/></returns>
-		[HttpGet("GetRouteList")]
-		[Produces("application/json", Type = typeof(RouteListDto))]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public IActionResult Get(int routeListId)
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListDto))]
+		public IActionResult GetRouteList(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation("Запрос информации о МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
@@ -130,9 +132,10 @@ namespace DriverAPI.Controllers.V5
 		/// Получение номеров маршрутных листов текущего водителя
 		/// </summary>
 		/// <returns><see cref="IEnumerable{int}"/>Cписок номеров маршрутных листов водителя</returns>
-		[HttpGet("GetRouteListsIds")]
-		[Produces("application/json", Type = typeof(IEnumerable<int>))]
-		public async Task<IActionResult> GetIds()
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<int>))]
+		public async Task<IActionResult> GetRouteListsIdsAsync()
 		{
 			_logger.LogInformation("Запрос доступных МЛ пользователем {Username} User token: {AccessToken}",
 				HttpContext.User.Identity?.Name ?? "Unknown",
@@ -148,8 +151,11 @@ namespace DriverAPI.Controllers.V5
 		/// Возвращения адреса маршрутного листа в статус В пути
 		/// </summary>
 		/// <returns></returns>
-		[HttpPost("RollbackRouteListAddressStatusEnRoute")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
@@ -171,12 +177,17 @@ namespace DriverAPI.Controllers.V5
 				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 				_apiRouteListService.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
 
-				return Ok(resultMessage);
+				return NoContent();
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при возврате в путь адреса МЛ {RoutelistAddressId}: {ExceptionMessage}",
+					requestDto.RoutelistAddressId,
+					ex.Message);
+
 				resultMessage = ex.Message;
-				throw;
+
+				return Problem("Произошла ошибка при возврате в путь адреса МЛ");
 			}
 			finally
 			{
@@ -193,9 +204,10 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="specialConditionsIds">Идентификаторы специальных условий для принятия</param>
 		/// <returns></returns>
-		[HttpPost("AcceptRouteListSpecialConditions")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public async Task<IActionResult> AcceptSpecialConditionsAsync([FromBody] IEnumerable<int> specialConditionsIds)
+		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> AcceptRouteListSpecialConditionsAsync([FromBody] IEnumerable<int> specialConditionsIds)
 		{
 			_logger.LogInformation("Попытка принятия условий МЛ пользователем {Username} User token: {AccessToken}",
 				HttpContext.User.Identity?.Name ?? "Unknown",
@@ -208,7 +220,7 @@ namespace DriverAPI.Controllers.V5
 
 			_routeListService.AcceptConditions(_unitOfWork, employee.Id, specialConditionsIds);
 
-			return Ok();
+			return NoContent();
 		}
 	}
 }

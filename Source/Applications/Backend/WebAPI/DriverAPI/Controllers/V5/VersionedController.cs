@@ -1,6 +1,6 @@
-﻿using DriverApi.Contracts.V5;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Vodovoz.Presentation.WebApi.Common;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -8,20 +8,16 @@ namespace DriverAPI.Controllers.V5
 	/// Базовый контроллер с версией
 	/// </summary>
 	[ApiVersion("5.0")]
-	[Route("api/v{version:apiVersion}")]
+	[Route("api/v{version:apiVersion}/[action]")]
 	[ApiController]
-	public class VersionedController : ControllerBase
+	public class VersionedController : ApiControllerBase
 	{
 		/// <summary>
-		/// Метод возврата ошибки
+		/// Конструктор
 		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="statusCode"></param>
-		/// <returns></returns>
-		protected IActionResult Error(string message, int statusCode = StatusCodes.Status400BadRequest)
+		/// <param name="logger"></param>
+		public VersionedController(ILogger<ApiControllerBase> logger) : base(logger)
 		{
-			HttpContext.Response.StatusCode = statusCode;
-			return BadRequest(new ErrorResponseDto(message));
 		}
 	}
 }

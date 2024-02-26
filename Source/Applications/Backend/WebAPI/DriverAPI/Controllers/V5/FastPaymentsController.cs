@@ -3,10 +3,12 @@ using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Converters;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
@@ -41,23 +43,32 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="driverMobileAppActionRecordService"></param>
 		/// <param name="userManager"></param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public FastPaymentsController(ILogger<FastPaymentsController> logger,
+		public FastPaymentsController(
+			ILogger<FastPaymentsController> logger,
 			IActionTimeHelper actionTimeHelper,
 			IFastPaymentService fastPaymentService,
 			QRPaymentConverter qrPaymentConverter,
 			IOrderService orderService,
 			IEmployeeService employeeService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
-			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
-			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
-			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_driverMobileAppActionRecordService = driverMobileAppActionRecordService ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
-			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_actionTimeHelper = actionTimeHelper
+				?? throw new ArgumentNullException(nameof(actionTimeHelper));
+			_fastPaymentService = fastPaymentService
+				?? throw new ArgumentNullException(nameof(fastPaymentService));
+			_qrPaymentConverter = qrPaymentConverter
+				?? throw new ArgumentNullException(nameof(qrPaymentConverter));
+			_orderService = orderService
+				?? throw new ArgumentNullException(nameof(orderService));
+			_employeeService = employeeService
+				?? throw new ArgumentNullException(nameof(employeeService));
+			_driverMobileAppActionRecordService = driverMobileAppActionRecordService
+				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
+			_userManager = userManager
+				?? throw new ArgumentNullException(nameof(userManager));
 		}
 
 		/// <summary>
@@ -66,21 +77,26 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
-		[Produces("application/json")]
-		[Route("GetOrderQRPaymentStatus")]
-		public OrderQRPaymentStatusResponseDto GetOrderQRPaymentStatus(int orderId)
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderQRPaymentStatusResponseDto))]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		public IActionResult GetOrderQRPaymentStatus(int orderId)
 		{
-			var additionalInfo = _orderService.GetAdditionalInfo(orderId)
-				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
+			var additionalInfo = _orderService.GetAdditionalInfo(orderId);
 
-			var response = new OrderQRPaymentStatusResponseDto
+			if(additionalInfo is null)
+			{
+				_logger.LogWarning("Не удалось получить информацию о заказе {OrderId}", orderId);
+
+				return Problem($"Не удалось получить информацию о заказе {orderId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
+			return Ok(new OrderQRPaymentStatusResponseDto
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanReceiveQR = additionalInfo.CanReceiveQRCode,
 				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(_fastPaymentService.GetOrderFastPaymentStatus(orderId))
-			};
-
-			return response;
+			});
 		}
 
 		/// <summary>
@@ -88,9 +104,12 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="payByQRRequestDTO"></param>
 		[HttpPost]
-		[Produces("application/json")]
-		[Route("PayByQR")]
-		public async Task<PayByQRResponseDTO> PayByQR(PayByQRRequestDTO payByQRRequestDTO)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PayByQRResponseDTO))]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> PayByQRAsync(PayByQRRequestDTO payByQRRequestDTO)
 		{
 			var recievedTime = DateTime.Now;
 
@@ -115,12 +134,13 @@ namespace DriverAPI.Controllers.V5
 					_orderService.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
 				}
 
-				return await _orderService.SendQRPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id);
+				return Ok(await _orderService.SendQRPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id));
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при запросе QR-кода", ex.Message);
 				resultMessage = ex.Message;
-				throw;
+				return Problem("Произошла ошибка при запросе QR-кода");
 			}
 			finally
 			{

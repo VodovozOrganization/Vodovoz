@@ -10,6 +10,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
@@ -47,7 +48,7 @@ namespace DriverAPI.Controllers.V5
 			UserManager<IdentityUser> userManager,
 			IOrderService orderService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
-			IActionTimeHelper actionTimeHelper)
+			IActionTimeHelper actionTimeHelper) : base(logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -61,9 +62,11 @@ namespace DriverAPI.Controllers.V5
 		/// Получение информации о заказе
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
-		[HttpGet("GetOrder")]
-		[Produces("application/json")]
-		public OrderDto Get(int orderId)
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public OrderDto GetOrder(int orderId)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
 				orderId,
@@ -77,9 +80,12 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequestDto"/></param>
 		/// <returns></returns>
-		[HttpPost("CompleteOrderDelivery")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -104,11 +110,18 @@ namespace DriverAPI.Controllers.V5
 					driver,
 					completedOrderRequestModel,
 					completedOrderRequestModel);
+
+				return NoContent();
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при завершении доставки заказа {OrderId}: {ExceptionMessage}",
+					completedOrderRequestModel.OrderId,
+					ex.Message);
+
 				resultMessage = ex.Message;
-				throw;
+
+				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}");
 			}
 			finally
 			{
@@ -121,8 +134,11 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="completedOrderRequestModel"></param>
 		/// <returns></returns>
-		[HttpPost("UpdateOrderShipmentInfo")]
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequestDto completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
@@ -152,9 +168,12 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
-		[Route("ChangeOrderPaymentType")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
 			var recievedTime = DateTime.Now;
 
@@ -186,9 +205,8 @@ namespace DriverAPI.Controllers.V5
 				if(!availableTypesToChange.Contains(newPaymentType))
 				{
 					_logger.LogWarning("Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}", orderId, newPaymentType);
-					throw new ArgumentOutOfRangeException(
-						nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
-						$"Попытка сменить тип оплаты у заказа {orderId} на недоступный для этого заказа тип оплаты {newPaymentType}");
+
+					return Problem($"Попытка сменить тип оплаты у заказа {orderId} на недоступный для этого заказа тип оплаты {newPaymentType}", statusCode: StatusCodes.Status400BadRequest);
 				}
 
 				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
@@ -216,17 +234,22 @@ namespace DriverAPI.Controllers.V5
 				{
 					_logger.LogWarning("Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}", orderId, newPaymentType);
 
-					throw new ArgumentOutOfRangeException(
-						nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
-						$"Попытка сменить тип оплаты у заказа {orderId} на не поддерживаемый для смены тип оплаты {newPaymentType}");
+					return Problem($"Попытка сменить тип оплаты у заказа {orderId} на не поддерживаемый для смены тип оплаты {newPaymentType}", statusCode: StatusCodes.Status400BadRequest);
 				}
 
 				_orderService.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver, paymentByTerminalSource);
+
+				return NoContent();
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при смене типа оплаты заказа {OrderId}: {ExceptionMessage}",
+					changeOrderPaymentTypeRequestModel.OrderId,
+					ex.Message);
+
 				resultMessage = ex.Message;
-				throw;
+
+				return Problem($"Произошла ошибка при смене типа оплаты заказа доставки заказа {changeOrderPaymentTypeRequestModel.OrderId}");
 			}
 			finally
 			{

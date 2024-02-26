@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,12 +32,14 @@ namespace DriverAPI.Controllers.V5
 		/// <summary>
 		/// Конструктор
 		/// </summary>
+		/// <param name="logger"></param>
 		/// <param name="configuration"></param>
 		/// <param name="userManager"></param>
 
 		public TokenController(
+			ILogger<TokenController> logger,
 			IConfiguration configuration,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager) : base(logger)
 		{
 			_configuration = configuration;
 			_userManager = userManager;
@@ -50,18 +55,20 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="loginRequestModel"></param>
 		/// <returns></returns>
 		/// <exception cref="UnauthorizedAccessException"></exception>
-		[HttpPost("Authenticate")]
-		[Produces("application/json")]
-		public async Task<TokenResponse> Post([FromBody] LoginRequest loginRequestModel)
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+		public async Task<IActionResult> Authenticate([FromBody] LoginRequest loginRequestModel)
 		{
 			if(await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
 			{
-				return await GenerateToken(loginRequestModel.Username);
+				return Ok(await GenerateToken(loginRequestModel.Username));
 			}
-			else
-			{
-				throw new UnauthorizedAccessException("Пара логин/пароль не найдена");
-			}
+
+			return Problem("Пара логин/пароль не найдена",
+				statusCode: StatusCodes.Status401Unauthorized);
 		}
 
 		private async Task<bool> IsValidCredentials(string username, string password)
@@ -74,7 +81,7 @@ namespace DriverAPI.Controllers.V5
 			}
 
 			return await _userManager.CheckPasswordAsync(user, password)
-					&& await _userManager.IsInRoleAsync(user, ApplicationUserRole.Driver.ToString());
+				&& await _userManager.IsInRoleAsync(user, ApplicationUserRole.Driver.ToString());
 		}
 
 		private async Task<TokenResponse> GenerateToken(string username)
