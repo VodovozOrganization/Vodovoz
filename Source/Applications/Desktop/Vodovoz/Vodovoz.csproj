@@ -1994,6 +1994,8 @@
     <Compile Include="ReportsParameters\OrderStatisticsByWeekReportType.cs" />
     <Compile Include="Views\Orders\OnlineOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderView.cs" />
+    <Compile Include="Views\Orders\OnlineOrderCancellationReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderCancellationReasonView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
