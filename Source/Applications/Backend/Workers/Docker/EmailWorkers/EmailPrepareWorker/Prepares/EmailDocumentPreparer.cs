@@ -66,6 +66,8 @@ namespace EmailPrepareWorker.Prepares
 				return null;
 			}
 
+			contract.DocumentTemplate.DocParser.SetDocObject(contract);
+
 			var renderedFilePath = fileWorker.PrepareToExportODT(contract.DocumentTemplate, FileEditMode.Document);
 
 			var content = Convert.ToBase64String(File.ReadAllBytes(renderedFilePath));
