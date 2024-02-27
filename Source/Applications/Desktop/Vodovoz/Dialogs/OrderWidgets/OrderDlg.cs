@@ -4176,6 +4176,12 @@ namespace Vodovoz
 
 			if(Entity != null)
 				yCmbPromoSets.Sensitive = val;
+
+			var canChangeSelfDeliveryGeoGroup = val
+				|| (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.WaitForPayment && Entity.SelfDeliveryGeoGroup == null);
+
+			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
+			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 		}
 
 		void ChangeOrderEditable(bool val)
