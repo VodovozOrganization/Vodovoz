@@ -4155,7 +4155,7 @@ namespace Vodovoz
 			ChangeOrderEditable(val);
 
 			var canChangeGoods = _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus)
-				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_goods_in_route_list");
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditGoodsInRouteList);
 
 			ChangeGoodsSensitive(canChangeGoods || val);
 

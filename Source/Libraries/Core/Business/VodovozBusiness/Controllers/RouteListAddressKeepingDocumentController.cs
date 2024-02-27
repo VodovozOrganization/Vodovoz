@@ -289,7 +289,7 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = unitOfWorkFactory.CreateWithoutRoot("Изменениние свободных остатков на кассе"))
+			using(var uowLocal = unitOfWorkFactory.CreateWithoutRoot("Изменение свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);
@@ -501,7 +501,7 @@ namespace Vodovoz.Controllers
 
 				if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
-					// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадуться операции
+					// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадутся операции
 					if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
 					   || oldAddress.RouteList.Status != RouteListStatus.New)
 					{
