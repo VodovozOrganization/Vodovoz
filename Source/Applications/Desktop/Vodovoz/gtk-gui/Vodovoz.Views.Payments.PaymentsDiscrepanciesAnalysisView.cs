@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Payments
 
 		private global::Gamma.GtkWidgets.yHBox yhboxModeSelection;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonCounterpartyMode;
+		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonCounterpartyMode;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonCommonMode;
+		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonCommonMode;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxFileSelection;
 
@@ -117,28 +117,30 @@ namespace Vodovoz.Views.Payments
 			this.yhboxModeSelection.Name = "yhboxModeSelection";
 			this.yhboxModeSelection.Spacing = 6;
 			// Container child yhboxModeSelection.Gtk.Box+BoxChild
-			this.ycheckbuttonCounterpartyMode = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonCounterpartyMode.WidthRequest = 180;
-			this.ycheckbuttonCounterpartyMode.CanFocus = true;
-			this.ycheckbuttonCounterpartyMode.Name = "ycheckbuttonCounterpartyMode";
-			this.ycheckbuttonCounterpartyMode.Label = global::Mono.Unix.Catalog.GetString("Сверка по контрагенту");
-			this.ycheckbuttonCounterpartyMode.DrawIndicator = false;
-			this.ycheckbuttonCounterpartyMode.UseUnderline = true;
-			this.yhboxModeSelection.Add(this.ycheckbuttonCounterpartyMode);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxModeSelection[this.ycheckbuttonCounterpartyMode]));
+			this.yradiobuttonCounterpartyMode = new global::Gamma.GtkWidgets.yRadioButton();
+			this.yradiobuttonCounterpartyMode.WidthRequest = 180;
+			this.yradiobuttonCounterpartyMode.CanFocus = true;
+			this.yradiobuttonCounterpartyMode.Name = "yradiobuttonCounterpartyMode";
+			this.yradiobuttonCounterpartyMode.Label = global::Mono.Unix.Catalog.GetString("Сверка по контрагенту");
+			this.yradiobuttonCounterpartyMode.DrawIndicator = false;
+			this.yradiobuttonCounterpartyMode.UseUnderline = true;
+			this.yradiobuttonCounterpartyMode.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.yhboxModeSelection.Add(this.yradiobuttonCounterpartyMode);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxModeSelection[this.yradiobuttonCounterpartyMode]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child yhboxModeSelection.Gtk.Box+BoxChild
-			this.ycheckbuttonCommonMode = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonCommonMode.WidthRequest = 180;
-			this.ycheckbuttonCommonMode.CanFocus = true;
-			this.ycheckbuttonCommonMode.Name = "ycheckbuttonCommonMode";
-			this.ycheckbuttonCommonMode.Label = global::Mono.Unix.Catalog.GetString("Общая сверка");
-			this.ycheckbuttonCommonMode.DrawIndicator = false;
-			this.ycheckbuttonCommonMode.UseUnderline = true;
-			this.yhboxModeSelection.Add(this.ycheckbuttonCommonMode);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxModeSelection[this.ycheckbuttonCommonMode]));
+			this.yradiobuttonCommonMode = new global::Gamma.GtkWidgets.yRadioButton();
+			this.yradiobuttonCommonMode.WidthRequest = 180;
+			this.yradiobuttonCommonMode.CanFocus = true;
+			this.yradiobuttonCommonMode.Name = "yradiobuttonCommonMode";
+			this.yradiobuttonCommonMode.Label = global::Mono.Unix.Catalog.GetString("Общая сверка");
+			this.yradiobuttonCommonMode.DrawIndicator = false;
+			this.yradiobuttonCommonMode.UseUnderline = true;
+			this.yradiobuttonCommonMode.Group = this.yradiobuttonCounterpartyMode.Group;
+			this.yhboxModeSelection.Add(this.yradiobuttonCommonMode);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxModeSelection[this.yradiobuttonCommonMode]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;

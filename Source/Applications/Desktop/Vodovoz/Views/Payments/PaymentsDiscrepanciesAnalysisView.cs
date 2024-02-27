@@ -31,11 +31,6 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 			ycheckbuttonClientDiscrepanciesOnly.Toggled += (s, e) => ViewModel.SetByCounterpartyCheckModeCommand.Execute();
 
-			ycheckbuttonCommonMode.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedCheckMode == DiscrepancyCheckMode.CommonReconciliation, w => w.Active)
-				.InitializeFromSource();
-			ycheckbuttonCommonMode.Toggled += (s, e) => ViewModel.SetCommonReconciliationCheckModeCommand.Execute();
-
 			ConfigureFileChooser();
 			ConfigureOrdersTree();
 			ConfigurePaymentsTree();
