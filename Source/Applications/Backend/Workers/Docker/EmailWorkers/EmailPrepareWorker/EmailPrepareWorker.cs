@@ -1,5 +1,6 @@
 ﻿using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
+using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -27,7 +28,7 @@ namespace EmailPrepareWorker
 
 		private readonly string _emailSendKey;
 		private readonly string _emailSendExchange;
-
+		private readonly string _connectionString;
 		private readonly ILogger<EmailPrepareWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IModel _channel;
@@ -36,7 +37,6 @@ namespace EmailPrepareWorker
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
 		private readonly int _instanceId;
-		private readonly string _connectionString;
 
 		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
@@ -44,6 +44,7 @@ namespace EmailPrepareWorker
 			ILogger<EmailPrepareWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IConfiguration configuration,
+			MySqlConnector.MySqlConnectionStringBuilder mySqlConnectionStringBuilder,
 			IModel channel,
 			IEmailRepository emailRepository,
 			IEmailSettings emailSettings,
@@ -54,6 +55,8 @@ namespace EmailPrepareWorker
 			{
 				throw new ArgumentNullException(nameof(configuration));
 			}
+
+			_connectionString = mySqlConnectionStringBuilder.ConnectionString;
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

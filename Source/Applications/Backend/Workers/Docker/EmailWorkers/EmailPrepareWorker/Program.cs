@@ -13,6 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
@@ -76,7 +77,8 @@ namespace EmailPrepareWorker
 						.AddSingleton<IEmailRepository, EmailRepository>()
 						.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>()
 						.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
-						.AddSingleton<IDocTemplateRepository, DocTemplateRepository>();
+						.AddSingleton<IDocTemplateRepository, DocTemplateRepository>()
+						.AddSingleton<IOrderRepository, OrderRepository>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});
