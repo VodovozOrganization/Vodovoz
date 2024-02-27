@@ -83,19 +83,19 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		public IActionResult GetOrderQRPaymentStatus(int orderId)
 		{
-			var additionalInfo = _orderService.GetAdditionalInfo(orderId);
+			var additionalInfo = _orderService.TryGetAdditionalInfo(orderId);
 
-			if(additionalInfo is null)
+			if(additionalInfo.IsFailure)
 			{
 				_logger.LogWarning("Не удалось получить информацию о заказе {OrderId}", orderId);
 
-				return Problem($"Не удалось получить информацию о заказе {orderId}", statusCode: StatusCodes.Status400BadRequest);
+				return MapResult(HttpContext, additionalInfo, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			return Ok(new OrderQrPaymentStatusResponse
 			{
-				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
-				CanReceiveQR = additionalInfo.CanReceiveQRCode,
+				AvailablePaymentTypes = additionalInfo.Value.AvailablePaymentTypes,
+				CanReceiveQR = additionalInfo.Value.CanReceiveQRCode,
 				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(_fastPaymentService.GetOrderFastPaymentStatus(orderId))
 			});
 		}
@@ -136,10 +136,14 @@ namespace DriverAPI.Controllers.V5
 			{
 				if(payByQRRequestDTO.BottlesByStockActualCount.HasValue)
 				{
-					_orderService.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
+					var updateBottlesCountResult = _orderService.TryUpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
+					if(updateBottlesCountResult.IsFailure)
+					{
+						MapResult(HttpContext, updateBottlesCountResult, errorStatusCode: StatusCodes.Status400BadRequest);
+					}
 				}
 
-				return Ok(await _orderService.SendQRPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id));
+				return MapResult(HttpContext, await _orderService.TrySendQrPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id));
 			}
 			catch(Exception ex)
 			{

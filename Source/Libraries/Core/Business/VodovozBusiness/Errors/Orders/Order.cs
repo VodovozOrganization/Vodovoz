@@ -1,7 +1,13 @@
-namespace Vodovoz.Errors.Orders
+﻿namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order
 	{
+		public static Error NotFound =>
+			new Error(
+				typeof(Order),
+				nameof(NotFound),
+				"Заказ не найден");
+
 		public static Error CantEdit =>
 			new Error(
 				typeof(Order),

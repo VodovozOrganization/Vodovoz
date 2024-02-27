@@ -65,13 +65,41 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
-		public OrderDto GetOrder(int orderId)
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+		public IActionResult GetOrder(int orderId)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
 				orderId,
 				Request.Headers[HeaderNames.Authorization]);
 
-			return _orderService.Get(orderId);
+			return MapResult(
+				HttpContext,
+				_orderService.TryGetOrder(orderId),
+				result =>
+				{
+					if(result.IsSuccess)
+					{
+						return StatusCodes.Status200OK;
+					}
+
+					var firstError = result.Errors.First();
+
+					if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+					{
+						return StatusCodes.Status403Forbidden;
+					}
+
+					if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+						|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
+						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
+					{
+						return StatusCodes.Status404NotFound;
+					}
+
+					return StatusCodes.Status500InternalServerError;
+				});
 		}
 
 		/// <summary>
@@ -83,6 +111,9 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequest completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
@@ -108,13 +139,42 @@ namespace DriverAPI.Controllers.V5
 
 			try
 			{
-				_orderService.CompleteOrderDelivery(
-					recievedTime,
-					driver,
-					completedOrderRequestModel,
-					completedOrderRequestModel);
+				return MapResult(
+					HttpContext,
+					_orderService.TryCompleteOrderDelivery(
+						recievedTime,
+						driver,
+						completedOrderRequestModel,
+						completedOrderRequestModel),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
 
-				return NoContent();
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.OrderAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
 			}
 			catch(Exception ex)
 			{

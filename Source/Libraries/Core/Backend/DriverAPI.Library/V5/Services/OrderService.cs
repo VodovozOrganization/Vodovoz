@@ -19,6 +19,7 @@ using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 
@@ -34,7 +35,6 @@ namespace DriverAPI.Library.V5.Services
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentService _aPISmsPaymentModel;
-		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
 		private readonly IFastPaymentsServiceAPIHelper _fastPaymentsServiceApiHelper;
 		private readonly IUnitOfWork _uow;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
@@ -53,7 +53,6 @@ namespace DriverAPI.Library.V5.Services
 			IDriverApiParametersProvider webApiParametersProvider,
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentService aPISmsPaymentModel,
-			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
 			IFastPaymentsServiceAPIHelper fastPaymentsServiceApiHelper,
 			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
@@ -69,7 +68,6 @@ namespace DriverAPI.Library.V5.Services
 			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
-			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
 			_fastPaymentsServiceApiHelper = fastPaymentsServiceApiHelper ?? throw new ArgumentNullException(nameof(fastPaymentsServiceApiHelper));
 			_uow = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
@@ -83,18 +81,36 @@ namespace DriverAPI.Library.V5.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrder</returns>
-		public OrderDto Get(int orderId)
+		public Result<OrderDto> TryGetOrder(int orderId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+
+			if(vodovozOrder is null)
+			{
+				return Result.Failure<OrderDto>(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
+
+			if(routeListItem is null)
+			{
+				return Result.Failure<OrderDto>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+			}
 
 			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
 				routeListItem.CreationDate,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
 				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder));
-			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
+
+			var additionalInfo = TryGetAdditionalInfo(vodovozOrder);
+
+			if(additionalInfo.IsFailure)
+			{
+				return Result.Failure<OrderDto>(additionalInfo.Errors);
+			}
+
+			order.OrderAdditionalInfo = TryGetAdditionalInfo(vodovozOrder).Value;
 
 			return order;
 		}
@@ -115,7 +131,7 @@ namespace DriverAPI.Library.V5.Services
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlineOrder);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
-				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
+				order.OrderAdditionalInfo = TryGetAdditionalInfo(vodovozOrder).Value;
 				result.Add(order);
 			}
 
@@ -184,12 +200,16 @@ namespace DriverAPI.Library.V5.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
+		public Result<OrderAdditionalInfoDto> TryGetAdditionalInfo(int orderId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
-			return GetAdditionalInfo(vodovozOrder);
+			if(vodovozOrder is null)
+			{
+				return Result.Failure<OrderAdditionalInfoDto>(Vodovoz.Errors.Orders.Order.OrderNotFound(orderId));
+			}
+
+			return TryGetAdditionalInfo(vodovozOrder);
 		}
 
 		/// <summary>
@@ -197,7 +217,7 @@ namespace DriverAPI.Library.V5.Services
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public OrderAdditionalInfoDto GetAdditionalInfo(Order order)
+		public Result<OrderAdditionalInfoDto> TryGetAdditionalInfo(Order order)
 		{
 			return new OrderAdditionalInfoDto
 			{
@@ -205,27 +225,6 @@ namespace DriverAPI.Library.V5.Services
 				CanSendSms = CanSendSmsForPayment(order, _aPISmsPaymentModel.GetOrderSmsPaymentStatus(order.Id)),
 				CanReceiveQRCode = CanReceiveQRCodeForPayment(order),
 			};
-		}
-
-		/// <summary>
-		/// Проверка возможности отправки СМС для оплаты
-		/// </summary>
-		/// <param name="order">Заказ программы ДВ</param>
-		/// <param name="smsPaymentStatus">Статус оплаты СМС</param>
-		/// <returns></returns>
-		private bool CanSendSmsForPayment(Order order, SmsPaymentStatus? smsPaymentStatus)
-		{
-			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
-		}
-
-		/// <summary>
-		/// Проверка возможности отправки QR-кода для оплаты
-		/// </summary>
-		/// <param name="order">Заказ программы ДВ</param>
-		/// <returns></returns>
-		private bool CanReceiveQRCodeForPayment(Order order)
-		{
-			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
 		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource)
@@ -260,7 +259,7 @@ namespace DriverAPI.Library.V5.Services
 			_uow.Commit();
 		}
 
-		public void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
+		public Result TryCompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -270,38 +269,38 @@ namespace DriverAPI.Library.V5.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
+				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
 			}
 
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"МЛ для заказа: {orderId} не найден");
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Адрес МЛ для заказа: {orderId} не найден");
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
 			{
 				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
 					driver.Id, orderId, routeList.Driver.Id);
-				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
+				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя завершить заказ: {orderId}, МЛ не в пути");
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ не в пути", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя завершить заказ: {orderId}, адрес МЛ не в пути");
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
@@ -329,34 +328,8 @@ namespace DriverAPI.Library.V5.Services
 			_uow.Save(routeList);
 
 			_uow.Commit();
-		}
 
-		private void CreateComplaintIfNeeded(IDriverComplaintInfo driverComplaintInfo, Order order, Employee driver, DateTime actionTime)
-		{
-			if(driverComplaintInfo.Rating < _maxClosingRating)
-			{
-				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, driverComplaintInfo.DriverComplaintReasonId);
-				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
-				var reason = complaintReason?.Name ?? driverComplaintInfo.OtherDriverComplaintReasonComment;
-
-				var complaint = new Complaint
-				{
-					ComplaintSource = complaintSource,
-					ComplaintType = ComplaintType.Driver,
-					Order = order,
-					DriverRating = driverComplaintInfo.Rating,
-					DeliveryPoint = order.DeliveryPoint,
-					CreationDate = actionTime,
-					ChangedDate = actionTime,
-					Driver = driver,
-					CreatedBy = driver,
-					ChangedBy = driver,
-					ComplaintText = $"Заказ номер {order.Id}\n" +
-						$"По причине {reason}"
-				};
-
-				_uow.Save(complaint);
-			}
+			return Result.Success();
 		}
 
 		public void UpdateOrderShipmentInfo(
@@ -427,6 +400,125 @@ namespace DriverAPI.Library.V5.Services
 			_uow.Save(routeList);
 
 			_uow.Commit();
+		}
+
+		public async Task<Result<PayByQrResponse>> TrySendQrPaymentRequestAsync(int orderId, int driverId)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
+
+			if(vodovozOrder is null)
+			{
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			if(routeList is null || routeListAddress is null)
+			{
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+			}
+
+			if(routeList.Driver.Id != driverId)
+			{
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался запросить оплату по QR для заказа {OrderId} водителя {DriverId}",
+					driverId, orderId, routeList.Driver.Id);
+
+				return Result.Failure<PayByQrResponse>(Errors.Security.Authorization.RouteListAccessDenied);
+			}
+
+			var qrResponseDto = await _fastPaymentsServiceApiHelper.SendPaymentAsync(orderId);
+			var payByQRResponseDto = _qrPaymentConverter.ConvertToPayByQRResponseDto(qrResponseDto);
+
+			if(payByQRResponseDto.QRPaymentStatus == QrPaymentDtoStatus.Paid)
+			{
+				payByQRResponseDto.AvailablePaymentTypes = Enumerable.Empty<PaymentDtoType>();
+				payByQRResponseDto.CanReceiveQR = false;
+			}
+			else
+			{
+				payByQRResponseDto.AvailablePaymentTypes = GetAvailableToChangePaymentTypes(orderId);
+				payByQRResponseDto.CanReceiveQR = true;
+			}
+
+			return payByQRResponseDto;
+		}
+
+		public Result TryUpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+
+			if(vodovozOrder is null)
+			{
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			if(!vodovozOrder.IsBottleStock)
+			{
+				return Result.Success();
+			}
+
+			if(vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
+			{
+				return Result.Success();
+			}
+
+			vodovozOrder.IsBottleStockDiscrepancy = vodovozOrder.BottlesByStockCount != bottlesByStockActualCount;
+
+			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
+			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
+
+			_uow.Save(vodovozOrder);
+			_uow.Commit();
+
+			return Result.Success();
+		}
+
+		private TrueMarkWaterIdentificationCode LoadCode(string code)
+		{
+			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.Where(x => x.RawCode == code)
+				.SingleOrDefault();
+		}
+
+		private int GetCodeDuplicatesCount(int codeId)
+		{
+			return _uow.GetAll<CashReceiptProductCode>()
+				.Where(x => x.DuplicatedIdentificationCodeId == codeId)
+				.Count();
+		}
+
+		private void FillCashReceiptByScannedCodes(IEnumerable<ITrueMarkOrderItemScannedInfo> scannedItems, CashReceipt cashReceipt)
+		{
+			foreach(var scannedItem in scannedItems)
+			{
+				var orderItem = OrderItem.CreateEmptyWithId(scannedItem.OrderSaleItemId);
+
+				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
+				{
+					var orderCode = CreateCashReceiptProductCode(defectiveCode, cashReceipt, orderItem);
+					orderCode.IsDefectiveSourceCode = true;
+
+					cashReceipt.ScannedCodes.Add(orderCode);
+				}
+
+				foreach(var code in scannedItem.BottleCodes)
+				{
+					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
+
+					cashReceipt.ScannedCodes.Add(orderCode);
+				}
+			}
 		}
 
 		private void SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo)
@@ -566,141 +658,53 @@ namespace DriverAPI.Library.V5.Services
 			return orderProductCode;
 		}
 
-		private void FillCashReceiptByScannedCodes(IEnumerable<ITrueMarkOrderItemScannedInfo> scannedItems, CashReceipt cashReceipt)
+		private void CreateComplaintIfNeeded(IDriverComplaintInfo driverComplaintInfo, Order order, Employee driver, DateTime actionTime)
 		{
-			foreach(var scannedItem in scannedItems)
+			if(driverComplaintInfo.Rating < _maxClosingRating)
 			{
-				var orderItem = OrderItem.CreateEmptyWithId(scannedItem.OrderSaleItemId);
+				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, driverComplaintInfo.DriverComplaintReasonId);
+				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
+				var reason = complaintReason?.Name ?? driverComplaintInfo.OtherDriverComplaintReasonComment;
 
-				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
+				var complaint = new Complaint
 				{
-					var orderCode = CreateCashReceiptProductCode(defectiveCode, cashReceipt, orderItem);
-					orderCode.IsDefectiveSourceCode = true;
+					ComplaintSource = complaintSource,
+					ComplaintType = ComplaintType.Driver,
+					Order = order,
+					DriverRating = driverComplaintInfo.Rating,
+					DeliveryPoint = order.DeliveryPoint,
+					CreationDate = actionTime,
+					ChangedDate = actionTime,
+					Driver = driver,
+					CreatedBy = driver,
+					ChangedBy = driver,
+					ComplaintText = $"Заказ номер {order.Id}\n" +
+						$"По причине {reason}"
+				};
 
-					cashReceipt.ScannedCodes.Add(orderCode);
-				}
-
-				foreach(var code in scannedItem.BottleCodes)
-				{
-					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
-
-					cashReceipt.ScannedCodes.Add(orderCode);
-				}
+				_uow.Save(complaint);
 			}
 		}
 
-		private TrueMarkWaterIdentificationCode LoadCode(string code)
+		/// <summary>
+		/// Проверка возможности отправки СМС для оплаты
+		/// </summary>
+		/// <param name="order">Заказ программы ДВ</param>
+		/// <param name="smsPaymentStatus">Статус оплаты СМС</param>
+		/// <returns></returns>
+		private bool CanSendSmsForPayment(Order order, SmsPaymentStatus? smsPaymentStatus)
 		{
-			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-				.Where(x => x.RawCode == code)
-				.SingleOrDefault();
+			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
-		private int GetCodeDuplicatesCount(int codeId)
+		/// <summary>
+		/// Проверка возможности отправки QR-кода для оплаты
+		/// </summary>
+		/// <param name="order">Заказ программы ДВ</param>
+		/// <returns></returns>
+		private bool CanReceiveQRCodeForPayment(Order order)
 		{
-			return _uow.GetAll<CashReceiptProductCode>()
-				.Where(x => x.DuplicatedIdentificationCodeId == codeId)
-				.Count();
-		}
-
-		public void SendSmsPaymentRequest(
-			int orderId,
-			string phoneNumber,
-			int driverId)
-		{
-			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
-
-			if(vodovozOrder is null
-			|| routeList is null
-			|| routeListAddress is null)
-			{
-				throw new DataNotFoundException(nameof(orderId), "Не найден или не находится в МЛ");
-			}
-
-			if(routeList.Status != RouteListStatus.EnRoute
-			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
-			{
-				throw new InvalidOperationException("Нельзя отправлять СМС на оплату для адреса МЛ не в пути");
-			}
-
-			if(routeList.Driver.Id != driverId)
-			{
-				_logger.LogWarning("Сотрудник {EmployeeId} попытался запросить оплату по СМС для заказа {OrderId} водителя {DriverId}",
-					driverId, orderId, routeList.Driver.Id);
-				throw new InvalidOperationException("Нельзя запросить оплату по СМС для заказа другого водителя");
-			}
-
-			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
-		}
-
-		public async Task<PayByQrResponse> SendQRPaymentRequestAsync(int orderId, int driverId)
-		{
-			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
-
-			if(vodovozOrder is null || routeList is null || routeListAddress is null)
-			{
-				throw new DataNotFoundException(nameof(orderId), "Не найден или не находится в МЛ");
-			}
-
-			if(routeList.Status != RouteListStatus.EnRoute || routeListAddress.Status != RouteListItemStatus.EnRoute)
-			{
-				throw new InvalidOperationException("Нельзя отправлять QR-код на оплату для адреса МЛ не в пути");
-			}
-
-			if(routeList.Driver.Id != driverId)
-			{
-				_logger.LogWarning("Сотрудник {EmployeeId} попытался запросить оплату по QR для заказа {OrderId} водителя {DriverId}",
-					driverId, orderId, routeList.Driver.Id);
-				throw new InvalidOperationException("Нельзя запросить оплату по QR для заказа другого водителя");
-			}
-
-			var qrResponseDto = await _fastPaymentsServiceApiHelper.SendPaymentAsync(orderId);
-			var payByQRResponseDto = _qrPaymentConverter.ConvertToPayByQRResponseDto(qrResponseDto);
-
-			if(payByQRResponseDto.QRPaymentStatus == QrPaymentDtoStatus.Paid)
-			{
-				payByQRResponseDto.AvailablePaymentTypes = Enumerable.Empty<PaymentDtoType>();
-				payByQRResponseDto.CanReceiveQR = false;
-			}
-			else
-			{
-				payByQRResponseDto.AvailablePaymentTypes = GetAvailableToChangePaymentTypes(orderId);
-				payByQRResponseDto.CanReceiveQR = true;
-			}
-
-			return payByQRResponseDto;
-		}
-
-		public void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount)
-		{
-			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-
-			if(vodovozOrder is null)
-			{
-				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
-			}
-
-			if(!vodovozOrder.IsBottleStock)
-			{
-				return;
-			}
-
-			if(vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
-			{
-				return;
-			}
-
-			vodovozOrder.IsBottleStockDiscrepancy = vodovozOrder.BottlesByStockCount != bottlesByStockActualCount;
-
-			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
-			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
-			_uow.Save(vodovozOrder);
-			_uow.Commit();
+			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 	}
 }
