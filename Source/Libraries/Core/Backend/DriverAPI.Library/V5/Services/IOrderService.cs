@@ -12,16 +12,16 @@ namespace DriverAPI.Library.V5.Services
 {
 	public interface IOrderService
 	{
-		Result<OrderDto> TryGetOrder(int orderId);
+		Result<OrderDto> GetOrder(int orderId);
 		IEnumerable<OrderDto> Get(int[] orderIds);
-		void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource);
+		Result ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId);
-		Task<Result<PayByQrResponse>> TrySendQrPaymentRequestAsync(int orderId, int driverId);
-		void UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
-		Result<OrderAdditionalInfoDto> TryGetAdditionalInfo(int orderId);
-		Result<OrderAdditionalInfoDto> TryGetAdditionalInfo(Order order);
-		Result TryUpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount);
-		Result TryCompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
+		Task<Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId);
+		Result UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
+		Result<OrderAdditionalInfoDto> GetAdditionalInfo(int orderId);
+		Result<OrderAdditionalInfoDto> GetAdditionalInfo(Order order);
+		Result UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount);
+		Result CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
 	}
 }

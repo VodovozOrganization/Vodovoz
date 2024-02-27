@@ -76,7 +76,7 @@ namespace DriverAPI.Controllers.V5
 
 			return MapResult(
 				HttpContext,
-				_orderService.TryGetOrder(orderId),
+				_orderService.GetOrder(orderId),
 				result =>
 				{
 					if(result.IsSuccess)
@@ -141,7 +141,7 @@ namespace DriverAPI.Controllers.V5
 			{
 				return MapResult(
 					HttpContext,
-					_orderService.TryCompleteOrderDelivery(
+					_orderService.CompleteOrderDelivery(
 						recievedTime,
 						driver,
 						completedOrderRequestModel,
@@ -201,6 +201,9 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequest completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
@@ -222,12 +225,41 @@ namespace DriverAPI.Controllers.V5
 				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
-			_orderService.UpdateOrderShipmentInfo(
+			return MapResult(
+				HttpContext,
+				_orderService.UpdateOrderShipmentInfo(
 				recievedTime,
 				driver,
-				completedOrderRequestModel);
+				completedOrderRequestModel),
+				result =>
+				{
+					if(result.IsSuccess)
+					{
+						return StatusCodes.Status204NoContent;
+					}
 
-			return NoContent();
+					var firstError = result.Errors.First();
+
+					if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
+						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState)
+					{
+						return StatusCodes.Status400BadRequest;
+					}
+
+					if(firstError == Library.Errors.Security.Authorization.OrderAccessDenied)
+					{
+						return StatusCodes.Status403Forbidden;
+					}
+
+					if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+						|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
+						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
+					{
+						return StatusCodes.Status404NotFound;
+					}
+
+					return StatusCodes.Status500InternalServerError;
+				});
 		}
 
 		/// <summary>
@@ -239,6 +271,8 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequest changeOrderPaymentTypeRequestModel)
 		{
 			var recievedTime = DateTime.Now;
@@ -308,9 +342,36 @@ namespace DriverAPI.Controllers.V5
 					return Problem($"Попытка сменить тип оплаты у заказа {orderId} на не поддерживаемый для смены тип оплаты {newPaymentType}", statusCode: StatusCodes.Status400BadRequest);
 				}
 
-				_orderService.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver, paymentByTerminalSource);
+				return MapResult(
+					HttpContext,
+					_orderService.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver, paymentByTerminalSource),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
 
-				return NoContent();
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Orders.Order.NotInOnTheWayStatus)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.OrderAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
 			}
 			catch(Exception ex)
 			{

@@ -83,7 +83,7 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		public IActionResult GetOrderQRPaymentStatus(int orderId)
 		{
-			var additionalInfo = _orderService.TryGetAdditionalInfo(orderId);
+			var additionalInfo = _orderService.GetAdditionalInfo(orderId);
 
 			if(additionalInfo.IsFailure)
 			{
@@ -136,14 +136,14 @@ namespace DriverAPI.Controllers.V5
 			{
 				if(payByQRRequestDTO.BottlesByStockActualCount.HasValue)
 				{
-					var updateBottlesCountResult = _orderService.TryUpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
+					var updateBottlesCountResult = _orderService.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
 					if(updateBottlesCountResult.IsFailure)
 					{
 						MapResult(HttpContext, updateBottlesCountResult, errorStatusCode: StatusCodes.Status400BadRequest);
 					}
 				}
 
-				return MapResult(HttpContext, await _orderService.TrySendQrPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id));
+				return MapResult(HttpContext, await _orderService.SendQrPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id));
 			}
 			catch(Exception ex)
 			{

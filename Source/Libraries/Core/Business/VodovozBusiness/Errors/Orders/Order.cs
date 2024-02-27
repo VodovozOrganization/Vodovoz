@@ -49,5 +49,11 @@
 				typeof(Order),
 				nameof(Save),
 				"Произошла ошибка при сохранении");
+
+		public static Error NotInOnTheWayStatus =>
+			new Error(
+				typeof(Order),
+				nameof(NotInOnTheWayStatus),
+				"Заказ не в статусе в пути");
 	}
 }
