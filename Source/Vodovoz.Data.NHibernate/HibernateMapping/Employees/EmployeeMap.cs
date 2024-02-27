@@ -73,6 +73,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			HasMany(x => x.DriverDistrictPrioritySets)
 				.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("driver_id")
 				.OrderBy("date_created DESC");
+
+			HasMany(x => x.ExternalApplicationsUsers)
+				.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 		}
 	}
 }
