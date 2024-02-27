@@ -100,16 +100,31 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			return new ReportInfo {
-				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
-				Identifier = identifier,
-				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id },
-					{ "special", false },
-					{ "hide_signature", HideSignature}
-				},
-				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
+
+			ReportInfo reportInfo;
+
+			if(!string.IsNullOrWhiteSpace(connectionString))
+			{
+				reportInfo = new ReportInfo(connectionString);
+			}
+			else
+			{
+				reportInfo = new ReportInfo();
+			}
+
+			reportInfo.Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Identifier = identifier;
+
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "order_id", Order.Id },
+				{ "special", false },
+				{ "hide_signature", HideSignature}
 			};
+
+			reportInfo.RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes;
+
+			return reportInfo;
 		}
 
 		public virtual Dictionary<object, object> Parameters { get; set; }

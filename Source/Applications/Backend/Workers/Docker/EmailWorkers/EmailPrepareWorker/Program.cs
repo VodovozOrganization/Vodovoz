@@ -12,6 +12,8 @@ using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
@@ -21,6 +23,8 @@ namespace EmailPrepareWorker
 {
 	public class Program
 	{
+		private const string _nLogSectionName = nameof(NLog);
+
 		public static void Main(string[] args)
 		{
 			CreateHostBuilder(args).Build().Run();
@@ -28,16 +32,15 @@ namespace EmailPrepareWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((hostBuilderContext, loggingBuilder) =>
+				{
+					loggingBuilder.ClearProviders();
+					loggingBuilder.AddNLog();
+					loggingBuilder.AddConfiguration(hostBuilderContext.Configuration.GetSection(_nLogSectionName));
+				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
-					{
-						logging.ClearProviders();
-						logging.AddNLog();
-						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
-					});
-
 					services.AddTransient<RabbitMQConnectionFactory>();
 
 					services.AddTransient((sp) =>
@@ -61,17 +64,21 @@ namespace EmailPrepareWorker
 						typeof(EmployeeWithLoginMap).Assembly,
 						typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 					);
+
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-					services.AddSingleton<ISettingsController, SettingsController>();
-					services.AddSingleton<IEmailSettings, EmailSettings>();
-					services.AddSingleton<IEmailRepository, EmailRepository>();
-					services.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>();
-					services.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
+					services.AddSingleton<ISettingsController, SettingsController>()
+						.AddSingleton<IEmailSettings, EmailSettings>()
+						.AddSingleton<ISettingsController, SettingsController>()
+						.AddSingleton<IEmailRepository, EmailRepository>()
+						.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>()
+						.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
+						.AddSingleton<IDocTemplateRepository, DocTemplateRepository>()
+						.AddSingleton<IOrderRepository, OrderRepository>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});

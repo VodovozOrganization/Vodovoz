@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -172,7 +172,7 @@ namespace Vodovoz
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		Order templateOrder;
+		private Order templateOrder;
 
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 
@@ -2054,7 +2054,7 @@ namespace Vodovoz
 		{
 			_edoContainers.Clear();
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
 			{
 				var containers = _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderId(Entity.Id));
 
@@ -2071,10 +2071,10 @@ namespace Vodovoz
 			buttonAcceptAndReturnToOrder.Clicked += OnButtonAcceptAndReturnToOrderClicked;
 		}
 
-		MenuItem menuItemCloseOrder = null;
-		MenuItem menuItemSelfDeliveryToLoading = null;
-		MenuItem menuItemSelfDeliveryPaid = null;
-		MenuItem menuItemReturnToAccepted = null;
+		private MenuItem menuItemCloseOrder = null;
+		private MenuItem menuItemSelfDeliveryToLoading = null;
+		private MenuItem menuItemSelfDeliveryPaid = null;
+		private MenuItem menuItemReturnToAccepted = null;
 
 		/// <summary>
 		/// Конфигурирование меню кнопок с дополнительными действиями заказа
