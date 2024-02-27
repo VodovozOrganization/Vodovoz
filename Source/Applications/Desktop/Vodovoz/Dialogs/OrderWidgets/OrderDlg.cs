@@ -915,6 +915,55 @@ namespace Vodovoz
 			enumAddRentButton.ItemsEnum = typeof(RentType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
 
+			checkSelfDelivery.Toggled += (sender, e) =>
+			{
+				if(checkSelfDelivery.Active)
+				{
+					if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.DriverApplicationQR))
+					{
+						_selectPaymentTypeViewModel.AddExcludedPaymentTypes(PaymentType.DriverApplicationQR);
+					}
+
+					if(Entity.PaymentType == PaymentType.DriverApplicationQR)
+					{
+						if(Entity.Client?.PaymentMethod != PaymentType.DriverApplicationQR)
+						{
+							Entity.PaymentType = Entity.Client.PaymentMethod;
+						}
+						else
+						{
+							MessageDialogHelper.RunWarningDialog("Не возможно определить тип оплаты автоматически", "Тип оплаты был сброшен!");
+							Entity.PaymentType = PaymentType.Cash;
+						}
+					}
+				}
+				else
+				{
+					_selectPaymentTypeViewModel.RemoveExcludedPaymentTypes(PaymentType.DriverApplicationQR);
+
+					Entity.SelfDeliveryGeoGroup = null;
+					specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
+				}
+
+				entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+				ybuttonFastDeliveryCheck.Sensitive =
+					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
+				lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
+				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
+
+				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+				
+				if((Entity.DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
+				{
+					OnFormOrderActions();
+				}
+
+				UpdateOrderAddressTypeUI();
+				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				UpdateOrderItemsPrices();
+				SetLogisticsRequirementsCheckboxes();
+			};
+
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 
 			spinSumDifference.Binding.AddBinding(Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource();
@@ -4147,7 +4196,7 @@ namespace Vodovoz
 				yCmbPromoSets.Sensitive = val;
 
 			var canChangeSelfDeliveryGeoGroup = val
-				||(Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.WaitForPayment && Entity.SelfDeliveryGeoGroup == null);
+				|| (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.WaitForPayment && Entity.SelfDeliveryGeoGroup == null);
 
 			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
@@ -4397,55 +4446,12 @@ namespace Vodovoz
 
 		protected void OnCheckSelfDeliveryToggled(object sender, EventArgs e)
 		{
-			if(checkSelfDelivery.Active)
-			{
-				if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.DriverApplicationQR))
-				{
-					_selectPaymentTypeViewModel.AddExcludedPaymentTypes(PaymentType.DriverApplicationQR);
-				}
-
-				if(Entity.PaymentType == PaymentType.DriverApplicationQR)
-				{
-					if(Entity.Client?.PaymentMethod != PaymentType.DriverApplicationQR)
-					{
-						Entity.PaymentType = Entity.Client.PaymentMethod;
-					}
-					else
-					{
-						MessageDialogHelper.RunWarningDialog("Не возможно определить тип оплаты автоматически", "Тип оплаты был сброшен!");
-						Entity.PaymentType = PaymentType.Cash;
-					}
-				}
-			}
-			else
-			{
-				checkPayAfterLoad.Active = false;
-
-				_selectPaymentTypeViewModel.RemoveExcludedPaymentTypes(PaymentType.DriverApplicationQR);
-
-				Entity.SelfDeliveryGeoGroup = null;
-				specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
-			}
-
-			entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
-			ybuttonFastDeliveryCheck.Sensitive =
-				ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
-			lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
-			buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
-
-			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
-
-			if((Entity.DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
-			{
-				OnFormOrderActions();
-			}
-
-			UpdateOrderAddressTypeUI();
-			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
-			UpdateOrderItemsPrices();
-			SetLogisticsRequirementsCheckboxes();
-
 			UpdateUIState();
+
+			if(!checkSelfDelivery.Active) {
+				checkPayAfterLoad.Active = false;
+			}
+			UpdateOrderItemsPrices();
 		}
 
 		void ObservablePromotionalSets_ListChanged(object aList)
