@@ -1,4 +1,4 @@
-using EmailPrepareWorker.Prepares;
+﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using System;
@@ -11,7 +11,6 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class UpdSendEmailMessageBuilder : SendEmailMessageBuilder
 	{
-		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 
@@ -21,9 +20,8 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail,
 			int instanceId) 
-			: base(emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
+			: base(unitOfWork, emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
 		{
-			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 		}

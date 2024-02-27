@@ -1,23 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DocumentForEmailPreparingWorker-4C283AF3-DD08-43DA-B451-0DD6165221E8</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
-	<ItemGroup>
-		<Content Remove="appsettings.Development.json" />
-		<Content Remove="appsettings.Production.json" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="appsettings.Development.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-		<None Include="appsettings.Production.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
   <PropertyGroup>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
 	  <Version>1.0.0</Version>
@@ -25,11 +12,20 @@
 	  <Deterministic>false</Deterministic>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="appsettings.Development.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </None>
+   <None Include="appsettings.Production.json">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="Google.Protobuf" Version="3.22.1" />
-      <PackageReference Include="MySqlConnector" Version="2.2.6" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-	  <PackageReference Include="MySqlConnector" Version="2.2.6" />
+    <PackageReference Include="MySqlConnector" Version="2.2.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+	<PackageReference Include="MySqlConnector" Version="2.2.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />

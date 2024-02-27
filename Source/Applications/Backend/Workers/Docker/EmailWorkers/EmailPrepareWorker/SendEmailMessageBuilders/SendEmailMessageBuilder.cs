@@ -1,15 +1,18 @@
-using EmailPrepareWorker.Prepares;
+﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
+using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Common;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class SendEmailMessageBuilder
 	{
+		private readonly IUnitOfWork _unitOfWork;
 		protected readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
@@ -18,11 +21,13 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		protected SendEmailMessage _sendEmailMessage = new();
 
 		public SendEmailMessageBuilder(
+			IUnitOfWork unitOfWork,
 			IEmailSettings emailSettings,
 			IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail,
 			int instanceId)
 		{
+			_unitOfWork = unitOfWork;
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));

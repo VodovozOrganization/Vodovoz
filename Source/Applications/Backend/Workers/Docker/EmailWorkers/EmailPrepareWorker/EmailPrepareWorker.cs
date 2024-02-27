@@ -146,7 +146,7 @@ namespace EmailPrepareWorker
 						case CounterpartyEmailType.OrderWithoutShipmentForDebt:
 						case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
 							{
-								emailSendMessageBuilder = new SendEmailMessageBuilder(_emailSettings,
+								emailSendMessageBuilder = new SendEmailMessageBuilder(unitOfWork, _emailSettings,
 									_emailDocumentPreparer, counterpartyEmail, _instanceId);
 
 								break;
