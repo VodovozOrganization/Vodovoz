@@ -2,7 +2,6 @@
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V4.Converters;
 using DriverAPI.Library.V4.Models;
-using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

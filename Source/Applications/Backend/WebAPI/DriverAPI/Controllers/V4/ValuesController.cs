@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Controllers.V4
