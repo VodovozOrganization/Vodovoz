@@ -461,7 +461,7 @@ namespace Vodovoz
 				}
 
 				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
-					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
 			}
 		}
 
@@ -798,7 +798,7 @@ namespace Vodovoz
 			}
 
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
-				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id]);
 
 			ReloadDiscrepancies();
 

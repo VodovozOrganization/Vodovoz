@@ -2234,7 +2234,7 @@ namespace Vodovoz
 				return;
 			}
 
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, routeListItem, forceUsePlanCount: true);
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, routeListItem, forceUsePlanCount: true);
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)

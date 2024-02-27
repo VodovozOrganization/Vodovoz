@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -255,8 +255,8 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false,
-			bool forceUsePlanCount = false)
+			IUnitOfWork uow, IUnitOfWorkFactory unitOfWorkFactory, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null,
+			bool isBottlesDiscrepancy = false, bool forceUsePlanCount = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled && itemsCacheList != null)
 			{
@@ -289,7 +289,7 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = uowFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			using(var uowLocal = unitOfWorkFactory.CreateWithoutRoot("Изменениние свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);
