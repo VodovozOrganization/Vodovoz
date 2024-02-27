@@ -22,7 +22,6 @@ namespace DriverAPI.Controllers.V5
 	/// Контроллер заказов
 	/// </summary>
 	[ApiVersion("5.0")]
-
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class OrdersController : VersionedController
 	{

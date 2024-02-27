@@ -122,9 +122,9 @@ namespace Vodovoz.Presentation.WebApi.Common
 			return new ObjectResult(new ProblemDetails
 			{
 				Instance = instance,
-				Title = "Произошла ошибка",
+				Title = GetErrorDisplayName(errorsList.First()) ?? "Произошла ошибка",
 				Status = statusCode ?? StatusCodes.Status500InternalServerError,
-				Detail = GetErrorDisplayName(errorsList.First()) ?? errorsList.First().Message
+				Detail = errorsList.First().Message
 			});
 		}
 
