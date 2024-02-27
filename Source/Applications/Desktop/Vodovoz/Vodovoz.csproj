@@ -1996,6 +1996,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderView.cs" />
     <Compile Include="Views\Orders\OnlineOrderCancellationReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderCancellationReasonView.cs" />
+    <Compile Include="Filters\GtkViews\OnlineOrdersJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OnlineOrdersJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
