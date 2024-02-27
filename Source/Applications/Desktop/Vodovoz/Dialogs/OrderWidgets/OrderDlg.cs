@@ -264,6 +264,8 @@ namespace Vodovoz
 		private bool _canEditOrder;
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
+		private bool _canEditGoodsInRouteList;
+		private bool _isStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -1085,6 +1087,7 @@ namespace Vodovoz
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
 			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
+			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Permissions.Order.CanEditGoodsInRouteList);
 		}
 
 		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
@@ -4154,10 +4157,8 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 
-			var canChangeGoods = _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus)
-				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditGoodsInRouteList);
-
-			ChangeGoodsSensitive(canChangeGoods || val);
+			ChangeGoodsSensitive(val
+				|| (_isStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
 			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
