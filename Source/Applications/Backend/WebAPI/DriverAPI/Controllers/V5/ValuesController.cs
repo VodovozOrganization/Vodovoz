@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Mime;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -17,20 +17,20 @@ namespace DriverAPI.Controllers.V5
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class ValuesController : VersionedController
 	{
-		private readonly IDriverApiParametersProvider _webApiParametersProvider;
+		private readonly IDriverApiSettings _driverApiSettings;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
-		/// <param name="webApiParametersProvider"></param>
+		/// <param name="driverApiSettings"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public ValuesController(
 			ILogger<ValuesController> logger,
-			IDriverApiParametersProvider webApiParametersProvider)
+			IDriverApiSettings driverApiSettings)
 			: base(logger)
 		{
-			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 		}
 
 		/// <summary>
@@ -45,7 +45,7 @@ namespace DriverAPI.Controllers.V5
 		{
 			return Ok(new CompanyNumberResponse()
 			{
-				Number = _webApiParametersProvider.CompanyPhoneNumber
+				Number = _driverApiSettings.CompanyPhoneNumber
 			});
 		}
 	}

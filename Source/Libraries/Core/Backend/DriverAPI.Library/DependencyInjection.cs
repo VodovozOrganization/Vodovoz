@@ -14,6 +14,8 @@ using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using DriverAPI.Library.V4.Models;
+using DriverAPI.Library.V5.Services;
 
 namespace DriverAPI.Library
 {
@@ -88,7 +90,7 @@ namespace DriverAPI.Library
 				.AddScoped<IDriverMobileAppActionRecordService, DriverMobileAppActionRecordService>()
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IOrderService, OrderService>()
-				.AddScoped<V5.Services.IEmployeeService, EmployeeService>()
+				.AddScoped<IEmployeeService, EmployeeService>()
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>();

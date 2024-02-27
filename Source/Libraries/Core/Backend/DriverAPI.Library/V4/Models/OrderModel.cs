@@ -19,7 +19,8 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
 
 namespace DriverAPI.Library.V4.Models
 {
@@ -30,7 +31,7 @@ namespace DriverAPI.Library.V4.Models
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly OrderConverter _orderConverter;
-		private readonly IDriverApiParametersProvider _webApiParametersProvider;
+		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly ISmsPaymentModel _aPISmsPaymentModel;
 		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
@@ -41,7 +42,7 @@ namespace DriverAPI.Library.V4.Models
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 
 		public OrderModel(
 			ILogger<OrderModel> logger,
@@ -49,7 +50,7 @@ namespace DriverAPI.Library.V4.Models
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			OrderConverter orderConverter,
-			IDriverApiParametersProvider webApiParametersProvider,
+			IDriverApiSettings driverApiSettings,
 			IComplaintsRepository complaintsRepository,
 			ISmsPaymentModel aPISmsPaymentModel,
 			ISmsPaymentServiceAPIHelper smsPaymentServiceAPIHelper,
@@ -58,14 +59,14 @@ namespace DriverAPI.Library.V4.Models
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QRPaymentConverter qrPaymentConverter,
 			IFastPaymentModel fastPaymentModel,
-			IOrderParametersProvider orderParametersProvider)
+			IOrderSettings orderSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
-			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
@@ -74,7 +75,7 @@ namespace DriverAPI.Library.V4.Models
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
 		/// <summary>
@@ -335,7 +336,7 @@ namespace DriverAPI.Library.V4.Models
 			if(driverComplaintInfo.Rating < _maxClosingRating)
 			{
 				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, driverComplaintInfo.DriverComplaintReasonId);
-				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
+				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _driverApiSettings.ComplaintSourceId);
 				var reason = complaintReason?.Name ?? driverComplaintInfo.OtherDriverComplaintReasonComment;
 
 				var complaint = new Complaint
@@ -697,7 +698,7 @@ namespace DriverAPI.Library.V4.Models
 			vodovozOrder.IsBottleStockDiscrepancy = vodovozOrder.BottlesByStockCount != bottlesByStockActualCount;
 
 			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
-			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
+			vodovozOrder.CalculateBottlesStockDiscounts(_orderSettings, true);
 			_uow.Save(vodovozOrder);
 			_uow.Commit();
 		}
