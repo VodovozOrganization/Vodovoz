@@ -43,7 +43,7 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DriverComplaintReasonDto>))]
 		public IActionResult GetDriverComplaintReasons()
 		{
-			return MapResult(_driverComplaintService.TryGetPinnedComplaintReasons());
+			return MapResult(_driverComplaintService.GetPinnedComplaintReasons());
 		}
 	}
 }

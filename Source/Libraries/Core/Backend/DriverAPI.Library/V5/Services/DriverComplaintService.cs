@@ -39,7 +39,7 @@ namespace DriverAPI.Library.V5.Services
 				.Select(x => _driverComplaintReasonConverter.ConvertToAPIDriverComplaintReason(x));
 		}
 
-		public Result<IEnumerable<DriverComplaintReasonDto>> TryGetPinnedComplaintReasons()
+		public Result<IEnumerable<DriverComplaintReasonDto>> GetPinnedComplaintReasons()
 		{
 			try
 			{
