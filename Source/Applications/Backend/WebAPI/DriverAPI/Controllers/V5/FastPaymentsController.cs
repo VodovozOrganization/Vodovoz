@@ -92,7 +92,7 @@ namespace DriverAPI.Controllers.V5
 			{
 				_logger.LogWarning("Не удалось получить информацию о заказе {OrderId}", orderId);
 
-				return MapResult(HttpContext, additionalInfo, errorStatusCode: StatusCodes.Status400BadRequest);
+				return MapResult(additionalInfo, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			return Ok(new OrderQrPaymentStatusResponse
@@ -134,7 +134,7 @@ namespace DriverAPI.Controllers.V5
 
 			if(timeCheckResult.IsFailure)
 			{
-				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			try
@@ -144,12 +144,11 @@ namespace DriverAPI.Controllers.V5
 					var updateBottlesCountResult = _orderService.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
 					if(updateBottlesCountResult.IsFailure)
 					{
-						return MapResult(HttpContext, updateBottlesCountResult, errorStatusCode: StatusCodes.Status400BadRequest);
+						return MapResult(updateBottlesCountResult, errorStatusCode: StatusCodes.Status400BadRequest);
 					}
 				}
 
 				return MapResult(
-					HttpContext,
 					await _orderService.SendQrPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id),
 					result =>
 					{

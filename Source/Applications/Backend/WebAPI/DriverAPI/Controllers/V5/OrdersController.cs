@@ -75,7 +75,6 @@ namespace DriverAPI.Controllers.V5
 				Request.Headers[HeaderNames.Authorization]);
 
 			return MapResult(
-				HttpContext,
 				_orderService.GetOrder(orderId),
 				result =>
 				{
@@ -134,13 +133,12 @@ namespace DriverAPI.Controllers.V5
 
 			if(timeCheckResult.IsFailure)
 			{
-				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			try
 			{
 				return MapResult(
-					HttpContext,
 					_orderService.CompleteOrderDelivery(
 						recievedTime,
 						driver,
@@ -222,11 +220,10 @@ namespace DriverAPI.Controllers.V5
 
 			if(timeCheckResult.IsFailure)
 			{
-				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			return MapResult(
-				HttpContext,
 				_orderService.UpdateOrderShipmentInfo(
 				recievedTime,
 				driver,
@@ -300,7 +297,7 @@ namespace DriverAPI.Controllers.V5
 
 			if(timeCheckResult.IsFailure)
 			{
-				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			try
@@ -309,7 +306,7 @@ namespace DriverAPI.Controllers.V5
 
 				if(availableToChangePaymentTypesResult.IsFailure)
 				{
-					return MapResult(HttpContext, availableToChangePaymentTypesResult, StatusCodes.Status400BadRequest);
+					return MapResult(availableToChangePaymentTypesResult, StatusCodes.Status400BadRequest);
 				}
 
 				IEnumerable<PaymentDtoType> availableTypesToChange = availableToChangePaymentTypesResult.Value;
@@ -350,7 +347,6 @@ namespace DriverAPI.Controllers.V5
 				}
 
 				return MapResult(
-					HttpContext,
 					_orderService.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver, paymentByTerminalSource),
 					result =>
 					{

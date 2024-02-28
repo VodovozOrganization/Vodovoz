@@ -116,13 +116,12 @@ namespace DriverAPI.Controllers.V5
 
 			if(timeCheckResult.IsFailure)
 			{
-				return MapResult(HttpContext, timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
+				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			try
 			{
 				return MapResult(
-					HttpContext,
 					_routeListService.RegisterCoordinateForRouteListItem(
 					routeListAddressCoordinate.RouteListAddressId,
 					routeListAddressCoordinate.Latitude,
