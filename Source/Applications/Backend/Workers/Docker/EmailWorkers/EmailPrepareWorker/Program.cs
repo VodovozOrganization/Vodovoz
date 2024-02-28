@@ -28,9 +28,7 @@ namespace EmailPrepareWorker
 
 		public static void Main(string[] args)
 		{
-			var host = CreateHostBuilder(args).Build();
-			host.Services.GetService<IUserService>();
-			host.Run();
+			CreateHostBuilder(args).Build().Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
