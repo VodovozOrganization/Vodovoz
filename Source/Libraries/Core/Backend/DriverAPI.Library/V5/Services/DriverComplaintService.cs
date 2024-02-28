@@ -29,16 +29,6 @@ namespace DriverAPI.Library.V5.Services
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
-		/// <summary>
-		/// Получение популярных причин
-		/// </summary>
-		/// <returns>Перечисление популярных причин</returns>
-		public IEnumerable<DriverComplaintReasonDto> GetPinnedComplaintReasons()
-		{
-			return _complaintsRepository.GetDriverComplaintPopularReasons(_unitOfWork)
-				.Select(x => _driverComplaintReasonConverter.ConvertToAPIDriverComplaintReason(x));
-		}
-
 		public Result<IEnumerable<DriverComplaintReasonDto>> GetPinnedComplaintReasons()
 		{
 			try
