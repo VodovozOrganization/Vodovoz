@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Services;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
@@ -27,7 +28,9 @@ namespace EmailPrepareWorker
 
 		public static void Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			var host = CreateHostBuilder(args).Build();
+			host.Services.GetService<IUserService>();
+			host.Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
