@@ -12,11 +12,12 @@ using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
@@ -25,7 +26,8 @@ namespace Vodovoz.Journals.JournalViewModels
 {
 	public sealed class DistrictsSetJournalViewModel : FilterableSingleEntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode, DistrictsSetJournalFilterViewModel>
 	{
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
 
 		public DistrictsSetJournalViewModel(
@@ -35,7 +37,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeRepository employeeRepository,
 			IEntityDeleteWorker entityDeleteWorker,
 			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDeliveryRepository deliveryRepository,
 			INavigationManager navigation,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
@@ -45,9 +48,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_deliveryRulesParametersProvider =
-				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-
+			_deliveryRulesSettings =
+				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
 			canCreate = permissionResult.CanCreate;
@@ -214,7 +217,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				selected => _сanChangeOnlineDeliveriesToday && IsStoppedOnlineDeliveriesToday,
 				selected =>
 				{
-					_deliveryRulesParametersProvider.UpdateOnlineDeliveriesTodayParameter("false");
+					_deliveryRulesSettings.UpdateOnlineDeliveriesTodayParameter("false");
 					SetIsStoppedOnlineDeliveriesToday();
 					UpdateJournalActions?.Invoke();
 				}
@@ -229,7 +232,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				selected => _сanChangeOnlineDeliveriesToday && !IsStoppedOnlineDeliveriesToday,
 				selected =>
 				{
-					_deliveryRulesParametersProvider.UpdateOnlineDeliveriesTodayParameter("true");
+					_deliveryRulesSettings.UpdateOnlineDeliveriesTodayParameter("true");
 					SetIsStoppedOnlineDeliveriesToday();
 					UpdateJournalActions?.Invoke();
 				}
@@ -239,7 +242,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		private void SetIsStoppedOnlineDeliveriesToday()
 		{
-			IsStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+			IsStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 		}
 
 		protected override void CreatePopupActions()
@@ -279,9 +282,10 @@ namespace Vodovoz.Journals.JournalViewModels
 						TabParent.AddSlaveTab(this,
 							new DistrictsSetActivationViewModel(
 								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+								unitOfWorkFactory,
 								commonServices,
-								new EmployeeRepository()
+								new EmployeeRepository(),
+								_deliveryRepository
 								)
 						);
 

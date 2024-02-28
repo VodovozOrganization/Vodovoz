@@ -12,11 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 
@@ -29,7 +28,7 @@ namespace Vodovoz
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 
 		private IColumnsConfig _colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
@@ -78,7 +77,7 @@ namespace Vodovoz
 
 		#endregion
 
-		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW { get; } = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		#region ITdiDialog implementation
 
@@ -315,7 +314,7 @@ namespace Vodovoz
 
 				if(to == null)
 				{
-					var tetminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+					var tetminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 					toDoc.AddItem(receiveType, nomenclature, null, transfer, null, tetminalId);
 
 					foreach(var item in toDoc.Items)

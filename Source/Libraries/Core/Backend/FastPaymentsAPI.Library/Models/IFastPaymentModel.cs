@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Responses;
+using System;
 using System.Collections.Generic;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Responses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Organizations;

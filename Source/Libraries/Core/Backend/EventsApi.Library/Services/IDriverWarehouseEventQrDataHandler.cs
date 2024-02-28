@@ -1,4 +1,4 @@
-﻿using EventsApi.Library.Dtos;
+﻿using LogisticsEventsApi.Contracts;
 
 namespace EventsApi.Library.Services
 {

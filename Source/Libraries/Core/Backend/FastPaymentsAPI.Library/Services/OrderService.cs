@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using FastPaymentsAPI.Library.DTO_s.Responses;
+using FastPaymentsApi.Contracts.Responses;
 using Microsoft.Extensions.Configuration;
 
 namespace FastPaymentsAPI.Library.Services

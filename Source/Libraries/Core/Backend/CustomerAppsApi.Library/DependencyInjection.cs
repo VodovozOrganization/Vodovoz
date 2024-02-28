@@ -7,7 +7,6 @@ using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
 using Microsoft.Extensions.DependencyInjection;
-using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
@@ -22,10 +21,10 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Roboats;
 
 namespace CustomerAppsApi.Library
 {
@@ -42,7 +41,6 @@ namespace CustomerAppsApi.Library
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
 			services
-				.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"))
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IEmailRepository, EmailRepository>()
 				.AddSingleton<IWarehouseRepository, WarehouseRepository>()
@@ -56,12 +54,8 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
 				.AddSingleton<IRentPackageRepository, RentPackageRepository>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
-				.AddSingleton<ICounterpartySettings, CounterpartySettings>()
 				.AddSingleton<ISettingsController, SettingsController>()
 				.AddSingleton<ISessionProvider, DefaultSessionProvider>()
-				.AddSingleton<IParametersProvider, ParametersProvider>()
-				.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>()
-				.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>()
 				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
 				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()

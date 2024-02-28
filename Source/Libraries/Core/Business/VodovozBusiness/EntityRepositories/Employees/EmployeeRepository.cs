@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -14,6 +14,11 @@ namespace Vodovoz.EntityRepositories.Employees
 {
 	public class EmployeeRepository : IEmployeeRepository
 	{
+		public EmployeeRepository()
+		{
+
+		}
+
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork unitOfWork)
 		{
 			if(unitOfWork is null)
@@ -141,9 +146,9 @@ namespace Vodovoz.EntityRepositories.Employees
 				.SingleOrDefault<string>();
 		}
 
-		public EmployeeRegistration EmployeeRegistrationDuplicateExists(EmployeeRegistration registration)
+		public EmployeeRegistration EmployeeRegistrationDuplicateExists(IUnitOfWorkFactory uowFactory, EmployeeRegistration registration)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				return uow.Session.QueryOver<EmployeeRegistration>()
 					.Where(er => er.PaymentForm == registration.PaymentForm)

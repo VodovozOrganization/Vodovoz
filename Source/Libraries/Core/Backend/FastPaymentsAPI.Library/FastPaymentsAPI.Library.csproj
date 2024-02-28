@@ -15,6 +15,7 @@
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
       <ProjectReference Include="..\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+      <ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
       <ProjectReference Include="..\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
     </ItemGroup>
 

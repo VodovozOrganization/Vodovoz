@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Tools.Orders
 {
@@ -108,6 +108,7 @@ namespace Vodovoz.Tools.Orders
 
 		void InitializeFields()
 		{
+			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			//для документов
 			DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
@@ -116,7 +117,7 @@ namespace Vodovoz.Tools.Orders
 
 			if(!Order.ObservableOrderItems.Any() || 
 			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
-				   x.Nomenclature.Id == int.Parse(new ParametersProvider().GetParameterValue("paid_delivery_nomenclature_id"))))) 
+				   x.Nomenclature.Id == nomenclatureSettings.PaidDeliveryNomenclatureId))) 
 			{
 				HasOrderItems = false;
 			}

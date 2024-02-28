@@ -4,12 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using EventsApi.Library;
 using EventsApi.Library.Models;
-using EventsApi.Library.Services;
 using Vodovoz;
 using Vodovoz.Application;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Common;
 
 namespace DriverAPI.Library
 {

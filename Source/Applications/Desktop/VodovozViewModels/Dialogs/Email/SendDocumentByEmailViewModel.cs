@@ -16,7 +16,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Dialogs.Email
 {
@@ -46,8 +46,9 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 			set => SetField(ref _selectedObj, value);
 		}
 
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly Employee _employee;
 		private readonly IInteractiveService _interactiveService;
 
@@ -59,11 +60,12 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
-		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider,
+		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailSettings emailSettings,
 									  Employee employee, IInteractiveService interactiveService, IUnitOfWork uow = null)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_employee = employee;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			StoredEmails = new GenericObservableList<StoredEmail>();
@@ -171,7 +173,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				return;
 			}
 
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				IList<StoredEmail> listEmails = null;
 
@@ -261,7 +263,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 			try
 			{
-				_ = _emailParametersProvider.DocumentEmailSenderAddress;
+				_ = _emailSettings.DocumentEmailSenderAddress;
 			}
 			catch(InvalidProgramException)
 			{
@@ -271,7 +273,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 			try
 			{
-				_ = _emailParametersProvider.DocumentEmailSenderName;
+				_ = _emailSettings.DocumentEmailSenderName;
 			}
 			catch(InvalidProgramException)
 			{
@@ -302,7 +304,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				return;
 			}
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("StoredEmail"))
 			{
 				var storedEmail = new StoredEmail
 				{

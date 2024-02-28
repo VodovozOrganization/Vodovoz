@@ -1,5 +1,5 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
+using DriverAPI.Library.Converters;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;

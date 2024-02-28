@@ -67,6 +67,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DriverMobileAppCommentTime).Column("driver_app_comment_time");
 			Map(x => x.IsSecondOrder).Column("is_second_order");
 			Map(x => x.CounterpartyExternalOrderId).Column("counterparty_external_order_id");
+			Map(x => x.IsDoNotMakeCallBeforeArrival).Column("is_do_not_make_call_before_arrival");
 
 			Map(x => x.OrderStatus).Column("order_status");
 			Map(x => x.SignatureType).Column("signature_type");

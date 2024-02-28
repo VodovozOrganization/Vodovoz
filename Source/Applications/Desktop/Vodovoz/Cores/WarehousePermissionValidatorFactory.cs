@@ -10,7 +10,7 @@ namespace Vodovoz.Core
 		public IWarehousePermissionValidator CreateValidator(int userId)
 		{
 			PermissionMatrix<WarehousePermissions, Warehouse> permissionMatrix;
-			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(userId)) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<User>(userId)) {
 				permissionMatrix = new PermissionMatrix<WarehousePermissions, Warehouse>();
 				permissionMatrix.Init();
 				permissionMatrix.ParseJson(uow.Root.WarehouseAccess);

@@ -1,4 +1,4 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;

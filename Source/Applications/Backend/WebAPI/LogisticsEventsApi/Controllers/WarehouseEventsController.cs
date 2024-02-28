@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventsApi.Library.Dtos;
 using EventsApi.Library.Models;
+using LogisticsEventsApi.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

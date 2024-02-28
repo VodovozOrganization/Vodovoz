@@ -9,8 +9,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Dto_s;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 
 namespace DriverAPI.Controllers.V4
 {
@@ -53,7 +53,7 @@ namespace DriverAPI.Controllers.V4
 		[HttpPost]
 		[Produces("application/json")]
 		[Route("Authenticate")]
-		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
+		public async Task<TokenResponse> Post([FromBody] LoginRequest loginRequestModel)
 		{
 			if(await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
 			{
@@ -78,7 +78,7 @@ namespace DriverAPI.Controllers.V4
 					&& await _userManager.IsInRoleAsync(user, ApplicationUserRole.Driver.ToString());
 		}
 
-		private async Task<TokenResponseDto> GenerateToken(string username)
+		private async Task<TokenResponse> GenerateToken(string username)
 		{
 			var user = await _userManager.FindByNameAsync(username);
 			var roles = await _userManager.GetRolesAsync(user);
@@ -100,7 +100,7 @@ namespace DriverAPI.Controllers.V4
 						SecurityAlgorithms.HmacSha256)),
 				new JwtPayload(claims));
 
-			var output = new TokenResponseDto()
+			var output = new TokenResponse
 			{
 				AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
 				UserName = username

@@ -14,8 +14,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.Parameters;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Roboats;
 
 namespace Vodovoz.EntityRepositories.Roboats
 {

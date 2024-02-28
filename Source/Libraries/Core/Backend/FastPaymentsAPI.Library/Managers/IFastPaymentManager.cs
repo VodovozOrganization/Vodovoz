@@ -1,5 +1,5 @@
 ﻿using System;
-using FastPaymentsAPI.Library.DTO_s;
+using FastPaymentsApi.Contracts;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.FastPayments;
 

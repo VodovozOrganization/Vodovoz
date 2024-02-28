@@ -1,32 +1,30 @@
-﻿using System;
+﻿using Autofac;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Services;
-using QS.Validation;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using QSReport;
+using QSWidgetLib;
+using System;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
-using QSWidgetLib;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Models;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.EntityRepositories.Cash;
-using Autofac;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
+using Vodovoz.Settings.Contacts;
+using Vodovoz.Settings.Orders;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.Dialogs
 {
@@ -44,13 +42,12 @@ namespace Vodovoz.Dialogs
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
 		private readonly ICommonServices _commonServices;
-		private IParametersProvider _parametersProvider;
-		private IContactParametersProvider _contactsParameters;
+		private IContactSettings _contactsSettings;
 
 		public CallTaskDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
 			_callTaskRepository = new CallTaskRepository();
@@ -79,7 +76,7 @@ namespace Vodovoz.Dialogs
 		public CallTaskDlg(int callTaskId)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
 			_callTaskRepository = new CallTaskRepository();
@@ -93,12 +90,11 @@ namespace Vodovoz.Dialogs
 
 		private void ConfigureDlg()
 		{
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-			_parametersProvider = new ParametersProvider();
-			_contactsParameters = new ContactParametersProvider(_parametersProvider);
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
+			_contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 
@@ -136,10 +132,12 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters,  _commonServices);
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
+
+			ClientPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings,  _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _commonServices);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)
@@ -250,7 +248,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

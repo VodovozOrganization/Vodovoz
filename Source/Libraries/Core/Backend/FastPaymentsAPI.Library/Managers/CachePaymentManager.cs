@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FastPaymentsAPI.Library.DTO_s;
+using FastPaymentsApi.Contracts;
 using FastPaymentsAPI.Library.Factories;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,6 +15,7 @@ namespace FastPaymentsAPI.Library.Managers
 	public class CachePaymentManager : BackgroundService
 	{
 		private readonly ILogger<CachePaymentManager> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly FastPaymentFileCache _fastPaymentFileCache;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -22,12 +23,14 @@ namespace FastPaymentsAPI.Library.Managers
 
 		public CachePaymentManager(
 			ILogger<CachePaymentManager> logger,
+			IUnitOfWorkFactory uowFactory,
 			FastPaymentFileCache fastPaymentFileCache,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderRepository orderRepository,
 			IFastPaymentFactory fastPaymentApiFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_fastPaymentFileCache = fastPaymentFileCache ?? throw new ArgumentNullException(nameof(fastPaymentFileCache));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -61,7 +64,7 @@ namespace FastPaymentsAPI.Library.Managers
 					IList<FastPaymentDTO> cachesToRemove = new List<FastPaymentDTO>();
 					int savedPayments = 0;
 
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uow = _uowFactory.CreateWithoutRoot())
 					{
 						foreach(var paymentDto in paymentsInCache)
 						{

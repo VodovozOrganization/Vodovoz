@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DriverAPI.Library.DTOs;
+using DriverApi.Contracts.V4;
 using Microsoft.Extensions.Configuration;
 
 namespace DriverAPI.Library.Helpers

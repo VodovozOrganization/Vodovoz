@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -34,11 +31,11 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly ICarUnloadRepository _carUnloadRepository;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 
@@ -48,13 +45,11 @@ namespace Vodovoz
 
 		public ReturnsReceptionView()
 		{
-			var baseParameters = new BaseParametersProvider(new ParametersProvider());
-			_terminalNomenclatureProvider = baseParameters;
-			var routeListRepository = new RouteListRepository(new StockRepository(), baseParameters);
-			_carLoadDocumentRepository = new CarLoadDocumentRepository(routeListRepository);
+			_nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			_nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
 			_carUnloadRepository = new CarUnloadRepository();
-			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-			_nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
+			_subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 
 			Build();
 
@@ -100,7 +95,7 @@ namespace Vodovoz
 			get => warehouse;
 			set {
 				warehouse = value;
-				FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+				FillListReturnsFromRoute(_nomenclatureSettings.NomenclatureIdForTerminal);
 			}
 		}
 
@@ -112,7 +107,7 @@ namespace Vodovoz
 					return;
 				routeList = value;
 				if(routeList != null) {
-					FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+					FillListReturnsFromRoute(_nomenclatureSettings.NomenclatureIdForTerminal);
 				} else {
 					ReceptionReturnsList.Clear();
 				}
@@ -287,7 +282,7 @@ namespace Vodovoz
 				}
 			}
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 
 			if(ReceptionReturnsList.All(i => i.NomenclatureId != defaultBottleNomenclature.Id))
 			{

@@ -1,19 +1,19 @@
 
 //Сформировать подпись для json в запросе можно тут: https://www.mango-office.ru/support/integratsiya-api/spisok_integratsiy/emulyator_api_virtualnoy_ats/
 ###
-POST http://<HOST_NAME>:<PORT>/mango/events/call
+POST http://mango.vod.qsolution.ru:7985/mango/events/call
 Content-Type: multipart/form-data; boundary=Boundary
 
 --Boundary
 Content-Disposition: form-data; name="vpbx_api_key"
 Content-Type: text/plain
 
-<vpbx_api_key_без_скобок>
+j1dnx961y1rq9xcryxtuti5gtp3vp1h0
 --Boundary
 Content-Disposition: form-data; name="sign"
 Content-Type: text/plain
 
-15dfa262a2e505ceadac84e7afe36fb5a86f7e556d712e4c8ba3efe561d59031
+6ca7a72a028894ec172d4dc386f11f2677fc394786e576511f253cdac250b9a3
 --Boundary
 Content-Disposition: form-data; name="json"
 Content-Type: application/json
@@ -23,7 +23,7 @@ Content-Type: application/json
 "call_id":"MIxEyNTzTo6NDxkzNMMOzNQ==",
 "timestamp":1558422128,
 "seq":2,
-"call_state":"Connected",
+"call_state":"Appeared",
 "location":"abonent",
 "from":
 {

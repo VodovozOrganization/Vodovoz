@@ -4,11 +4,19 @@ using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.EntityRepositories.Organizations
 {
 	public class OrganizationRepository : IOrganizationRepository
 	{
+		private readonly IOrganizationSettings _organizationSettings;
+
+		public OrganizationRepository(IOrganizationSettings organizationSettings)
+		{
+			_organizationSettings = organizationSettings ?? throw new System.ArgumentNullException(nameof(organizationSettings));
+		}
+
 		public Organization GetOrganizationByInn(IUnitOfWork uow, string inn)
 		{
 			if(string.IsNullOrWhiteSpace(inn))
@@ -74,6 +82,11 @@ namespace Vodovoz.EntityRepositories.Organizations
 		{
 			return uow.Session.QueryOver<OrganizationOwnershipType>()
 				.List<OrganizationOwnershipType>();
+		}
+
+		public Organization GetCommonOrganisation(IUnitOfWork uow)
+		{
+			return uow.GetById<Organization>(_organizationSettings.CommonCashDistributionOrganisationId);
 		}
 	}
 }

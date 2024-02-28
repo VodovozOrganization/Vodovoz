@@ -19,8 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Client
 {
@@ -34,7 +33,7 @@ namespace Vodovoz.Domain.Client
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private IGlobalSettings _globalSettings;
 
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
@@ -98,9 +97,6 @@ namespace Vodovoz.Domain.Client
 		private decimal _fixPrice5;
 		private bool _addCertificatesAlways;
 		private DeliveryPointCategory _category;
-
-		//FIXME вынести зависимость
-		private readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
 
 		public DeliveryPoint()
 		{
@@ -790,9 +786,9 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
 		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow)
+		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow, IDeliveryRepository deliveryRepository)
 		{
-			return !CoordinatesExist ? new List<District>() : _deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
+			return !CoordinatesExist ? new List<District>() : deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
 		}
 
 		/// <summary>
@@ -801,14 +797,14 @@ namespace Vodovoz.Domain.Client
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
 		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
-		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
+		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, IDeliveryRepository deliveryRepository, DistrictsSet districtsSet = null)
 		{
 			if(!CoordinatesExist)
 			{
 				return false;
 			}
 
-			District foundDistrict = _deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
+			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
 
 			if(foundDistrict == null)
 			{
@@ -828,14 +824,19 @@ namespace Vodovoz.Domain.Client
 		/// <param name="longitude">Долгота</param>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города
 		/// для определения расстояния до базы</param>
-		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IUnitOfWork uow = null)
+		public virtual bool SetСoordinates(
+			decimal? latitude, 
+			decimal? longitude, 
+			IDeliveryRepository deliveryRepository, 
+			IGlobalSettings globalSettings, 
+			IUnitOfWork uow = null)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
 
 			OnPropertyChanged(nameof(CoordinatesExist));
 
-			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow, deliveryRepository))
 			{
 				return true;
 			}
@@ -852,7 +853,7 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 
-			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, globalSettings.ExcludeToll);
 
 			if(result == null)
 			{
@@ -877,31 +878,6 @@ namespace Vodovoz.Domain.Client
 				? $"{StreetTypeShort} "
 				: $"{StreetTypeShort}. ";
 		}
-
-		#region Фабричные методы
-
-		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)
-		{
-			IUnitOfWorkGeneric<DeliveryPoint> uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();
-
-			uow.Root.Counterparty = counterparty;
-
-			return uow;
-		}
-
-		public static DeliveryPoint Create(Counterparty counterparty)
-		{
-			DeliveryPoint point = new DeliveryPoint
-			{
-				Counterparty = counterparty
-			};
-
-			counterparty.DeliveryPoints.Add(point);
-
-			return point;
-		}
-
-		#endregion Фабричные методы
 
 		#region IValidatableObject Implementation
 

@@ -209,12 +209,56 @@ namespace Vodovoz.Core
 			return this;
 		}
 
+		public virtual ViewModelWidgetResolver RegisterWidgetForTabViewModel(Type viewModelType, Type widgetType)
+		{
+			if(!typeof(DialogViewModelBase).IsAssignableFrom(viewModelType))
+			{
+				throw new ArgumentException($"Тип {viewModelType.Name} не является подтипом {typeof(DialogViewModelBase).Name}");
+			}
+
+			if(!typeof(Widget).IsAssignableFrom(widgetType))
+			{
+				throw new ArgumentException($"Тип {widgetType.Name} не является подтипом {typeof(Widget).Name}");
+			}
+
+			if(_viewModelWidgets.ContainsKey(viewModelType))
+			{
+				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
+			}
+			_viewModelWidgets.Add(viewModelType, widgetType);
+
+			return this;
+		}
+
 		public virtual ViewModelWidgetResolver RegisterWidgetForWidgetViewModel<TViewModel, TWidget>()
 			where TViewModel : ViewModelBase
 			where TWidget : Widget
 		{
 			Type viewModelType = typeof(TViewModel);
 			Type widgetType = typeof(TWidget);
+			if(_viewModelWidgets.ContainsKey(viewModelType))
+			{
+				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
+			}
+			_viewModelWidgets.Add(viewModelType, widgetType);
+
+			return this;
+		}
+
+		public virtual ViewModelWidgetResolver RegisterWidgetForWidgetViewModel(
+			Type viewModelType,
+			Type widgetType)
+		{
+			if(!typeof(ViewModelBase).IsAssignableFrom(viewModelType))
+			{
+				throw new ArgumentException($"Тип {viewModelType.Name} не является подтипом {typeof(ViewModelBase).Name}");
+			}
+
+			if(!typeof(Widget).IsAssignableFrom(widgetType))
+			{
+				throw new ArgumentException($"Тип {widgetType.Name} не является подтипом {typeof(Widget).Name}");
+			}
+
 			if(_viewModelWidgets.ContainsKey(viewModelType))
 			{
 				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
