@@ -13,12 +13,6 @@ namespace DriverAPI.Library.V5.Services
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		IEnumerable<DriverComplaintReasonDto> GetPinnedComplaintReasons();
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
 		Result<IEnumerable<DriverComplaintReasonDto>> GetPinnedComplaintReasons();
 	}
 }

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
-using Vodovoz.Errors;
 
 namespace DriverAPI.Library.V4.Models
 {
@@ -37,20 +36,6 @@ namespace DriverAPI.Library.V4.Models
 		{
 			return _complaintsRepository.GetDriverComplaintPopularReasons(_unitOfWork)
 				.Select(x => _driverComplaintReasonConverter.ConvertToAPIDriverComplaintReason(x));
-		}
-
-		public Result<IEnumerable<DriverComplaintReasonDto>> TryGetPinnedComplaintReasons()
-		{
-			try
-			{
-				return Result.Success(_complaintsRepository.GetDriverComplaintPopularReasons(_unitOfWork)
-					.Select(x => _driverComplaintReasonConverter.ConvertToAPIDriverComplaintReason(x)));
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка получения данных: {ExceptionMessage}", ex.Message);
-				return Result.Failure<IEnumerable<DriverComplaintReasonDto>>(Vodovoz.Errors.Common.Repository.DataRetrievalError);
-			}
 		}
 	}
 }
