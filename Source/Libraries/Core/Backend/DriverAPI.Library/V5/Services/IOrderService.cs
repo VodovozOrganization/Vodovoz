@@ -16,7 +16,7 @@ namespace DriverAPI.Library.V5.Services
 		IEnumerable<OrderDto> Get(int[] orderIds);
 		Result ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order);
-		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId);
+		Result<IEnumerable<PaymentDtoType>> GetAvailableToChangePaymentTypes(int orderId);
 		Task<Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId);
 		Result UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
 		Result<OrderAdditionalInfoDto> GetAdditionalInfo(int orderId);

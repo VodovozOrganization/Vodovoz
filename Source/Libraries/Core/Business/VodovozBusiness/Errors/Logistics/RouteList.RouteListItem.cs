@@ -8,10 +8,17 @@ namespace Vodovoz.Errors.Logistics
 	{
 		public static class RouteListItem
 		{
-			public static Error TransferTypeNotSet => new Error(
-				typeof(RouteListItem),
-				nameof(TransferTypeNotSet),
-				"Для адреса не указана необходимость загрузки");
+			public static Error NotFound =>
+				new Error(
+					typeof(RouteList),
+					nameof(NotFound),
+					"Адрес маршрутного листа не найден");
+
+			public static Error TransferTypeNotSet =>
+				new Error(
+					typeof(RouteListItem),
+					nameof(TransferTypeNotSet),
+					"Для адреса не указана необходимость загрузки");
 
 			public static Error NotEnRouteState =>
 				new Error(
@@ -19,6 +26,12 @@ namespace Vodovoz.Errors.Logistics
 					nameof(NotEnRouteState),
 					$"Адрес маршрутного листа не в статусе {RouteListItemStatus.EnRoute.GetEnumDisplayName()}");
 
+			public static Error NotCompletedState =>
+				new Error(
+					typeof(RouteList),
+					nameof(NotCompletedState),
+					$"Адрес маршрутного листа не в статусе {RouteListItemStatus.Completed.GetEnumDisplayName()}");
+			
 			public static Error NotFoundAssociatedWithOrder =>
 				new Error(
 					typeof(RouteListItem),

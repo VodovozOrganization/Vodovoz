@@ -66,10 +66,10 @@ namespace DriverAPI.Controllers.V5
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_apiRouteListService = apiRouteListService;
-			_orderService = orderService;
-			_employeeService = employeeService;
-			_driverMobileAppActionRecordService = driverMobileAppActionRecordService;
+			_apiRouteListService = apiRouteListService ?? throw new ArgumentNullException(nameof(apiRouteListService));
+			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_driverMobileAppActionRecordService = driverMobileAppActionRecordService ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -91,7 +91,8 @@ namespace DriverAPI.Controllers.V5
 				Request.Headers[HeaderNames.Authorization]);
 
 			var routeLists = _apiRouteListService.Get(routeListsIds);
-			var ordersIds = routeLists.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
+			var ordersIds = routeLists
+				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
 
 			var orders = _orderService.Get(ordersIds.ToArray());
@@ -137,6 +138,7 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<int>))]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> GetRouteListsIdsAsync()
 		{
 			_logger.LogInformation("Запрос доступных МЛ пользователем {Username} User token: {AccessToken}",
@@ -146,7 +148,10 @@ namespace DriverAPI.Controllers.V5
 			var user = await _userManager.GetUserAsync(User);
 			var userName = await _userManager.GetUserNameAsync(user);
 
-			return Ok(_apiRouteListService.GetRouteListsIdsForDriverByAndroidLogin(userName));
+			return MapResult(
+				HttpContext,
+				_apiRouteListService.GetRouteListsIdsForDriverByAndroidLogin(userName),
+				errorStatusCode: StatusCodes.Status400BadRequest);
 		}
 
 		/// <summary>
@@ -157,6 +162,9 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequest requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
@@ -182,9 +190,36 @@ namespace DriverAPI.Controllers.V5
 
 			try
 			{
-				_apiRouteListService.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
+				return MapResult(
+					HttpContext,
+					_apiRouteListService.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
 
-				return NoContent();
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
 			}
 			catch(Exception ex)
 			{

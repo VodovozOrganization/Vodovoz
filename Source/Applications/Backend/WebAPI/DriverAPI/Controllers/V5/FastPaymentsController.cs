@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using System;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Errors;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -109,6 +112,8 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PayByQrResponse))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> PayByQRAsync(PayByQrRequest payByQRRequestDTO)
 		{
 			var recievedTime = DateTime.Now;
@@ -139,11 +144,44 @@ namespace DriverAPI.Controllers.V5
 					var updateBottlesCountResult = _orderService.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
 					if(updateBottlesCountResult.IsFailure)
 					{
-						MapResult(HttpContext, updateBottlesCountResult, errorStatusCode: StatusCodes.Status400BadRequest);
+						return MapResult(HttpContext, updateBottlesCountResult, errorStatusCode: StatusCodes.Status400BadRequest);
 					}
 				}
 
-				return MapResult(HttpContext, await _orderService.SendQrPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id));
+				return MapResult(
+					HttpContext,
+					await _orderService.SendQrPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status200OK;
+						}
+
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
+						{
+							return StatusCodes.Status404NotFound;
+
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
+
 			}
 			catch(Exception ex)
 			{

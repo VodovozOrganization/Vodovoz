@@ -16,7 +16,7 @@ namespace DriverAPI.Library.Errors
 			public static Error RouteListAccessDenied =>
 				new Error(typeof(Authorization),
 					nameof(RouteListAccessDenied),
-					"Доступ запрещен");
+					"Доступ к маршрутному листу запрещен");
 
 			/// <summary>
 			/// Доступ к заказу
@@ -25,7 +25,7 @@ namespace DriverAPI.Library.Errors
 			public static Error OrderAccessDenied =>
 				new Error(typeof(Authorization),
 					nameof(OrderAccessDenied),
-					"Доступ запрещен");
+					"Доступ к заказу запрещен");
 		}
 	}
 }

@@ -145,12 +145,16 @@ namespace DriverAPI.Library.V5.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
+		public Result<IEnumerable<PaymentDtoType>> GetAvailableToChangePaymentTypes(int orderId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
-			return GetAvailableToChangePaymentTypes(vodovozOrder);
+			if(vodovozOrder is null)
+			{
+				return Result.Failure<IEnumerable<PaymentDtoType>>(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			return Result.Success(GetAvailableToChangePaymentTypes(vodovozOrder));
 		}
 
 		/// <summary>
@@ -438,9 +442,14 @@ namespace DriverAPI.Library.V5.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Orders.Order.NotFound);
 			}
 
-			if(routeList is null || routeListAddress is null)
+			if(routeList is null)
 			{
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeListAddress is null)
+			{
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
@@ -471,7 +480,14 @@ namespace DriverAPI.Library.V5.Services
 			}
 			else
 			{
-				payByQRResponseDto.AvailablePaymentTypes = GetAvailableToChangePaymentTypes(orderId);
+				var availableToChangePaymentTypesResult = GetAvailableToChangePaymentTypes(orderId);
+
+				if(availableToChangePaymentTypesResult.IsFailure)
+				{
+					return Result.Failure<PayByQrResponse>(availableToChangePaymentTypesResult.Errors);
+				}
+
+				payByQRResponseDto.AvailablePaymentTypes = availableToChangePaymentTypesResult.Value;
 				payByQRResponseDto.CanReceiveQR = true;
 			}
 

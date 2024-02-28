@@ -305,7 +305,14 @@ namespace DriverAPI.Controllers.V5
 
 			try
 			{
-				IEnumerable<PaymentDtoType> availableTypesToChange = _orderService.GetAvailableToChangePaymentTypes(orderId);
+				var availableToChangePaymentTypesResult = _orderService.GetAvailableToChangePaymentTypes(orderId);
+
+				if(availableToChangePaymentTypesResult.IsFailure)
+				{
+					return MapResult(HttpContext, availableToChangePaymentTypesResult, StatusCodes.Status400BadRequest);
+				}
+
+				IEnumerable<PaymentDtoType> availableTypesToChange = availableToChangePaymentTypesResult.Value;
 
 				if(!availableTypesToChange.Contains(newPaymentType))
 				{

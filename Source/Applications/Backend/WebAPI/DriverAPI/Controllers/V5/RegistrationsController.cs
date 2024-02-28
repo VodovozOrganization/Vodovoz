@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Errors;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -91,6 +92,9 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RegisterRouteListAddressCoordinatesAsync(
 			[FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
@@ -117,14 +121,43 @@ namespace DriverAPI.Controllers.V5
 
 			try
 			{
-				_routeListService.RegisterCoordinateForRouteListItem(
+				return MapResult(
+					HttpContext,
+					_routeListService.RegisterCoordinateForRouteListItem(
 					routeListAddressCoordinate.RouteListAddressId,
 					routeListAddressCoordinate.Latitude,
 					routeListAddressCoordinate.Longitude,
 					localActionTime,
-					driver.Id);
+					driver.Id),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
 
-				return NoContent();
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound
+							|| firstError == Vodovoz.Errors.Orders.Order.NotFound
+							|| firstError == Vodovoz.Errors.Clients.DeliveryPoint.NotFound)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
 			}
 			catch(Exception ex)
 			{

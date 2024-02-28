@@ -1,6 +1,7 @@
 ﻿using DriverApi.Contracts.V5;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Errors;
 
 namespace DriverAPI.Library.V5.Services
 {
@@ -8,10 +9,10 @@ namespace DriverAPI.Library.V5.Services
 	{
 		RouteListDto Get(int routeListId);
 		IEnumerable<RouteListDto> Get(int[] routeListsIds);
-		IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login);
+		Result<IEnumerable<int>> GetRouteListsIdsForDriverByAndroidLogin(string login);
 		string GetActualDriverPushNotificationsTokenByOrderId(int orderId);
-		void RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int id);
+		Result RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId);
 		bool IsRouteListBelongToDriver(int routeListId, int driverId);
-		void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId);
+		Result RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId);
 	}
 }

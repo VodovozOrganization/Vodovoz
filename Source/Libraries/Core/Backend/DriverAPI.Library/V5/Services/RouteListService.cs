@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Errors;
 
 namespace DriverAPI.Library.V5.Services
 {
@@ -96,25 +97,42 @@ namespace DriverAPI.Library.V5.Services
 		/// </summary>
 		/// <param name="login">Android - login</param>
 		/// <returns>Список идентификаторов</returns>
-		public IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login)
+		public Result<IEnumerable<int>> GetRouteListsIdsForDriverByAndroidLogin(string login)
 		{
-			var driver = _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login)
-				?? throw new DataNotFoundException(nameof(login), $"Водитель не найден");
+			var driver = _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login);
 
-			return _routeListRepository.GetDriverRouteListsIds(
-					_unitOfWork,
-					driver,
-					RouteListStatus.EnRoute
-				);
+			if(driver is null)
+			{
+				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.Driver.NotFound);
+			}
+
+			return Result.Success(_routeListRepository.GetDriverRouteListsIds(
+				_unitOfWork,
+				driver,
+				RouteListStatus.EnRoute));
 		}
 
-		public void RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId)
+		public Result RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId)
 		{
-			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
-				?? throw new ArgumentOutOfRangeException(nameof(routeListAddressId), $"Адрес МЛ {routeListAddressId} не нейден");
+			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId);
 
-			var deliveryPoint = routeListAddress.Order?.DeliveryPoint
-				?? throw new DataNotFoundException(nameof(routeListAddressId), $"Точка доставки для адреса не найдена");
+			if(routeListAddress is null)
+			{
+				_logger.LogWarning("Адрес МЛ {RouteListItemId} не нейден", routeListAddressId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+			}
+
+			if(routeListAddress.Order is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			var deliveryPoint = routeListAddress.Order.DeliveryPoint;
+
+			if(deliveryPoint is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPoint.NotFound);
+			}
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)
 			{
@@ -122,11 +140,11 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddressId,
 					routeListAddress.RouteList.Driver.Id,
 					driverId);
-				throw new AccessViolationException("Нельзя записать координаты точки доставки для МЛ другого водителя");
+
+				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
 			}
 
-			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute
-				|| routeListAddress.Status != RouteListItemStatus.EnRoute)
+			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
 			{
 				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteListId} в статусе {RouteListStatus}" +
 					" адреса {RouteListAddressId} в статусе {RouteListAddressStatus} водителем {DriverId}",
@@ -135,7 +153,21 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddressId,
 					routeListAddress.Status,
 					driverId);
-				throw new AccessViolationException("Нельзя записать координаты точки доставки для этого адреса");
+
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteListId} в статусе {RouteListStatus}" +
+					" адреса {RouteListAddressId} в статусе {RouteListAddressStatus} водителем {DriverId}",
+					routeListAddress.RouteList.Id,
+					routeListAddress.RouteList.Status,
+					routeListAddressId,
+					routeListAddress.Status,
+					driverId);
+
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
@@ -148,6 +180,8 @@ namespace DriverAPI.Library.V5.Services
 
 			_unitOfWork.Save(coordinate);
 			_unitOfWork.Commit();
+
+			return Result.Success();
 		}
 
 		public string GetActualDriverPushNotificationsTokenByOrderId(int orderId)
@@ -155,15 +189,19 @@ namespace DriverAPI.Library.V5.Services
 			return _employeeRepository.GetEmployeePushTokenByOrderId(_unitOfWork, orderId);
 		}
 
-		public void RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId)
+		public Result RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId)
 		{
 			if(routeListAddressId <= 0)
 			{
-				throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Идентификатор адреса МЛ не может быть меньше или равен нулю");
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 			}
 
-			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId)
-				?? throw new DataNotFoundException(nameof(routeListAddressId), routeListAddressId, "Указан идентификатор несуществующего адреса МЛ");
+			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId);
+
+			if(routeListAddress is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+			}
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
 			{
@@ -171,13 +209,18 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddressId,
 					driverId,
 					routeListAddress.RouteList.Driver?.Id);
-				throw new AccessViolationException("Нельзя вернуть в путь адрес не вашего МЛ");
+
+				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
 			}
 
-			if(routeListAddress.Status != RouteListItemStatus.Completed
-			|| routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
+			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
 			{
-				throw new InvalidOperationException("Адрес нельзя вернуть в путь");
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.Completed)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState);
 			}
 
 			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);
@@ -185,6 +228,8 @@ namespace DriverAPI.Library.V5.Services
 			_unitOfWork.Save(routeListAddress.RouteList);
 			_unitOfWork.Save(routeListAddress);
 			_unitOfWork.Commit();
+
+			return Result.Success();
 		}
 
 		public bool IsRouteListBelongToDriver(int routeListId, int driverId)
