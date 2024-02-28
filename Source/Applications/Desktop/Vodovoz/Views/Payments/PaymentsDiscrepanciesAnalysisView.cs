@@ -23,13 +23,41 @@ namespace Vodovoz.Views.Payments
 		{
 			ynotebook.ShowTabs = false;
 			ynotebook.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedCheckMode, w => w.CurrentPage)
+				.AddFuncBinding(ViewModel, vm => vm.SelectedCheckMode, w => w.CurrentPage)
 				.InitializeFromSource();
 
-			ycheckbuttonClientDiscrepanciesOnly.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedCheckMode == DiscrepancyCheckMode.ByCounterparty, w => w.Active)
+			yradiobuttonCounterpartyMode.Toggled += (s, e) =>
+			{
+				if(yradiobuttonCounterpartyMode.Active)
+				{
+					ViewModel.SetByCounterpartyCheckModeCommand.Execute();
+				}
+			};
+
+			yradiobuttonCommonMode.Toggled += (s, e) =>
+			{
+				if(yradiobuttonCommonMode.Active)
+				{
+					ViewModel.SetCommonReconciliationCheckModeCommand.Execute();
+				}
+			};
+
+			ybuttonReadFile.Binding
+				.AddBinding(ViewModel, vm => vm.CanReadFile, w => w.Sensitive)
 				.InitializeFromSource();
-			ycheckbuttonClientDiscrepanciesOnly.Toggled += (s, e) => ViewModel.SetByCounterpartyCheckModeCommand.Execute();
+			ybuttonReadFile.Clicked += (s, e) => ViewModel.AnalyseDiscrepanciesCommand.Execute();
+
+			ycheckbuttonClientDiscrepanciesOnly.Binding
+				.AddBinding(ViewModel, vm => vm.IsDiscrepanciesOnly, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonCounterpartyClosedOnly.Binding
+				.AddBinding(ViewModel, vm => vm.IsClosedOrdersOnly, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonExcludeOldData.Binding
+				.AddBinding(ViewModel, vm => vm.IsExcludeOldData, w => w.Active)
+				.InitializeFromSource();
 
 			ConfigureFileChooser();
 			ConfigureOrdersTree();

@@ -12,6 +12,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private DiscrepancyCheckMode _selectedCheckMode;
 		private string _selectedFileName;
 		private Domain.Client.Counterparty _selectedClient;
+		private bool _isDiscrepanciesOnly;
+		private bool _isClosedOrdersOnly = true;
+		private bool _isExcludeOldData;
 
 		public PaymentsDiscrepanciesAnalysisViewModel(
 			INavigationManager navigation) : base(navigation)
@@ -20,6 +23,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			SetByCounterpartyCheckModeCommand = new DelegateCommand(SetByCounterpartyCheckMode);
 			SetCommonReconciliationCheckModeCommand = new DelegateCommand(SetCommonReconciliationCheckMode);
+			AnalyseDiscrepanciesCommand = new DelegateCommand(AnalyseDiscrepancies, () => CanReadFile);
 		}
 
 		#region Settings
@@ -48,6 +52,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			set => SetField(ref _selectedClient, value);
 		}
 
+		public bool IsDiscrepanciesOnly
+		{
+			get => _isDiscrepanciesOnly;
+			set => SetField(ref _isDiscrepanciesOnly, value);
+		}
+
+		public bool IsClosedOrdersOnly
+		{
+			get => _isClosedOrdersOnly;
+			set => SetField(ref _isClosedOrdersOnly, value);
+		}
+
+		public bool IsExcludeOldData
+		{
+			get => _isExcludeOldData;
+			set => SetField(ref _isExcludeOldData, value);
+		}
+
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
 		public GenericObservableList<OrderDiscrepanciesNode> OrdersNodes { get; } =
@@ -65,6 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public DelegateCommand SetByCounterpartyCheckModeCommand { get; }
 		public DelegateCommand SetCommonReconciliationCheckModeCommand { get; }
+		public DelegateCommand AnalyseDiscrepanciesCommand { get; }
 
 		#endregion Commands
 
@@ -78,6 +101,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			SelectedCheckMode = DiscrepancyCheckMode.CommonReconciliation;
 		}
 
+		private void AnalyseDiscrepancies()
+		{
+
+		}
 
 		public class OrderDiscrepanciesNode
 		{
