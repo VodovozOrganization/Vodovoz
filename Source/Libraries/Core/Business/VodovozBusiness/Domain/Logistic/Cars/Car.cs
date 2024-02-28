@@ -55,6 +55,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _registrationNumber = String.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
+		private ArchivingReason _archivingReason;
 
 		public virtual int Id { get; set; }
 
@@ -77,6 +78,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _archivingDate;
 			set => SetField(ref _archivingDate, value);
+		}
+
+		[Display(Name = "Причина архивации")]
+		public virtual ArchivingReason ArchivingReason
+		{
+			get => _archivingReason;
+			set => SetField(ref _archivingReason, value);
 		}
 
 		public virtual IList<CarVersion> CarVersions
@@ -369,6 +377,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 	}
 
+	public enum ArchivingReason
+	{
+		[Display(Name = "Продано")]
+		Sales,
+		[Display(Name = "Утиль")]
+		Scrap
+	}
+
 	public class CarTypeOfUseStringType : EnumStringType
 	{
 		public CarTypeOfUseStringType() : base(typeof(CarTypeOfUse))
@@ -378,6 +394,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 	public class GenderStringType : EnumStringType
 	{
 		public GenderStringType() : base(typeof(Gender))
+		{ }
+	}
+
+	public class ArchivingReasonStringType : EnumStringType
+	{
+		public ArchivingReasonStringType() : base(typeof(ArchivingReason))
 		{ }
 	}
 }
