@@ -11,6 +11,7 @@ using Vodovoz.Core.Data.NHibernate;
 using QS.HistoryLog;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Autofac.Extensions.DependencyInjection;
+using QS.Services;
 
 namespace EmailStatusUpdateWorker
 {
@@ -18,7 +19,9 @@ namespace EmailStatusUpdateWorker
 	{
 		public static void Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			var host = CreateHostBuilder(args).Build();
+			host.Services.GetService<IUserService>();
+			host.Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>

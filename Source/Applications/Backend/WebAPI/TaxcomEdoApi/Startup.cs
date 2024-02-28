@@ -12,6 +12,7 @@ using QS.Project.Core;
 using System;
 using System.Linq;
 using System.Text;
+using QS.Services;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
@@ -89,7 +90,6 @@ namespace TaxcomEdoApi
 			services.AddStaticHistoryTracker();
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-
 			services.AddHostedService<AutoSendReceiveService>();
 			services.AddHostedService<ContactsUpdaterService>();
 			services.AddHostedService<DocumentFlowService>();
@@ -121,6 +121,7 @@ namespace TaxcomEdoApi
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

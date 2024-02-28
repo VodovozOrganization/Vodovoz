@@ -15,6 +15,7 @@ using QS.Project.Domain;
 using System;
 using System.Reflection;
 using System.Text.Json;
+using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -27,7 +28,9 @@ namespace ExternalCounterpartyAssignNotifier
 	{
 		public static void Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			var host = CreateHostBuilder(args).Build();
+			host.Services.GetService<IUserService>();
+			host.Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args)
