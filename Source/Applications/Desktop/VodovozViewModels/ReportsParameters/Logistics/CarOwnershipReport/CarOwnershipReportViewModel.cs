@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			Title = "Количество ТС компании";
+			Title = "Принадлежность ТС";
 
 			_selectedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
