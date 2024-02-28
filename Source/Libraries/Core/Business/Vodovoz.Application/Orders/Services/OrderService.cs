@@ -18,6 +18,7 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 
@@ -38,7 +39,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public OrderService(
 			ILogger<OrderService> logger,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureSettings,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
 			IOrderDailyNumberController orderDailyNumberController,
@@ -48,9 +49,9 @@ namespace Vodovoz.Application.Orders.Services
 			IFastPaymentSender fastPaymentSender,
 			ICallTaskWorker callTaskWorker)
 		{
-			if(nomenclatureParametersProvider is null)
+			if(nomenclatureSettings is null)
 			{
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 			}
 
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
@@ -63,7 +64,7 @@ namespace Vodovoz.Application.Orders.Services
 			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 
-			PaidDeliveryNomenclatureId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
 		public int PaidDeliveryNomenclatureId { get; }
@@ -329,6 +330,13 @@ namespace Vodovoz.Application.Orders.Services
 			order.RecalculateItemsPrice();
 			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
+
+			if(!order.SelfDelivery)
+			{
+				order.CallBeforeArrivalMinutes = 15;
+				order.IsDoNotMakeCallBeforeArrival = false;
+			}
+
 			return order;
 		}
 	}

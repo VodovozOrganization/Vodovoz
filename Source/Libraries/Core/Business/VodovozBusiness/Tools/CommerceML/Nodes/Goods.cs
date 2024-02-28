@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Autofac;
+using Gamma.Utilities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {
 	public class Goods : IXmlConvertable
 	{
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 		public IList<Nomenclature> Nomenclatures { get; private set; }
 
 		public Goods(Export export)

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -16,15 +17,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModel
 {
 	public class ReadyForShipmentVM : QSOrmProject.RepresentationModel.RepresentationModelWithoutEntityBase<ReadyForShipmentVMNode>
 	{
-		public ReadyForShipmentVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public ReadyForShipmentVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
 
 		public ReadyForShipmentVM(IUnitOfWork uow) : base(
 			typeof(RouteList),
@@ -35,9 +34,8 @@ namespace Vodovoz.ViewModel
 			this.UoW = uow;
 		}
 		
-		private readonly ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private readonly IRouteListRepository routeListRepository =
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly ISubdivisionRepository subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+		private readonly IRouteListRepository routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 
 		public ReadyForShipmentFilter Filter {
 			get => RepresentationFilter as ReadyForShipmentFilter;

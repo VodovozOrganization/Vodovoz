@@ -1,11 +1,11 @@
 ﻿using Autofac;
 using QS.Navigation;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;

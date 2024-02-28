@@ -5,6 +5,7 @@ using Mango.Client;
 using QS.Views.Dialog;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Mango;
 
 namespace Vodovoz.Views.Mango

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventsApi.Library.Dtos;
 using EventsApi.Library.Models;
+using LogisticsEventsApi.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
@@ -38,6 +40,7 @@ namespace DriverAPI.Controllers.V4
 		/// <returns>Http status OK или ошибка</returns>
 		/// <exception cref="Exception">ошибка</exception>
 		[HttpPost("CompleteDriverWarehouseEvent")]
+		[Produces("application/json", Type = typeof(CompletedDriverWarehouseEventDto))]
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
@@ -99,6 +102,7 @@ namespace DriverAPI.Controllers.V4
 		/// </summary>
 		/// <returns>список завершенных событий</returns>
 		[HttpGet("GetTodayCompletedEvents")]
+		[Produces("application/json", Type = typeof(IEnumerable<CompletedEventDto>))]
 		public async Task<IActionResult> GetTodayCompletedEvents()
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";

@@ -17,7 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -56,6 +56,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			UpdateOnChanges(
 				typeof(CarEvent),
 				typeof(CarEventType));
+
+			filterViewModel.Journal = this;
 
 			if(filterConfig != null)
 			{

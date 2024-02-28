@@ -46,6 +46,7 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -70,9 +71,13 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Specifications.Orders.EdoContainers;
@@ -81,7 +86,7 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
@@ -107,23 +112,23 @@ namespace Vodovoz
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
-		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
-		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository(ServicesConfig.UnitOfWorkFactory);
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository();
-		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
-		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
-		private IEmailParametersProvider _emailParametersProvider;
+		private IEmailSettings _emailSettings;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
@@ -136,7 +141,7 @@ namespace Vodovoz
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
 		private ICounterpartySettings _counterpartySettings;
-		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
+		private IOrganizationSettings _organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
 		private IDeleteEntityService _deleteEntityService;
@@ -239,14 +244,14 @@ namespace Vodovoz
 		public CounterpartyDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			ConfigureDlg();
 		}
 
 		public CounterpartyDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Counterparty>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(id);
 			ConfigureDlg();
 		}
 
@@ -257,7 +262,7 @@ namespace Vodovoz
 		public CounterpartyDlg(NewCounterpartyParameters parameters)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 
 			Entity.Name = parameters.Name;
 			Entity.FullName = parameters.FullName;
@@ -290,7 +295,7 @@ namespace Vodovoz
 		public CounterpartyDlg(Phone phone)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			phone.Counterparty = Entity;
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
@@ -314,9 +319,9 @@ namespace Vodovoz
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
-			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
+			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
+			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -335,7 +340,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 
-			_vodovozOrganization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
+			_vodovozOrganization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 			ConfigureTabInfo();
 			ConfigureTabContacts();
@@ -758,8 +763,9 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
-				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
@@ -770,7 +776,7 @@ namespace Vodovoz
 			var emailsViewModel = new EmailsViewModel(
 				UoWGeneric,
 				Entity.Emails,
-				_emailParametersProvider,
+				_emailSettings,
 				_externalCounterpartyRepository,
 				_commonServices.InteractiveService,
 				Entity.PersonType);
@@ -1116,7 +1122,7 @@ namespace Vodovoz
 			}
 
 			_emailLastScrollPosition = 0;
-			EmailDataLoader = new ThreadDataLoader<EmailRow>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = 50 };
+			EmailDataLoader = new ThreadDataLoader<EmailRow>(ServicesConfig.UnitOfWorkFactory) { PageSize = 50 };
 			EmailDataLoader.AddQuery(EmailItemsSourceQueryFunction);
 
 			ytreeviewEmails.ColumnsConfig = FluentColumnsConfig<EmailRow>.Create()
@@ -1361,7 +1367,7 @@ namespace Vodovoz
 			{
 				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
 					EntityUoWBuilder.ForOpen(Entity.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.UnitOfWorkFactory,
 					_commonServices,
 					GetOrderIdsWithoutSuccessfullySentUpd(),
 					_edoService);
@@ -1378,7 +1384,7 @@ namespace Vodovoz
 
 			_edoContainers.Clear();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id))
 				{
@@ -1918,14 +1924,8 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
-				this,
-				OpenPageOptions.AsSlave,
-				viewModel =>
-				{
-					viewModel.SelectionMode = JournalSelectionMode.Single;
-					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
-				});
+			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this);
+			page.ViewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
@@ -1998,7 +1998,7 @@ namespace Vodovoz
 
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
 		{
-			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
 			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
 			{
@@ -2007,7 +2007,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
+			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
 			{
 				unitOfWork.Save(unsubscribingEvent);
 				unitOfWork.Commit();
@@ -2018,7 +2018,7 @@ namespace Vodovoz
 
 		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
 		{
-			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
 			var subscribingEvent = new SubscribingBulkEmailEvent
 			{
@@ -2027,7 +2027,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
+			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
 			{
 				unitOfWork.Save(subscribingEvent);
 				unitOfWork.Commit();
@@ -2253,7 +2253,7 @@ namespace Vodovoz
 					}
 
 					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					var organization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
+					var organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, organization.Name, Entity.EdoOperator.Code,
 						email.Address, document.FileName, document.ByteFile).Result;
@@ -2425,7 +2425,7 @@ namespace Vodovoz
 					IsArchive = false
 				};
 
-				using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+				using(var uowOrganization = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
 				{
 					uowOrganization.Save(newOrganizationOwnershipType);
 				}

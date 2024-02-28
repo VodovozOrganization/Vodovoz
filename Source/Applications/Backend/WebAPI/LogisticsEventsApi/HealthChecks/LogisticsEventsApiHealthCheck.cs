@@ -1,11 +1,11 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Dto_s;
+using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -38,13 +38,13 @@ namespace LogisticsEventsApi.HealthChecks
 
 			var healthResult = new VodovozHealthResultDto();
 
-			var loginRequestDto = new LoginRequestDto
+			var loginRequestDto = new LoginRequest
 			{
 				Username = user,
 				Password = password
 			};
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(
+			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
 				$"{baseAddress}/api/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);

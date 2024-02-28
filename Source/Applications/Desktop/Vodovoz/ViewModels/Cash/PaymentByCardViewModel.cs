@@ -6,7 +6,8 @@ using QS.Utilities.Extensions;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -23,8 +24,8 @@ namespace Vodovoz.ViewModels.Cash
 			ICommonServices commonServices,
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
-			IOrderParametersProvider orderParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IOrderSettings orderSettings,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(orderPaymentSettings == null)
@@ -32,13 +33,13 @@ namespace Vodovoz.ViewModels.Cash
 				throw new ArgumentNullException(nameof(orderPaymentSettings));
 			}
 			
-			if(orderParametersProvider == null)
+			if(orderSettings == null)
 			{
-				throw new ArgumentNullException(nameof(orderParametersProvider));
+				throw new ArgumentNullException(nameof(orderSettings));
 			}
-			if(deliveryRulesParametersProvider == null)
+			if(deliveryRulesSettings == null)
 			{
-				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+				throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			}
 
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
@@ -50,8 +51,8 @@ namespace Vodovoz.ViewModels.Cash
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			
-			ValidationContext.ServiceContainer.AddService(orderParametersProvider);
-			ValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
+			ValidationContext.ServiceContainer.AddService(orderSettings);
+			ValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
 		}
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

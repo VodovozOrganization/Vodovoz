@@ -12,19 +12,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 {
 	public partial class DeliveryTimeReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _uow;
 
 		public DeliveryTimeReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory uowFactory,
 			IInteractiveService interactiveService
 		) : base(rdlViewerViewModel)
 		{
 			Title = "Отчет 'Время доставки";
 
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			_uow = UnitOfWorkFactory.CreateWithoutRoot(Title);
+			_uow = _uowFactory.CreateWithoutRoot(Title);
 
 			GeoGroupList = _uow.GetAll<GeoGroup>()
 				.Select(x => new SelectableParameter { GeographicGroup = x, IsSelected = true })

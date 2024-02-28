@@ -1,12 +1,8 @@
-﻿using System;
-using Autofac;
-using QS.DomainModel.UoW;
+﻿using Autofac;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+using System;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 

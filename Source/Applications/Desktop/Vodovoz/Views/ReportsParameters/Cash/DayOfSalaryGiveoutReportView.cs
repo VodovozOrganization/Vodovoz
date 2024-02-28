@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ReportsParameters.Cash;

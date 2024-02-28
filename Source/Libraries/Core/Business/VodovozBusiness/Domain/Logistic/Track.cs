@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Autofac;
+using GMap.NET;
+using QS.DomainModel.Entity;
+using QS.Osrm;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using GMap.NET;
-using QS.DomainModel.Entity;
-using QS.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -20,7 +20,8 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private IGlobalSettings _globalSettings => ScopeProvider.Scope
+			.Resolve<IGlobalSettings>();
 
 		public virtual int Id { get; set; }
 

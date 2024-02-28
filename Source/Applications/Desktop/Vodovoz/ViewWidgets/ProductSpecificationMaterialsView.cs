@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -13,8 +12,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -24,10 +21,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ProductSpecificationMaterialsView : Gtk.Bin
 	{
-		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		GenericObservableList<ProductSpecificationMaterial> items;
 
@@ -158,13 +152,6 @@ namespace Vodovoz
 			}
 
 			labelSum.LabelProp = $"Всего: {(totalAmount)}";
-		}
-
-		public override void Destroy()
-		{
-			base.Destroy();
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
 		}
 	}
 }

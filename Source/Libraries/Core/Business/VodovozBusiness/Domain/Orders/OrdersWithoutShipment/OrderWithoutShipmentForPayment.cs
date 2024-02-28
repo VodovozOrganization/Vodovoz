@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Autofac;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using QS.Print;
+using QS.Report;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.Print;
-using QS.Report;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using QS.HistoryLog;
-using Vodovoz.Domain.Client;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -97,13 +98,15 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
+			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+			return new ReportInfo
+			{
 				Title = this.Title,
 				Identifier = "Documents.BillWithoutShipmentForPayment",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_payment_id", Id },
 					{ "special_contract_number", SpecialContractNumber },
-					{ "organization_id", new OrganizationParametersProvider(new ParametersProvider()).GetCashlessOrganisationId },
+					{ "organization_id", settings.GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", false }
 				}

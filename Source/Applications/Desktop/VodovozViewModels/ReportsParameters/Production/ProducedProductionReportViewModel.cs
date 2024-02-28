@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 {
 	public partial class ProducedProductionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -26,18 +27,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 
 		public ProducedProductionReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
 			IInteractiveService interactiveService
 		) : base(rdlViewerViewModel)
 		{
 			Title = "Отчет по произведенной продукции";
-
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(Title);
+			_unitOfWork = _uowFactory.CreateWithoutRoot(Title);
 			
 			FilterViewModel = CreateReportIncludeExcludeFilter(_unitOfWork);
 			

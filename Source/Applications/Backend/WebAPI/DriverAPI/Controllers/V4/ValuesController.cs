@@ -1,10 +1,10 @@
-﻿using DriverAPI.DTOs.V4;
+﻿using DriverApi.Contracts.V4;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Controllers.V4
 {
@@ -14,16 +14,16 @@ namespace DriverAPI.Controllers.V4
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class ValuesController : VersionedController
 	{
-		private readonly IDriverApiParametersProvider _webApiParametersProvider;
+		private readonly IDriverApiSettings _webApiSettings;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
-		/// <param name="webApiParametersProvider"></param>
+		/// <param name="webApiSettings"></param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public ValuesController(IDriverApiParametersProvider webApiParametersProvider)
+		public ValuesController(IDriverApiSettings webApiSettings)
 		{
-			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
+			_webApiSettings = webApiSettings ?? throw new ArgumentNullException(nameof(webApiSettings));
 		}
 
 		/// <summary>
@@ -38,7 +38,7 @@ namespace DriverAPI.Controllers.V4
 		{
 			return new CompanyNumberResponseDto()
 			{
-				Number = _webApiParametersProvider.CompanyPhoneNumber
+				Number = _webApiSettings.CompanyPhoneNumber
 			};
 		}
 	}

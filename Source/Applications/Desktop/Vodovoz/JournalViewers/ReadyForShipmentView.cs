@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.ViewModel;
 
@@ -30,7 +31,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			this.TabName = "Готовые к погрузке";
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			tableReadyForShipment.Selection.Changed += OnSelectionChanged;
 		}
 

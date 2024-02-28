@@ -1,4 +1,5 @@
-﻿using GMap.NET.GtkSharp;
+﻿using Autofac;
+using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -14,8 +15,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
 using Vodovoz.Presentation.Reports.Factories;
+using Vodovoz.Settings.Common;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -25,8 +26,7 @@ namespace Vodovoz.Additions.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
-		private static readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider =
-			new GeneralSettingsParametersProvider(new ParametersProvider());
+		private static readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";
@@ -144,7 +144,7 @@ namespace Vodovoz.Additions.Logistic
 				//Запрос..
 				if(isFirstColumn)
 				{
-					SqlSelect += $", CONCAT_WS(' ', REPLACE(orders.comment,'\n',' '), CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
+					SqlSelect += $", CONCAT_WS(' ', (CASE WHEN orders.call_before_arrival_minutes IS NOT NULL THEN CONCAT('Отзвон за: ',orders.call_before_arrival_minutes, ' минут.') ELSE  '' END), REPLACE(orders.comment,'\n',' '), CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
 						$" SELECT * FROM guilty_in_undelivered_orders giuo" +
 						$" INNER JOIN undelivered_orders uo ON giuo.undelivery_id = uo.id" +
@@ -250,7 +250,7 @@ namespace Vodovoz.Additions.Logistic
 					{ "Print_date", printDatestr},
 					{ "RouteListDate", routeList.Date},
 					{ "need_terminal", needTerminal },
-					{ "phones", _generalSettingsParametersProvider.GetRouteListPrintedFormPhones}
+					{ "phones", _generalSettingsSettings.GetRouteListPrintedFormPhones}
 				}
 			};
 		}
@@ -330,7 +330,9 @@ namespace Vodovoz.Additions.Logistic
 			};
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			using(var calc = new RouteGeometryCalculator())
+			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
+			using(var calc = new RouteGeometryCalculator(uowFactory, globalSettings))
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}

@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings
+﻿using System.Runtime.CompilerServices;
+
+namespace Vodovoz.Settings
 {
 	public interface ISettingsController
 	{

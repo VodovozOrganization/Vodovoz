@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -9,9 +8,7 @@ using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -21,9 +18,6 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DepositRefundItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public IUnitOfWork UoW { get; set; }
 
 		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
@@ -136,13 +130,6 @@ namespace Vodovoz.ViewWidgets
 		{
 			object[] items = treeDepositRefundItems.GetSelectedObjects();
 			buttonDeleteDeposit.Sensitive = items.Any();
-		}
-
-		public override void Destroy()
-		{
-			base.Destroy();
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
 		}
 	}
 }

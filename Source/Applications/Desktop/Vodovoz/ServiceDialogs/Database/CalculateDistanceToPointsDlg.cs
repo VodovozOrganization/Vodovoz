@@ -7,6 +7,9 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using QS.Project.Repositories;
 using QS.Project.Services;
+using Autofac;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -15,7 +18,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		int SaveBy = 300;
 
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		IList<DeliveryPoint> points;
 
@@ -54,6 +57,8 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonCalculateClicked(object sender, EventArgs e)
 		{
+			var deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
+			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
 			progressbar1.Adjustment.Value = 0;
 			progressbar1.Adjustment.Upper = points.Count;
 			logger.Info("Рассчитываем расстояния от склада...");
@@ -62,7 +67,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			int saved = 0;
 			foreach(var point in points)
 			{
-				point.SetСoordinates(point.Latitude, point.Longitude);
+				point.SetСoordinates(point.Latitude, point.Longitude, deliveryRepository, globalSettings);
 				notSaved++;
 				calculated++;
 				labelCalculated.LabelProp = calculated.ToString();

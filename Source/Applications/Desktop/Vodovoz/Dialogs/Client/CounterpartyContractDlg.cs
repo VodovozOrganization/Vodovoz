@@ -1,8 +1,6 @@
 ﻿using Autofac;
 using QS.Dialog;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
@@ -13,7 +11,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz
 {
@@ -30,7 +28,9 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			UoWGeneric = CounterpartyContract.Create (counterparty);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
+			UoWGeneric.Root.Counterparty = counterparty;
+			UoWGeneric.Root.GenerateSubNumber(counterparty);
 			TabName = "Новый договор";
 			ConfigureDlg ();
 		}
@@ -46,11 +46,10 @@ namespace Vodovoz
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var parametersProvider = new ParametersProvider();
-			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
@@ -65,7 +64,7 @@ namespace Vodovoz
 		public CounterpartyContractDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
 			ConfigureDlg ();
 		}
 
@@ -123,7 +122,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

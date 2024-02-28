@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -11,12 +8,15 @@ using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Journal.Search;
 using QS.Project.Services.FileDialog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -27,16 +27,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		private readonly IFileDialogService _fileDialogService;
 		private readonly FastDeliveryAvailabilityFilterViewModel _filterViewModel;
 		private readonly IJournalSearch _journalSearch;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public FastDeliveryFailsReport(IUnitOfWorkFactory uowFactory, FastDeliveryAvailabilityFilterViewModel filterViewModel,
-			IJournalSearch journalSearch, INomenclatureParametersProvider nomenclatureParametersProvider, IFileDialogService fileDialogService)
+			IJournalSearch journalSearch, INomenclatureSettings nomenclatureSettings, IFileDialogService fileDialogService)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
-			_nomenclatureParametersProvider =
-				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings =
+				nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_journalSearch = journalSearch ?? throw new ArgumentNullException(nameof(journalSearch));
 		}
@@ -129,7 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			var nomenclatureNotInStockSubquery = QueryOver.Of(() => fastDeliveryOrderItemHistoryAlias)
 				.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
-				.And(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureParametersProvider.PromotionalNomenclatureGroupId)
+				.And(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureSettings.PromotionalNomenclatureGroupId)
 				.WithSubquery.WhereNotExists(nomenclatureDistributionSubquery)
 				.Select(Projections.Conditional(
 					Restrictions.Gt(

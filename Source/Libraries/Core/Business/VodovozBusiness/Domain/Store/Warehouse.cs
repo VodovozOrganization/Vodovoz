@@ -91,6 +91,11 @@ namespace Vodovoz.Domain.Store
 
 		#endregion
 
+		public override string ToString()
+		{
+			return Name;
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

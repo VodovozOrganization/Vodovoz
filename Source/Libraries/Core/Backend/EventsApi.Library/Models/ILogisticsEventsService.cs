@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using EventsApi.Library.Dtos;
+﻿using LogisticsEventsApi.Contracts;
+using System.Collections.Generic;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Employees;
