@@ -25,7 +25,7 @@ namespace Vodovoz.Core
 
 		private static ViewModelWidgetResolver _instance;
 
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer; 
+		private ILifetimeScope LifetimeScope => Startup.AppDIContainer; 
 
 		public static ViewModelWidgetResolver Instance
 		{
@@ -95,7 +95,7 @@ namespace Vodovoz.Core
 					continue;
 				}
 
-				constructorParameters.Add(_lifetimeScope.Resolve(parameterType));
+				constructorParameters.Add(LifetimeScope.Resolve(parameterType));
 			}
 
 			var widget = (Widget)constructor.Invoke(constructorParameters.ToArray());
