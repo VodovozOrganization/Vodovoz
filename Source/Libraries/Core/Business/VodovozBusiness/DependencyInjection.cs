@@ -2,6 +2,7 @@
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
@@ -35,6 +36,7 @@ namespace Vodovoz
 			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
 			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
 			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
-			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>();
+			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>()
+			.AddScoped<IDeliveryRepository, DeliveryRepository>();
 	}
 }
