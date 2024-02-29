@@ -9,7 +9,12 @@ using Vodovoz.Application;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Common;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Controllers;
+using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace DriverAPI.Library
 {
@@ -58,6 +63,15 @@ namespace DriverAPI.Library
 			services.AddApplication();
 			services.AddDatabaseSettings();
 			services.AddDriverEventsDependencies();
+
+			services.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
+				.AddScoped<IEmailRepository, EmailRepository>()
+				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
+				.AddScoped<IPaymentItemsRepository, PaymentItemsRepository>()
+				.AddScoped<IOrderRepository, OrderRepository>()
+				.AddScoped<IPaymentsRepository, PaymentsRepository>()
+				.AddScoped<IUndeliveredOrdersRepository, UndeliveredOrdersRepository>()
+				.AddScoped<ICashRepository, CashRepository>();
 
 			return services;
 		}
