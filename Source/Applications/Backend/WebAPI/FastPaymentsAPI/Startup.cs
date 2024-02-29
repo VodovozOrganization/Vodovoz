@@ -22,12 +22,14 @@ using System;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using VodovozHealthCheck;
 using VodovozInfrastructure.Cryptography;
@@ -121,6 +123,9 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
 			services.AddSingleton<ISelfDeliveryRepository, SelfDeliveryRepository>();
 			services.AddSingleton<ICashRepository, CashRepository>();
+			services.AddSingleton<ICashReceiptRepository, CashReceiptRepository>();
+			services.AddSingleton<IEmailService, EmailService>();
+			services.AddSingleton<IEmailRepository, EmailRepository>();
 
 			//factories
 			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();
