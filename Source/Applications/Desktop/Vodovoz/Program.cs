@@ -202,7 +202,7 @@ namespace Vodovoz
 					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
-					builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
+					builder.RegisterType<DeleteEntityGUIService>().AsSelf().As<IDeleteEntityService>();
 					builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 					builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
 					builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
