@@ -1,5 +1,6 @@
 ﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
@@ -10,16 +11,18 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class UpdSendEmailMessageBuilder : SendEmailMessageBuilder
 	{
-		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 
-		public UpdSendEmailMessageBuilder(IEmailSettings emailSettings,
-			IEmailDocumentPreparer emailDocumentPreparer, CounterpartyEmail counterpartyEmail, int instanceId) 
-			: base(emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
+		public UpdSendEmailMessageBuilder(
+			IEmailSettings emailSettings,
+			IUnitOfWork unitOfWork,
+			IEmailDocumentPreparer emailDocumentPreparer,
+			CounterpartyEmail counterpartyEmail,
+			int instanceId) 
+			: base(unitOfWork, emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
 		{
-			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			_emailDocumentPreparer = emailDocumentPreparer;
+			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 		}
 

@@ -79,6 +79,8 @@ using QS.ViewModels.Control.EEVM;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using QS.Dialog.Gtk;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz
 {
@@ -1610,12 +1612,42 @@ namespace Vodovoz
 
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
-			NavigationManager.OpenViewModelOnTdi<FuelDocumentViewModel, IUnitOfWork, RouteList>(this, UoW, Entity);
+			TabParent.OpenTab(
+				$"FuelDocument_{DialogHelper.GenerateDialogHashName<RouteList>(Entity.Id)}",
+				() => new FuelDocumentViewModel(
+				UoW,
+				Entity,
+				ServicesConfig.CommonServices,
+				_subdivisionRepository,
+				_lifetimeScope.Resolve<IEmployeeRepository>(),
+				_fuelRepository,
+				NavigationManager,
+				_lifetimeScope.Resolve<ITrackRepository>(),
+				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
+				_financialCategoriesGroupsSettings,
+				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope
+				));
 		}
 
 		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
 		{
-			NavigationManager.OpenViewModelOnTdi<FuelDocumentViewModel, IUnitOfWork, FuelDocument>(this, UoW, ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>());
+			TabParent.OpenTab(
+				$"FuelDocument_{DialogHelper.GenerateDialogHashName<RouteList>(Entity.Id)}",
+				() => new FuelDocumentViewModel(
+				UoW,
+				ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
+				ServicesConfig.CommonServices,
+				_subdivisionRepository,
+				_lifetimeScope.Resolve<IEmployeeRepository>(),
+				_fuelRepository,
+				NavigationManager,
+				_lifetimeScope.Resolve<ITrackRepository>(),
+				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
+				_financialCategoriesGroupsSettings,
+				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope
+				));
 		}
 
 		protected void OnButtonCalculateCashClicked(object sender, EventArgs e)

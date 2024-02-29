@@ -51,7 +51,7 @@ namespace MailjetDebugAPI
 
 			services.AddSignalR(hubOptions =>
 			{
-				hubOptions.MaximumReceiveMessageSize = 10485760;
+				hubOptions.MaximumReceiveMessageSize = long.MaxValue;
 			});
 		}
 

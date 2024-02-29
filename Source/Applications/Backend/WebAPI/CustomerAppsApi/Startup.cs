@@ -17,6 +17,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.DB;
+using QS.Services;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
@@ -127,6 +128,7 @@ namespace CustomerAppsApi
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

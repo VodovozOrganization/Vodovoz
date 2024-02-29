@@ -12,7 +12,9 @@ using PayPageAPI.Models;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.FastPayments;
+using Vodovoz.EntityRepositories.Orders;
 using VodovozHealthCheck;
 
 namespace PayPageAPI
@@ -45,6 +47,7 @@ namespace PayPageAPI
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
@@ -78,6 +81,7 @@ namespace PayPageAPI
 			
 			//repositories
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddSingleton<IOrderRepository, OrderRepository>();
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();

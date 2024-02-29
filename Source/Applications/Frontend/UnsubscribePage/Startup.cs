@@ -15,9 +15,11 @@ using QS.Project.Core;
 using QS.Project.DB;
 using System;
 using System.Reflection;
+using QS.Services;
 using UnsubscribePage.Controllers;
 using UnsubscribePage.HealthChecks;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
@@ -56,6 +58,7 @@ namespace UnsubscribePage
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
@@ -86,6 +89,7 @@ namespace UnsubscribePage
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

@@ -11,6 +11,7 @@ using Vodovoz.Core.Data.NHibernate;
 using QS.HistoryLog;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Autofac.Extensions.DependencyInjection;
+using QS.Services;
 
 namespace EmailStatusUpdateWorker
 {
