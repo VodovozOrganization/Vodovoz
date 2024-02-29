@@ -2,7 +2,11 @@
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Text;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
@@ -143,6 +147,112 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			ByCounterparty,
 			CommonReconciliation
+		}
+
+		public class CsvParser
+		{
+			private const string _numberPattern = @"([0-9]{1,})";
+			private const string _datePattern = @"([0-9]{2}.[0-9]{2}.[0-9]{4})";
+
+			public string ClientInn { get; private set; }
+			public IList<int> OrderIds { get; } = new List<int>();
+			public IList<int> PaymentNums { get; } = new List<int>();
+
+			public void Parse(
+				string fileName,
+				IDictionary<int, OrderDiscrepanciesNode> orderDiscrepanciesNodes,
+				IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> paymentDiscrepanciesNodes)
+			{
+				OrderIds.Clear();
+				orderDiscrepanciesNodes.Clear();
+				PaymentNums.Clear();
+				paymentDiscrepanciesNodes.Clear();
+
+				using(var reader = new StreamReader(fileName, Encoding.GetEncoding(1251)))
+				{
+					string line;
+
+					while((line = reader.ReadLine()) != null)
+					{
+						if(string.IsNullOrWhiteSpace(line))
+						{
+							continue;
+						}
+
+						var data = line.Split(';');
+
+						if(data.Length < 3)
+						{
+							continue;
+						}
+
+						if(data[3].StartsWith("(Сосновцев"))
+						{
+							ClientInn = ParseClientInnFromString(data[11]);
+							continue;
+						}
+
+						DateTime.TryParse(data[1], out var date);
+
+						if(date == default)
+						{
+							continue;
+						}
+
+						if(data[2].StartsWith("Продажа"))
+						{
+							CreateOrderNode(data, orderDiscrepanciesNodes);
+						}
+						else
+						{
+							CreatePaymentNode(data, paymentDiscrepanciesNodes);
+						}
+					}
+				}
+			}
+
+			private void CreateOrderNode(string[] data, IDictionary<int, OrderDiscrepanciesNode> orderDiscrepanciesNodes)
+			{
+				var node = new OrderDiscrepanciesNode
+				{
+					OrderId = ParseNumberFromString(data[2]),
+					DocumentOrderSum = decimal.Parse(data[4])
+				};
+
+				orderDiscrepanciesNodes.Add(node.OrderId, node);
+				OrderIds.Add(node.OrderId);
+			}
+
+			private void CreatePaymentNode(string[] data, IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> paymentDiscrepanciesNodes)
+			{
+				var node = new PaymentDiscrepanciesNode
+				{
+					PaymentNum = ParseNumberFromString(data[2]),
+					PaymentDate = ParseDateFromString(data[2]),
+					DocumentPaymentSum = decimal.Parse(data[6])
+				};
+
+				paymentDiscrepanciesNodes.Add((node.PaymentNum, node.PaymentDate), node);
+				PaymentNums.Add(node.PaymentNum);
+			}
+
+			private int ParseNumberFromString(string str)
+			{
+				var matches = Regex.Matches(str, _numberPattern);
+				return int.Parse(matches[0].Value);
+			}
+
+			private DateTime ParseDateFromString(string str)
+			{
+				var matches = Regex.Matches(str, _datePattern);
+				return DateTime.Parse(matches[0].Value);
+			}
+
+			private string ParseClientInnFromString(string str)
+			{
+				var matches = Regex.Matches(str, _numberPattern);
+				return matches[0].Value;
+			}
 		}
 	}
 }
