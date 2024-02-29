@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Services;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;

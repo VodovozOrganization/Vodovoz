@@ -19,6 +19,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using System;
+using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Cash;
@@ -83,7 +84,7 @@ namespace FastPaymentsAPI
 				.AddCore()
 				.AddTrackedUoW()
 				;
-
+			
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 
@@ -151,6 +152,7 @@ namespace FastPaymentsAPI
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			app.UseSwagger();
 
 			if(env.IsDevelopment())

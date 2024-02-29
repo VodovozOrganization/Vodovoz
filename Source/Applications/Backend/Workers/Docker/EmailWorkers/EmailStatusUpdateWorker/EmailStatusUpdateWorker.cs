@@ -10,6 +10,7 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
@@ -29,7 +30,13 @@ namespace EmailStatusUpdateWorker
 		private readonly IEmailRepository _emailRepository;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public EmailStatusUpdateWorker(ILogger<EmailStatusUpdateWorker> logger, IUnitOfWorkFactory uowFactory, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
+		public EmailStatusUpdateWorker(
+			IUserService userService,
+			ILogger<EmailStatusUpdateWorker> logger,
+			IUnitOfWorkFactory uowFactory,
+			IConfiguration configuration,
+			IModel channel,
+			IEmailRepository emailRepository)
 		{
 			if(configuration is null)
 			{

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -23,6 +24,7 @@ namespace ExternalCounterpartyAssignNotifier
 		private const int _delayInSec = 20;
 
 		public ExternalCounterpartyAssignNotifier(
+			IUserService userService,
 			ILogger<ExternalCounterpartyAssignNotifier> logger,
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,

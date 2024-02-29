@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Pacs.Operators.Server;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
@@ -50,6 +51,7 @@ namespace Pacs.Operators.Service
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
