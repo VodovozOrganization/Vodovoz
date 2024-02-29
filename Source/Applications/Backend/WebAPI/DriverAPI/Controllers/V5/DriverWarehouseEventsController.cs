@@ -54,7 +54,7 @@ namespace DriverAPI.Controllers.V5
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-		[ProducesResponseType(550, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
@@ -92,7 +92,7 @@ namespace DriverAPI.Controllers.V5
 				
 				if(completedEvent is null)
 				{
-					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: 550);
+					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: StatusCodes.Status403Forbidden);
 				}
 				
 				return Ok(
