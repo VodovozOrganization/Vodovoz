@@ -10,6 +10,7 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Logistic;
@@ -37,6 +38,7 @@ namespace Vodovoz
 			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
 			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
 			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>()
-			.AddScoped<IDeliveryRepository, DeliveryRepository>();
+			.AddScoped<IDeliveryRepository, DeliveryRepository>()
+			.AddScoped<IEmailService, EmailService>();
 	}
 }
