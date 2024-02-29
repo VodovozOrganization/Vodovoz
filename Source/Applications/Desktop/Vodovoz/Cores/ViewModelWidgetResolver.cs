@@ -87,6 +87,8 @@ namespace Vodovoz.Core
 
 			var constructorParameters = new List<object>();
 
+			var scope = LifetimeScope.BeginLifetimeScope();
+
 			foreach(var parameterType in constructorParameterTypes)
 			{
 				if(parameterType == tabType)
@@ -95,10 +97,18 @@ namespace Vodovoz.Core
 					continue;
 				}
 
-				constructorParameters.Add(LifetimeScope.Resolve(parameterType));
+				constructorParameters.Add(scope.Resolve(parameterType));
 			}
 
 			var widget = (Widget)constructor.Invoke(constructorParameters.ToArray());
+
+			void OnDestroyed(object sender, EventArgs eventArgs)
+			{
+				scope.Dispose();
+				widget.Destroyed -= OnDestroyed;
+			}
+
+			widget.Destroyed += OnDestroyed;
 
 			constructorParameters.Clear();
 
