@@ -9,9 +9,12 @@ using QS.Project.Core;
 using System.Configuration;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
@@ -88,6 +91,15 @@ namespace CashReceiptSendWorker
 			builder.RegisterType<CashboxClientProvider>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
+
+			builder.RegisterType<EmailService>()
+				.As<IEmailService>();
+
+			builder.RegisterType<EmailRepository>()
+				.As<IEmailService>();
+
+			builder.RegisterType<OrderRepository>()
+				.As<IOrderRepository>();
 
 			builder.RegisterType<FiscalDocumentRefresher>()
 				.AsSelf()
