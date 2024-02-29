@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -23,6 +24,7 @@ namespace PushNotificationsWorker
 		private readonly TimeSpan _interval;
 
 		public TransferedFastDeliveryNotificationWorker(
+			IUserService userService,
 			ILogger<TransferedFastDeliveryNotificationWorker> logger,
 			IOptions<TransferedFastDeliveryNotificationWorkerSettings> settings,
 			IUnitOfWorkFactory unitOfWorkFactory,

@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Services;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
@@ -41,6 +42,7 @@ namespace EmailPrepareWorker
 		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
 		public EmailPrepareWorker(
+			IUserService userService,
 			ILogger<EmailPrepareWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IConfiguration configuration,
