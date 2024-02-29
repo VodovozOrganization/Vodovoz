@@ -96,7 +96,7 @@ namespace CashReceiptSendWorker
 				.As<IEmailService>();
 
 			builder.RegisterType<EmailRepository>()
-				.As<IEmailService>();
+				.As<IEmailRepository>();
 
 			builder.RegisterType<OrderRepository>()
 				.As<IOrderRepository>();
