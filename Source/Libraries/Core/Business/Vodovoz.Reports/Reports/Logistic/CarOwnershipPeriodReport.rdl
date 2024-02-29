@@ -55,22 +55,22 @@
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>101.5pt</Width>
+            <Width>98.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>95.0pt</Width>
+            <Width>140.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>114.5pt</Width>
+            <Width>86.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>106.7pt</Width>
+            <Width>99.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>114.4pt</Width>
+            <Width>88.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>222.0pt</Width>
+            <Width>232.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -128,7 +128,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox1" >
+                    <Textbox Name="Textbox1">
                       <Value>Тип авто</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -250,7 +250,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5" >
+                    <Textbox Name="Textbox5">
                       <Value>=Fields!model_info.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -527,7 +527,12 @@ WHERE
 UNION
 SELECT
 date(c2.archiving_date) as change_date,
-'В архиве' as car_own_type,
+CONCAT('В архиве (',
+	CASE c2.archiving_reason
+		WHEN 'Sales' THEN 'Продано'
+		WHEN 'Scrap' THEN 'Утиль'
+		ELSE 'Неизвестно'
+	END, ')')   as car_own_type,
 CASE cm2.car_type_of_use 
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'

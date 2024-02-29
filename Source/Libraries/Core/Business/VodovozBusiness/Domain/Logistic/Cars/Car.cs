@@ -55,7 +55,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _registrationNumber = String.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
-		private ArchivingReason _archivingReason;
+		private ArchivingReason? _archivingReason;
 
 		public virtual int Id { get; set; }
 
@@ -70,7 +70,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
-			set => SetField(ref _isArchive, value);
+			set
+			{
+				if(SetField(ref _isArchive, value) && !value)
+				{
+					ArchivingReason = null;
+				}
+			}
 		}
 
 		[Display(Name ="Дата архивации")]
@@ -81,7 +87,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		[Display(Name = "Причина архивации")]
-		public virtual ArchivingReason ArchivingReason
+		public virtual ArchivingReason? ArchivingReason
 		{
 			get => _archivingReason;
 			set => SetField(ref _archivingReason, value);
@@ -361,6 +367,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 					yield return new ValidationResult($"У водителя уже есть автомобиль\nГос. номер: {driversCar.RegistrationNumber}\n" +
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
+			}
+
+			if(IsArchive && ArchivingReason == null)
+			{
+				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
 			}
 		}
 
