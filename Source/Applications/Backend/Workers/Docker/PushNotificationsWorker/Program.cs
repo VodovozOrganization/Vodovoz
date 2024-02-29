@@ -19,9 +19,7 @@ namespace PushNotificationsWorker
 		{
 			try
 			{
-				var host = CreateHostBuilder(args).Build();
-				host.Services.GetService<IUserService>();
-				host.Run();
+				CreateHostBuilder(args).Build().Run();
 			}
 			finally
 			{
