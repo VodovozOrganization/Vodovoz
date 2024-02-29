@@ -1,4 +1,4 @@
-using DriverAPI.Library.Helpers;
+﻿using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -9,6 +9,7 @@ using Vodovoz.Application;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Common;
+using Vodovoz.Services;
 
 namespace DriverAPI.Library
 {
