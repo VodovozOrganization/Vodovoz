@@ -1,4 +1,4 @@
-using DriverAPI.Library.Helpers;
+﻿using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -6,9 +6,15 @@ using EventsApi.Library;
 using EventsApi.Library.Models;
 using Vodovoz;
 using Vodovoz.Application;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Common;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Controllers;
+using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace DriverAPI.Library
 {
@@ -57,6 +63,15 @@ namespace DriverAPI.Library
 			services.AddApplication();
 			services.AddDatabaseSettings();
 			services.AddDriverEventsDependencies();
+
+			services.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
+				.AddScoped<IEmailRepository, EmailRepository>()
+				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
+				.AddScoped<IPaymentItemsRepository, PaymentItemsRepository>()
+				.AddScoped<IOrderRepository, OrderRepository>()
+				.AddScoped<IPaymentsRepository, PaymentsRepository>()
+				.AddScoped<IUndeliveredOrdersRepository, UndeliveredOrdersRepository>()
+				.AddScoped<ICashRepository, CashRepository>();
 
 			return services;
 		}

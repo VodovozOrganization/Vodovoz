@@ -1,7 +1,7 @@
-﻿using QS.Osrm;
+﻿using Autofac;
+using QS.Osrm;
 using System;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Factories
 {
@@ -14,7 +14,7 @@ namespace Vodovoz.Factories
 			{
 				if(_instance == null)
 				{
-					IGlobalSettings gs = new GlobalSettings(new ParametersProvider());
+					IGlobalSettings gs = ScopeProvider.Scope.Resolve<IGlobalSettings>();
 					_instance = new OsrmClient(gs.OsrmServiceUrl);
 				}
 				return _instance;

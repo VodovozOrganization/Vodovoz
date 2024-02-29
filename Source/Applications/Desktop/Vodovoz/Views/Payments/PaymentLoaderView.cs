@@ -138,7 +138,7 @@ namespace Vodovoz.Views
 					{
 						foreach(var paymentItem in payment.PaymentItems)
 						{
-							var result = await Task.Run(() => ViewModel.SaveAllocatedOrderAsync(paymentItem));
+							var result = await ViewModel.SaveAllocatedOrderAsync(paymentItem);
 
 							if(!result)
 							{

@@ -17,13 +17,14 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IProfitCategoryProvider _profitCategoryProvider;
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -43,8 +44,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
-			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider,
+			IOrganizationSettings organizationSettings,
+			IPaymentSettings paymentSettings,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository) 
@@ -55,19 +56,19 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
-			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
-			if(organizationParametersProvider == null)
+			if(organizationSettings == null)
 			{
-				throw new ArgumentNullException(nameof(organizationParametersProvider));
+				throw new ArgumentNullException(nameof(organizationSettings));
 			}
 
 			InteractiveService = commonServices.InteractiveService;
-			_vodovozId = organizationParametersProvider.VodovozOrganizationId;
-			_vodovozSouthId = organizationParametersProvider.VodovozSouthOrganizationId;
+			_vodovozId = organizationSettings.VodovozOrganizationId;
+			_vodovozSouthId = organizationSettings.VodovozSouthOrganizationId;
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			
@@ -253,7 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			var countDuplicates = 0;
 			
 			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
-			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_profitCategoryProvider.GetDefaultProfitCategory());
+			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_paymentSettings.DefaultProfitCategory);
 			var paymentsToVodovoz = 
 				Parser.TransferDocuments.Where(x => 
 					x.RecipientInn == _organisations[0].INN

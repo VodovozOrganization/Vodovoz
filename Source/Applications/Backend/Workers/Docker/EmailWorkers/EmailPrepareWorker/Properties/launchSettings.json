@@ -1,14 +1,14 @@
 {
   "profiles": {
-    "DocumentForEmailPreparingWorker": {
+    "Docker": {
+      "commandName": "Docker"
+    },
+    "EmailPrepareWorker": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": "true"
-    },
-    "Docker": {
-      "commandName": "Docker"
     }
   }
 }

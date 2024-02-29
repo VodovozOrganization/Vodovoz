@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
-using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
@@ -24,9 +23,8 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
@@ -41,6 +39,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IEdoService _edoService;
 		private DateTime? _startDate = DateTime.Now.AddMonths(-1);
 		private DateTime? _endDate = DateTime.Now;
@@ -60,6 +59,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
+			IEmailSettings emailSettings,
 			IEdoService edoService)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
@@ -72,6 +72,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
@@ -103,12 +104,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			TabName = "Счет без отгрузки на постоплату";
 
-			var loggerFactory = new LoggerFactory();
-			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
-					new EmailRepository(),
-					new EmailParametersProvider(settingsController),
+					uowFactory,
+					new EmailRepository(uowFactory),
+					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,
 					UoW);

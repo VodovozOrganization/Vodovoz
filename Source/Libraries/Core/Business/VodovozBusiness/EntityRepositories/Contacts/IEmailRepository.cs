@@ -6,8 +6,8 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -18,14 +18,14 @@ namespace Vodovoz.EntityRepositories
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);
 		bool HasSendedEmailForUpd(int orderId);
-		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider);
+		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleSettings);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);
-		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false);
+		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false);
 		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
-		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
-		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
+		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailSettings emailSettings);
+		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailSettings emailSettings);
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
 
 		#region EmailType

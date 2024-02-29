@@ -6,28 +6,28 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Models
 {
 	public class NewDriverAdvanceModel
 	{
-		private readonly INewDriverAdvanceParametersProvider _newDriverAdvanceParametersProvider;
+		private readonly INewDriverAdvanceSettings _newDriverAdvanceSettings;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly RouteList _routeList;
 		private IList<NewDriverAdvanceRouteListNode> _unclosedRouteLists;
 
-		public NewDriverAdvanceModel(INewDriverAdvanceParametersProvider newDriverAdvanceParametersProvider, IRouteListRepository routeListRepository, RouteList routeList)
+		public NewDriverAdvanceModel(INewDriverAdvanceSettings newDriverAdvanceSettings, IRouteListRepository routeListRepository, RouteList routeList)
 		{
-			_newDriverAdvanceParametersProvider = newDriverAdvanceParametersProvider ?? throw new ArgumentNullException(nameof(newDriverAdvanceParametersProvider));
+			_newDriverAdvanceSettings = newDriverAdvanceSettings ?? throw new ArgumentNullException(nameof(newDriverAdvanceSettings));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeList = routeList ?? throw new ArgumentNullException(nameof(routeList));
 		}
 
 		public bool NeedNewDriverAdvance(IUnitOfWork uow)
 		{
-			if(!_newDriverAdvanceParametersProvider.IsNewDriverAdvanceEnabled
+			if(!_newDriverAdvanceSettings.IsNewDriverAdvanceEnabled
 			   || _routeListRepository.HasEmployeeAdvance(uow, _routeList.Id, _routeList.Driver.Id))
 			{
 				return false;
@@ -37,10 +37,10 @@ namespace Vodovoz.Models
 				_routeListRepository.GetLastRouteListDateByDriver(uow, _routeList.Driver.Id, null, CarOwnType.Driver);
 
 			DateTime? firstAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
-				_newDriverAdvanceParametersProvider.NewDriverAdvanceFirstDay, null, CarOwnType.Driver);
+				_newDriverAdvanceSettings.NewDriverAdvanceFirstDay, null, CarOwnType.Driver);
 
 			DateTime? lastAdvanceDate = _routeListRepository.GetDateByDriverWorkingDayNumber(uow, _routeList.Driver.Id,
-				_newDriverAdvanceParametersProvider.NewDriverAdvanceLastDay, null, CarOwnType.Driver);
+				_newDriverAdvanceSettings.NewDriverAdvanceLastDay, null, CarOwnType.Driver);
 
 			bool needNewDriverAdvance = firstAdvanceDate <= _routeList.Date
 				&& _routeList.Date <= (lastAdvanceDate ?? lastRouteListDate);

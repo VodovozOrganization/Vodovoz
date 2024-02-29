@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 

@@ -7,7 +7,7 @@ using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.Monitoring
 {

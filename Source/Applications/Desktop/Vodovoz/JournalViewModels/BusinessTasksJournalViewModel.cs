@@ -26,12 +26,12 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using QS.Navigation;
 using Vodovoz.Factories;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -49,7 +49,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly ICounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
-		private readonly IContactParametersProvider _contactsParameters;
+		private readonly IContactSettings _contactsParameters;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INavigationManager _navigationManager;
 
@@ -69,7 +69,7 @@ namespace Vodovoz.JournalViewModels
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactsParameters,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INavigationManager navigationManager
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)

@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
@@ -13,14 +14,14 @@ namespace Vodovoz.Dialogs.Goods
 		public Folder1cDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Folder1c>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Folder1c>();
 			ConfigureDialog();
 		}
 
 		public Folder1cDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Folder1c>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Folder1c>(id);
 			ConfigureDialog();
 		}
 
@@ -43,7 +44,7 @@ namespace Vodovoz.Dialogs.Goods
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

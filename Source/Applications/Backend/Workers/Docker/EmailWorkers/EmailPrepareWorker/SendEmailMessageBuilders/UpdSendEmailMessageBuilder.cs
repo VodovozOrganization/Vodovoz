@@ -1,25 +1,28 @@
 ﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class UpdSendEmailMessageBuilder : SendEmailMessageBuilder
 	{
-		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 
-		public UpdSendEmailMessageBuilder(IEmailParametersProvider emailParametersProvider,
-			IEmailDocumentPreparer emailDocumentPreparer, CounterpartyEmail counterpartyEmail, int instanceId) 
-			: base(emailParametersProvider, emailDocumentPreparer, counterpartyEmail, instanceId)
+		public UpdSendEmailMessageBuilder(
+			IEmailSettings emailSettings,
+			IUnitOfWork unitOfWork,
+			IEmailDocumentPreparer emailDocumentPreparer,
+			CounterpartyEmail counterpartyEmail,
+			int instanceId) 
+			: base(unitOfWork, emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
 		{
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
-			_emailDocumentPreparer = emailDocumentPreparer;
+			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 		}
 
@@ -27,8 +30,8 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		{
 			_sendEmailMessage.From = new EmailContact
 			{
-				Name = _emailParametersProvider.DocumentEmailSenderName,
-				Email = _emailParametersProvider.EmailSenderAddressForUpd
+				Name = _emailSettings.DocumentEmailSenderName,
+				Email = _emailSettings.EmailSenderAddressForUpd
 			};
 
 			return this;

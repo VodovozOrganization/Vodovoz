@@ -3,16 +3,13 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
-using QS.Validation;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -27,9 +24,9 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -47,10 +44,9 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
 
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		private GeoGroup _warehouseGeoGroup;
@@ -59,7 +55,7 @@ namespace Vodovoz
 		{
 			Build();
 
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -88,8 +84,8 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(int id)
 		{
-			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -204,7 +200,7 @@ namespace Vodovoz
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(
@@ -264,7 +260,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -280,16 +276,18 @@ namespace Vodovoz
 			Entity.UpdateOperations(UoW);
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
+			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
+			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			var callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						new OrderRepository(),
-						_employeeRepository,
-						new BaseParametersProvider(new ParametersProvider()),
-						ServicesConfig.CommonServices.UserService,
-						ErrorReporter.Instance);
-			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
+				ServicesConfig.UnitOfWorkFactory,
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				new OrderRepository(),
+				_employeeRepository,
+				employeeSettings,
+				ServicesConfig.CommonServices.UserService,
+				ErrorReporter.Instance);
+			if(Entity.FullyShiped(UoW, nomenclatureSettings, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");

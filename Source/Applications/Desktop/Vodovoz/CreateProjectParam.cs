@@ -4,7 +4,6 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using Vodovoz.Core.Permissions;
@@ -23,24 +22,6 @@ namespace Vodovoz
 
 		static void CreateProjectParam()
 		{
-			UserDialog.RequestWidth = 900;
-			UserDialog.RequestHeight = 700;
-
-			UserDialog.UserPermissionViewsCreator = () => new List<IUserPermissionTab> {
-				new SubdivisionForUserEntityPermissionWidget(),
-				new PresetPermissionsView()
-			};
-
-			UserDialog.PermissionViewsCreator = () => new List<IPermissionsView>
-			{
-				new PermissionMatrixView(
-					new PermissionMatrix<WarehousePermissionsType, Warehouse>(), "Доступ к складам", "warehouse_access")
-			};
-
-			WarehousePermissionService warehousePermissionService = new WarehousePermissionService
-			{
-				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
-			};
 		}
 
 		static void ConfigureJournalColumnsConfigs()

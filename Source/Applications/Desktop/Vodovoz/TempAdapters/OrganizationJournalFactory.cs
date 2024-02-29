@@ -31,7 +31,7 @@ namespace Vodovoz.TempAdapters
 					x => x.Name,
 					() => new OrganizationDlg(),
 					node => new OrganizationDlg(node.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.UnitOfWorkFactory,
 					ServicesConfig.CommonServices
 				)
 				{

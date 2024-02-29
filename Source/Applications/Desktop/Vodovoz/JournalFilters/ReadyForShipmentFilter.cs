@@ -22,7 +22,7 @@ namespace Vodovoz
 
         protected override void ConfigureWithUow()
 		{
-            var warehousesList = new StoreDocumentHelper(new UserSettingsGetter())
+            var warehousesList = new StoreDocumentHelper(new UserSettingsService())
 	            .GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
 				.OrderBy(w => w.Name).ToList();
 
@@ -35,7 +35,7 @@ namespace Vodovoz
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
 				Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
 
-				var warehouseJournalFactory = new WarehouseJournalFactory();					 
+				var warehouseJournalFactory = new WarehouseJournalFactory();
 
                 entryWarehouses.SetEntityAutocompleteSelectorFactory(
 					warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));

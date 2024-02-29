@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using Autofac;
 using QS.Print;
 using QS.Report;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -15,10 +16,12 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		private static readonly DateTime _edition2017LastDate =
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
-		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
-			new OrganizationParametersProvider(new ParametersProvider());
-		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
-			new DeliveryScheduleParametersProvider(new ParametersProvider());
+		private IOrganizationSettings _organizationSettings => ScopeProvider.Scope
+			.Resolve<IOrganizationSettings>();
+
+		private IDeliveryScheduleSettings _deliveryScheduleSettings => ScopeProvider.Scope
+			.Resolve<IDeliveryScheduleSettings>();
+
 		private int? _beveragesWorldOrganizationId;
 
 		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)
@@ -97,16 +100,31 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			return new ReportInfo {
-				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
-				Identifier = identifier,
-				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id },
-					{ "special", false },
-					{ "hide_signature", HideSignature}
-				},
-				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
+
+			ReportInfo reportInfo;
+
+			if(!string.IsNullOrWhiteSpace(connectionString))
+			{
+				reportInfo = new ReportInfo(connectionString);
+			}
+			else
+			{
+				reportInfo = new ReportInfo();
+			}
+
+			reportInfo.Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Identifier = identifier;
+
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "order_id", Order.Id },
+				{ "special", false },
+				{ "hide_signature", HideSignature}
 			};
+
+			reportInfo.RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes;
+
+			return reportInfo;
 		}
 
 		public virtual Dictionary<object, object> Parameters { get; set; }
@@ -121,7 +139,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 
-			if( Order.DeliverySchedule.Id == _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId)
+			if( Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
 			{
 				return GetTemplateForClosingDocumentOrder(hasAgreeForEdo);
 			}
@@ -150,7 +168,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				{
 					if(!_beveragesWorldOrganizationId.HasValue)
 					{
-						_beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+						_beveragesWorldOrganizationId = _organizationSettings.BeveragesWorldOrganizationId;
 					}
 					
 					if(((Order.OurOrganization != null && Order.OurOrganization.Id == _beveragesWorldOrganizationId)

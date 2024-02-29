@@ -1,29 +1,27 @@
 ﻿using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
+using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
-using NHibernate.Driver.MySqlConnector;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using RabbitMQ.Client;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.NHibernate.Mappings;
+using QS.Services;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
+using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
 
 namespace EmailPrepareWorker
 {
-	public class EmailPrepareWorker : BackgroundService
+	public class EmailPrepareWorker : TimerBackgroundServiceBase
 	{
 		private const string _queuesConfigurationSection = "Queues";
 		private const string _emailSendExchangeParameter = "EmailSendExchange";
@@ -31,23 +29,27 @@ namespace EmailPrepareWorker
 
 		private readonly string _emailSendKey;
 		private readonly string _emailSendExchange;
-
+		private readonly string _connectionString;
 		private readonly ILogger<EmailPrepareWorker> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
-		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
-		private readonly string _connectionString;
+
+		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
 		public EmailPrepareWorker(
+			IUserService userService,
 			ILogger<EmailPrepareWorker> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IConfiguration configuration,
+			MySqlConnector.MySqlConnectionStringBuilder mySqlConnectionStringBuilder,
 			IModel channel,
 			IEmailRepository emailRepository,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailSettings,
 			IEmailDocumentPreparer emailDocumentPreparer,
 			IEmailSendMessagePreparer emailSendMessagePreparer)
 		{
@@ -56,14 +58,24 @@ namespace EmailPrepareWorker
 				throw new ArgumentNullException(nameof(configuration));
 			}
 
+			_connectionString = mySqlConnectionStringBuilder.ConnectionString;
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_emailSendMessagePreparer = emailSendMessagePreparer ?? throw new ArgumentNullException(nameof(emailSendMessagePreparer));
 
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
+
+			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
+
+			_logger.LogInformation("Запущена сборка от {BuildDate}",
+				new DateTime(2000, 1, 1)
+					.AddDays(assemblyVersion.Build)
+					.AddSeconds(assemblyVersion.Revision * 2));
 
 			_emailSendKey = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendKeyParameter);
@@ -73,42 +85,7 @@ namespace EmailPrepareWorker
 
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var databaseSection = configuration.GetSection("Database");
-
-			conStrBuilder.Server = databaseSection.GetValue("Hostname", "localhost");
-			conStrBuilder.Port = databaseSection.GetValue<uint>("Port", 3306);
-			conStrBuilder.UserID = databaseSection.GetValue("Username", "");
-			conStrBuilder.Password = databaseSection.GetValue("Password", "");
-			conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			//QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-			_connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-									 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-									 .ConnectionString(/*QSMain.ConnectionString*/_connectionString)
-									 .Driver<MySqlConnectorDriver>();
-
-			//OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
-
-			OrmConfig.ConfigureOrm(db_config,
-				new Assembly[] {
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
-					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
-			});
-
-			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
 			{
 				_instanceId = Convert.ToInt32(unitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -117,13 +94,17 @@ namespace EmailPrepareWorker
 			}
 		}
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-			while(!stoppingToken.IsCancellationRequested)
+			try
 			{
+				_logger.LogInformation("Email sending start at: {time}", DateTimeOffset.Now);
+
 				await PrepareAndSendEmails();
-				await Task.Delay(_workDelay, stoppingToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, ex.Message);
 			}
 		}
 
@@ -139,77 +120,77 @@ namespace EmailPrepareWorker
 			return base.StopAsync(cancellationToken);
 		}
 
-		private Task PrepareAndSendEmails()
+		private async Task PrepareAndSendEmails()
 		{
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
-			
-			try
+
+			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Document prepare worker");
+
+			var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
+
+			foreach(var counterpartyEmail in emailsToSend)
 			{
-				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
+				try
 				{
-					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
+					_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
 
-					foreach(var counterpartyEmail in emailsToSend)
+					if(counterpartyEmail.EmailableDocument == null)
 					{
-						try
-						{
-							_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
+						counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
+						counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
+						unitOfWork.Save(counterpartyEmail.StoredEmail);
+						unitOfWork.Commit();
 
-							if(counterpartyEmail.EmailableDocument == null)
-							{
-								counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
-								counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
-								unitOfWork.Save(counterpartyEmail.StoredEmail);
-								unitOfWork.Commit();
-
-								continue;
-							}
-
-							switch(counterpartyEmail.Type)
-							{
-								case CounterpartyEmailType.BillDocument:
-								case CounterpartyEmailType.OrderWithoutShipmentForPayment:
-								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
-								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
-								{
-										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailParametersProvider,
-											_emailDocumentPreparer, counterpartyEmail, _instanceId);
-
-										break;
-								}
-								case CounterpartyEmailType.UpdDocument: 
-								{
-									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailParametersProvider,
-										_emailDocumentPreparer, counterpartyEmail, _instanceId);
-										
-									break;
-								}
-							}
-
-							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
-
-							var properties = _channel.CreateBasicProperties();
-							properties.Persistent = true;
-
-							_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
-
-							counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
-							unitOfWork.Save(counterpartyEmail.StoredEmail);
-							unitOfWork.Commit();
-						}
-						catch(Exception ex)
-						{
-							_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
-						}
+						continue;
 					}
+
+					switch(counterpartyEmail.Type)
+					{
+						case CounterpartyEmailType.BillDocument:
+						case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+						case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+						case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
+							{
+								emailSendMessageBuilder = new SendEmailMessageBuilder(unitOfWork, _emailSettings,
+									_emailDocumentPreparer, counterpartyEmail, _instanceId);
+
+								break;
+							}
+						case CounterpartyEmailType.UpdDocument:
+							{
+								emailSendMessageBuilder = new UpdSendEmailMessageBuilder(
+									_emailSettings,
+									unitOfWork, 
+									_emailDocumentPreparer,
+									counterpartyEmail,
+									_instanceId);
+
+								break;
+							}
+					}
+
+					var properties = _channel.CreateBasicProperties();
+					properties.Persistent = true;
+
+					var message = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
+					var serializedMessage = JsonSerializer.Serialize(message);
+					var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+
+					_logger.LogInformation("Подготовлено {AttachmentsCount} вложений", message.Attachments.Count);
+
+					_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+
+					counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+					unitOfWork.Save(counterpartyEmail.StoredEmail);
+					unitOfWork.Commit();
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
 				}
 			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex.Message);
-			}
 
-			return Task.CompletedTask;
+			await Task.CompletedTask;
 		}
 	}
 }

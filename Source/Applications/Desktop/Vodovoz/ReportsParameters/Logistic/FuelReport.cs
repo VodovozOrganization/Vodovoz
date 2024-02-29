@@ -10,6 +10,7 @@ using QSProjectsLib;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
 using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
@@ -40,7 +41,8 @@ namespace Vodovoz.Reports
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			UoW = uowFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,

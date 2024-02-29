@@ -17,7 +17,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 
 namespace Vodovoz.Views.Client
 {

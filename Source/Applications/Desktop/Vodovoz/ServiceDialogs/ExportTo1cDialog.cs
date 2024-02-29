@@ -1,24 +1,25 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Xml;
+﻿using Autofac;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Xml;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
 {
-    public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
+	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
     {
         bool exportInProgress;
-        private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
         public ExportTo1cDialog(IUnitOfWorkFactory unitOfWorkFactory)
         {
@@ -44,20 +45,21 @@ namespace Vodovoz
 
         private void Export(Export1cMode mode)
         {
+			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
             var dateStart = dateperiodpicker1.StartDate;
-            var dateEnd = dateperiodpicker1.EndDate;
+			var dateEnd = dateperiodpicker1.EndDate;
 
             int? organizationId = null;
             if(mode == Export1cMode.BuhgalteriaOOONew) {
                 organizationId = (comboOrganization.SelectedItem as Organization)?.Id;
             }
             else if(mode == Export1cMode.BuhgalteriaOOO) {
-                organizationId = new OrganizationParametersProvider(_parametersProvider).VodovozOrganizationId;
+                organizationId = organizationSettings.VodovozOrganizationId;
             }
 
             using(var exportOperation = new ExportOperation(
                 mode,
-                new OrderParametersProvider(_parametersProvider),
+				ScopeProvider.Scope.Resolve<IOrderSettings>(),
                 dateStart,
                 dateEnd,
                 organizationId

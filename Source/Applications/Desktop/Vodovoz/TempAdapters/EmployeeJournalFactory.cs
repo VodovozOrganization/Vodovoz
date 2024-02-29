@@ -6,6 +6,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.TempAdapters
 {
@@ -28,7 +30,7 @@ namespace Vodovoz.TempAdapters
 				filterViewModel ?? _employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				Startup.AppDIContainer,
 				Startup.MainWin.NavigationManager
 			);
@@ -105,7 +107,7 @@ namespace Vodovoz.TempAdapters
 						filter,
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
-						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.UnitOfWorkFactory,
 						Startup.AppDIContainer,
 						Startup.MainWin.NavigationManager
 					);

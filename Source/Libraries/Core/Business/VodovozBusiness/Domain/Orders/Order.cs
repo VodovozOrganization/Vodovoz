@@ -1,5 +1,7 @@
-﻿using fyiReporting.RDL;
+﻿using Autofac;
+using fyiReporting.RDL;
 using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
 using NHibernate.Exceptions;
 using QS.Dialog;
@@ -18,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -34,6 +35,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -43,8 +45,11 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
@@ -63,34 +68,32 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private static readonly IOrderRepository _orderRepository = new OrderRepository();
-		private static readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
-		private static readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
-		private readonly IPaymentFromBankClientController _paymentFromBankClientController =
-			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
+		private IOrderRepository _orderRepository => ScopeProvider.Scope
+			.Resolve<IOrderRepository>();
+		private IPaymentItemsRepository _paymentItemsRepository => ScopeProvider.Scope
+			.Resolve<IPaymentItemsRepository>();
+		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
+			.Resolve<IUndeliveredOrdersRepository>();
+		private IPaymentFromBankClientController _paymentFromBankClientController => ScopeProvider.Scope
+			.Resolve<IPaymentFromBankClientController>();
+		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
+			.Resolve<INomenclatureRepository>();
+		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
+			.Resolve<INomenclatureSettings>();
+		private IEmailRepository _emailRepository => ScopeProvider.Scope
+			.Resolve<IEmailRepository>();
+		private IEmailService _emailService => ScopeProvider.Scope
+			.Resolve<IEmailService>();
+		private IGeneralSettings _generalSettingsParameters => ScopeProvider.Scope
+			.Resolve<IGeneralSettings>();
+		private IOrderSettings _orderSettings => ScopeProvider.Scope
+			.Resolve<IOrderSettings>();
+		private IDeliveryScheduleSettings _deliveryScheduleSettings => ScopeProvider.Scope
+			.Resolve<IDeliveryScheduleSettings>();
+		private OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery => ScopeProvider.Scope
+			.Resolve<OrderItemComparerForCopyingFromUndelivery>();
 
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-
-		private readonly ICashReceiptRepository _cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory,
-			new OrderParametersProvider(new ParametersProvider()));
-
-		private readonly IEmailRepository _emailRepository = new EmailRepository();
-
-		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
-			new GeneralSettingsParametersProvider(new ParametersProvider());
-
-		private static readonly IOrderParametersProvider _orderParametersProvider =
-			new OrderParametersProvider(new ParametersProvider());
-
-		private static readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
-			new DeliveryScheduleParametersProvider(new ParametersProvider());
-
-		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
-			new OrderItemComparerForCopyingFromUndelivery();
-		private readonly IEmailService _emailService = new EmailService();
 
 		private readonly double _futureDeliveryDaysLimit = 30;
 
@@ -106,7 +109,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(paidDeliveryNomenclatureId == default(int))
 				{
-					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
+					paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 				}
 
 				return paidDeliveryNomenclatureId;
@@ -790,7 +793,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
 			get => bottlesByStockCount;
-			set => SetField(ref bottlesByStockCount, value, () => BottlesByStockCount);
+			set => SetField(ref bottlesByStockCount, value);
 		}
 
 		private int bottlesByStockActualCount;
@@ -948,7 +951,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
+			var closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
 			if(IsFirstOrder || DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
 			{
@@ -1008,7 +1011,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			int discountReasonId = _orderParametersProvider.GetClientsSecondOrderDiscountReasonId;
+			int discountReasonId = _orderSettings.GetClientsSecondOrderDiscountReasonId;
 
 			if(IsSecondOrder)
 			{
@@ -1254,6 +1257,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+			var deliveryRepository = validationContext.GetRequiredService<IDeliveryRepository>();
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1364,7 +1369,7 @@ namespace Vodovoz.Domain.Orders
 						);
 
 					//FIXME Исправить изменение данных. В валидации нельзя менять объекты.
-					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
+					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW, deliveryRepository))
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
@@ -1537,7 +1542,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(PaymentType) });
 			}
 
-			var deliveryParameters = validationContext.GetService<IDeliveryRulesParametersProvider>();
+			var deliveryParameters = validationContext.GetService<IDeliveryRulesSettings>();
 			var isFastDeliverySchedule = DeliverySchedule?.Id == deliveryParameters.FastDeliveryScheduleId;
 			if(IsFastDelivery != isFastDeliverySchedule)
 			{
@@ -1550,15 +1555,15 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Нельзя выбрать доставку за час для заказа-самовывоза", new[] { nameof(DeliveryPoint) });
 			}
 
-			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
+			var orderSettings = validationContext.GetService(typeof(IOrderSettings)) as IOrderSettings;
 
 			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlineOrder == null)
 			{
-				if(orderParametersProvider == null)
+				if(orderSettings == null)
 				{
-					throw new ArgumentNullException(nameof(IOrderParametersProvider));
+					throw new ArgumentNullException(nameof(IOrderSettings));
 				}
-				if(PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+				if(PaymentByCardFrom.Id == orderSettings.PaymentFromTerminalId)
 				{
 					yield return new ValidationResult($"В заказe №{Id} с формой оплаты По карте и источником оплаты Терминал отсутствует номер оплаты.");
 				}
@@ -1567,7 +1572,7 @@ namespace Vodovoz.Domain.Orders
 			if((new[] { PaymentType.Cash, PaymentType.Terminal }.Contains(PaymentType)
 				   || (PaymentType == PaymentType.PaidOnline
 					   && PaymentByCardFrom != null
-					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
+					   && !(orderSettings ?? throw new ArgumentNullException(nameof(IOrderSettings)))
 						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
 			   && Contract?.Organization != null && Contract.Organization.CashBoxId == null)
 			{
@@ -1641,7 +1646,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				var incorrectReceiptItems = new List<string>();
 
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Валидация заказа, если уже есть чек"))
+				using(var uow = uowFactory.CreateWithoutRoot("Валидация заказа, если уже есть чек"))
 				{
 					if(uow.GetById<Order>(Id) is Order oldOrder)
 					{
@@ -1661,7 +1666,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Client != null && DeliveryPoint != null)
 			{
-				using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
+				using (var uow = uowFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
 				{
 					var clientDeliveryPointsIds = uow.GetAll<DeliveryPoint>()
 						.Where(d => d.Counterparty.Id == Client.Id)
@@ -1974,11 +1979,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual void ForceUpdateContract(Organization organization = null)
 		{
 			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope); 
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var parametersProvider = new ParametersProvider();
-				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-				var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 			}
@@ -2110,11 +2114,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		private DiscountReason GetDiscountReasonStockBottle(
-			IOrderParametersProvider orderParametersProvider, decimal discount)
+			IOrderSettings orderSettings, decimal discount)
 		{
 			var reasonId = discount == 10m
-				? orderParametersProvider.GetDiscountReasonStockBottle10PercentsId
-				: orderParametersProvider.GetDiscountReasonStockBottle20PercentsId;
+				? orderSettings.GetDiscountReasonStockBottle10PercentsId
+				: orderSettings.GetDiscountReasonStockBottle20PercentsId;
 
 			var discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId)
 				?? throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
@@ -2125,10 +2129,10 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Рассчитывает скидки в товарах по акции "Бутыль"
 		/// </summary>
-		public virtual void CalculateBottlesStockDiscounts(IOrderParametersProvider orderParametersProvider, bool byActualCount = false)
+		public virtual void CalculateBottlesStockDiscounts(IOrderSettings orderSettings, bool byActualCount = false)
 		{
-			if(orderParametersProvider == null) {
-				throw new ArgumentNullException(nameof(orderParametersProvider));
+			if(orderSettings == null) {
+				throw new ArgumentNullException(nameof(orderSettings));
 			}
 
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
@@ -2138,12 +2142,12 @@ namespace Vodovoz.Domain.Orders
 			if(bottlesByStock == Total19LBottlesToDeliver)
 			{
 				stockBottleDiscountPercent = 10m;
-				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderSettings, stockBottleDiscountPercent);
 			}
 			if(bottlesByStock > Total19LBottlesToDeliver)
 			{
 				stockBottleDiscountPercent = 20m;
-				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderParametersProvider, stockBottleDiscountPercent);
+				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderSettings, stockBottleDiscountPercent);
 			}
 
 			foreach(OrderItem item in ObservableOrderItems
@@ -2170,13 +2174,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void RecalculateStockBottles(IOrderParametersProvider orderParametersProvider)
+		public virtual void RecalculateStockBottles(IOrderSettings orderSettings)
 		{
 			if(!IsBottleStock) {
 				BottlesByStockCount = 0;
 				BottlesByStockActualCount = 0;
 			}
-			CalculateBottlesStockDiscounts(orderParametersProvider);
+			CalculateBottlesStockDiscounts(orderSettings);
 		}
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
@@ -3108,7 +3112,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 			var routeList = routeListItem?.RouteList;
@@ -3140,7 +3144,7 @@ namespace Vodovoz.Domain.Orders
 					}
 					break;
 			}
-			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
+			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
@@ -3173,11 +3177,11 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleParametersProvider);
+					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleSettings);
 					break;
 				case OrderStatus.Closed:
-					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleParametersProvider);
-					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleParametersProvider);
+					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleSettings);
+					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3353,8 +3357,9 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
+					var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 					UpdateBottlesMovementOperationWithoutDelivery(
-						UoW, new BaseParametersProvider(new ParametersProvider()), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
+						UoW, nomenclatureSettings, new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
 					ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 
@@ -3716,7 +3721,7 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrderWithCallTask(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker, SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrderWithCallTask(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker, SelfDeliveryDocument closingDocument = null)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -3728,7 +3733,7 @@ namespace Vodovoz.Domain.Orders
 			bool isNotShipped = !IsFullyShippedSelfDeliveryOrder(uow, selfDeliveryRepository, closingDocument);
 
 			if(!isNotShipped)
-				UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, routeListItemRepository, cashRepository);
+				UpdateBottlesMovementOperationWithoutDelivery(UoW, nomenclatureSettings, routeListItemRepository, cashRepository);
 			else
 				return false;
 
@@ -3773,7 +3778,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool TryCloseSelfDeliveryPayAfterShipmentOrder(
 			IUnitOfWork uow,
-			IStandartNomenclatures standartNomenclatures,
+			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
@@ -3789,7 +3794,7 @@ namespace Vodovoz.Domain.Orders
 			bool isNotShipped = !IsFullyShippedSelfDeliveryOrder(uow, selfDeliveryRepository, closingDocument);
 
 			if(!isNotShipped)
-				UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, routeListItemRepository, cashRepository);
+				UpdateBottlesMovementOperationWithoutDelivery(UoW, nomenclatureSettings, routeListItemRepository, cashRepository);
 			else
 				return false;
 
@@ -3834,7 +3839,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 
-		public virtual bool UpdateBottleMovementOperation(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, int returnByStock, int? forfeitQuantity = null)
+		public virtual bool UpdateBottleMovementOperation(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, int returnByStock, int? forfeitQuantity = null)
 		{
 			if(IsContractCloser)
 				return false;
@@ -3846,7 +3851,7 @@ namespace Vodovoz.Domain.Orders
 				.Sum(item => item.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) {
-				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == nomenclatureSettings.ForfeitId)
 							.Select(i => i?.ActualCount ?? 0)
 							.Sum();
 			}
@@ -3878,14 +3883,14 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository, decimal incomeCash = 0, decimal expenseCash = 0)
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository, decimal incomeCash = 0, decimal expenseCash = 0)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
 			if(cashRepository == null)
 				throw new ArgumentNullException(nameof(cashRepository));
-			if(standartNomenclatures == null)
-				throw new ArgumentNullException(nameof(standartNomenclatures));
+			if(nomenclatureSettings == null)
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту",
 			//не должны создаваться операции перемещения тары
@@ -3905,11 +3910,11 @@ namespace Vodovoz.Domain.Orders
 			int? forfeitQuantity = null;
 
 			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
-				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == nomenclatureSettings.ForfeitId)
 											.Select(i => i.ActualCount ?? 0)
 											.Sum();
 
-			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
+			UpdateBottleMovementOperation(uow, nomenclatureSettings, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
 		public virtual void ChangePaymentTypeToByCardTerminal (ICallTaskWorker callTaskWorker)
@@ -4264,7 +4269,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Id == 0) return;
 
-			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id, "Кнопка сохранить только комментарий к заказу")) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Order>(Id, "Кнопка сохранить только комментарий к заказу")) {
 				uow.Root.Comment = Comment;
 				uow.Save();
 				uow.Commit();
@@ -4414,10 +4419,58 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
+		public virtual void SetNeedToRecendEdoUpd(IUnitOfWorkFactory uowFactory)
+		{
+			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			if(!userCanResendUpd)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
+				return;
+			}
 
-        #endregion
+			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				if(!ServicesConfig.InteractiveService.Question(
+					$"Счет по заказу №{Id} оплачен.\r\nПроверьте, пожалуйста, статус УПД в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.\r\n\r\n" +
+					$"Вы уверены, что хотите отправить повторно?"))
+				{
+					return;
+				}
+			}
 
-        #region Аренда
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.Order.Id == Id)
+					.FirstOrDefault();
+
+				if(edoDocumentsActions == null)
+				{
+					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
+					edoDocumentsActions.Order = this;
+				}
+
+				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+
+				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+					.Where(x => x.Order.Id == Id)
+					.OrderByDescending(x => x.CreationDate)
+					.FirstOrDefault();
+
+				if(orderLastTrueMarkDocument != null 
+					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				{
+					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
+				}
+
+				uow.Save(edoDocumentsActions);
+				uow.Commit();
+			}				
+		}
+
+		#endregion
+
+		#region Аренда
 
         #region NonFreeRent
 
@@ -4910,8 +4963,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(_fastDeliveryNomenclature == null)
 				{
-					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					_fastDeliveryNomenclature = nomenclatureParametersProvider.GetFastDeliveryNomenclature(UoW);
+					_fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(UoW);
 				}
 
 				return _fastDeliveryNomenclature;
@@ -4965,8 +5017,8 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(_educationalInstitutionDeliveryPointCategoryId == default(int))
 				{
-					var deliveryPointParametersProvider = new DeliveryPointParametersProvider(new ParametersProvider());
-					_educationalInstitutionDeliveryPointCategoryId = deliveryPointParametersProvider.EducationalInstitutionDeliveryPointCategoryId;
+					var deliveryPointSettings = ScopeProvider.Scope.Resolve<IDeliveryPointSettings>();
+					_educationalInstitutionDeliveryPointCategoryId = deliveryPointSettings.EducationalInstitutionDeliveryPointCategoryId;
 				}
 
 				return _educationalInstitutionDeliveryPointCategoryId;

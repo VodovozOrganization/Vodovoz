@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnsubscribePage.Models;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace UnsubscribePage.Controllers
 {
@@ -12,20 +12,20 @@ namespace UnsubscribePage.Controllers
 	{
 		private readonly IUnsubscribeViewModelFactory _unsubscribeViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 
-		public UnsubscribeController(IUnsubscribeViewModelFactory unsubscribeViewModelFactory, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		public UnsubscribeController(IUnsubscribeViewModelFactory unsubscribeViewModelFactory, IEmailRepository emailRepository, IEmailSettings emailSettings)
 		{
 			_unsubscribeViewModelFactory = unsubscribeViewModelFactory ?? throw new ArgumentNullException(nameof(unsubscribeViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 		}
 
 		[HttpGet]
 		[Route("/{emailGuid:guid}")]
 		public IActionResult Index(Guid emailGuid)
 		{
-			var viewModel = _unsubscribeViewModelFactory.CreateNewUnsubscribeViewModel(emailGuid, _emailRepository, _emailParametersProvider);
+			var viewModel = _unsubscribeViewModelFactory.CreateNewUnsubscribeViewModel(emailGuid, _emailRepository, _emailSettings);
 
 			if(viewModel.CounterpartyId != 0)
 			{
