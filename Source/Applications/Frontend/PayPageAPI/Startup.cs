@@ -14,6 +14,7 @@ using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.FastPayments;
+using Vodovoz.EntityRepositories.Orders;
 using VodovozHealthCheck;
 
 namespace PayPageAPI
@@ -80,6 +81,7 @@ namespace PayPageAPI
 			
 			//repositories
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddSingleton<IOrderRepository, OrderRepository>();
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
