@@ -70,7 +70,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_vodovozId = organizationSettings.VodovozOrganizationId;
 			_vodovozSouthId = organizationSettings.VodovozSouthOrganizationId;
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			UnitOfWorkFactory = unitOfWorkFactory;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			
 			TabName = "Выгрузка выписки из банк-клиента";
 
@@ -79,6 +80,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			GetProfitCategories();
 		}
 
+		public IUnitOfWorkFactory UnitOfWorkFactory { get; }
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<ProfitCategory> ProfitCategories { get; private set; }
@@ -208,34 +210,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 		}
 
-		public async Task<bool> SaveAllocatedOrderAsync(PaymentItem paymentItem)
-		{
-			try
-			{
-				var order = UoW.GetById<Order>(paymentItem.Order.Id);
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-
-				UoW.Save(order);
-				UoW.Commit();
-
-				return true;
-			}
-			catch(Exception ex)
-			{
-				UoW.Session.Clear();
-				_logger.Error(ex);
-				_saveAttempts++;
-
-				if(_saveAttempts >= 3)
-				{
-					return false;
-				}
-
-				await Task.Delay(1000);
-				return await SaveAllocatedOrderAsync(paymentItem);
-			}
-		}
-
 		private void Init(string docPath)
 		{
 			IsNotAutoMatchingMode = false;
@@ -279,15 +253,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IsNotAutoMatchingMode = true;
 		}
 
-		public void CreateOperations(Payment payment)
+		public void CreateOperations(IUnitOfWork uow, Payment payment)
 		{
 			payment.CreateIncomeOperation();
-			UoW.Save(payment.CashlessMovementOperation);
+			uow.Save(payment.CashlessMovementOperation);
 
-			foreach(PaymentItem item in payment.ObservableItems)
+			foreach(var item in payment.ObservableItems)
 			{
 				item.CreateOrUpdateExpenseOperation();
-				UoW.Save(item.CashlessMovementOperation);
+				uow.Save(item.CashlessMovementOperation);
 			}
 		}
 	}
