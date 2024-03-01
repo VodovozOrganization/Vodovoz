@@ -54,7 +54,7 @@ namespace Vodovoz.Services
 		public void SendBillForClosingDocumentOrderToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
-			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings)
+			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings, true)
 				&& !emailRepository.HaveSendedEmailForBill(order.Id)
 				&& orderRepository.GetEdoContainersByOrderId(uow, order.Id).Count(x => x.Type == Type.Bill) == 0)
 			{
