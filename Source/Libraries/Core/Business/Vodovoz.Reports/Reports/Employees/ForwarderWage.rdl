@@ -559,8 +559,8 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -582,8 +582,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>#,##0.00</Format>
-                        <FontSize >12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -604,8 +604,8 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >12pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1377,7 +1377,7 @@
           <Hidden>=!{?show_fines_outside_period}</Hidden>
         </Visibility>
       </Textbox>
-      <Table Name="Table7" >
+      <Table Name="Table7">
         <DataSetName>ForwarderWage</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1429,7 +1429,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>=Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")</Value>
+                      <Value>=Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances") - Sum(Fields!money.Value, "ForwarderFines")</Value>
                       <Style>
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
