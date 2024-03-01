@@ -407,10 +407,4 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public GenderStringType() : base(typeof(Gender))
 		{ }
 	}
-
-	public class ArchivingReasonStringType : EnumStringType
-	{
-		public ArchivingReasonStringType() : base(typeof(ArchivingReason))
-		{ }
-	}
 }
