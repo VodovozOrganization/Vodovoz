@@ -1,4 +1,4 @@
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -638,7 +638,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.InTravelList,
 				OrderStatus.OnLoading,
 				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock
 			};
 		}
