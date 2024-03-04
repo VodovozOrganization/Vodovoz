@@ -36,7 +36,7 @@ namespace Vodovoz.ViewWidgets
 
 		private void ShowResults(DeliveryPriceNode deliveryPriceNode)
 		{
-			ylabelSchedules.Markup = deliveryPriceNode.Schedule;
+			//ylabelSchedules.Markup = deliveryPriceNode.Schedule;
 			yTxtWarehouses.Buffer.Text = deliveryPriceNode.GeographicGroups;
 			GtkScrolledWindow.Visible = deliveryPriceNode.ByDistance;
 			ytreeviewPrices.SetItemsSource(deliveryPriceNode.Prices);
