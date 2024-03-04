@@ -213,9 +213,9 @@ namespace Vodovoz.Views.Logistic
 		private string AddTextToQr(Bitmap qrImage)
 		{
 			var text = ViewModel.Entity.EventName;
-			const float leftTextPadding = 10f;
+			const float leftTextPadding = 75f;
 			const int heightAreaForText = 250;
-			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width, heightAreaForText);
+			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width - leftTextPadding, heightAreaForText);
 			var imageFilePath = System.IO.Path.GetTempFileName();
 			
 			using(qrImage)
