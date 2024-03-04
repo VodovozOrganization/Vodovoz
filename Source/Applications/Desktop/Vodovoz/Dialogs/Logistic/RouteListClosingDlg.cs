@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -1336,8 +1336,10 @@ namespace Vodovoz
 
 		protected void OnButtonBottleDelFineClicked(object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject<Fine>(Entity.BottleFine.Id, UoW);
+			var fineId = Entity.BottleFine.Id;
+			UoW.Session.Evict(Entity.BottleFine);
 			Entity.BottleFine = null;
+			OrmMain.DeleteObject<Fine>(fineId, UoW);
 			CalculateTotal();
 			UpdateButtonState();
 		}
