@@ -12,7 +12,6 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
-using FluentNHibernate.Data;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
