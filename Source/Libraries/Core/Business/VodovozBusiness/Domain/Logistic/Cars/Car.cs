@@ -55,6 +55,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _registrationNumber = String.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
+		private ArchivingReason? _archivingReason;
 
 		public virtual int Id { get; set; }
 
@@ -69,7 +70,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
-			set => SetField(ref _isArchive, value);
+			set
+			{
+				if(SetField(ref _isArchive, value) && !value)
+				{
+					ArchivingReason = null;
+				}
+			}
 		}
 
 		[Display(Name ="Дата архивации")]
@@ -77,6 +84,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _archivingDate;
 			set => SetField(ref _archivingDate, value);
+		}
+
+		[Display(Name = "Причина архивации")]
+		public virtual ArchivingReason? ArchivingReason
+		{
+			get => _archivingReason;
+			set => SetField(ref _archivingReason, value);
 		}
 
 		public virtual IList<CarVersion> CarVersions
@@ -354,6 +368,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
+
+			if(IsArchive && ArchivingReason == null)
+			{
+				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
+			}
 		}
 
 		private double GetFuelConsumption()
@@ -367,6 +386,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 			return result ?? 0;
 		}
+	}
+
+	public enum ArchivingReason
+	{
+		[Display(Name = "Продано")]
+		Sales,
+		[Display(Name = "Утиль")]
+		Scrap
 	}
 
 	public class CarTypeOfUseStringType : EnumStringType
