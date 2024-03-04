@@ -732,6 +732,7 @@ namespace Vodovoz
 						.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetRequiredService<OperatorStateAdminConsumer>())
 
 						.AddScoped<MessageEndpointConnector>()
+						.AddScoped<PacsEndpointsConnector>()
 
 						.AddTransient<EntityModelFactory>()
 						

@@ -1,10 +1,7 @@
 ﻿using Autofac;
 using MassTransit;
 using NLog;
-using Pacs.Admin.Client.Consumers.Definitions;
-using Pacs.Calls.Consumers.Definitions;
 using Pacs.Core;
-using Pacs.Operators.Client.Consumers.Definitions;
 using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Services;
@@ -19,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Vodovoz;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Controllers;
@@ -36,7 +32,6 @@ using Vodovoz.ViewModels.Dialogs.Mango;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-
 
 public partial class MainWindow : Gtk.Window
 {
@@ -72,21 +67,8 @@ public partial class MainWindow : Gtk.Window
 		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
 		transportInitializer.Initialize(_messageBusControl);
 
-		var endpointConnector = _autofacScope.Resolve<MessageEndpointConnector>();
-
-		Task.Run(async () =>
-		{
-			var connectEndpointTasks = new[]
-			{
-				endpointConnector.TryConnectEndpoint<SettingsConsumerDefinition>(),
-				endpointConnector.TryConnectEndpoint<OperatorStateAdminConsumerDefinition>(),
-				endpointConnector.TryConnectEndpoint<OperatorStateConsumerDefinition>(),
-				endpointConnector.TryConnectEndpoint<PacsCallEventConsumerDefinition>(),
-				endpointConnector.TryConnectEndpoint<OperatorsOnBreakConsumerDefinition>(),
-				endpointConnector.TryConnectEndpoint<OperatorSettingsConsumerDefinition>(),
-			};
-			await Task.WhenAll(connectEndpointTasks);
-		});
+		var pacsEndpointConnector = _autofacScope.Resolve<PacsEndpointsConnector>();
+		pacsEndpointConnector.ConnectPacsEndpoints();
 
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 		_applicationInfo = new ApplicationVersionInfo();
