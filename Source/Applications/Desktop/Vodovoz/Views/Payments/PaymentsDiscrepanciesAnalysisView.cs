@@ -2,15 +2,17 @@
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.Dialog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.ViewModels.Payments;
-using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysisViewModel;
+using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.ReconciliationOfMutualSettlements;
 
 namespace Vodovoz.Views.Payments
 {
 	public partial class PaymentsDiscrepanciesAnalysisView : DialogViewBase<PaymentsDiscrepanciesAnalysisViewModel>
 	{
-		private const string _xmlPattern = "*.xml";
+		private const string _xmlPattern = "*.xlsx";
 		private const string _csvPattern = "*.csv";
 
 		public PaymentsDiscrepanciesAnalysisView(PaymentsDiscrepanciesAnalysisViewModel viewModel) : base(viewModel)
@@ -59,6 +61,13 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel, vm => vm.IsExcludeOldData, w => w.Active)
 				.InitializeFromSource();
 
+			speciallistcomboboxClientInfo.SetRenderTextFunc<Counterparty>(x => x.Name);
+			speciallistcomboboxClientInfo.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.Clients, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedClient, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			ConfigureFileChooser();
 			ConfigureOrdersTree();
 			ConfigurePaymentsTree();
@@ -70,11 +79,7 @@ namespace Vodovoz.Views.Payments
 			var xmlFilter = new FileFilter();
 			xmlFilter.AddPattern(_xmlPattern);
 			xmlFilter.Name = $"Файлы XML ({_xmlPattern})";
-			var csvFilter = new FileFilter();
-			csvFilter.AddPattern(_csvPattern);
-			csvFilter.Name = $"Файлы CSV ({_csvPattern})";
 
-			yfilechooserbutton.AddFilter(csvFilter);
 			yfilechooserbutton.AddFilter(xmlFilter);
 
 			yfilechooserbutton.Binding

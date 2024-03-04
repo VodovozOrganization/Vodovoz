@@ -1494,6 +1494,75 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result;
 		}
 
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDay(IUnitOfWork uow, IEnumerable<int> orderIds)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderWithAllocation resultAlias = null;
+
+			var allocated = QueryOver.Of<PaymentItem>()
+				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
+				.SelectList(list => list
+					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
+
+			return query.List<OrderWithAllocation>();
+		}
+
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDay2(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderWithAllocation resultAlias = null;
+
+			var allocated = QueryOver.Of<PaymentItem>()
+				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(o => o.Id).Not.IsInG(orderIds)
+				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
+					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
+				//.And(o => o.DeliveryDate >= new DateTime(2020, 1, 1))
+				.And(o => o.Client.Id == counterpartyId)
+				.And(o => o.PaymentType == PaymentType.Cashless)
+				.SelectList(list => list
+					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+					.Select(() => true).WithAlias(() => resultAlias.IsMissingFromDocument)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
+
+			return query.List<OrderWithAllocation>();
+		}
+
+		public class OrderWithAllocation
+		{
+			public int OrderId { get; set; }
+			public DateTime OrderDeliveryDate { get; set; }
+			public OrderStatus OrderStatus { get; set; }
+			public OrderPaymentStatus? OrderPaymentStatus { get; set; }
+			public decimal OrderSum { get; set; }
+			public decimal OrderAllocation { get; set; }
+			public bool IsMissingFromDocument { get; set; }
+		}
+
 		public class NotFullyPaidOrderNode
 		{
 			public int Id { get; set; }
