@@ -53,6 +53,11 @@ namespace Vodovoz.Tools.Logistic
 				districts = _scheduleRestrictionRepository.GetDistrictsWithBorder(uow);
 				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
 
+				if(deliveryPoint?.District != null)
+				{
+					result.DistrictId = deliveryPoint.District.Id;
+				}
+
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {
 					result.ErrorMessage = string.Format("Не указаны координаты. Невозможно расчитать расстояние.");
@@ -109,6 +114,13 @@ namespace Vodovoz.Tools.Logistic
 				//Расчет цены
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
+
+				if(deliveryPoint?.District == null)
+				{
+					result.DistrictId = district.Id;
+					result.WageDistrict = district?.WageDistrict?.Name ?? "Неизвестно";
+				}
+
 				result.DistrictName = district?.DistrictName ?? string.Empty;
 				result.GeographicGroups = district?.GeographicGroup != null ? district.GeographicGroup.Name : "Неизвестно";
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
@@ -144,12 +156,14 @@ namespace Vodovoz.Tools.Logistic
 		public string Price { get; set; }
 		public string MinBottles { get; set; }
 		public string Schedule { get; set; }
+		public List<DeliveryRuleRow> DeliveryRules { get; set; }
 		public List<DeliveryPriceRow> Prices { get; set; }
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
 		public string DistrictName { get; set; }
 		public string GeographicGroups { get; set; }
 		public string WageDistrict { get; set; }
+		public int DistrictId { get; set; }
 
 		string errorMessage;
 		public string ErrorMessage {
@@ -178,6 +192,13 @@ namespace Vodovoz.Tools.Logistic
 			GeographicGroups = string.Empty;
 			Prices = new List<DeliveryPriceRow>();
 		}
+	}
+
+	public class DeliveryRuleRow
+	{
+		public string Volune { get; set; }
+		public List<string> DynamicColumns { get; set; }
+		public string FreeDeliveryBottlesCount { get; set; }
 	}
 
 	public class DeliveryPriceRow

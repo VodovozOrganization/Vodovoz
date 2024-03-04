@@ -108,7 +108,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 				var task = Task.Run(() =>
 				{
-					using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot())
+					var unitOfWorkTitle = TabName;
+
+					using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot(unitOfWorkTitle))
 					{
 						var currentActiveDistrictSet = localUoW.GetById<DistrictsSet>(ActiveDistrictsSet.Id);
 						var districtSetToActivate = localUoW.GetById<DistrictsSet>(Entity.Id);
