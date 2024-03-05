@@ -11,7 +11,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public string CounterpartyName { get; set; }
 		public string CompiledAddress { get; set; }
 		public DateTime DeliveryDate { get; set; }
-		public int DeliveryScheduleId { get; set; }
+		public bool IsSelfDelivery { get; set; }
+		public bool IsFastDelivery { get; set; }
+		public string DeliveryTime { get; set; }
 		public OnlineOrderStatus OnlineOrderStatus { get; set; }
 		public string ManagerWorkWith { get; set; }
 		public Domain.Client.Source Source { get; set; }
@@ -19,7 +21,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
 		public int? OnlinePayment { get; set; }
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
-		public bool FastDelivery { get; set; }
 		public bool IsNeedConfirmationByCall { get; set; }
 		public int? OrderId { get; set; }
 	}

@@ -1,4 +1,4 @@
-﻿namespace CustomerAppsApi.Library.Dto.Orders
+﻿namespace CustomerOrdersApi.Library.Dto.Orders
 {
 	/// <summary>
 	/// Позиция онлайн заказа

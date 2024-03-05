@@ -68,6 +68,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 		
+		public ITdiTab OpenOrderDlgByNavigatorForCreateFromOnlineOrder(DialogViewModelBase from, OnlineOrder onlineOrder)
+		{
+			return Startup.MainWin.NavigationManager.OpenTdiTab<OrderDlg, OnlineOrder>(from, onlineOrder).TdiTab;
+		}
+		
 		public void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<OrderDlg, int>(from, orderId);

@@ -132,12 +132,13 @@
     <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Orders\OnlineOrder.cs" />
+    <Compile Include="Domain\Orders\OnlineOrderCancellationReason.cs" />
     <Compile Include="Domain\Orders\OnlineOrderItem.cs" />
     <Compile Include="Domain\Orders\OnlineOrderPaymentStatus.cs" />
     <Compile Include="Domain\Orders\OnlineOrderPaymentType.cs" />
     <Compile Include="Domain\Orders\OnlineOrderStatus.cs" />
     <Compile Include="Domain\Orders\OnlinePaymentSource.cs" />
-    <Compile Include="Domain\Orders\OnlineRentPackage.cs" />
+    <Compile Include="Domain\Orders\OnlineFreeRentPackage.cs" />
     <Compile Include="Domain\Orders\OrderItemRentSubType.cs" />
     <Compile Include="Domain\Orders\OrderRentType.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionType.cs" />
@@ -151,8 +152,6 @@
     <Compile Include="Domain\Payments\PaymentState.cs" />
     <Compile Include="Domain\Roboats\TodayIntervalOffer.cs" />
     <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
-    <Compile Include="Domain\Service\GoodsPriceCalculator.cs" />
-    <Compile Include="Domain\Service\OrderFromOnlineOrderCreator.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
@@ -833,6 +832,8 @@
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
+    <Compile Include="Nodes\OnlineOrderItemNode.cs" />
+    <Compile Include="Nodes\OnlineRentPackageNode.cs" />
     <Compile Include="NotificationRecievers\DriverAPIHelper.cs" />
     <Compile Include="NotificationRecievers\IFastDeliveryOrderAddedNotificationReciever.cs" />
     <Compile Include="NotificationRecievers\IWaitingTimeChangedNotificationReciever.cs" />
@@ -1066,6 +1067,8 @@
     <Compile Include="Services\IUserSettings.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
+    <Compile Include="Services\Orders\IGoodsPriceCalculator.cs" />
+    <Compile Include="Services\Orders\IOrderFromOnlineOrderValidator.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Specifications\DynamicExpressionSpecification.cs" />

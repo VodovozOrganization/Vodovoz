@@ -244,6 +244,7 @@ namespace Vodovoz
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
 		private FastDeliveryHandler _fastDeliveryHandler;
+		private OrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -381,6 +382,18 @@ namespace Vodovoz
 			ConfigureDlg();
 			//по стандарту тип - доставка
 			Entity.OrderAddressType = OrderAddressType.Delivery;
+		}
+		
+		public OrderDlg(OnlineOrder onlineOrder) : this()
+		{
+			var thisSessionOnlineOrder = UoW.GetById<OnlineOrder>(onlineOrder.Id);
+			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(Entity, thisSessionOnlineOrder, manualCreation: true);
+			
+			Entity.UpdateDocuments();
+			CheckForStopDelivery();
+			UpdateOrderAddressTypeWithUI();
+			//AddCommentsFromDeliveryPoint();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		public OrderDlg(IUnitOfWorkGeneric<Order> unitOfWork)
@@ -559,6 +572,7 @@ namespace Vodovoz
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<OrderFromOnlineOrderCreator>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 

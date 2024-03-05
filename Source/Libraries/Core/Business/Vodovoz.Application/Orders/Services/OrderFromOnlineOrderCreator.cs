@@ -1,0 +1,196 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Extensions;
+using Vodovoz.Factories;
+using Vodovoz.Services;
+
+namespace Vodovoz.Application.Orders.Services
+{
+	public class OrderFromOnlineOrderCreator
+	{
+		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
+		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
+
+		public OrderFromOnlineOrderCreator(
+			IOrderParametersProvider orderParametersProvider,
+			INomenclatureRepository nomenclatureRepository,
+			ICounterpartyContractRepository counterpartyContractRepository,
+			ICounterpartyContractFactory counterpartyContractFactory)
+		{
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_counterpartyContractRepository =
+				counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			_counterpartyContractFactory =
+				counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
+		}
+
+		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
+		{
+			var order = new Order
+			{
+				UoW = uow
+			};
+
+			return FillOrderFromOnlineOrder(order, onlineOrder, orderCreator);
+		}
+
+		public Order FillOrderFromOnlineOrder(
+			Order order,
+			OnlineOrder onlineOrder,
+			Employee employee = null,
+			bool manualCreation = false)
+		{
+			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
+				? order.UoW.GetById<PaymentFrom>(
+					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(_orderParametersProvider))
+				: null;
+
+			if(employee != null)
+			{
+				order.Author = employee;
+			}
+			
+			order.Client = onlineOrder.Counterparty;
+			order.DeliveryPoint = onlineOrder.DeliveryPoint;
+			order.DeliveryDate = onlineOrder.DeliveryDate;
+			order.DeliverySchedule = onlineOrder.DeliverySchedule;
+			order.SelfDelivery = onlineOrder.IsSelfDelivery;
+			order.IsFastDelivery = onlineOrder.IsFastDelivery;
+			order.PaymentType = onlineOrder.OnlineOrderPaymentType.ConvertToOrderPaymentType();
+			order.BottlesReturn = onlineOrder.BottlesReturn;
+			order.OnlineOrder = onlineOrder.OnlinePayment;
+			order.PaymentByCardFrom = paymentFrom;
+			order.Trifle = onlineOrder.Trifle;
+			order.Comment = onlineOrder.OnlineOrderComment;
+			
+			order.UpdateOrCreateContract(order.UoW, _counterpartyContractRepository, _counterpartyContractFactory);
+
+			//TODO проверка доступности быстрой доставки, если заказ с быстрой доставкой
+			//скорее всего достаточно будет одной проверки при подтверждении заказа
+			
+			//заполнить строки заказа
+			AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
+			
+			//добавить аренду
+			AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
+			
+			//TODO необходимо перепроверить нужность вызова этого метода
+			//order.RecalculateItemsPrice();
+			
+			return order;
+		}
+
+		private void AddOrderItems(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
+		{
+			if(manualCreation)
+			{
+				AddNomenclaturesFromManualCreationOrder(order, onlineOrderItems);
+			}
+			else
+			{
+				AddNomenclaturesFromAutoCreationOrder(order, onlineOrderItems);
+			}
+		}
+
+		private void AddNomenclaturesFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
+		{
+			var promoSets =
+				onlineOrderItems
+					.Where(x => x.PromoSet != null)
+					.Select(x => x.PromoSet);
+
+			var otherItems =
+				onlineOrderItems
+					.Where(x => x.PromoSet is null);
+
+			AddPromoSetFromManualCreationOrder(order, promoSets);
+			AddOtherItemsFromManualCreationOrder(order, otherItems);
+		}
+
+		private void AddPromoSetFromManualCreationOrder(Order order, IEnumerable<PromotionalSet> promoSets)
+		{
+			foreach(var promoSet in promoSets)
+			{
+				foreach(var proSetItem in promoSet.PromotionalSetItems)
+				{
+					order.AddNomenclature(
+						proSetItem.Nomenclature,
+						proSetItem.Count,
+						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+						proSetItem.IsDiscountInMoney,
+						null,
+						proSetItem.PromoSet);
+				}
+			}
+		}
+		
+		private void AddOtherItemsFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> otherItems)
+		{
+			foreach(var onlineOrderItem in otherItems)
+			{
+				TryAddNomenclature(order, onlineOrderItem);
+			}
+		}
+		
+		private void AddNomenclaturesFromAutoCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
+		{
+			foreach(var onlineOrderItem in onlineOrderItems)
+			{
+				if(onlineOrderItem.PromoSet != null)
+				{
+					order.AddNomenclature(
+						onlineOrderItem.Nomenclature,
+						onlineOrderItem.Count,
+						onlineOrderItem.IsDiscountInMoney ? onlineOrderItem.MoneyDiscount : onlineOrderItem.PercentDiscount,
+						onlineOrderItem.IsDiscountInMoney,
+						null,
+						onlineOrderItem.PromoSet);
+				}
+				else
+				{
+					TryAddNomenclature(order, onlineOrderItem);
+				}
+			}
+		}
+
+		private void TryAddNomenclature(Order order, Product onlineOrderItem)
+		{
+			if(onlineOrderItem.Nomenclature is null)
+			{
+				return;
+			}
+
+			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+		}
+
+		private void AddFreeRentPackages(Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)
+		{
+			foreach(var onlineRentPackage in onlineRentPackages)
+			{
+				var rentPackage = onlineRentPackage.FreeRentPackage;
+				
+				var existingItems = order.OrderEquipments
+					.Where(x => x.OrderRentDepositItem != null || x.OrderRentServiceItem != null)
+					.Select(x => x.Nomenclature.Id)
+					.Distinct()
+					.ToArray();
+
+				var anyNomenclature = _nomenclatureRepository.GetAvailableNonSerialEquipmentForRent(
+					order.UoW,
+					rentPackage.EquipmentKind,
+					existingItems);
+				
+				order.AddFreeRent(rentPackage, anyNomenclature);
+			}
+		}
+	}
+}

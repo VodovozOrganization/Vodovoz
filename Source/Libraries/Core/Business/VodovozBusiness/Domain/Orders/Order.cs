@@ -823,15 +823,6 @@ namespace Vodovoz.Domain.Orders
 			get => _trifle;
 			set => SetField(ref _trifle, value);
 		}
-		
-		private string _orderWarnings;
-
-		[Display(Name = "Предупреждения")]
-		public virtual string OrderWarnings
-		{
-			get => _orderWarnings;
-			set => SetField(ref _orderWarnings, value);
-		}
 
 		private int? onlineOrder;
 
@@ -4345,7 +4336,8 @@ namespace Vodovoz.Domain.Orders
 			IUnitOfWork uow,
 			Employee currentEmployee,
 			IOrderDailyNumberController orderDailyNumberController,
-			IPaymentFromBankClientController paymentFromBankClientController)
+			IPaymentFromBankClientController paymentFromBankClientController,
+			bool isRootUnitOfWork = true)
 		{
 			SetFirstOrder();
 
@@ -4377,7 +4369,14 @@ namespace Vodovoz.Domain.Orders
 				Comment = $"{_generalSettingsParameters.OrderAutoComment}{Environment.NewLine}{Comment}";
 			}
 
-			uow.Save();
+			if(isRootUnitOfWork)
+			{
+				uow.Save();
+			}
+			else
+			{
+				uow.Save(this);
+			}
 		}
 
 		public virtual void RemoveReturnTareReason()

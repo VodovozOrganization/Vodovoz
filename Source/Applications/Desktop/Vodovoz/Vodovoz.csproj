@@ -460,6 +460,7 @@
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelTypeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OnlineOrderCancellationReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OnlineOrdersJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrganizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />

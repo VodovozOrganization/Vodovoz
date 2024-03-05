@@ -1,0 +1,75 @@
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+
+namespace Vodovoz.Domain.Orders
+{
+	public class OnlineFreeRentPackage : PropertyChangedBase, IDomainObject
+	{
+		private int? _freeRentPackageId;
+		private FreeRentPackage _freeRentPackage;
+		private decimal _count;
+		private decimal _price;
+		private OnlineOrder _onlineOrder;
+
+		protected OnlineFreeRentPackage() { }
+		
+		public virtual int Id { get; set; }
+		
+		[Display(Name = "Id пакета аренды")]
+		public virtual int? FreeRentPackageId
+		{
+			get => _freeRentPackageId;
+			set => SetField(ref _freeRentPackageId, value);
+		}
+		
+		[Display(Name = "Пакет аренды")]
+		public virtual FreeRentPackage FreeRentPackage
+		{
+			get => _freeRentPackage;
+			set => SetField(ref _freeRentPackage, value);
+		}
+		
+		[Display(Name = "Цена")]
+		public virtual decimal Price
+		{
+			get => _price;
+			set => SetField(ref _price, value);
+		}
+		
+		[Display(Name = "Количество")]
+		public virtual decimal Count
+		{
+			get => _count;
+			set => SetField(ref _count, value);
+		}
+		
+		[Display(Name = "Онлайн заказ")]
+		public virtual OnlineOrder OnlineOrder
+		{
+			get => _onlineOrder;
+			set => SetField(ref _onlineOrder, value);
+		}
+		
+		[Display(Name = "Цена аренды из ДВ")]
+		public virtual decimal FreeRentPackagePriceFromProgram { get; set; }
+
+		public virtual decimal Sum => Count * Price;
+
+		public static OnlineFreeRentPackage Create(
+			int? rentPackageId,
+			decimal count,
+			decimal price,
+			FreeRentPackage rentPackage,
+			OnlineOrder onlineOrder)
+		{
+			return new OnlineFreeRentPackage
+			{
+				FreeRentPackageId = rentPackageId,
+				Count = count,
+				Price = price,
+				FreeRentPackage = rentPackage,
+				OnlineOrder = onlineOrder
+			};
+		}
+	}
+}

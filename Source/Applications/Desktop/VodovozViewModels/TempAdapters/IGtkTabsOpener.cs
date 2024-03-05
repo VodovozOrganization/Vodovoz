@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
@@ -15,6 +16,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
 		void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId);
+		ITdiTab OpenOrderDlgByNavigatorForCreateFromOnlineOrder(DialogViewModelBase from, OnlineOrder onlineOrder);
 		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId);

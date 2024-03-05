@@ -34,6 +34,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(FastDeliveryNotAvailable),
 				"Быстрая доставка не доступна");
 		
+		public static Error IsArchivedOnlineOrderPromoSet(string promoSetTitle) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsArchivedOnlineOrderPromoSet),
+				$"Промонабор {promoSetTitle} является архивным");
+		
 		public static Error IncorrectCountNomenclatureInOnlineOrderPromoSet(
 			string promoSetTitle, int position, string nomenclature, int countFromPromoSet, int countFromOnlineOrderItem) =>
 			new Error(
@@ -41,6 +47,18 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectCountNomenclatureInOnlineOrderPromoSet),
 				$"В переданном промонаборе {promoSetTitle} в позиции {position} {nomenclature}" +
 				$"\nнеправильно указано количество: должно быть {countFromPromoSet}, а передано {countFromOnlineOrderItem}");
+		
+		public static Error IsIncorrectNomenclatureInOnlineOrder(int? nomenclatureId) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsIncorrectNomenclatureInOnlineOrder),
+				$"Номенклатура с Id {nomenclatureId} не найдена в базе");
+		
+		public static Error IsArchivedNomenclatureInOnlineOrder(string nomenclature) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsArchivedNomenclatureInOnlineOrder),
+				$"Номенклатура {nomenclature} является архивной");
 		
 		public static Error IncorrectPriceNomenclatureInOnlineOrder(
 			string nomenclature, decimal price, decimal onlineOrderItemPrice) =>
@@ -56,7 +74,8 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrder),
 				nameof(IncorrectDiscountInOnlineOrderPromoSet),
 				$"В переданном промонаборе {promoSetTitle} в позиции {position} {nomenclature}" +
-				$"\nнеправильно указан тип скидки, должно быть скидка в рублях: {discountInMoneyFromPromoSet.ConvertToYesOrNo()}, а передано {onlineOrderItemDiscountInMoney.ConvertToYesOrNo()}");
+				$"\nнеправильно указан тип скидки, должно быть скидка в рублях: {discountInMoneyFromPromoSet.ConvertToYesOrNo()}," +
+				$" а передано {onlineOrderItemDiscountInMoney.ConvertToYesOrNo()}");
 		
 		public static Error IncorrectDiscountInOnlineOrderPromoSet(
 			string promoSetTitle, int position, string nomenclature, decimal discountItemFromPromoSet, decimal onlineOrderItemDiscount) =>
@@ -66,13 +85,24 @@ namespace Vodovoz.Errors.Orders
 				$"В переданном промонаборе {promoSetTitle} в позиции {position} {nomenclature}" +
 				$"\nнеправильно указана скидка: должно быть {discountItemFromPromoSet}, а передано {onlineOrderItemDiscount}");
 		
+		public static Error IncorrectRentPackageIdInOnlineOrder(int? rentPackageId) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IncorrectRentPackageIdInOnlineOrder),
+				$"Переданный пакет аренды с Id {rentPackageId} не найден в базе");
+		
+		public static Error IsArchivedRentPackageIdInOnlineOrder(int? rentPackageId) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsArchivedRentPackageIdInOnlineOrder),
+				$"Переданный пакет аренды {rentPackageId} является архивным");
+		
 		public static Error IncorrectRentPackagePriceInOnlineOrder(
-			int rentPackageId, decimal onlineRentPackagePrice, decimal depositFromRentPackage) =>
+			int? rentPackageId, decimal onlineRentPackagePrice, decimal depositFromRentPackage) =>
 			new Error(
 				typeof(OnlineOrder),
 				nameof(IncorrectRentPackagePriceInOnlineOrder),
 				$"В переданном пакете аренды {rentPackageId} не совпадает цена." +
-				$"\nВ онлайн заказе {onlineRentPackagePrice}" +
-				$"\nВ Пакете аренды {depositFromRentPackage}");
+				$"\nВ онлайн заказе {onlineRentPackagePrice} а в Пакете аренды {depositFromRentPackage}");
 	}
 }

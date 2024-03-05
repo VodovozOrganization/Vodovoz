@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerAppsApi.Library.Dto.Orders
+namespace CustomerOrdersApi.Library.Dto.Orders
 {
 	/// <summary>
 	/// Онлайн заказ
@@ -13,6 +14,7 @@ namespace CustomerAppsApi.Library.Dto.Orders
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public Source Source { get; set; }
 		
 		/// <summary>
@@ -43,11 +45,13 @@ namespace CustomerAppsApi.Library.Dto.Orders
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		
 		/// <summary>
 		/// Статус оплаты
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
 
 		/// <summary>
@@ -58,6 +62,7 @@ namespace CustomerAppsApi.Library.Dto.Orders
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
 
 		/// <summary>

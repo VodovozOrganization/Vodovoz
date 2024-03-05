@@ -9,9 +9,10 @@ namespace Vodovoz.Application.Orders.Services
 		int PaidDeliveryNomenclatureId { get; }
 
 		int CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs);
-		int CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
-		Task<Order> CreateOrderWithPaymentByQrCode(string phone, RoboatsOrderArgs roboatsOrderArgs, bool needAcceptOrder);
+		Order CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
 		decimal GetOrderPrice(RoboatsOrderArgs roboatsOrderArgs);
 		void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
+		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
+		Order AcceptOrder(int orderId, int roboatsEmployee);
 	}
 }

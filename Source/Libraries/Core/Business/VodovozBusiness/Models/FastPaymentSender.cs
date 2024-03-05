@@ -31,10 +31,8 @@ namespace Vodovoz.Models
 			_smsSettings = smsSettings ?? throw new ArgumentNullException(nameof(smsSettings));
 		}
 
-		public async Task<FastPaymentResult> SendFastPaymentUrlAsync(Order order, string phoneNumber, bool isQr)
+		public async Task<FastPaymentResult> SendFastPaymentUrlAsync(int orderId, string phoneNumber, bool isQr)
 		{
-			var orderId = order.Id;
-
 			if(!_smsSettings.SmsSendingAllowed)
 			{
 				var resultMessage = GetErrorResult("Отправка смс сообщений не разрешена настройками приложения. Обратитесь в техподдержку.");

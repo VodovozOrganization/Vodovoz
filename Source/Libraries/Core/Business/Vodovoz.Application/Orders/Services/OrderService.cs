@@ -11,15 +11,15 @@ using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
-using Vodovoz.Models;
 using Vodovoz.Tools.CallTasks;
 using System;
 using Vodovoz.Models.Orders;
 using Vodovoz.Domain.Client;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
-using Sms.Internal;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors;
+using Vodovoz.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -33,8 +33,11 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
-		private readonly IFastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly OrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
+		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		private readonly FastDeliveryHandler _fastDeliveryHandler;
+		private readonly IPromotionalSetRepository _promotionalSetRepository;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -45,23 +48,30 @@ namespace Vodovoz.Application.Orders.Services
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
-			IFastPaymentSender fastPaymentSender,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			OrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
+			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			FastDeliveryHandler fastDeliveryHandler,
+			IPromotionalSetRepository promotionalSetRepository
+			)
 		{
 			if(nomenclatureParametersProvider is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			}
 
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
-			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
+			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
+			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 
 			PaidDeliveryNomenclatureId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 		}
@@ -187,9 +197,9 @@ namespace Vodovoz.Application.Orders.Services
 
 		/// <summary>
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
-		/// Возвращает номер сохраненного заказа
+		/// Возвращает сохраненный заказ
 		/// </summary>
-		public int CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
+		public Order CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
 		{
 			if(roboatsOrderArgs is null)
 			{
@@ -198,8 +208,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var order = CreateIncompleteOrder(unitOfWork, roboatsOrderArgs);
-				return order.Id;
+				return CreateIncompleteOrder(unitOfWork, roboatsOrderArgs);
 			}
 		}
 
@@ -217,43 +226,12 @@ namespace Vodovoz.Application.Orders.Services
 		}
 
 		/// <summary>
-		/// Создает заказ с имеющимися данными в статусе Новый.
-		/// Запускает процесс формирования оплаты и отправки QR кода по смс.
-		/// Если после 3-х попыток не получилось сформировать оплату, то заказ остается в статусе новый.
-		/// Если оплата сформирована то заказ переходит в статус Принят
+		/// Подтверждение заказа
 		/// </summary>
-		public async Task<Order> CreateOrderWithPaymentByQrCode(string phone, RoboatsOrderArgs roboatsOrderArgs, bool needAcceptOrder)
-		{
-			if(roboatsOrderArgs is null)
-			{
-				throw new ArgumentNullException(nameof(roboatsOrderArgs));
-			}
-
-			using(var uowNewOrder = _unitOfWorkFactory.CreateWithNewRoot<Order>())
-			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uowNewOrder);
-				if(roboatsEmployee == null)
-				{
-					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
-				}
-
-				var order = CreateIncompleteOrder(uowNewOrder, roboatsOrderArgs);
-
-				if(needAcceptOrder)
-				{
-					var paymentSended = await TryingSendPayment(phone, order);
-					if(paymentSended)
-					{
-						var acceptedOrder = AcceptOrder(order.Id, roboatsEmployee.Id);
-						return acceptedOrder;
-					}
-				}
-
-				return order;
-			}
-		}
-
-		private Order AcceptOrder(int orderId, int roboatsEmployee)
+		/// <param name="orderId">номер заказа</param>
+		/// <param name="roboatsEmployee">Id сотрудника</param>
+		/// <returns>подтвержденный заказ</returns>
+		public Order AcceptOrder(int orderId, int roboatsEmployee)
 		{
 			using(var unitOfWork = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
 			{
@@ -263,31 +241,6 @@ namespace Vodovoz.Application.Orders.Services
 				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order;
 			}
-		}
-
-		private async Task<bool> TryingSendPayment(string phone, Order order)
-		{
-			FastPaymentResult result;
-			int attemptsCount = 0;
-
-			do
-			{
-				if(attemptsCount > 0)
-				{
-					await Task.Delay(60000);
-				}
-				result = await _fastPaymentSender.SendFastPaymentUrlAsync(order, phone, true);
-
-				if(result.Status == ResultStatus.Error && result.OrderAlreadyPaied)
-				{
-					return true;
-				}
-
-				attemptsCount++;
-
-			} while(result.Status == ResultStatus.Error && attemptsCount < 3);
-
-			return result.Status == ResultStatus.Ok;
 		}
 
 		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, RoboatsOrderArgs roboatsOrderArgs)
@@ -330,6 +283,71 @@ namespace Vodovoz.Application.Orders.Services
 			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
 			return order;
+		}
+
+		public int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder)
+		{
+			//валидируем онлайн заказ на правильность заполнения данных
+			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(onlineOrder);
+
+			if(validationResult.IsFailure)
+			{
+				return SaveOnlineOrderAndReturnDefaultValue(onlineOrder, validationResult, uow);
+			}
+			
+			//Пытаемся создать заказ по пришедшим данным
+			var employee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
+			
+			UpdateDeliveryCost(uow, order);
+			order.AddDeliveryPointCommentToOrder();
+			order.AddFastDeliveryNomenclatureIfNeeded();
+			
+			//TODO проверка возможности добавления промонаборов
+
+			//Попытка подтвердить заказ при успешном создании
+			var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
+			if(acceptResult.IsFailure)
+			{
+				return SaveOnlineOrderAndReturnDefaultValue(onlineOrder, acceptResult, uow);
+			}
+			
+			uow.Save(onlineOrder);
+			//uow.Save(order); уже будет в сессии при удачном подтверждении
+			uow.Commit();
+
+			return order.Id;
+		}
+		
+		private int SaveOnlineOrderAndReturnDefaultValue(OnlineOrder onlineOrder, Result result, IUnitOfWork uow)
+		{
+			uow.Save(onlineOrder);
+			uow.Commit();
+					
+			return 0;
+		}
+		
+		private Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
+		{
+			var hasPromoSetForNewClients = order.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
+			
+			if(hasPromoSetForNewClients && order.HasUsedPromoForNewClients(_promotionalSetRepository))
+			{
+				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
+			}
+			
+			//Проверяем доступность быстрой доставки
+			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
+			
+			if(fastDeliveryResult.IsFailure)
+			{
+				return fastDeliveryResult;
+			}
+			
+			order.AcceptOrder(order.Author, _callTaskWorker);
+			order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
+			
+			return Result.Success();
 		}
 	}
 }

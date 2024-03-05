@@ -23,18 +23,23 @@ using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
 using UserRepository = QS.Project.Repositories.UserRepository;
 
@@ -91,6 +96,9 @@ namespace CustomerAppsApi
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
+			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
+			services.AddSingleton<IGeographicGroupParametersProvider, GeographicGroupParametersProvider>();
+			services.AddSingleton<IOrganizationProvider, Stage2OrganizationProvider>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
@@ -102,6 +110,9 @@ namespace CustomerAppsApi
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
 			services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+			services.AddSingleton<ICallTaskRepository, CallTaskRepository>();
+			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddSingleton<ICashReceiptRepository, CashReceiptRepository>();
 			
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();

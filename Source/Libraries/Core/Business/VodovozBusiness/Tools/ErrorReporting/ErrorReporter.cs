@@ -22,7 +22,6 @@ namespace Vodovoz.Tools
 			}
 		}
 
-
 		private readonly IErrorReportSender _reportSender;
 		private readonly ILogService _logService;
 

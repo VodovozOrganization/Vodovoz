@@ -20,7 +20,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(node => node.Id.ToString())
 					.AddPixbufRenderer(node => string.IsNullOrWhiteSpace(node.ManagerWorkWith) ? _greenCircle : _emptyImg)
 				.AddColumn("Дата доставки").AddTextRenderer(node => node.DeliveryDate.ToShortDateString())
-				.AddColumn("Время доставки").AddTextRenderer(node => node.DeliveryScheduleId.ToString())
+				.AddColumn("Время доставки").AddTextRenderer(
+					node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+				.AddColumn("Оформленный заказ").AddTextRenderer(node => node.OrderId.ToString())
 				.AddColumn("Статус").AddTextRenderer(node => node.OnlineOrderStatus.GetEnumDisplayName())
 				.AddColumn("Клиент").AddTextRenderer(node => node.CounterpartyName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress)
@@ -33,7 +35,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				{
 					var color = GdkColors.PrimaryText;
 
-					if(node.OnlineOrderStatus == OnlineOrderStatus.New && node.FastDelivery)
+					if(node.OnlineOrderStatus == OnlineOrderStatus.New && node.IsFastDelivery)
 					{
 						color = GdkColors.InsensitiveText; //должен быть красный
 					}

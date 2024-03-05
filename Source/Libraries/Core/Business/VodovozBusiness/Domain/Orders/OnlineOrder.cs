@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -9,6 +10,12 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "Онлайн заказы",
+		Nominative = "Онлайн заказ",
+		Prepositional = "Онлайн заказе",
+		PrepositionalPlural = "Онлайн заказах"
+	)]
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _version;
@@ -38,8 +45,9 @@ namespace Vodovoz.Domain.Orders
 		private OnlineOrderStatus _onlineOrderStatus;
 		private Order _order;
 		private Employee _employeeWorkWith;
+		private OnlineOrderCancellationReason _onlineOrderCancellationReason;
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
-		private IList<OnlineRentPackage> _onlineRentPackages;
+		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
 
 		public virtual int Id { get; set; }
 		
@@ -232,6 +240,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _employeeWorkWith, value);
 		}
 		
+		[Display(Name = "Причина отмены онлайн заказа")]
+		public virtual OnlineOrderCancellationReason OnlineOrderCancellationReason
+		{
+			get => _onlineOrderCancellationReason;
+			set => SetField(ref _onlineOrderCancellationReason, value);
+		}
+		
 		[Display(Name = "Строки онлайн заказа")]
 		public virtual IList<OnlineOrderItem> OnlineOrderItems
 		{
@@ -240,12 +255,15 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		[Display(Name = "Пакеты аренды")]
-		public virtual IList<OnlineRentPackage> OnlineRentPackages
+		public virtual IList<OnlineFreeRentPackage> OnlineRentPackages
 		{
 			get => _onlineRentPackages;
 			set => SetField(ref _onlineRentPackages, value);
 		}
-		
-		public string OrderWarnings { get; set; }
+
+		public virtual void CalculateSum()
+		{
+			OnlineOrderSum = OnlineOrderItems.Sum(x => x.Sum) + OnlineRentPackages.Sum(x => x.Sum);
+		}
 	}
 }

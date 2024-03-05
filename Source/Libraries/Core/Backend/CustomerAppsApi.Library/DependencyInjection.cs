@@ -4,13 +4,17 @@ using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
 
@@ -36,7 +40,7 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
 				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
 				.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>()
-				.AddSingleton<IOnlineOrderFactory, OnlineOrderFactory>()
+				.AddSingleton<ICallTaskFactory, CallTaskSingletonFactory>()
 				.AddSingleton<ICameFromConverter, CameFromConverter>()
 				.AddSingleton<ISourceConverter, SourceConverter>()
 				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
@@ -49,16 +53,17 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
-				.AddScoped<OrderFromOnlineOrderCreator>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICounterpartyContractRepository, CounterpartyContractRepository>()
 				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
 				.AddScoped<FastDeliveryHandler>()
-				.AddScoped<OrderFromOnlineOrderValidator>()
 				.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>()
 				.AddScoped<IDeliveryRulesParametersProvider, DeliveryRulesParametersProvider>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
+				.AddScoped<IPersonProvider, BaseParametersProvider>()
+				.AddScoped<IUserService>(context => ServicesConfig.UserService)
+				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 				;
 
 			return services;

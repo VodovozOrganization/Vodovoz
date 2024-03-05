@@ -3,10 +3,11 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
 
-namespace Vodovoz.Domain.Service
+namespace Vodovoz.Application.Orders.Services
 {
-	public class GoodsPriceCalculator
+	public class GoodsPriceCalculator : IGoodsPriceCalculator
 	{
 		public decimal CalculateItemPrice(
 			IEnumerable<Product> products,

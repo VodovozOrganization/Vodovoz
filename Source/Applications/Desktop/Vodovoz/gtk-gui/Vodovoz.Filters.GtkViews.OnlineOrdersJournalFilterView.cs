@@ -26,15 +26,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel lblSelfDelivery;
 
-		private global::QS.Widgets.NullableCheckButton nullablecheckbutton4;
+		private global::QS.Widgets.NullableCheckButton selfDeliveryBtn;
 
 		private global::Gamma.GtkWidgets.yLabel lblNeedConfirmationByCall;
 
-		private global::QS.Widgets.NullableCheckButton nullablecheckbutton2;
+		private global::QS.Widgets.NullableCheckButton needConfirmationByCallBtn;
 
 		private global::Gamma.GtkWidgets.yLabel lblFastDelivery;
 
-		private global::QS.Widgets.NullableCheckButton nullablecheckbutton3;
+		private global::QS.Widgets.NullableCheckButton fastDeliveryBtn;
 
 		private global::Gtk.HBox hboxLastLineOfFilters;
 
@@ -219,13 +219,13 @@ namespace Vodovoz.Filters.GtkViews
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hboxCheckBoxFilters.Gtk.Box+BoxChild
-			this.nullablecheckbutton4 = new global::QS.Widgets.NullableCheckButton();
-			this.nullablecheckbutton4.CanFocus = true;
-			this.nullablecheckbutton4.Name = "nullablecheckbutton4";
-			this.nullablecheckbutton4.UseUnderline = true;
-			this.nullablecheckbutton4.Label = global::Mono.Unix.Catalog.GetString("nullablecheckbutton");
-			this.hboxCheckBoxFilters.Add(this.nullablecheckbutton4);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.nullablecheckbutton4]));
+			this.selfDeliveryBtn = new global::QS.Widgets.NullableCheckButton();
+			this.selfDeliveryBtn.CanFocus = true;
+			this.selfDeliveryBtn.Name = "selfDeliveryBtn";
+			this.selfDeliveryBtn.UseUnderline = true;
+			this.selfDeliveryBtn.Label = global::Mono.Unix.Catalog.GetString("selfDeliveryBtn");
+			this.hboxCheckBoxFilters.Add(this.selfDeliveryBtn);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.selfDeliveryBtn]));
 			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;
@@ -239,13 +239,13 @@ namespace Vodovoz.Filters.GtkViews
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hboxCheckBoxFilters.Gtk.Box+BoxChild
-			this.nullablecheckbutton2 = new global::QS.Widgets.NullableCheckButton();
-			this.nullablecheckbutton2.CanFocus = true;
-			this.nullablecheckbutton2.Name = "nullablecheckbutton2";
-			this.nullablecheckbutton2.UseUnderline = true;
-			this.nullablecheckbutton2.Label = global::Mono.Unix.Catalog.GetString("nullablecheckbutton");
-			this.hboxCheckBoxFilters.Add(this.nullablecheckbutton2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.nullablecheckbutton2]));
+			this.needConfirmationByCallBtn = new global::QS.Widgets.NullableCheckButton();
+			this.needConfirmationByCallBtn.CanFocus = true;
+			this.needConfirmationByCallBtn.Name = "needConfirmationByCallBtn";
+			this.needConfirmationByCallBtn.UseUnderline = true;
+			this.needConfirmationByCallBtn.Label = global::Mono.Unix.Catalog.GetString("needConfirmationByCallBtn");
+			this.hboxCheckBoxFilters.Add(this.needConfirmationByCallBtn);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.needConfirmationByCallBtn]));
 			w12.Position = 3;
 			w12.Expand = false;
 			w12.Fill = false;
@@ -259,13 +259,13 @@ namespace Vodovoz.Filters.GtkViews
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child hboxCheckBoxFilters.Gtk.Box+BoxChild
-			this.nullablecheckbutton3 = new global::QS.Widgets.NullableCheckButton();
-			this.nullablecheckbutton3.CanFocus = true;
-			this.nullablecheckbutton3.Name = "nullablecheckbutton3";
-			this.nullablecheckbutton3.UseUnderline = true;
-			this.nullablecheckbutton3.Label = global::Mono.Unix.Catalog.GetString("nullablecheckbutton");
-			this.hboxCheckBoxFilters.Add(this.nullablecheckbutton3);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.nullablecheckbutton3]));
+			this.fastDeliveryBtn = new global::QS.Widgets.NullableCheckButton();
+			this.fastDeliveryBtn.CanFocus = true;
+			this.fastDeliveryBtn.Name = "needConfirmationByCallBtn";
+			this.fastDeliveryBtn.UseUnderline = true;
+			this.fastDeliveryBtn.Label = global::Mono.Unix.Catalog.GetString("1");
+			this.hboxCheckBoxFilters.Add(this.fastDeliveryBtn);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.fastDeliveryBtn]));
 			w14.Position = 5;
 			w14.Expand = false;
 			w14.Fill = false;

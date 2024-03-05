@@ -49,6 +49,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Application;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
@@ -63,6 +64,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -94,6 +96,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
+using Vodovoz.Services.Orders;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
@@ -652,6 +655,9 @@ namespace Vodovoz
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddScoped<FastDeliveryHandler>()
 						.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
+						.AddScoped<OrderFromOnlineOrderCreator>()
+						.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
+						.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 						.AddApplication()
 						.AddBusiness();
 				});

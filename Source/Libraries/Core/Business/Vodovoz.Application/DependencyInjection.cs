@@ -22,5 +22,9 @@ namespace Vodovoz.Application
 			.AddScoped<IPaymentService, PaymentService>()
 			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<INomenclatureService, NomenclatureService>();
+		
+		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
+			.AddScoped<IOrderService, OrderService>()
+			;
 	}
 }

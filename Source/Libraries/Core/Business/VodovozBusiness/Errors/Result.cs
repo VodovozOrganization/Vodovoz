@@ -61,10 +61,11 @@ namespace Vodovoz.Errors
 		public string GetErrorsString()
 		{
 			var sb = new StringBuilder();
+			var i = 1;
 
 			foreach(var error in Errors)
 			{
-				sb.AppendLine(error.Message);
+				sb.AppendLine($"{i++}. " + error.Message);
 			}
 
 			return sb.ToString();
