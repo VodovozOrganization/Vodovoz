@@ -142,6 +142,7 @@ using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace Vodovoz
 {
@@ -677,6 +678,8 @@ namespace Vodovoz
 									dbi.Timeout = 120;
 								}
 							);
+
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
 						})
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
@@ -729,6 +732,7 @@ namespace Vodovoz
 						.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetRequiredService<OperatorStateAdminConsumer>())
 
 						.AddScoped<MessageEndpointConnector>()
+						.AddScoped<PacsEndpointsConnector>()
 
 						.AddTransient<EntityModelFactory>()
 						
