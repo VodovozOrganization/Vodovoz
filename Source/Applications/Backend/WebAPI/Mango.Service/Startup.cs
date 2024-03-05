@@ -13,16 +13,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate;
 using NLog.Web;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
 using System;
+using Vodovoz.Settings.Database.Pacs;
+using Vodovoz.Settings.Pacs;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Mango;
+using Vodovoz.Settings.Mango;
+using Vodovoz.Settings;
 
 namespace Mango.Service
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = "NLog";
-		private ILoggerFactory _loggerFactory;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -33,40 +41,32 @@ namespace Mango.Service
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(nlogConfig);
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			_loggerFactory = LoggerFactory.Create(logging =>
-				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName)));
+			services.AddDatabaseConnection();
+			services.AddCore();
+			services.AddNotTrackedUoW();
 
-			var dbSection = Configuration.GetSection("DomainDB");
-			if(!dbSection.Exists())
+			services.AddSingleton(provider =>
 			{
-				throw new ArgumentException("Не найдена секция DomainDB в конфигурации");
-			}
-			var connectionStringBuilder = new MySqlConnectionStringBuilder();
-			connectionStringBuilder.Server = dbSection["Server"];
-			connectionStringBuilder.Port = uint.Parse(dbSection["Port"]);
-			connectionStringBuilder.Database = dbSection["Database"];
-			connectionStringBuilder.UserID = dbSection["UserID"];
-			connectionStringBuilder.Password = dbSection["Password"];
-			connectionStringBuilder.SslMode = MySqlSslMode.None;
-			connectionStringBuilder.DefaultCommandTimeout = 5;
-
-			services.AddSingleton(x =>
-				new MySqlConnection(connectionStringBuilder.ConnectionString));
+				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
+				return new MySqlConnection(connectionStringBuilder.ConnectionString);
+			});
 
 			services.AddSingleton(x => new MangoController(
-				_loggerFactory.CreateLogger<MangoController>(), 
-				Configuration["Mango:VpbxApiKey"], 
+				x.GetRequiredService<ILogger<MangoController>>(),
+				Configuration["Mango:VpbxApiKey"],
 				Configuration["Mango:VpbxApiSalt"])
 			);
+
+			services.AddSingleton<ISettingsController, SettingsController>();
+			services.AddSingleton<IMangoUserSettngs, MangoUserSettings>();
 
 			services.AddSingleton<CallsHostedService>();
 			services.AddHostedService(provider => provider.GetService<CallsHostedService>());
@@ -78,13 +78,16 @@ namespace Mango.Service
 			services.AddHostedService(provider => provider.GetService<NotificationHostedService>());
 
 			services.AddSingleton<ICallerService, CallerService>();
+			services.AddSingleton<ICallEventHandler, MangoHandler>();
+
 			services.AddScoped<ICallEventHandler, MangoHandler>();
 
-			var messageTransportSettings = new MessageTransportSettings(Configuration);
+			var messageTransportSettings = new ConfigTransportSettings();
+			Configuration.GetSection("MessageTransport").Bind(messageTransportSettings);
 			services.AddSingleton<IMessageTransportSettings>(messageTransportSettings);
 
 			services.ConfigureMangoServices();
-			services.AddCallsPublishing(messageTransportSettings);
+			services.AddCallsPublishing();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,16 +1,23 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Sms.Internal;
+using System;
 using System.Linq;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Services;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Tools.Orders;
-using Vodovoz.Domain.Sale;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
+using Vodovoz.Models;
+using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using System;
 using Vodovoz.Models.Orders;
@@ -20,6 +27,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -41,7 +49,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public OrderService(
 			ILogger<OrderService> logger,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureSettings,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
 			IOrderDailyNumberController orderDailyNumberController,
@@ -55,9 +63,9 @@ namespace Vodovoz.Application.Orders.Services
 			IPromotionalSetRepository promotionalSetRepository
 			)
 		{
-			if(nomenclatureParametersProvider is null)
+			if(nomenclatureSettings is null)
 			{
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -73,7 +81,7 @@ namespace Vodovoz.Application.Orders.Services
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 
-			PaidDeliveryNomenclatureId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
 		public int PaidDeliveryNomenclatureId { get; }
@@ -282,6 +290,13 @@ namespace Vodovoz.Application.Orders.Services
 			order.RecalculateItemsPrice();
 			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
+
+			if(!order.SelfDelivery)
+			{
+				order.CallBeforeArrivalMinutes = 15;
+				order.IsDoNotMakeCallBeforeArrival = false;
+			}
+
 			return order;
 		}
 

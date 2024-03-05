@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Flyers
 
 		private global::Gamma.GtkWidgets.yLabel lblFlyerNomenclature;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryFlyerNomenclature;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gamma.GtkWidgets.yCheckButton chkIsForFirstOrder;
 
@@ -107,13 +107,11 @@ namespace Vodovoz.Views.Flyers
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hboxFlyerNomenclature.Gtk.Box+BoxChild
-			this.entryFlyerNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryFlyerNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.entryFlyerNomenclature.Name = "entryFlyerNomenclature";
-			this.entryFlyerNomenclature.CanEditReference = false;
-			this.entryFlyerNomenclature.CanOpenWithoutTabParent = false;
-			this.hboxFlyerNomenclature.Add(this.entryFlyerNomenclature);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxFlyerNomenclature[this.entryFlyerNomenclature]));
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryNomenclature.Name = "entryNomenclature";
+			this.hboxFlyerNomenclature.Add(this.entryNomenclature);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxFlyerNomenclature[this.entryNomenclature]));
 			w6.Position = 1;
 			// Container child hboxFlyerNomenclature.Gtk.Box+BoxChild
 			this.chkIsForFirstOrder = new global::Gamma.GtkWidgets.yCheckButton();
@@ -159,6 +157,7 @@ namespace Vodovoz.Views.Flyers
 			this.startDatePicker.Date = new global::System.DateTime(0);
 			this.startDatePicker.IsEditable = false;
 			this.startDatePicker.AutoSeparation = false;
+			this.startDatePicker.HideButtonClearDate = false;
 			this.hboxActivation.Add(this.startDatePicker);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxActivation[this.startDatePicker]));
 			w10.Position = 1;
@@ -198,6 +197,7 @@ namespace Vodovoz.Views.Flyers
 			this.endDatePicker.Date = new global::System.DateTime(0);
 			this.endDatePicker.IsEditable = false;
 			this.endDatePicker.AutoSeparation = false;
+			this.endDatePicker.HideButtonClearDate = false;
 			this.hboxDeactivation.Add(this.endDatePicker);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxDeactivation[this.endDatePicker]));
 			w14.Position = 1;

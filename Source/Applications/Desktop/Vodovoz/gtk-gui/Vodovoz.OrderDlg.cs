@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gtk.Button btnCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -48,6 +48,8 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryClient;
 
+		private global::QS.Views.Control.EntityEntry entryDeliveryPoint;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDeliverySchedule;
 
 		private global::Gamma.Widgets.yEnumComboBox enumSignatureType;
@@ -55,8 +57,6 @@ namespace Vodovoz
 		private global::Gamma.Widgets.yEnumComboBox enumTax;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDeliveryPoint;
 
 		private global::Gtk.HBox hbox16;
 
@@ -587,16 +587,16 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			this.btnCancel = new global::Gtk.Button();
+			this.btnCancel.CanFocus = true;
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.UseUnderline = true;
+			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w3;
-			this.hbox1.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
+			this.btnCancel.Image = w3;
+			this.hbox1.Add(this.btnCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
@@ -788,6 +788,7 @@ namespace Vodovoz
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
 			this.entityVMEntryClient.CanEditReference = false;
+			this.entityVMEntryClient.CanDisposeEntitySelectorFactory = false;
 			this.entityVMEntryClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryClient);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
@@ -798,19 +799,32 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entryDeliveryPoint = new global::QS.Views.Control.EntityEntry();
+			this.entryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.entryDeliveryPoint.Name = "entryDeliveryPoint";
+			this.table1.Add(this.entryDeliveryPoint);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
+			w21.TopAttach = ((uint)(3));
+			w21.BottomAttach = ((uint)(4));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.entryDeliverySchedule = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.entryDeliverySchedule.Name = "entryDeliverySchedule";
 			this.entryDeliverySchedule.CanEditReference = false;
+			this.entryDeliverySchedule.CanDisposeEntitySelectorFactory = false;
 			this.entryDeliverySchedule.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDeliverySchedule);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliverySchedule]));
-			w21.TopAttach = ((uint)(11));
-			w21.BottomAttach = ((uint)(12));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliverySchedule]));
+			w22.TopAttach = ((uint)(11));
+			w22.BottomAttach = ((uint)(12));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumSignatureType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumSignatureType.Name = "enumSignatureType";
@@ -819,13 +833,13 @@ namespace Vodovoz
 			this.enumSignatureType.UseShortTitle = false;
 			this.enumSignatureType.DefaultFirst = false;
 			this.table1.Add(this.enumSignatureType);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.enumSignatureType]));
-			w22.TopAttach = ((uint)(17));
-			w22.BottomAttach = ((uint)(18));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.enumSignatureType]));
+			w23.TopAttach = ((uint)(17));
+			w23.BottomAttach = ((uint)(18));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumTax = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumTax.Name = "enumTax";
@@ -834,38 +848,25 @@ namespace Vodovoz
 			this.enumTax.UseShortTitle = false;
 			this.enumTax.DefaultFirst = false;
 			this.table1.Add(this.enumTax);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.enumTax]));
-			w23.TopAttach = ((uint)(7));
-			w23.BottomAttach = ((uint)(8));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.enumTax]));
+			w24.TopAttach = ((uint)(7));
+			w24.BottomAttach = ((uint)(8));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.evmeAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.CanDisposeEntitySelectorFactory = false;
 			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeAuthor);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
-			w24.TopAttach = ((uint)(1));
-			w24.BottomAttach = ((uint)(2));
-			w24.LeftAttach = ((uint)(3));
-			w24.RightAttach = ((uint)(4));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
-			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
-			this.evmeDeliveryPoint.CanEditReference = false;
-			this.evmeDeliveryPoint.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.evmeDeliveryPoint);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDeliveryPoint]));
-			w25.TopAttach = ((uint)(3));
-			w25.BottomAttach = ((uint)(4));
-			w25.LeftAttach = ((uint)(1));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
+			w25.TopAttach = ((uint)(1));
+			w25.BottomAttach = ((uint)(2));
+			w25.LeftAttach = ((uint)(3));
 			w25.RightAttach = ((uint)(4));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -1368,7 +1369,6 @@ namespace Vodovoz
 			this.timepickerWaitUntil = new global::QS.Widgets.GtkUI.TimePicker();
 			this.timepickerWaitUntil.Events = ((global::Gdk.EventMask)(256));
 			this.timepickerWaitUntil.Name = "timepickerWaitUntil";
-			this.timepickerWaitUntil.TimeOrNull = new global::System.TimeSpan(0);
 			this.table1.Add(this.timepickerWaitUntil);
 			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.timepickerWaitUntil]));
 			w70.TopAttach = ((uint)(12));
@@ -1493,6 +1493,7 @@ namespace Vodovoz
 			this.evmeContactPhone.Events = ((global::Gdk.EventMask)(256));
 			this.evmeContactPhone.Name = "evmeContactPhone";
 			this.evmeContactPhone.CanEditReference = false;
+			this.evmeContactPhone.CanDisposeEntitySelectorFactory = false;
 			this.evmeContactPhone.CanOpenWithoutTabParent = false;
 			this.yhbox2.Add(this.evmeContactPhone);
 			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.evmeContactPhone]));
@@ -3557,8 +3558,6 @@ namespace Vodovoz
 			this.pickerDeliveryDate.DateChangedByUser += new global::System.EventHandler(this.OnPickerDeliveryDateDateChangedByUser);
 			this.pickerBillDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
 			this.checkSelfDelivery.Toggled += new global::System.EventHandler(this.OnCheckSelfDeliveryToggled);
-			this.evmeDeliveryPoint.Changed += new global::System.EventHandler(this.OnReferenceDeliveryPointChanged);
-			this.evmeDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
 			this.enumSignatureType.Changed += new global::System.EventHandler(this.OnEnumSignatureTypeChanged);
 			this.entityVMEntryClient.Changed += new global::System.EventHandler(this.OnEntityVMEntryClientChanged);
 			this.entityVMEntryClient.ChangedByUser += new global::System.EventHandler(this.OnEntityVMEntryClientChangedByUser);

@@ -16,6 +16,7 @@ namespace Vodovoz.Filters.ViewModels
 		private DateTime? _endDate;
 		private PaymentState? _paymentState;
 		private bool _hideCompleted;
+		private bool _hideCancelledPayments;
 		private bool _isManuallyCreated;
 		private bool _hidePaymentsWithoutCounterparty;
 		private bool _hideAllocatedPayments;
@@ -68,7 +69,13 @@ namespace Vodovoz.Filters.ViewModels
 			get => _hideCompleted;
 			set => UpdateFilterField(ref _hideCompleted, value);
 		}
-		
+
+		public bool HideCancelledPayments
+		{
+			get => _hideCancelledPayments;
+			set => UpdateFilterField(ref _hideCancelledPayments, value);
+		}
+
 		public bool IsManuallyCreated
 		{
 			get => _isManuallyCreated;

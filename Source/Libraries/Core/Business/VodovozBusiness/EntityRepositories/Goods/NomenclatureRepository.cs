@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Criterion.Lambda;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -15,17 +15,17 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Nodes;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
 	public class NomenclatureRepository : INomenclatureRepository
 	{
-		private readonly INomenclatureParametersProvider nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
-		public NomenclatureRepository(INomenclatureParametersProvider nomenclatureParametersProvider) {
-			this.nomenclatureParametersProvider = nomenclatureParametersProvider ?? 
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+		public NomenclatureRepository(INomenclatureSettings nomenclatureSettings) {
+			this._nomenclatureSettings = nomenclatureSettings ?? 
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 		
 		public QueryOver<Nomenclature> NomenclatureForProductMaterialsQuery()
@@ -87,8 +87,7 @@ namespace Vodovoz.EntityRepositories.Goods
 							.Where(n => !n.IsArchive);
 		}
 
-		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow) =>
-			nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+
 
 		/// <summary>
 		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.
@@ -152,13 +151,6 @@ namespace Vodovoz.EntityRepositories.Goods
 			return QueryOver.Of<Nomenclature>()
 							.Where(n => n.ProductGroup.Id.IsIn(groupsIds));
 		}
-
-		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow) =>
-			nomenclatureParametersProvider.GetNomenclatureToAddWithMaster(uow);
-		
-		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetForfeitNomenclature(uow);
-		
-		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetSanitisationNomenclature(uow);
 		
 		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{
@@ -333,25 +325,66 @@ namespace Vodovoz.EntityRepositories.Goods
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
 
+		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => _nomenclatureSettings.SanitisationNomenclatureIds;
+
+
 		#region Получение номенклатур воды
 
-		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSemiozerie(uow);
+		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterSemiozerieId);
+		}
 
-		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
+		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterKislorodnayaId);
+		}
 
-		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
+		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterSnyatogorskayaId);
+		}
 
-		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
+		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterKislorodnayaDeluxeId);
+		}
 
-		public Nomenclature GetWaterStroika(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterStroika(uow);
+		public Nomenclature GetWaterStroika(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterStroikaId);
+		}
 
-		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterRuchki(uow);
+		public Nomenclature GetWaterRuchki(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterRuchkiId);
+		}
+
+		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.DefaultBottleNomenclatureId);
+		}
+
+		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.NomenclatureToAddWithMasterId);
+		}
+
+		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.ForfeitId);
+		}
+
+		public Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.FastDeliveryNomenclatureId);
+		}
 
 		#endregion
 
-		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
+		public decimal GetWaterPriceIncrement => _nomenclatureSettings.GetWaterPriceIncrement;
 
-		public int GetIdentifierOfOnlineShopGroup() => nomenclatureParametersProvider.GetIdentifierOfOnlineShopGroup();
+		public int GetIdentifierOfOnlineShopGroup() => _nomenclatureSettings.IdentifierOfOnlineShopGroup;
 
 		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
@@ -365,7 +398,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Any();
 		}
 
-		public IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
+		public IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
@@ -375,6 +408,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Left.JoinAlias(p => p.Nomenclature, () => nomenclatureAlias)
 				.Where(p => p.Type == parameterType)
 				.And(p => p.NomenclatureOnlineAvailability != null)
+				.And(() => !nomenclatureAlias.IsArchive)
 				.SelectList(list => list
 					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -427,7 +461,8 @@ namespace Vodovoz.EntityRepositories.Goods
 				.JoinEntityAlias(
 					() => onlineParametersAlias,
 					() => onlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null);
+				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null)
+				.Where(n => !n.IsArchive);
 			
 			var queryBuilder = new QueryOverProjectionBuilder<Nomenclature>()
 				.Select(n => n.Id).WithAlias(() => resultAlias.ErpId)

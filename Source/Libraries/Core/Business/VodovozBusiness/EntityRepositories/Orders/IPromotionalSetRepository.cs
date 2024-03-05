@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -22,8 +22,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
-		bool AddressHasAlreadyBeenUsedForPromoForNewClients( IUnitOfWork uow, DeliveryPoint deliveryPoint );
-		IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+		bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint );
+		IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);

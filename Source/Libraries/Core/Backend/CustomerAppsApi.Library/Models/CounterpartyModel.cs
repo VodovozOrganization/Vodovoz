@@ -16,7 +16,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace CustomerAppsApi.Library.Models
 {

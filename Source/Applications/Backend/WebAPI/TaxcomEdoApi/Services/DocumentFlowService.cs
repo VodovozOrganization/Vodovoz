@@ -17,14 +17,18 @@ using TaxcomEdoApi.HealthChecks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
+using VodovozHealthCheck.Dto;
+using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace TaxcomEdoApi.Services
@@ -34,11 +38,10 @@ namespace TaxcomEdoApi.Services
 		private readonly ILogger<DocumentFlowService> _logger;
 		private readonly TaxcomApi _taxcomApi;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ISettingsController _settingController;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IGenericRepository<EdoContainer> _edoContainersRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IConfigurationSection _apiSection;
 		private readonly EdoUpdFactory _edoUpdFactory;
 		private readonly EdoBillFactory _edoBillFactory;
@@ -46,37 +49,39 @@ namespace TaxcomEdoApi.Services
 		private readonly X509Certificate2 _certificate;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly TaxcomEdoApiHealthCheck _taxcomEdoApiHealthCheck;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private const int _delaySec = 90;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
 		private long? _lastEventOutgoingDocumentsTimeStamp;
 		private int _cashlessOrganizationId;
+		private int _closingDocumentDeliveryScheduleId;
 
 		public DocumentFlowService(
 			ILogger<DocumentFlowService> logger,
 			TaxcomApi taxcomApi,
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IParametersProvider parametersProvider,
+			ISettingsController settingController,
 			IOrderRepository orderRepository,
 			IGenericRepository<EdoContainer> edoContainersRepository,
 			IOrganizationRepository organizationRepository,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationSettings,
 			EdoUpdFactory edoUpdFactory,
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
 			PrintableDocumentSaver printableDocumentSaver,
-			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck)
+			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck,
+			IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_settingController = settingController ?? throw new ArgumentNullException(nameof(settingController));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_edoContainersRepository = edoContainersRepository ?? throw new ArgumentNullException(nameof(edoContainersRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_edoUpdFactory = edoUpdFactory ?? throw new ArgumentNullException(nameof(edoUpdFactory));
 			_edoBillFactory = edoBillFactory ?? throw new ArgumentNullException(nameof(edoBillFactory));
 			_edoContainerMainDocumentIdParser =
@@ -84,20 +89,24 @@ namespace TaxcomEdoApi.Services
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 			_printableDocumentSaver = printableDocumentSaver;
 			_taxcomEdoApiHealthCheck = taxcomEdoApiHealthCheck ?? throw new ArgumentNullException(nameof(taxcomEdoApiHealthCheck));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			_logger.LogInformation("Процесс электронного документооборота запущен");
-			_lastEventIngoingDocumentsTimeStamp = _parametersProvider.GetValue<long>("last_event_ingoing_documents_timestamp");
-			_lastEventOutgoingDocumentsTimeStamp = _parametersProvider.GetValue<long>("last_event_outgoing_documents_timestamp");
-			_cashlessOrganizationId = _organizationParametersProvider.GetCashlessOrganisationId;
+			_lastEventIngoingDocumentsTimeStamp = _settingController.GetValue<long>("last_event_ingoing_documents_timestamp");
+			_lastEventOutgoingDocumentsTimeStamp = _settingController.GetValue<long>("last_event_outgoing_documents_timestamp");
+			_cashlessOrganizationId = _organizationSettings.GetCashlessOrganisationId;
+			_closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 			await StartWorkingAsync(stoppingToken);
 		}
 
 		private async Task StartWorkingAsync(CancellationToken stoppingToken)
 		{
+			_taxcomEdoApiHealthCheck.HealthResult = new VodovozHealthResultDto { IsHealthy = true };
+
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				await DelayAsync(stoppingToken);
@@ -106,18 +115,17 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					_taxcomEdoApiHealthCheck.IsHealthy = await CreateAndSendUpd(uow, startDate);
+					await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
 					await ProcessOutgoingDocuments(uow);
-					await ProcessIngoingDocuments(uow);
+					// Пока не требуется обработка и хранение входящих документов, будет дорабатываться позже
+					// await ProcessIngoingDocuments(uow);
 				}
 			}
 		}
 
-		private Task<bool> CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
+		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
 		{
-			var isHealthy = true;
-
 			try
 			{
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
@@ -128,9 +136,9 @@ namespace TaxcomEdoApi.Services
 					_logger.LogError("Не найдена организация по edxClientId {EdoAccountId}", edoAccountId);
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
-				
+
 				_logger.LogInformation("Получаем заказы по которым надо создать и отправить УПД");
-				var orders = _orderRepository.GetCashlessOrdersForEdoSend(uow, startDate, organization.Id);
+				var orders = _orderRepository.GetCashlessOrdersForEdoSendUpd(uow, startDate, organization.Id, _closingDocumentDeliveryScheduleId);
 
 				//Фильтруем заказы в которых есть УПД и которые не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrders =
@@ -201,17 +209,19 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
-				isHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе получения заказов для формирования УПД: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования УПД");
 			}
 
-			return Task.FromResult(isHealthy);
+			return Task.CompletedTask;
 		}
 
 		private Task CreateAndSendBills(IUnitOfWork uow)
 		{
 			try
-			{
+			{				
 				var startDate = DateTime.Today.AddDays(-3);
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
 				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
@@ -226,41 +236,108 @@ namespace TaxcomEdoApi.Services
 
 				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
 
-				var edoContainers = _edoContainersRepository
-					.Get(uow, EdoContainerSpecification.CreateForAftedDateNotSendedWithOrganizationId(startDate, organization.Id))
-					.ToList();
+				var orders = _orderRepository.GetOrdersForEdoSendBills(uow, startDate, organization.Id, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", edoContainers.Count);
+				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
 
-				foreach(var edoContainer in edoContainers)
+				foreach(var order in orders)
 				{
-					if(EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(edoContainer))
+					var edoContainer = new EdoContainer
 					{
-						SendOrderContainer(uow, organization, edoContainer);
+						Type = Type.Bill,
+						Created = DateTime.Now,
+						Container = new byte[64],
+						Order = order,
+						Counterparty = order.Client,
+						MainDocumentId = string.Empty,
+						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
+					};
+
+					var action = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == edoContainer.Order.Id)
+						.FirstOrDefault();
+
+					SendBill(uow, edoContainer, organization, action);
+				}
+
+				var resendFromActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>().Where(x => x.IsNeedToResendEdoBill).ToList();
+
+				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", resendFromActions.Count);
+
+				foreach(var action in resendFromActions)
+				{
+					var edoContainer = new EdoContainer
+					{						
+						Created = DateTime.Now,
+						Container = new byte[64],
+						MainDocumentId = string.Empty,
+						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
+					};
+
+					if(action.OrderWithoutShipmentForPayment is OrderWithoutShipmentForPayment orderWithoutShipmentForPayment)
+					{
+						edoContainer.Type = Type.BillWSForPayment;
+						edoContainer.OrderWithoutShipmentForPayment = orderWithoutShipmentForPayment;
+						edoContainer.Counterparty = orderWithoutShipmentForPayment.Counterparty;
 					}
 
-					if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForAdvancePayment().IsSatisfiedBy(edoContainer))
+					if(action.OrderWithoutShipmentForAdvancePayment is OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePayment)
 					{
-						SendOrderWithoutShipmentForAdvancePaymentContainer(uow, organization, edoContainer);
+						edoContainer.Type = Type.BillWSForAdvancePayment;
+						edoContainer.OrderWithoutShipmentForAdvancePayment = orderWithoutShipmentForAdvancePayment;
+						edoContainer.Counterparty = orderWithoutShipmentForAdvancePayment.Counterparty;
 					}
 
-					if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForDebt().IsSatisfiedBy(edoContainer))
+					if(action.OrderWithoutShipmentForDebt is OrderWithoutShipmentForDebt orderWithoutShipmentForDebt)
 					{
-						SendOrderWithoutShipmentForDebtContainer(uow, organization, edoContainer);
+						edoContainer.Type = Type.BillWSForDebt;
+						edoContainer.OrderWithoutShipmentForDebt = orderWithoutShipmentForDebt;
+						edoContainer.Counterparty = orderWithoutShipmentForDebt.Counterparty;
 					}
 
-					if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForPayment().IsSatisfiedBy(edoContainer))
-					{
-						SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
-					}
+					SendBill(uow, edoContainer, organization, action);
 				}
 			}
 			catch(Exception e)
 			{
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе получения заказов для формирования счетов: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования счетов");
 			}
 
 			return Task.CompletedTask;
+		}
+
+		private void SendBill(IUnitOfWork uow, EdoContainer edoContainer, Organization organization, OrderEdoTrueMarkDocumentsActions action)
+		{
+			if(EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderContainer(uow, organization, edoContainer);
+			}
+
+			if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForAdvancePayment().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderWithoutShipmentForAdvancePaymentContainer(uow, organization, edoContainer);
+			}
+
+			if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForDebt().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderWithoutShipmentForDebtContainer(uow, organization, edoContainer);
+			}
+
+			if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForPayment().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
+			};
+
+			if(action != null && action.IsNeedToResendEdoBill)
+			{
+				action.IsNeedToResendEdoBill = false;
+
+				uow.Save(action);
+				uow.Commit();
+			}
 		}
 
 		private void SendOrderContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
@@ -480,18 +557,18 @@ namespace TaxcomEdoApi.Services
 						{
 							var containerReceived =
 								item.Documents.FirstOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
-							
+
 							container.DocFlowId = item.Id;
 							container.Received = containerReceived;
 							container.InternalId = item.Documents[0].InternalId;
 							container.ErrorDescription = item.ErrorDescription;
 							container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
-							
+
 							if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 							{
 								container.Container = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
 							}
-							
+
 							_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order.Id);
 							uow.Save(container);
 							uow.Commit();
@@ -503,17 +580,20 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе обработки исходящих документов: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе обработки исходящих документов");
 			}
 			finally
 			{
-				_parametersProvider.CreateOrUpdateParameter(
+				_settingController.CreateOrUpdateSetting(
 					"last_event_outgoing_documents_timestamp", _lastEventOutgoingDocumentsTimeStamp.ToString());
 			}
 
 			return Task.CompletedTask;
 		}
-		
+
 		private Task ProcessIngoingDocuments(IUnitOfWork uow)
 		{
 			try
@@ -567,11 +647,14 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
+				_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
+				_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе обработки входящих документов: {e.Message}");
+
 				_logger.LogError(e, "Ошибка в процессе обработки входящих документов");
 			}
 			finally
 			{
-				_parametersProvider.CreateOrUpdateParameter(
+				_settingController.CreateOrUpdateSetting(
 					"last_event_ingoing_documents_timestamp", _lastEventIngoingDocumentsTimeStamp.ToString());
 			}
 

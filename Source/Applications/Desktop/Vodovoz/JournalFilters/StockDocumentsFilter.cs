@@ -1,9 +1,11 @@
 ﻿using System;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
@@ -17,13 +19,15 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered(true)]
 	public partial class StockDocumentsFilter : RepresentationFilterBase<StockDocumentsFilter>, ISingleUoWDialog
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		
 		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
 			enumcomboDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 
-			evmeWarehouse.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory());
+			evmeWarehouse.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope));
 
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
@@ -130,6 +134,16 @@ namespace Vodovoz
 		protected void OnComboMovementStatusChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
+		}
+		
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
 		}
 	}
 }

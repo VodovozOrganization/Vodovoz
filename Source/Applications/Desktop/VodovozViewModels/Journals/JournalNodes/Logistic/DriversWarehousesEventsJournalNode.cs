@@ -1,4 +1,5 @@
 ﻿using QS.Project.Journal;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic

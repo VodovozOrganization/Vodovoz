@@ -5,7 +5,22 @@
 	    <UserSecretsId>723b09af-6fa1-433a-abf7-9c207d54b371</UserSecretsId>
     </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
     <ItemGroup>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
         <PackageReference Include="FluentNHibernate" Version="3.1.0" />
 		<PackageReference Include="MySqlConnector" Version="2.2.6" />
 		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
@@ -37,7 +52,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\EdoService\EdoService.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj" />

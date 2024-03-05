@@ -44,7 +44,13 @@ namespace Vodovoz.EntityRepositories.Payments
 		}
 
 		public bool NotManuallyPaymentFromBankClientExists(
-			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber)
+			IUnitOfWork uow,
+			DateTime date,
+			int number,
+			string organisationInn,
+			string counterpartyInn,
+			string accountNumber,
+			decimal sum)
 		{
 			Organization organizationAlias = null;
 
@@ -54,6 +60,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(p => p.PaymentNum == number)
 				.And(p => p.CounterpartyInn == counterpartyInn)
 				.And(p => p.CounterpartyCurrentAcc == accountNumber)
+				.And(p => p.Total == sum)
 				.And(() => organizationAlias.INN == organisationInn)
 				.And(p => !p.IsManuallyCreated)
 				.SingleOrDefault<Payment>();
@@ -94,11 +101,11 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SingleOrDefault<int>();
 		}
 
-		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider)
+		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings paymentSettings)
 		{
 			var undistributedPayments = uow.Session.QueryOver<Payment>()
 				.Where(x => x.Status == PaymentState.undistributed)
-				.And(x => x.ProfitCategory.Id == profitCategoryProvider.GetDefaultProfitCategory())
+				.And(x => x.ProfitCategory.Id == paymentSettings.DefaultProfitCategory)
 				.List();
 
 			return undistributedPayments;

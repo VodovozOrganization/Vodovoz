@@ -13,7 +13,7 @@ using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.Requests
 {

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Text;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
+using System;
+using System.Text;
 using Vodovoz.Domain.Client;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Counterparty;
 
 namespace CustomerAppsApi.Library.Validators
 {

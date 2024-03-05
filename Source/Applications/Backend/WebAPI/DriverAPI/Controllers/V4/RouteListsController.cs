@@ -1,5 +1,4 @@
-﻿using DriverAPI.DTOs.V4;
-using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Services.Logistics;
 
@@ -21,7 +21,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер маршрутных листов
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class RouteListsController : VersionedController
 	{
 		private readonly ILogger<RouteListsController> _logger;

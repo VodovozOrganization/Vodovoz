@@ -22,7 +22,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Payments;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			ILifetimeScope scope,
 			IDeleteEntityService deleteEntityService = null,
 			params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			}
 
 			_closingDocumentDeliveryScheduleId =
-				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
@@ -234,7 +234,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			{
 				f => f.Counterparty = UoW.GetById<Counterparty>(node.CounterpartyId),
 				f => f.IsSortingDescByUnAllocatedSum = true,
-				f => f.HideAllocatedPayments = true
+				f => f.HideAllocatedPayments = true,
+				f => f.HideCancelledPayments = true,
 			};
 
 			NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>[]>(

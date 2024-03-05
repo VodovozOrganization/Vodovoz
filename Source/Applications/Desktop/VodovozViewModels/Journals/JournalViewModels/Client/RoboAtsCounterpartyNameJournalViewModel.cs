@@ -10,7 +10,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Commands;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client

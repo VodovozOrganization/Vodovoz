@@ -3,6 +3,7 @@ using Gamma.GtkWidgets;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using System;
@@ -107,7 +108,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		public AccountableDebtsVM () 
-			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
+			: this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
 		public AccountableDebtsVM (IUnitOfWork uow) : base(typeof(Employee), typeof(Income), typeof(Expense), typeof(AdvanceReport))

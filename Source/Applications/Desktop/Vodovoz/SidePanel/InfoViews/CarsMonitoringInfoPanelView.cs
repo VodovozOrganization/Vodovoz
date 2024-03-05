@@ -4,6 +4,7 @@ using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -15,7 +16,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Source = GLib.Source;
@@ -32,7 +33,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private DelegateCommand _refreshMonitoring;
 
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INavigationManager _navigationManager;
 		private FilterOrdersEnum _filterOrders;
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
@@ -45,7 +46,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			INavigationManager navigationManager)
 			: base()
 		{
@@ -57,7 +58,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Панель мониторинга автомобилей");
 			_unitOfWork.Session.DefaultReadOnly = true;
 
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			Nodes = new GenericObservableList<FastDeliveryMonitoringNode>();
@@ -276,13 +277,13 @@ namespace Vodovoz.SidePanel.InfoViews
 								$"{driver.Patronymic.Substring(0, 1)}."
 							 let isFastDeliveryString = o.IsFastDelivery ? "Доставка за час" : string.Empty
 							 let deliveryBefore = o.IsFastDelivery
-								? FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
+								? FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
 									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList ?
 										(from rlaFirst in _unitOfWork.Session.Query<RouteListItem>()
 										 where rlaFirst.Order.Id == o.Id
 										 orderby rlaFirst.CreationDate ascending
-										 select rlaFirst.CreationDate).First().Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
-									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
+										 select rlaFirst.CreationDate).First().Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
+									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
 								: rl.Date.Add(schedule.To)
 							 let address = $"{dp.Street} {dp.Building}{dp.Letter}"
 							 select new DataNode

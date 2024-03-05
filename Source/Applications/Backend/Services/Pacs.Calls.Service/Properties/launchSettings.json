@@ -1,0 +1,14 @@
+﻿{
+	"profiles": {
+		"Pacs.Calls.Service": {
+			"commandName": "Project",
+			"environmentVariables": {
+				"DOTNET_ENVIRONMENT": "Development"
+			},
+			"dotnetRunMessages": "true"
+		},
+		"Docker.Development": {
+			"commandName": "Docker"
+		}
+	}
+}

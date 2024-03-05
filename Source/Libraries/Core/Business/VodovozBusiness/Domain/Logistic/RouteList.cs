@@ -1,4 +1,6 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -17,7 +19,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -33,23 +35,29 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Settings.Cash;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -61,37 +69,43 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
-		private static readonly NomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
-		private static readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
-		private static readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
-			new DeliveryRulesParametersProvider(_parametersProvider);
+		private static IGeneralSettings _generalSettingsSettingsGap;
 
-		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
-			new GeneralSettingsParametersProvider(new ParametersProvider());
-		private static IGeneralSettingsParametersProvider _generalSettingsParametersProviderGap;
-		private static IGeneralSettingsParametersProvider GetGeneralSettingsParametersProvider =>
-			_generalSettingsParametersProviderGap ?? _generalSettingsParameters;
+		private IUnitOfWorkFactory _uowFactory => ScopeProvider.Scope
+			.Resolve<IUnitOfWorkFactory>();
+		private ISubdivisionRepository _subdivisionRepository => ScopeProvider.Scope
+			.Resolve<ISubdivisionRepository>();
+		private IOrganizationRepository _organizationRepository => ScopeProvider.Scope
+			.Resolve<IOrganizationRepository>();
+		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
+			.Resolve<IRouteListRepository>();
+		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
+			.Resolve<IDeliveryRulesSettings>();
+		private IDeliveryRepository _deliveryRepository => ScopeProvider.Scope
+			.Resolve<IDeliveryRepository>();
+		private IGeneralSettings GetGeneralSettingsSettings => ScopeProvider.Scope
+			.Resolve<IGeneralSettings>();
+		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
+			.Resolve<IRouteListCashOrganisationDistributor>();
+		private IExpenseCashOrganisationDistributor expenseCashOrganisationDistributor => ScopeProvider.Scope
+			.Resolve<IExpenseCashOrganisationDistributor>();
+		private ICarUnloadRepository _carUnloadRepository => ScopeProvider.Scope
+			.Resolve<ICarUnloadRepository>();
+		private ICashRepository _cashRepository => ScopeProvider.Scope
+			.Resolve<ICashRepository>();
+		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
+			.Resolve<IEmployeeRepository>();
+		private ICarLoadDocumentRepository _carLoadDocumentRepository => ScopeProvider.Scope
+			.Resolve<ICarLoadDocumentRepository>();
+		private IOrderRepository _orderRepository => ScopeProvider.Scope
+			.Resolve<IOrderRepository>();
+		private IGlobalSettings _globalSettings => ScopeProvider.Scope
+			.Resolve<IGlobalSettings>();
+		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
+			.Resolve<INomenclatureSettings>();
+		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
+			.Resolve<INomenclatureRepository>();
 
-		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor =
-			new RouteListCashOrganisationDistributor(
-				_commonOrganisationProvider,
-				new RouteListItemCashDistributionDocumentRepository(),
-				new OrderRepository());
-
-		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor =
-			new ExpenseCashOrganisationDistributor();
-
-		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
-		private readonly ICashRepository _cashRepository = new CashRepository();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private CarVersion _carVersion;
 		private Car _car;
@@ -902,7 +916,7 @@ namespace Vodovoz.Domain.Logistic
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}
 
-			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 
 			ObservableAddresses.Remove(address);
@@ -983,9 +997,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var shipmentCategories = Nomenclature.GetCategoriesForShipment().ToArray();
 
-			var defaultBottleNomenclatureId = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(UoW).Id;
-
-			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategories, new[] { defaultBottleNomenclatureId })
+			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategories, new[] { _nomenclatureSettings.DefaultBottleNomenclatureId })
 				.Select(x => new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = x.Amount });
 
 			AddDiscrepancy(allUnloaded, result, (discrepancy, amount) => discrepancy.ToWarehouse = amount);
@@ -1102,7 +1114,7 @@ namespace Vodovoz.Domain.Logistic
 			//Терминал для оплаты 
 			//TODO Если используются операции по водителю с терминалами, переделать на них.
 
-			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(terminalId);
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
@@ -1126,7 +1138,7 @@ namespace Vodovoz.Domain.Logistic
 			#region Свободные остатки
 
 			var freeBalance = ObservableDeliveryFreeBalanceOperations
-				.Where(o => o.Nomenclature.Id != _nomenclatureParametersProvider.GetDefaultBottleNomenclature(UoW).Id)
+				.Where(o => o.Nomenclature.Id != _nomenclatureSettings.DefaultBottleNomenclatureId)
 				.GroupBy(o => o.Nomenclature)
 				.Select(list => new GoodsInRouteListResult
 				{
@@ -1186,11 +1198,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
-			var returnedBottlesNom = int.Parse(_parametersProvider.GetParameterValue("returned_bottle_nomenclature_id"));
 			var bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
 				UoW,
 				Id,
-				returnedBottlesNom)
+				_nomenclatureSettings.ReturnedBottleNomenclatureId)
 			.Sum(item => item.Amount);
 
 			var discrepancies = GetDiscrepancies();
@@ -1604,7 +1615,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
@@ -1655,7 +1666,7 @@ namespace Vodovoz.Domain.Logistic
 						RouteListTo = foundRouteList,
 					};
 
-					using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var localUoW = _uowFactory.CreateWithoutRoot())
 					{
 						localUoW.Save(terminalTransferDocumentForOneDriver);
 						localUoW.Commit();
@@ -1669,14 +1680,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool CanAddForwarder => GetGeneralSettingsParametersProvider.GetCanAddForwardersToLargus
+		public virtual bool CanAddForwarder => GetGeneralSettingsSettings.GetCanAddForwardersToLargus
 			|| Car?.CarModel.CarTypeOfUse != CarTypeOfUse.Largus
 			|| GetCarVersion?.CarOwnType != CarOwnType.Company;
 
-		public static void SetGeneralSettingsParametersProviderGap(
-			IGeneralSettingsParametersProvider generalSettingsParametersProviderGap)
+		public static void SetGeneralSettingsSettingsGap(
+			IGeneralSettings generalSettingsSettingsGap)
 		{
-			_generalSettingsParametersProviderGap = generalSettingsParametersProviderGap;
+			_generalSettingsSettingsGap = generalSettingsSettingsGap;
 		}
 
 		public virtual void UpdateFastDeliveryMaxDistanceValue(decimal _fastDeliveryMaxDistanceValue)
@@ -1753,7 +1764,7 @@ namespace Vodovoz.Domain.Logistic
 				return fastDeliveryMaxDistanceItem.Distance;
 			}
 
-			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
+			return (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
 		public virtual int GetMaxFastDeliveryOrdersValue(DateTime? date = null)
@@ -1772,15 +1783,15 @@ namespace Vodovoz.Domain.Logistic
 				return maxFastDeliveryOrdersItem.MaxOrders;
 			}
 
-			return _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
+			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 		}
 
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
 			if(Driver != null)
 			{
-				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
-				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
+				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
 
 				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
 
@@ -1789,8 +1800,10 @@ namespace Vodovoz.Domain.Logistic
 					return true;
 				}
 
-				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
-				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsHavingDebtsCount =
+					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsDebtsSum =
+					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
 
 				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
 					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
@@ -1836,8 +1849,8 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.InLoading:
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
-						var orderParametersProvider = validationContext.GetService<IOrderParametersProvider>();
-						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesParametersProvider>();
+						var orderSettings = validationContext.GetService<IOrderSettings>();
+						var deliveryRulesSettings = validationContext.GetService<IDeliveryRulesSettings>();
 
 						validationContext.Items.TryGetValue(ValidationKeyIgnoreReceiptsForOrders, out var ignoreReceiptsInOrdersParameter);
 
@@ -1847,8 +1860,7 @@ namespace Vodovoz.Domain.Logistic
 						}
 
 						foreach(var address in Addresses) {
-							var orderValidator = new ObjectValidator();
-
+							var validator = ServicesConfig.ValidationService;
 							var orderValidationContext = new ValidationContext(
 								address.Order,
 								null,
@@ -1860,11 +1872,11 @@ namespace Vodovoz.Domain.Logistic
 									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(orderParametersProvider);
-							orderValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
-							orderValidator.Validate(address.Order, orderValidationContext);
+							orderValidationContext.ServiceContainer.AddService(orderSettings);
+							orderValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
+							validator.Validate(address.Order, orderValidationContext, false);
 
-							foreach(var result in orderValidator.Results)
+							foreach(var result in validator.Results)
 								yield return result;
 						}
 						break;
@@ -1944,6 +1956,15 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
 					new[] { nameof(GeographicGroups) });
+			}
+
+			var onlineOrders = Addresses.GroupBy(x => x.Order.OnlineOrder)
+			  .Where(g => g.Key != null && g.Count() > 1)
+			  .Select(o => o.Key);
+
+			if(onlineOrders.Any())
+			{
+				yield return new ValidationResult($"В МЛ дублируются номера оплат: {string.Join(", ", onlineOrders)}", new[] { nameof(Addresses) });
 			}
 		}
 
@@ -2033,10 +2054,10 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual void UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
+		public virtual void UpdateBottlesMovementOperation()
 		{
 			foreach(RouteListItem address in addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
-				address.Order.UpdateBottleMovementOperation(UoW, standartNomenclatures, returnByStock: address.BottlesReturned);
+				address.Order.UpdateBottleMovementOperation(UoW, _nomenclatureSettings, returnByStock: address.BottlesReturned);
 		}
 
 		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations()
@@ -2167,7 +2188,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
-				Organisation = _commonOrganisationProvider.GetCommonOrganisation(UoW),
+				Organisation = _organizationRepository.GetCommonOrganisation(UoW),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
@@ -2230,7 +2251,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
 				&& new PermissionRepository().HasAccessToClosingRoutelist(
-					UoW, new SubdivisionRepository(_parametersProvider), _employeeRepository, ServicesConfig.UserService)) {
+					UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
@@ -2323,7 +2344,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var controller =
 				new RouteListClosingDocumentsController(
-					_baseParametersProvider, _employeeRepository, _routeListRepository, _baseParametersProvider);
+					_nomenclatureSettings, _employeeRepository, _routeListRepository);
 			controller.UpdateDocuments(this, uow);
 		}
 
@@ -2332,7 +2353,7 @@ namespace Vodovoz.Domain.Logistic
 			decimal routeListDebt = 0;
 			if(Id > 0)
 			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = _uowFactory.CreateWithoutRoot())
 				{
 					var totalCachAmount = DeliveredRouteListAddresses.Sum(item => item.TotalCash) - PhoneSum;
 					var routeListCashAdvance = _cashRepository.GetRouteListCashExpensesSum(uow, Id);
@@ -2357,7 +2378,7 @@ namespace Vodovoz.Domain.Logistic
 			var debt = CalculateRouteListDebt();
 			RouteListDebt routeListDebt = null;
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				routeListDebt = uow.GetAll<RouteListDebt>()
 					.Where(r => r.RouteList.Id == Id)
@@ -2400,7 +2421,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			UpdateRouteListDebt();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var routeListDebt = uow.GetAll<RouteListDebt>()
 					.Where(r => r.RouteList.Id == Id)
@@ -2515,14 +2536,15 @@ namespace Vodovoz.Domain.Logistic
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			UpdateBottlesMovementOperation(_baseParametersProvider);
+			UpdateBottlesMovementOperation();
 			depositsOperations.ForEach(op => UoW.Save(op));
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
-
-			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, _baseParametersProvider,
-				new PremiumRaskatGAZelleParametersProvider(_parametersProvider), this);
+			var premiumRaskatSettings = ScopeProvider.Scope.Resolve<IPremiumRaskatGAZelleSettings>();
+			var wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
+			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, wageSettings,
+				premiumRaskatSettings, this);
 			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
@@ -2538,9 +2560,10 @@ namespace Vodovoz.Domain.Logistic
 		{
 			TimeSpan minTime = new TimeSpan();
 			//Расчет минимального времени к которому нужно\можно подъехать.
-			for(int ix = 0; ix < Addresses.Count; ix++) {
-
-				if(ix == 0) {
+			for(int ix = 0; ix < Addresses.Count; ix++)
+			{
+				if(ix == 0)
+				{
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
 					var geoGroup = GeographicGroups.FirstOrDefault();
@@ -2550,12 +2573,25 @@ namespace Vodovoz.Domain.Logistic
 						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
 					}
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, Addresses[ix].Order.DeliveryPoint));
+					var timeFromBase = TimeSpan.FromSeconds(
+						sputnikCache.TimeFromBase(
+							geoGroupVersion.PointCoordinates,
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+					
 					var onBase = minTime - timeFromBase;
+					
 					if(Shift != null && onBase < Shift.StartTime)
+					{
 						minTime = Shift.StartTime + timeFromBase;
-				} else
-					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+					}
+				}
+				else
+				{
+					minTime += TimeSpan.FromSeconds(
+						sputnikCache.TimeSec(
+							Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
@@ -2565,39 +2601,65 @@ namespace Vodovoz.Domain.Logistic
 			TimeSpan maxTime = new TimeSpan();
 			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
 
-				if(ix == Addresses.Count - 1) {
+				if(ix == Addresses.Count - 1)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 
 					var geoGroup = GeographicGroups.FirstOrDefault();
 					var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
 					if(geoGroupVersion == null)
 					{
-						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
+						throw new GeoGroupVersionNotFoundException(
+							$"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
 					}
 
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, geoGroupVersion));
+					var timeToBase = TimeSpan.FromSeconds(
+						sputnikCache.TimeToBase(
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates,
+							geoGroupVersion.PointCoordinates));
+					
 					var onBase = maxTime + timeToBase;
+					
 					if(Shift != null && onBase > Shift.EndTime)
+					{
 						maxTime = Shift.EndTime - timeToBase;
-				} else
-					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
+					}
+				}
+				else
+				{
+					maxTime -= TimeSpan.FromSeconds(
+						sputnikCache.TimeSec(
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates,
+							Addresses[ix + 1].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
+				}
 
 				maxTime -= TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 
-				if(maxTime < Addresses[ix].PlanTimeStart) { //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
+				if(maxTime < Addresses[ix].PlanTimeStart)
+				{
+					//Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
 					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
+					{
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
-													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
-													 + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
-					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
+									+ TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+										Addresses[ix].Order.DeliveryPoint.PointCoordinates))
+									+ TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
+					}
+
+					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From)
+					{
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
+
 					maxTime = Addresses[ix].PlanTimeStart.Value;
 				}
+
 				Addresses[ix].PlanTimeEnd = maxTime;
 			}
 		}
@@ -2614,21 +2676,28 @@ namespace Vodovoz.Domain.Logistic
 		{
 			
 
-			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
-								   .Select(
-										rl => {
-											var geoGroup = rl.GeographicGroups.FirstOrDefault();
-											var geoGroupVersion = geoGroup.GetVersionOrNull(rl.Date);
-											if(geoGroupVersion == null)
-											{
-												throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время на погрузке, так как на {rl.Date} у части города ({geoGroup.Name}) нет актуальных данных.");
-											}
+			var sorted =
+				routelists
+					.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
+					.Select(
+						rl => {
+							var geoGroup = rl.GeographicGroups.FirstOrDefault();
+							var geoGroupVersion = geoGroup.GetVersionOrNull(rl.Date);
+							if(geoGroupVersion == null)
+							{
+								throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время на погрузке, так как на {rl.Date} у части города ({geoGroup.Name}) нет актуальных данных.");
+							}
 
-											var time = rl.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, rl.Addresses.First().Order.DeliveryPoint));
-											return new Tuple<TimeSpan, RouteList>(time, rl);
-										}
-									)
-								   .OrderByDescending(x => x.Item1);
+							var time =
+								rl.FirstAddressTime.Value - TimeSpan.FromSeconds(
+									sputnikCache.TimeFromBase(
+										geoGroupVersion.PointCoordinates,
+										rl.Addresses.First().Order.DeliveryPoint.PointCoordinates));
+							
+							return new Tuple<TimeSpan, RouteList>(time, rl);
+						}
+					)
+					.OrderByDescending(x => x.Item1);
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
 			var paralellLoading = 4;
 			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1, 0, 0, 0)).ToArray();
@@ -2680,10 +2749,12 @@ namespace Vodovoz.Domain.Logistic
 				throw new GeoGroupVersionNotFoundException($"Невозможно построить трек, так как на {Date} у части города ({geoGroup.Name}) нет актуальных данных.");
 			}
 
-			var hash = CachedDistance.GetHash(geoGroupVersion);
+			var hash = CachedDistance.GetHash(geoGroupVersion.PointCoordinates);
 			var result = new List<long>();
 			result.Add(hash);
-			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.AddRange(
+				Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist)
+					.Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint.PointCoordinates)));
 			result.Add(hash);
 			return result.ToArray();
 		}
@@ -2875,6 +2946,12 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+
+				if(recalculatedTrackResponse.Routes is null)
+				{
+					recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				}
+				
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 
 				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;

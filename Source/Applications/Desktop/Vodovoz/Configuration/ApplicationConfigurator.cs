@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.Utilities;
 using MySqlConnector;
 using NLog;
@@ -19,6 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers;
+using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -36,6 +39,7 @@ using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -51,6 +55,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.Warehouse;
 using VodovozInfrastructure.Configuration;
@@ -61,9 +66,16 @@ namespace Vodovoz.Configuration
 	public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private const int connectionTimeoutSeconds = 120;
+		//private readonly IOrmConfig _ormConfig;
 
-        public void ConfigureOrm()
+		private const int connectionTimeoutSeconds = 120;
+
+		public ApplicationConfigurator(/*IOrmConfig ormConfig*/)
+		{
+			//_ormConfig = ormConfig ?? throw new ArgumentNullException(nameof(ormConfig));
+		}
+
+        /*public void ConfigureOrm()
         {
             logger.Debug("Конфигурация ORM...");
 
@@ -89,17 +101,19 @@ namespace Vodovoz.Configuration
                 .Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			_ormConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
                     Assembly.GetAssembly(typeof(Bank)),
                     Assembly.GetAssembly(typeof(HistoryMain)),
                     Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
                     Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder)),
+                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder))
+					Assembly.GetAssembly(typeof(CompletedDriverWarehouseEventProxyMap))
 				},
 				cnf => {
                     cnf.DataBaseIntegration(
@@ -116,7 +130,7 @@ namespace Vodovoz.Configuration
 			HistoryMain.Enable(dbConnectionStringBuilder);
 
 			logger.Debug("OK");
-        }
+        }*/
 
         public void CreateApplicationConfig()
         {
@@ -187,8 +201,6 @@ namespace Vodovoz.Configuration
                     .DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString())
                     .Column("Статус", x => x.Status.GetEnumTitle())
                     .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
-                OrmObjectMapping<RouteColumn>.Create().DefaultTableView().Column("Код", x => x.Id.ToString())
-                    .SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<DeliveryShift>.Create().Dialog<DeliveryShiftDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
                     .SearchColumn("Диапазон времени", x => x.DeliveryTime).End(),
                 OrmObjectMapping<DeliveryDaySchedule>.Create().Dialog<DeliveryDayScheduleDlg>().DefaultTableView()
@@ -275,11 +287,6 @@ namespace Vodovoz.Configuration
                 .Column("Активно", x => !x.IsActive ? "нет" : String.Empty)
                 .SearchColumn("Имя класса", x => x.Type)
                 .OrderAsc(x => x.CustomName)
-                .End();
-            OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
-                .Column("Код", x => x.Id.ToString())
-                .SearchColumn("Ф.И.О.", x => x.FullName)
-                .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
                 .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)

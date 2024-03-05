@@ -12,7 +12,7 @@ docker build -f .\Dockerfile -t "${imageName}:${tagName}" $DockerfileContext
 
 docker run -d `
 --name mango.service.develop `
--p 5002:5002 -p 5001:5001 `
+-p 5002:5002 -p 5003:5001 `
 -v ${PWD}/appsettings.Development.json:/app/appsettings.Development.json `
 -v ${PWD}/bin/Debug/Docker/logs/:/var/log/mango.service `
 --env ASPNETCORE_ENVIRONMENT=Development `

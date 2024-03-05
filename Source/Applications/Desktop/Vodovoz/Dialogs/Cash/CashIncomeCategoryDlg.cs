@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 
@@ -15,14 +16,14 @@ namespace Vodovoz.Dialogs.Cash
 		public CashIncomeCategoryDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomeCategory>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomeCategory>();
 			ConfigureDialog();
 		}
 
 		public CashIncomeCategoryDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomeCategory>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<IncomeCategory>(id);
 			ConfigureDialog();
 		}
 
@@ -38,7 +39,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

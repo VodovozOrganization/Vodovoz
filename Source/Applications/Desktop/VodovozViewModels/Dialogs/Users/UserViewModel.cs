@@ -17,8 +17,8 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewModels
@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels
 		
 		private void UpdateUserRoles()
 		{
-			var devSubdivisionId = _scope.Resolve<ISubdivisionParametersProvider>().GetDevelopersSubdivisionId;
+			var devSubdivisionId = _scope.Resolve<ISubdivisionSettings>().GetDevelopersSubdivisionId;
 			var isDeveloper = _scope.Resolve<IEmployeeService>().GetEmployeeForUser(UoW, CurrentUser.Id).Subdivision.Id == devSubdivisionId;
 			
 			try
@@ -383,10 +383,22 @@ namespace Vodovoz.ViewModels
 		{
 			try
 			{
-				if(_oldCurrentUserRole != Entity.CurrentUserRole)
+				if(_oldCurrentUserRole == Entity.CurrentUserRole)
 				{
-					_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
+					return;
 				}
+
+				if(Entity.CurrentUserRole.Name != UserRole.UserRoleName
+					&& Entity.CurrentUserRole.Name != UserRole.UserFinancierRoleName)
+				{
+					_userRoleRepository.GrantRoleToUser(UoW, UserRole.UserRoleName, Entity.Login, true);
+				}
+				else
+				{
+					_userRoleRepository.RevokeRoleFromUser(UoW, UserRole.UserRoleName, Entity.Login);
+					_userRoleRepository.GrantRoleToUser(UoW, UserRole.UserRoleName, Entity.Login);
+				}
+				_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
 			}
 			catch(Exception e)
 			{

@@ -12,6 +12,8 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using QS.Project.Services;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs
 {
@@ -26,7 +28,7 @@ namespace Vodovoz.Dialogs
 		public CertificateDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Certificate>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Certificate>();
 			TabName = "Новый сертификат";
 			ConfigureDlg();
 		}
@@ -34,7 +36,7 @@ namespace Vodovoz.Dialogs
 		public CertificateDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Certificate>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Certificate>(id);
 			ConfigureDlg();
 		}
 
@@ -69,7 +71,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -100,20 +102,21 @@ namespace Vodovoz.Dialogs
 					{
 						vm.SelectionMode = JournalSelectionMode.Multiple;
 						vm.Title = "Номенклатура на продажу";
+						vm.OnSelectResult += JournalOnEntitySelectedResult;
 					}
 				).ViewModel;
-			
-			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
 		}
 
-		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void JournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			var nomenclatures = UoWGeneric.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			var nomenclatures = UoWGeneric.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 			foreach(var nomenclature in nomenclatures)
 			{
 				if(!Entity.ObservableNomenclatures.Any(x => x == nomenclature))

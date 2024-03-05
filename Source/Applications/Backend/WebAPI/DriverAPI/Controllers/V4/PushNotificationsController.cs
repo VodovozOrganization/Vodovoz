@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs.V4;
+﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Services;
@@ -67,7 +67,7 @@ namespace DriverAPI.Controllers.V4
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_wakeUpDriverClientService.Subscribe(driver, enablePushNotificationsRequest.Token);
-			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
+			_employeeData.EnablePushNotifications(driver.DriverAppUser, enablePushNotificationsRequest.Token);
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace DriverAPI.Controllers.V4
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_wakeUpDriverClientService.UnSubscribe(driver);
-			_employeeData.DisablePushNotifications(driver);
+			_employeeData.DisablePushNotifications(driver.DriverAppUser);
 
 		}
 

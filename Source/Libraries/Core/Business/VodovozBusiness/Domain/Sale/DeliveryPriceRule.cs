@@ -1,13 +1,11 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -23,8 +21,6 @@ namespace Vodovoz.Domain.Sale
 	[EntityPermission]
 	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
-		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		
 		#region Свойства
 
 		public virtual int Id { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using System;
@@ -11,16 +12,20 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -29,12 +34,12 @@ namespace Vodovoz.Application.Logistics
 	public class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGenericRepository<RouteListSpecialCondition> _routeListSpecialConditionRepository;
 		private readonly IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
+		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteOptimizer _routeOptimizer;
 		private readonly IWageParameterService _wageParameterService;
@@ -42,19 +47,21 @@ namespace Vodovoz.Application.Logistics
 		private readonly IAddressTransferController _addressTransferController;
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IGenericRepository<RouteListSpecialCondition> routeListSpecialConditionRepository,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
 			IGenericRepository<Employee> employeeRepository,
+			IGenericRepository<ProductGroup> productGroupRepository,
 			ICallTaskWorker callTaskWorker,
 			IRouteOptimizer routeOptimizer,
 			IWageParameterService wageParameterService,
@@ -62,15 +69,15 @@ namespace Vodovoz.Application.Logistics
 			IAddressTransferController addressTransferController,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDeliveryRepository deliveryRepository,
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
+			INomenclatureSettings nomenclatureSettings,
 			RouteGeometryCalculator routeGeometryCalculator)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_terminalNomenclatureProvider = terminalNomenclatureProvider
-				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository
@@ -95,40 +102,20 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider
-				?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings
+				?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_deliveryRepository = deliveryRepository 
+				?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository
 				?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListProfitabilityController = routeListProfitabilityController
 				?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_nomenclatureSettings = nomenclatureSettings
+				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeGeometryCalculator = routeGeometryCalculator
 				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
-		}
-
-		public IDictionary<int, string> GetSpecialConditionsDictionaryFor(
-			IUnitOfWork unitOfWork,
-			int routeListId)
-		{
-			var routeListConditions = _routeListSpecialConditionRepository
-				.Get(unitOfWork, x => x.RouteListId == routeListId);
-
-			var conditionTypesIds = routeListConditions.Select(x => x.RouteListSpecialConditionTypeId).Distinct();
-
-			var specialConditrionTypes = _routeListSpecialConditionTypeRepository.Get(unitOfWork, sct => conditionTypesIds.Contains(sct.Id));
-
-			var result = routeListConditions.ToDictionary(x => x.Id, x => specialConditrionTypes.First(sct => sct.Id == x.RouteListSpecialConditionTypeId).Name);
-
-			return result;
-		}
-
-		public IEnumerable<RouteListSpecialCondition> GetSpecialConditionsFor(
-			IUnitOfWork unitOfWork,
-			int routeListId)
-		{
-			var routeList = _routeListSpecialConditionRepository
-				.Get(unitOfWork, x => x.RouteListId == routeListId);
-
-			return routeList;
+			_productGroupRepository = productGroupRepository
+				?? throw new ArgumentNullException(nameof(productGroupRepository));
 		}
 
 		public bool TrySendEnRoute(
@@ -138,7 +125,7 @@ namespace Vodovoz.Application.Logistics
 			CarLoadDocument withDocument = null)
 		{
 			notLoadedGoods = new List<GoodsInRouteListResult>();
-			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 
 			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(unitOfWork, routeList);
 
@@ -247,6 +234,37 @@ namespace Vodovoz.Application.Logistics
 
 		#region SpecialConditions - спец. условия МЛ
 
+		public IDictionary<int, string> GetSpecialConditionsDictionaryFor(
+			IUnitOfWork unitOfWork,
+			int routeListId)
+		{
+			var routeListConditions = _routeListSpecialConditionRepository
+				.Get(unitOfWork, x => x.RouteListId == routeListId);
+
+			var conditionTypesIds = routeListConditions
+				.Select(x => x.RouteListSpecialConditionTypeId)
+				.Distinct();
+
+			var specialConditrionTypes = _routeListSpecialConditionTypeRepository
+				.Get(unitOfWork, sct => conditionTypesIds.Contains(sct.Id));
+
+			var result = routeListConditions
+				.ToDictionary(x => x.Id, x => specialConditrionTypes
+					.First(sct => sct.Id == x.RouteListSpecialConditionTypeId).Name);
+
+			return result;
+		}
+
+		public IEnumerable<RouteListSpecialCondition> GetSpecialConditionsFor(
+			IUnitOfWork unitOfWork,
+			int routeListId)
+		{
+			var routeList = _routeListSpecialConditionRepository
+				.Get(unitOfWork, x => x.RouteListId == routeListId);
+
+			return routeList;
+		}
+
 		private void CreateSpecialConditionsFor(
 			IUnitOfWork unitOfWork,
 			RouteList routeList)
@@ -296,6 +314,47 @@ namespace Vodovoz.Application.Logistics
 					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.RouteListRequireAdditionalLoading
 				});
 			}
+
+			var productGroupsIds = GetAllProductGroupChilds(unitOfWork, _nomenclatureSettings.EquipmentForCheckProductGroupsIds);
+
+			if(routeList.Addresses
+				.Any(address =>
+					address.Order.OrderItems.Any(oi =>
+						productGroupsIds.Contains(oi.Nomenclature.ProductGroup.Id))
+				&& !existingSpecialConditions.Any(x =>
+					x.RouteListSpecialConditionTypeId == RouteListSpecialConditionType.EquipmentCheckRequired)))
+			{
+				unitOfWork.Save(new RouteListSpecialCondition
+				{
+					RouteListId = routeList.Id,
+					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.EquipmentCheckRequired
+				});
+			}
+		}
+
+		private IEnumerable<int> GetAllProductGroupChilds(IUnitOfWork unitOfWork, IEnumerable<int> ids)
+		{
+			var result = new List<int>(ids);
+
+			var buffer = new List<int>(ids);
+
+			while(buffer.Count > 0)
+			{
+				var current = buffer[0];
+
+				var productGroupsIds = _productGroupRepository
+					.Get(unitOfWork, pg => pg.Parent.Id == current)
+					.Select(pg => pg.Id)
+					.ToList();
+
+				buffer.AddRange(productGroupsIds);
+
+				result = result.Union(productGroupsIds).ToList();
+
+				buffer.Remove(current);
+			}
+
+			return result;
 		}
 
 		public void AcceptConditions(
@@ -531,7 +590,8 @@ namespace Vodovoz.Application.Logistics
 			sourceRouteList.CalculateWages(_wageParameterService);
 
 			// Сохранение данных в транзакцию
-			unitOfWork.Session.Flush();
+
+			FlushSessionWithoutCommit(unitOfWork);
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, sourceRouteList);
 
@@ -639,7 +699,9 @@ namespace Vodovoz.Application.Logistics
 
 				targetRouteList.ObservableAddresses.Add(newAddress);
 				unitOfWork.Save(targetRouteList);
-				unitOfWork.Session.Flush();
+
+				FlushSessionWithoutCommit(unitOfWork);
+
 				sourceRouteList.TransferAddressTo(unitOfWork, address, newAddress);
 				unitOfWork.Save(sourceRouteList);
 				unitOfWork.Save(targetRouteList);
@@ -669,7 +731,7 @@ namespace Vodovoz.Application.Logistics
 
 			//Пересчёт зарплаты после изменения МЛ
 
-			unitOfWork.Session.Flush();
+			FlushSessionWithoutCommit(unitOfWork);
 
 			sourceRouteList.CalculateWages(_wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, sourceRouteList);
@@ -701,6 +763,21 @@ namespace Vodovoz.Application.Logistics
 			unitOfWork.Save(targetRouteList);
 
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
+		}
+
+
+		private void FlushSessionWithoutCommit(IUnitOfWork uow)
+		{
+			// Если транзакция не открыта, то вызов Session.Flush() сразу коммитит изменения в базу
+
+			var transaction = uow.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				uow.Session.BeginTransaction();
+			}
+
+			uow.Session.Flush();
 		}
 
 		/// <summary>
@@ -768,6 +845,7 @@ namespace Vodovoz.Application.Logistics
 
 		public Result ValidateForAccept(
 			RouteList routeList,
+			IOrderRepository orderRepository,
 			bool skipOverfillValidation = false)
 		{
 			var errors = new List<Error>();
@@ -792,6 +870,16 @@ namespace Vodovoz.Application.Logistics
 				errors.Add(Errors.Logistics.RouteList.InsufficientFreeVolumeForReturn(routeList.ReverseVolumeExecess()));
 			}
 
+			var canceledOrdersIds = routeList.Addresses
+				.Where(a => orderRepository.GetUndeliveryStatuses().Contains(a.Order.OrderStatus))
+				.Select(a => a.Order.Id)
+				.ToArray();
+
+			if(canceledOrdersIds.Any())
+			{
+				errors.Add(Errors.Logistics.RouteList.ContainsCanceledOrdersOnAccept(canceledOrdersIds));
+			}
+
 			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
 
 			if(errors.Any()
@@ -808,7 +896,7 @@ namespace Vodovoz.Application.Logistics
 		{
 			routeList.CalculateWages(_wageParameterService);
 
-			var commonFastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
+			var commonFastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
@@ -820,12 +908,13 @@ namespace Vodovoz.Application.Logistics
 			RouteList routeList,
 			Action<bool> disableItemsUpdate,
 			IValidator validationService,
+			IOrderRepository orderRepository,
 			bool skipOverfillValidation = false,
 			bool confirmRecalculateRoute = false,
 			bool confirmSendOnClosing = false,
 			bool confirmSenEnRoute = false)
 		{
-			var validationResult = ValidateForAccept(routeList, skipOverfillValidation);
+			var validationResult = ValidateForAccept(routeList, orderRepository, skipOverfillValidation);
 
 			var messages = new List<string>();
 

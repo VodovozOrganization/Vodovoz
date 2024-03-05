@@ -16,6 +16,7 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +40,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
@@ -53,22 +56,27 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IAtWorkRepository _atWorkRepository;
 		private readonly ILogger<RouteListsOnDayViewModel> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IEmployeeService _employeeService;
+		private readonly IGlobalSettings _globalSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
+		private Employee _employee;
 		private bool _excludeTrucks;
 
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
 			ILogger<RouteListsOnDayViewModel> logger,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -77,55 +85,55 @@ namespace Vodovoz.ViewModels.Logistic
 			ICarRepository carRepository,
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
-			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IEmployeeService employeeService,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			ICarModelJournalFactory carModelJournalFactory,
 			IRouteOptimizer routeOptimizer,
+			IGlobalSettings globalSettings,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
-			if(defaultDeliveryDayScheduleSettings == null)
-			{
-				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
-			}
 			if(geographicGroupRepository == null)
 			{
 				throw new ArgumentNullException(nameof(geographicGroupRepository));
 			}
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings);
 
-			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
-												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
+												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 
 			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 
-			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
-
-			if(currentEmployee == null)
+			_employee = _employeeService.GetEmployeeForCurrentUser(UoW);
+			if(_employee == null)
 			{
 				ShowWarningMessage("Ваш пользователь не привязан к сотруднику, продолжение работы невозможно");
 				FailInitialize = true;
 				return;
 			}
 
-			if(currentEmployee.Subdivision == null)
+			if(_employee.Subdivision == null)
 			{
 				ShowWarningMessage("У сотрудника не указано подразделение, продолжение работы невозможно");
 				FailInitialize = true;
@@ -146,7 +154,7 @@ namespace Vodovoz.ViewModels.Logistic
 			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(geographicGroups.Select(x => new GeographicGroupNode(x)).ToList());
 
-			GeoGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+			GeoGroup employeeGeographicGroup = _employee.Subdivision.GetGeographicGroup();
 
 			if(employeeGeographicGroup != null)
 			{
@@ -159,7 +167,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			_defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+				UoW.GetById<DeliveryDaySchedule>(deliveryScheduleSettings.DefaultDeliveryDayScheduleId);
 			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
 			NHibernateUtil.Initialize(_defaultDeliveryDaySchedule.Shifts);
 
@@ -279,9 +287,8 @@ namespace Vodovoz.ViewModels.Logistic
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
 
-					UoW.Session.Flush();
+					ReCalculateRouteListProfitability(route);
 
-					_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, route);
 				},
 				i => i != null
 			);
@@ -548,7 +555,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
-		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator();
+		public RouteGeometryCalculator DistanceCalculator { get; }
 
 		private Employee driverFromRouteList;
 		public virtual Employee DriverFromRouteList
@@ -801,17 +808,27 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void DisposeUoW() => UoW.Dispose();
 
-		public void CreateUoW() => UoW = UnitOfWorkFactory.CreateWithoutRoot();
+		public void CreateUoW() => UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		public string GenerateToolTip(RouteList routeList)
 		{
 			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
 			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
 			var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+			
+			var distanceFromBase =
+				firstDP != null && geoGroupVersion != null
+					? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion.PointCoordinates, firstDP.PointCoordinates)
+					: 0;
+			
+			var timeFromBase =
+				firstDP != null && geoGroupVersion != null
+					? DistanceCalculator.TimeFromBase(geoGroupVersion.PointCoordinates, firstDP.PointCoordinates)
+					: 0;
 
 			return $"Первый адрес: {routeList.FirstAddressTime:t}\n" +
-				$"Путь со склада: {(firstDP != null && geoGroupVersion != null ? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, firstDP) * 0.001 : 0):N1} км." +
-				$" ({(firstDP != null && geoGroupVersion != null ? DistanceCalculator.TimeFromBase(geoGroupVersion, firstDP) / 60 : 0)} мин.)\n" +
+				$"Путь со склада: {(distanceFromBase * 0.001):N1} км." +
+				$" ({ timeFromBase / 60 } мин.)\n" +
 				$"Выезд со склада: {routeList.OnLoadTimeEnd:t}\nПогрузка на складе: {routeList.TimeOnLoadMinuts} минут";
 		}
 
@@ -1020,10 +1037,10 @@ namespace Vodovoz.ViewModels.Logistic
 						return null;
 					}
 
-					return $"{(double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, rli.Order.DeliveryPoint) / 1000:N1}км";
+					return $"{(double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion.PointCoordinates, rli.Order.DeliveryPoint.PointCoordinates) / 1000:N1}км";
 				}
 
-				return $"{(double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000:N1}км";
+				return $"{(double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint.PointCoordinates, rli.Order.DeliveryPoint.PointCoordinates) / 1000:N1}км";
 			}
 
 			return null;
@@ -1523,12 +1540,25 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			RebuildAllRoutes(actionUpdateInfo);
 
-			UoW.Session.Flush();
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
+			ReCalculateRouteListProfitability(routeList);
 
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
+		}
+
+		private void ReCalculateRouteListProfitability(RouteList routeList)
+		{
+			var transaction = UoW.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				UoW.Session.BeginTransaction();
+			}
+
+			UoW.Session.Flush();
+
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
 		}
 
 		public void RebuildAllRoutes(Action<string> actionUpdateInfo = null)
@@ -1722,7 +1752,7 @@ namespace Vodovoz.ViewModels.Logistic
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;
 					rl.Date = DateForRouting;
-					rl.Logistician = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+					rl.Logistician = _employee;
 
 					if(propose.Trip.OldRoute == null)
 					{

@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.Entity;
-using System;
-using System.ComponentModel.DataAnnotations;
 using QS.HistoryLog;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -78,39 +77,5 @@ namespace Vodovoz.Domain.Documents
 			$"Строка изменения свободных остатков при переносе заказа {AddressTransferDocumentItem.NewAddress.Order.Id}" +
 			$" из МЛ {RouteListFrom.Id} в МЛ {RouteListTo.Id}, {Nomenclature.Name} кол-во {Amount}";
 
-		public virtual void CreateOrUpdateOperations()
-		{
-			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.FromHandToHand)
-			{
-				return;
-			}
-
-			// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадуться операции
-			if(AddressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
-			   || AddressTransferDocumentItem.OldAddress.RouteList.Status != RouteListStatus.New)
-			{
-				var freeBalanceOperationFrom = DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
-				freeBalanceOperationFrom.Amount = Amount;
-				freeBalanceOperationFrom.Nomenclature = Nomenclature;
-				freeBalanceOperationFrom.OperationTime = DateTime.Now;
-				freeBalanceOperationFrom.RouteList = AddressTransferDocumentItem.OldAddress.RouteList;
-
-				DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
-				RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationFrom);
-			}
-
-			if(AddressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
-			   || AddressTransferDocumentItem.NewAddress.RouteList.Status != RouteListStatus.New)
-			{
-				var freeBalanceOperationTo = DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
-				freeBalanceOperationTo.Amount = -Amount;
-				freeBalanceOperationTo.Nomenclature = Nomenclature;
-				freeBalanceOperationTo.OperationTime = DateTime.Now;
-				freeBalanceOperationTo.RouteList = AddressTransferDocumentItem.NewAddress.RouteList;
-
-				DeliveryFreeBalanceOperationTo = freeBalanceOperationTo;
-				RouteListTo.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationTo);
-			}
-		}
 	}
 }

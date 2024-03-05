@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Widgets
 {
 	public class UndeliveredOrderViewModel : EntityWidgetViewModelBase<UndeliveredOrder>, IDisposable
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -62,6 +63,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public UndeliveredOrderViewModel(
 			UndeliveredOrder entity,
 			ICommonServices commonServices,
+			IUnitOfWorkFactory uowFactory,
 			IUndeliveryDetalizationJournalFactory undeliveryDetalizationJournalFactory,
 			IUnitOfWork uow,
 			INavigationManager navigationManager,
@@ -76,6 +78,7 @@ namespace Vodovoz.ViewModels.Widgets
 			IGtkTabsOpener gtkTabsOpener)
 			: base(entity, commonServices)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			NavigationManager = navigationManager ?? throw new ArgumentException(nameof(navigationManager));
 			Scope = scope ?? throw new ArgumentException(nameof(scope));
 			Tab = tab ?? throw new ArgumentException(nameof(tab));
@@ -534,7 +537,8 @@ namespace Vodovoz.ViewModels.Widgets
 				var filter = Scope.Resolve<OrderJournalFilterViewModel>();
 				filter.SetAndRefilterAtOnce(
 					x => x.RestrictCounterparty = Entity.OldOrder?.Client,
-					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
+					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment },
+					x => x.ViewTypes = ViewTypes.Order
 				);
 
 				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
@@ -598,7 +602,7 @@ namespace Vodovoz.ViewModels.Widgets
 				var entityUoWBuilder = EntityUoWBuilder.ForCreate();
 				var fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(null, entityUoWBuilder).ViewModel;
 
-				using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = _uowFactory.CreateWithoutRoot())
 				{
 					fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
 				}

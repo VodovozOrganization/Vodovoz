@@ -1,10 +1,11 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
@@ -22,6 +23,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
@@ -42,7 +44,7 @@ namespace Vodovoz
 
 			List<CullingCategory> types;
 			List<RegradingOfGoodsReason> regradingReasons;
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
@@ -193,15 +195,15 @@ namespace Vodovoz
 
 				var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
+				nomenclaturesJournalViewModel.OnSelectResult += SelectNewNomenclature_ObjectSelected;
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
 		}
 
-		private void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
+		private void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedEventArgs e)
 		{
-			var journalNode = e?.SelectedNodes?.FirstOrDefault();
+			var journalNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if (journalNode != null)
 			{
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
@@ -258,12 +260,12 @@ namespace Vodovoz
 		{
 			var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += ChangeNewNomenclature_OnEntitySelectedResult;
+			nomenclaturesJournalViewModel.OnSelectResult += ChangeNewNomenclature_OnEntitySelectedResult;
 
 			MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 		}
 
-		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 			if (row == null)
@@ -271,7 +273,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var id = e.SelectedNodes.FirstOrDefault()?.Id;
+			var id = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault()?.Id;
 
 			if (id == null)
 			{

@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Print;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -31,11 +32,11 @@ namespace Vodovoz.Views.Logistic
 			btnCancel.Clicked += OnCancelClicked;
 			btnPrintQrCode.Clicked += OnPrintQrCodeClicked;
 			btnCopyFromClipboard.Clicked += OnCopyFromClipboard;
-			
+
 			btnSave.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditByPermission, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			btnPrintQrCode.Binding
 				.AddBinding(ViewModel, vm => vm.CanPrintQrCode, w => w.Sensitive)
 				.InitializeFromSource();
@@ -49,7 +50,7 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.IdGtZero, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter())
 				.InitializeFromSource();
-			
+
 			chkIsArchive.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditByPermission, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
@@ -61,28 +62,34 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
 				.InitializeFromSource();
 
+			entryUriForQr.WidthRequest = 300;
+			entryUriForQr.Binding
+				.AddBinding(ViewModel.Entity, e => e.UriForQr, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
+				.InitializeFromSource();
+
 			lblLatitude.Binding
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			spinBtnLatitude.Digits = 6;
 			spinBtnLatitude.Binding
 				.AddBinding(ViewModel.Entity, e => e.Latitude, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			lblLongitude.Binding
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			spinBtnLongitude.Digits = 6;
 			spinBtnLongitude.Binding
 				.AddBinding(ViewModel.Entity, e => e.Longitude, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			btnCopyFromClipboard.Binding
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -94,11 +101,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.EventType, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			lblDocumentType.Binding
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			enumCmbDocumentType.ItemsEnum = typeof(EventQrDocumentType);
 			enumCmbDocumentType.ShowSpecialStateNot = true;
 			enumCmbDocumentType.Changed += OnDocumentTypeChanged;
@@ -107,11 +114,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			lblQrPositionOnDocument.Binding
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			enumCmbQrPositionOnDocument.ItemsEnum = typeof(EventQrPositionOnDocument);
 			enumCmbQrPositionOnDocument.ShowSpecialStateNot = true;
 			enumCmbQrPositionOnDocument.Binding
@@ -170,8 +177,8 @@ namespace Vodovoz.Views.Logistic
 
 			var hints = new Dictionary<EncodeHintType, object> { { EncodeHintType.CHARACTER_SET, "utf-8" } };
 
-			const int qrWidth = 300;
-			const int qrHeight = 300;
+			const int qrWidth = 1500;
+			const int qrHeight = 1500;
 			
 			var qrMatrix = qrEncode.encode(
 				ViewModel.Entity.GenerateQrData(),
@@ -206,9 +213,9 @@ namespace Vodovoz.Views.Logistic
 		private string AddTextToQr(Bitmap qrImage)
 		{
 			var text = ViewModel.Entity.EventName;
-			const float leftTextPadding = 10f;
-			const int heightAreaForText = 100;
-			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width, heightAreaForText);
+			const float leftTextPadding = 75f;
+			const int heightAreaForText = 250;
+			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width - leftTextPadding, heightAreaForText);
 			var imageFilePath = System.IO.Path.GetTempFileName();
 			
 			using(qrImage)
@@ -216,7 +223,7 @@ namespace Vodovoz.Views.Logistic
 				using(var qrWithText = new Bitmap(qrImage.Width, qrImage.Height + heightAreaForText))
 				using(var canvas = Graphics.FromImage(qrWithText))
 				{
-					using(var arialFont = new System.Drawing.Font("Arial", 14, FontStyle.Bold))
+					using(var arialFont = new System.Drawing.Font("Arial", 50, FontStyle.Bold))
 					{
 						canvas.Clear(Color.White);
 						canvas.DrawImage(qrImage, new PointF(0f, 0f));

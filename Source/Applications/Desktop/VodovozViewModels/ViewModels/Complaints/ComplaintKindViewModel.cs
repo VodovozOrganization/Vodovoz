@@ -1,4 +1,3 @@
-﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -6,66 +5,30 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintKindViewModel : EntityTabViewModelBase<ComplaintKind>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ICommonServices _commonServices;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private DelegateCommand<Subdivision> _removeSubdivisionCommand;
 		private DelegateCommand _attachSubdivisionCommand;
-		private readonly Action _updateJournalAction;
-		private readonly IList<Subdivision> _subdivisionsOnStart;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ILifetimeScope _scope;
 
 		public ComplaintKindViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigationManager,
-			IEmployeeJournalFactory employeeJournalFactory,
-			Action updateJournalAction,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			INavigationManager navigationManager)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
-			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
 
 			TabName = "Вид рекламаций";
-		}
-
-		protected override void AfterSave()
-		{
-			var isEqualSubdivisionLists = new HashSet<Subdivision>(_subdivisionsOnStart).SetEquals(Entity.Subdivisions);
-
-			if(!isEqualSubdivisionLists)
-			{
-				_updateJournalAction.Invoke();
-			}
-
-			base.AfterSave();
 		}
 
 		public IList<ComplaintObject> ComplaintObjects { get; }

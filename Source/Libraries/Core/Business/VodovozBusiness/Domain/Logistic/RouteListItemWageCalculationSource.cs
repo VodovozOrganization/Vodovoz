@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Tools.Exceptions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -15,14 +15,14 @@ namespace Vodovoz.Domain.Logistic
 	{
 		private readonly RouteListItem item;
 		private readonly EmployeeCategory employeeCategory;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 
 		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesSettings deliveryRulesSettings)
 		{
 			this.employeeCategory = employeeCategory;
 			this.item = item ?? throw new ArgumentNullException(nameof(item));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider)); ;
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings)); ;
 		}
 
 		#region IRouteListItemWageCalculationSource implementation
@@ -88,7 +88,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public WageDistrict WageDistrictOfAddress => item.Order.DeliveryPoint.District?.WageDistrict
-			?? throw new InvalidOperationException($"Точке доставки не присвоен логистический или зарплатный район! (Id адреса: {item.Id})");
+			?? throw new DeliveryPointDistrictNotFoundException($"Точке доставки {item.Order.DeliveryPoint.Id} не присвоен логистический или зарплатный район! (Id адреса: {item.Id})");
 
 		public bool WasVisitedByForwarder => item.WithForwarder;
 
@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.Logistic
 		public WageRateTypes GetFastDeliveryWageRateType()
 		{
 			var hasFastDeliveryLate =
-				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate > _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate > _deliveryRulesSettings.MaxTimeForFastDelivery;
 
 			return hasFastDeliveryLate ? WageRateTypes.FastDeliveryWithLate : WageRateTypes.FastDelivery;
 		}

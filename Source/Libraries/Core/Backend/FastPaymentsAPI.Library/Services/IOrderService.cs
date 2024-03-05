@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using FastPaymentsAPI.Library.DTO_s.Responses;
+﻿using FastPaymentsApi.Contracts.Responses;
+using System.Threading.Tasks;
 
 namespace FastPaymentsAPI.Library.Services
 {

@@ -5,22 +5,23 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
+using RouteListItem = Vodovoz.Domain.Logistic.RouteListItem;
 
 namespace Vodovoz.Controllers
 {
 	public class RouteListAddressKeepingDocumentController : IRouteListAddressKeepingDocumentController
 	{
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 
-		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureParametersProvider nomenclatureParametersProvider)
+		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureRepository nomenclatureRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 		}
 
 		private DeliveryFreeBalanceType GetDeliveryFreeBalanceType(RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
@@ -56,7 +57,7 @@ namespace Vodovoz.Controllers
 		{
 			var routeList = routeListItem.RouteList;
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
 			sbyte amountSign;
 			if(newStatus != RouteListItemStatus.Completed && oldStatus == RouteListItemStatus.Completed)
@@ -124,7 +125,7 @@ namespace Vodovoz.Controllers
 				bottlesAmountSign = 1;
 			}
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			var oldBottlesReturned = oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
 
 			if(bottlesAmountSign != 0 && changedRouteListItem.BottlesReturned == oldBottlesReturned)
@@ -254,7 +255,7 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
+			IUnitOfWorkFactory uowFactory, IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled)
 			{
@@ -287,7 +288,7 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			using(var uowLocal = uowFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);
@@ -479,6 +480,75 @@ namespace Vodovoz.Controllers
 			routeListKeepingDocument.Items.Clear();
 
 			uow.Delete(routeListKeepingDocument);
+		}
+
+		public void CreateDeliveryFreeBalanceTransferItems(IUnitOfWork uow, AddressTransferDocumentItem addressTransferDocumentItem)
+		{
+			var newAddress = addressTransferDocumentItem.NewAddress;
+			var oldAddress = addressTransferDocumentItem.OldAddress;
+
+			foreach(var orderItem in oldAddress.Order.GetAllGoodsToDeliver())
+			{
+				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
+				{
+					AddressTransferDocumentItem = addressTransferDocumentItem,
+					RouteListFrom = oldAddress.RouteList,
+					RouteListTo = newAddress.RouteList,
+					Nomenclature = orderItem.Nomenclature,
+					Amount = orderItem.Amount
+				};
+
+				if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.FromHandToHand)
+				{
+					// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадуться операции
+					if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+					   || oldAddress.RouteList.Status != RouteListStatus.New)
+					{
+						var freeBalanceOperationFrom = newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
+						freeBalanceOperationFrom.Amount = newDeliveryFreeBalanceTransferItem.Amount;
+						freeBalanceOperationFrom.Nomenclature = newDeliveryFreeBalanceTransferItem.Nomenclature;
+						freeBalanceOperationFrom.OperationTime = DateTime.Now;
+						freeBalanceOperationFrom.RouteList = oldAddress.RouteList;
+
+						newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
+						newDeliveryFreeBalanceTransferItem.RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationFrom);
+					}
+
+					if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+					   || newAddress.RouteList.Status != RouteListStatus.New)
+					{
+						var freeBalanceOperationTo = newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
+						freeBalanceOperationTo.Amount = -newDeliveryFreeBalanceTransferItem.Amount;
+						freeBalanceOperationTo.Nomenclature = newDeliveryFreeBalanceTransferItem.Nomenclature;
+						freeBalanceOperationTo.OperationTime = DateTime.Now;
+						freeBalanceOperationTo.RouteList = newAddress.RouteList;
+
+						newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationTo = freeBalanceOperationTo;
+						newDeliveryFreeBalanceTransferItem.RouteListTo.ObservableDeliveryFreeBalanceOperations.Add(newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationTo);
+					}
+				}
+
+				addressTransferDocumentItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
+			}
+
+			uow.Save(addressTransferDocumentItem);
+
+			// Если переносят в МЛ в статусе Сдаётся, адрес переходит в статус Доставлен и нужны операции на возврат
+			if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+				&& newAddress.RouteList.Status == RouteListStatus.OnClosing)
+			{
+				var routeListKeepingDocument = uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == newAddress.Id)
+					?? new RouteListAddressKeepingDocument();
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				routeListKeepingDocument.RouteListItem = newAddress;
+				routeListKeepingDocument.Author = currentEmployee;
+
+				CreateOperationsForReturns(uow, newAddress, routeListKeepingDocument, oldAddress.Status, newAddress.Status, true);
+
+				uow.Save(routeListKeepingDocument);
+			}
 		}
 	}
 }

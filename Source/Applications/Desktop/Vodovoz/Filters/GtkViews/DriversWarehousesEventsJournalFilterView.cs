@@ -1,5 +1,6 @@
 ﻿using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Infrastructure.Converters;

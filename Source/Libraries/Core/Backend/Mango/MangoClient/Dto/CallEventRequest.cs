@@ -2,7 +2,7 @@
 
 namespace Mango.Api.Dto
 {
-	public class CallEventRequest : EventRequestBase<CallEvent>
+	public class CallEventRequest : EventRequestBase<MangoCallEvent>
 	{
 	}
 }

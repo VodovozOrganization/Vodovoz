@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.RDL.Elements;
+using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.Additions
 {
@@ -233,7 +235,7 @@ namespace Vodovoz.Additions
 			var padding = 5m;
 			var leftReportItem = left + "pt";
 			var topReportItem = top + "pt";
-			var qrString = @event.GenerateQrData(documentId);
+			var qrString = @event.GenerateQrData(documentId: documentId);
 			var qrReportItem = _customReportFactory.CreateDefaultQrReportItem(leftReportItem, topReportItem, qrString);
 
 			if(eventNamePosition == EventNamePosition.Bottom)

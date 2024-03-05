@@ -15,8 +15,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFileDialogService fileDialogService,
 			IUserRepository userRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IRouteListItemRepository routeListItemRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -132,7 +132,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, this, _lifetimeScope, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, this, _lifetimeScope, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionSettings);
 				}
 
 				return guiltyItemsViewModel;

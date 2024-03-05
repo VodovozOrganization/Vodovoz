@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Tools;
 using QS.Utilities.Debug;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -17,11 +18,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -35,14 +36,23 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private AddressTransferType? _addressTransferType;
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		
 		private RouteListItem _transferredTo;
+
+		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
+			.Resolve<INomenclatureRepository>();
+		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
+			.Resolve<IDeliveryRulesSettings>();
+		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
+			.Resolve<IEmployeeRepository>();
+		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
+			.Resolve<IUndeliveredOrdersRepository>();
+		private ISubdivisionRepository _subdivisionRepository => ScopeProvider.Scope
+			.Resolve<ISubdivisionRepository>();
+		private IRouteListItemRepository _routeListItemRepository => ScopeProvider.Scope
+			.Resolve<IRouteListItemRepository>();
+
 
 		#region Свойства
 
@@ -853,7 +863,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
 			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), new NomenclatureParametersProvider(new ParametersProvider()));
+				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), _nomenclatureRepository);
 
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}
@@ -957,9 +967,15 @@ namespace Vodovoz.Domain.Logistic
 			for(int ix = 0; ix < RouteList.Addresses.Count; ix++) {
 				var address = RouteList.Addresses[ix];
 				if(ix == 0)
+				{
 					time = time.Add(RouteList.Addresses[ix].Order.DeliverySchedule.From);
+				}
 				else
-					time = time.AddSeconds(sputnikCache.TimeSec(RouteList.Addresses[ix - 1].Order.DeliveryPoint, RouteList.Addresses[ix].Order.DeliveryPoint));
+				{
+					time = time.AddSeconds(sputnikCache.TimeSec(
+						RouteList.Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+						RouteList.Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				if(address == this)
 					break;
@@ -987,9 +1003,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Зарплата
 
-		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver, _deliveryRulesParametersProvider);
+		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver, _deliveryRulesSettings);
 
-		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder, _deliveryRulesParametersProvider);
+		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder, _deliveryRulesSettings);
 
 		public virtual void SaveWageCalculationMethodics()
 		{

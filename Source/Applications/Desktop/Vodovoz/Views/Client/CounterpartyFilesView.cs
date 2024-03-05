@@ -2,7 +2,7 @@
 using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 
 namespace Vodovoz.Views.Client
 {

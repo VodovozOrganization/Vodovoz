@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -16,10 +16,11 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
+using QS.ViewModels.Extension;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
+	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult, IAskSaveOnCloseViewModel
 	{
 		private ILifetimeScope _lifetimeScope;
 		private PromotionalSetItem _selectedPromoItem;
@@ -137,10 +138,12 @@ namespace Vodovoz.ViewModels.Orders
 		public bool CanDelete => PermissionResult.CanDelete;
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
-		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
+		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanCreateOrUpdate;
 		public bool CanRemoveAction => _selectedAction != null && CanDelete && Entity.Id == 0;
 
 		public bool CanChangeType { get; }
+
+		public bool AskSaveOnClose => CanCreateOrUpdate;
 
 		#endregion
 
@@ -174,8 +177,8 @@ namespace Vodovoz.ViewModels.Orders
 						vm => vm.SelectionMode = JournalSelectionMode.Single)
 					.ViewModel;
 
-				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-					var selectedNode = e.SelectedNodes.Cast<NomenclatureJournalNode>().FirstOrDefault();
+				nomenJournalViewModel.OnSelectResult += (sender, e) => {
+					var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 					if(selectedNode == null) {
 						return;
 					}
@@ -212,9 +215,13 @@ namespace Vodovoz.ViewModels.Orders
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) =>
 				{
-					SelectedActionViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
+					var addFixedPriceViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
 						new TypedParameter(typeof(IUnitOfWork), UoW),
 						new TypedParameter(typeof(PromotionalSet), Entity));
+
+					addFixedPriceViewModel.Container = this;
+
+					SelectedActionViewModel = addFixedPriceViewModel;
 
 					if(SelectedActionViewModel is ICreationControl)
 					{

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Widgets;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Gamma.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -253,8 +254,16 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual ViewTypes ViewTypes
 		{
 			get => _viewTypes;
-			set => UpdateFilterField(ref _viewTypes, value);
+			set
+			{
+				if(UpdateFilterField(ref _viewTypes, value))
+				{
+					CanChangeViewTypes = false;
+				}
+			}
 		}
+
+		public bool CanChangeViewTypes { get; private set; } = true;
 
 		public OrderPaymentStatus? OrderPaymentStatus
 		{

@@ -9,14 +9,24 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
 	public class EmailRepository : IEmailRepository
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public EmailRepository(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
 		{
 			return unitOfWork.GetById<StoredEmail>(id);
@@ -47,31 +57,36 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			IList<BillDocumentEmail> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
-				BillDocumentEmail orderDocumentEmailAlias = null;
-				OrderDocument orderDocumentAlias = null;
+				var result =
+					(
+						from billEmail in uow.Session.Query<BillDocumentEmail>()
+						where !new[] { StoredEmailStates.SendingError, StoredEmailStates.Undelivered }.Contains(billEmail.StoredEmail.State)
+							&& billEmail.OrderDocument.Order.Id == orderId
 
-				result = uow.Session.QueryOver<BillDocumentEmail>(() => orderDocumentEmailAlias)
-					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
-					.Where(() => orderDocumentAlias.Order.Id == orderId)
-					.JoinQueryOver(ode => ode.StoredEmail)
-					.Where(se => se.State != StoredEmailStates.SendingError 
-					             && se.State != StoredEmailStates.Undelivered)
-					.WithSubquery.WhereExists(
-						QueryOver.Of<BillDocument>()
-							.Where(bd => bd.Id == orderDocumentEmailAlias.OrderDocument.Id)
-							.Select(bd => bd.Id))
-					.List();
+						let billDocument = from billDoc in uow.Session.Query<BillDocument>()
+										   where billDoc.Id == billEmail.OrderDocument.Id
+										   select billDoc
+
+						let specBillDocument = from specBillDoc in uow.Session.Query<SpecialBillDocument>()
+											   where specBillDoc.Id == billEmail.OrderDocument.Id
+											   select specBillDoc
+
+						where billDocument != null || specBillDocument != null
+
+						select billEmail.Id
+
+					)
+					.Count() > 0;
+
+				return result;
 			}
-
-			return result.Any();
 		}
 
 		public bool HasSendedEmailForUpd(int orderId)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
 			{
 				return (from documentEmail in uow.GetAll<UpdDocumentEmail>()
 						where documentEmail.OrderDocument.Order.Id == orderId
@@ -86,28 +101,35 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendUpdByEmail(int orderId)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Проверка, нужно ли отправлять УПД по email?"))
-			{
-				return (from address in uow.GetAll<RouteListItem>()
-						where address.Order.Id == orderId
-							  && (address.Order.IsFastDelivery 
-							      || (
-								      address.Status != RouteListItemStatus.Transfered
-								      && address.AddressTransferType != null
-								      && address.AddressTransferType == AddressTransferType.FromFreeBalance)
-							      )
+				var result = (from address in uow.GetAll<RouteListItem>()
+					where address.Order.Id == order.Id
+						&& 
+						(							
+								address.Order.IsFastDelivery 
+								|| (
+										address.Status != RouteListItemStatus.Transfered
+										&& address.AddressTransferType != null
+										&& address.AddressTransferType == AddressTransferType.FromFreeBalance
+									)						   
+						|| (
+								(!address.Order.Client.NeedSendBillByEdo || address.Order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+								&& address.Order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
+								&& order.OrderStatus == OrderStatus.Closed
+							)
+						)						
 						select address.Id)
 					.Any();
-			}
+
+				return result;
 		}
 
 		public bool CanSendByTimeout(string address, int orderId, OrderDocumentType type)
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
 			double timeLimit = 10;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
 			{
 				if(type == OrderDocumentType.Bill || type == OrderDocumentType.SpecialBill)
 				{
@@ -223,14 +245,14 @@ namespace Vodovoz.EntityRepositories
 				.SingleOrDefault();
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailSettings emailSettings)
 		{
-			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
+			return uow.GetById<BulkEmailEventReason>(emailSettings.BulkEmailEventOtherReasonId);
 		}
 
-		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailSettings emailSettings)
 		{
-			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
+			return uow.GetById<BulkEmailEventReason>(emailSettings.BulkEmailEventOperatorReasonId);
 		}
 
 		public Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
@@ -316,7 +338,7 @@ namespace Vodovoz.EntityRepositories
 				.Take(1);
 		}
 
-		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)
 		{
 			BulkEmailEventReason bulkEmailEventReasonAlias = null;
 
@@ -328,7 +350,7 @@ namespace Vodovoz.EntityRepositories
 				query.Where(x => !x.HideForUnsubscribePage);
 			}
 
-			query.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId);
+			query.OrderBy(x => x.Id == emailSettings.BulkEmailEventOtherReasonId);
 
 			return query.List();
 		}

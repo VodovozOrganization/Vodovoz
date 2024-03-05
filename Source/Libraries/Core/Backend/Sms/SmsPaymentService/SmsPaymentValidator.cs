@@ -1,18 +1,25 @@
-﻿using System.Collections.Generic;
-using Vodovoz.Services;
+﻿using System;
+using System.Collections.Generic;
+using Vodovoz.Settings.Organizations;
 
 namespace SmsPaymentService
 {
 	public class SmsPaymentValidator : ISmsPaymentValidator
 	{
 		private readonly IList<int> _allowedOrganizationIds;
+		private readonly IOrganizationSettings _organizationSettings;
 
-		public SmsPaymentValidator(IOrganizationParametersProvider organizationParametersProvider)
+		public SmsPaymentValidator(IOrganizationSettings organizationSettings)
 		{
+			if(organizationSettings is null)
+			{
+				throw new ArgumentNullException(nameof(organizationSettings));
+			}
+
 			_allowedOrganizationIds = new List<int>
 			{
-				organizationParametersProvider.VodovozSouthOrganizationId,
-				organizationParametersProvider.VodovozNorthOrganizationId
+				_organizationSettings.VodovozSouthOrganizationId,
+				_organizationSettings.VodovozNorthOrganizationId
 			};
 		}
 

@@ -1,55 +1,69 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Navigation;
 using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Store;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
-
 	public partial class ProductSpecificationDlg : QS.Dialog.Gtk.EntityDialogBase<ProductSpecification>
 	{
-		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope;
 
-		public ProductSpecificationDlg ()
+		public ProductSpecificationDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ProductSpecification> ();
-			ConfigureDlg ();
+			ResolveDependencies();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ProductSpecification>();
+			ConfigureDlg();
 		}
 
-		public ProductSpecificationDlg (ProductSpecification sub) : this (sub.Id)
+		public ProductSpecificationDlg(ProductSpecification sub) : this(sub.Id)
 		{
 		}
 
-		public ProductSpecificationDlg (int id)
+		public ProductSpecificationDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ProductSpecification> (id);
-			ConfigureDlg ();
+			ResolveDependencies();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ProductSpecification>(id);
+			ConfigureDlg();
 		}
 
-		private void ConfigureDlg ()
+		public INavigationManager NavigationManager { get; private set; }
+
+		private void ResolveDependencies()
+		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
+		}
+
+		private void ConfigureDlg()
 		{
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-			entryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope));
-			entryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
+			entryProduct.ViewModel = new LegacyEEVMBuilderFactory<ProductSpecification>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(ps => ps.Product)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 
 			productspecificationmaterialsview1.SpecificationUoW = UoWGeneric;
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
 			}
 
-			UoWGeneric.Save ();
+			UoWGeneric.Save();
 			return true;
 		}
 
@@ -59,7 +73,5 @@ namespace Vodovoz
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 		}
-
 	}
 }
-

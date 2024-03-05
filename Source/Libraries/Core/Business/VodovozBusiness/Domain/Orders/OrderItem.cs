@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 
@@ -434,9 +435,9 @@ namespace Vodovoz.Domain.Orders
 			RecalculateVAT();
 		}
 
-		public virtual decimal PriceWithoutVat => Math.Round(Price / ((ValueAddedTax ?? 0m) + 1) * (1 - Discount / 100), 2);
-		public virtual decimal SumWithoutVat =>
-			Math.Round(Price * CurrentCount - (IncludeNDS ?? 0 * (1 - Discount / 100)) - DiscountMoney, 2);
+		public virtual decimal CurrentNDS => IncludeNDS ?? 0;
+		public virtual decimal PriceWithoutVat => Math.Round((Price * CurrentCount - CurrentNDS - DiscountMoney) / CurrentCount, 2);
+		public virtual decimal SumWithoutVat => Math.Round(Price * CurrentCount - CurrentNDS - DiscountMoney, 2);
 
 		public virtual decimal CurrentCount => ActualCount ?? Count;
 

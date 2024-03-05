@@ -16,12 +16,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Services;
 using ClosedXML.Excel;
 using QS.Project.Services.FileDialog;
 using Gamma.Utilities;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Representations
 {
@@ -82,7 +82,7 @@ namespace Vodovoz.Representations
 			})
 			.Finish();
 
-		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
+		public CallTasksVM(IFileDialogService fileDialogService)
 		{
 			_fileDialogService = fileDialogService;
 		}

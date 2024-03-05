@@ -27,6 +27,7 @@ using Vodovoz.Errors;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Widgets;
 
@@ -43,7 +44,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IInteractiveService _interactiveService;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IUserService _userService;
@@ -75,8 +76,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			RouteListStatus.New,
 			RouteListStatus.InLoading,
-			RouteListStatus.EnRoute,
-			RouteListStatus.OnClosing
+			RouteListStatus.EnRoute
 		};
 
 		private const int _defaultTargetRouteListStartDateOffsetDays = -3;
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigation,
 			ILifetimeScope lifetimeScope,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IRouteListRepository routeListRepository,
 			IRouteListService routeListService,
 			IUserService userService,
@@ -118,8 +118,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
-			_terminalNomenclatureProvider = terminalNomenclatureProvider
-				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_nomenclatureSettings = nomenclatureSettings 
+				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListService = routeListService
@@ -507,7 +507,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var driverTerminalBalance = _employeeNomenclatureMovementRepository.GetTerminalFromDriverBalance(UoW,
 				routeList.Driver.Id,
-				_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+				_nomenclatureSettings.NomenclatureIdForTerminal);
 
 			if(driverTerminalBalance != null)
 			{
@@ -772,7 +772,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			if(TargetRouteListDriverNomenclatureBalance
-				.Any(x => x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal
+				.Any(x => x.NomenclatureId == _nomenclatureSettings.NomenclatureIdForTerminal
 					&& x.Amount > 0))
 			{
 				_interactiveService.ShowMessage(
@@ -842,7 +842,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			if(SourceRouteListDriverNomenclatureBalance.Any(x =>
-				x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal && x.Amount > 0))
+				x.NomenclatureId == _nomenclatureSettings.NomenclatureIdForTerminal && x.Amount > 0))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, "У водителя уже есть терминал для оплаты.", "Ошибка");
 				return;

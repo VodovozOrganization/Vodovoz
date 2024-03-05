@@ -19,8 +19,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -38,12 +39,16 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
@@ -56,14 +61,13 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
-		private readonly IParametersProvider _parametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INavigationManager _navigationManager;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
-		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
@@ -100,10 +104,9 @@ namespace Vodovoz
 			IOrderRepository orderRepository,
 			IDiscountReasonRepository discountReasonRepository,
 			IWageParameterService wageParameterService,
-			IParametersProvider parametersProvider,
-			IOrderParametersProvider orderParametersProvider,
-			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IOrderSettings orderSettings,
+			INomenclatureOnlineSettings nomenclatureOnlineSettings,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{
@@ -133,10 +136,9 @@ namespace Vodovoz
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_nomenclatureOnlineParametersProvider = nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
@@ -202,13 +204,13 @@ namespace Vodovoz
 				viewModel.SelectionMode = JournalSelectionMode.Single;
 				viewModel.TabName = "Номенклатура на продажу";
 				viewModel.CalculateQuantityOnStock = true;
-				viewModel.OnEntitySelectedResult += OnNomenclatureSelected;
+				viewModel.OnSelectResult += OnNomenclatureSelected;
 			});
 		}
 
-		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnNomenclatureSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNodes = e.SelectedNodes;
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
 
 			if(!selectedNodes.Any())
 			{
@@ -356,18 +358,10 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
-			if(_routeListItem.Order.PaymentType == PaymentType.PaidOnline)
-			{
-				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
-					.Where(
-						p => !p.IsArchive
-						|| _routeListItem.Order.PaymentByCardFrom.Id == p.Id
-				).List();
-			}
-			else
-			{
-				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
-			}
+			ySpecPaymentFrom.ItemsList =
+				_routeListItem.Order.PaymentType == PaymentType.PaidOnline
+					? GetActivePaymentFromWithSelected(_routeListItem.Order.PaymentByCardFrom)
+					: UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
 
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
@@ -399,6 +393,18 @@ namespace Vodovoz
 
 			OnlineOrderVisible();
 			OnClientEntryViewModelChanged(null, null);
+		}
+		
+		private IEnumerable<PaymentFrom> GetActivePaymentFromWithSelected(IDomainObject selectedPaymentFrom)
+		{
+			var selectedPaymentFromId = selectedPaymentFrom?.Id ?? 0; 
+			PaymentFrom paymentFromAlias = null;
+			
+			return UoW.Session.QueryOver(() => paymentFromAlias)
+				.Where(Restrictions.Or(
+					Restrictions.WhereNot(() => paymentFromAlias.IsArchive),
+					Restrictions.IdEq(selectedPaymentFromId)))
+				.List();
 		}
 
 		private void OnSpinActualCountEdited(object o, EditedArgs args)
@@ -592,6 +598,7 @@ namespace Vodovoz
 
 			if(_orderNode.CompletedChange == OrderNode.ChangedType.Both)
 			{
+				var _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 				//Сначала ставим точку доставки чтобы при установке клиента она была доступна,
 				//иначе при записи клиента убирается не его точка доставки и будет ошибка при
 				//изменении документов которые должны меняться при смене клиента потомучто точка
@@ -599,7 +606,7 @@ namespace Vodovoz
 				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
 				_routeListItem.Order.Client = _orderNode.Client;
 				_routeListItem.Order.UpdateBottleMovementOperation(
-					UoW, new BaseParametersProvider(_parametersProvider), _routeListItem.BottlesReturned);
+					UoW, _nomenclatureSettings, _routeListItem.BottlesReturned);
 			}
 		}
 
@@ -717,8 +724,8 @@ namespace Vodovoz
 				{ Order.ValidationKeyIgnoreReceipts, IgnoreReceipt }
 			});
 
-			validationContext.ServiceContainer.AddService(_orderParametersProvider);
-			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
+			validationContext.ServiceContainer.AddService(_orderSettings);
+			validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
 
 			_routeListItem.AddressIsValid = ServicesConfig.ValidationService.Validate(_routeListItem.Order, validationContext);
 			_routeListItem.Order.CheckAndSetOrderIsService();
@@ -742,8 +749,8 @@ namespace Vodovoz
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
 		{
-			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-			_routeListItem.Order.CalculateBottlesStockDiscounts(orderParametersProvider, true);
+			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
+			_routeListItem.Order.CalculateBottlesStockDiscounts(orderSettings, true);
 		}
 
 		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)

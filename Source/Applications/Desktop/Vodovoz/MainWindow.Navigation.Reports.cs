@@ -5,13 +5,11 @@ using QS.Project.Services;
 using QS.Report.ViewModels;
 using System;
 using Vodovoz;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -22,6 +20,9 @@ using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
+using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
@@ -30,8 +31,10 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -176,7 +179,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(UnitOfWorkFactory.GetDefaultFactory)));
+			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(ServicesConfig.UnitOfWorkFactory)));
 	}
 
 	/// <summary>
@@ -204,8 +207,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
 			() => new QSReport.ReportViewDlg(
 				  new FirstClientsReport(
-						new DistrictJournalFactory(),
-						new DiscountReasonRepository())));
+						_autofacScope.Resolve<IDistrictJournalFactory>(),
+						new DiscountReasonRepository()))); ;
 	}
 
 	/// <summary>
@@ -385,9 +388,13 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
 	{
+		var report = new Vodovoz.Reports.StockMovements(NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.StockMovements>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.StockMovements()));
+			() => dlg);
 	}
 
 	/// <summary>
@@ -695,13 +702,15 @@ public partial class MainWindow
 	{
 		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
+		var report = scope.Resolve<WayBillReportGroupPrint>();
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
 
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
-			() => new QSReport.ReportViewDlg(viewModel));
+			QSReport.ReportViewDlg.GenerateHashName<WayBillReportGroupPrint>(),
+			() => dlg);
 
-		viewModel.Destroyed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -858,6 +867,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<DriversWarehousesEventsReportViewModel>(null);
 	}
 
+	/// <summary>
+	/// Отчет о принадлежности ТС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCarOwnershipReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CarOwnershipReportViewModel));
+	}
+
 	#endregion Логистика
 
 	#region Сотрудники
@@ -990,9 +1009,12 @@ public partial class MainWindow
 
 		var report = scope.Resolve<MileageReport>();
 
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
+
 		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
-			() => new QSReport.ReportViewDlg(report));
+			() => dlg);
 
 		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
@@ -1118,15 +1140,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
-		var paramProvider = new ParametersProvider();
+		var reportSettings = _autofacScope.Resolve<IReportSettings>();
+		var archiveSettings = _autofacScope.Resolve<IArchiveDataSettings>();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
 			() => new QSReport.ReportViewDlg(
 				new OrderChangesReport(
-					new ReportDefaultsProvider(paramProvider),
+					reportSettings,
 					ServicesConfig.InteractiveService,
-					new ArchiveDataSettings(paramProvider))));
+					archiveSettings)
+				)
+			);
 	}
 
 	/// <summary>
@@ -1136,20 +1161,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		
-		var report = new CounterpartyCashlessDebtsReport(
-			scope,
-			new DeliveryScheduleParametersProvider(new ParametersProvider()),
-			ServicesConfig.InteractiveService,
-			new CounterpartyJournalFactory(),
-			UnitOfWorkFactory.GetDefaultFactory);
-
-		report.Destroyed += (o, args) =>  scope.Dispose();
-		
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(report));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCashlessDebtsReportViewModel));
 	}
 
 	/// <summary>
@@ -1213,9 +1225,12 @@ public partial class MainWindow
 
 		var report = scope.Resolve<Vodovoz.Reports.FuelReport>();
 
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
+
 		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-			() => new QSReport.ReportViewDlg(report));
+			() => dlg);
 
 		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
@@ -1269,10 +1284,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnCashBoolReportActivated(object sender, EventArgs e)
 	{
+		ISubdivisionRepository subdivisionRepository = _autofacScope.Resolve<ISubdivisionRepository>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-			() => new QSReport.ReportViewDlg(new CashBookReport(
-				new SubdivisionRepository(new ParametersProvider()), ServicesConfig.CommonServices)));
+			() => new QSReport.ReportViewDlg(new CashBookReport(subdivisionRepository, ServicesConfig.CommonServices)));
 	}
 
 	/// <summary>
@@ -1312,11 +1327,13 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
 	{
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var wageSettings = _autofacScope.Resolve<IWageSettings>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-				UnitOfWorkFactory.GetDefaultFactory,
-				new BaseParametersProvider(new ParametersProvider()),
+				uowFactory,
+				wageSettings,
 				ServicesConfig.CommonServices)));
 	}
 
@@ -1329,7 +1346,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(ServicesConfig.UnitOfWorkFactory)));
 	}
 
 	/// <summary>
@@ -1373,7 +1390,7 @@ public partial class MainWindow
 				new CounterpartyJournalFactory(),
 				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.InteractiveService)));
 	}
 
@@ -1388,8 +1405,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
 				new SalesChannelJournalFactory(),
-				new DistrictJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				_autofacScope.Resolve<IDistrictJournalFactory>(),
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.InteractiveService)));
 
 	}

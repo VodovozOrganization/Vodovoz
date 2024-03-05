@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain;
 
@@ -13,14 +14,14 @@ namespace Vodovoz
 		public EquipmentKindDlg ()
 		{			
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<EquipmentKind> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<EquipmentKind> ();
 			ConfigureDialog ();
 		}
 
 		public EquipmentKindDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<EquipmentKind> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<EquipmentKind> (id);
 			ConfigureDialog ();
 		}
 
@@ -49,7 +50,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

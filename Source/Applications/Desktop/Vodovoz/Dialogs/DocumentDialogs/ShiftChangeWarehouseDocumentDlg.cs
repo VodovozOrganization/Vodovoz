@@ -27,6 +27,7 @@ using Vodovoz.Infrastructure;
 using QS.Navigation;
 using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -43,7 +44,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public ShiftChangeWarehouseDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -51,7 +52,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(UoW.IsNew)
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
@@ -63,9 +64,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			ConfigureDlg(storeDocument);
 		}
 
@@ -85,7 +86,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
 			{
 				var permissionValidator = 
-					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+					new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 				
 				canEdit &= permissionValidator.Validate(
 					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
@@ -235,7 +236,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!CanSave)
 				return false;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -378,12 +379,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					vm => vm.SelectionMode = JournalSelectionMode.Single
 				).ViewModel;
 				
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

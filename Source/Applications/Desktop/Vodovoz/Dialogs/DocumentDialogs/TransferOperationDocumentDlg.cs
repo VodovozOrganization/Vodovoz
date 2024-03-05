@@ -4,6 +4,7 @@ using Autofac;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -23,7 +24,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public TransferOperationDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
 			TabName = "Новый перенос между точками доставки";
 			ConfigureDlg();
 			Entity.Author = Entity.ResponsiblePerson = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -37,7 +38,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public TransferOperationDocumentDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
 			ConfigureDlg();
 		}
 
@@ -74,7 +75,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			var messages = new List<string>();
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
