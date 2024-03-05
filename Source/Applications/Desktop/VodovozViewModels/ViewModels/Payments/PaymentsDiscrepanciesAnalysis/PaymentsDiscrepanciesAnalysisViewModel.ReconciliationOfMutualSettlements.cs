@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 	{
 		public class ReconciliationOfMutualSettlements
 		{
-			public static DateTime OldOrdersDate => new DateTime(2020, 08, 12);
+			public static DateTime OldOrdersMaxDate => new DateTime(2020, 08, 12);
 
 			private ReconciliationOfMutualSettlements(
 				string clientInn,
@@ -65,33 +65,26 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				var clientInn = GetClientInnFromFile(rows);
 
 				var counterparties = GetCounterpartiesByInn(clientInn, unitOfWork, counterpartyRepository);
+				var counterpartyId = counterparties.Select(c => c.Id).First();
 
-				var orderNodes = GetOrderNodes(unitOfWork, orderRepository, rows, counterparties.Select(c => c.Id).FirstOrDefault());
+				var orderNodes = GetOrderNodes(unitOfWork, orderRepository, rows, counterpartyId);
 
 				var paymentNodes = GetPaymentNodes(unitOfWork, paymentsRepository, clientInn, rows);
 
-				GetCounterpartyDebt(unitOfWork, clientInn);
+				var counterpartyOrdersTotalSumInFile = GetCounterpartyOrdersTotalSum(rows);
+				var counterpartyPaymentsTotalSumInFile = GetCounterpartyPaymentsTotalSum(rows);
+
+				var counterpartyTotalDebtInDatabase = GetCounterpartyTotalDebt(unitOfWork, counterpartyRepository, counterpartyId);
+				var counterpartyTotalDebtInFile = counterpartyOrdersTotalSumInFile - counterpartyPaymentsTotalSumInFile;
+
+				var counterpartyOldDebtInDatabase = GetCounterpartyOldDebt(unitOfWork, counterpartyRepository, counterpartyId);
+				var counterpartyOldDebtInFile = GetCounterpartyOldDebt(rows);
 
 				return new ReconciliationOfMutualSettlements(
 					clientInn,
 					counterparties,
 					orderNodes,
 					paymentNodes);
-			}
-
-			private static void GetCounterpartyDebt(IUnitOfWork unitOfWork, string inn, DateTime? dateTo = null)
-			{
-				var query = from order in unitOfWork.Session.Query<Order>()
-							join counterparty in unitOfWork.GetAll<Domain.Client.Counterparty>() on order.Client.Id equals counterparty.Id
-							where
-							order.OrderPaymentStatus != OrderPaymentStatus.Paid
-							&& order.PaymentType == Domain.Client.PaymentType.Cashless
-							&& counterparty.PersonType == Domain.Client.PersonType.legal
-							&& counterparty.INN == inn
-							let orderSum = (decimal?)order.OrderItems.Sum(oi => oi.ActualSum) ?? 0m
-							select orderSum;
-
-				var ordersSum = query.Sum();
 			}
 
 			private static string GetClientInnFromFile(IList<IList<string>> rows)
@@ -288,6 +281,81 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			}
 
 			#endregion GetGetPaymentNodes
+
+			private static decimal GetCounterpartyTotalDebt(IUnitOfWork unitOfWork, ICounterpartyRepository counterpartyRepository, int counterpartyId)
+			{
+				return counterpartyRepository.GetCounterpartyOrdersSum(unitOfWork,counterpartyId, true);
+			}
+
+			private static decimal GetCounterpartyOldDebt(IUnitOfWork unitOfWork, ICounterpartyRepository counterpartyRepository, int counterpartyId)
+			{
+				return counterpartyRepository.GetCounterpartyOrdersSum(unitOfWork, counterpartyId, true, OldOrdersMaxDate);
+			}
+
+			private static decimal GetCounterpartyOrdersTotalSum(IList<IList<string>> rows)
+			{
+				var sum = default(decimal);
+
+				foreach(var rowData in rows)
+				{
+					if(rowData.Count < 3)
+					{
+						continue;
+					}
+
+					if(rowData[0].StartsWith("Обороты за период"))
+					{
+						sum = decimal.Parse(rowData[1]);
+					}
+				}
+
+				return sum;
+			}
+
+			private static decimal GetCounterpartyPaymentsTotalSum(IList<IList<string>> rows)
+			{
+				var sum = default(decimal);
+
+				foreach(var rowData in rows)
+				{
+					if(rowData.Count < 3)
+					{
+						continue;
+					}
+
+					if(rowData[0].StartsWith("Обороты за период"))
+					{
+						sum = decimal.Parse(rowData[2]);
+					}
+				}
+
+				return sum;
+			}
+
+			private static decimal GetCounterpartyOldDebt(IList<IList<string>> rows)
+			{
+				var debt = default(decimal);
+
+				foreach(var rowData in rows)
+				{
+					if(!IsOrderOrPaymentDataRow(rowData))
+					{
+						continue;
+					}
+
+					if(rowData[1].StartsWith("Продажа"))
+					{
+						debt += decimal.Parse(rowData[2]);
+					}
+
+					if(rowData[1].StartsWith("Оплата"))
+					{
+						debt -= decimal.Parse(rowData[3]);
+					}
+				}
+
+				return debt;
+			}
 
 			private static bool IsOrderOrPaymentDataRow(IList<string> rowData)
 			{

@@ -276,7 +276,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					continue;
 				}
 
-				if(IsExcludeOldData && orderNode.OrderDeliveryDateInDatabase < OldOrdersDate.AddDays(1))
+				if(IsExcludeOldData && orderNode.OrderDeliveryDateInDatabase < OldOrdersMaxDate.AddDays(1))
 				{
 					continue;
 				}

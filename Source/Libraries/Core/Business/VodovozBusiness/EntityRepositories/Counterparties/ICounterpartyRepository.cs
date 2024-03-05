@@ -37,5 +37,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IQueryable<int> GetLastClassificationCalculationSettingsId(IUnitOfWork uow);
 		IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork uow, int lastCalculationSettingsId);
 		IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(IUnitOfWork uow, CounterpartyClassificationCalculationSettings calculationSettings);
+		decimal GetCounterpartyOrdersSum(IUnitOfWork unitOfWork, int counterpartyId, bool isExcludePaidOrders = false, DateTime? maxDeliveryDate = null);
 	}
 }
