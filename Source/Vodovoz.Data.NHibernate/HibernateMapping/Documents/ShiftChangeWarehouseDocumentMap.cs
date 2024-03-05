@@ -18,6 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.TimeStamp).Column("time_stamp");
 			Map(x => x.LastEditedTime).Column("last_edit_time");
 			Map(x => x.ShiftChangeResidueDocumentType).Column("shift_change_residue_document_type");
+			Map(x => x.SortedByNomenclatureName).Column("sorted_by_nomenclature_name");
 
 			References(x => x.Author).Column("author_id");
 			References(x => x.LastEditor).Column("last_editor_id");
