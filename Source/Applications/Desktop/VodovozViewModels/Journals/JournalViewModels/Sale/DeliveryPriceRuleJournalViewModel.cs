@@ -25,12 +25,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 
-			TabName = "Правила цен доставки";
+			TabName = "Правила для цен доставки";
 
 			UpdateOnChanges(typeof(DeliveryPriceRule));
 		}
 
-		IUnitOfWorkFactory unitOfWorkFactory;
+		private IUnitOfWorkFactory unitOfWorkFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<DeliveryPriceRule>> ItemsSourceQueryFunction => (uow) =>
 		{

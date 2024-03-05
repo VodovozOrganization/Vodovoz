@@ -44,6 +44,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelError.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>{deliveryPrice.ErrorMessage}</b></span>";
 
 			deliverypriceview.Visible = !deliveryPrice.HasError;
+			deliverypriceview.District = _deliveryPoint.District;
 			deliverypriceview.DeliveryPrice = deliveryPrice;
 		}
 

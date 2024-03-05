@@ -14,6 +14,8 @@ namespace Vodovoz.ViewWidgets
 		public DeliveryRuleRowView()
 		{
 			Build();
+			Title = "";
+			Schedule = "";
 			ylabelTitle.UseMarkup = true;
 		}
 
@@ -31,14 +33,18 @@ namespace Vodovoz.ViewWidgets
 
 		public void ConfigureDeliveryRulesTreeView(IList<DeliveryRuleRow> deliveryRules)
 		{
+			ytreeviewTodayDeliveryRules.Visible = deliveryRules.Any();
+
 			if(!deliveryRules.Any())
 			{
-				Visible = false;
 				return;
 			}
 
 			var deliveryRulesConfig = new FluentColumnsConfig<DeliveryRuleRow>();
-			deliveryRulesConfig.AddColumn("Цена").AddTextRenderer(n => n.Volune);
+
+			deliveryRulesConfig
+				.AddColumn("Цена")
+				.AddTextRenderer(n => n.Volune);
 
 			var dynamicColumnsCount = deliveryRules.First().DynamicColumns.Count;
 
@@ -48,8 +54,12 @@ namespace Vodovoz.ViewWidgets
 
 				deliveryRulesConfig
 					.AddColumn(deliveryRules.First().DynamicColumns[currentIndex])
-					.AddTextRenderer(n => n.DynamicColumns[currentIndex]);
+					.AddTextRenderer(n => $"до {n.DynamicColumns[currentIndex]}");
 			}
+
+			deliveryRulesConfig
+				.AddColumn("Бесплатно")
+				.AddTextRenderer(n => $"от {n.FreeDeliveryBottlesCount}");
 
 			ytreeviewTodayDeliveryRules.EnableGridLines = Gtk.TreeViewGridLines.Both;
 			ytreeviewTodayDeliveryRules.ColumnsConfig = deliveryRulesConfig.Finish();

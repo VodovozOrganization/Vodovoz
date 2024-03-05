@@ -25,7 +25,7 @@ namespace Vodovoz.ViewWidgets
 
 		public DeliveryPriceView()
 		{
-			this.Build();
+			Build();
 			//Отображается только у точек доставки без района
 			ytreeviewPrices.CreateFluentColumnsConfig<DeliveryPriceRow>()
 				.AddColumn("Количество").AddNumericRenderer(x => x.Amount)
@@ -39,14 +39,18 @@ namespace Vodovoz.ViewWidgets
 			set => _district = value;
 		}
 
-		public DeliveryPriceNode DeliveryPrice {
-			get {
-				if(_deliveryPrice == null) {
+		public DeliveryPriceNode DeliveryPrice
+		{
+			get
+			{
+				if(_deliveryPrice == null)
+				{
 					_deliveryPrice = new DeliveryPriceNode();
 				}
 				return _deliveryPrice;
 			}
-			set {
+			set
+			{
 				_deliveryPrice = value;
 				ShowResults(DeliveryPrice);
 			}
@@ -107,7 +111,7 @@ namespace Vodovoz.ViewWidgets
 			}
 		}
 
-		
+
 		public IList<DeliveryRuleRow> DeliveryRulesFriday
 		{
 			get => _deliveryRulesFriday ?? new List<DeliveryRuleRow>();
@@ -263,7 +267,6 @@ namespace Vodovoz.ViewWidgets
 			#endregion Shedules
 		}
 
-
 		private string GetSheduleRestrictionsFor(WeekDayName weekDayName)
 		{
 			var restrictions = District
@@ -303,6 +306,19 @@ namespace Vodovoz.ViewWidgets
 
 			var volumes = DeliveryPriceRule.Volumes;
 
+			var deliveryRuleHeader = new DeliveryRuleRow
+			{
+				Volune = "Цена",
+				DynamicColumns = new List<string>()
+			};
+
+			foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
+			{
+				deliveryRuleHeader.DynamicColumns.Add(weekDayDistrictRuleItem.Price.ToString());
+			}
+
+			deliveryRuleRows.Add(deliveryRuleHeader);
+
 			foreach(var volume in volumes)
 			{
 				var deliveryRuleRow = new DeliveryRuleRow
@@ -311,26 +327,12 @@ namespace Vodovoz.ViewWidgets
 					DynamicColumns = new List<string>()
 				};
 
-				if(volume == volumes.First())
-				{
-					var deliveryRuleHeader = new DeliveryRuleRow
-					{
-						Volune = "Цена",
-						DynamicColumns = new List<string>()
-					};
-
-					foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
-					{
-						deliveryRuleHeader.DynamicColumns.Add(weekDayDistrictRuleItem.Price.ToString());
-					}
-
-					deliveryRuleRows.Add(deliveryRuleHeader);
-				}
-
 				foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
 				{
 					deliveryRuleRow.DynamicColumns.Add(weekDayDistrictRuleItem.DeliveryPriceRule.GetVolumeValue(volume));
 				}
+
+				deliveryRuleRow.FreeDeliveryBottlesCount = deliveryRuleRow.DynamicColumns.Last();
 
 				deliveryRuleRows.Add(deliveryRuleRow);
 			}
