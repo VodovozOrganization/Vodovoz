@@ -26,10 +26,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<PaymentsDiscrepanciesAnalysisViewModel> _logger;
 
-		private IDictionary<int, OrderDiscrepanciesNode> _orderDiscrepanciesNodes = new Dictionary<int, OrderDiscrepanciesNode>();
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> _paymentDiscrepanciesNodes =
-			new Dictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode>();
-
 		private ReconciliationOfMutualSettlements _reconciliationOfMutualSettlements;
 
 		private DiscrepancyCheckMode _selectedCheckMode;
@@ -98,19 +94,37 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		public bool IsDiscrepanciesOnly
 		{
 			get => _isDiscrepanciesOnly;
-			set => SetField(ref _isDiscrepanciesOnly, value);
+			set
+			{
+				if(SetField(ref _isDiscrepanciesOnly, value))
+				{
+					FillOrderNodes();
+				}
+			}
 		}
 
 		public bool IsClosedOrdersOnly
 		{
 			get => _isClosedOrdersOnly;
-			set => SetField(ref _isClosedOrdersOnly, value);
+			set
+			{
+				if(SetField(ref _isClosedOrdersOnly, value))
+				{
+					FillOrderNodes();
+				}
+			}
 		}
 
 		public bool IsExcludeOldData
 		{
 			get => _isExcludeOldData;
-			set => SetField(ref _isExcludeOldData, value);
+			set 
+			{
+				if (SetField(ref _isExcludeOldData, value))
+				{
+					FillOrderNodes();
+				}
+			}
 		}
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
@@ -151,7 +165,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			if(SelectedCheckMode == DiscrepancyCheckMode.ByCounterparty)
 			{
-				if(!ParseFile())
+				if(!CreateReconciliationOfMutualSettlementsFromXml())
 				{
 					return;
 				}
@@ -166,10 +180,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					return;
 				}
 
-				UpdateClientsList();
 				SetSelectedClient();
-
-				ProcessData();
+				FillOrderNodes();
+				FillPaymentNodes();
 
 				return;
 			}
@@ -182,7 +195,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			throw new NotSupportedException("Неизветный режим поиска расхождений");
 		}
 
-		private bool ParseFile()
+		private bool CreateReconciliationOfMutualSettlementsFromXml()
 		{
 			try
 			{
@@ -212,32 +225,25 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			}
 		}
 
-		private void UpdateClientsList()
+		private void SetSelectedClient()
 		{
 			if(_reconciliationOfMutualSettlements is null)
 			{
 				return;
 			}
 
-			if(string.IsNullOrWhiteSpace(_reconciliationOfMutualSettlements.ClientInn))
+			Clients.Clear();
+
+			foreach(var counterparty in _reconciliationOfMutualSettlements.Counterparties)
 			{
-				return;
+				Clients.Add(counterparty);
 			}
 
-			_logger.LogInformation("Подбираем клиентов по имени из акта сверки");
-			var clients = _counterpartyRepository.GetCounterpartiesByINN(_unitOfWork, _reconciliationOfMutualSettlements.ClientInn);
-
-			Clients = new GenericObservableList<Domain.Client.Counterparty>(clients);
-
 			OnPropertyChanged(nameof(Clients));
-			_logger.LogInformation($"Подобрали клиентов, количество {clients.Count}");
-		}
 
-		private void SetSelectedClient()
-		{
 			if(Clients.Count == 1)
 			{
-				SelectedClient = Clients[0];
+				SelectedClient = Clients.First();
 
 				return;
 			}
@@ -247,110 +253,48 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Найдено {Clients.Count}");
 		}
 
-		private void ProcessData()
+		private void FillOrderNodes()
 		{
-			if(SelectedClient is null)
+			if(_reconciliationOfMutualSettlements == null)
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Info,
-					"Не выбран клиент, по которому нужно провести обработку данных");
-
 				return;
 			}
 
-			_logger.LogInformation("Смотрим в базе заказы...");
-			var allocations = _orderRepository.GetOrdersWithAllocationsOnDay(_unitOfWork, _reconciliationOfMutualSettlements.OrderIds);
-			var ordersMissingFromDocument = _orderRepository.GetOrdersWithAllocationsOnDay2(
-				_unitOfWork, SelectedClient.Id, _reconciliationOfMutualSettlements.OrderIds);
-
-			ProcessingOrders(allocations.Concat(ordersMissingFromDocument));
-			FillOrderNodes();
-
-			_logger.LogInformation("Смотрим в базе платежи...");
-			var payments = _paymentsRepository.GetPaymentsByNumbers(_unitOfWork, _reconciliationOfMutualSettlements.PaymentNums, SelectedClient.INN);
-
-			ProcessingPayments(payments);
-			FillPaymentNodes();
-		}
-
-		private void ProcessingOrders(IEnumerable<OrderRepository.OrderWithAllocation> allocations)
-		{
-			_logger.LogInformation("Сопоставляем данные по заказам");
-			foreach(var allocation in allocations)
-			{
-				if(_orderDiscrepanciesNodes.TryGetValue(allocation.OrderId, out var node))
-				{
-					node.ProgramOrderSum = allocation.OrderSum;
-					node.AllocatedSum = allocation.OrderAllocation;
-					node.OrderDeliveryDate = allocation.OrderDeliveryDate;
-					node.OrderStatus = allocation.OrderStatus;
-					node.OrderPaymentStatus = allocation.OrderPaymentStatus;
-					node.IsMissingFromDocument = allocation.IsMissingFromDocument;
-				}
-				else
-				{
-					_orderDiscrepanciesNodes.Add(
-						allocation.OrderId,
-						new OrderDiscrepanciesNode
-						{
-							OrderId = allocation.OrderId,
-							AllocatedSum = allocation.OrderAllocation,
-							ProgramOrderSum = allocation.OrderSum,
-							OrderDeliveryDate = allocation.OrderDeliveryDate,
-							OrderStatus = allocation.OrderStatus,
-							OrderPaymentStatus = allocation.OrderPaymentStatus,
-							IsMissingFromDocument = allocation.IsMissingFromDocument
-						});
-				}
-			}
-		}
-
-		private void ProcessingPayments(IList<PaymentNode> paymentNodes)
-		{
-			_logger.LogInformation("Сопоставляем данные по платежам");
-			foreach(var paymentNode in paymentNodes)
-			{
-				if(_paymentDiscrepanciesNodes.TryGetValue((paymentNode.PaymentNum, paymentNode.PaymentDate), out var node))
-				{
-					node.ProgramPaymentSum = paymentNode.PaymentSum;
-					node.IsManuallyCreated = paymentNode.IsManuallyCreated;
-					node.CounterpartyId = paymentNode.CounterpartyId;
-					node.CounterpartyName = paymentNode.CounterpartyName;
-					node.CounterpartyInn = paymentNode.CounterpartyInn;
-					node.PaymentPurpose = paymentNode.PaymentPurpose;
-				}
-				else
-				{
-					_paymentDiscrepanciesNodes.Add(
-						(paymentNode.PaymentNum, paymentNode.PaymentDate),
-						new PaymentDiscrepanciesNode
-						{
-							PaymentNum = paymentNode.PaymentNum,
-							PaymentDate = paymentNode.PaymentDate,
-							ProgramPaymentSum = paymentNode.PaymentSum,
-							IsManuallyCreated = paymentNode.IsManuallyCreated,
-							CounterpartyId = paymentNode.CounterpartyId,
-							CounterpartyName = paymentNode.CounterpartyName,
-							CounterpartyInn = paymentNode.CounterpartyInn,
-							PaymentPurpose = paymentNode.PaymentPurpose
-						});
-				}
-			}
-		}
-
-		private void FillOrderNodes()
-		{
 			OrdersNodes.Clear();
-			foreach(var keyPairValue in _orderDiscrepanciesNodes)
+
+			foreach(var keyPairValue in _reconciliationOfMutualSettlements.OrderNodes)
 			{
-				OrdersNodes.Add(keyPairValue.Value);
+				var orderNode = keyPairValue.Value;
+
+				if(IsDiscrepanciesOnly && !orderNode.OrderSumDiscrepancy)
+				{
+					continue;
+				}
+
+				if(IsClosedOrdersOnly && orderNode.OrderStatus != Domain.Orders.OrderStatus.Closed)
+				{
+					continue;
+				}
+
+				if(IsExcludeOldData && orderNode.OrderDeliveryDateInDatabase < OldOrdersDate.AddDays(1))
+				{
+					continue;
+				}
+
+				OrdersNodes.Add(orderNode);
 			}
 		}
 
 		private void FillPaymentNodes()
 		{
+			if(_reconciliationOfMutualSettlements == null)
+			{
+				return;
+			}
+
 			PaymentsNodes.Clear();
-			foreach(var keyPairValue in _paymentDiscrepanciesNodes)
+
+			foreach(var keyPairValue in _reconciliationOfMutualSettlements.PaymentNodes)
 			{
 				PaymentsNodes.Add(keyPairValue.Value);
 			}

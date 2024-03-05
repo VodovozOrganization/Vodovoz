@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.Dialog;
+using System.ComponentModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
@@ -13,7 +14,6 @@ namespace Vodovoz.Views.Payments
 	public partial class PaymentsDiscrepanciesAnalysisView : DialogViewBase<PaymentsDiscrepanciesAnalysisViewModel>
 	{
 		private const string _xmlPattern = "*.xlsx";
-		private const string _csvPattern = "*.csv";
 
 		public PaymentsDiscrepanciesAnalysisView(PaymentsDiscrepanciesAnalysisViewModel viewModel) : base(viewModel)
 		{
@@ -23,6 +23,8 @@ namespace Vodovoz.Views.Payments
 
 		private void Configure()
 		{
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
 			ynotebook.ShowTabs = false;
 			ynotebook.Binding
 				.AddFuncBinding(ViewModel, vm => vm.SelectedCheckMode, w => w.CurrentPage)
@@ -63,9 +65,7 @@ namespace Vodovoz.Views.Payments
 
 			speciallistcomboboxClientInfo.SetRenderTextFunc<Counterparty>(x => x.Name);
 			speciallistcomboboxClientInfo.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.Clients, w => w.ItemsList)
-				.AddBinding(vm => vm.SelectedClient, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.SelectedClient, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			ConfigureFileChooser();
@@ -178,6 +178,14 @@ namespace Vodovoz.Views.Payments
 				.Finish();
 
 			ytreeviewCounterpartiesData.ItemsDataSource = ViewModel.CounterpartyBalanceNodes;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.Clients))
+			{
+				speciallistcomboboxClientInfo.ItemsList = ViewModel.Clients;
+			}
 		}
 	}
 }

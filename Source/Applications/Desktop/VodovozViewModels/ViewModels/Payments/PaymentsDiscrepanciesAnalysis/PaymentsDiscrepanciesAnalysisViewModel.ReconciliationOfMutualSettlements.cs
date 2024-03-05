@@ -1,7 +1,9 @@
-﻿using QS.DomainModel.UoW;
+﻿using NPOI.SS.Formula.Functions;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
@@ -14,6 +16,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 	{
 		public class ReconciliationOfMutualSettlements
 		{
+			public static DateTime OldOrdersDate => new DateTime(2020, 08, 12);
+
 			private ReconciliationOfMutualSettlements(
 				string clientInn,
 				IList<Domain.Client.Counterparty> counterparties,
@@ -66,11 +70,28 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 				var paymentNodes = GetPaymentNodes(unitOfWork, paymentsRepository, clientInn, rows);
 
+				GetCounterpartyDebt(unitOfWork, clientInn);
+
 				return new ReconciliationOfMutualSettlements(
 					clientInn,
 					counterparties,
 					orderNodes,
 					paymentNodes);
+			}
+
+			private static void GetCounterpartyDebt(IUnitOfWork unitOfWork, string inn, DateTime? dateTo = null)
+			{
+				var query = from order in unitOfWork.Session.Query<Order>()
+							join counterparty in unitOfWork.GetAll<Domain.Client.Counterparty>() on order.Client.Id equals counterparty.Id
+							where
+							order.OrderPaymentStatus != OrderPaymentStatus.Paid
+							&& order.PaymentType == Domain.Client.PaymentType.Cashless
+							&& counterparty.PersonType == Domain.Client.PersonType.legal
+							&& counterparty.INN == inn
+							let orderSum = (decimal?)order.OrderItems.Sum(oi => oi.ActualSum) ?? 0m
+							select orderSum;
+
+				var ordersSum = query.Sum();
 			}
 
 			private static string GetClientInnFromFile(IList<IList<string>> rows)
@@ -158,7 +179,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					{
 						node.ProgramOrderSum = allocation.OrderSum;
 						node.AllocatedSum = allocation.OrderAllocation;
-						node.OrderDeliveryDate = allocation.OrderDeliveryDate;
+						node.OrderDeliveryDateInDatabase = allocation.OrderDeliveryDate;
 						node.OrderStatus = allocation.OrderStatus;
 						node.OrderPaymentStatus = allocation.OrderPaymentStatus;
 						node.IsMissingFromDocument = allocation.IsMissingFromDocument;
@@ -172,7 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 								OrderId = allocation.OrderId,
 								AllocatedSum = allocation.OrderAllocation,
 								ProgramOrderSum = allocation.OrderSum,
-								OrderDeliveryDate = allocation.OrderDeliveryDate,
+								OrderDeliveryDateInDatabase = allocation.OrderDeliveryDate,
 								OrderStatus = allocation.OrderStatus,
 								OrderPaymentStatus = allocation.OrderPaymentStatus,
 								IsMissingFromDocument = allocation.IsMissingFromDocument
@@ -292,6 +313,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				var node = new OrderDiscrepanciesNode
 				{
 					OrderId = XlsParseHelper.ParseNumberFromString(data[1]),
+					OrderDeliveryDateInDocument = XlsParseHelper.ParseDateFromString(data[1]),
 					DocumentOrderSum = decimal.Parse(data[2])
 				};
 
@@ -315,7 +337,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public class OrderDiscrepanciesNode
 			{
 				public int OrderId { get; set; }
-				public DateTime? OrderDeliveryDate { get; set; }
+				public DateTime? OrderDeliveryDateInDatabase { get; set; }
+				public DateTime? OrderDeliveryDateInDocument { get; set; }
 				public OrderStatus? OrderStatus { get; set; }
 				public OrderPaymentStatus? OrderPaymentStatus { get; set; }
 				public decimal DocumentOrderSum { get; set; }
@@ -323,6 +346,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				public decimal AllocatedSum { get; set; }
 				public bool IsMissingFromDocument { get; set; }
 				public bool OrderSumDiscrepancy => ProgramOrderSum != DocumentOrderSum;
+				public DateTime? OrderDeliveryDate => OrderDeliveryDateInDatabase ?? OrderDeliveryDateInDocument;
 			}
 
 			public class PaymentDiscrepanciesNode
