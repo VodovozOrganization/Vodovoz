@@ -1,6 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Extensions
 {
@@ -8,16 +8,16 @@ namespace Vodovoz.Extensions
 	{
 		public static int ConvertToPaymentFromId(
 			this OnlinePaymentSource onlinePaymentSource,
-			IOrderParametersProvider orderParametersProvider)
+			IOrderSettings orderSettings)
 		{
 			switch(onlinePaymentSource)
 			{
 				case OnlinePaymentSource.FromMobileApp:
-					return orderParametersProvider.PaymentByCardFromMobileAppId;
+					return orderSettings.PaymentByCardFromMobileAppId;
 				case OnlinePaymentSource.FromVodovozWebSite:
-					return orderParametersProvider.PaymentByCardFromSiteId;
+					return orderSettings.PaymentByCardFromSiteId;
 				case OnlinePaymentSource.FromVodovozWebSiteByQr:
-					return orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId;
+					return orderSettings.GetPaymentByCardFromSiteByQrCodeId;
 				default:
 					throw new InvalidOperationException("Неизвестный источник онлайн оплаты");
 			}

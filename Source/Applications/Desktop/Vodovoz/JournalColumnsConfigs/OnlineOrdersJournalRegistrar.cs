@@ -23,12 +23,12 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Время доставки").AddTextRenderer(
 					node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 				.AddColumn("Оформленный заказ").AddTextRenderer(node => node.OrderId.ToString())
-				.AddColumn("Статус").AddTextRenderer(node => node.OnlineOrderStatus.GetEnumDisplayName())
+				.AddColumn("Статус").AddTextRenderer(node => node.OnlineOrderStatus.GetEnumDisplayName(false))
 				.AddColumn("Клиент").AddTextRenderer(node => node.CounterpartyName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress)
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OnlineOrderSum))
-				.AddColumn("Источник").AddTextRenderer(node => node.Source.GetEnumDisplayName())
-				.AddColumn("Статус оплаты").AddTextRenderer(node => node.OnlineOrderPaymentStatus.GetEnumDisplayName())
+				.AddColumn("Источник").AddTextRenderer(node => node.Source.GetEnumDisplayName(false))
+				.AddColumn("Статус оплаты").AddTextRenderer(node => node.OnlineOrderPaymentStatus.GetEnumDisplayName(false))
 				.AddColumn("Номер оплаты").AddTextRenderer(node => node.OnlinePayment.ToString())
 				.AddColumn("В работе").AddTextRenderer(node => node.ManagerWorkWith)
 				.RowCells().AddSetter<CellRendererText>((cell, node) =>

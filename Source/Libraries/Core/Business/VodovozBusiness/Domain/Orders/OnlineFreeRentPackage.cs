@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Domain.Orders
 {

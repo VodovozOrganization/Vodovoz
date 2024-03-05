@@ -32,7 +32,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="currOrder">Заказ, из которого берётся точка доставки</param>
 		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
-		public Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, VodovozOrder currOrder, bool ignoreCurrentOrder = false)
+		public Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
+			IUnitOfWork uow, VodovozOrder currOrder, bool ignoreCurrentOrder = false)
 		{
 			if(GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap != null)
 			{

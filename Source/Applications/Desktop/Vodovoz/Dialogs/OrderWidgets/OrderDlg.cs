@@ -284,11 +284,6 @@ namespace Vodovoz
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
-
-				return nomenclatureRepository;
-			}
-		}
-
 		#region Работа с боковыми панелями
 
 		public PanelViewType[] InfoWidgets

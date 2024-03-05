@@ -8,24 +8,24 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
 	public class OrderFromOnlineOrderCreator
 	{
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 
 		public OrderFromOnlineOrderCreator(
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderSettings,
 			INomenclatureRepository nomenclatureRepository,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory)
 		{
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_counterpartyContractRepository =
 				counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
@@ -51,7 +51,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
 				? order.UoW.GetById<PaymentFrom>(
-					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(_orderParametersProvider))
+					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(_orderSettings))
 				: null;
 
 			if(employee != null)

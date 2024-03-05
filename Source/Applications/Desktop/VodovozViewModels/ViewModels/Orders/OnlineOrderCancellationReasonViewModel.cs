@@ -16,7 +16,18 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			
+			CreatePropertyChangeRelations();
+		}
+
+		public bool CanShowId => Entity.Id > 0;
+		public string IdToString => Entity.Id.ToString();
+
+		private void CreatePropertyChangeRelations()
+		{
+			SetPropertyChangeRelation(
+				e => e.Id,
+				() => CanShowId,
+				() => IdToString);
 		}
 	}
 }

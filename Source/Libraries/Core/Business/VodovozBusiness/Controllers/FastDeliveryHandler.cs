@@ -9,7 +9,8 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
-using Vodovoz.Services;
+using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
 
@@ -17,24 +18,22 @@ namespace Vodovoz.Controllers
 {
 	public class FastDeliveryHandler
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly IDriverApiParametersProvider _driverApiParametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
 
 		public FastDeliveryHandler(
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IDeliveryRepository deliveryRepository,
-			IDriverApiParametersProvider driverApiParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDriverApiSettings driverApiSettings,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFastDeliveryValidator fastDeliveryValidator)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_driverApiParametersProvider =
-				driverApiParametersProvider ?? throw new ArgumentNullException(nameof(driverApiParametersProvider));
-			_deliveryRulesParametersProvider =
-				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_routeListAddressKeepingDocumentController =
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));
@@ -50,10 +49,10 @@ namespace Vodovoz.Controllers
 				{
 					var driverApiConfig = new DriverApiHelperConfiguration
 					{
-						ApiBase = _driverApiParametersProvider.ApiBase,
-						NotifyOfSmsPaymentStatusChangedURI = _driverApiParametersProvider.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedUri = _driverApiParametersProvider.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedUri = _driverApiParametersProvider.NotifyOfWaitingTimeChangedURI
+						ApiBase = _driverApiSettings.ApiBase,
+						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
+						NotifyOfFastDeliveryOrderAddedUri = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfWaitingTimeChangedUri = _driverApiSettings.NotifyOfWaitingTimeChangedURI
 					};
 					_driverApiHelper = new DriverAPIHelper(new LoggerFactory().CreateLogger<DriverAPIHelper>(), driverApiConfig);
 				}
@@ -84,12 +83,11 @@ namespace Vodovoz.Controllers
 					(double)order.DeliveryPoint.Latitude.Value,
 					(double)order.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
-					_deliveryRulesParametersProvider,
 					order.GetAllGoodsToDeliver(),
 					order
 				);
 
-				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);
 				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(FastDeliveryAvailabilityHistory);
 
 				RouteListToAddFastDeliveryOrder = FastDeliveryAvailabilityHistory.Items
@@ -131,7 +129,7 @@ namespace Vodovoz.Controllers
 
 		public void NotifyDriverOfFastDeliveryOrderAdded(int orderId)
 		{
-			if(RouteListToAddFastDeliveryOrder != null && DriverApiParametersProvider.NotificationsEnabled)
+			if(RouteListToAddFastDeliveryOrder != null && DriverApiSettings.NotificationsEnabled)
 			{
 				DriverApiHelper.NotifyOfFastDeliveryOrderAdded(orderId);
 			}
