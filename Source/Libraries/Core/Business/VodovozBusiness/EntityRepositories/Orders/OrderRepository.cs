@@ -638,6 +638,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.InTravelList,
 				OrderStatus.OnLoading,
 				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock
 			};
 		}
