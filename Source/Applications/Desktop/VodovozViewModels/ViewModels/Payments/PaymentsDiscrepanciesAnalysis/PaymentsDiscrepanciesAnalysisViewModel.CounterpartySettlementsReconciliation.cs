@@ -88,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			#endregion Properties
 
-			public static CounterpartySettlementsReconciliation CreateCounterpartySettlementsReconciliationFromXml(
+			public static CounterpartySettlementsReconciliation CreateFromXls(
 				IUnitOfWork unitOfWork,
 				IOrderRepository orderRepository,
 				IPaymentsRepository paymentsRepository,
@@ -98,14 +98,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				var rowsFromXls = XlsParseHelper.GetRowsFromXls(fileName);
 
 				var reconciliationOfMutualSettlements = 
-					CreateCounterpartySettlementsReconciliation(unitOfWork, orderRepository, paymentsRepository, counterpartyRepository, rowsFromXls);
+					Create(unitOfWork, orderRepository, paymentsRepository, counterpartyRepository, rowsFromXls);
 
 				reconciliationOfMutualSettlements.Initialize();
 
 				return reconciliationOfMutualSettlements;
 			}
 
-			private static CounterpartySettlementsReconciliation CreateCounterpartySettlementsReconciliation(
+			private static CounterpartySettlementsReconciliation Create(
 				IUnitOfWork unitOfWork,
 				IOrderRepository orderRepository,
 				IPaymentsRepository paymentsRepository,

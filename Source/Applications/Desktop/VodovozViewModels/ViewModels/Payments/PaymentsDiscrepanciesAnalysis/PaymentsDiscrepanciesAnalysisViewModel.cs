@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.TurnoverBalanceSheet;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -26,7 +27,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<PaymentsDiscrepanciesAnalysisViewModel> _logger;
 
-		private CounterpartySettlementsReconciliation _reconciliationOfMutualSettlements;
+		private CounterpartySettlementsReconciliation _counterpartySettlementsReconciliation;
+		private TurnoverBalanceSheet _turnoverBalanceSheet;
 
 		private DiscrepancyCheckMode _selectedCheckMode;
 		private string _selectedFileName;
@@ -127,14 +129,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			}
 		}
 
-		public string OrdersTotalSumInFile => _reconciliationOfMutualSettlements?.OrdersTotalSumInFile.ToString("# ##0.00") ?? "-";
-		public string PaymentsTotalSumInFile => _reconciliationOfMutualSettlements?.PaymentsTotalSumInFile.ToString("# ##0.00") ?? "-";
-		public string TotalDebtInFile => _reconciliationOfMutualSettlements?.TotalDebtInFile.ToString("# ##0.00") ?? "-";
-		public string OldDebtInFile => _reconciliationOfMutualSettlements?.OldDebtInFile.ToString("# ##0.00") ?? "-";
-		public string OrdersTotalSumInDatabase => _reconciliationOfMutualSettlements?.OrdersTotalSumInDatabase.ToString("# ##0.00") ?? "-";
-		public string PaymentsTotalSumInDatabase => _reconciliationOfMutualSettlements?.PaymentsTotalSumInDatabase.ToString("# ##0.00") ?? "-";
-		public string TotalDebtInDatabase => _reconciliationOfMutualSettlements?.TotalDebtInDatabase.ToString("# ##0.00") ?? "-";
-		public string OldDebtInDatabase => _reconciliationOfMutualSettlements?.OldDebtInDatabase.ToString("# ##0.00") ?? "-";
+		public string OrdersTotalSumInFile => _counterpartySettlementsReconciliation?.OrdersTotalSumInFile.ToString("# ##0.00") ?? "-";
+		public string PaymentsTotalSumInFile => _counterpartySettlementsReconciliation?.PaymentsTotalSumInFile.ToString("# ##0.00") ?? "-";
+		public string TotalDebtInFile => _counterpartySettlementsReconciliation?.TotalDebtInFile.ToString("# ##0.00") ?? "-";
+		public string OldDebtInFile => _counterpartySettlementsReconciliation?.OldDebtInFile.ToString("# ##0.00") ?? "-";
+		public string OrdersTotalSumInDatabase => _counterpartySettlementsReconciliation?.OrdersTotalSumInDatabase.ToString("# ##0.00") ?? "-";
+		public string PaymentsTotalSumInDatabase => _counterpartySettlementsReconciliation?.PaymentsTotalSumInDatabase.ToString("# ##0.00") ?? "-";
+		public string TotalDebtInDatabase => _counterpartySettlementsReconciliation?.TotalDebtInDatabase.ToString("# ##0.00") ?? "-";
+		public string OldDebtInDatabase => _counterpartySettlementsReconciliation?.OldDebtInDatabase.ToString("# ##0.00") ?? "-";
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
@@ -177,7 +179,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return;
 			}
 
-			_reconciliationOfMutualSettlements = null;
+			_counterpartySettlementsReconciliation = null;
 
 			if(SelectedCheckMode == DiscrepancyCheckMode.ReconciliationByCounterparty)
 			{
@@ -186,6 +188,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			if(SelectedCheckMode == DiscrepancyCheckMode.CommonReconciliation)
 			{
+				_turnoverBalanceSheet = CreateFromXls(SelectedFileName);
 				return;
 			}
 
@@ -201,8 +204,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			{
 				_logger.LogInformation("Начинаем парсинг файла");
 
-				_reconciliationOfMutualSettlements =
-					CounterpartySettlementsReconciliation.CreateCounterpartySettlementsReconciliationFromXml(
+				_counterpartySettlementsReconciliation =
+					CreateFromXls(
 						_unitOfWork,
 						_orderRepository,
 						_paymentsRepository,
@@ -225,28 +228,28 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			Clients.Clear();
 
-			if(_reconciliationOfMutualSettlements is null)
+			if(_counterpartySettlementsReconciliation is null)
 			{
 				return;
 			}
 
-			Clients.Add(_reconciliationOfMutualSettlements.Counterparty);
+			Clients.Add(_counterpartySettlementsReconciliation.Counterparty);
 
 			OnPropertyChanged(nameof(Clients));
 
-			SelectedClient = _reconciliationOfMutualSettlements.Counterparty;
+			SelectedClient = _counterpartySettlementsReconciliation.Counterparty;
 		}
 
 		private void FillOrderNodes()
 		{
 			OrdersNodes.Clear();
 
-			if(_reconciliationOfMutualSettlements is null)
+			if(_counterpartySettlementsReconciliation is null)
 			{
 				return;
 			}
 
-			foreach(var keyPairValue in _reconciliationOfMutualSettlements.OrderNodes)
+			foreach(var keyPairValue in _counterpartySettlementsReconciliation.OrderNodes)
 			{
 				var orderNode = keyPairValue.Value;
 
@@ -273,12 +276,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			PaymentsNodes.Clear();
 
-			if(_reconciliationOfMutualSettlements is null)
+			if(_counterpartySettlementsReconciliation is null)
 			{
 				return;
 			}
 
-			foreach(var keyPairValue in _reconciliationOfMutualSettlements.PaymentNodes)
+			foreach(var keyPairValue in _counterpartySettlementsReconciliation.PaymentNodes)
 			{
 				PaymentsNodes.Add(keyPairValue.Value);
 			}

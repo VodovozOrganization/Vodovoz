@@ -7,7 +7,17 @@
 		/// </summary>
 		public class TurnoverBalanceSheet
 		{
+			private TurnoverBalanceSheet()
+			{
+				
+			}
 
+			public static TurnoverBalanceSheet CreateFromXls(string fileName)
+			{
+				var rowsFromXls = XlsParseHelper.GetRowsFromXls2(fileName);
+
+				return new TurnoverBalanceSheet();
+			}
 		}
 	}
 }

@@ -62,6 +62,53 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return xlsRows;
 			}
 
+			public static IList<IList<string>> GetRowsFromXls2(string fileName)
+			{
+				var xlsRows = new List<IList<string>>();
+
+				using(var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+				{
+					using(var document = SpreadsheetDocument.Open(fileStream, false))
+					{
+						var workbookPart = document.WorkbookPart;
+						var tablePart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
+						var table = tablePart.SharedStringTable;
+
+						var worksheetPart = workbookPart.WorksheetParts.First();
+						var worksheet = worksheetPart.Worksheet;
+
+						var cells = worksheet.Descendants<Cell>();
+						var rows = worksheet.Descendants<Row>();
+
+						var rowsCount = rows.LongCount();
+						var cellsCount = cells.LongCount();
+
+						foreach(var row in rows)
+						{
+							var rowData = new List<string>();
+
+							foreach(Cell c in row.Elements<Cell>())
+							{
+								if((c.DataType != null) && (c.DataType == CellValues.SharedString))
+								{
+									int ssid = int.Parse(c.CellValue.Text);
+									string str = table.ChildElements[ssid].InnerText;
+									rowData.Add(str);
+								}
+								else
+								{
+									rowData.Add(c.CellValue?.Text ?? string.Empty);
+								}
+							}
+
+							xlsRows.Add(rowData);
+						}
+					}
+				}
+
+				return xlsRows;
+			}
+
 			public static int ParseNumberFromString(string str)
 			{
 				var matches = Regex.Matches(str, _numberPattern);
