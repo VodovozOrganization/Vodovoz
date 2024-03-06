@@ -384,25 +384,26 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return query;
 		}
 
-		public decimal GetCounterpartyOrdersSum(IUnitOfWork unitOfWork, int counterpartyId, bool isExcludePaidOrders = false, DateTime? maxDeliveryDate = null)
+		public IQueryable<decimal> GetCounterpartyOrdersActuaSums(
+			IUnitOfWork unitOfWork, 
+			int counterpartyId,
+			OrderStatus[] orderStatuses,
+			bool isExcludePaidOrders = false, 
+			DateTime maxDeliveryDate = default)
 		{
-			var availableOrderStatuses =
-				new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading,
-						OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
-
 			var ordersActualSums = from order in unitOfWork.Session.Query<Domain.Orders.Order>()
 								  join counterparty in unitOfWork.GetAll<Counterparty>() on order.Client.Id equals counterparty.Id
 								  where
 								  (!isExcludePaidOrders || order.OrderPaymentStatus != OrderPaymentStatus.Paid)
-								  && availableOrderStatuses.Contains(order.OrderStatus)
+								  && orderStatuses.Contains(order.OrderStatus)
 								  && order.PaymentType == PaymentType.Cashless
 								  && counterparty.PersonType == PersonType.legal
 								  && counterparty.Id == counterpartyId
-								  && (maxDeliveryDate == null || order.DeliveryDate <= maxDeliveryDate)
+								  && (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
 								  let orderSum = (decimal?)order.OrderItems.Sum(oi => oi.ActualSum) ?? 0m
 								  select orderSum;
 
-			return ordersActualSums.Sum();
+			return ordersActualSums;
 		}
 	}
 }

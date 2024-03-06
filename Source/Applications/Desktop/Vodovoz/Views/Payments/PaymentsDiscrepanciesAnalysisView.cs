@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
-using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.ReconciliationOfMutualSettlements;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation;
 
 namespace Vodovoz.Views.Payments
 {
@@ -66,6 +66,38 @@ namespace Vodovoz.Views.Payments
 			speciallistcomboboxClientInfo.SetRenderTextFunc<Counterparty>(x => x.Name);
 			speciallistcomboboxClientInfo.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedClient, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ylabelClientDebtDvData.Binding
+				.AddBinding(ViewModel, vm => vm.TotalDebtInDatabase, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientDebtDocumentData.Binding
+				.AddBinding(ViewModel, vm => vm.TotalDebtInFile, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientOldBalanceDvData.Binding
+				.AddBinding(ViewModel, vm => vm.OldDebtInDatabase, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientOldBalanceDocumentData.Binding
+				.AddBinding(ViewModel, vm => vm.OldDebtInFile, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientOrdersSumDvData.Binding
+				.AddBinding(ViewModel, vm => vm.OrdersTotalSumInDatabase, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientOrdersSumDocumentData.Binding
+				.AddBinding(ViewModel, vm => vm.OrdersTotalSumInFile, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientTotalPaymentsDvData.Binding
+				.AddBinding(ViewModel, vm => vm.PaymentsTotalSumInDatabase, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelClientTotalPaymentsDocumentData.Binding
+				.AddBinding(ViewModel, vm => vm.PaymentsTotalSumInFile, w => w.Text)
 				.InitializeFromSource();
 
 			ConfigureFileChooser();

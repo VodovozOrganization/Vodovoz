@@ -6,13 +6,13 @@ using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
-using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.ReconciliationOfMutualSettlements;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<PaymentsDiscrepanciesAnalysisViewModel> _logger;
 
-		private ReconciliationOfMutualSettlements _reconciliationOfMutualSettlements;
+		private CounterpartySettlementsReconciliation _reconciliationOfMutualSettlements;
 
 		private DiscrepancyCheckMode _selectedCheckMode;
 		private string _selectedFileName;
@@ -127,6 +127,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			}
 		}
 
+		public string OrdersTotalSumInFile => _reconciliationOfMutualSettlements?.OrdersTotalSumInFile.ToString("# ##0.00") ?? "-";
+		public string PaymentsTotalSumInFile => _reconciliationOfMutualSettlements?.PaymentsTotalSumInFile.ToString("# ##0.00") ?? "-";
+		public string TotalDebtInFile => _reconciliationOfMutualSettlements?.TotalDebtInFile.ToString("# ##0.00") ?? "-";
+		public string OldDebtInFile => _reconciliationOfMutualSettlements?.OldDebtInFile.ToString("# ##0.00") ?? "-";
+		public string OrdersTotalSumInDatabase => _reconciliationOfMutualSettlements?.OrdersTotalSumInDatabase.ToString("# ##0.00") ?? "-";
+		public string PaymentsTotalSumInDatabase => _reconciliationOfMutualSettlements?.PaymentsTotalSumInDatabase.ToString("# ##0.00") ?? "-";
+		public string TotalDebtInDatabase => _reconciliationOfMutualSettlements?.TotalDebtInDatabase.ToString("# ##0.00") ?? "-";
+		public string OldDebtInDatabase => _reconciliationOfMutualSettlements?.OldDebtInDatabase.ToString("# ##0.00") ?? "-";
+
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
 		public GenericObservableList<OrderDiscrepanciesNode> OrdersNodes { get; } =
@@ -153,7 +162,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private void SetByCounterpartyCheckMode()
 		{
-			SelectedCheckMode = DiscrepancyCheckMode.ByCounterparty;
+			SelectedCheckMode = DiscrepancyCheckMode.ReconciliationByCounterparty;
 		}
 
 		private void SetCommonReconciliationCheckMode()
@@ -163,28 +172,16 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private void AnalyseDiscrepancies()
 		{
-			if(SelectedCheckMode == DiscrepancyCheckMode.ByCounterparty)
+			if(!CanReadFile)
 			{
-				if(!CreateReconciliationOfMutualSettlementsFromXml())
-				{
-					return;
-				}
-
-				if(string.IsNullOrEmpty(_reconciliationOfMutualSettlements.ClientInn))
-				{
-					var errorMessage = "В представленном файле не найден ИНН контрагента";
-
-					_logger.LogDebug(errorMessage);
-					_interactiveService.ShowMessage(ImportanceLevel.Error, errorMessage);
-
-					return;
-				}
-
-				SetSelectedClient();
-				FillOrderNodes();
-				FillPaymentNodes();
-
 				return;
+			}
+
+			_reconciliationOfMutualSettlements = null;
+
+			if(SelectedCheckMode == DiscrepancyCheckMode.ReconciliationByCounterparty)
+			{
+				CreateReconciliationOfMutualSettlementsFromXml();
 			}
 
 			if(SelectedCheckMode == DiscrepancyCheckMode.CommonReconciliation)
@@ -192,26 +189,27 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return;
 			}
 
-			throw new NotSupportedException("Неизветный режим поиска расхождений");
+			SetSelectedClient();
+			FillOrderNodes();
+			FillPaymentNodes();
+			UpdateCounterpartySummaryInfo();
 		}
 
-		private bool CreateReconciliationOfMutualSettlementsFromXml()
+		private void CreateReconciliationOfMutualSettlementsFromXml()
 		{
 			try
 			{
 				_logger.LogInformation("Начинаем парсинг файла");
 
 				_reconciliationOfMutualSettlements =
-					ReconciliationOfMutualSettlements.CreateReconciliationOfMutualSettlementsFromXml(
-						SelectedFileName,
+					CounterpartySettlementsReconciliation.CreateCounterpartySettlementsReconciliationFromXml(
 						_unitOfWork,
 						_orderRepository,
 						_paymentsRepository,
-						_counterpartyRepository);
+						_counterpartyRepository,
+						SelectedFileName);
 
 				_logger.LogInformation("Парсинг файла закончен успешно");
-
-				return true;
 			}
 			catch(Exception ex)
 			{
@@ -220,47 +218,33 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				_interactiveService.ShowMessage(ImportanceLevel.Error, errorMessage);
 
 				_logger.LogDebug($"{errorMessage}: {ex.Message}");
-
-				return false;
 			}
 		}
 
 		private void SetSelectedClient()
 		{
+			Clients.Clear();
+
 			if(_reconciliationOfMutualSettlements is null)
 			{
 				return;
 			}
 
-			Clients.Clear();
-
-			foreach(var counterparty in _reconciliationOfMutualSettlements.Counterparties)
-			{
-				Clients.Add(counterparty);
-			}
+			Clients.Add(_reconciliationOfMutualSettlements.Counterparty);
 
 			OnPropertyChanged(nameof(Clients));
 
-			if(Clients.Count == 1)
-			{
-				SelectedClient = Clients.First();
-
-				return;
-			}
-
-			SelectedClient = null;
-
-			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Найдено {Clients.Count}");
+			SelectedClient = _reconciliationOfMutualSettlements.Counterparty;
 		}
 
 		private void FillOrderNodes()
 		{
-			if(_reconciliationOfMutualSettlements == null)
+			OrdersNodes.Clear();
+
+			if(_reconciliationOfMutualSettlements is null)
 			{
 				return;
 			}
-
-			OrdersNodes.Clear();
 
 			foreach(var keyPairValue in _reconciliationOfMutualSettlements.OrderNodes)
 			{
@@ -287,17 +271,29 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private void FillPaymentNodes()
 		{
-			if(_reconciliationOfMutualSettlements == null)
+			PaymentsNodes.Clear();
+
+			if(_reconciliationOfMutualSettlements is null)
 			{
 				return;
 			}
-
-			PaymentsNodes.Clear();
 
 			foreach(var keyPairValue in _reconciliationOfMutualSettlements.PaymentNodes)
 			{
 				PaymentsNodes.Add(keyPairValue.Value);
 			}
+		}
+
+		private void UpdateCounterpartySummaryInfo()
+		{
+			OnPropertyChanged(nameof(OrdersTotalSumInFile));
+			OnPropertyChanged(nameof(PaymentsTotalSumInFile));
+			OnPropertyChanged(nameof(TotalDebtInFile));
+			OnPropertyChanged(nameof(OldDebtInFile));
+			OnPropertyChanged(nameof(OrdersTotalSumInDatabase));
+			OnPropertyChanged(nameof(PaymentsTotalSumInDatabase));
+			OnPropertyChanged(nameof(TotalDebtInDatabase));
+			OnPropertyChanged(nameof(OldDebtInDatabase));
 		}
 
 		public class CounterpartyBalanceNode
@@ -309,7 +305,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		public enum DiscrepancyCheckMode
 		{
-			ByCounterparty,
+			[Display(Name = "Сверка по контрагенту")]
+			ReconciliationByCounterparty,
+			[Display(Name = "Общая сверка")]
 			CommonReconciliation
 		}
 	}

@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -284,28 +285,38 @@ namespace Vodovoz.EntityRepositories.Payments
 			return payment != null;
 		}
 
-		public IList<PaymentNode> GetPaymentsByNumbers(IUnitOfWork uow, IEnumerable<int> paymentNums, string payerInn)
+		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
 		{
-			Counterparty counterpartyAlias = null;
-			PaymentNode resultAlias = null;
+			var query = from payment in uow.Session.Query<Payment>()
+						join c in uow.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
+						from counterparty in counterparties.DefaultIfEmpty()
+						where
+						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
+						&& payment.Status != PaymentState.Cancelled
+						select new PaymentNode
+						{
+							PaymentNum = payment.PaymentNum,
+							PaymentDate = payment.Date,
+							CounterpartyId = counterparty.Id,
+							CounterpartyInn = counterparty.INN,
+							CounterpartyName = counterparty.Name,
+							IsManuallyCreated = payment.IsManuallyCreated,
+							PaymentPurpose = payment.PaymentPurpose,
+							PaymentSum = payment.Total
+						};
 
-			var query = uow.Session.QueryOver<Payment>()
-				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
-				.WhereRestrictionOn(p => p.PaymentNum).IsInG(paymentNums)
-				.And(p => p.CounterpartyInn == payerInn)
-				.SelectList(list => list
-					.Select(p => p.PaymentNum).WithAlias(() => resultAlias.PaymentNum)
-					.Select(p => p.Date).WithAlias(() => resultAlias.PaymentDate)
-					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
-					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.CounterpartyInn)
-					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
-					.Select(p => p.IsManuallyCreated).WithAlias(() => resultAlias.IsManuallyCreated)
-					.Select(p => p.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
-					.Select(p => p.Total).WithAlias(() => resultAlias.PaymentSum)
-				)
-				.TransformUsing(Transformers.AliasToBean<PaymentNode>());
+			return query;
+		}
 
-			return query.List<PaymentNode>();
+		public IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
+		{
+			var query = from payment in uow.Session.Query<Payment>()
+						where
+						payment.Status != PaymentState.Cancelled
+						&& (payment.Counterparty.Id == counterpartyId || payment.CounterpartyInn == counterpartyInn)
+						select payment.Total;
+
+			return query;
 		}
 	}
 
