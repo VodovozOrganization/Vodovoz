@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Errors.Logistics
 {
@@ -15,6 +16,19 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteList),
 				nameof(NotFound),
 				$"Маршрутный лист #{id} не найден");
+
+		[Display(Name = "Маршрутный лист не в пути")]
+		public static Error NotEnRouteState =>
+			new Error(
+				typeof(RouteList),
+				nameof(NotEnRouteState),
+				$"Маршрутный лист не в статусе {RouteListStatus.EnRoute}");
+
+		public static Error NotFoundAssociatedWithOrder =>
+			new Error(
+				typeof(RouteList),
+				nameof(NotFoundAssociatedWithOrder),
+				$"Не найден маршрутный лист содержащий заказ");
 
 		public static Error ContainsCanceledOrdersOnAccept(int[] canceledOrdersIds) =>
 			new Error(
