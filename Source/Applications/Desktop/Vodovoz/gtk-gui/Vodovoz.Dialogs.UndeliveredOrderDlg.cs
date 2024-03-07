@@ -4,9 +4,11 @@ namespace Vodovoz.Dialogs
 {
 	public partial class UndeliveredOrderDlg
 	{
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HPaned hpaned2;
 
-		private global::Vodovoz.ViewWidgets.UndeliveredOrderCommentsView unOrderCmntView;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow6;
+
+		private global::Gtk.VBox vboxDicussions;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -27,25 +29,34 @@ namespace Vodovoz.Dialogs
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Dialogs.UndeliveredOrderDlg";
 			// Container child Vodovoz.Dialogs.UndeliveredOrderDlg.Gtk.Container+ContainerChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.unOrderCmntView = new global::Vodovoz.ViewWidgets.UndeliveredOrderCommentsView();
-			this.unOrderCmntView.Events = ((global::Gdk.EventMask)(256));
-			this.unOrderCmntView.Name = "unOrderCmntView";
-			this.hbox1.Add(this.unOrderCmntView);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.unOrderCmntView]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hpaned2 = new global::Gtk.HPaned();
+			this.hpaned2.CanFocus = true;
+			this.hpaned2.Name = "hpaned2";
+			this.hpaned2.Position = 569;
+			// Container child hpaned2.Gtk.Paned+PanedChild
+			this.GtkScrolledWindow6 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow6.Name = "GtkScrolledWindow6";
+			this.GtkScrolledWindow6.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow6.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
+			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport1.Gtk.Container+ContainerChild
+			this.vboxDicussions = new global::Gtk.VBox();
+			this.vboxDicussions.WidthRequest = 450;
+			this.vboxDicussions.Name = "vboxDicussions";
+			this.vboxDicussions.Spacing = 6;
+			w1.Add(this.vboxDicussions);
+			this.GtkScrolledWindow6.Add(w1);
+			this.hpaned2.Add(this.GtkScrolledWindow6);
+			global::Gtk.Paned.PanedChild w4 = ((global::Gtk.Paned.PanedChild)(this.hpaned2[this.GtkScrolledWindow6]));
+			w4.Resize = false;
+			// Container child hpaned2.Gtk.Paned+PanedChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w2 = new global::Gtk.Viewport();
-			w2.ShadowType = ((global::Gtk.ShadowType)(0));
+			global::Gtk.Viewport w5 = new global::Gtk.Viewport();
+			w5.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.mainBox1 = new global::Gtk.VBox();
 			this.mainBox1.Name = "mainBox1";
@@ -60,46 +71,44 @@ namespace Vodovoz.Dialogs
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
 			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w3;
+			global::Gtk.Image w6 = new global::Gtk.Image();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.buttonSave.Image = w6;
 			this.hbox4.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSave]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSave]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w5 = new global::Gtk.Image();
-			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w5;
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w8;
 			this.hbox4.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonCancel]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonCancel]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.mainBox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.hbox4]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.hbox4]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child mainBox1.Gtk.Box+BoxChild
 			this.undeliveryView = new global::Vodovoz.Core.WidgetContainerView();
 			this.undeliveryView.Events = ((global::Gdk.EventMask)(256));
 			this.undeliveryView.Name = "undeliveryView";
 			this.mainBox1.Add(this.undeliveryView);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.undeliveryView]));
-			w8.Position = 1;
-			w2.Add(this.mainBox1);
-			this.GtkScrolledWindow.Add(w2);
-			this.hbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.undeliveryView]));
 			w11.Position = 1;
-			this.Add(this.hbox1);
+			w5.Add(this.mainBox1);
+			this.GtkScrolledWindow.Add(w5);
+			this.hpaned2.Add(this.GtkScrolledWindow);
+			this.Add(this.hpaned2);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

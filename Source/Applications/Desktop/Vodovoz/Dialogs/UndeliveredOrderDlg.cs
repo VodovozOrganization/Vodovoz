@@ -111,8 +111,8 @@ namespace Vodovoz.Dialogs
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-				unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
-				unOrderCmntView.CommentAdded += (sender, e) => CommentAdded?.Invoke(sender, e);
+				//unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
+				//unOrderCmntView.CommentAdded += (sender, e) => CommentAdded?.Invoke(sender, e);
 				this.Destroyed += (sender, e) =>
 				{
 					UoWForComments?.Dispose();
@@ -123,7 +123,7 @@ namespace Vodovoz.Dialogs
 		private bool IsSaved() => Save(false);
 
 		void SetAccessibilities(){
-			unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
+			//unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
 		}
 
 		private bool Save(bool needClose = true)
