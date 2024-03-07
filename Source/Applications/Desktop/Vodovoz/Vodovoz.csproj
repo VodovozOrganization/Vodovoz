@@ -2032,6 +2032,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReportView.cs" />
     <Compile Include="Filters\GtkViews\WarehouseJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseJournalFilterView.cs" />
+    <Compile Include="Views\Orders\UndeliveryDiscussionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionsView.cs" />
+    <Compile Include="Views\Orders\UndeliveryDiscussionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
