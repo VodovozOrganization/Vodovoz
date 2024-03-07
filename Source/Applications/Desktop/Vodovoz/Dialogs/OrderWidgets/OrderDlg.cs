@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -264,6 +264,8 @@ namespace Vodovoz
 		private bool _canEditOrder;
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
+		private bool _canEditGoodsInRouteList;
+		private bool _isStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -1134,6 +1136,7 @@ namespace Vodovoz
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
 			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
+			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Permissions.Order.CanEditGoodsInRouteList);
 		}
 
 		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
@@ -2207,6 +2210,11 @@ namespace Vodovoz
 		{
 			try
 			{
+				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))				
+				{
+					CreateDeliveryFreeBalanceOperations();
+				}				
+
 				SetSensitivity(false);
 
 				_lastSaveResult = null;
@@ -2267,6 +2275,18 @@ namespace Vodovoz
 			{
 				SetSensitivity(true);
 			}
+		}
+
+		private void CreateDeliveryFreeBalanceOperations()
+		{
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+
+			if(routeListItem == null)
+			{
+				return;
+			}
+
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, routeListItem, forceUsePlanCount: true);
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -4176,7 +4196,7 @@ namespace Vodovoz
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
 			lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
-			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
+			enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
 				buttonAddForSale.Sensitive = val;
@@ -4185,8 +4205,14 @@ namespace Vodovoz
 			ycheckContactlessDelivery.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
+
+			ChangeGoodsSensitive(val
+				|| (_isStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
+
+			enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
+
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = _canSetContractCloser && val && !Entity.SelfDelivery;
@@ -4204,8 +4230,8 @@ namespace Vodovoz
 
 		void ChangeOrderEditable(bool val)
 		{
+			ChangeGoodsTabSensitiveWithoutGoods(val);
 			SetPadInfoSensitive(val);
-			ChangeGoodsTabSensitive(val);
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
@@ -4220,16 +4246,20 @@ namespace Vodovoz
 			}
 		}
 
-		private void ChangeGoodsTabSensitive(bool sensitive)
-		{
-			treeItems.Sensitive = sensitive;
-			hbox12.Sensitive = sensitive;
+		private void ChangeGoodsTabSensitiveWithoutGoods(bool sensitive)
+		{						
 			hbox11.Sensitive = sensitive;
 			hboxReturnTareReason.Sensitive = sensitive;
 			orderEquipmentItemsView.Sensitive = sensitive;
 			hbox13.Sensitive = sensitive;
 			depositrefunditemsview.Sensitive = sensitive;
 			table2.Sensitive = sensitive;
+		}
+
+		private void ChangeGoodsSensitive(bool sensitive)
+		{
+			treeItems.Sensitive = sensitive;
+			hbox12.Sensitive = sensitive;
 		}
 
 		void SetPadInfoSensitive(bool value)
