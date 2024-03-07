@@ -42,14 +42,14 @@ namespace DriverAPI.Library.V5.Converters
 		/// <summary>
 		/// Метод конвертации типа действия в мобильном приложении водителей в тип действий ДВ
 		/// </summary>
-		/// <param name="aPIActionType">Тип действия в Api</param>
+		/// <param name="actionDtoType">Тип действия в Api</param>
 		/// <returns></returns>
 		/// <exception cref="ConverterException"></exception>
-		public DriverMobileAppActionType ConvertToDriverMobileAppActionType(ActionDtoType aPIActionType)
+		public DriverMobileAppActionType ConvertToDriverMobileAppActionType(ActionDtoType actionDtoType)
 		{
 			DriverMobileAppActionType result;
 
-			switch(aPIActionType)
+			switch(actionDtoType)
 			{
 				case ActionDtoType.OpenOrderInfoPanel:
 					result = DriverMobileAppActionType.OpenOrderInfoPanel;
@@ -64,7 +64,7 @@ namespace DriverAPI.Library.V5.Converters
 					result = DriverMobileAppActionType.CompleteOrderClicked;
 					break;
 				default:
-					throw new ConverterException(nameof(aPIActionType), aPIActionType, $"Значение {aPIActionType} не поддерживается");
+					throw new ConverterException(nameof(actionDtoType), actionDtoType, $"Значение {actionDtoType} не поддерживается");
 			}
 
 			return result;
