@@ -47,6 +47,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 
             Map(x => x.DriverOfCarTypeOfUse).Column("driver_of_car_type_of_use");
 			Map(x => x.DriverOfCarOwnType).Column("driver_of_car_own_type");
+			Map(x => x.HasAccessToWarehouseApp).Column("has_access_to_warehouse_app");
 
 			References(x => x.Nationality).Column("nationality_id");
 			References(x => x.Citizenship).Column("citizenship_id");
