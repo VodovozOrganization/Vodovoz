@@ -188,7 +188,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			if(SelectedCheckMode == DiscrepancyCheckMode.CommonReconciliation)
 			{
-				_turnoverBalanceSheet = CreateFromXls(SelectedFileName);
+				_turnoverBalanceSheet = CreateFromXls(_unitOfWork, _counterpartyRepository, SelectedFileName);
 				return;
 			}
 

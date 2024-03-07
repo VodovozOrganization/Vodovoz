@@ -37,5 +37,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork uow, int lastCalculationSettingsId);
 		IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(IUnitOfWork uow, CounterpartyClassificationCalculationSettings calculationSettings);
 		IQueryable<decimal> GetCounterpartyOrdersActuaSums(IUnitOfWork unitOfWork, int counterpartyId, OrderStatus[] orderStatuses, bool isExcludePaidOrders = false, DateTime maxDeliveryDate = default);
+		IQueryable<CounterpartyCashlessBalanceNode> GetCounterpartiesCashlessBalance(IUnitOfWork unitOfWork, OrderStatus[] orderStatuses, int counterpartyId = default, DateTime maxDeliveryDate = default);
 	}
 }
