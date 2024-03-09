@@ -27,6 +27,7 @@ namespace Vodovoz.Domain.Employees
 	{
 		#region Свойства
 
+		[Display(Name = "Идентификатор")]
 		public virtual int Id { get; set; }
 
 		FineTypes fineType;

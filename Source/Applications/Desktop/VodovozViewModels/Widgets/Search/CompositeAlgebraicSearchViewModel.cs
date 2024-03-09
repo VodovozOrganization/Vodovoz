@@ -1,16 +1,21 @@
 ﻿using NHibernate.Criterion;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.ViewModels;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Vodovoz.ViewModels.Widgets.Search
 {
 	public partial class CompositeAlgebraicSearchViewModel : WidgetViewModelBase, IJournalSearch
 	{
+		private readonly IInteractiveService _interactiveService;
+
 		private int _searchEntryShownCount = 1;
 		private string _entrySearchText1;
 		private string _entrySearchText2;
@@ -20,11 +25,14 @@ namespace Vodovoz.ViewModels.Widgets.Search
 		private OperandType _operand2;
 		private OperandType _operand3;
 		private string[] _searchValues;
+		private string _searchByInfo = string.Empty;
 
 		public event EventHandler OnSearch;
 
-		public CompositeAlgebraicSearchViewModel()
+		public CompositeAlgebraicSearchViewModel(IInteractiveService interactiveService)
 		{
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
 			AddSearchEntryCommand = new DelegateCommand(AddSearchEntry, () => CanAddSearchEntry);
 			AddSearchEntryCommand.CanExecuteChangedWith(this, x => x.CanAddSearchEntry);
 
@@ -33,6 +41,8 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 			ClearSearchEntriesTextCommand = new DelegateCommand(ClearSearchEntriesText, () => CanClearSearchEntriesText);
 			ClearSearchEntriesTextCommand.CanExecuteChangedWith(this, x => x.CanClearSearchEntriesText);
+
+			ShowSearchInformation = new DelegateCommand(ShowInformation);
 		}
 
 		#region Properties
@@ -103,11 +113,28 @@ namespace Vodovoz.ViewModels.Widgets.Search
 		public DelegateCommand AddSearchEntryCommand { get; }
 		public DelegateCommand RemoveSearchEntryCommand { get; }
 		public DelegateCommand ClearSearchEntriesTextCommand { get; }
+		public DelegateCommand ShowSearchInformation { get; }
 
 		#endregion Properties
 
 		public ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
 		{
+			if(aliasPropertiesExpr.Any())
+			{
+				_searchByInfo = string.Join(
+					"\n",
+					aliasPropertiesExpr
+						.Select(ape =>
+						{
+							var memberInfo = GetMemberInfo(ape).Member;
+
+							var displayAttribute = memberInfo.GetCustomAttribute<DisplayAttribute>();
+
+							return displayAttribute is null ? memberInfo.Name : displayAttribute.Name;
+						})
+						.Select(name => $"- {name}"));
+			}
+
 			UpdateSearchValues();
 
 			return new CompositeAlgebraicSearchCriterion(this)
@@ -115,10 +142,61 @@ namespace Vodovoz.ViewModels.Widgets.Search
 				.Finish();
 		}
 
+		private static MemberExpression GetMemberInfo(LambdaExpression method)
+		{
+			if(method == null)
+			{
+				throw new ArgumentNullException("method");
+			}
+
+			MemberExpression memberExpr = null;
+
+			if(method.Body.NodeType == ExpressionType.Convert)
+			{
+				memberExpr =
+					((UnaryExpression)method.Body).Operand as MemberExpression;
+			}
+			else if(method.Body.NodeType == ExpressionType.MemberAccess)
+			{
+				memberExpr = method.Body as MemberExpression;
+			}
+
+			if(memberExpr == null)
+			{
+				throw new ArgumentException("method");
+			}
+
+			return memberExpr;
+		}
+
 		public void Update()
 		{
 			UpdateSearchValues();
 			OnSearch?.Invoke(this, new EventArgs());
+		}
+
+		private void ShowInformation()
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"Интерфейс поиска состоит из следующих элементов:\n" +
+				"- Текстовые поля - в них необходимо вводить текст для поиска по опреджеленным полям*\n" +
+				"\t Если поля будут пустыми - поиск по ним происходить не будет,\n" +
+				"\t так же не будет осуществлен поиск если будет заполнено поле,\n" +
+				"\t но предыдущие окажутся пустыми, либо содержащие только пробелы\n" +
+				"- Выпадающие списки операций - в них необходимо выбрать тип операции - \"И\" или \"Или\"\n" +
+				"\t Операции применяются в порядке приоритета: сначала \"И\", затем \"Или\"\n" +
+				"- Кнопки\n" +
+				"\t - Добавить поле поиска - добавляет выпадающий список и поле за ним, если это возможно\n" +
+				"\t - Убрать поле поиска - убирает последнее поле и выпадающий список перед ним\n" +
+				"\t - Очистить текстовые поля поиска - очищает все текстовые поля\n" +
+				"\t - Информация о поиске - открывает это окно\n" +
+				"\n" +
+				"* Поля ко которым производится поиск определяются журналом\n" +
+				"\n" +
+				"В данном журнале поиск производится по следующим параметрам:\n" +
+				$"{_searchByInfo}",
+				"Информация о поиске");
 		}
 
 		private void UpdateSearchValues()

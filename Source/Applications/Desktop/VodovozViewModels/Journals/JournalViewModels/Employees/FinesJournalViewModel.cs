@@ -7,20 +7,20 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using QS.Utilities;
 using System;
 using System.Linq;
-using QS.Project.Services;
+using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
-using QS.Project.Journal.Search;
 using Vodovoz.ViewModels.Widgets.Search;
-using System.Linq.Expressions;
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -96,14 +96,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			set { }
 		}
 
-		protected new CompositeAlgebraicSearchCriterion MakeSearchCriterion() => new CompositeAlgebraicSearchCriterion(Search as CompositeAlgebraicSearchViewModel);
-
 		private new ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
-		{
-			var searchCriterion = new CompositeAlgebraicSearchCriterion(_compositeAlgebraicSearchViewModel);
-			var result = searchCriterion.By(aliasPropertiesExpr).Finish();
-			return result;
-		}
+			=> _compositeAlgebraicSearchViewModel.GetSearchCriterion(aliasPropertiesExpr);
 
 		protected override IQueryOver<Fine> ItemsQuery(IUnitOfWork unitOfWork)
 		{
@@ -162,19 +156,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
-			var employeeProjection = CustomProjections.Concat_WS(
-				" ",
-				() => finedEmployeeAlias.LastName,
-				() => finedEmployeeAlias.Name,
-				() => finedEmployeeAlias.Patronymic
-			);
-
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
 				() => fineAlias.TotalMoney,
 				() => fineAlias.FineReasonString,
-				() => employeeProjection
-			));
+				() => EmployeeProjections.FinedEmployeeFioProjection));
 
 			return query
 				.SelectList(list => list

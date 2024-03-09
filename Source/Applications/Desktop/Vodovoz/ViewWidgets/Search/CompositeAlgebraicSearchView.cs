@@ -80,6 +80,7 @@ namespace Vodovoz.ViewWidgets.Search
 			buttonAdd.Clicked += (o, e) => ViewModel.AddSearchEntryCommand.Execute();
 			buttonRemove.Clicked += (o, e) => ViewModel.RemoveSearchEntryCommand.Execute();
 			buttonSearchClear.Clicked += (o, e) => ViewModel.ClearSearchEntriesTextCommand.Execute();
+			buttonInformation.Clicked += (o, e) => ViewModel.ShowSearchInformation.Execute();
 
 			entrySearch1.KeyReleaseEvent += OnKeyReleased;
 			entrySearch2.KeyReleaseEvent += OnKeyReleased;
