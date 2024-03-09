@@ -18,6 +18,9 @@ using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
+using QS.Project.Journal.Search;
+using Vodovoz.ViewModels.Widgets.Search;
+using System.Linq.Expressions;
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -25,6 +28,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 	{
 		private readonly FineFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly CompositeAlgebraicSearchViewModel _compositeAlgebraicSearchViewModel;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
@@ -34,6 +38,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
+			CompositeAlgebraicSearchViewModel compositeAlgebraicSearchViewModel,
 			Action<FineFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
@@ -47,9 +52,16 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_compositeAlgebraicSearchViewModel = compositeAlgebraicSearchViewModel ?? throw new ArgumentNullException(nameof(compositeAlgebraicSearchViewModel));
+			
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+
+			Search = _compositeAlgebraicSearchViewModel;
+			Search.OnSearch += OnFiltered;
+
 			JournalFilter = filterViewModel;
 			_filterViewModel = filterViewModel;
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			filterViewModel.JournalViewModel = this;
 
 			filterViewModel.OnFiltered += OnFiltered;
@@ -82,6 +94,15 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 		{
 			get => $"Сумма отфильтрованных штрафов:{GetTotalSumInfo()}. {base.FooterInfo}";
 			set { }
+		}
+
+		protected new CompositeAlgebraicSearchCriterion MakeSearchCriterion() => new CompositeAlgebraicSearchCriterion(Search as CompositeAlgebraicSearchViewModel);
+
+		private new ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+		{
+			var searchCriterion = new CompositeAlgebraicSearchCriterion(_compositeAlgebraicSearchViewModel);
+			var result = searchCriterion.By(aliasPropertiesExpr).Finish();
+			return result;
 		}
 
 		protected override IQueryOver<Fine> ItemsQuery(IUnitOfWork unitOfWork)
