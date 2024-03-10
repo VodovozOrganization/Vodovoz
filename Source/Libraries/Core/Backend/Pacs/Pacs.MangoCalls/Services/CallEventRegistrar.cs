@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Events;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Pacs;
 using CallState = Vodovoz.Core.Domain.Pacs.CallState;
 
 namespace Pacs.MangoCalls.Services
@@ -84,5 +86,60 @@ namespace Pacs.MangoCalls.Services
 			};
 			return domainEvent;
 		}
+	}
+
+	public class Call
+	{
+		public DateTime CreationTime { get; set; }
+		public IList<SubCall> SubCalls { get; set; } = new List<SubCall>();
+
+		public string EntryId { get; set; }
+		public string CallId { get; set; }
+		public DateTime? StartTime { get; set; }
+		public DateTime? EndTime { get; set; }
+		public string FromNumber { get; set; }
+		public string FromExtension { get; set; }
+		public string ToNumber { get; set; }
+		public string ToExtension { get; set; }
+		public string ToLineNumber { get; set; }
+		public int? DisconnectReason { get; set; }
+		public CallDirection? CallDirection { get; set; }
+		public CallEntryResult? EntryResult { get; set; }
+	}
+
+	public class SubCall
+	{
+		public DateTime CreationTime { get; set; }
+		public Call Call { get; set; }
+		public IList<CallEvent> CallEvents{ get; set; }
+
+		public string CallId { get; set; }
+		public DateTime StartTime { get; set; }
+		public DateTime EndTime { get; set; }
+		public string FromNumber { get; set; }
+		public string FromExtension { get; set; }
+		public string ToNumber { get; set; }
+		public string ToExtension { get; set; }
+		public string ToLineNumber { get; set; }
+		public string ToAcdGroup { get; set; }
+		public int DisconnectReason { get; set; }
+		public string TakenFromCallId { get; set; }
+
+	}
+
+	public class CallEvent
+	{
+		public DateTime CreationTime { get; set; }
+		public SubCall SubCall { get; set; }
+	
+		
+		public DateTime EventTime { get; set; }
+		public CallState State { get; set; }
+		public int CallSequence { get; set; }
+		public bool FromWasTransfered { get; set; }
+		public bool FromHoldInitiator { get; set; }
+		public bool ToWasTransfered { get; set; }
+		public bool ToHoldInitiator { get; set; }
+		public CallTransferType? TransferType { get; set; }
 	}
 }
