@@ -13,8 +13,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		public static class XlsParseHelper
 		{
 			private const string _numberPattern = @"([0-9]{1,})";
-			private const string _datePattern = @"([0-9]{2}.[0-9]{2}.[0-9]{4})";		
-			
+			private const string _floatingPointNumberPattern = @"^-?\d*\,{0,1}\d+$";
+			private const string _datePattern = @"([0-9]{2}.[0-9]{2}.[0-9]{4})";
+
 			public static IList<IList<string>> GetRowsFromXls(string fileName)
 			{
 				if(!IsXlsxFile(fileName))
@@ -41,22 +42,80 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return xlsxRowValues;
 			}
 
-			public static int ParseNumberFromString(string str)
+			public static int? ParseNumberFromString(string str)
 			{
+				if(str is null)
+				{
+					return null;
+				}
+
 				var matches = Regex.Matches(str, _numberPattern);
-				return int.Parse(matches[0].Value);
+
+				if(matches.Count > 0)
+				{
+					return int.Parse(matches[0].Value);
+				}
+
+				return null;
 			}
 
-			public static DateTime ParseDateFromString(string str)
+			public static decimal? ParseFloatingPointNumberFromString(string str)
 			{
+				if(str is null)
+				{
+					return null;
+				}
+
+				var matches = Regex.Matches(str, _floatingPointNumberPattern);
+
+				if(matches.Count > 0)
+				{
+					return decimal.Parse(matches[0].Value);
+				}
+
+				return null;
+			}
+
+			public static DateTime? ParseDateFromString(string str)
+			{
+				if(str is null)
+				{
+					return null;
+				}
+
 				var matches = Regex.Matches(str, _datePattern);
-				return DateTime.Parse(matches[0].Value);
+
+				if(matches.Count > 0)
+				{
+					return DateTime.Parse(matches[0].Value);
+				}
+
+				return null;
 			}
 
 			public static string ParseClientInnFromString(string str)
 			{
+				if(str is null)
+				{
+					return null;
+				}
+
 				var matches = Regex.Matches(str, _numberPattern);
-				return matches[0].Value;
+
+				if(matches.Count > 0)
+				{
+					for(int i = 0; i < matches.Count; i++)
+					{
+						var matchValue = matches[i].Value;
+
+						if(matchValue.Length == 10 || matchValue.Length == 12)
+						{
+							return matchValue;
+						}
+					}
+				}
+
+				return null;
 			}
 
 			private static bool IsXlsxFile(string fileName)

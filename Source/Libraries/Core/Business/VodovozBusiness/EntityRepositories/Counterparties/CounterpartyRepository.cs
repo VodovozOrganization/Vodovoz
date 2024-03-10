@@ -443,13 +443,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					OrderId = order.Id,
 					ClientId = counterparty.Id,
 					ClientInn = counterparty.INN,
+					ClientName = counterparty.FullName,
 					OrderItemActualSum = orderActualSum,
 					PartialPaidOrdersSum = partialPaidOrdersSum
 				};
 
 			var counterpartyCashlessBalance =
 				from notPaidOrder in notPaidOrders
-				group new { notPaidOrder.ClientInn, notPaidOrder.OrderId, notPaidOrder.OrderItemActualSum, notPaidOrder.PartialPaidOrdersSum }
+				group new { notPaidOrder.ClientInn, notPaidOrder.ClientName, notPaidOrder.OrderId, notPaidOrder.OrderItemActualSum, notPaidOrder.PartialPaidOrdersSum }
 				by notPaidOrder.ClientId into ordersByCounterparty
 
 				let cashlessMovementOperationsSum = (decimal?)(from operation in unitOfWork.Session.Query<CashlessMovementOperation>()
@@ -467,8 +468,9 @@ namespace Vodovoz.EntityRepositories.Counterparties
 															select (decimal?)paymentItem.Sum ?? 0m).Sum() ?? 0m
 				select new CounterpartyCashlessBalanceNode
 				{
-					ClientId = ordersByCounterparty.Key,
-					ClientInn = ordersByCounterparty.Select(o => o.ClientInn).FirstOrDefault() ?? string.Empty,
+					CounterpartyId = ordersByCounterparty.Key,
+					CounterpartyInn = ordersByCounterparty.Select(o => o.ClientInn).FirstOrDefault() ?? string.Empty,
+					CounterpartyName = ordersByCounterparty.Select(o => o.ClientName).FirstOrDefault() ?? string.Empty,
 					NotPaidOrdersSum = ordersByCounterparty.Select(o => o.OrderItemActualSum).Sum(),
 					PartiallyPaidOrdersSum = ordersByCounterparty.Select(o => o.PartialPaidOrdersSum).Sum(),
 					CashlessMovementOperationsSum = cashlessMovementOperationsSum,
@@ -477,18 +479,39 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			return counterpartyCashlessBalance;
 		}
+
+		public IQueryable<CounterpartyInnName> GetCounterpartyNamesByInn(IUnitOfWork unitOfWork, IList<string> inns)
+		{
+			var query =
+				from counterparty in unitOfWork.Session.Query<Counterparty>()
+				where inns.Contains(counterparty.INN)
+				select new CounterpartyInnName
+				{
+					Inn = counterparty.INN,
+					Name = counterparty.FullName
+				};
+
+			return query;
+		}
 	}
 
 	public class CounterpartyCashlessBalanceNode
 	{
-		public int ClientId { get; set; }
-		public string ClientInn { get; set; }
+		public int CounterpartyId { get; set; }
+		public string CounterpartyInn { get; set; }
+		public string CounterpartyName { get; set; }
 		public decimal NotPaidOrdersSum { get; set; }
 		public decimal PartiallyPaidOrdersSum { get; set; }
 		public decimal CashlessMovementOperationsSum { get; set; }
 		public decimal PaymentsFromBankClientSums { get; set; }
 		public decimal UnallocatedBalance => CashlessMovementOperationsSum - PaymentsFromBankClientSums;
 		public decimal Debt => NotPaidOrdersSum - UnallocatedBalance - PartiallyPaidOrdersSum;
+	}
+
+	public class CounterpartyInnName
+	{
+		public string Inn { get; set; }
+		public string Name { get; set; }
 	}
 }
 

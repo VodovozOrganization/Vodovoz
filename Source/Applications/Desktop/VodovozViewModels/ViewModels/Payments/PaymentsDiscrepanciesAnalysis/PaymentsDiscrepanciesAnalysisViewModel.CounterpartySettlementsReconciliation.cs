@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -35,7 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 				OrdersTotalSum = GetCounterpartyOrdersTotalSum();
 				PaymentsTotalSum = GetCounterpartyPaymentsTotalSum();
-				CounterpartyOldDebt = GetCounterpartyOldDebt();
+				CounterpartyOldBalance = GetCounterpartyOldBalance();
 			}
 
 			#region Properties
@@ -45,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public decimal OrdersTotalSum { get; }
 			public decimal PaymentsTotalSum { get; }
 			public decimal CounterpartyTotalDebt => OrdersTotalSum - PaymentsTotalSum;
-			public decimal CounterpartyOldDebt { get; }
+			public decimal CounterpartyOldBalance { get; }
 
 			#endregion Properties
 
@@ -91,15 +90,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 				foreach(var rowData in _reconciliationRows)
 				{
-					if(!IsOrderOrPaymentDataRow(rowData))
+					if(TryCreateOrderReconciliation(rowData, out OrderReconciliation order))
 					{
-						continue;
-					}
-
-					if(rowData[_orderPaymentInfoPositionIndex].StartsWith("Продажа"))
-					{
-						var order = CreateOrderReconciliation(rowData);
-
 						orderNodes.Add(order);
 					}
 				}
@@ -107,18 +99,35 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return orderNodes;
 			}
 
-			private static OrderReconciliation CreateOrderReconciliation(IEnumerable<string> rowData)
+			private bool TryCreateOrderReconciliation(IList<string> rowData, out OrderReconciliation order)
 			{
-				var data = rowData.ToArray();
+				order = null;
 
-				var order = new OrderReconciliation
+				if(!IsOrderOrPaymentDataRow(rowData))
 				{
-					OrderId = XlsParseHelper.ParseNumberFromString(data[_orderPaymentInfoPositionIndex]),
-					OrderDeliveryDate = XlsParseHelper.ParseDateFromString(data[_orderPaymentInfoPositionIndex]),
-					OrderSum = decimal.Parse(data[_orderSumPositionIndex])
+					return false;
+				}
+
+				if(!rowData[_orderPaymentInfoPositionIndex].StartsWith("Продажа"))
+				{
+					return false;
+				}
+
+				var orderId = XlsParseHelper.ParseNumberFromString(rowData[_orderPaymentInfoPositionIndex]);
+
+				if(orderId == null)
+				{
+					return false;
+				}
+
+				order = new OrderReconciliation
+				{
+					OrderId = orderId.Value,
+					OrderDeliveryDate = XlsParseHelper.ParseDateFromString(rowData[_orderPaymentInfoPositionIndex]),
+					OrderSum = decimal.Parse(rowData[_orderSumPositionIndex])
 				};
 
-				return order;
+				return true;
 			}
 
 			private IList<PaymentReconciliation> GetPaymentReconciliations()
@@ -127,15 +136,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 				foreach(var rowData in _reconciliationRows)
 				{
-					if(!IsOrderOrPaymentDataRow(rowData))
+					if(TryCreatePaymentReconciliation(rowData, out PaymentReconciliation payment))
 					{
-						continue;
-					}
-
-					if(rowData[_orderPaymentInfoPositionIndex].StartsWith("Оплата"))
-					{
-						var payment = CreatePaymentReconciliation(rowData);
-
 						payments.Add(payment);
 					}
 				}
@@ -143,18 +145,36 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return payments;
 			}
 
-			private static PaymentReconciliation CreatePaymentReconciliation(IEnumerable<string> rowData)
+			private bool TryCreatePaymentReconciliation(IList<string> rowData, out PaymentReconciliation payment)
 			{
-				var data = rowData.ToArray();
+				payment = null;
 
-				var payment = new PaymentReconciliation
+				if(!IsOrderOrPaymentDataRow(rowData))
 				{
-					PaymentNum = XlsParseHelper.ParseNumberFromString(data[_orderPaymentInfoPositionIndex]),
-					PaymentDate = XlsParseHelper.ParseDateFromString(data[_orderPaymentInfoPositionIndex]),
-					PaymentSum = decimal.Parse(data[_paymentSumPositionIndex])
+					return false;
+				}
+
+				if(!rowData[_orderPaymentInfoPositionIndex].StartsWith("Оплата"))
+				{
+					return false;
+				}
+
+				var paymentNum = XlsParseHelper.ParseNumberFromString(rowData[_orderPaymentInfoPositionIndex]);
+				var paymentDate = XlsParseHelper.ParseDateFromString(rowData[_orderPaymentInfoPositionIndex]);
+
+				if(paymentNum is null || paymentDate is null)
+				{
+					return false;
+				}
+
+				payment = new PaymentReconciliation
+				{
+					PaymentNum = paymentNum.Value,
+					PaymentDate = paymentDate.Value,
+					PaymentSum = decimal.Parse(rowData[_paymentSumPositionIndex])
 				};
 
-				return payment;
+				return true;
 			}
 
 			private bool IsOrderOrPaymentDataRow(IList<string> rowData)
@@ -214,7 +234,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return sum;
 			}
 
-			private decimal GetCounterpartyOldDebt()
+			private decimal GetCounterpartyOldBalance()
 			{
 				var debt = default(decimal);
 
@@ -227,12 +247,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 					if(rowData[1].StartsWith("Продажа"))
 					{
-						debt += decimal.Parse(rowData[_orderSumPositionIndex]);
+						debt -= decimal.Parse(rowData[_orderSumPositionIndex]);
 					}
 
 					if(rowData[1].StartsWith("Оплата"))
 					{
-						debt -= decimal.Parse(rowData[_paymentSumPositionIndex]);
+						debt += decimal.Parse(rowData[_paymentSumPositionIndex]);
 					}
 				}
 

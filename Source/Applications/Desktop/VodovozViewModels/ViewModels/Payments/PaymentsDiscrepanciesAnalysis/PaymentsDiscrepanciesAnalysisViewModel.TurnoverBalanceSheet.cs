@@ -1,7 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using System.Linq;
-using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Counterparties;
+﻿using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -12,32 +9,77 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		/// </summary>
 		public class TurnoverBalanceSheet
 		{
-			private static readonly OrderStatus[] _availableOrderStatuses = new OrderStatus[]
-			{
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed
-			};
+			private const int _innPositionIndex = 0;
+			private const int _debetPositionIndex = 5;
+			private const int _creditPositionIndex = 6;
 
-			private TurnoverBalanceSheet()
+			private readonly IList<IList<string>> _balanceRows;
+
+			private TurnoverBalanceSheet(IList<IList<string>> balanceRows)
 			{
-				
+				_balanceRows = balanceRows ?? throw new System.ArgumentNullException(nameof(balanceRows));
+
+				CounterpartyBalances = GetCounterpartyBalances();
 			}
 
-			public static TurnoverBalanceSheet CreateFromXls(
-				IUnitOfWork unitOfWork,
-				ICounterpartyRepository counterpartyRepository,
-				string fileName)
-			{
-				var counterpartiesDebts = counterpartyRepository.GetCounterpartiesCashlessBalance(unitOfWork, _availableOrderStatuses).ToList();
+			public IList<CounterpartyBalance> CounterpartyBalances { get; set; }
 
+			public static TurnoverBalanceSheet CreateFromXls(string fileName)
+			{
 				var rowsFromXls = XlsParseHelper.GetRowsFromXls(fileName);
 
-				return new TurnoverBalanceSheet();
+				return new TurnoverBalanceSheet(rowsFromXls);
+			}
+
+			private IList<CounterpartyBalance> GetCounterpartyBalances()
+			{
+				var balanceNodes = new List<CounterpartyBalance>();
+
+				foreach(var rowData in _balanceRows)
+				{
+					if(TryCreateCounterpartyBalance(rowData, out CounterpartyBalance balance))
+					{
+						balanceNodes.Add(balance);
+					}
+				}
+
+				return balanceNodes;
+			}
+
+			private bool TryCreateCounterpartyBalance(IList<string> rowData, out CounterpartyBalance balance)
+			{
+				balance = null;
+
+				if(rowData.Count < _creditPositionIndex + 1)
+				{
+					return false;
+				}
+
+				var inn = XlsParseHelper.ParseClientInnFromString(rowData[_innPositionIndex]);
+
+				if(string.IsNullOrWhiteSpace(inn))
+				{
+					return false;
+				}
+
+				var debit = XlsParseHelper.ParseFloatingPointNumberFromString(rowData[_debetPositionIndex]);
+				var credit = XlsParseHelper.ParseFloatingPointNumberFromString(rowData[_creditPositionIndex]);
+
+				balance = new CounterpartyBalance
+				{
+					Inn = inn,
+					Debit = debit,
+					Credit = credit
+				};
+
+				return true;
+			}
+
+			public class CounterpartyBalance
+			{
+				public string Inn { get; set; }
+				public decimal? Debit { get; set; }
+				public decimal? Credit { get; set; }
 			}
 		}
 	}
