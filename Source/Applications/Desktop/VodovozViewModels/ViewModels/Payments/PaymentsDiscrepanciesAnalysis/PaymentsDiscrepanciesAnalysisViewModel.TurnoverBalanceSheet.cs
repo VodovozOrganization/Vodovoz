@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -32,9 +33,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				ICounterpartyRepository counterpartyRepository,
 				string fileName)
 			{
-				counterpartyRepository.GetCounterpartiesDebts(unitOfWork, _availableOrderStatuses);
+				var counterpartiesDebts = counterpartyRepository.GetCounterpartiesCashlessBalance(unitOfWork, _availableOrderStatuses).ToList();
 
-				var rowsFromXls = XlsParseHelper.GetRowsFromXls2(fileName);
+				var rowsFromXls = XlsParseHelper.GetRowsFromXls(fileName);
 
 				return new TurnoverBalanceSheet();
 			}

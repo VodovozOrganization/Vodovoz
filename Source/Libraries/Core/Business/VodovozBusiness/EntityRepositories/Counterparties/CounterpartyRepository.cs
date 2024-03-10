@@ -414,64 +414,66 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			int counterpartyId = default,
 			DateTime maxDeliveryDate = default)
 		{
-			var notPaidOrders = from order in unitOfWork.Session.Query<Domain.Orders.Order>()
-								join counterparty in unitOfWork.GetAll<Counterparty>() on order.Client.Id equals counterparty.Id
+			var notPaidOrders =
+				from order in unitOfWork.Session.Query<Domain.Orders.Order>()
+				join counterparty in unitOfWork.GetAll<Counterparty>() on order.Client.Id equals counterparty.Id
 
-								let orderActualSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
-																where orderItem.Order.Id == order.Id
-																select (decimal?)orderItem.ActualSum ?? 0m).Sum() ?? 0m
+				let orderActualSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+												where orderItem.Order.Id == order.Id
+												select (decimal?)orderItem.ActualSum ?? 0m).Sum() ?? 0m
 
-								let partialPaidOrdersSum = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
-																	  join operation in unitOfWork.Session.Query<CashlessMovementOperation>()
-																	  on paymentItem.CashlessMovementOperation.Id equals operation.Id
-																	  where
-																	  paymentItem.Order.Id == order.Id
-																	  && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-																	  select (decimal?)operation.Expense ?? 0m).Sum() ?? 0m
+				let partialPaidOrdersSum = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
+													  join operation in unitOfWork.Session.Query<CashlessMovementOperation>()
+													  on paymentItem.CashlessMovementOperation.Id equals operation.Id
+													  where
+													  paymentItem.Order.Id == order.Id
+													  && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+													  select (decimal?)operation.Expense ?? 0m).Sum() ?? 0m
 
-								where
-								orderStatuses.Contains(order.OrderStatus)
-								&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
-								&& order.PaymentType == PaymentType.Cashless
-								&& counterparty.PersonType == PersonType.legal
-								&& (counterpartyId == default || counterparty.Id == counterpartyId)
-								&& (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
-								&& orderActualSum > 0
-								select new
-								{
-									OrderId = order.Id,
-									ClientId = counterparty.Id,
-									ClientInn = counterparty.INN,
-									OrderItemActualSum = orderActualSum,
-									PartialPaidOrdersSum = partialPaidOrdersSum
-								};
+				where
+				orderStatuses.Contains(order.OrderStatus)
+				&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+				&& order.PaymentType == PaymentType.Cashless
+				&& counterparty.PersonType == PersonType.legal
+				&& (counterpartyId == default || counterparty.Id == counterpartyId)
+				&& (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
+				&& orderActualSum > 0
+				select new
+				{
+					OrderId = order.Id,
+					ClientId = counterparty.Id,
+					ClientInn = counterparty.INN,
+					OrderItemActualSum = orderActualSum,
+					PartialPaidOrdersSum = partialPaidOrdersSum
+				};
 
-			var counterpartyCashlessBalance = from notPaidOrder in notPaidOrders
-											  group new { notPaidOrder.ClientInn, notPaidOrder.OrderId, notPaidOrder.OrderItemActualSum, notPaidOrder.PartialPaidOrdersSum }
-											  by notPaidOrder.ClientId into ordersByCounterparty
+			var counterpartyCashlessBalance =
+				from notPaidOrder in notPaidOrders
+				group new { notPaidOrder.ClientInn, notPaidOrder.OrderId, notPaidOrder.OrderItemActualSum, notPaidOrder.PartialPaidOrdersSum }
+				by notPaidOrder.ClientId into ordersByCounterparty
 
-											  let cashlessMovementOperationsSum = (decimal?)(from operation in unitOfWork.Session.Query<CashlessMovementOperation>()
-																							 where
-																							 operation.Counterparty.Id == ordersByCounterparty.Key
-																							 && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-																							 select (decimal?)operation.Income ?? 0m).Sum() ?? 0m
+				let cashlessMovementOperationsSum = (decimal?)(from operation in unitOfWork.Session.Query<CashlessMovementOperation>()
+															   where
+															   operation.Counterparty.Id == ordersByCounterparty.Key
+															   && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+															   select (decimal?)operation.Income ?? 0m).Sum() ?? 0m
 
-											  let paymentsFromBankClientSums = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
-																						  join payment in unitOfWork.Session.Query<Payment>()
-																						  on paymentItem.Payment.Id equals payment.Id
-																						  where
-																						  payment.Counterparty.Id == ordersByCounterparty.Key
-																						  && payment.Status != PaymentState.Cancelled
-																						  select (decimal?)paymentItem.Sum ?? 0m).Sum() ?? 0m
-											  select new CounterpartyCashlessBalanceNode
-											  {
-												  ClientId = ordersByCounterparty.Key,
-												  ClientInn = ordersByCounterparty.Select(o => o.ClientInn).FirstOrDefault() ?? string.Empty,
-												  NotPaidOrdersSum = ordersByCounterparty.Select(o => o.OrderItemActualSum).Sum(),
-												  PartiallyPaidOrdersSum = ordersByCounterparty.Select(o => o.PartialPaidOrdersSum).Sum(),
-												  CashlessMovementOperationsSum = cashlessMovementOperationsSum,
-												  PaymentsFromBankClientSums = paymentsFromBankClientSums
-											  };
+				let paymentsFromBankClientSums = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
+															join payment in unitOfWork.Session.Query<Payment>()
+															on paymentItem.Payment.Id equals payment.Id
+															where
+															payment.Counterparty.Id == ordersByCounterparty.Key
+															&& payment.Status != PaymentState.Cancelled
+															select (decimal?)paymentItem.Sum ?? 0m).Sum() ?? 0m
+				select new CounterpartyCashlessBalanceNode
+				{
+					ClientId = ordersByCounterparty.Key,
+					ClientInn = ordersByCounterparty.Select(o => o.ClientInn).FirstOrDefault() ?? string.Empty,
+					NotPaidOrdersSum = ordersByCounterparty.Select(o => o.OrderItemActualSum).Sum(),
+					PartiallyPaidOrdersSum = ordersByCounterparty.Select(o => o.PartialPaidOrdersSum).Sum(),
+					CashlessMovementOperationsSum = cashlessMovementOperationsSum,
+					PaymentsFromBankClientSums = paymentsFromBankClientSums
+				};
 
 			return counterpartyCashlessBalance;
 		}
