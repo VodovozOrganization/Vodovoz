@@ -8,6 +8,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Payments
 {
@@ -78,7 +79,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientOldBalanceDvData.Binding
-				.AddBinding(ViewModel, vm => vm.OldDebtInDatabase, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.OldBalanceInDatabase, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientOldBalanceDocumentData.Binding
@@ -156,16 +157,6 @@ namespace Vodovoz.Views.Payments
 					.AddTextRenderer(n => n.OrderPaymentStatus.HasValue
 						? n.OrderPaymentStatus.GetEnumTitle()
 						: string.Empty)
-				/*.RowCells()
-				.AddSetter<CellRenderer>((c, n) =>
-				{
-					c.CellBackgroundGdk = GdkColors.PrimaryBase;
-
-					if(n.IsMissingFromDocument)
-					{
-						c.CellBackgroundGdk = GdkColors.Orange;
-					}
-				})*/
 				.AddColumn("")
 				.Finish();
 
@@ -208,6 +199,7 @@ namespace Vodovoz.Views.Payments
 			ytreeviewCounterpartiesData.ColumnsConfig = FluentColumnsConfig<CounterpartyBalanceNode>.Create()
 				.AddColumn("Наименование")
 					.AddTextRenderer(n => n.CounterpartyName)
+					.WrapWidth(1200).WrapMode(WrapMode.WordChar)
 				.AddColumn("Баланс по ДВ")
 					.AddNumericRenderer(n => n.CounterpartyBalance)
 				.AddColumn("Баланс по 1С")
@@ -215,7 +207,7 @@ namespace Vodovoz.Views.Payments
 				.AddColumn("")
 				.Finish();
 
-			ytreeviewCounterpartiesData.ItemsDataSource = ViewModel.CounterpartyBalanceNodes;
+			ytreeviewCounterpartiesData.ItemsDataSource = ViewModel.BalanceNodes;
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
