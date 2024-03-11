@@ -70,6 +70,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			UpdateOnChanges(typeof(DistrictsSet));
 			SetIsStoppedOnlineDeliveriesToday();
+			CreatePopupActions();
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
@@ -107,6 +108,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				   .Select(() => creatorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic))
 				.TransformUsing(Transformers.AliasToBean<DistrictsSetJournalNode>());
 		}
+
+		#region NodeActions
 
 		protected override void CreateNodeActions()
 		{
@@ -221,6 +224,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			IsStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 		}
 
+		#endregion NodeActions
+
+		#region PopupActions
+
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Clear();
@@ -324,5 +331,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				)
 			);
 		}
+
+		#endregion PopupActions
 	}
 }
