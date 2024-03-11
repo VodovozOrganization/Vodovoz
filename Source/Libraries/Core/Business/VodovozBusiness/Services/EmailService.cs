@@ -8,8 +8,11 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
+using Email = Vodovoz.Domain.Contacts.Email;
+using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.Services
@@ -42,40 +45,44 @@ namespace Vodovoz.Services
 			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
 		}
 
-		public void SendUpdToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleSettings)
+		public Result SendUpdToEmailOnFinishIfNeeded(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings)
 				&& !emailRepository.HasSendedEmailForUpd(order.Id))
 			{
-				SendUpdToEmail(uow, order);
+				return SendUpdToEmail(uow, order);
 			}
+
+			return Result.Success();
 		}
 
-		public void SendBillForClosingDocumentOrderToEmailOnFinish(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
+		public Result SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings, true)
 				&& !emailRepository.HaveSendedEmailForBill(order.Id)
 				&& orderRepository.GetEdoContainersByOrderId(uow, order.Id).Count(x => x.Type == Type.Bill) == 0)
 			{
-				SendBillToEmail(uow, order, emailRepository);
+				return SendBillToEmail(uow, order);								
 			}
+
+			return Result.Success();
 		}
 
-		public void SendUpdToEmail(IUnitOfWork uow, Order order)
+		public Result SendUpdToEmail(IUnitOfWork uow, Order order)
 		{
 			var document = order.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD);
 
 			if(document == null)
 			{
-				return;
+				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
 			}
 
 			var emailAddress = GetEmailAddressForBill(order);
 
 			if(emailAddress == null)
 			{
-				return;
+				return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
 			}
 
 			var storedEmail = new StoredEmail
@@ -99,9 +106,11 @@ namespace Vodovoz.Services
 			};
 
 			uow.Save(updDocumentEmail);
+
+			return Result.Success();
 		}
 
-		public void SendBillToEmail(IUnitOfWork uow, Order order, IEmailRepository emailRepository)
+		public Result SendBillToEmail(IUnitOfWork uow, Order order)
 		{
 			var document = order.OrderDocuments.FirstOrDefault(x => (x.Type == OrderDocumentType.Bill
 				|| x.Type == OrderDocumentType.SpecialBill)
@@ -109,21 +118,16 @@ namespace Vodovoz.Services
 
 			if(document == null)
 			{			
-				return;
+				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
 			}
 
 			try
 			{
-				if(emailRepository.HaveSendedEmailForBill(order.Id))
-				{
-					return;
-				}
-
 				var _emailAddressForBill = GetEmailAddressForBill(order);
 
 				if(_emailAddressForBill == null)
 				{
-					throw new ArgumentNullException(nameof(_emailAddressForBill));
+					return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
 				}
 
 				var storedEmail = new StoredEmail
@@ -152,6 +156,8 @@ namespace Vodovoz.Services
 			{
 				throw ex;
 			}
+
+			return Result.Success();
 		}
 
 		public Email GetEmailAddressForBill(Order order) =>

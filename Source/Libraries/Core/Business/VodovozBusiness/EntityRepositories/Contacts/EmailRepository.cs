@@ -119,7 +119,6 @@ namespace Vodovoz.EntityRepositories
 									(isForBill && !order.Client.NeedSendBillByEdo) || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
 								)
 								&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-								&& currentOrder.OrderStatus == OrderStatus.Closed
 							)
 						)
 				select order.Id)

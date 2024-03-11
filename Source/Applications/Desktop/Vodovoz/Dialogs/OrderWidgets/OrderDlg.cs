@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -2233,7 +2233,7 @@ namespace Vodovoz
 
 				if(_isNeedSendBillToEmail)
 				{
-					_emailService.SendBillToEmail(UoW, Entity, _emailRepository);
+					_emailService.SendBillToEmail(UoW, Entity);
 				}
 
 				logger.Info("Сохраняем заказ...");
