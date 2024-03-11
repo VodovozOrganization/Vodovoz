@@ -14,7 +14,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 {
 	public class DeliveryPriceRuleJournalViewModel : SingleEntityJournalViewModelBase<DeliveryPriceRule, DeliveryPriceRuleViewModel, DeliveryPriceRuleJournalNode>
 	{
-		private readonly IDistrictRuleRepository districtRuleRepository;
+		private readonly IDistrictRuleRepository _districtRuleRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public DeliveryPriceRuleJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -22,15 +23,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			IDistrictRuleRepository districtRuleRepository)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 
 			TabName = "Правила для цен доставки";
 
 			UpdateOnChanges(typeof(DeliveryPriceRule));
 		}
 
-		private IUnitOfWorkFactory unitOfWorkFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<DeliveryPriceRule>> ItemsSourceQueryFunction => (uow) =>
 		{
@@ -58,18 +58,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 		};
 
 		protected override Func<DeliveryPriceRuleViewModel> CreateDialogFunction => () => new DeliveryPriceRuleViewModel(
+			null,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			_unitOfWorkFactory,
 			commonServices,
-			districtRuleRepository
+			_districtRuleRepository
 		);
 
 		protected override Func<DeliveryPriceRuleJournalNode, DeliveryPriceRuleViewModel> OpenDialogFunction =>
 			node => new DeliveryPriceRuleViewModel(
+				null,
 				EntityUoWBuilder.ForOpen(node.Id),
-				unitOfWorkFactory,
+				_unitOfWorkFactory,
 				commonServices,
-				districtRuleRepository
+				_districtRuleRepository
 		);
 
 		protected override void CreateNodeActions()
