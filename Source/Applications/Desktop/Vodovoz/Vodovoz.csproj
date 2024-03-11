@@ -406,6 +406,7 @@
     <EmbeddedResource Include="icons\pacs\short-break-allowed.png" />
     <EmbeddedResource Include="icons\pacs\short-break-default.png" />
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
+    <EmbeddedResource Include="icons\toolbar\1s_default.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />

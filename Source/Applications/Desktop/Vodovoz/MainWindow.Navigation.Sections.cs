@@ -131,6 +131,11 @@ public partial class MainWindow
 		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
 	}
 
+	protected void OnAction1SWorkAcivated(System.Object sender, System.EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
+	}
+
 	protected void OnActionCarServiceAcivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.car_service.xml");
