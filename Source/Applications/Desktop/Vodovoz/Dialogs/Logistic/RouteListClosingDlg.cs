@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -463,7 +463,7 @@ namespace Vodovoz
 				}
 
 				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
-					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
 			}
 		}
 
@@ -800,7 +800,7 @@ namespace Vodovoz
 			}
 
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
-				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id]);
 
 			ReloadDiscrepancies();
 
@@ -1336,8 +1336,10 @@ namespace Vodovoz
 
 		protected void OnButtonBottleDelFineClicked(object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject<Fine>(Entity.BottleFine.Id, UoW);
+			var fineId = Entity.BottleFine.Id;
+			UoW.Session.Evict(Entity.BottleFine);
 			Entity.BottleFine = null;
+			OrmMain.DeleteObject<Fine>(fineId, UoW);
 			CalculateTotal();
 			UpdateButtonState();
 		}

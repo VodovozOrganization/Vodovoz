@@ -1,5 +1,6 @@
 ﻿using DriverApi.Contracts.V4;
-using DriverAPI.Library.Models;
+using DriverAPI.Library.Exceptions;
+using DriverAPI.Library.V4.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;

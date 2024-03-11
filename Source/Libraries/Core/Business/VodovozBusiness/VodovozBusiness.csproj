@@ -57,6 +57,7 @@
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Errors\Email\Email.cs" />
+    <Compile Include="Errors\Employees\Driver.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
@@ -680,6 +681,7 @@
     <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Common\Repository.cs" />
     <Compile Include="Errors\Edo\Edo.cs" />
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Goods\Nomenclature.cs" />
