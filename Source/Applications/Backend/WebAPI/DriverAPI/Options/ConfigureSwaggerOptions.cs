@@ -22,21 +22,21 @@ namespace DriverAPI.Options
 
 		public void Configure(SwaggerGenOptions options)
 		{
+			options.MapType<TimeSpan>(() => new OpenApiSchema
+			{
+				Type = "string",
+				Example = new OpenApiString("00:00:00")
+			});
+
+			options.MapType<TimeSpan?>(() => new OpenApiSchema
+			{
+				Type = "string",
+				Example = new OpenApiString("00:00:00")
+			});
+
 			foreach (var desvription in _apiVersionDescriptionProvider.ApiVersionDescriptions)
 			{
 				options.SwaggerDoc(desvription.GroupName, CreateVersionInfo(desvription));
-
-				options.MapType<TimeSpan>(() => new OpenApiSchema
-				{
-					Type = "string",
-					Example = new OpenApiString("00:00:00")
-				});
-
-				options.MapType<TimeSpan?>(() => new OpenApiSchema
-				{
-					Type = "string",
-					Example = new OpenApiString("00:00:00")
-				});
 
 				// using System.Reflection;
 				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

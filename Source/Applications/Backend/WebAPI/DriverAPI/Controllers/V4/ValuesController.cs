@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Controllers.V4
@@ -11,6 +10,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер значений
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class ValuesController : VersionedController
 	{

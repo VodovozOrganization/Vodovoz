@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DriverApi.Contracts.V4;
+using FastPaymentsApi.Contracts.Responses;
 using Microsoft.Extensions.Configuration;
 
 namespace DriverAPI.Library.Helpers

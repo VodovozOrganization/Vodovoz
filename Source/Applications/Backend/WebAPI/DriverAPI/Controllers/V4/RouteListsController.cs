@@ -1,6 +1,6 @@
 ﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
+using DriverAPI.Library.V4.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +21,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер маршрутных листов
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class RouteListsController : VersionedController
 	{
@@ -31,7 +32,7 @@ namespace DriverAPI.Controllers.V4
 		private readonly IEmployeeModel _employeeData;
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly IActionTimeHelper _actionTimeHelper;
-		private readonly IRouteListService _routeListService;
+		private readonly Vodovoz.Services.Logistics.IRouteListService _routeListService;
 		private readonly UserManager<IdentityUser> _userManager;
 
 		/// <summary>
@@ -56,7 +57,7 @@ namespace DriverAPI.Controllers.V4
 			IEmployeeModel employeeData,
 			IDriverMobileAppActionRecordModel driverMobileAppActionRecordModel,
 			IActionTimeHelper actionTimeHelper,
-			IRouteListService routeListService,
+			Vodovoz.Services.Logistics.IRouteListService routeListService,
 			UserManager<IdentityUser> userManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

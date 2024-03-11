@@ -632,6 +632,24 @@ namespace Vodovoz.EntityRepositories.Orders
 			};
 		}
 
+		public OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList()
+		{
+			return new OrderStatus[] {
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.UnloadingOnStock
+			};
+		}
+
+		public OrderStatus[] GetStatusesForFreeBalanceOperations()
+		{
+			return new OrderStatus[] {
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+			};
+		}
+
 		public OrderStatus[] GetStatusesForActualCount(VodovozOrder order)
 		{
 			if(order.SelfDelivery)
