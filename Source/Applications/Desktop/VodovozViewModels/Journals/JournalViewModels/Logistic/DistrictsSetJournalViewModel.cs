@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using System;
 using System.Linq;
@@ -12,74 +13,79 @@ using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
-	public sealed class DistrictsSetJournalViewModel : FilterableSingleEntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode, DistrictsSetJournalFilterViewModel>
+	public sealed class DistrictsSetJournalViewModel : EntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode>
 	{
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
-		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IUserService _userService;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
+		private readonly IInteractiveService _interactiveService;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly bool _canUpdate;
+		private readonly bool _canCreate;
+		private readonly bool _canActivateDistrictsSet;
 
 		public DistrictsSetJournalViewModel(
 			DistrictsSetJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
+			IInteractiveService interactiveService,
 			IEmployeeRepository employeeRepository,
-			IEntityDeleteWorker entityDeleteWorker,
-			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IDeliveryRepository deliveryRepository,
-			INavigationManager navigation,
-			bool hideJournalForOpenDialog = false,
-			bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog, navigation)
+			IUserService userService,
+			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService)
+			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
-			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_deliveryRulesSettings =
 				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
-			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
-			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
-			canCreate = permissionResult.CanCreate;
-			canUpdate = permissionResult.CanUpdate;
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_canActivateDistrictsSet = CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
+			var permissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
+			_canCreate = permissionResult.CanCreate;
+			_canUpdate = permissionResult.CanUpdate;
 			_сanChangeOnlineDeliveriesToday =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_online_deliveries_today");
+				CurrentPermissionService.ValidatePresetPermission("can_change_online_deliveries_today");
+
+			if(filterViewModel != null)
+			{
+				JournalFilter = filterViewModel;
+				filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			}
+
+			VisibleDeleteAction = _userService.GetCurrentUser().IsAdmin;
 
 			TabName = "Журнал версий районов";
+
+			UseSlider = true;
+
 			UpdateOnChanges(typeof(DistrictsSet));
 			SetIsStoppedOnlineDeliveriesToday();
 		}
 
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly IEmployeeRepository employeeRepository;
-		private readonly IEntityDeleteWorker entityDeleteWorker;
-		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
-		private readonly bool canUpdate;
-		private readonly bool canCreate;
-		private readonly bool canActivateDistrictsSet;
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
 
 		private bool IsStoppedOnlineDeliveriesToday { get; set; }
 
-		protected override Func<IUnitOfWork, IQueryOver<DistrictsSet>> ItemsSourceQueryFunction => uow =>
+		protected override IQueryOver<DistrictsSet> ItemsQuery(IUnitOfWork unitOfWork)
 		{
 			DistrictsSet districtsSetAlias = null;
 			DistrictsSetJournalNode resultAlias = null;
 			Employee creatorAlias = null;
 
-			var query = uow.Session.QueryOver<DistrictsSet>(() => districtsSetAlias)
+			var query = unitOfWork.Session.QueryOver<DistrictsSet>(() => districtsSetAlias)
 				.Left.JoinAlias(() => districtsSetAlias.Author, () => creatorAlias);
 
 			query.Where(GetSearchCriterion(
@@ -98,54 +104,24 @@ namespace Vodovoz.Journals.JournalViewModels
 				   .Select(x => x.Comment).WithAlias(() => resultAlias.Comment)
 				   .Select(() => creatorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   .Select(() => creatorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
-				   .Select(() => creatorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
-				)
+				   .Select(() => creatorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic))
 				.TransformUsing(Transformers.AliasToBean<DistrictsSetJournalNode>());
-		};
-
-		protected override Func<DistrictsSetViewModel> CreateDialogFunction => () =>
-			new DistrictsSetViewModel(
-				EntityUoWBuilder.ForCreate(),
-				unitOfWorkFactory,
-				commonServices,
-				entityDeleteWorker,
-				employeeRepository,
-				new DistrictRuleRepository(),
-				_deliveryScheduleJournalFactory,
-				NavigationManager);
-
-		protected override Func<DistrictsSetJournalNode, DistrictsSetViewModel> OpenDialogFunction => node =>
-			new DistrictsSetViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				unitOfWorkFactory,
-				commonServices,
-				entityDeleteWorker,
-				employeeRepository,
-				new DistrictRuleRepository(),
-				_deliveryScheduleJournalFactory,
-				NavigationManager);
+		}
 
 		protected override void CreateNodeActions()
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			base.CreateNodeActions();
+
 			CreateCopyAction();
 
 			CreateStartOnlineDeliveriesTodayAction();
 			CreateStopOnlineDeliveriesTodayAction();
-
-			if(commonServices.UserService.GetCurrentUser().IsAdmin)
-			{
-				CreateDefaultDeleteAction();
-			}
 		}
 
 		private void CreateCopyAction()
 		{
 			var copyAction = new JournalAction("Копировать",
-				selectedItems => canCreate && selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault() != null,
+				selectedItems => _canCreate && selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault() != null,
 				selected => true,
 				selected =>
 				{
@@ -182,7 +158,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 					questionMessageBuilder.AppendLine($"Скопировать версию районов \"{selectedNode.Name}\"?");
 
-					if(!commonServices.InteractiveService.Question(questionMessageBuilder.ToString()))
+					if(!_interactiveService.Question(questionMessageBuilder.ToString()))
 					{
 						return;
 					}
@@ -195,14 +171,14 @@ namespace Vodovoz.Journals.JournalViewModels
 						copy.Name = copy.Name.Remove(DistrictsSet.NameMaxLength);
 					}
 
-					copy.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
+					copy.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 					copy.Status = DistrictsSetStatus.Draft;
 					copy.DateCreated = DateTime.Now;
 
 					UoW.Save(copy);
 					UoW.Commit();
 
-					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
+					_interactiveService.ShowMessage(ImportanceLevel.Info, "Копирование завершено");
 
 					Refresh();
 				}
@@ -258,7 +234,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Активировать",
-					selectedItems => canActivateDistrictsSet && canUpdate
+					selectedItems => _canActivateDistrictsSet && _canUpdate
 						&& selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems =>
@@ -266,29 +242,24 @@ namespace Vodovoz.Journals.JournalViewModels
 						var selectedNodes = selectedItems.OfType<DistrictsSetJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode == null)
+						{
 							return;
+						}
+
 						var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).Take(1).SingleOrDefault();
 						if(activeDistrictsSet?.DateCreated > selectedNode.DateCreated)
 						{
-							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
+							_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
 							return;
 						}
 						var selectedDistrictsSet = UoW.GetById<DistrictsSet>(selectedNode.Id);
 						if(selectedDistrictsSet.Districts.Any(x => x.CopyOf == null)
-							&& !commonServices.InteractiveService.Question("Для выбранной версии невозможно перенести все приоритеты работы водителей\nПродолжить?"))
+							&& !_interactiveService.Question("Для выбранной версии невозможно перенести все приоритеты работы водителей\nПродолжить?"))
 						{
 							return;
 						}
-						TabParent.AddSlaveTab(this,
-							new DistrictsSetActivationViewModel(
-								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								unitOfWorkFactory,
-								commonServices,
-								new EmployeeRepository(),
-								_deliveryRepository
-								)
-						);
 
+						NavigationManager.OpenViewModel<DistrictsSetActivationViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				)
 			);
@@ -299,7 +270,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть",
-					selectedItems => canUpdate &&
+					selectedItems => _canUpdate &&
 						selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems =>
@@ -329,7 +300,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"В черновик",
-					selectedItems => canUpdate &&
+					selectedItems => _canUpdate &&
 						selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Closed,
 					selectedItems => true,
 					selectedItems =>
@@ -353,6 +324,5 @@ namespace Vodovoz.Journals.JournalViewModels
 				)
 			);
 		}
-
 	}
 }
