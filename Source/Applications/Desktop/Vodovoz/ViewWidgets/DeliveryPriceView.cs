@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -212,44 +212,44 @@ namespace Vodovoz.ViewWidgets
 			#region DeliveryRules
 
 			DeliveryRulesToday =
-				ConvertToDeliveryRuleRows(District.TodayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+				ConvertToDeliveryRuleRows(District.TodayDistrictRuleItems.Any()
+				? District.TodayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
-			DeliveryRulesMonday =
-				ConvertToDeliveryRuleRows(District.MondayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+			DeliveryRulesMonday = ConvertToDeliveryRuleRows(
+				District.MondayDistrictRuleItems.Any()
+				? District.MondayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
-			DeliveryRulesTuesday =
-				ConvertToDeliveryRuleRows(District.TuesdayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+			DeliveryRulesTuesday = ConvertToDeliveryRuleRows(
+				District.TuesdayDistrictRuleItems.Any()
+				? District.TuesdayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
 			DeliveryRulesWednesday =
-				ConvertToDeliveryRuleRows(District.WednesdayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+				ConvertToDeliveryRuleRows(District.WednesdayDistrictRuleItems.Any()
+				? District.WednesdayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
 			DeliveryRulesThursday =
-				ConvertToDeliveryRuleRows(District.ThursdayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+				ConvertToDeliveryRuleRows(District.ThursdayDistrictRuleItems.Any()
+				? District.ThursdayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
 			DeliveryRulesFriday =
-				ConvertToDeliveryRuleRows(District.FridayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+				ConvertToDeliveryRuleRows(District.FridayDistrictRuleItems.Any()
+				? District.FridayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
 			DeliveryRulesSaturday =
-				ConvertToDeliveryRuleRows(District.SaturdayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+				ConvertToDeliveryRuleRows(District.SaturdayDistrictRuleItems.Any()
+				? District.SaturdayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
 			DeliveryRulesSunday =
-				ConvertToDeliveryRuleRows(District.SundayDistrictRuleItems
-					.Cast<DistrictRuleItemBase>()
-					.Concat(District.CommonDistrictRuleItems));
+				ConvertToDeliveryRuleRows(District.SundayDistrictRuleItems.Any()
+				? District.SundayDistrictRuleItems
+				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
 
 			#endregion DeliveryRules
 
