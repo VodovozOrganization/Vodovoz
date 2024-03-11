@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -278,7 +278,7 @@ namespace Vodovoz.ViewWidgets
 			var result = new StringBuilder();
 
 			int i = 1;
-			int? lastItemId = restrictions.LastOrDefault().Id;
+			int? lastItemId = restrictions.LastOrDefault()?.Id;
 
 			foreach(var restriction in restrictions)
 			{
