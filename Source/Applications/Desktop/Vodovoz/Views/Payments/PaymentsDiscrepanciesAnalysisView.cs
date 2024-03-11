@@ -70,6 +70,12 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel, vm => vm.SelectedClient, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			datepickerCommonMaxDate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CommonReconciliationDataMaxDate, w => w.DateOrNull)
+				.AddBinding(vm => vm.CanReadFile, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ylabelClientDebtDvData.Binding
 				.AddBinding(ViewModel, vm => vm.BalanceInDatabase, w => w.Text)
 				.InitializeFromSource();
@@ -197,6 +203,8 @@ namespace Vodovoz.Views.Payments
 		private void ConfigureCounterpartiesTree()
 		{
 			ytreeviewCounterpartiesData.ColumnsConfig = FluentColumnsConfig<CounterpartyBalanceNode>.Create()
+				.AddColumn("ИНН")
+					.AddNumericRenderer(n => n.CounterpartyInn)
 				.AddColumn("Наименование")
 					.AddTextRenderer(n => n.CounterpartyName)
 					.WrapWidth(1200).WrapMode(WrapMode.WordChar)

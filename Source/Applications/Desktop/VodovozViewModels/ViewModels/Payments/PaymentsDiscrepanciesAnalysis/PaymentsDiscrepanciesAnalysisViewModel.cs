@@ -55,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private bool _isDiscrepanciesOnly;
 		private bool _isClosedOrdersOnly;
 		private bool _isExcludeOldData;
+		private DateTime? _commonReconciliationDataMaxDate;
 
 		private string _ordersTotalSum1C;
 		private string _paymentsTotalSum1C;
@@ -136,6 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				if(SetField(ref _isDiscrepanciesOnly, value))
 				{
 					FillOrderNodes();
+					FillPaymentNodes();
 				}
 			}
 		}
@@ -148,6 +150,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				if(SetField(ref _isClosedOrdersOnly, value))
 				{
 					FillOrderNodes();
+					FillPaymentNodes();
 				}
 			}
 		}
@@ -160,6 +163,22 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				if(SetField(ref _isExcludeOldData, value))
 				{
 					FillOrderNodes();
+					FillPaymentNodes();
+				}
+			}
+		}
+
+		public DateTime? CommonReconciliationDataMaxDate
+		{
+			get => _commonReconciliationDataMaxDate;
+			set
+			{
+				if(SetField(ref _commonReconciliationDataMaxDate, value))
+				{
+					if(_turnoverBalanceSheet1C != null)
+					{
+						AnalyseDiscrepanciesCommand?.Execute();
+					}
 				}
 			}
 		}
@@ -542,11 +561,16 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private IList<CounterpartyCashlessBalanceNode> GetCounterpartyBalancesFromDatabase()
 		{
-			var balances = _counterpartyRepository
+			if(CommonReconciliationDataMaxDate.HasValue)
+			{
+				return _counterpartyRepository
+					.GetCounterpartiesCashlessBalance(_unitOfWork, _availableOrderStatuses, maxDeliveryDate: CommonReconciliationDataMaxDate.Value)
+					.ToList();
+			}
+
+			return _counterpartyRepository
 				.GetCounterpartiesCashlessBalance(_unitOfWork, _availableOrderStatuses)
 				.ToList();
-
-			return balances;
 		}
 
 		private IDictionary<string, CounterpartyBalanceNode> CreareCounterpartyBalanceNodes(
@@ -560,8 +584,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				if(counterpartyBalanceNodes.TryGetValue(databaseBalanceNode.CounterpartyInn, out var balance))
 				{
 					balance.CounterpartyInn = databaseBalanceNode.CounterpartyInn;
-					balance.CounterpartyName = $"{databaseBalanceNode.CounterpartyInn} {databaseBalanceNode.CounterpartyName}";
-					balance.CounterpartyBalance = (-1) * databaseBalanceNode.Balance;
+					balance.CounterpartyName = $"{databaseBalanceNode.CounterpartyName}";
+					balance.CounterpartyBalance = databaseBalanceNode.Balance;
 				}
 				else
 				{
@@ -570,8 +594,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 						new CounterpartyBalanceNode
 						{
 							CounterpartyInn = databaseBalanceNode.CounterpartyInn,
-							CounterpartyName = $"{databaseBalanceNode.CounterpartyInn} {databaseBalanceNode.CounterpartyName}",
-							CounterpartyBalance = (-1) * databaseBalanceNode.Balance
+							CounterpartyName = $"{databaseBalanceNode.CounterpartyName}",
+							CounterpartyBalance = databaseBalanceNode.Balance
 						});
 				}
 			}
@@ -619,11 +643,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			{
 				if(counterpartyNames.TryGetValue(inn, out var name))
 				{
-					_counterpartyBalanceNodes[inn].CounterpartyName = $"{inn} {name}";
-				}
-				else
-				{
-					_counterpartyBalanceNodes[inn].CounterpartyName = $"{inn}";
+					_counterpartyBalanceNodes[inn].CounterpartyName = $"{name}";
 				}
 			}
 		}
@@ -684,7 +704,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			foreach(var keyPairValue in _paymentDiscrepanciesNodes)
 			{
-				PaymentsNodes.Add(keyPairValue.Value);
+				var paymentNode = keyPairValue.Value;
+
+				if(IsDiscrepanciesOnly && paymentNode.DocumentPaymentSum == paymentNode.ProgramPaymentSum)
+				{
+					continue;
+				}
+
+				if(IsExcludeOldData
+					&& paymentNode.PaymentDate < CounterpartySettlementsReconciliation1C.OldOrdersMaxDate.AddDays(1))
+				{
+					continue;
+				}
+
+				PaymentsNodes.Add(paymentNode);
 			}
 		}
 
@@ -699,6 +732,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			foreach(var keyPairValue in _counterpartyBalanceNodes)
 			{
+				var balanceNode = keyPairValue.Value;
+
+				if(balanceNode.CounterpartyBalance == balanceNode.CounterpartyBalance1C)
+				{
+					continue;
+				}
+
 				BalanceNodes.Add(keyPairValue.Value);
 			}
 		}
