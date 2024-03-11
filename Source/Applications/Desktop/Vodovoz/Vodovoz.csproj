@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2645,6 +2645,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="icons\common\fire16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="toolbars\1s_work.xml" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
