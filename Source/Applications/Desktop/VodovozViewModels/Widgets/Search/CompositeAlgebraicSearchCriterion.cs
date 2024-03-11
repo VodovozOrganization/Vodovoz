@@ -43,7 +43,10 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 				if(_journalSearch.Operand1 == OperandType.Disabled)
 				{
-					disjunctionCriterion.Add(restriction);
+					if(restriction != null)
+					{
+						disjunctionCriterion.Add(restriction);
+					}
 					continue;
 				}
 
@@ -55,7 +58,10 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 				if(_journalSearch.Operand2 == OperandType.Disabled)
 				{
-					disjunctionCriterion.Add(restriction);
+					if(restriction != null)
+					{
+						disjunctionCriterion.Add(restriction);
+					}
 					continue;
 				}
 
@@ -67,7 +73,10 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 				if(_journalSearch.Operand3 == OperandType.Disabled)
 				{
-					disjunctionCriterion.Add(restriction);
+					if(restriction != null)
+					{
+						disjunctionCriterion.Add(restriction);
+					}
 					continue;
 				}
 
@@ -79,7 +88,10 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 				if(restriction != null)
 				{
-					disjunctionCriterion.Add(restriction);
+					if(restriction != null)
+					{
+						disjunctionCriterion.Add(restriction);
+					}
 				}
 			}
 
@@ -94,12 +106,27 @@ namespace Vodovoz.ViewModels.Widgets.Search
 		{
 			var entryTextCriterion = searchProperty.GetCriterion(entryText);
 
+			if(entryTextCriterion is null)
+			{
+				return originalCriterion;
+			}
+
 			if(operandType == OperandType.And)
 			{
+				if(originalCriterion is null)
+				{
+					return Restrictions.Where(() => false);
+				}
+
 				originalCriterion = Restrictions.And(originalCriterion, entryTextCriterion);
 			}
 			else if(operandType == OperandType.Or)
 			{
+				if(originalCriterion is null)
+				{
+					return entryTextCriterion;
+				}
+
 				originalCriterion = Restrictions.Or(originalCriterion, entryTextCriterion);
 			}
 
