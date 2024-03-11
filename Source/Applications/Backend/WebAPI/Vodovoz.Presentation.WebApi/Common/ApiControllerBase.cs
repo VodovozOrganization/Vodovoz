@@ -14,7 +14,6 @@ namespace Vodovoz.Presentation.WebApi.Common
 {
 	[ApiController]
 	[ErrorHandlingFilter]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
 	public class ApiControllerBase : ControllerBase
 	{
 		private readonly ILogger<ApiControllerBase> _logger;

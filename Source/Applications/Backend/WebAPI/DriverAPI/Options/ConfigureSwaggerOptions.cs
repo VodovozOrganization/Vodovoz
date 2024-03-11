@@ -7,6 +7,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
 using System.Reflection;
+using Vodovoz.Presentation.WebApi.SwaggerGen;
 
 namespace DriverAPI.Options
 {
@@ -22,6 +23,8 @@ namespace DriverAPI.Options
 
 		public void Configure(SwaggerGenOptions options)
 		{
+			options.OperationFilter<ProblemDetailsOperationFilter>();
+
 			options.MapType<TimeSpan>(() => new OpenApiSchema
 			{
 				Type = "string",

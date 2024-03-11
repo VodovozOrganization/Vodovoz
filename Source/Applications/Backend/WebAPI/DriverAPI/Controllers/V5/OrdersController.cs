@@ -65,9 +65,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public IActionResult GetOrder(int orderId)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
@@ -110,9 +107,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequest completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
@@ -199,9 +193,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequest completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
@@ -267,9 +258,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequest changeOrderPaymentTypeRequestModel)
 		{
 			var recievedTime = DateTime.Now;

@@ -52,7 +52,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> Post([FromBody] RegisterRequest loginRequestModel)
 		{
 			var user = new IdentityUser
