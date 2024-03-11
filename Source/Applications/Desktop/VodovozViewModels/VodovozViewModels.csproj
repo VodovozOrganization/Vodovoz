@@ -532,6 +532,8 @@
     <Compile Include="Dialogs\Mango\SubscriberSelectionViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\InternalTalkViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDiscussionsViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDiscussionViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryObjectViewModel.cs" />

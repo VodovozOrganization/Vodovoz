@@ -9,12 +9,10 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
-using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -22,9 +20,7 @@ namespace Vodovoz.Domain.Orders
 				NominativePlural = "недовезённые заказы",
 				Nominative = "недовезённый заказ",
 				Prepositional = "недовезённом заказе",
-				PrepositionalPlural = "недовезённых заказах"
-			   )
-	]
+				PrepositionalPlural = "недовезённых заказах")]
 	[HistoryTrace]
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
@@ -34,6 +30,8 @@ namespace Vodovoz.Domain.Orders
 		private UndeliveryDetalization _undeliveryDetalization;
 		private UndeliveryStatus? _oldUndeliveryStatus;
 		private UndeliveryStatus _undeliveryStatus;
+		private IList<UndeliveryDiscussion> _undeliveryDiscussions = new List<UndeliveryDiscussion>();
+		private GenericObservableList<UndeliveryDiscussion> _observableUndeliveryDiscussions = new GenericObservableList<UndeliveryDiscussion>();
 
 		#region Cвойства
 
@@ -273,6 +271,16 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _undeliveryDetalization, value);
 		}
 
+		[Display(Name = "Обсуждения")]
+		public virtual IList<UndeliveryDiscussion> UndeliveryDiscussions
+		{
+			get => _undeliveryDiscussions;
+			set => SetField(ref _undeliveryDiscussions, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<UndeliveryDiscussion> ObservableUndeliveryDiscussions => _observableUndeliveryDiscussions;
+
 		#endregion
 
 		#region Вычисляемые свойства
@@ -448,6 +456,66 @@ namespace Vodovoz.Domain.Orders
 				info.AppendLine(string.Format("<i>Перенос:</i> {0}, {1}", NewOrder.Title, NewOrder.DeliverySchedule?.DeliveryTime ?? "инт-л не выбран"));
 			info.AppendLine(string.Format("<i>Причина:</i> {0}", Reason));
 			return info.ToString();
+		}
+
+		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
+		{
+			if(subdivision == null)
+			{
+				throw new ArgumentNullException(nameof(subdivision));
+			}
+
+			if(ObservableUndeliveryDiscussions.Any(x => x.Subdivision.Id == subdivision.Id))
+			{
+				return;
+			}
+
+			UndeliveryDiscussion newDiscussion = new UndeliveryDiscussion
+			{
+				StartSubdivisionDate = DateTime.Now,
+				PlannedCompletionDate = DateTime.Today,
+				Undelivery = this,
+				Subdivision = subdivision
+			};
+
+			ObservableUndeliveryDiscussions.Add(newDiscussion);
+
+			SetStatus(UndeliveryStatus.InProcess);
+		}
+
+		public virtual void UpdateUndeliveryStatus()
+		{
+			//if(ObservableUndeliveryDiscussions.Any(x => x.Status == UndeliveryDiscussionStatus.Checking))
+			//{
+			//	SetStatus(UndeliveryStatus.WaitingForReaction);
+			//	return;
+			//}
+
+			if(ObservableUndeliveryDiscussions.All(x => x.Status == UndeliveryDiscussionStatus.Closed))
+			{
+				SetStatus(UndeliveryStatus.Checking);
+				return;
+			}
+			SetStatus(UndeliveryStatus.InProcess);
+		}
+
+		public virtual IList<string> SetStatus(UndeliveryStatus newStatus)
+		{
+			List<string> result = new List<string>();
+			if(newStatus == UndeliveryStatus.Closed)
+			{
+				if(ObservableResultComments.Count == 0)
+				{
+					result.Add("Необходимо добавить комментарий \"Результат\".");
+				}
+			}
+
+			if(!result.Any())
+			{
+				UndeliveryStatus = newStatus;
+			}
+
+			return result;
 		}
 
 		#endregion

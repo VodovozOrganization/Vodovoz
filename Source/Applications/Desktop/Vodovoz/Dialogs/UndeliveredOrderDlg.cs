@@ -18,7 +18,9 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.Views.Orders;
 
 namespace Vodovoz.Dialogs
 {
@@ -30,7 +32,6 @@ namespace Vodovoz.Dialogs
 		private readonly ISubdivisionSettings _subdivisionSettings = ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
-		public event EventHandler<EventArgs> CommentAdded;
 		UndeliveredOrder UndeliveredOrder { get; set; }
 
 		private CallTaskWorker callTaskWorker;
@@ -99,32 +100,29 @@ namespace Vodovoz.Dialogs
 				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
 
-			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
+			_undeliveredOrderViewModel = ScopeProvider.Scope.Resolve<UndeliveredOrderViewModel>(
 				new TypedParameter(typeof(UndeliveredOrder), UndeliveredOrder),
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+
+			var discussionsViewModel = ScopeProvider.Scope.Resolve<UndeliveryDiscussionsViewModel>(
+						new TypedParameter(typeof(UndeliveredOrder), UoW.RootObject),
+						new TypedParameter(typeof(IUnitOfWork), UoW),
+						new TypedParameter(typeof(ITdiTab), this));
 
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;
 
-			SetAccessibilities();
-			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
-				IUnitOfWork UoWForComments = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-				//unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
-				//unOrderCmntView.CommentAdded += (sender, e) => CommentAdded?.Invoke(sender, e);
-				this.Destroyed += (sender, e) =>
-				{
-					UoWForComments?.Dispose();
-				};
+			//если недовоз новый, то не можем оставлять комментарии
+			if(UndeliveredOrder.Id > 0)
+			{				
+				vboxDicussions.Add(new UndeliveryDiscussionsView(discussionsViewModel));
+				vboxDicussions.ShowAll();
 			}
 		}
 
 		private bool IsSaved() => Save(false);
-
-		void SetAccessibilities(){
-			//unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
-		}
 
 		private bool Save(bool needClose = true)
 		{
@@ -207,7 +205,6 @@ namespace Vodovoz.Dialogs
 		
 		public void UnsubscribeAll()
 		{
-			CommentAdded = null;
 			DlgSaved = null;
 		}
 
