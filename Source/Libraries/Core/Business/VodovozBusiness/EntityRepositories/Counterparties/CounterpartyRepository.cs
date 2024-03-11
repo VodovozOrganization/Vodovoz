@@ -505,7 +505,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public decimal CashlessMovementOperationsSum { get; set; }
 		public decimal PaymentsFromBankClientSums { get; set; }
 		public decimal UnallocatedBalance => CashlessMovementOperationsSum - PaymentsFromBankClientSums;
-		public decimal Debt => NotPaidOrdersSum - UnallocatedBalance - PartiallyPaidOrdersSum;
+		public decimal Balance => (UnallocatedBalance + PartiallyPaidOrdersSum) - NotPaidOrdersSum;
 	}
 
 	public class CounterpartyInnName

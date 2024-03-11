@@ -71,11 +71,11 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientDebtDvData.Binding
-				.AddBinding(ViewModel, vm => vm.TotalDebtInDatabase, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.BalanceInDatabase, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientDebtDocumentData.Binding
-				.AddBinding(ViewModel, vm => vm.TotalDebt1C, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.Balance1C, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientOldBalanceDvData.Binding
@@ -83,7 +83,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientOldBalanceDocumentData.Binding
-				.AddBinding(ViewModel, vm => vm.OldDebt1C, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.OldBalance1C, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientOrdersSumDvData.Binding

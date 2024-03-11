@@ -58,11 +58,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private string _ordersTotalSum1C;
 		private string _paymentsTotalSum1C;
-		private string _totalDebt1C;
-		private string _oldDebt1C;
+		private string _balance1C;
+		private string _oldBalance1C;
 		private string _ordersTotalSumInDatabase;
 		private string _paymentsTotalSumInDatabase;
-		private string _totalDebtInDatabase;
+		private string _balanceInDatabase;
 		private string _oldBalanceInDatabase;
 
 		public PaymentsDiscrepanciesAnalysisViewModel(
@@ -176,16 +176,16 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			set => SetField(ref _paymentsTotalSum1C, value);
 		}
 
-		public string TotalDebt1C
+		public string Balance1C
 		{
-			get => _totalDebt1C;
-			set => SetField(ref _totalDebt1C, value);
+			get => _balance1C;
+			set => SetField(ref _balance1C, value);
 		}
 
-		public string OldDebt1C
+		public string OldBalance1C
 		{
-			get => _oldDebt1C;
-			set => SetField(ref _oldDebt1C, value);
+			get => _oldBalance1C;
+			set => SetField(ref _oldBalance1C, value);
 		}
 
 		public string OrdersTotalSumInDatabase
@@ -200,10 +200,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			set => SetField(ref _paymentsTotalSumInDatabase, value);
 		}
 
-		public string TotalDebtInDatabase
+		public string BalanceInDatabase
 		{
-			get => _totalDebtInDatabase;
-			set => SetField(ref _totalDebtInDatabase, value);
+			get => _balanceInDatabase;
+			set => SetField(ref _balanceInDatabase, value);
 		}
 
 		public string OldBalanceInDatabase
@@ -460,7 +460,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			IList<PaymentReconciliation1C> payments1C,
 			IList<PaymentNode> paymentsFromDatabase)
 		{
-			var paymentDiscrepanciesNodes = CrearePaymentDiscrepanciesNodesFromReconciliations(payments1C);
+			var paymentDiscrepanciesNodes = CrearePaymentDiscrepanciesNodesFromReconciliations1C(payments1C);
 
 			foreach(var paymentDatabase in paymentsFromDatabase)
 			{
@@ -494,7 +494,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return paymentDiscrepanciesNodes;
 		}
 
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CrearePaymentDiscrepanciesNodesFromReconciliations(
+		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CrearePaymentDiscrepanciesNodesFromReconciliations1C(
 			IList<PaymentReconciliation1C> paymentReconciliations)
 		{
 			var paymentDiscrepanciesNodes = new Dictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode>();
@@ -561,7 +561,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				{
 					balance.CounterpartyInn = databaseBalanceNode.CounterpartyInn;
 					balance.CounterpartyName = $"{databaseBalanceNode.CounterpartyInn} {databaseBalanceNode.CounterpartyName}";
-					balance.CounterpartyBalance = (-1) * databaseBalanceNode.Debt;
+					balance.CounterpartyBalance = (-1) * databaseBalanceNode.Balance;
 				}
 				else
 				{
@@ -571,7 +571,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 						{
 							CounterpartyInn = databaseBalanceNode.CounterpartyInn,
 							CounterpartyName = $"{databaseBalanceNode.CounterpartyInn} {databaseBalanceNode.CounterpartyName}",
-							CounterpartyBalance = (-1) * databaseBalanceNode.Debt
+							CounterpartyBalance = (-1) * databaseBalanceNode.Balance
 						});
 				}
 			}
@@ -708,14 +708,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			OrdersTotalSum1C = _counterpartySettlementsReconciliation1C?.OrdersTotalSum.ToString(_decimalFormatString) ?? "-";
 			PaymentsTotalSum1C = _counterpartySettlementsReconciliation1C?.PaymentsTotalSum.ToString(_decimalFormatString) ?? "-";
-			TotalDebt1C = _counterpartySettlementsReconciliation1C?.CounterpartyTotalDebt.ToString(_decimalFormatString) ?? "-";
-			OldDebt1C = _counterpartySettlementsReconciliation1C?.CounterpartyOldBalance.ToString(_decimalFormatString) ?? "-";
+			Balance1C = _counterpartySettlementsReconciliation1C?.CounterpartyBalance.ToString(_decimalFormatString) ?? "-";
+			OldBalance1C = _counterpartySettlementsReconciliation1C?.CounterpartyOldBalance.ToString(_decimalFormatString) ?? "-";
 
 			if(_counterpartySettlementsReconciliation1C is null || SelectedClient is null)
 			{
 				OrdersTotalSumInDatabase = "-";
 				PaymentsTotalSumInDatabase = "-";
-				TotalDebtInDatabase = "-";
+				BalanceInDatabase = "-";
 				OldBalanceInDatabase = "-";
 
 				return;
@@ -723,7 +723,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			OrdersTotalSumInDatabase = GetCounterpartyOrdersTotalSum(SelectedClient.Id).ToString(_decimalFormatString);
 			PaymentsTotalSumInDatabase = GetCounterpartyPaymentsTotalSum(SelectedClient.Id, SelectedClient.INN).ToString(_decimalFormatString);
-			TotalDebtInDatabase = GetCounterpartyTotalDebt(SelectedClient.Id).ToString(_decimalFormatString);
+			BalanceInDatabase = GetCounterpartyBalance(SelectedClient.Id).ToString(_decimalFormatString);
 			OldBalanceInDatabase = GetCounterpartyOldBalance(SelectedClient.Id).ToString(_decimalFormatString);
 		}
 
@@ -734,7 +734,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				.ToList().Sum();
 
 			return sum;
-
 		}
 
 		private decimal GetCounterpartyPaymentsTotalSum(int counterpartyId, string counterpartyInn)
@@ -746,11 +745,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return sum;
 		}
 
-		private decimal GetCounterpartyTotalDebt(int counterpartyId)
+		private decimal GetCounterpartyBalance(int counterpartyId)
 		{
 			var sum = _counterpartyRepository
 				.GetCounterpartiesCashlessBalance(_unitOfWork, _availableOrderStatuses, counterpartyId)
-				.Select(x => x.Debt)
+				.Select(x => x.Balance)
 				.ToList().Sum();
 
 			return sum;
@@ -760,10 +759,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			var sum = _counterpartyRepository
 				.GetCounterpartiesCashlessBalance(_unitOfWork, _availableOrderStatuses, counterpartyId, CounterpartySettlementsReconciliation1C.OldOrdersMaxDate)
-				.Select(x => x.Debt)
+				.Select(x => x.Balance)
 				.ToList().Sum();
 
-			return (-1) * sum;
+			return sum;
 		}
 		#endregion
 

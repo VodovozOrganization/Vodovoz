@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public IList<PaymentReconciliation1C> Payments { get; }
 			public decimal OrdersTotalSum { get; }
 			public decimal PaymentsTotalSum { get; }
-			public decimal CounterpartyTotalDebt => OrdersTotalSum - PaymentsTotalSum;
+			public decimal CounterpartyBalance => PaymentsTotalSum - OrdersTotalSum;
 			public decimal CounterpartyOldBalance { get; }
 
 			#endregion Properties
