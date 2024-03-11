@@ -6,9 +6,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 	public partial class PaymentsDiscrepanciesAnalysisViewModel
 	{
 		/// <summary>
-		/// Сверка взаиморасчетов по контрагенту
+		/// Сверка взаиморасчетов по контрагенту 1С
 		/// </summary>
-		public class CounterpartySettlementsReconciliation
+		public class CounterpartySettlementsReconciliation1C
 		{
 			public static DateTime OldOrdersMaxDate = new DateTime(2020, 08, 12);
 
@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			private readonly IList<IList<string>> _reconciliationRows;
 
-			private CounterpartySettlementsReconciliation(IList<IList<string>> reconciliationRows)
+			private CounterpartySettlementsReconciliation1C(IList<IList<string>> reconciliationRows)
 			{
 				_reconciliationRows = reconciliationRows ?? throw new ArgumentNullException(nameof(reconciliationRows));
 
@@ -39,8 +39,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			#region Properties
 			public string CounterpartyInn { get; }
-			public IList<OrderReconciliation> Orders { get; }
-			public IList<PaymentReconciliation> Payments { get; }
+			public IList<OrderReconciliation1C> Orders { get; }
+			public IList<PaymentReconciliation1C> Payments { get; }
 			public decimal OrdersTotalSum { get; }
 			public decimal PaymentsTotalSum { get; }
 			public decimal CounterpartyTotalDebt => OrdersTotalSum - PaymentsTotalSum;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			#endregion Properties
 
-			public static CounterpartySettlementsReconciliation CreateFromXlsx(string fileName)
+			public static CounterpartySettlementsReconciliation1C CreateFromXlsx(string fileName)
 			{
 				var rowsFromXls = XlsParseHelper.GetRowsFromXls(fileName);
 
@@ -57,10 +57,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return reconciliationOfMutualSettlements;
 			}
 
-			private static CounterpartySettlementsReconciliation Create(IList<IList<string>> rows)
+			private static CounterpartySettlementsReconciliation1C Create(IList<IList<string>> rows)
 			{
 
-				return new CounterpartySettlementsReconciliation(rows);
+				return new CounterpartySettlementsReconciliation1C(rows);
 			}
 
 			private string GetCounterpartyInn()
@@ -84,13 +84,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return counterpartyInn;
 			}
 
-			private IList<OrderReconciliation> GetOrderReconciliations()
+			private IList<OrderReconciliation1C> GetOrderReconciliations()
 			{
-				var orderNodes = new List<OrderReconciliation>();
+				var orderNodes = new List<OrderReconciliation1C>();
 
 				foreach(var rowData in _reconciliationRows)
 				{
-					if(TryCreateOrderReconciliation(rowData, out OrderReconciliation order))
+					if(TryCreateOrderReconciliation(rowData, out OrderReconciliation1C order))
 					{
 						orderNodes.Add(order);
 					}
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return orderNodes;
 			}
 
-			private bool TryCreateOrderReconciliation(IList<string> rowData, out OrderReconciliation order)
+			private bool TryCreateOrderReconciliation(IList<string> rowData, out OrderReconciliation1C order)
 			{
 				order = null;
 
@@ -120,7 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					return false;
 				}
 
-				order = new OrderReconciliation
+				order = new OrderReconciliation1C
 				{
 					OrderId = orderId.Value,
 					OrderDeliveryDate = XlsParseHelper.ParseDateFromString(rowData[_orderPaymentInfoPositionIndex]),
@@ -130,13 +130,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return true;
 			}
 
-			private IList<PaymentReconciliation> GetPaymentReconciliations()
+			private IList<PaymentReconciliation1C> GetPaymentReconciliations()
 			{
-				var payments = new List<PaymentReconciliation>();
+				var payments = new List<PaymentReconciliation1C>();
 
 				foreach(var rowData in _reconciliationRows)
 				{
-					if(TryCreatePaymentReconciliation(rowData, out PaymentReconciliation payment))
+					if(TryCreatePaymentReconciliation(rowData, out PaymentReconciliation1C payment))
 					{
 						payments.Add(payment);
 					}
@@ -145,7 +145,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return payments;
 			}
 
-			private bool TryCreatePaymentReconciliation(IList<string> rowData, out PaymentReconciliation payment)
+			private bool TryCreatePaymentReconciliation(IList<string> rowData, out PaymentReconciliation1C payment)
 			{
 				payment = null;
 
@@ -167,7 +167,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					return false;
 				}
 
-				payment = new PaymentReconciliation
+				payment = new PaymentReconciliation1C
 				{
 					PaymentNum = paymentNum.Value,
 					PaymentDate = paymentDate.Value,
@@ -257,21 +257,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				}
 
 				return debt;
-			}
-
-			public class OrderReconciliation
-			{
-				public int OrderId { get; set; }
-				public DateTime? OrderDeliveryDate { get; set; }
-				public decimal OrderSum { get; set; }
-
-			}
-
-			public class PaymentReconciliation
-			{
-				public int PaymentNum { get; set; }
-				public DateTime PaymentDate { get; set; }
-				public decimal PaymentSum { get; set; }
 			}
 		}
 	}

@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
-using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation1C;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Payments
@@ -75,7 +75,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientDebtDocumentData.Binding
-				.AddBinding(ViewModel, vm => vm.TotalDebtInFile, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.TotalDebt1C, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientOldBalanceDvData.Binding
@@ -83,7 +83,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientOldBalanceDocumentData.Binding
-				.AddBinding(ViewModel, vm => vm.OldDebtInFile, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.OldDebt1C, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientOrdersSumDvData.Binding
@@ -91,7 +91,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientOrdersSumDocumentData.Binding
-				.AddBinding(ViewModel, vm => vm.OrdersTotalSumInFile, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.OrdersTotalSum1C, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelClientTotalPaymentsDvData.Binding
@@ -99,7 +99,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			ylabelClientTotalPaymentsDocumentData.Binding
-				.AddBinding(ViewModel, vm => vm.PaymentsTotalSumInFile, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.PaymentsTotalSum1C, w => w.Text)
 				.InitializeFromSource();
 
 			ConfigureFileChooser();
