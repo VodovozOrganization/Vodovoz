@@ -1512,7 +1512,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result;
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDay(IUnitOfWork uow, IEnumerable<int> orderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -1538,7 +1538,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDay2(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> exceptOrderIds)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -1550,10 +1550,9 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
-				.WhereRestrictionOn(o => o.Id).Not.IsInG(orderIds)
+				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
 				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
 					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
-				//.And(o => o.DeliveryDate >= new DateTime(2020, 1, 1))
 				.And(o => o.Client.Id == counterpartyId)
 				.And(o => o.PaymentType == PaymentType.Cashless)
 				.SelectList(list => list

@@ -341,14 +341,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			if(string.IsNullOrEmpty(_counterpartySettlementsReconciliation1C.CounterpartyInn))
 			{
-				throw new Exception($"В указанном файле ИНН контрагента не найдено");
+				var message = $"В указанном файле ИНН контрагента не найдено";
+
+				_logger.LogDebug(message);
+				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
+
+				return;
 			}
 
 			var counterparties = GetCounterpartiesByInn(_counterpartySettlementsReconciliation1C.CounterpartyInn);
 
 			if(counterparties.Count != 1)
 			{
-				throw new Exception($"Найдено {counterparties.Count} контрагентов с ИНН {_counterpartySettlementsReconciliation1C.CounterpartyInn}. Должно быть 1");
+				var message = $"Найдено {counterparties.Count} контрагентов с ИНН {_counterpartySettlementsReconciliation1C.CounterpartyInn}. Должно быть 1";
+
+				_logger.LogDebug(message);
+				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
+
+				return;
 			}
 
 			Clients.Add(counterparties.First());
@@ -382,8 +392,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private IList<OrderWithAllocation> GetAllocationsFromDatabase(int clientId, IList<int> orderIds)
 		{
-			var allocations = _orderRepository.GetOrdersWithAllocationsOnDay(_unitOfWork, orderIds);
-			var ordersMissingFromDocument = _orderRepository.GetOrdersWithAllocationsOnDay2(_unitOfWork, clientId, orderIds);
+			var allocations = _orderRepository.GetOrdersWithAllocationsOnDayByOrdersIds(_unitOfWork, orderIds);
+			var ordersMissingFromDocument = _orderRepository.GetOrdersWithAllocationsOnDayByCounterparty(_unitOfWork, clientId, orderIds);
 
 			return allocations.Concat(ordersMissingFromDocument).ToList();
 		}
