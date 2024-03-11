@@ -106,8 +106,9 @@ namespace Vodovoz.Domain.Sale
 
 		/// <summary>
 		/// Строки литража, участвует в <see cref="GetVolumeValue(string)"/>
+		/// 600мл отключено
 		/// </summary>
-		public static string[] Volumes = { "19л", "6л", "1500мл", "600мл", "500мл" };
+		public static string[] Volumes = { "19л", "6л", "1500мл", /*"600мл",*/ "500мл" };
 
 		/// <summary>
 		/// Возвращает значение по строке обозначающей литраж <see cref="Volumes"/>
