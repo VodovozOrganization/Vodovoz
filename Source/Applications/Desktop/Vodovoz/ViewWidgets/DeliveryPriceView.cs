@@ -278,7 +278,7 @@ namespace Vodovoz.ViewWidgets
 			var result = new StringBuilder();
 
 			int i = 1;
-			int lastItemId = restrictions.Last().Id;
+			int? lastItemId = restrictions.LastOrDefault().Id;
 
 			foreach(var restriction in restrictions)
 			{
