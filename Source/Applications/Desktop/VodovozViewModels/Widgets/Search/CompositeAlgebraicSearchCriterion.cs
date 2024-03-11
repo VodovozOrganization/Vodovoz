@@ -22,7 +22,6 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		public ICriterion Finish()
 		{
-			Disjunction disjunctionCriterion = new Disjunction();
 
 			if(_journalSearch.SearchValues == null
 				|| !_journalSearch.SearchValues.Any()
@@ -37,100 +36,236 @@ namespace Vodovoz.ViewModels.Widgets.Search
 				return new Conjunction();
 			}
 
+			var propertiesText1Disjunction = new Disjunction();
+
 			foreach(var property in _searchProperties)
 			{
-				ICriterion restriction = property.GetCriterion(_journalSearch.EntrySearchText1);
+				var propertyText1Criterion = property.GetCriterion(_journalSearch.EntrySearchText1);
 
-				if(_journalSearch.Operand1 == OperandType.Disabled)
+				if(propertyText1Criterion is null)
 				{
-					if(restriction != null)
-					{
-						disjunctionCriterion.Add(restriction);
-					}
 					continue;
 				}
 
-				restriction = AddCriterionFor(
-					restriction,
-					_journalSearch.Operand1,
-					property,
-					_journalSearch.EntrySearchText2);
-
-				if(_journalSearch.Operand2 == OperandType.Disabled)
-				{
-					if(restriction != null)
-					{
-						disjunctionCriterion.Add(restriction);
-					}
-					continue;
-				}
-
-				restriction = AddCriterionFor(
-					restriction,
-					_journalSearch.Operand2,
-					property,
-					_journalSearch.EntrySearchText3);
-
-				if(_journalSearch.Operand3 == OperandType.Disabled)
-				{
-					if(restriction != null)
-					{
-						disjunctionCriterion.Add(restriction);
-					}
-					continue;
-				}
-
-				restriction = AddCriterionFor(
-					restriction,
-					_journalSearch.Operand3,
-					property,
-					_journalSearch.EntrySearchText4);
-
-				if(restriction != null)
-				{
-					if(restriction != null)
-					{
-						disjunctionCriterion.Add(restriction);
-					}
-				}
+				propertiesText1Disjunction.Add(propertyText1Criterion);
 			}
 
-			return disjunctionCriterion;
+			var propertiesText2Disjunction = new Disjunction();
+
+			foreach(var property in _searchProperties)
+			{
+				var propertyText2Criterion = property.GetCriterion(_journalSearch.EntrySearchText2);
+
+				if(propertyText2Criterion is null)
+				{
+					continue;
+				}
+
+				propertiesText2Disjunction.Add(propertyText2Criterion);
+			}
+
+			var propertiesText3Disjunction = new Disjunction();
+
+			foreach(var property in _searchProperties)
+			{
+				var propertyText3Criterion = property.GetCriterion(_journalSearch.EntrySearchText3);
+
+				if(propertyText3Criterion is null)
+				{
+					continue;
+				}
+
+				propertiesText3Disjunction.Add(propertyText3Criterion);
+			}
+
+			var propertiesText4Disjunction = new Disjunction();
+
+			foreach(var property in _searchProperties)
+			{
+				var propertyText4Criterion = property.GetCriterion(_journalSearch.EntrySearchText4);
+
+				if(propertyText4Criterion is null)
+				{
+					continue;
+				}
+
+				propertiesText4Disjunction.Add(propertyText4Criterion);
+			}
+
+			return GenerateAlgebraicExpression(
+				propertiesText1Disjunction,
+				_journalSearch.Operand1,
+				propertiesText2Disjunction,
+				_journalSearch.Operand2,
+				propertiesText3Disjunction,
+				_journalSearch.Operand3,
+				propertiesText4Disjunction);
 		}
 
-		private ICriterion AddCriterionFor(
-			ICriterion originalCriterion,
-			OperandType operandType,
-			SearchProperty searchProperty,
-			string entryText)
+		private ICriterion GenerateAlgebraicExpression(
+			ICriterion propertiesText1Disjunction,
+			OperandType operand1,
+			ICriterion propertiesText2Disjunction,
+			OperandType operand2,
+			ICriterion propertiesText3Disjunction,
+			OperandType operand3,
+			ICriterion propertiesText4Disjunction)
 		{
-			var entryTextCriterion = searchProperty.GetCriterion(entryText);
-
-			if(entryTextCriterion is null)
+			if(operand1 == OperandType.Disabled)
 			{
-				return originalCriterion;
+				return propertiesText1Disjunction;
 			}
 
-			if(operandType == OperandType.And)
+			if(operand2 == OperandType.Disabled)
 			{
-				if(originalCriterion is null)
+				if(operand1 == OperandType.And)
 				{
-					return Restrictions.Where(() => false);
+					// and
+					return Restrictions.And(propertiesText1Disjunction, propertiesText2Disjunction);
 				}
 
-				originalCriterion = Restrictions.And(originalCriterion, entryTextCriterion);
+				// or
+				return Restrictions.Or(propertiesText1Disjunction, propertiesText2Disjunction);
 			}
-			else if(operandType == OperandType.Or)
+
+			if(operand3 == OperandType.Disabled)
 			{
-				if(originalCriterion is null)
+				if(operand2 == OperandType.And)
 				{
-					return entryTextCriterion;
+					if(operand1 == OperandType.And)
+					{
+						// and and
+						var criterionAndAnd = new Conjunction();
+
+						criterionAndAnd.Add(propertiesText1Disjunction);
+						criterionAndAnd.Add(propertiesText2Disjunction);
+						criterionAndAnd.Add(propertiesText3Disjunction);
+
+						return criterionAndAnd;
+					}
+
+					// and or
+
+					return Restrictions.Or(
+						Restrictions.And(propertiesText1Disjunction, propertiesText2Disjunction),
+						propertiesText3Disjunction);
 				}
 
-				originalCriterion = Restrictions.Or(originalCriterion, entryTextCriterion);
+				if(operand1 == OperandType.And)
+				{
+					// or and
+
+					return Restrictions.Or(
+						propertiesText1Disjunction,
+						Restrictions.And(propertiesText2Disjunction, propertiesText3Disjunction));
+				}
+
+				// or or
+				var disjunctionOrOr = new Disjunction();
+				disjunctionOrOr.Add(propertiesText1Disjunction);
+				disjunctionOrOr.Add(propertiesText2Disjunction);
+				disjunctionOrOr.Add(propertiesText3Disjunction);
+
+				return disjunctionOrOr;
 			}
 
-			return originalCriterion;
+			if(operand1 == OperandType.And)
+			{
+				if(operand2 == OperandType.And)
+				{
+					// and and and
+					if(operand3 == OperandType.And)
+					{
+						var criterionAndAndAnd = new Conjunction();
+
+						criterionAndAndAnd.Add(propertiesText1Disjunction);
+						criterionAndAndAnd.Add(propertiesText2Disjunction);
+						criterionAndAndAnd.Add(propertiesText3Disjunction);
+						criterionAndAndAnd.Add(propertiesText4Disjunction);
+
+						return criterionAndAndAnd;
+					}
+
+					// and and or
+					var criterionAndAnd = new Conjunction();
+
+					criterionAndAnd.Add(propertiesText1Disjunction);
+					criterionAndAnd.Add(propertiesText2Disjunction);
+					criterionAndAnd.Add(propertiesText3Disjunction);
+
+					return Restrictions.Or(criterionAndAnd, propertiesText4Disjunction);
+				}
+
+				// and or and
+				if(operand3 == OperandType.And)
+				{
+					return Restrictions.Or(
+						Restrictions.And(propertiesText1Disjunction, propertiesText2Disjunction),
+						Restrictions.And(propertiesText3Disjunction, propertiesText4Disjunction));
+				}
+
+				// and or or
+
+				var disjunctionAndOrOr = new Disjunction();
+
+				disjunctionAndOrOr.Add(Restrictions.And(propertiesText1Disjunction, propertiesText2Disjunction));
+
+				disjunctionAndOrOr.Add(propertiesText3Disjunction);
+				disjunctionAndOrOr.Add(propertiesText4Disjunction);
+
+				return disjunctionAndOrOr;
+			}
+
+			if(operand2 == OperandType.And)
+			{
+				if(operand3 == OperandType.And)
+				{
+					// or and and
+
+					var conjunction = new Conjunction();
+
+					conjunction.Add(propertiesText2Disjunction);
+					conjunction.Add(propertiesText3Disjunction);
+					conjunction.Add(propertiesText4Disjunction);
+
+					return Restrictions.Or(propertiesText1Disjunction, conjunction);
+				}
+
+				// or and or
+
+				Disjunction disjunctionOrAndOr = new Disjunction();
+
+				disjunctionOrAndOr.Add(Restrictions.And(propertiesText2Disjunction, propertiesText3Disjunction));
+
+				disjunctionOrAndOr.Add(propertiesText1Disjunction);
+				disjunctionOrAndOr.Add(propertiesText4Disjunction);
+
+				return disjunctionOrAndOr;
+			}
+
+			// or or and
+
+			if(operand3 == OperandType.And)
+			{
+				var disjunctionOrOrAnd = new Disjunction();
+
+				disjunctionOrOrAnd.Add(propertiesText1Disjunction);
+				disjunctionOrOrAnd.Add(propertiesText2Disjunction);
+				disjunctionOrOrAnd.Add(Restrictions.And(propertiesText3Disjunction, propertiesText4Disjunction));
+
+				return disjunctionOrOrAnd;
+			}
+
+			// or or or
+
+			var disjunction = new Disjunction();
+
+			disjunction.Add(propertiesText1Disjunction);
+			disjunction.Add(propertiesText2Disjunction);
+			disjunction.Add(propertiesText3Disjunction);
+			disjunction.Add(propertiesText4Disjunction);
+
+			return disjunction;
 		}
 
 		public CompositeAlgebraicSearchCriterion By(params Expression<Func<object>>[] aliases)
