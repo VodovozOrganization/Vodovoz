@@ -464,7 +464,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 															on paymentItem.Payment.Id equals payment.Id
 															where
 															payment.Counterparty.Id == ordersByCounterparty.Key
-															&& payment.Status != PaymentState.Cancelled
+															&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
 															select (decimal?)paymentItem.Sum ?? 0m).Sum() ?? 0m
 				select new CounterpartyCashlessBalanceNode
 				{
