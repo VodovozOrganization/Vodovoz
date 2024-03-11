@@ -84,7 +84,7 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref _ruleName, value);
 		}
 
-		#endregion
+		#endregion Свойства
 
 		#region IValidatableObject implementation
 
@@ -102,9 +102,32 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
-		#endregion
+		#endregion IValidatableObject implementation
 
-		#region переопределённые методы
+		/// <summary>
+		/// Строки литража, участвует в <see cref="GetVolumeValue(string)"/>
+		/// </summary>
+		public static string[] Volumes = { "19л", "6л", "1500мл", "600мл", "500мл" };
+
+		/// <summary>
+		/// Возвращает значение по строке обозначающей литраж <see cref="Volumes"/>
+		/// </summary>
+		/// <param name="volume"></param>
+		/// <returns></returns>
+		public virtual string GetVolumeValue(string volume)
+		{
+			switch(volume)
+			{
+				case "19л": return Water19LCount.ToString();
+				case "6л": return Water6LCount.ToString();
+				case "1500мл": return Water1500mlCount.ToString();
+				case "600мл": return Water600mlCount.ToString();
+				case "500мл": return _water500mlCount.ToString();
+				default: return "";
+			}
+		}
+
+		#region Переопределённые методы
 
 		public override string ToString()
 		{
@@ -164,29 +187,6 @@ namespace Vodovoz.Domain.Sale
 				+ 31 * _water500mlCount.GetHashCode();
 		}
 
-		/// <summary>
-		/// Строки литража, участвует в <see cref="GetVolumeValue(string)"/>
-		/// </summary>
-		public static string[] Volumes = { "19л", "6л", "1500мл", "600мл", "500мл" };
-
-		/// <summary>
-		/// Возвращает значение по строке обозначающей литраж <see cref="Volumes"/>
-		/// </summary>
-		/// <param name="volume"></param>
-		/// <returns></returns>
-		public virtual string GetVolumeValue(string volume)
-		{
-			switch(volume)
-			{
-				case "19л": return Water19LCount.ToString();
-				case "6л": return Water6LCount.ToString();
-				case "1500мл": return Water1500mlCount.ToString();
-				case "600мл": return Water600mlCount.ToString();
-				case "500мл": return _water500mlCount.ToString();
-				default: return "";
-			}
-		}
-
-		#endregion
+		#endregion Переопределённые методы
 	}
 }
