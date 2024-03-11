@@ -7,7 +7,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
-using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation1C;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Payments
@@ -222,6 +221,7 @@ namespace Vodovoz.Views.Payments
 		{
 			if(e.PropertyName == nameof(ViewModel.Clients))
 			{
+				speciallistcomboboxClientInfo.ItemsList = null;
 				speciallistcomboboxClientInfo.ItemsList = ViewModel.Clients;
 			}
 		}
