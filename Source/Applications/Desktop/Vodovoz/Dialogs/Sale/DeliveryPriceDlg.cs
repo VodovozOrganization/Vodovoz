@@ -17,13 +17,16 @@ namespace Vodovoz.Dialogs.Sale
 	{
 		private Gtk.Clipboard _clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
+		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
 		private GMapMarker _addressMarker;
 		private decimal? _latitude;
 		private decimal? _longitude;
 		private IUnitOfWork _unitOfWork;
 
-		public DeliveryPriceDlg(IUnitOfWorkFactory unitOfWorkFactory)
+		public DeliveryPriceDlg(IUnitOfWorkFactory unitOfWorkFactory, IDeliveryPriceCalculator deliveryPriceCalculator)
 		{
+			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+
 			Build();
 
 			TabName = "Расчет стоимости доставки";
@@ -66,10 +69,10 @@ namespace Vodovoz.Dialogs.Sale
 				MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 		}
 
-		public DeliveryPriceDlg(IUnitOfWorkFactory unitOfWorkFactory, DeliveryPoint deliveryPoint) : this(unitOfWorkFactory)
+		public DeliveryPriceDlg(IUnitOfWorkFactory unitOfWorkFactory, IDeliveryPriceCalculator deliveryPriceCalculator, DeliveryPoint deliveryPoint) : this(unitOfWorkFactory, deliveryPriceCalculator)
 		{
 			SetCoordinates(deliveryPoint.Latitude, deliveryPoint.Longitude);
-			deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
 		}
 
 		private void EntryBuilding_Changed(object sender, EventArgs e)
@@ -77,7 +80,7 @@ namespace Vodovoz.Dialogs.Sale
 			if(entryBuilding.FiasCompletion.HasValue && entryBuilding.FiasCompletion.Value) {
 				entryBuilding.GetCoordinates(out decimal? lng, out decimal? lat);
 				SetCoordinates(lat, lng);
-				deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+				deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
 			}
 		}
 
@@ -94,7 +97,7 @@ namespace Vodovoz.Dialogs.Sale
 				SetCoordinates(lat, lng);
 
 				if(goodLat && goodLon) {
-					var price = DeliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+					var price = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
 					deliverypriceview.District = _unitOfWork.GetById<District>(price.DistrictId);
 					deliverypriceview.DeliveryPrice = price;
 					error = false;
@@ -126,7 +129,7 @@ namespace Vodovoz.Dialogs.Sale
 				MapWidget.Position = position;
 				MapWidget.Zoom = 15;
 
-				ylabelFoundOnOsm.LabelProp = String.Format("(ш. {0:F5}, д. {1:F5})", _latitude, _longitude);
+				ylabelFoundOnOsm.LabelProp = $"(ш. {_latitude:F5}, д. {_longitude:F5})";
 			}
 			else
 			{
@@ -138,7 +141,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		protected void OnYspinBottlesValueChanged(object sender, EventArgs e)
 		{
-			deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
 		}
 	}
 }

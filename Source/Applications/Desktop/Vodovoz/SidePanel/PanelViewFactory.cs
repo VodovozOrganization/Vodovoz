@@ -18,6 +18,7 @@ using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
@@ -34,7 +35,8 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.DeliveryPointView:
 					return new DeliveryPointPanelView(ServicesConfig.CommonServices);
 				case PanelViewType.DeliveryPricePanelView:
-					return new DeliveryPricePanelView();
+					var deliveryPriceCalculator = ScopeProvider.Scope.Resolve<IDeliveryPriceCalculator>();
+					return new DeliveryPricePanelView(deliveryPriceCalculator);
 				case PanelViewType.UndeliveredOrdersPanelView:
 					return new UndeliveredOrdersPanelView();
 				case PanelViewType.EmailsPanelView:

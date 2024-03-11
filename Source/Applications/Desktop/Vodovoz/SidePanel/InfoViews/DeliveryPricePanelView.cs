@@ -11,10 +11,13 @@ namespace Vodovoz.SidePanel.InfoViews
 	[ToolboxItem(true)]
 	public partial class DeliveryPricePanelView : Gtk.Bin, IPanelView
 	{
+		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
 		private DeliveryPoint _deliveryPoint;
 
-		public DeliveryPricePanelView()
+		public DeliveryPricePanelView(IDeliveryPriceCalculator deliveryPriceCalculator)
 		{
+			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new System.ArgumentNullException(nameof(deliveryPriceCalculator));
+
 			Build();
 		}
 
@@ -39,7 +42,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			var deliveryPrice = DeliveryPriceCalculator.Calculate(_deliveryPoint);
+			var deliveryPrice = _deliveryPriceCalculator.Calculate(_deliveryPoint);
 			labelError.Visible = deliveryPrice.HasError;
 			labelError.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>{deliveryPrice.ErrorMessage}</b></span>";
 

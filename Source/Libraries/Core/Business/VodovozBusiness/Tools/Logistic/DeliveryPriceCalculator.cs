@@ -1,7 +1,6 @@
-﻿using Autofac;
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
+using QS.DomainModel.UoW;
 using QS.Osrm;
-using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,66 +8,92 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Factories;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Tools.Logistic
 {
-	public static class DeliveryPriceCalculator
+	public class DeliveryPriceCalculator : IDeliveryPriceCalculator
 	{
-		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
-		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
-		private static readonly IGlobalSettings _globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
-		private static void Calculate() => throw new NotImplementedException();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
+		private readonly IFuelRepository _fuelRepository;
+		private readonly IGlobalSettings _globalSettings;
+		private readonly OsrmClient _osrmClient;
 
-		static double fuelCost;
-		static double distance;
-		static DeliveryPoint deliveryPoint;
-
-		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude) => Calculate(latitude, longitude, null);
-
-		public static DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null)
+		public DeliveryPriceCalculator(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IGeographicGroupRepository geographicGroupRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			IFuelRepository fuelRepository,
+			IGlobalSettings globalSettings,
+			OsrmClient osrmClient)
 		{
-			deliveryPoint = point;
-			return Calculate(deliveryPoint.Latitude, deliveryPoint.Longitude, bottlesCount);
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 		}
 
-		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
+
+		private double _fuelCost;
+		private double _distance;
+		private DeliveryPoint _deliveryPoint;
+
+		private void Calculate() => throw new NotImplementedException();
+
+		public DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude) => Calculate(latitude, longitude, null);
+
+		public DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null)
+		{
+			_deliveryPoint = point;
+			return Calculate(_deliveryPoint.Latitude, _deliveryPoint.Longitude, bottlesCount);
+		}
+
+		public DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
 		{
 			IList<District> districts;
 
-			DeliveryPriceNode result = new DeliveryPriceNode();
+			var result = new DeliveryPriceNode();
 
 			//Топливо
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки"))
+			{
 				var fuel = _fuelRepository.GetDefaultFuel(uow);
-				if(fuel == null) {
+
+				if(fuel == null)
+				{
 					result.ErrorMessage = string.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
 					return result;
 				}
-				fuelCost = (double)fuel.Cost;
+
+				_fuelCost = (double)fuel.Cost;
 
 				//Районы
 				districts = _scheduleRestrictionRepository.GetDistrictsWithBorder(uow);
-				result.WageDistrict = deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
+				result.WageDistrict = _deliveryPoint?.District?.WageDistrict?.Name ?? "Неизвестно";
 
-				if(deliveryPoint?.District != null)
+				if(_deliveryPoint?.District != null)
 				{
-					result.DistrictId = deliveryPoint.District.Id;
+					result.DistrictId = _deliveryPoint.District.Id;
 				}
 
 				//Координаты
-				if(!latitude.HasValue || !longitude.HasValue) {
+				if(!latitude.HasValue || !longitude.HasValue)
+				{
 					result.ErrorMessage = string.Format("Не указаны координаты. Невозможно расчитать расстояние.");
 					return result;
 				}
 
 				//Расчет растояния
-				if(deliveryPoint == null) {
+				if(_deliveryPoint == null)
+				{
 					var gg = _geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
 					GeoGroupVersion geoGroupVersion = null;
+
 					if(gg != null)
 					{
 						geoGroupVersion = gg.GetActualVersionOrNull();
@@ -83,39 +108,50 @@ namespace Vodovoz.Tools.Logistic
 						//если не найдена часть города, то расстояние считается до его центра
 						route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
 					}
-					else {
+					else
+					{
 						result.ErrorMessage = "В подобранной части города не указаны координаты базы";
 						return result;
 					}
+
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
-					var osrmResult = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
-					if(osrmResult == null) {
+					var osrmResult = _osrmClient.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+
+					if(osrmResult == null)
+					{
 						result.ErrorMessage = "Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.";
 						return result;
 					}
-					if(osrmResult.Code != "Ok") {
+
+					if(osrmResult.Code != "Ok")
+					{
 						result.ErrorMessage = $"Сервер расчета расстояний вернул следующее сообщение: {osrmResult.StatusMessageRus}";
 						return result;
 					}
-					distance = osrmResult.Routes[0].TotalDistance / 1000d;
-				} else {
-					distance = (deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
-				}
-				result.Distance = distance.ToString("N1") + " км";
 
-				result.Prices = Enumerable.Range(1, 100)
+					_distance = osrmResult.Routes[0].TotalDistance / 1000d;
+				}
+				else
+				{
+					_distance = (_deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
+				}
+				result.Distance = _distance.ToString("N1") + " км";
+
+				result.Prices = Enumerable
+					.Range(1, 100)
 					.Select(
-						x => new DeliveryPriceRow {
+						x => new DeliveryPriceRow
+						{
 							Amount = x,
 							Price = PriceByDistance(x).ToString("C2")
-						}
-					).ToList();
+						})
+					.ToList();
 
 				//Расчет цены
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 
-				if(deliveryPoint?.District == null)
+				if(_deliveryPoint?.District == null)
 				{
 					result.DistrictId = district.Id;
 					result.WageDistrict = district?.WageDistrict?.Name ?? "Неизвестно";
@@ -126,14 +162,23 @@ namespace Vodovoz.Tools.Logistic
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
 				result.WithPrice = (district != null && district.PriceType != DistrictWaterPrice.ByDistance)
 					|| (result.ByDistance && bottlesCount.HasValue);
-				if(result.ByDistance) {
-					if(bottlesCount.HasValue) {
+
+				if(result.ByDistance)
+				{
+					if(bottlesCount.HasValue)
+					{
 						result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");
 					}
-				} else if(district?.PriceType == DistrictWaterPrice.FixForDistrict)
+				}
+				else if(district?.PriceType == DistrictWaterPrice.FixForDistrict)
+				{
 					result.Price = district.WaterPrice.ToString("C2");
+				}
 				else if(district?.PriceType == DistrictWaterPrice.Standart)
+				{
 					result.Price = "прайс";
+				}
+
 				result.MinBottles = district?.MinBottles.ToString();
 				result.Schedule = district != null && district.HaveRestrictions
 					? string.Join(", ", district.GetSchedulesString(true))
@@ -147,63 +192,6 @@ namespace Vodovoz.Tools.Logistic
 		//а - расстояние от границы города минус
 		//б - стоимость литра топлива(есть в справочниках)
 		//в - кол-во бут
-		static double PriceByDistance(int bootles) => ((distance * 2 / 100) * 20 * fuelCost) / bootles + 125;
-	}
-
-	public class DeliveryPriceNode
-	{
-		public string Distance { get; set; }
-		public string Price { get; set; }
-		public string MinBottles { get; set; }
-		public string Schedule { get; set; }
-		public List<DeliveryRuleRow> DeliveryRules { get; set; }
-		public List<DeliveryPriceRow> Prices { get; set; }
-		public bool ByDistance { get; set; }
-		public bool WithPrice { get; set; }
-		public string DistrictName { get; set; }
-		public string GeographicGroups { get; set; }
-		public string WageDistrict { get; set; }
-		public int DistrictId { get; set; }
-
-		string errorMessage;
-		public string ErrorMessage {
-			get => errorMessage;
-			set {
-				ClearValues();
-				errorMessage = value;
-			}
-		}
-
-		public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
-
-		public DeliveryPriceNode()
-		{
-			ClearValues();
-			ErrorMessage = string.Empty;
-		}
-
-		public void ClearValues()
-		{
-			Distance = string.Empty;
-			Price = string.Empty;
-			MinBottles = string.Empty;
-			Schedule = string.Empty;
-			DistrictName = string.Empty;
-			GeographicGroups = string.Empty;
-			Prices = new List<DeliveryPriceRow>();
-		}
-	}
-
-	public class DeliveryRuleRow
-	{
-		public string Volune { get; set; }
-		public List<string> DynamicColumns { get; set; }
-		public string FreeDeliveryBottlesCount { get; set; }
-	}
-
-	public class DeliveryPriceRow
-	{
-		public int Amount { get; set; }
-		public string Price { get; set; }
+		private double PriceByDistance(int bootles) => ((_distance * 2 / 100) * 20 * _fuelCost) / bootles + 125;
 	}
 }
