@@ -24,8 +24,10 @@ namespace Vodovoz.ViewModels.ViewModels.Sale
 			IDistrictRuleRepository districtRuleRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_districtRuleRepository = districtRuleRepository
+				?? throw new ArgumentNullException(nameof(districtRuleRepository));
 
 			ValidationContext.ServiceContainer.AddService(typeof(IDistrictRuleRepository), districtRuleRepository);
 
