@@ -14,6 +14,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 {
 	public partial class CompositeAlgebraicSearchViewModel : WidgetViewModelBase, IJournalSearch
 	{
+		private readonly OperandType _defaultOperandType = OperandType.And;
 		private readonly IInteractiveService _interactiveService;
 
 		private int _searchEntryShownCount = 1;
@@ -212,13 +213,13 @@ namespace Vodovoz.ViewModels.Widgets.Search
 			switch(SearchEntryShownCount)
 			{
 				case 2:
-					Operand1 = OperandType.Or;
+					Operand1 = _defaultOperandType;
 					break;
 				case 3:
-					Operand2 = OperandType.Or;
+					Operand2 = _defaultOperandType;
 					break;
 				case 4:
-					Operand3 = OperandType.Or;
+					Operand3 = _defaultOperandType;
 					break;
 			}
 		}
