@@ -461,9 +461,19 @@ namespace Vodovoz
 			{
 				var copiedOrder = UoW.GetById<Order>(orderId);
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
-
-				if(copiedOrder.DeliveryPoint != null)
+				var deliveryPoint = copiedOrder.DeliveryPoint;
+				
+				if(deliveryPoint != null)
 				{
+					if(deliveryPoint.District is null)
+					{
+						throw new AbortCreatingPageException(
+							$"В копируемом заказе в точке доставки id {deliveryPoint.Id} {deliveryPoint.CompiledAddress}" +
+							" не подобран логистический район, поэтому невозможно будет расчитать доставку\n" +
+							"Проставьте верные координаты в этой ТД, чтобы выставить действующий логистический район",
+							"Ошибка");
+					}
+					
 					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
 				}
 
