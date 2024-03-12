@@ -137,6 +137,7 @@ namespace Vodovoz
 	public partial class OrderDlg : EntityDialogBase<Order>,
 		ICounterpartyInfoProvider,
 		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
+		ICustomWidthInfoProvider,
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
 		IEmailsInfoProvider,
@@ -307,6 +308,7 @@ namespace Vodovoz
 
 		#region Работа с боковыми панелями
 
+		public int? WidthRequest => 420;
 		public PanelViewType[] InfoWidgets
 		{
 			get
