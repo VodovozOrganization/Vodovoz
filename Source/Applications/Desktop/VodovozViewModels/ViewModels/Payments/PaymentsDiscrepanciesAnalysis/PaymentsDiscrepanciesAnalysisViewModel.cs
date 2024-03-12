@@ -560,6 +560,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return;
 			}
 
+			if(_turnoverBalanceSheet1C.CounterpartyBalances.Count == 0)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"В указанном файле не найдены данные по балансу контрагентов.");
+
+				return;
+			}
+
 			var balances1C = _turnoverBalanceSheet1C.CounterpartyBalances;
 			var balancesFromDatabase = GetCounterpartyBalancesFromDatabase();
 
