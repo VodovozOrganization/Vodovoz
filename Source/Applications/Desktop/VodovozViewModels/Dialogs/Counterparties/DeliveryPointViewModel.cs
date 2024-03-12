@@ -46,7 +46,11 @@ using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
-	public partial class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
+	public partial class DeliveryPointViewModel
+		: EntityTabViewModelBase<DeliveryPoint>,
+		IDeliveryPointInfoProvider,
+		ITDICloseControlTab,
+		ICustomWidthInfoProvider,
 		IAskSaveOnCloseViewModel
 	{
 		private int _currentPage = 0;
@@ -262,6 +266,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		public DeliveryPoint DeliveryPoint => Entity;
 		public PanelViewType[] InfoWidgets => _infoWidgets;
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		public int? WidthRequest => 420;
 
 		#endregion
 

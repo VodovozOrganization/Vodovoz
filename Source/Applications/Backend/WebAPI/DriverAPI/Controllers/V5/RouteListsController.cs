@@ -138,7 +138,6 @@ namespace DriverAPI.Controllers.V5
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<int>))]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> GetRouteListsIdsAsync()
 		{
 			_logger.LogInformation("Запрос доступных МЛ пользователем {Username} User token: {AccessToken}",
@@ -161,9 +160,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequest requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];

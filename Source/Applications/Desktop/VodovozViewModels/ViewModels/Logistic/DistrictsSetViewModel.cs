@@ -20,6 +20,8 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
@@ -453,15 +455,19 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void AddWeekDayDeliveryPriceRule()
 		{
-			var journal = new DeliveryPriceRuleJournalViewModel(base.UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
-			journal.SelectionMode = JournalSelectionMode.Single;
-			journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
-			TabParent.AddSlaveTab(this, journal);
+			NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += JournalOnWeekDayEntitySelectedResult;
+				});
 		}
 
-		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var node = e.SelectedNodes.FirstOrDefault();
+			var node = e.SelectedObjects.Cast<DeliveryPriceRuleJournalNode>().FirstOrDefault();
 
 			if(node == null)
 			{
@@ -500,15 +506,19 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void AddCommonDeliveryPriceRule()
 		{
-			var journal = new DeliveryPriceRuleJournalViewModel(base.UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
-			journal.SelectionMode = JournalSelectionMode.Single;
-			journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
-			TabParent.AddSlaveTab(this, journal);
+			NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += JournalOnCommonEntitySelectedResult;
+				});
 		}
 
-		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var node = e.SelectedNodes.FirstOrDefault();
+			var node = e.SelectedObjects.Cast<DeliveryPriceRuleJournalNode>().FirstOrDefault();
 
 			if(node == null)
 			{

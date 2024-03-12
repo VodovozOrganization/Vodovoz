@@ -53,8 +53,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";

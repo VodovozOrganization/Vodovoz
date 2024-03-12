@@ -871,10 +871,7 @@ public partial class MainWindow : Window
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<DeliveryPriceDlg>(),
-			() => new DeliveryPriceDlg()
-		);
+		NavigationManager.OpenTdiTab<DeliveryPriceDlg>(null);
 	}
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
