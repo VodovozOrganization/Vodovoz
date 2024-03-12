@@ -13,7 +13,6 @@ namespace Vodovoz.Views.Payments
 {
 	public partial class PaymentsDiscrepanciesAnalysisView : DialogViewBase<PaymentsDiscrepanciesAnalysisViewModel>
 	{
-		private const string _xlsPattern = "*.xls";
 		private const string _xlsxPattern = "*.xlsx";
 
 		public PaymentsDiscrepanciesAnalysisView(PaymentsDiscrepanciesAnalysisViewModel viewModel) : base(viewModel)
@@ -119,12 +118,7 @@ namespace Vodovoz.Views.Payments
 			xlsxFilter.AddPattern(_xlsxPattern);
 			xlsxFilter.Name = $"Файлы XLSX ({_xlsxPattern})";
 
-			var xlsFilter = new FileFilter();
-			xlsFilter.AddPattern(_xlsPattern);
-			xlsFilter.Name = $"Файлы XLS ({_xlsPattern})";
-
 			yfilechooserbutton.AddFilter(xlsxFilter);
-			yfilechooserbutton.AddFilter(xlsFilter);
 
 			yfilechooserbutton.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedFileName, w => w.Filename)
