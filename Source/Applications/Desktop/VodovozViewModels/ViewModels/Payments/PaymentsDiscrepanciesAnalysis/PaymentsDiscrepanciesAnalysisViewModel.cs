@@ -8,7 +8,6 @@ using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
@@ -622,7 +621,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			{
 				if(balanceNodes.TryGetValue(balance.Inn, out var node))
 				{
-					node.CounterpartyBalance1C += (balance.Credit ?? 0) - (balance.Debit ?? 0);
+					node.CounterpartyBalance1C += balance.Balance;
 
 					continue;
 				}
@@ -630,7 +629,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				var balanceNode = new CounterpartyBalanceNode
 				{
 					CounterpartyInn = balance.Inn,
-					CounterpartyBalance1C = (balance.Credit ?? 0) - (balance.Debit ?? 0)
+					CounterpartyBalance1C = balance.Balance
 				};
 
 				balanceNodes.Add(balance.Inn, balanceNode);
@@ -815,71 +814,5 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return sum;
 		}
 		#endregion
-
-		public class OrderDiscrepanciesNode
-		{
-			public int OrderId { get; set; }
-			public DateTime? OrderDeliveryDateInDatabase { get; set; }
-			public DateTime? OrderDeliveryDateInDocument { get; set; }
-			public OrderStatus? OrderStatus { get; set; }
-			public OrderPaymentStatus? OrderPaymentStatus { get; set; }
-			public decimal DocumentOrderSum { get; set; }
-			public decimal ProgramOrderSum { get; set; }
-			public decimal AllocatedSum { get; set; }
-			public bool IsMissingFromDocument { get; set; }
-			public bool OrderSumDiscrepancy => ProgramOrderSum != DocumentOrderSum;
-			public DateTime? OrderDeliveryDate => OrderDeliveryDateInDatabase ?? OrderDeliveryDateInDocument;
-		}
-
-		public class PaymentDiscrepanciesNode
-		{
-			public int PaymentNum { get; set; }
-			public DateTime PaymentDate { get; set; }
-			public decimal DocumentPaymentSum { get; set; }
-			public decimal ProgramPaymentSum { get; set; }
-			public int CounterpartyId { get; set; }
-			public string CounterpartyName { get; set; }
-			public string CounterpartyInn { get; set; }
-			public bool IsManuallyCreated { get; set; }
-			public string PaymentPurpose { get; set; }
-		}
-
-		public class CounterpartyBalanceNode
-		{
-			public string CounterpartyInn { set; get; }
-			public string CounterpartyName { get; set; }
-			public decimal CounterpartyBalance { get; set; }
-			public decimal CounterpartyBalance1C { get; set; }
-		}
-
-		public class OrderReconciliation1C
-		{
-			public int OrderId { get; set; }
-			public DateTime? OrderDeliveryDate { get; set; }
-			public decimal OrderSum { get; set; }
-
-		}
-
-		public class PaymentReconciliation1C
-		{
-			public int PaymentNum { get; set; }
-			public DateTime PaymentDate { get; set; }
-			public decimal PaymentSum { get; set; }
-		}
-
-		public class CounterpartyBalance1C
-		{
-			public string Inn { get; set; }
-			public decimal? Debit { get; set; }
-			public decimal? Credit { get; set; }
-		}
-
-		public enum DiscrepancyCheckMode
-		{
-			[Display(Name = "Сверка по контрагенту")]
-			ReconciliationByCounterparty,
-			[Display(Name = "Общая сверка")]
-			CommonReconciliation
-		}
 	}
 }

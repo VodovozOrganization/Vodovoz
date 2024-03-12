@@ -56,6 +56,10 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyInnName.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
+    <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />

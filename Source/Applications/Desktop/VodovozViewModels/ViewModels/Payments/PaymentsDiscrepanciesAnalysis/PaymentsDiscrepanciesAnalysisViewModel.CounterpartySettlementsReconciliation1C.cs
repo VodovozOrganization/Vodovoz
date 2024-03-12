@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			}
 
 			#region Properties
+
 			public string CounterpartyInn { get; }
 			public IList<OrderReconciliation1C> Orders { get; }
 			public IList<PaymentReconciliation1C> Payments { get; }
