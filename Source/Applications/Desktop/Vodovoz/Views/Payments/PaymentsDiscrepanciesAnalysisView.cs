@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gdk;
 using Gtk;
 using QS.Views.Dialog;
 using System.ComponentModel;
@@ -14,6 +15,9 @@ namespace Vodovoz.Views.Payments
 	public partial class PaymentsDiscrepanciesAnalysisView : DialogViewBase<PaymentsDiscrepanciesAnalysisViewModel>
 	{
 		private const string _xlsxPattern = "*.xlsx";
+
+		private readonly Color _primaryTextColor = GdkColors.PrimaryText;
+		private readonly Color _dangerTextColor = GdkColors.DangerText;
 
 		public PaymentsDiscrepanciesAnalysisView(PaymentsDiscrepanciesAnalysisViewModel viewModel) : base(viewModel)
 		{
@@ -143,11 +147,11 @@ namespace Vodovoz.Views.Payments
 					.AddNumericRenderer(n => n.ProgramOrderSum)
 					.AddSetter((spin, node) =>
 					{
-						spin.ForegroundGdk = GdkColors.PrimaryText;
+						spin.ForegroundGdk = _primaryTextColor;
 
 						if(node.OrderSumDiscrepancy)
 						{
-							spin.ForegroundGdk = GdkColors.DangerText;
+							spin.ForegroundGdk = _dangerTextColor;
 						}
 					})
 				.AddColumn("Распределенная сумма")
@@ -178,11 +182,11 @@ namespace Vodovoz.Views.Payments
 					.AddTextRenderer(n => n.CounterpartyName)
 					.AddSetter((spin, node) =>
 					{
-						spin.ForegroundGdk = GdkColors.PrimaryText;
+						spin.ForegroundGdk = _primaryTextColor;
 
 						if(node.CounterpartyInn != ViewModel.SelectedClient.INN)
 						{
-							spin.ForegroundGdk = GdkColors.DangerText;
+							spin.ForegroundGdk = _dangerTextColor;
 						}
 					})
 				.AddColumn("Назначение платежа")

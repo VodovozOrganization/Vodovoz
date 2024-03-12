@@ -18,6 +18,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
 {
@@ -243,6 +244,11 @@ public partial class MainWindow
 		{
 			filter.IsForRetail = true;
 		});
+	}
+
+	void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
+	{
+		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#region Заказы

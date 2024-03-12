@@ -60,7 +60,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			private static CounterpartySettlementsReconciliation1C Create(IList<IList<string>> rows)
 			{
-
 				return new CounterpartySettlementsReconciliation1C(rows);
 			}
 
@@ -217,7 +216,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			private decimal GetCounterpartyPaymentsTotalSum()
 			{
-				var sum = default(decimal);
+				decimal sum = default;
 
 				foreach(var rowData in _reconciliationRows)
 				{

@@ -65,7 +65,6 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 
@@ -746,11 +745,6 @@ public partial class MainWindow : Window
 			TdiTabBase.GenerateHashName<ExportCounterpartiesTo1cDlg>(),
 			() => new ExportCounterpartiesTo1cDlg()
 		);
-	}
-
-	void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
-	{
-		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionImportPaymentsByCardActivated(object sender, System.EventArgs e)
