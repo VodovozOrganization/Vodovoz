@@ -386,7 +386,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			var allocations = GetAllocationsFromDatabase(SelectedClient.Id, orders1C.Select(o => o.OrderId).ToList());
 
-			_orderDiscrepanciesNodes = CreareOrderDiscrepanciesNodes(orders1C, allocations);
+			_orderDiscrepanciesNodes = CreateOrderDiscrepanciesNodes(orders1C, allocations);
 		}
 
 		private IList<OrderWithAllocation> GetAllocationsFromDatabase(int clientId, IList<int> orderIds)
@@ -397,11 +397,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return allocations.Concat(ordersMissingFromDocument).ToList();
 		}
 
-		private IDictionary<int, OrderDiscrepanciesNode> CreareOrderDiscrepanciesNodes(
+		private IDictionary<int, OrderDiscrepanciesNode> CreateOrderDiscrepanciesNodes(
 			IList<OrderReconciliation1C> orders1C,
 			IList<OrderWithAllocation> allocations)
 		{
-			var orderDiscrepanciesNodes = CreareOrderDiscrepanciesNodesFromOrderReconciliation1C(orders1C);
+			var orderDiscrepanciesNodes = CreateOrderDiscrepanciesNodesFromOrderReconciliation1C(orders1C);
 
 			foreach(var allocation in allocations)
 			{
@@ -434,7 +434,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return orderDiscrepanciesNodes;
 		}
 
-		private IDictionary<int, OrderDiscrepanciesNode> CreareOrderDiscrepanciesNodesFromOrderReconciliation1C(
+		private IDictionary<int, OrderDiscrepanciesNode> CreateOrderDiscrepanciesNodesFromOrderReconciliation1C(
 			IList<OrderReconciliation1C> orders1C)
 		{
 			var orderDiscrepanciesNodes = new Dictionary<int, OrderDiscrepanciesNode>();
@@ -470,7 +470,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			var paymentFromDatabase = GetCounterpartyPaymentsFromDatabase(SelectedClient.INN, SelectedClient.Id);
 
-			_paymentDiscrepanciesNodes = CrearePaymentDiscrepanciesNodes(payments1C, paymentFromDatabase);
+			_paymentDiscrepanciesNodes = CreatePaymentDiscrepanciesNodes(payments1C, paymentFromDatabase);
 		}
 
 		private IList<PaymentNode> GetCounterpartyPaymentsFromDatabase(
@@ -484,11 +484,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return payments;
 		}
 
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CrearePaymentDiscrepanciesNodes(
+		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CreatePaymentDiscrepanciesNodes(
 			IList<PaymentReconciliation1C> payments1C,
 			IList<PaymentNode> paymentsFromDatabase)
 		{
-			var paymentDiscrepanciesNodes = CrearePaymentDiscrepanciesNodesFromReconciliations1C(payments1C);
+			var paymentDiscrepanciesNodes = CreatePaymentDiscrepanciesNodesFromReconciliations1C(payments1C);
 
 			foreach(var paymentDatabase in paymentsFromDatabase)
 			{
@@ -522,7 +522,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return paymentDiscrepanciesNodes;
 		}
 
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CrearePaymentDiscrepanciesNodesFromReconciliations1C(
+		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CreatePaymentDiscrepanciesNodesFromReconciliations1C(
 			IList<PaymentReconciliation1C> paymentReconciliations)
 		{
 			var paymentDiscrepanciesNodes = new Dictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode>();
@@ -572,7 +572,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			var balances1C = _turnoverBalanceSheet1C.CounterpartyBalances;
 			var balancesFromDatabase = GetCounterpartyBalancesFromDatabase();
 
-			_counterpartyBalanceNodes = CreareCounterpartyBalanceNodes(balances1C, balancesFromDatabase);
+			_counterpartyBalanceNodes = CreateCounterpartyBalanceNodes(balances1C, balancesFromDatabase);
 
 			FillEmptyNamesInCounterpartyBalanceNodes();
 		}
@@ -591,11 +591,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				.ToList();
 		}
 
-		private IDictionary<string, CounterpartyBalanceNode> CreareCounterpartyBalanceNodes(
+		private IDictionary<string, CounterpartyBalanceNode> CreateCounterpartyBalanceNodes(
 			IList<CounterpartyBalance1C> balances1C,
 			IList<CounterpartyCashlessBalanceNode> balancesFromDatabase)
 		{
-			var counterpartyBalanceNodes = CreareCounterpartyBalanceNodesFromBalanceSheet1C(balances1C);
+			var counterpartyBalanceNodes = CreateCounterpartyBalanceNodesFromBalanceSheet1C(balances1C);
 
 			foreach(var databaseBalanceNode in balancesFromDatabase)
 			{
@@ -621,7 +621,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return counterpartyBalanceNodes;
 		}
 
-		private IDictionary<string, CounterpartyBalanceNode> CreareCounterpartyBalanceNodesFromBalanceSheet1C(
+		private IDictionary<string, CounterpartyBalanceNode> CreateCounterpartyBalanceNodesFromBalanceSheet1C(
 			IList<CounterpartyBalance1C> balances1C)
 		{
 			var balanceNodes = new Dictionary<string, CounterpartyBalanceNode>();
