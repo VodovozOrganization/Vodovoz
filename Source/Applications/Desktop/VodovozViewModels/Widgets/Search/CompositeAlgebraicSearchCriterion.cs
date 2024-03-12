@@ -130,9 +130,9 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 			if(operand3 == OperandType.Disabled)
 			{
-				if(operand2 == OperandType.And)
+				if(operand1 == OperandType.And)
 				{
-					if(operand1 == OperandType.And)
+					if(operand2 == OperandType.And)
 					{
 						// and and
 						var criterionAndAnd = new Conjunction();
@@ -151,7 +151,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 						propertiesText3Disjunction);
 				}
 
-				if(operand1 == OperandType.And)
+				if(operand2 == OperandType.And)
 				{
 					// or and
 
