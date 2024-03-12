@@ -2036,6 +2036,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionsView.cs" />
     <Compile Include="Views\Orders\UndeliveryDiscussionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionView.cs" />
+    <Compile Include="Views\Orders\UndeliveryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
