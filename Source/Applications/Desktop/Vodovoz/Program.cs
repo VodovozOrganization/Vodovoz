@@ -143,6 +143,7 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Domain.Sms;
 
 namespace Vodovoz
 {
@@ -298,8 +299,6 @@ namespace Vodovoz
 
 					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
 						.SingleInstance();
-
-
 					
 					builder.RegisterType<PacsEmployeeProvider>()
 						.As<IPacsEmployeeProvider>()
@@ -309,6 +308,7 @@ namespace Vodovoz
 
 					builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
+					builder.RegisterType<SmsNotifier>().As<ISmsNotifier>();
 
 					#region Adapters & Factories
 

@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.Orders
 		private UndeliveryStatus? _oldUndeliveryStatus;
 		private UndeliveryStatus _undeliveryStatus;
 		private IList<UndeliveryDiscussion> _undeliveryDiscussions = new List<UndeliveryDiscussion>();
-		private GenericObservableList<UndeliveryDiscussion> _observableUndeliveryDiscussions = new GenericObservableList<UndeliveryDiscussion>();
+		private GenericObservableList<UndeliveryDiscussion> _observableUndeliveryDiscussions;
 
 		#region Cвойства
 
@@ -279,7 +279,8 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<UndeliveryDiscussion> ObservableUndeliveryDiscussions => _observableUndeliveryDiscussions;
+		public virtual GenericObservableList<UndeliveryDiscussion> ObservableUndeliveryDiscussions =>
+			_observableUndeliveryDiscussions ?? (_observableUndeliveryDiscussions = new GenericObservableList<UndeliveryDiscussion>(UndeliveryDiscussions));
 
 		#endregion
 

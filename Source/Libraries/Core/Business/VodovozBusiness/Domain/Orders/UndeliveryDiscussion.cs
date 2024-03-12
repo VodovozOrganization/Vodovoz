@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.Orders
 		private DateTime _plannedCompletionDate;
 		private UndeliveryDiscussionStatus _status;
 		private IList<UndeliveryDiscussionComment> _comments = new List<UndeliveryDiscussionComment>();
-		private GenericObservableList<UndeliveryDiscussionComment> _observableComments = new GenericObservableList<UndeliveryDiscussionComment>();
+		private GenericObservableList<UndeliveryDiscussionComment> _observableComments;
 
 		public virtual int Id { get; set; }
 
@@ -69,7 +69,8 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		//FIXME Костлыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<UndeliveryDiscussionComment> ObservableComments => _observableComments;
+		public virtual GenericObservableList<UndeliveryDiscussionComment> ObservableComments =>
+			_observableComments ?? (_observableComments = new GenericObservableList<UndeliveryDiscussionComment>(Comments));
 
 		public virtual string Title => $"{typeof(UndeliveryDiscussion).GetSubjectName()} подразделения \"{Subdivision.Name}\"";
 	}

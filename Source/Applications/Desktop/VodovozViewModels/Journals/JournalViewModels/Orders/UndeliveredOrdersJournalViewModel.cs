@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -39,7 +40,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	{
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly bool _canCloseUndeliveries;
-		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
@@ -50,7 +50,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IGtkTabsOpener gtkDialogsOpener,
-			IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionSettings subdivisionSettings,
@@ -59,7 +58,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -101,14 +99,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		    (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
 
 		private void RegisterUndeliveredOrders()
-		{
+		{			
 			var isFosSalesDepartment = FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value;
 			var undeliveredrdersConfig = RegisterEntity<UndeliveredOrder>(GetUndeliveredOrdersQuery)
 				.AddDocumentConfiguration(
-					//функция диалога создания документа
-					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this,  isForSalesDepartment: isFosSalesDepartment),
-					//функция диалога открытия документа
-					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, id: node.Id),
+					//функция диалога создания документа					
+					() => NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder, bool>(this, EntityUoWBuilder.ForCreate(), isFosSalesDepartment).ViewModel,
+					//функция диалога открытия документа					
+					(UndeliveredOrderJournalNode node) => NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					//функция идентификации документа 
 					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"

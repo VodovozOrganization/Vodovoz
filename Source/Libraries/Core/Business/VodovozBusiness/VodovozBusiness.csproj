@@ -59,6 +59,7 @@
     <Compile Include="Domain\Orders\UndeliveryDiscussionComment.cs" />
     <Compile Include="Domain\Orders\UndeliveryDiscussionStatus.cs" />
     <Compile Include="Domain\Orders\UndeliveryDiscussion.cs" />
+    <Compile Include="Domain\Sms\ISmsNotifier.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
