@@ -961,9 +961,9 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
-				() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
 			query.Where(() => orderAlias.DeliveryDate >= startDate
 					|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd && orderAlias.DeliveryDate >= manualResendUpdStartDate));

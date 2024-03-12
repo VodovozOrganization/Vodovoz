@@ -18,7 +18,7 @@ namespace Vodovoz.EntityRepositories
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);
 		bool HasSendedEmailForUpd(int orderId);
-		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleSettings);
+		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order currentOrder, IDeliveryScheduleSettings deliveryScheduleSettings, bool isForBill = false);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);

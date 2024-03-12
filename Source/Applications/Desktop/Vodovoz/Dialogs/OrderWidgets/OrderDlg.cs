@@ -2243,7 +2243,7 @@ namespace Vodovoz
 
 				if(_isNeedSendBillToEmail)
 				{
-					_emailService.SendBillToEmail(UoW, Entity, _emailRepository);
+					_emailService.SendBillToEmail(UoW, Entity);
 				}
 
 				logger.Info("Сохраняем заказ...");
