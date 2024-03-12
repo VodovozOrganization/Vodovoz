@@ -61,6 +61,8 @@
     <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Permissions\Bookkeepping.cs" />
+    <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
