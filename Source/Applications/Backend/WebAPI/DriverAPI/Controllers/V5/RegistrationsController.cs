@@ -92,9 +92,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
-		[ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> RegisterRouteListAddressCoordinatesAsync(
 			[FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{

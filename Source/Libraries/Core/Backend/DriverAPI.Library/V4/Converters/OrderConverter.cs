@@ -98,7 +98,8 @@ namespace DriverAPI.Library.V4.Converters
 				.Select(x => new PhoneDto
 				{
 					Number = phoneFormatter.FormatString(x.First().DigitsNumber),
-					PhoneType = PhoneDtoType.DeliveryPoint
+					PhoneType = PhoneDtoType.DeliveryPoint,
+					Info = vodovozOrder.DeliveryPoint.ShortAddress
 				})
 				.ToList();
 
@@ -108,7 +109,8 @@ namespace DriverAPI.Library.V4.Converters
 				.Select(x => new PhoneDto
 				{
 					Number = phoneFormatter.FormatString(x.First().DigitsNumber),
-					PhoneType = PhoneDtoType.Counterparty
+					PhoneType = PhoneDtoType.Counterparty,
+					Info = vodovozOrder.DeliveryPoint.ShortAddress
 				})
 				.ToList();
 
