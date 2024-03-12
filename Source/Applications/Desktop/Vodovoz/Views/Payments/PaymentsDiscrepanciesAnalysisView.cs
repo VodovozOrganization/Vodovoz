@@ -219,5 +219,14 @@ namespace Vodovoz.Views.Payments
 				speciallistcomboboxClientInfo.ItemsList = ViewModel.Clients;
 			}
 		}
+
+		public override void Destroy()
+		{
+			ytreeviewOrdersData.Destroy();
+			ytreeviewPaymentsData.Destroy();
+			ytreeviewCounterpartiesData.Destroy();
+
+			base.Destroy();
+		}
 	}
 }
