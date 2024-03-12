@@ -59,7 +59,6 @@ namespace DriverAPI.Controllers.V5
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
-		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> Authenticate([FromBody] LoginRequest loginRequestModel)
 		{
 			if(await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
