@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		/// </summary>
 		public class CounterpartySettlementsReconciliation1C
 		{
-			public static DateTime OldOrdersMaxDate = new DateTime(2020, 08, 12);
+			public static readonly DateTime OldOrdersMaxDate = new DateTime(2020, 08, 12);
 
 			private const int _datePositionIndex = 0;
 			private const int _orderPaymentInfoPositionIndex = 1;
