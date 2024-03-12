@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
@@ -16,7 +17,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public DeliveryPricePanelView(IDeliveryPriceCalculator deliveryPriceCalculator)
 		{
-			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new System.ArgumentNullException(nameof(deliveryPriceCalculator));
+			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
 
 			Build();
 		}

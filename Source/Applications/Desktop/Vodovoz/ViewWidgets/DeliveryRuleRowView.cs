@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -43,7 +43,7 @@ namespace Vodovoz.ViewWidgets
 			var deliveryRulesConfig = new FluentColumnsConfig<DeliveryRuleRow>();
 
 			deliveryRulesConfig
-				.AddColumn("Цена")
+				.AddColumn("Цена\nдоставки")
 				.AddTextRenderer(n => n.Volune);
 
 			var dynamicColumnsCount = deliveryRules.First().DynamicColumns.Count;

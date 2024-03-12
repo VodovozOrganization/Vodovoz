@@ -308,7 +308,7 @@ namespace Vodovoz.ViewWidgets
 
 			var deliveryRuleHeader = new DeliveryRuleRow
 			{
-				Volune = "Цена",
+				Volune = "Цена\nдоставки",
 				DynamicColumns = new List<string>()
 			};
 
