@@ -1519,7 +1519,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderWithAllocation resultAlias = null;
 
 			var allocated = QueryOver.Of<PaymentItem>()
-				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Where(pi => pi.Order.Id == orderAlias.Id && pi.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
 
 			var query = uow.Session.QueryOver(() => orderAlias)
@@ -1545,7 +1545,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderWithAllocation resultAlias = null;
 
 			var allocated = QueryOver.Of<PaymentItem>()
-				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Where(pi => pi.Order.Id == orderAlias.Id && pi.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
 
 			var query = uow.Session.QueryOver(() => orderAlias)
