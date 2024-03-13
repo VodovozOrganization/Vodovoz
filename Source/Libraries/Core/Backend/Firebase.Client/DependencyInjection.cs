@@ -18,7 +18,7 @@ namespace FirebaseCloudMessaging.Client
 			});
 
 			serviceCollection
-				.AddHttpClient<IFirebaseCloudMessagingService, FirebaseCloudMessagingService>((serviceProvider, httpClient) =>
+				.AddHttpClient<IFirebaseCloudMessagingService, FirebaseCloudMessagingClientService>((serviceProvider, httpClient) =>
 				{
 					var serttings = serviceProvider.GetService<IOptions<FirebaseCloudMessagingSettings>>().Value;
 

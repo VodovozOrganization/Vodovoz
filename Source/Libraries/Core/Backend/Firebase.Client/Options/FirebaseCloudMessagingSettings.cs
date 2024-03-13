@@ -6,18 +6,18 @@
 	public class FirebaseCloudMessagingSettings
 	{
 		/// <summary>
-		/// Send push notifications api url-path
+		/// Идентификатор приложения
 		/// </summary>
-		public string SendMessageEndpointURI { get; set; }
-
-		/// <summary>
-		/// Firebase api base
-		/// </summary>
-		public string ApiBase { get; set; }
+		public string ApplicationId { get; set; }
 
 		/// <summary>
 		/// Access token
 		/// </summary>
 		public string AccessToken { get; set; }
+
+		/// <summary>
+		/// Базовый URL Firebase Cloud Messaging Api
+		/// </summary>
+		public string ApiBase { get; set; }
 	}
 }

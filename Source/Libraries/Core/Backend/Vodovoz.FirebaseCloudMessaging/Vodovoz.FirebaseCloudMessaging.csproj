@@ -4,4 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
+    <ProjectReference Include="..\Firebase.Client\Vodovoz.FirebaseCloudMessaging.Client.csproj" />
+  </ItemGroup>
+
 </Project>
