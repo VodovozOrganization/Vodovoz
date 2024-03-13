@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -99,6 +99,24 @@ namespace Vodovoz.ViewModels.Orders
 			}			
 
 			UndeliveredOrderViewModel.IsSaved += IsSaved;
+
+			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
+			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
+		}
+
+		private void OnObservableUndeliveryDiscussionsListContentChanged(object sender, EventArgs e)
+		{
+			OnDiscussionsChanged();
+		}
+
+		private void OnObservableUndeliveryDiscussionsElementChanged(object aList, int[] aIdx)
+		{
+			OnDiscussionsChanged();
+		}
+
+		private void OnDiscussionsChanged()
+		{
+			Entity.UpdateUndeliveryStatus();
 		}
 
 		private bool IsSaved() => Save(false);

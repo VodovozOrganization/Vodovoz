@@ -486,17 +486,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateUndeliveryStatus()
 		{
-			//if(ObservableUndeliveryDiscussions.Any(x => x.Status == UndeliveryDiscussionStatus.Checking))
-			//{
-			//	SetStatus(UndeliveryStatus.WaitingForReaction);
-			//	return;
-			//}
-
 			if(ObservableUndeliveryDiscussions.All(x => x.Status == UndeliveryDiscussionStatus.Closed))
 			{
 				SetStatus(UndeliveryStatus.Checking);
 				return;
 			}
+
 			SetStatus(UndeliveryStatus.InProcess);
 		}
 
