@@ -161,6 +161,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
 	}
 
 	public class ClientEquipmentNode

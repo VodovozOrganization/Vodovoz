@@ -7,10 +7,6 @@
 		<toolitem name='ActionUnallocatedBalancesJournal' action='ActionUnallocatedBalancesJournal'/>
 		<!-- <toolitem name='ActionAccountingTable' action='ActionAccountingTable'/> -->
 		<!-- <toolitem name='ActionAccountFlow' action='ActionAccountFlow'/> -->
-		<toolitem name='ActionRevision' action='ActionRevision'/>
-        <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
-        <toolitem name='ActionOldExportTo1c' action='ActionOldExportTo1c'/>
-        <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
         <toolitem name='ActionWayBillGenerator' action='ActionWayBillGenerator'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
 	</toolbar>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
@@ -29,5 +30,7 @@ namespace Vodovoz.EntityRepositories.Payments
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments);
 		IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
 		bool PaymentFromAvangardExists(IUnitOfWork uow, DateTime paidDate, int orderNum, decimal orderSum);
+		IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork uow, int counterpartyId, string counterpartyInn);
+		IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn);
 	}
 }

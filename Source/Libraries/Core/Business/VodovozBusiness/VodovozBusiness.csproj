@@ -58,7 +58,13 @@
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyInnName.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
+    <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Permissions\Bookkeepping.cs" />
+    <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
