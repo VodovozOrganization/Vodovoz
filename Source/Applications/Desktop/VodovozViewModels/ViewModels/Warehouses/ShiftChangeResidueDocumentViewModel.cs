@@ -15,6 +15,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
@@ -51,7 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private const string _fillByWarehouse = "Заполнить по складу";
 		private const string _fillByCar = "Заполнить по автомобилю";
 		private readonly CommonMessages _commonMessages;
-		private readonly StoreDocumentHelper _documentHelper;
+		private readonly IStoreDocumentHelper _documentHelper;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private readonly IReportViewOpener _reportViewOpener;
@@ -80,7 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			CommonMessages commonMessages,
-			StoreDocumentHelper documentHelper,
+			IStoreDocumentHelper documentHelper,
 			IStockRepository stockRepository,
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
 			IReportViewOpener reportViewOpener,
@@ -398,6 +399,19 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		#endregion
 
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
+			{
+				SortDocumentItems();
+			}
+		}
+
+		private void SortDocumentItems()
+		{
+			Entity.SortItems(Entity.SortedByNomenclatureName);
+		}
+
 		protected override bool BeforeValidation() => CanSave;
 
 		protected override bool BeforeSave()
@@ -456,6 +470,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			if(Entity.ObservableInstanceItems.Count > 0)
 			{
 				UpdateInstanceDiscrepancies();
+			}
+
+			if(Entity.SortedByNomenclatureName)
+			{
+				SortDocumentItems();
 			}
 		}
 		
@@ -728,6 +747,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() => FillNomenclatureInstancesByStorageTitle);
 			
 			SetStoragePropertiesChangeRelation();
+
+			Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
 		private void SetStoragePropertiesChangeRelation()
@@ -856,6 +877,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		public override void Dispose()
 		{
+			Entity.PropertyChanged -= EntityPropertyChanged;
 			WarehouseStorageEntryViewModel.BeforeChangeByUser -= OnWarehouseBeforeChangeByUser;
 			WarehouseStorageEntryViewModel.ChangedByUser -= OnWarehouseChangedByUser;
 			CarStorageEntryViewModel.BeforeChangeByUser -= OnCarBeforeChangeByUser;

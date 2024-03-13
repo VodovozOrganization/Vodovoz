@@ -406,6 +406,7 @@
     <EmbeddedResource Include="icons\pacs\short-break-allowed.png" />
     <EmbeddedResource Include="icons\pacs\short-break-default.png" />
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
+    <EmbeddedResource Include="icons\toolbar\1s_default.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -2032,6 +2033,12 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReportView.cs" />
     <Compile Include="Filters\GtkViews\WarehouseJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseJournalFilterView.cs" />
+    <Compile Include="ViewWidgets\DeliveryRuleRowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.DeliveryRuleRowView.cs" />
+    <Compile Include="ViewWidgets\Search\CompositeAlgebraicSearchView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeAlgebraicSearchView.cs" />
+    <Compile Include="Views\Payments\PaymentsDiscrepanciesAnalysisView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentsDiscrepanciesAnalysisView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2642,6 +2649,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="icons\common\fire16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="toolbars\1s_work.xml" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

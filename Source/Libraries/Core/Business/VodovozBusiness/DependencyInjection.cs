@@ -39,6 +39,7 @@ namespace Vodovoz
 			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
 			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>()
 			.AddScoped<IDeliveryRepository, DeliveryRepository>()
-			.AddScoped<IEmailService, EmailService>();
+			.AddScoped<IEmailService, EmailService>()
+			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>();
 	}
 }

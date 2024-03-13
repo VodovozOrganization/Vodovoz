@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -56,6 +56,15 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="Errors\Email\Email.cs" />
+    <Compile Include="Domain\Employees\FineTypes.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyInnName.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
+    <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
+    <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Permissions\Bookkeepping.cs" />
+    <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
@@ -679,6 +688,7 @@
     <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Common\Repository.cs" />
     <Compile Include="Errors\Edo\Edo.cs" />
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Goods\Nomenclature.cs" />
@@ -996,7 +1006,11 @@
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
+    <Compile Include="Tools\Logistic\DeliveryPriceNode.cs" />
+    <Compile Include="Tools\Logistic\DeliveryPriceRow.cs" />
+    <Compile Include="Tools\Logistic\DeliveryRuleRow.cs" />
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
+    <Compile Include="Tools\Logistic\IDeliveryPriceCalculator.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />

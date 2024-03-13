@@ -116,10 +116,6 @@ public partial class MainWindow : Window
 	Action ActionPaymentFromBank;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
-	Action ActionRevision;
-	Action ActionExportTo1c;
-	Action ActionOldExportTo1c;
-	Action ActionExportCounterpartiesTo1c;
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
@@ -155,6 +151,13 @@ public partial class MainWindow : Window
 	private Action ActionSalesCounterpartiesJournal;
 	private Action ActionSalesUndeliveredOrdersJournal;
 	private Action ActionSalesComplaintsJournal;
+
+	//Работа с 1С
+	Action ActionRevision;
+	Action ActionExportTo1c;
+	Action ActionOldExportTo1c;
+	Action ActionExportCounterpartiesTo1c;
+	Action ActionAnalyseCounterpartyDiscrepancies;
 
 	public void BuildToolbarActions()
 	{
@@ -211,13 +214,9 @@ public partial class MainWindow : Window
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionPaymentFromBank = new Action("ActionPaymentFromBank", "Загрузка выписки из банк-клиента", null, "table");
-		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
-		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
-		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportPaymentsByCard = new Action("ActionImportPaymentsByCard", "Загрузка выписки оплат по карте", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
-		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
@@ -249,6 +248,13 @@ public partial class MainWindow : Window
 		ActionSalesCounterpartiesJournal = new Action("ActionSalesCounterpartiesJournal", "Журнал контрагентов", null, "table");
 		ActionSalesUndeliveredOrdersJournal = new Action("ActionSalesUndeliveredOrdersJournal", "Журнал недовозов", null, "table");
 		ActionSalesComplaintsJournal = new Action("ActionSalesComplaintsJournal", "Журнал рекламаций", null, "table");
+
+		//Работа с 1С
+		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
+		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
+		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
+		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
+		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -300,10 +306,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionPaymentFromBank, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
-		w1.Add(ActionRevision, null);
-		w1.Add(ActionExportTo1c, null);
-		w1.Add(ActionOldExportTo1c, null);
-		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
@@ -347,6 +349,13 @@ public partial class MainWindow : Window
 		w1.Add(ActionSalesCounterpartiesJournal, null);
 		w1.Add(ActionSalesUndeliveredOrdersJournal, null);
 		w1.Add(ActionSalesComplaintsJournal, null);
+
+		//Работа с 1С
+		w1.Add(ActionRevision, null);
+		w1.Add(ActionExportTo1c, null);
+		w1.Add(ActionOldExportTo1c, null);
+		w1.Add(ActionExportCounterpartiesTo1c, null); 
+		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null); 
 
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
@@ -393,10 +402,6 @@ public partial class MainWindow : Window
 
 		//Бухгалтерия
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
-		ActionRevision.Activated += ActionRevision_Activated;
-		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
-		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
-		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
@@ -435,6 +440,13 @@ public partial class MainWindow : Window
 		ActionSalesCounterpartiesJournal.Activated += OnActionSalesCounterpartiesJournalActivated;
 		ActionSalesUndeliveredOrdersJournal.Activated += OnActionSalesUndeliveredOrdersOrdersJournalActivated;
 		ActionSalesComplaintsJournal.Activated += OnActionSalesComplaintsJournalActivated;
+
+		//Работа с 1С
+		ActionRevision.Activated += ActionRevision_Activated;
+		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
+		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
+		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
+		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
 
 		#endregion
 	}
@@ -871,10 +883,7 @@ public partial class MainWindow : Window
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<DeliveryPriceDlg>(),
-			() => new DeliveryPriceDlg()
-		);
+		NavigationManager.OpenTdiTab<DeliveryPriceDlg>(null);
 	}
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)

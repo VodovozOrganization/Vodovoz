@@ -1,5 +1,6 @@
 ﻿using NHibernate.Criterion;
 using QS.Project.DB;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.NHibernateProjections.Employees
@@ -31,6 +32,21 @@ namespace Vodovoz.NHibernateProjections.Employees
 				Projections.Property<Employee>(x => x.Name),
 				Projections.Property<Employee>(x => x.Patronymic)
 			);
+		}
+
+		[Display(Name = "ФИО оштрафованного лица")]
+		public static IProjection FinedEmployeeFioProjection
+		{
+			get
+			{
+				Employee finedEmployeeAlias = null;
+
+				return CustomProjections.Concat_WS(
+					" ",
+					() => finedEmployeeAlias.LastName,
+					() => finedEmployeeAlias.Name,
+					() => finedEmployeeAlias.Patronymic);
+			}
 		}
 	}
 }
