@@ -134,13 +134,13 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				DialogHelper.GenerateDialogHashName<RouteList>(routelistId),
 				() => new RouteListClosingDlg(routelistId));
 
-		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
+		/*public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
 		{
 			return tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(id),
 				() => id > 0 ? new UndeliveredOrderDlg(id, isForSalesDepartment) : new UndeliveredOrderDlg(isForSalesDepartment)
 			);
-		}
+		}*/
 
 		public ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter)
 		{

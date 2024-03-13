@@ -30,7 +30,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Table tableNewComment;
 
-		private global::Vodovoz.Views.FilesView filesview;
+		private global::Vodovoz.Views.FilesView filesView;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
@@ -157,12 +157,12 @@ namespace Vodovoz.Views.Orders
 			this.tableNewComment.RowSpacing = ((uint)(6));
 			this.tableNewComment.ColumnSpacing = ((uint)(6));
 			// Container child tableNewComment.Gtk.Table+TableChild
-			this.filesview = new global::Vodovoz.Views.FilesView();
-			this.filesview.WidthRequest = 250;
-			this.filesview.Events = ((global::Gdk.EventMask)(256));
-			this.filesview.Name = "filesview";
-			this.tableNewComment.Add(this.filesview);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.filesview]));
+			this.filesView = new global::Vodovoz.Views.FilesView();
+			this.filesView.WidthRequest = 250;
+			this.filesView.Events = ((global::Gdk.EventMask)(256));
+			this.filesView.Name = "filesView";
+			this.tableNewComment.Add(this.filesView);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.filesView]));
 			w12.BottomAttach = ((uint)(2));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
