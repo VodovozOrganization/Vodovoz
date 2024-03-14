@@ -245,6 +245,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 						continue;
 					}
 
+					DateTime.TryParse(rowData[_datePositionIndex], out var date);
+
+					if(date == default || date >= OldOrdersMaxDate.AddDays(1))
+					{
+						continue;
+					}
+
 					if(rowData[1].StartsWith("Продажа"))
 					{
 						debt -= decimal.Parse(rowData[_orderSumPositionIndex]);
