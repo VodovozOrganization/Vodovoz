@@ -43,7 +43,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void ConfigureManualScheduleSelectionEvent()
 		{
-			ybuttonManualScheduleSelection.Visible = ViewModel.IsUserCanSelectAnyDeliveryScheduleFromJournal;
+			ybuttonManualScheduleSelection.Visible = ViewModel.IsUserCanOpenJournal;
 			ybuttonManualScheduleSelection.Clicked += (s, e) => ViewModel.SelectEntityFromJournalCommand.Execute();
 		}
 
@@ -62,6 +62,9 @@ namespace Vodovoz.Views.Logistic
 
 				yvboxButtonsRightColumn.Add(GetButton(deliverySchedule));
 			}
+
+			yvboxButtonsLeftColumn.ShowAll();
+			yvboxButtonsRightColumn.ShowAll();
 		}
 
 		private Button GetButton(DeliverySchedule deliverySchedule)

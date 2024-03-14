@@ -95,6 +95,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.NotificationRecievers;
+using Vodovoz.Presentation.ViewModels.Logistic;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -176,6 +177,7 @@ namespace Vodovoz
 		private Order templateOrder;
 
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
+		private DeliveryScheduleSelectionViewModel _deliveryScheduleSelectionViewModel;
 
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
@@ -852,6 +854,27 @@ namespace Vodovoz
 			//entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			//entryDeliverySchedule.CanEditReference = true;
 			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
+			yentryDeliverySchedule.Binding
+				.AddFuncBinding(Entity, s => s.DeliverySchedule != null ? s.DeliverySchedule.Name : string.Empty, w => w.Text)
+				.InitializeFromSource();
+			ybuttonSelectDeliverySchedule.Sensitive = true;
+
+			var deliveryScheduleList = UoW.GetAll<DeliverySchedule>().Take(7).ToList();
+
+			ybuttonSelectDeliverySchedule.Clicked += (s, e) =>
+			{
+				_deliveryScheduleSelectionViewModel = 
+				NavigationManager.OpenViewModel<DeliveryScheduleSelectionViewModel, IList<DeliverySchedule>, DateTime, bool>(
+					  null, deliveryScheduleList, DateTime.Now, true)
+				.ViewModel;
+
+				_deliveryScheduleSelectionViewModel.DeliveryScheduleSelected += (sender, args) =>
+				{
+					Entity.DeliverySchedule = args.DeliverySchedule;
+
+					_deliveryScheduleSelectionViewModel = null;
+				};
+			};
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 

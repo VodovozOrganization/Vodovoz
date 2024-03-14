@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
@@ -14,24 +15,24 @@ namespace Vodovoz.Presentation.ViewModels.Logistic
 
 		public DeliveryScheduleSelectionViewModel(
 			INavigationManager navigation,
-			List<DeliverySchedule> deliverySchedules,
+			IList<DeliverySchedule> deliverySchedules,
 			DateTime deliveryDate,
-			bool isUserCanSelectAnyDeliveryScheduleFromJournal = false
+			bool isUserCanOpenJournal = false
 			) : base(navigation)
 		{
 			DeliverySchedules = deliverySchedules;
 			DeliveryDate = deliveryDate;
-			IsUserCanSelectAnyDeliveryScheduleFromJournal = isUserCanSelectAnyDeliveryScheduleFromJournal;
+			IsUserCanOpenJournal = isUserCanOpenJournal;
 			DeliveryDay = GetDeliveryDay();
 
 			SelectDeliveryScheduleCommand = new DelegateCommand<DeliverySchedule>(SelectDeliverySchedule);
-			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal);
+			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => IsUserCanOpenJournal);
 		}
 
 		public DateTime DeliveryDate { get; }
 		public string DeliveryDay { get; }
-		public bool IsUserCanSelectAnyDeliveryScheduleFromJournal { get; }
-		public List<DeliverySchedule> DeliverySchedules { get; }
+		public bool IsUserCanOpenJournal { get; }
+		public IList<DeliverySchedule> DeliverySchedules { get; }
 		public string NoDeliverySchedulesMessage =>
 			"На данный день\nинтервалы\nдоставки\nотсутствуют";
 

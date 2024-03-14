@@ -143,6 +143,7 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Presentation.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -709,6 +710,7 @@ namespace Vodovoz
 						.AddScoped<ICompletedDriverWarehouseEventProxyRepository, CompletedDriverWarehouseEventProxyRepository>()
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddScoped<DeliveryScheduleSelectionViewModel>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddSingleton<ViewModelWidgetResolver, BasedOnNameViewModelWidgetResolver>()
 						.AddSingleton<ITDIWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
