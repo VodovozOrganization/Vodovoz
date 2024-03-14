@@ -17,6 +17,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер аутентификации
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	public class TokenController : VersionedController
 	{
 		private readonly IConfiguration _configuration;
@@ -29,7 +30,6 @@ namespace DriverAPI.Controllers.V4
 		/// Конструктор
 		/// </summary>
 		/// <param name="configuration"></param>
-		/// <param name="context"></param>
 		/// <param name="userManager"></param>
 
 		public TokenController(
@@ -48,7 +48,6 @@ namespace DriverAPI.Controllers.V4
 		/// Аутентификация
 		/// </summary>
 		/// <param name="loginRequestModel"></param>
-		/// <returns><see cref="Vodovoz.Core.Data.Dto_s.TokenResponseDto"/></returns>
 		/// <exception cref="UnauthorizedAccessException"></exception>
 		[HttpPost]
 		[Produces("application/json")]

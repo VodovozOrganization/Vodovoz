@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -583,6 +584,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Where(Restrictions.IsNotNull(Projections.Property<CashRequestSumItem>(o => o.CashRequest)))
 				.Select(Projections.Sum(() => cashRequestSumItemAlias.Sum));
 
+			Expense cashRequestSumItemExpenseAlias = null;
+
+			var cashReuestSumGivedSubquery = QueryOver.Of(() => cashRequestSumItemAlias)
+				.JoinAlias(() => cashRequestSumItemAlias.Expenses, () => cashRequestSumItemExpenseAlias)
+				.Where(() => cashRequestSumItemAlias.CashRequest.Id == cashRequestAlias.Id)
+				.Where(Restrictions.IsNotNull(Projections.Property<CashRequestSumItem>(o => o.CashRequest)))
+				.Select(Projections.Sum(() => cashRequestSumItemExpenseAlias.Money));
+
 			var moneyTransferDateSubquery = QueryOver.Of(() => cashRequestSumItemAlias)
 				.Where(() => cashRequestSumItemAlias.CashRequest.Id == cashRequestAlias.Id)
 				.Select(Projections.Max(() => cashRequestSumItemAlias.Date.Date));
@@ -611,6 +620,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => accountableEmployeeAlias.LastName).WithAlias(() => resultAlias.AccountablePersonLastName)
 					.Select(() => accountableEmployeeAlias.Patronymic).WithAlias(() => resultAlias.AccountablePersonPatronymic)
 					.SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
+					.SelectSubQuery(cashReuestSumGivedSubquery).WithAlias(() => resultAlias.SumGived)
 					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
 					.Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)

@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
@@ -29,6 +29,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string AccountablePersonLastName { get; set; }
 		public string AccountablePersonPatronymic { get; set; }
 		public decimal Sum { get; set; }
+		public decimal SumGived { get; set; }
+		public decimal SumResidue => Sum - SumGived;
 		public string Basis { get; set; }
 		public string ExpenseCategory { get; set; } = string.Empty;
 		public bool HaveReceipt { get; set; } = false;

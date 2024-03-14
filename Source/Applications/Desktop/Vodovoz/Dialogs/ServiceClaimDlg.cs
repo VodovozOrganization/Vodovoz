@@ -30,7 +30,11 @@ using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProvide
 
 namespace Vodovoz
 {
-	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
+	public partial class ServiceClaimDlg
+		: QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>,
+		ICounterpartyInfoProvider,
+		IDeliveryPointInfoProvider,
+		ICustomWidthInfoProvider
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
@@ -42,6 +46,8 @@ namespace Vodovoz
 			new DeliveryPointJournalFilterViewModel();
 
 		#region IPanelInfoProvider implementation
+
+		public int? WidthRequest => 420;
 		public PanelViewType[] InfoWidgets
 		{
 			get

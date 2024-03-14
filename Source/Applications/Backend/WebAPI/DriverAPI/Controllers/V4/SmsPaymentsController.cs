@@ -1,6 +1,4 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -12,12 +10,16 @@ using System.Threading.Tasks;
 using DriverAPI.Library.Helpers;
 using Vodovoz.Core.Domain.Employees;
 using DriverApi.Contracts.V4;
+using DriverAPI.Library.V4.Models;
+using DriverAPI.Library.V4.Converters;
+using DriverAPI.Library.V5.Services;
 
 namespace DriverAPI.Controllers.V4
 {
 	/// <summary>
 	/// Контроллер оплаты по смс
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class SmsPaymentsController : VersionedController
 	{

@@ -247,6 +247,10 @@ namespace Vodovoz.Dialogs.Cash
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum))
 					.XAlign(0.5f)
+				.AddColumn("Остаток на выдачу")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum - n.Expenses.Sum(e => e.Money)))
+					.XAlign(0.5f)
 				.AddColumn("Дата")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Date.ToShortDateString())
@@ -262,10 +266,7 @@ namespace Vodovoz.Dialogs.Cash
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Comment)
 					.XAlign(0.5f)
-				.AddColumn("Выдано")
-					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(n => n.ObservableExpenses != null && n.ObservableExpenses.Any()).Editing(false)
-					.RowCells().AddSetter<CellRenderer>((c, n) => c.Sensitive = ViewModel.CanExecuteGive(n))
+				.RowCells().AddSetter<CellRenderer>((c, n) => c.Sensitive = ViewModel.CanExecuteGive(n))
 				.Finish();
 
 			ytreeviewSums.ItemsDataSource = ViewModel.Entity.ObservableSums;

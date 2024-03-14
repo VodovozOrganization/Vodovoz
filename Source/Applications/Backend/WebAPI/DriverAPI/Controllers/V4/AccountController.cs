@@ -12,6 +12,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер аккаунтов
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize]
 	public class AccountController : VersionedController
 	{

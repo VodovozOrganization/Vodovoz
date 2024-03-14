@@ -55,28 +55,28 @@
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>101.5pt</Width>
+            <Width>98.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>95.0pt</Width>
+            <Width>140.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>114.5pt</Width>
+            <Width>86.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>106.7pt</Width>
+            <Width>99.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>114.4pt</Width>
+            <Width>88.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>222.0pt</Width>
+            <Width>232.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>24.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -97,7 +97,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Принадлежность</Value>
+                      <Value>Принадлежность прошлая</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -113,7 +113,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>Тип авто</Value>
+                      <Value>Принадлежность текущая</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -128,9 +128,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>Производитель</Value>
-                      <Style>
+                    <Textbox Name="Textbox1">
+                      <Value>Тип авто</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -219,7 +219,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!car_own_type.Value</Value>
+                      <Value>={prev_car_own_type}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -235,7 +235,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>=Fields!model_info.Value</Value>
+                      <Value>=Fields!car_own_type.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -250,10 +250,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>=Fields!manufacturer_name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox5">
+                      <Value>=Fields!model_info.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -508,14 +507,18 @@ CASE cm.car_type_of_use
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 END as model_info,
-manuf.name as manufacturer_name,
 cm.name as car_model_name,
 c.reg_number as car_reg_number,
-CONCAT(e.last_name, ' ', e.name, ' ', e.patronymic) as driver_name
+CONCAT(e.last_name, ' ', e.name, ' ', e.patronymic) as driver_name,
+(SELECT CASE car_own_type
+	WHEN 'Company' THEN 'ТС компании'
+	WHEN 'Raskat' THEN 'ТС в Раскате'
+	WHEN 'Driver' THEN 'ТС водителя'
+ END FROM car_versions WHERE start_date &lt; cv.start_date AND car_id = c.id ORDER BY start_date DESC LIMIT 1
+) AS prev_car_own_type
 FROM cars c 
 JOIN car_versions cv ON cv.car_id = c.id
 JOIN car_models cm ON c.model_id = cm.id 
-LEFT JOIN car_manufacturers manuf ON cm.manufacturer_id = manuf.id 
 LEFT JOIN employees e ON c.driver_id = e.id 
 WHERE 
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
@@ -524,26 +527,36 @@ WHERE
 UNION
 SELECT
 date(c2.archiving_date) as change_date,
-'В архиве' as car_own_type,
+CONCAT('В архиве (',
+	CASE c2.archiving_reason
+		WHEN 'Sales' THEN 'Продано'
+		WHEN 'Scrap' THEN 'Утиль'
+		ELSE 'Неизвестно'
+	END, ')')   as car_own_type,
 CASE cm2.car_type_of_use 
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 END as model_info,
-manuf2.name as manufacturer_name,
 cm2.name as car_model_name,
 c2.reg_number as car_reg_number,
-CONCAT(e2.last_name, ' ', e2.name, ' ', e2.patronymic) as driver_name
+CONCAT(e2.last_name, ' ', e2.name, ' ', e2.patronymic) as driver_name,
+(SELECT CASE car_own_type
+	WHEN 'Company' THEN 'ТС компании'
+	WHEN 'Raskat' THEN 'ТС в Раскате'
+	WHEN 'Driver' THEN 'ТС водителя'
+ END FROM car_versions WHERE car_id = c2.id ORDER BY start_date DESC LIMIT 1
+) AS prev_car_own_type
 FROM cars c2
 JOIN car_versions cv2 ON cv2.car_id = c2.id
 JOIN car_models cm2 ON c2.model_id = cm2.id 
-LEFT JOIN car_manufacturers manuf2 ON cm2.manufacturer_id = manuf2.id 
 LEFT JOIN employees e2 ON c2.driver_id = e2.id 
 WHERE 
-	c2.archiving_date  &gt;= @start_date and c2.archiving_date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
+	c2.archiving_date &gt;= @start_date and c2.archiving_date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
 	AND c2.is_archive = 1
     AND cm2.car_type_of_use IN (@car_type_of_use)
     AND cv2.car_own_type IN (@car_own_type)
+    
 ORDER BY change_date DESC, car_own_type
 ;</CommandText>
         <QueryParameters>
@@ -574,10 +587,6 @@ ORDER BY change_date DESC, car_own_type
           <DataField>model_info</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="manufacturer_name">
-          <DataField>manufacturer_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="car_model_name">
           <DataField>car_model_name</DataField>
           <TypeName>System.String</TypeName>
@@ -588,6 +597,10 @@ ORDER BY change_date DESC, car_own_type
         </Field>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="prev_car_own_type">
+          <DataField>prev_car_own_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

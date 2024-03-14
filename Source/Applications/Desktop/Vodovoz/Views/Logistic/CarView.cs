@@ -2,6 +2,7 @@
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -40,6 +41,14 @@ namespace Vodovoz.Views.Logistic
 			yentryDocNumber.Binding.AddBinding(ViewModel.Entity, e => e.DocNumber, w => w.Text).InitializeFromSource();
 			yentryDocIssuedOrg.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedOrg, w => w.Text).InitializeFromSource();
 			ydatepickerDocIssuedDate.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
+
+			yenumcomboboxArchivingReason.ItemsEnum = typeof(ArchivingReason);
+			yenumcomboboxArchivingReason.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.ArchivingReason, w => w.SelectedItemOrNull)
+				.AddBinding(e => e.IsArchive, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelArchivingReason.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible).InitializeFromSource();
 
 			yentryFuelCardNumber.Binding.AddBinding(ViewModel.Entity, e => e.FuelCardNumber, w => w.Text).InitializeFromSource();
 			yentryFuelCardNumber.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditFuelCardNumber, w => w.Sensitive).InitializeFromSource();

@@ -49,5 +49,14 @@ namespace Vodovoz.Permissions
 			Name = "Изменение цены и скидки в закрытии МЛ",
 			Description = "Возможность изменять цену и скидку в заказе из закрытия МЛ")]
 		public static string CanEditPriceDiscountFromRouteList => "can_edit_price_discount_from_route_list";
+
+		/// <summary>
+		/// Изменение товаров на вкладке "Товары" в заказе, который уже добавлен в МЛ
+		/// Разрешить изменять товары на вкладке \"Товары\" в заказе, который уже добавлен в МЛ
+		/// </summary>
+		[Display(
+			Name = "Изменение товаров на вкладке \"Товары\" в заказе, который уже добавлен в МЛ",
+			Description = "Разрешить изменять товары на вкладке \"Товары\" в заказе, который уже добавлен в МЛ")]
+		public static string CanEditGoodsInRouteList => "can_edit_goods_in_route_list";
 	}
 }

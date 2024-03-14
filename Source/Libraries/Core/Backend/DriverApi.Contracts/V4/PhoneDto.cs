@@ -14,5 +14,10 @@
 		/// Тип телефона
 		/// </summary>
 		public PhoneDtoType PhoneType { get; set; }
+
+		/// <summary>
+		/// Информация о телефоне
+		/// </summary>
+		public string Info { get; set; }
 	}
 }
