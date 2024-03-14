@@ -9,8 +9,6 @@ namespace Vodovoz.ViewWidgets
 	[ToolboxItem(true)]
 	public partial class DeliveryRuleRowView : Gtk.Bin
 	{
-		private const int _lineHeight = 25;
-
 		public DeliveryRuleRowView()
 		{
 			Build();
@@ -65,7 +63,6 @@ namespace Vodovoz.ViewWidgets
 			ytreeviewTodayDeliveryRules.EnableGridLines = Gtk.TreeViewGridLines.Both;
 			ytreeviewTodayDeliveryRules.ColumnsConfig = deliveryRulesConfig.Finish();
 			ytreeviewTodayDeliveryRules.ItemsDataSource = deliveryRules.Skip(1).ToList();
-			ytreeviewTodayDeliveryRules.HeightRequest = _lineHeight * (deliveryRules.Count);
 		}
 	}
 }
