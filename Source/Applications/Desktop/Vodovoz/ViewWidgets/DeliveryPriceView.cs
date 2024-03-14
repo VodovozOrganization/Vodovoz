@@ -276,8 +276,41 @@ namespace Vodovoz.ViewWidgets
 				.ThenBy(x => x.DeliverySchedule.To);
 
 			var result = new StringBuilder();
-
+			
 			int i = 1;
+
+			if(weekDayName == WeekDayName.Today)
+			{
+				var groupedRestrictions = restrictions
+						.Where(x => x.AcceptBefore != null)
+						.GroupBy(x => x.AcceptBefore.Name)
+						.OrderBy(x => x.Key);
+
+				foreach(var group in groupedRestrictions)
+				{
+					result.Append($"<b>до {group.Key}:</b> ");
+
+					int maxScheduleCountOnLine = 3;
+					var restrictionsInGroup = group.ToList();
+					int lastItemOnDayId = restrictionsInGroup.Last().Id;
+					foreach(var restriction in restrictionsInGroup)
+					{
+						result.Append(restriction.DeliverySchedule.Name);
+						result.Append(restriction.Id == lastItemOnDayId ? ";" : ", ");
+						if(i == maxScheduleCountOnLine && restriction.Id != lastItemOnDayId)
+						{
+							result.AppendLine();
+							maxScheduleCountOnLine = _maxScheduleCountOnLine;
+							i = 0;
+						}
+						i++;
+					}
+					result.AppendLine();
+				}
+
+				return result.ToString();
+			}
+
 			int? lastItemId = restrictions.LastOrDefault()?.Id;
 
 			foreach(var restriction in restrictions)
