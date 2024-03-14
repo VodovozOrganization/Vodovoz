@@ -720,7 +720,8 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
+		var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
+		(page.ViewModel.ReportParametersViewModel as RevisionReportViewModel).TdiTab = ((page as TdiPage<RdlViewerViewModel>).TdiTab);
 	}
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)

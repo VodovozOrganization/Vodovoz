@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Report;
 using QS.Report.ViewModels;
+using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
@@ -11,6 +12,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 {
 	public class RevisionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private ITdiTab _tdiTab;
+
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
@@ -28,6 +31,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public DateTime? StartDate { get; set; }
 		public DateTime? EndDate { get; set; }
+
+		public ITdiTab TdiTab
+		{
+			get => _tdiTab;
+			set => SetField(ref _tdiTab, value);
+		}
 
 		public Counterparty Counterparty { get; set; }
 
