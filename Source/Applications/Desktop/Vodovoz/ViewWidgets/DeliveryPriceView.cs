@@ -332,6 +332,8 @@ namespace Vodovoz.ViewWidgets
 
 		private IList<DeliveryRuleRow> ConvertToDeliveryRuleRows(IEnumerable<DistrictRuleItemBase> weekDayDistrictRuleItems)
 		{
+			var sortedByBottlesCountRules = weekDayDistrictRuleItems.OrderBy(x => x.DeliveryPriceRule.Water19LCount).ToList();
+
 			var deliveryRuleRows = new List<DeliveryRuleRow>();
 
 			if(!weekDayDistrictRuleItems.Any())
@@ -347,7 +349,7 @@ namespace Vodovoz.ViewWidgets
 				DynamicColumns = new List<string>()
 			};
 
-			foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
+			foreach(var weekDayDistrictRuleItem in sortedByBottlesCountRules)
 			{
 				deliveryRuleHeader.DynamicColumns.Add(weekDayDistrictRuleItem.Price.ToString());
 			}
@@ -362,7 +364,7 @@ namespace Vodovoz.ViewWidgets
 					DynamicColumns = new List<string>()
 				};
 
-				foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
+				foreach(var weekDayDistrictRuleItem in sortedByBottlesCountRules)
 				{
 					deliveryRuleRow.DynamicColumns.Add(weekDayDistrictRuleItem.DeliveryPriceRule.GetVolumeValue(volume));
 				}
