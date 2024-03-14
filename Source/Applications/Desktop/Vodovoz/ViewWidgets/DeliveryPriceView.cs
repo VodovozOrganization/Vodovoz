@@ -325,6 +325,8 @@ namespace Vodovoz.ViewWidgets
 				i++;
 			}
 
+			result.AppendLine();
+
 			return result.ToString();
 		}
 
