@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Tools.Comparers;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.ViewWidgets
@@ -354,13 +355,19 @@ namespace Vodovoz.ViewWidgets
 			if(weekDayName == WeekDayName.Today)
 			{
 				var groupedTodayRestrictions = restrictions
-						.Where(x => x.AcceptBefore != null)
-						.GroupBy(x => x.AcceptBefore.Name)
-						.OrderBy(x => x.Key);
+					.GroupBy(x => x.AcceptBefore?.Name)
+					.OrderBy(x => x.Key, new StringOrNullAfterComparer());
 
 				foreach(var group in groupedTodayRestrictions)
 				{
-					result.Append($"<b>до {group.Key}:</b> ");
+					if(!string.IsNullOrWhiteSpace(group.Key))
+					{
+						result.Append($"<b>до {group.Key}:</b> ");
+					}
+					else
+					{
+						result.Append($"<b>Без ограничений:</b> ");
+					}
 
 					int maxScheduleCountOnLine = 3;
 					var restrictionsInGroup = group.ToList();
@@ -384,13 +391,19 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var groupedRestrictions = restrictions
-						.Where(x => x.AcceptBefore != null)
-						.GroupBy(x => x.AcceptBefore.Name)
-						.OrderBy(x => x.Key);
+				.GroupBy(x => x.AcceptBefore?.Name)
+				.OrderBy(x => x.Key, new StringOrNullAfterComparer());
 
 			foreach(var group in groupedRestrictions)
 			{
-				result.Append($"<b>до {group.Key} (предыдущего дня):</b> ");
+				if(!string.IsNullOrWhiteSpace(group.Key))
+				{
+					result.Append($"<b>до {group.Key} (предыдущего дня):</b> ");
+				}
+				else
+				{
+					result.Append($"<b>Без ограничений:</b> ");
+				}
 
 				int maxScheduleCountOnLine = 3;
 				var restrictionsInGroup = group.ToList();
