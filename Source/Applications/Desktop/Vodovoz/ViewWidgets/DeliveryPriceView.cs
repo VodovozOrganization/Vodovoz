@@ -211,45 +211,117 @@ namespace Vodovoz.ViewWidgets
 		{
 			#region DeliveryRules
 
-			DeliveryRulesToday =
-				ConvertToDeliveryRuleRows(District.TodayDistrictRuleItems.Any()
-				? District.TodayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Today).Any())
+			{
+				DeliveryRulesToday = ConvertToDeliveryRuleRows(
+					District.TodayDistrictRuleItems.Any()
+					? District.TodayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvToday.Visible = false;
+			}
 
-			DeliveryRulesMonday = ConvertToDeliveryRuleRows(
-				District.MondayDistrictRuleItems.Any()
-				? District.MondayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Monday).Any())
+			{
+				DeliveryRulesMonday = ConvertToDeliveryRuleRows(
+					District.MondayDistrictRuleItems.Any()
+					? District.MondayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvMonday.Visible = false;
+			}
 
-			DeliveryRulesTuesday = ConvertToDeliveryRuleRows(
-				District.TuesdayDistrictRuleItems.Any()
-				? District.TuesdayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Tuesday).Any())
+			{
+				DeliveryRulesTuesday = ConvertToDeliveryRuleRows(
+					District.TuesdayDistrictRuleItems.Any()
+					? District.TuesdayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvTuesday.Visible = false;
+			}
 
-			DeliveryRulesWednesday =
-				ConvertToDeliveryRuleRows(District.WednesdayDistrictRuleItems.Any()
-				? District.WednesdayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Wednesday).Any())
+			{
+				DeliveryRulesWednesday = ConvertToDeliveryRuleRows(
+					District.WednesdayDistrictRuleItems.Any()
+					? District.WednesdayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvWednesday.Visible = false;
+			}
 
-			DeliveryRulesThursday =
-				ConvertToDeliveryRuleRows(District.ThursdayDistrictRuleItems.Any()
-				? District.ThursdayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Thursday).Any())
+			{
+				DeliveryRulesThursday = ConvertToDeliveryRuleRows(
+					District.ThursdayDistrictRuleItems.Any()
+					? District.ThursdayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvThursday.Visible = false;
+			}
 
-			DeliveryRulesFriday =
-				ConvertToDeliveryRuleRows(District.FridayDistrictRuleItems.Any()
-				? District.FridayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Friday).Any())
+			{
+				DeliveryRulesFriday = ConvertToDeliveryRuleRows(
+					District.FridayDistrictRuleItems.Any()
+					? District.FridayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvFriday.Visible = false;
+			}
 
-			DeliveryRulesSaturday =
-				ConvertToDeliveryRuleRows(District.SaturdayDistrictRuleItems.Any()
-				? District.SaturdayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Saturday).Any())
+			{
+				DeliveryRulesSaturday = ConvertToDeliveryRuleRows(
+					District.SaturdayDistrictRuleItems.Any()
+					? District.SaturdayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvSaturday.Visible = false;
+			}
 
-			DeliveryRulesSunday =
-				ConvertToDeliveryRuleRows(District.SundayDistrictRuleItems.Any()
-				? District.SundayDistrictRuleItems
-				: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			if(District
+				.GetAllDeliveryScheduleRestrictions()
+				.Where(x => x.WeekDay == WeekDayName.Sunday).Any())
+			{
+				DeliveryRulesSunday = ConvertToDeliveryRuleRows(
+					District.SundayDistrictRuleItems.Any()
+					? District.SundayDistrictRuleItems
+					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+			}
+			else
+			{
+				drrvSunday.Visible = false;
+			}
 
 			#endregion DeliveryRules
 
@@ -276,17 +348,17 @@ namespace Vodovoz.ViewWidgets
 				.ThenBy(x => x.DeliverySchedule.To);
 
 			var result = new StringBuilder();
-			
+
 			int i = 1;
 
 			if(weekDayName == WeekDayName.Today)
 			{
-				var groupedRestrictions = restrictions
+				var groupedTodayRestrictions = restrictions
 						.Where(x => x.AcceptBefore != null)
 						.GroupBy(x => x.AcceptBefore.Name)
 						.OrderBy(x => x.Key);
 
-				foreach(var group in groupedRestrictions)
+				foreach(var group in groupedTodayRestrictions)
 				{
 					result.Append($"<b>до {group.Key}:</b> ");
 
@@ -311,27 +383,40 @@ namespace Vodovoz.ViewWidgets
 				return result.ToString();
 			}
 
-			int? lastItemId = restrictions.LastOrDefault()?.Id;
+			var groupedRestrictions = restrictions
+						.Where(x => x.AcceptBefore != null)
+						.GroupBy(x => x.AcceptBefore.Name)
+						.OrderBy(x => x.Key);
 
-			foreach(var restriction in restrictions)
+			foreach(var group in groupedRestrictions)
 			{
-				result.Append(restriction.DeliverySchedule.Name);
-				result.Append(restriction.Id == lastItemId ? ";" : ", ");
-				if(i == _maxScheduleCountOnLine && restriction.Id != lastItemId)
-				{
-					result.AppendLine();
-					i = 0;
-				}
-				i++;
-			}
+				result.Append($"<b>до {group.Key} (предыдущего дня):</b> ");
 
-			result.AppendLine();
+				int maxScheduleCountOnLine = 3;
+				var restrictionsInGroup = group.ToList();
+				int lastItemOnDayId = restrictionsInGroup.Last().Id;
+				foreach(var restriction in restrictionsInGroup)
+				{
+					result.Append(restriction.DeliverySchedule.Name);
+					result.Append(restriction.Id == lastItemOnDayId ? ";" : ", ");
+					if(i == maxScheduleCountOnLine && restriction.Id != lastItemOnDayId)
+					{
+						result.AppendLine();
+						maxScheduleCountOnLine = _maxScheduleCountOnLine;
+						i = 0;
+					}
+					i++;
+				}
+				result.AppendLine();
+			}
 
 			return result.ToString();
 		}
 
 		private IList<DeliveryRuleRow> ConvertToDeliveryRuleRows(IEnumerable<DistrictRuleItemBase> weekDayDistrictRuleItems)
 		{
+			var sortedByBottlesCountRules = weekDayDistrictRuleItems.OrderBy(x => x.DeliveryPriceRule.Water19LCount).ToList();
+
 			var deliveryRuleRows = new List<DeliveryRuleRow>();
 
 			if(!weekDayDistrictRuleItems.Any())
@@ -347,7 +432,7 @@ namespace Vodovoz.ViewWidgets
 				DynamicColumns = new List<string>()
 			};
 
-			foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
+			foreach(var weekDayDistrictRuleItem in sortedByBottlesCountRules)
 			{
 				deliveryRuleHeader.DynamicColumns.Add(weekDayDistrictRuleItem.Price.ToString());
 			}
@@ -362,7 +447,7 @@ namespace Vodovoz.ViewWidgets
 					DynamicColumns = new List<string>()
 				};
 
-				foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
+				foreach(var weekDayDistrictRuleItem in sortedByBottlesCountRules)
 				{
 					deliveryRuleRow.DynamicColumns.Add(weekDayDistrictRuleItem.DeliveryPriceRule.GetVolumeValue(volume));
 				}
