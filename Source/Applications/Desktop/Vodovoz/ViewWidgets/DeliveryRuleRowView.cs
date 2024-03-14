@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -17,6 +17,7 @@ namespace Vodovoz.ViewWidgets
 			Title = "";
 			Schedule = "";
 			ylabelTitle.UseMarkup = true;
+			ylabelShifts.UseMarkup = true;
 		}
 
 		public string Title
