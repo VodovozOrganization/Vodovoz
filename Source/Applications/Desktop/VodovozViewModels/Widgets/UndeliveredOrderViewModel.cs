@@ -11,7 +11,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,7 +39,6 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private UndeliveryObject _entityObject;
 		private IList<UndeliveryObject> _entityObjectSource;
 		private IList<UndeliveryKind> _entityKindSource;
 		private IList<UndeliveryKind> _entityKinds;
@@ -301,7 +299,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 				if(sb.Length > 0)
 				{
-					Entity.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+					Entity.AddAutoCommentToOkkDiscussion(UoW, text);
 				}
 			}
 
@@ -445,9 +443,8 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand AddCommentToTheFieldCommand => _addCommentToTheFieldCommand ?? (_addCommentToTheFieldCommand = new DelegateCommand(
 			() =>
 			{
-				Entity.AddCommentToTheField(
+				Entity.AddAutoCommentToOkkDiscussion(
 					UoW,
-					CommentedFields.Reason,
 					$"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\""
 				);
 			}));

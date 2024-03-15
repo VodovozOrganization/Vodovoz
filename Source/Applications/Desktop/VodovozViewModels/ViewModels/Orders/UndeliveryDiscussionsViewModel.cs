@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -92,6 +92,7 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			CreateAttachSubdivisionCommand();
 		}
+
 		private void CreateAttachSubdivisionCommand()
 		{
 			AttachSubdivisionCommand = new DelegateCommand(() =>
@@ -124,7 +125,6 @@ namespace Vodovoz.ViewModels.Orders
 
 		public DelegateCommand AttachSubdivisionCommand { get; private set; }
 
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<UndeliveryDiscussionViewModel> ObservableUndeliveryDiscussionViewModels
 		{
 			get => _observableUndeliveryDiscussionViewModels;

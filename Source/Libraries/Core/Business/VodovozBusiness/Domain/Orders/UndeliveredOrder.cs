@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -13,6 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -32,6 +34,7 @@ namespace Vodovoz.Domain.Orders
 		private UndeliveryStatus _undeliveryStatus;
 		private IList<UndeliveryDiscussion> _undeliveryDiscussions = new List<UndeliveryDiscussion>();
 		private GenericObservableList<UndeliveryDiscussion> _observableUndeliveryDiscussions;
+		private ISubdivisionSettings _subdivisionSettings => ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		#region Cвойства
 
@@ -307,7 +310,19 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddAutoCommentByChangeStatus()
 		{
-			AddAutoComment(CommentedFields.Reason);
+			var text = string.Empty;
+
+			if(_oldUndeliveryStatus.HasValue && _oldUndeliveryStatus != UndeliveryStatus && Id > 0)
+			{
+				text = $"сменил(а) статус недовоза\nс \"{_oldUndeliveryStatus.GetEnumTitle()}\" на \"{UndeliveryStatus.GetEnumTitle()}\"";
+			}
+
+			if(string.IsNullOrEmpty(text))
+			{
+				return;
+			}
+
+			AddAutoCommentToOkkDiscussion(UoW, text);
 		}
 
 		public virtual IList<Employee> GetDrivers(IOrderRepository orderRepository)
@@ -324,50 +339,39 @@ namespace Vodovoz.Domain.Orders
 			LastEditedTime = DateTime.Now;
 		}
 
-		/// <summary>
-		/// Добавление автокомментариев к полям
-		/// </summary>
-		/// <param name="field">Комментируемое поле</param>
-		void AddAutoComment(CommentedFields field)
-		{
-			var text = string.Empty;
-			switch(field) {
-				case CommentedFields.Reason:
-					if(_oldUndeliveryStatus.HasValue && _oldUndeliveryStatus != UndeliveryStatus && Id > 0)
-					{
-						text =
-							$"сменил(а) статус недовоза\nс \"{_oldUndeliveryStatus.GetEnumTitle()}\" на \"{UndeliveryStatus.GetEnumTitle()}\"";
-					}
-
-					break;
-				default:
-					break;
-			}
-			if(string.IsNullOrEmpty(text))
-			{
-				return;
-			}
-
-			AddCommentToTheField(UoW, field, text);
-		}
 
 		/// <summary>
-		/// Добавление комментария к полю
+		/// Добавление комментария к обсуждению ОКК
 		/// </summary>
-		/// <param name="uow">UoW</param>
-		/// <param name="field">Комментируемое поле</param>
+		/// <param name="uow">UoW</param>		
 		/// <param name="text">Текст комментария</param>
-		public virtual void AddCommentToTheField(IUnitOfWork uow, CommentedFields field, string text)
+		public virtual void AddAutoCommentToOkkDiscussion(IUnitOfWork uow, string text)
 		{
-			UndeliveredOrderComment comment = new UndeliveredOrderComment {
+			var subdivision = uow.GetById<Subdivision>(_subdivisionSettings.GetOkkId());
+
+			var discussion = ObservableUndeliveryDiscussions.FirstOrDefault(x => x.Subdivision.Id == subdivision.Id);
+
+			if(discussion == null)
+			{
+				discussion = new UndeliveryDiscussion
+				{
+					StartSubdivisionDate = DateTime.Now,
+					Status = UndeliveryDiscussionStatus.InProcess,
+					Undelivery = this,
+					Subdivision = subdivision
+				};
+			}
+
+			var comment = new UndeliveryDiscussionComment
+			{
 				Comment = text,
-				CommentDate = DateTime.Now,
-				CommentedField = field,
-				Employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
-				UndeliveredOrder = this
+				Author = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
+				UndeliveryDiscussion = discussion
 			};
 
-			uow.Save(comment);
+			discussion.ObservableComments.Add(comment);
+
+			uow.Save(discussion);
 		}
 
 		/// <summary>

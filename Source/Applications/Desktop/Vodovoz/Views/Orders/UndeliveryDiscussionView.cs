@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
-using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Orders;
 namespace Vodovoz.Views.Orders
@@ -23,14 +23,6 @@ namespace Vodovoz.Views.Orders
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();
 
-			ViewModel.PropertyChanged += (sender, e) =>
-			{
-				if(e.PropertyName == nameof(ViewModel.CanEditStatus))
-				{
-					UpdateStatusEnum();
-				}
-			};
-
 			yenumcomboStatus.ItemsEnum = typeof(UndeliveryDiscussionStatus);
 			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
@@ -40,26 +32,30 @@ namespace Vodovoz.Views.Orders
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<UndeliveryDiscussionComment>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetTime(x))
+					.AddTextRenderer(x => "", useMarkup: true)
+					.AddSetter((c, n) =>
+					{
+						c.Markup = $"<span foreground=\"{GetColor(n)}\"><b>{GetTime(n)}</b></span>";
+					})
 				.AddColumn("Автор")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetAuthor(x))
+					.AddTextRenderer(x => "", useMarkup: true)
+					.AddSetter((c, n) =>
+					{
+						c.Markup = $"<span foreground=\"{GetColor(n)}\"><b>{GetAuthor(n)}</b></span>";
+					})
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.Comment)
+					.AddTextRenderer(x => "", useMarkup: true)
 						.WrapWidth(300)
 						.WrapMode(Pango.WrapMode.WordChar)
-				.RowCells().AddSetter<CellRenderer>(SetColor)
+					.AddSetter((c, n) =>
+					{
+						c.Markup = $"<span foreground=\"{GetColor(n)}\"><b>{n.Comment}</b></span>";
+					})
 				.Finish();
 
 			ytreeviewComments.ItemsDataSource = ViewModel.Entity.ObservableComments;			
-
-			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) =>
-			{
-				ytreeviewComments.YTreeModel.EmitModelChanged();
-				ytreeviewComments.ExpandAll();
-			};
-
 			ytreeviewComments.ExpandAll();
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
@@ -67,7 +63,19 @@ namespace Vodovoz.Views.Orders
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+
+			ViewModel.PropertyChanged += (sender, e) =>
+			{
+				if(e.PropertyName == nameof(ViewModel.CanEditStatus))
+				{
+					UpdateStatusEnum();
+				}
+			};
+
+			filesView.Sensitive = false;
 		}
+
+		private string GetColor(UndeliveryDiscussionComment n) => ViewModel.Entity.ObservableComments.IndexOf(n) % 2 == 0 ? GdkColors.InfoText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor();
 
 		private void UpdateStatusEnum()
 		{
@@ -94,18 +102,6 @@ namespace Vodovoz.Views.Orders
 				return result;
 			}
 			return "";
-		}
-
-		private void SetColor(CellRenderer cell, object node)
-		{
-			if(node is UndeliveryDiscussionComment)
-			{
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
-			}
-			else
-			{
-				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
-			}
 		}
 	}
 }

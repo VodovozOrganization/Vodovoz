@@ -607,18 +607,9 @@ namespace Vodovoz.Domain.Logistic
 				oldUndelivery.GuiltyInUndelivery.Clear();
 				oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
 
+				oldUndelivery.AddAutoCommentToOkkDiscussion(uow, oldUndeliveryCommentText);
+
 				uow.Save(oldUndelivery);
-
-				var oldUndeliveredOrderComment = new UndeliveredOrderComment
-				{
-					Comment = oldUndeliveryCommentText,
-					CommentedField = CommentedFields.Reason,
-					CommentDate = DateTime.Now,
-					Employee = currentEmployee,
-					UndeliveredOrder = oldUndelivery
-				};
-
-				uow.Save(oldUndeliveredOrderComment);
 
 				if(oldUndelivery.NewOrder == null)
 				{
@@ -659,18 +650,9 @@ namespace Vodovoz.Domain.Logistic
 
 				newUndeliveredOrder.GuiltyInUndelivery = new List<GuiltyInUndelivery> { newOrderGuiltyInUndelivery };
 
+				newUndeliveredOrder.AddAutoCommentToOkkDiscussion(uow, GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle());
+
 				uow.Save(newUndeliveredOrder);
-
-				var newUndeliveredOrderComment = new UndeliveredOrderComment
-				{
-					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
-					CommentedField = CommentedFields.Reason,
-					CommentDate = DateTime.Now,
-					Employee = currentEmployee,
-					UndeliveredOrder = newUndeliveredOrder
-				};
-
-				uow.Save(newUndeliveredOrderComment);
 			}
 		}
 

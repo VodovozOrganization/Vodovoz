@@ -1,10 +1,9 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
-using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
@@ -29,10 +28,9 @@ namespace Vodovoz.ViewModels.Orders
 				Vodovoz.Permissions.Order.UndeliveredOrder.CanCompleteUndeliveryDiscussion);
 
 			UoW = uow;
+			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
-
-			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -57,7 +55,6 @@ namespace Vodovoz.ViewModels.Orders
 					}
 
 					newComment.Author = CurrentEmployee;
-					newComment.CreationTime = DateTime.Now;
 					newComment.Comment = NewCommentText;
 					newComment.UndeliveryDiscussion = Entity;
 					Entity.ObservableComments.Add(newComment);
@@ -79,8 +76,6 @@ namespace Vodovoz.ViewModels.Orders
 		public string SubdivisionShortName => string.IsNullOrWhiteSpace(Entity.Subdivision.ShortName) ? "?" : Entity.Subdivision.ShortName;
 
 		#region Status
-
-		public virtual UndeliveryStatus[] HiddenStatuses => new[] { UndeliveryStatus.Closed };
 		
 		public virtual UndeliveryDiscussionStatus[] HiddenDiscussionStatuses => new[] { UndeliveryDiscussionStatus.Closed };
 

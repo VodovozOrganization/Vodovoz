@@ -15,7 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Orders
 
 			References(x => x.UndeliveryDiscussion).Column("undelivery_discussion_id");
 			References(x => x.Author).Column("author_id");
-			Map(x => x.CreationTime).Column("creation_time");
+			Map(x => x.CreationTime).Column("creation_time").ReadOnly();
 			Map(x => x.Comment).Column("comment");
 		}
 	}

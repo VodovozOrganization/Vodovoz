@@ -673,10 +673,7 @@
     <Compile Include="EntityRepositories\Store\SelfDeliveryAddressDto.cs" />
     <Compile Include="EntityRepositories\TrueMark\ITrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\TrueMark\TrueMarkRepository.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
@@ -1032,7 +1029,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrder.cs" />
     <Compile Include="Domain\Orders\Documents\InvoiceContractDoc.cs" />
     <Compile Include="Domain\Orders\Documents\EquipmentReturnDocument.cs" />
-    <Compile Include="Domain\Orders\UndeliveredOrderComment.cs" />
     <Compile Include="Domain\Client\ClientCameFrom.cs" />
     <Compile Include="Tools\CommerceML\Export.cs" />
     <Compile Include="Tools\IXmlConvertable.cs" />

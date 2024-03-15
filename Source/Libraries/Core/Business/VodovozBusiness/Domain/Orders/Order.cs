@@ -3205,14 +3205,16 @@ namespace Vodovoz.Domain.Orders
 			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
 
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
-			if(undeliveries.Any()) {
+			if(undeliveries.Any())
+			{
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
 					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
 				);
-				foreach(var u in undeliveries) {
-					u.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+				foreach(var u in undeliveries)
+				{
+					u.AddAutoCommentToOkkDiscussion(UoW, text);
 				}
 			}
 		}

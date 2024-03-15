@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -74,34 +74,20 @@ namespace Vodovoz.ViewModels.Orders
 				TabName = UndeliveredOrder.Title;
 			}
 
-			ConfigureDlg(isForSalesDepartment);
+			Configure(isForSalesDepartment);
 		}
 
 		private void FillNewUndelivery()
-		{			
+		{
 			UndeliveredOrder.Author = UndeliveredOrder.EmployeeRegistrator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(UndeliveredOrder.Author == null)
 			{
-				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");				
+				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 			}
 
 			TabName = "Новый недовоз";
-			UndeliveredOrder.TimeOfCreation = DateTime.Now;			
-		}
-
-		public void ConfigureDlg(bool isForSalesDepartment = false)
-		{
-			if(isForSalesDepartment)
-			{
-				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
-				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
-			}			
-
-			UndeliveredOrderViewModel.IsSaved += IsSaved;
-
-			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
-			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
+			UndeliveredOrder.TimeOfCreation = DateTime.Now;
 		}
 
 		private void OnObservableUndeliveryDiscussionsListContentChanged(object sender, EventArgs e)
@@ -120,6 +106,50 @@ namespace Vodovoz.ViewModels.Orders
 		}
 
 		private bool IsSaved() => Save(false);
+
+		/// <summary>
+		/// Проверка на возможность создания нового недовоза
+		/// </summary>
+		/// <returns><c>true</c>, если можем создать, <c>false</c> если создать недовоз не можем,
+		/// при этом добавляется автокомментарий к существующему недовозу с содержимым
+		/// нового (но не добавленного) недовоза.</returns>
+		private bool CanCreateUndelivery()
+		{
+			if(UndeliveredOrder.Id > 0)
+			{
+				return true;
+			}
+
+			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
+			
+			if(otherUndelivery == null)
+			{
+				return true;
+			}
+
+			otherUndelivery.AddAutoCommentToOkkDiscussion(UoW, UndeliveredOrder.GetUndeliveryInfo(_orderRepository));
+			
+			return false;
+		}
+
+		private void ProcessSmsNotification()
+		{			
+			_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
+		}
+
+		public void Configure(bool isForSalesDepartment = false)
+		{
+			if(isForSalesDepartment)
+			{
+				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
+				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
+			}
+
+			UndeliveredOrderViewModel.IsSaved += IsSaved;
+
+			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
+			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
+		}
 
 		public override bool Save(bool needClose = true)
 		{
@@ -163,38 +193,6 @@ namespace Vodovoz.ViewModels.Orders
 			return true;
 		}
 
-		/// <summary>
-		/// Проверка на возможность создания нового недовоза
-		/// </summary>
-		/// <returns><c>true</c>, если можем создать, <c>false</c> если создать недовоз не можем,
-		/// при этом добавляется автокомментарий к существующему недовозу с содержимым
-		/// нового (но не добавленного) недовоза.</returns>
-		private bool CanCreateUndelivery()
-		{
-			if(UndeliveredOrder.Id > 0)
-			{
-				return true;
-			}
-
-			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
-			
-			if(otherUndelivery == null)
-			{
-				return true;
-			}
-
-			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, UndeliveredOrder.GetUndeliveryInfo(_orderRepository));
-			
-			return false;
-		}
-
-
-		private void ProcessSmsNotification()
-		{			
-			_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
-		}
-
-		//реализация метода интерфейса ITdiTabAddedNotifier
 		public void OnTabAdded()
 		{
 			UndeliveredOrderViewModel.OldOrderSelectCommand.Execute();
