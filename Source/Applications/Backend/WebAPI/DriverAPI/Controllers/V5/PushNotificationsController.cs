@@ -240,7 +240,7 @@ namespace DriverAPI.Controllers.V5
 				if(string.IsNullOrWhiteSpace(firebaseToken))
 				{
 					_logger.LogInformation(
-						"Отправка PUSH-сообщения о премии прервана, у сотрудника {DriverId} отсутствует токен для отправки PUSH-сообщений",
+						"Отправка PUSH-сообщения о премии прервана, не найден водитель {DriverId} или у него отсутствует токен для PUSH-сообщений",
 						notifyableDriverId);
 
 					continue;

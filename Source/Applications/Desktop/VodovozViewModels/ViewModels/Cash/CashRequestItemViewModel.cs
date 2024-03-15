@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly IInteractiveService _interactiveService;
 		private readonly ILifetimeScope _scope;
 
+
 		public CashRequestItemViewModel(
 			IUnitOfWork uow,
 			IInteractiveService interactiveService,
@@ -37,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			_scope = scope;
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			UoW = uow;
 			UserRole = userRole;
 
@@ -91,7 +93,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public CashRequestSumItem Entity
 		{
 			get => _entity;
-			set {
+			set
+			{
 				SetField(ref _entity, value);
 				AccountableEmployee = value.AccountableEmployee;
 				Date = value.Date;
