@@ -83,7 +83,7 @@ namespace Vodovoz.Views.Orders
 
 			if(!ViewModel.CanCompleteDiscussion)
 			{
-				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenDiscussionStatuses/*.Cast<object>().ToArray()*/);
+				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenDiscussionStatuses);
 			}
 
 			yenumcomboStatus.SelectedItem = ViewModel.Entity.Status;

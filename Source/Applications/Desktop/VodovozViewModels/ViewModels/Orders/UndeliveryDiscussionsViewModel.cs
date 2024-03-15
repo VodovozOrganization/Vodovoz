@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.Orders
 		public virtual GenericObservableList<UndeliveryDiscussionViewModel> ObservableUndeliveryDiscussionViewModels
 		{
 			get => _observableUndeliveryDiscussionViewModels;
-			set => SetField(ref _observableUndeliveryDiscussionViewModels, value, () => ObservableUndeliveryDiscussionViewModels);
+			set => SetField(ref _observableUndeliveryDiscussionViewModels, value);
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;

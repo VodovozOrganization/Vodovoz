@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Orders
 			ICommonServices commonServices,
 			IUnitOfWork uow)
 			: base(undeliveryDiscussion, commonServices)
-		{			
+		{
 			_undeliveryPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder));
 			_canCompleteUndeliveryDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				Vodovoz.Permissions.Order.UndeliveredOrder.CanCompleteUndeliveryDiscussion);
@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.Orders
 
 		private void ConfigureEntityPropertyChanges()
 		{
-			SetPropertyChangeRelation(e => e.Status,() => CanEditStatus);
+			SetPropertyChangeRelation(e => e.Status, () => CanEditStatus);
 		}
 
 		private void CreateCommands()
@@ -46,7 +46,8 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateAddCommentCommand()
 		{
 			AddCommentCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var newComment = new UndeliveryDiscussionComment();
 					if(CurrentEmployee == null)
 					{
@@ -66,7 +67,7 @@ namespace Vodovoz.ViewModels.Orders
 			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
 		}
 
-		public Employee CurrentEmployee { get; } 
+		public Employee CurrentEmployee { get; }
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
 		public bool CanEdit => PermissionResult.CanUpdate && _undeliveryPermissionResult.CanUpdate;
@@ -76,7 +77,7 @@ namespace Vodovoz.ViewModels.Orders
 		public string SubdivisionShortName => string.IsNullOrWhiteSpace(Entity.Subdivision.ShortName) ? "?" : Entity.Subdivision.ShortName;
 
 		#region Status
-		
+
 		public virtual UndeliveryDiscussionStatus[] HiddenDiscussionStatuses => new[] { UndeliveryDiscussionStatus.Closed };
 
 		public bool CanEditStatus => CanEdit && Entity.Status != UndeliveryDiscussionStatus.Closed || (CanEdit && _canCompleteUndeliveryDiscussionPermission);
@@ -88,7 +89,8 @@ namespace Vodovoz.ViewModels.Orders
 		#region Comment
 
 		[PropertyChangedAlso(nameof(CanAddComment))]
-		public virtual string NewCommentText {
+		public virtual string NewCommentText
+		{
 			get => _newCommentText;
 			set => SetField(ref _newCommentText, value, () => NewCommentText);
 		}

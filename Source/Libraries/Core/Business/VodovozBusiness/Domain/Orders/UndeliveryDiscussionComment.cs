@@ -27,21 +27,21 @@ namespace Vodovoz.Domain.Orders
 		public virtual Employee Author
 		{
 			get => _author;
-			set => SetField(ref _author, value, () => Author);
+			set => SetField(ref _author, value);
 		}
 
 		[Display(Name = "Время создания")]
 		public virtual DateTime CreationTime
 		{
 			get => _creationTime;
-			set => SetField(ref _creationTime, value, () => CreationTime);
+			set => SetField(ref _creationTime, value);
 		}
 
 		[Display(Name = "Обсуждение недовоза")]
 		public virtual UndeliveryDiscussion UndeliveryDiscussion
 		{
 			get => _undeliveryDiscussion;
-			set => SetField(ref _undeliveryDiscussion, value, () => UndeliveryDiscussion);
+			set => SetField(ref _undeliveryDiscussion, value);
 		}
 
 		[Display(Name = "Комментарий")]

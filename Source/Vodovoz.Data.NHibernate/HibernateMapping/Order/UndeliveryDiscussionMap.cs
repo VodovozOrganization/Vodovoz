@@ -17,7 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Orders
 			Map(x => x.PlannedCompletionDate).Column("planned_completion_date");
 			Map(x => x.Status).Column("status");
 
-			HasMany(x => x.Comments).Cascade.All().Inverse().LazyLoad().KeyColumn("undelivery_discussion_id");
+			HasMany(x => x.Comments).Cascade.All().Inverse().LazyLoad().KeyColumn("undelivery_discussion_id").OrderBy("creation_time desc");
 		}
 	}
 }
