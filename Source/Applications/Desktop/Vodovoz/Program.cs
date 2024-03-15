@@ -676,6 +676,7 @@ namespace Vodovoz
 						.AddNHibernateConventions()
 						.AddDatabaseInfo()
 						.AddDatabaseSingletonSettings()
+						.ConfigureSettingsOptions()
 						.AddCore()
 						.AddDesktop()
 						.AddFileStorage()
