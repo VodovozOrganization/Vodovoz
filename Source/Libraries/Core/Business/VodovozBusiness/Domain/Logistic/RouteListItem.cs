@@ -799,9 +799,18 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RestoreOrder()
 		{
-			foreach(var item in Order.OrderItems) {
-				item.RestoreOriginalDiscount();
-				item.PreserveActualCount(true);
+			foreach(var item in Order.OrderItems)
+			{
+				item.RestoreOriginalDiscount();								
+
+				if(Status == RouteListItemStatus.EnRoute)
+				{
+					item.SetActualCount(null);
+				}
+				else
+				{
+					item.PreserveActualCount(true);
+				}
 			}
 
 			foreach(var equip in Order.OrderEquipments)

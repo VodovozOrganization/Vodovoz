@@ -16,6 +16,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер событий нахождения водителя на складе
 	/// </summary>
+	[ApiVersion("4.0", Deprecated = true)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverWarehouseEventsController : VersionedController
 	{

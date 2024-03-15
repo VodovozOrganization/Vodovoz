@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -282,6 +283,40 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SingleOrDefault<PaymentFromAvangard>();
 			
 			return payment != null;
+		}
+
+		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
+		{
+			var query = from payment in uow.Session.Query<Payment>()
+						join c in uow.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
+						from counterparty in counterparties.DefaultIfEmpty()
+						where
+						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
+						&& payment.Status != PaymentState.Cancelled
+						select new PaymentNode
+						{
+							PaymentNum = payment.PaymentNum,
+							PaymentDate = payment.Date,
+							CounterpartyId = counterparty.Id,
+							CounterpartyInn = counterparty.INN,
+							CounterpartyName = counterparty.Name,
+							IsManuallyCreated = payment.IsManuallyCreated,
+							PaymentPurpose = payment.PaymentPurpose,
+							PaymentSum = payment.Total
+						};
+
+			return query;
+		}
+
+		public IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
+		{
+			var query = from payment in uow.Session.Query<Payment>()
+						where
+						payment.Status != PaymentState.Cancelled
+						&& (payment.Counterparty.Id == counterpartyId || payment.CounterpartyInn == counterpartyInn)
+						select payment.Total;
+
+			return query;
 		}
 	}
 }

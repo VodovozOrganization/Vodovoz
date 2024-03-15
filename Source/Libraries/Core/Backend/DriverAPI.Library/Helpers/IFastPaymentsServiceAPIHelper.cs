@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V4;
+﻿using FastPaymentsApi.Contracts.Responses;
 using System.Threading.Tasks;
 
 namespace DriverAPI.Library.Helpers

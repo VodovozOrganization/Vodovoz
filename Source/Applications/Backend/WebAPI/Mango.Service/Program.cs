@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NLog.Web;
+using QS.Project.Core;
 
 namespace Mango.Service
 {
@@ -18,6 +19,13 @@ namespace Mango.Service
 				.ConfigureWebHostDefaults(cfg =>
 				{
 					cfg.UseStartup<Startup>();
+				})
+				.ConfigureServices((hostContext, services) =>
+				{
+					services
+						.AddMappingAssemblies(
+							typeof(Vodovoz.Settings.Database.SettingMap).Assembly
+							);
 				})
 				.UseNLog();
 	}

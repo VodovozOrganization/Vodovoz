@@ -3177,11 +3177,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleSettings);
+					OnChangeStatusToShipped();
 					break;
 				case OrderStatus.Closed:
-					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleSettings);
-					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3219,6 +3217,36 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private void OnChangeStatusToShipped() => SendUpdToEmailOnFinishIfNeeded();
+
+		private void SendUpdToEmailOnFinishIfNeeded()
+		{
+			var emailSendUpdResult = _emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _deliveryScheduleSettings);
+
+			if(emailSendUpdResult.IsSuccess)
+			{
+				return;
+			}
+
+			var errorStrings = emailSendUpdResult.Errors.Select(x => x.Message);
+			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Не удалось отправить УПД по email для заказа № {Id}:\n" +
+				$"{string.Join("\n", errorStrings)}");
+		}
+
+		private void SendBillForClosingDocumentOnFinishIfNeeded()
+		{
+			var emailSendBillResult = _emailService.SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
+			
+			if(emailSendBillResult.IsSuccess)
+			{
+				return;
+			}
+
+			var errorStrings = emailSendBillResult.Errors.Select(x => x.Message);
+			ServicesConfig.InteractiveService.ShowMessage (ImportanceLevel.Warning, $"Не удалось отправить счёт по email для заказа № {Id}:\n" +
+				$"{string.Join("\n", errorStrings)}");
+		}
+
 		public virtual void UpdateOrderPaymentStatus(decimal canceledSum)
 		{
 			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
@@ -3252,6 +3280,9 @@ namespace Vodovoz.Domain.Orders
 				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
+
+			SendUpdToEmailOnFinishIfNeeded();
+			SendBillForClosingDocumentOnFinishIfNeeded();
 		}
 
 		/// <summary>

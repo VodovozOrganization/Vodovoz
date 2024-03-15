@@ -932,7 +932,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
@@ -961,11 +961,12 @@
             0
         ) AS not_paid_orders_sum,
         IFNULL(
+            SUM(
             (SELECT SUM(cmo.expense)
                 FROM payment_items pi
                 INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
                 WHERE pi.order_id = o.id
-                  AND cmo.cashless_movement_operation_status != 'Cancelled'),
+                  AND cmo.cashless_movement_operation_status != 'Cancelled')),
             0
         ) AS partial_paid_orders_sum,
         c.delay_days_for_buyers,
@@ -1087,7 +1088,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>

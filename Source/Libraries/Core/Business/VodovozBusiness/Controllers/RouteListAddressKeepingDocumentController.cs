@@ -255,9 +255,10 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWorkFactory uowFactory, IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
+			IUnitOfWork uow, IUnitOfWorkFactory unitOfWorkFactory, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null,
+			bool isBottlesDiscrepancy = false, bool forceUsePlanCount = false)
 		{
-			if(!changedRouteListItem.RouteList.ClosingFilled)
+			if(!changedRouteListItem.RouteList.ClosingFilled && itemsCacheList != null)
 			{
 				return itemsCacheList;
 			}
@@ -288,11 +289,11 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = uowFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			using(var uowLocal = unitOfWorkFactory.CreateWithoutRoot("Изменение свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);
-				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(true);
+				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(!forceUsePlanCount);
 				oldEquipmentToPickupAmountNodes = oldRouteListItem.Order.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
 					.GroupBy(n => n.Nomenclature.Id)
@@ -300,7 +301,7 @@ namespace Vodovoz.Controllers
 					{
 						NomenclatureId = n.Key,
 						Nomenclature = n.First().Nomenclature,
-						Amount = n.Sum(s => s.CurrentCount)
+						Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
 					})
 					.ToList();
 			}
@@ -324,7 +325,7 @@ namespace Vodovoz.Controllers
 					{
 						NomenclatureId = i.Nomenclature.Id,
 						Nomenclature = i.Nomenclature,
-						Amount = i.CurrentCount
+						Amount = forceUsePlanCount ? i.Count : i.CurrentCount
 					})
 					.Concat(changedRouteListItem.Order.OrderEquipments
 						.Where(e => e.Direction == Direction.Deliver)
@@ -332,7 +333,7 @@ namespace Vodovoz.Controllers
 						{
 							NomenclatureId = e.Nomenclature.Id,
 							Nomenclature = e.Nomenclature,
-							Amount = e.CurrentCount
+							Amount = forceUsePlanCount ? e.Count : e.CurrentCount
 						}))
 					.Where(n => n.Nomenclature.Id == node.NomenclatureId)
 					.GroupBy(n => n.Nomenclature.Id)
@@ -400,7 +401,7 @@ namespace Vodovoz.Controllers
 					{
 						NomenclatureId = n.Key,
 						Nomenclature = n.First().Nomenclature,
-						Amount = n.Sum(s => s.CurrentCount)
+						Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
 					})
 					.ToList()
 					.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
@@ -441,7 +442,7 @@ namespace Vodovoz.Controllers
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
-				routeListKeepingDocumentItem.Amount = item.CurrentCount;
+				routeListKeepingDocumentItem.Amount = forceUsePlanCount ? item.Count : item.CurrentCount;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
@@ -500,7 +501,7 @@ namespace Vodovoz.Controllers
 
 				if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
-					// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадуться операции
+					// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадутся операции
 					if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
 					   || oldAddress.RouteList.Status != RouteListStatus.New)
 					{

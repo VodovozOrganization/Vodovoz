@@ -3,12 +3,21 @@
 	public static partial class Counterparty
 	{
 		/// <summary>
+		/// Контрагент не найден
+		/// </summary>
+		public static Error NotFound =>
+			new Error(
+				typeof(Counterparty),
+				nameof(NotFound),
+				"Контрагент не найден");
+
+		/// <summary>
 		/// Поставки закрыты
 		/// </summary>
 		public static Error DeliveriesClosed =>
 			new Error(
 				typeof(Counterparty),
-				nameof(Counterparty),
+				nameof(DeliveriesClosed),
 				"Поставки закрыты");
 
 		/// <summary>
