@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Reflection;
 using Vodovoz.Settings.Database;
 
 namespace Vodovoz.Settings
@@ -22,12 +23,11 @@ namespace Vodovoz.Settings
 
 			var settingsProperties = typeof(TSettings)
 				.GetProperties()
-				.Select(pi => pi.Name)
 				.ToList();
 
-			foreach(var property in settingsProperties)
+			foreach(var propertyDefinition in settingsProperties)
 			{
-				var propertyType = options.GetType().GetProperty(property).PropertyType;
+				var propertyType = options.GetType().GetProperty(propertyDefinition.Name).PropertyType;
 
 				object propertyValue = null;
 
@@ -35,19 +35,25 @@ namespace Vodovoz.Settings
 
 				string propertyName = string.Empty;
 
-				if(_settingsController.ContainsSetting(property))
+				var customPropertyNameAttribute = propertyDefinition.GetCustomAttribute<CustomSettingPropertyNameAttribute>();
+
+				if(customPropertyNameAttribute != null)
 				{
-					propertyName = property;
+					propertyName = customPropertyNameAttribute.CustomPropertyName;
 				}
-				else if(_settingsController.ContainsSetting(property.FromPascalCaseToSnakeCase()))
+				else if(_settingsController.ContainsSetting(propertyDefinition.Name))
 				{
-					propertyName = property.FromPascalCaseToSnakeCase();
+					propertyName = propertyDefinition.Name;
+				}
+				else if(_settingsController.ContainsSetting(propertyDefinition.Name.FromPascalCaseToSnakeCase()))
+				{
+					propertyName = propertyDefinition.Name.FromPascalCaseToSnakeCase();
 				}
 
 				propertyValue = methodDefinition.MakeGenericMethod(propertyType).Invoke(_settingsController, new[] { propertyName });
 
 				typeof(TSettings)
-					.GetProperty(property)
+					.GetProperty(propertyDefinition.Name)
 					.SetValue(options, propertyValue);
 			}
 		}
