@@ -2039,11 +2039,14 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeAlgebraicSearchView.cs" />
     <Compile Include="Views\Payments\PaymentsDiscrepanciesAnalysisView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentsDiscrepanciesAnalysisView.cs" />
+    <Compile Include="ViewWidgets\GtkUI\EntitySelection.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.EntitySelection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="ViewWidgets\GtkUI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
