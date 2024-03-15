@@ -685,6 +685,7 @@ namespace Vodovoz
 						.AddNHibernateConfiguration()
 						.AddDatabaseInfo()
 						.AddDatabaseSingletonSettings()
+						.ConfigureSettingsOptions()
 						.AddCore()
 						.AddDesktop()
 						.AddGuiTrackedUoW()

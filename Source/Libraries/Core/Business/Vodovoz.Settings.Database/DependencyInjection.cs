@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
+using Vodovoz.Settings.Database.Cash;
 
 namespace Vodovoz.Settings.Database
 {
@@ -34,6 +36,22 @@ namespace Vodovoz.Settings.Database
 			foreach(var type in settingsTypes)
 			{
 				services.AddSingleton(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+			}
+
+			return services;
+		}
+
+		public static IServiceCollection ConfigureSettingsOptions(this IServiceCollection services)
+		{
+			var settings = typeof(DependencyInjection).Assembly.GetTypes()
+				.Where(t => t.IsClass && t.Name.EndsWith("Settings"))
+				.ToList();
+
+			foreach(var setting in settings)
+			{
+				var type = typeof(ConfigureDatabaseSettingsOptions<>).MakeGenericType(setting);
+
+				OptionsServiceCollectionExtensions.ConfigureOptions(services, type);
 			}
 
 			return services;
