@@ -5,7 +5,12 @@ using System.Threading.Tasks;
 
 namespace Vodovoz.NotificationRecievers
 {
-	public class DriverAPIHelper : ISmsPaymentStatusNotificationReciever, IFastDeliveryOrderAddedNotificationReciever, IWaitingTimeChangedNotificationReciever, IDisposable
+	public class DriverAPIHelper : 
+		ISmsPaymentStatusNotificationReciever,
+		IFastDeliveryOrderAddedNotificationReciever,
+		IWaitingTimeChangedNotificationReciever,
+		ICashRequestForDriverIsGivenForTakeNotificationReciever,
+		IDisposable
 	{
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;

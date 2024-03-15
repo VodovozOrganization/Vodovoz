@@ -38,8 +38,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ILifetimeScope _scope;
+		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
 		private FinancialExpenseCategory _financialExpenseCategory;
-		private readonly DriverAPIHelper _driverAPIHelper;
 		private bool _needToNotifyDriverOfReadyToGiveOut = false;
 
 		public CashRequestViewModel(
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ICashRepository cashRepository,
 			INavigationManager navigation,
 			ILifetimeScope scope,
-			DriverAPIHelper driverAPIHelper)
+			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(employeeRepository is null)
@@ -68,7 +68,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			_driverAPIHelper = driverAPIHelper ?? throw new ArgumentNullException(nameof(driverAPIHelper));
+			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
+				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
 			CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(UoWGeneric.IsNew)
@@ -242,7 +243,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 					SaveAndClose();
 
-					_driverAPIHelper.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
+					_cashRequestForDriverIsGivenForTakeNotificationReciever.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
 
 					if(AfterSave(out var messageText))
 					{
