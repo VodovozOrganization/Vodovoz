@@ -151,10 +151,10 @@ namespace Vodovoz.Tools.Logistic
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 
-				if(_deliveryPoint?.District == null)
+				if(_deliveryPoint?.District == null && district != null)
 				{
 					result.DistrictId = district.Id;
-					result.WageDistrict = district?.WageDistrict?.Name ?? "Неизвестно";
+					result.WageDistrict = district.WageDistrict?.Name ?? "Неизвестно";
 				}
 
 				result.DistrictName = district?.DistrictName ?? string.Empty;
