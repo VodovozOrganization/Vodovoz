@@ -31,7 +31,7 @@ namespace Vodovoz.Settings
 
 				object propertyValue = null;
 
-				var methodDefinition = typeof(ISettingsController).GetMethod(nameof(_settingsController.GetType));
+				var methodDefinition = _settingsController.GetType().GetMethod(nameof(_settingsController.GetValue));
 
 				string propertyName = string.Empty;
 
