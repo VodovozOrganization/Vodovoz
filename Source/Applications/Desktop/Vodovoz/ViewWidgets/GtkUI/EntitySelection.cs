@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.ComponentModel;
+
 namespace Vodovoz.ViewWidgets.GtkUI
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class EntitySelection : Gtk.Bin
 	{
 		public EntitySelection()
