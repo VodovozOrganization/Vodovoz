@@ -1,5 +1,4 @@
-﻿using FirebaseCloudMessaging.Client;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PushNotificationsWorker.Options;
@@ -13,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Application.FirebaseCloudMessaging;
 
 namespace PushNotificationsWorker
 {

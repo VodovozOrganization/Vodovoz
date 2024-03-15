@@ -5,8 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Apis.FirebaseCloudMessaging.v1" Version="1.67.0.3098" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
-    <ProjectReference Include="..\Firebase.Client\Vodovoz.FirebaseCloudMessaging.Client.csproj" />
   </ItemGroup>
 
 </Project>
