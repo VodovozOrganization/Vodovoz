@@ -46,11 +46,11 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton chkContractCloser;
 
+		private global::Vodovoz.ViewWidgets.GtkUI.EntitySelection entityselectionDeliverySchedule;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryClient;
 
 		private global::QS.Views.Control.EntityEntry entryDeliveryPoint;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDeliverySchedule;
 
 		private global::Gamma.Widgets.yEnumComboBox enumSignatureType;
 
@@ -784,6 +784,18 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entityselectionDeliverySchedule = new global::Vodovoz.ViewWidgets.GtkUI.EntitySelection();
+			this.entityselectionDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
+			this.entityselectionDeliverySchedule.Name = "entityselectionDeliverySchedule";
+			this.table1.Add(this.entityselectionDeliverySchedule);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.entityselectionDeliverySchedule]));
+			w20.TopAttach = ((uint)(11));
+			w20.BottomAttach = ((uint)(12));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.entityVMEntryClient = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
@@ -791,38 +803,23 @@ namespace Vodovoz
 			this.entityVMEntryClient.CanDisposeEntitySelectorFactory = false;
 			this.entityVMEntryClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryClient);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
-			w20.TopAttach = ((uint)(2));
-			w20.BottomAttach = ((uint)(3));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(4));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryDeliveryPoint = new global::QS.Views.Control.EntityEntry();
-			this.entryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
-			this.entryDeliveryPoint.Name = "entryDeliveryPoint";
-			this.table1.Add(this.entryDeliveryPoint);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
-			w21.TopAttach = ((uint)(3));
-			w21.BottomAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
+			w21.TopAttach = ((uint)(2));
+			w21.BottomAttach = ((uint)(3));
 			w21.LeftAttach = ((uint)(1));
 			w21.RightAttach = ((uint)(4));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryDeliverySchedule = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
-			this.entryDeliverySchedule.Name = "entryDeliverySchedule";
-			this.entryDeliverySchedule.CanEditReference = false;
-			this.entryDeliverySchedule.CanDisposeEntitySelectorFactory = false;
-			this.entryDeliverySchedule.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.entryDeliverySchedule);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliverySchedule]));
-			w22.TopAttach = ((uint)(11));
-			w22.BottomAttach = ((uint)(12));
+			this.entryDeliveryPoint = new global::QS.Views.Control.EntityEntry();
+			this.entryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.entryDeliveryPoint.Name = "entryDeliveryPoint";
+			this.table1.Add(this.entryDeliveryPoint);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
 			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
+			w22.RightAttach = ((uint)(4));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
