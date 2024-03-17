@@ -25,6 +25,7 @@ using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
 using QS.Utilities.Extensions;
+using QS.ViewModels.Control;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
@@ -95,6 +96,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.NotificationRecievers;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -122,6 +124,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
@@ -852,6 +855,15 @@ namespace Vodovoz
 			//entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			//entryDeliverySchedule.CanEditReference = true;
 			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
+
+			var binder = new PropertyBinder<Order, DeliverySchedule>(Entity, e => e.DeliverySchedule);
+			var selector = new JournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
+				() => this, NavigationManager);
+			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
+
+			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, selector, adapter);
+
+			entityselectionDeliverySchedule.ViewModel = vm;
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 

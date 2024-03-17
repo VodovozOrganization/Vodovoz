@@ -22,7 +22,8 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public TEntity GetEntityByNode(object node)
 		{
-			return _uow.GetById<TEntity>(node.GetId());
+			var entity = _uow.GetById<TEntity>(node.GetId());
+			return entity;
 		}
 
 		void ExternalEntityChangeEventMethod(DomainModel.NotifyChange.EntityChangeEvent[] changeEvents)

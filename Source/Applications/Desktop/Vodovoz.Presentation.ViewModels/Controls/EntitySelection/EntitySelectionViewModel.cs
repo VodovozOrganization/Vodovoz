@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.ViewModels.Control;
 using QS.ViewModels.Control.EEVM;
 using System;
@@ -6,9 +7,16 @@ using System.ComponentModel;
 
 namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
-	public class EntitySelectionViewModel<TEntity> : PropertyChangedBase
+	public class EntitySelectionViewModel<TEntity> : PropertyChangedBase, IEntitySelectionViewModel
 		where TEntity : class, IDomainObject
 	{
+		private TEntity _entity;
+		private EntitySelectionAdapter<TEntity> _entityAdapter;
+		private IEntitySelector _entitySelector;
+		private IPropertyBinder<TEntity> _entityBinder;
+
+		private bool _isEditable = true;
+
 		public EntitySelectionViewModel(
 			IPropertyBinder<TEntity> binder = null,
 			IEntitySelector entitySelector = null,
@@ -29,19 +37,23 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			{
 				EntityAdapter = entityAdapter;
 			}
+
+			OpenSelectDialogCommand = new DelegateCommand(OpenSelectDialog, () => CanSelectEntity);
+			ClearEntityCommand = new DelegateCommand(ClearEntity, () => CanClearEntity);
 		}
 
 		#region События
 
 		public event EventHandler Changed;
 		public event EventHandler ChangedByUser;
-		public event EventHandler<BeforeChangeEventArgs> BeforeChangeByUser;
 
 		#endregion
 
-		#region Работа с сущьностью
+		#region Свойства
 
-		private TEntity _entity;
+		public DelegateCommand OpenSelectDialogCommand { get; }
+		public DelegateCommand ClearEntityCommand { get; }
+
 
 		public virtual TEntity Entity
 		{
@@ -69,14 +81,13 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(EntityTitle));
-				OnPropertyChanged(nameof(SensitiveCleanButton));
+				OnPropertyChanged(nameof(CanClearEntity));
 				Changed?.Invoke(this, EventArgs.Empty);
 			}
 		}
 
-		//object IEntityEntryViewModel.Entity { get => Entity; set => Entity = (TEntity)value; }
+		object IEntitySelectionViewModel.Entity { get => Entity; set => Entity = (TEntity)value; }
 
-		private EntitySelectionAdapter<TEntity> _entityAdapter;
 		public EntitySelectionAdapter<TEntity> EntityAdapter
 		{
 			get => _entityAdapter;
@@ -87,39 +98,25 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			}
 		}
 
-		#endregion
-
-		#region Публичные свойства
-
-		bool _isEditable = true;
-
 		public bool IsEditable
 		{
 			get { return _isEditable; }
 			set
 			{
 				_isEditable = value;
-				OnPropertyChanged(nameof(SensitiveSelectButton));
-				OnPropertyChanged(nameof(SensitiveCleanButton));
+				OnPropertyChanged(nameof(CanSelectEntity));
+				OnPropertyChanged(nameof(CanClearEntity));
 			}
 		}
-
-		#endregion
-
-		#region Свойства для использования во View
 
 		public bool DisposeViewModel { get; set; } = true;
 		public string EntityTitle => Entity?.GetTitle();
 
-		public virtual bool SensitiveSelectButton => IsEditable && EntitySelector != null;
-		public virtual bool SensitiveCleanButton => IsEditable && Entity != null;
+		public virtual bool CanSelectEntity => IsEditable && EntitySelector != null;
+		public virtual bool CanClearEntity => IsEditable && Entity != null;
 
 		public bool CanViewEntity { get; set; } = true;
-		#endregion
 
-		#region Выбор сущьности основным способом
-
-		private IEntitySelector _entitySelector;
 		public IEntitySelector EntitySelector
 		{
 			get => _entitySelector;
@@ -127,69 +124,42 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			{
 				_entitySelector = value;
 				EntitySelector.EntitySelected += EntitySelector_EntitySelected;
-				OnPropertyChanged(nameof(SensitiveSelectButton));
+				OnPropertyChanged(nameof(CanSelectEntity));
 			}
 		}
+		#endregion
 
-		/// <summary>
-		/// Открывает диалог выбора сущности
-		/// </summary>
-		public void OpenSelectDialog()
-		{
-			if(!OnBeforeUserChanged())
-			{
-				return;
-			}
-			_entitySelector?.OpenSelector();
-		}
-
-		void EntitySelector_EntitySelected(object sender, EntitySelectedEventArgs e)
+		private void EntitySelector_EntitySelected(object sender, EntitySelectedEventArgs e)
 		{
 			Entity = EntityAdapter?.GetEntityByNode(e.Entity);
 			ChangedByUser?.Invoke(this, e);
 		}
 
-		#endregion
-
-		#region Обработка событий
-
-		void Entity_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void Entity_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			OnPropertyChanged(nameof(EntityTitle));
 		}
 
-		bool OnBeforeUserChanged()
+		#region Команды View
+		private void OpenSelectDialog()
 		{
-			if(BeforeChangeByUser == null)
-			{
-				return true;
-			}
-
-			var args = new BeforeChangeEventArgs
-			{
-				CanChange = true
-			};
-
-			BeforeChangeByUser(this, args);
-
-			return args.CanChange;
+			OpenEntityJournal();
 		}
 
-		#endregion
-
-		#region Команды View
-
-		public void CleanEntity()
+		private void ClearEntity()
 		{
 			Entity = null;
 			ChangedByUser?.Invoke(this, EventArgs.Empty);
 		}
 
+		private void OpenEntityJournal()
+		{
+			_entitySelector?.OpenSelector();
+		}
+
 		#endregion
 
 		#region Entity binding
-
-		IPropertyBinder<TEntity> _entityBinder;
 
 		public IPropertyBinder<TEntity> EntityBinder
 		{
@@ -206,7 +176,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			}
 		}
 
-		void EntityBinder_Changed(object sender, EventArgs e)
+		private void EntityBinder_Changed(object sender, EventArgs e)
 		{
 			Entity = _entityBinder.PropertyValue;
 		}
