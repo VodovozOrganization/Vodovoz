@@ -28,6 +28,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			Title = "Отчет по опозданиям";
 			Identifier = "Logistic.DeliveriesLate";
 
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
+
 			ConfigureFilters();
 		}
 
@@ -72,8 +74,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 
 		private void ConfigureFilters()
 		{
-			GeoGroups = _uow.GetAll<GeoGroup>().ToList();
-			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			GeoGroups = _uow.GetAll<GeoGroup>().ToList();			
 			AllOrderSelect = true;
 
 			IncludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService)
@@ -160,7 +161,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 
 		public bool IsDriverSort { get; set; }
 
-		public DelegateCommand GenerateReportCommand { get; private set; }
+		public DelegateCommand GenerateReportCommand { get; }
 
 		public IncludeExludeFiltersViewModel IncludeFilterViewModel { get; private set; }
 

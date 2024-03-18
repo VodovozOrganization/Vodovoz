@@ -1,4 +1,4 @@
-using QS.Views;
+﻿using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewWidgets.Reports;
 
@@ -9,10 +9,10 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 		public DeliveriesLateReportView(DeliveriesLateReportViewModel viewModel) : base(viewModel)
 		{
 			Build();
-			ConfigureDlg();
+			ConfigureWidget();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureWidget()
 		{
 			yhboxInterval.Binding.AddBinding(ViewModel, vm => vm.IsIntervalVisible, w => w.Visible).InitializeFromSource();
 
@@ -35,7 +35,7 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 
 			var includeFilterView = new IncludeExludeFiltersView(ViewModel.IncludeFilterViewModel);
 
-			vbox1.Add(includeFilterView);
+			yhboxRouteListOwnType.Add(includeFilterView);
 			includeFilterView.Show();
 
 			buttonCreateReport.Clicked += (sender, args) => ViewModel.GenerateReportCommand.Execute();
