@@ -628,8 +628,8 @@ namespace Vodovoz.Views.Client
 			this.entryDefaultWaterNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.entryDefaultWaterNomenclature.Name = "entryDefaultWaterNomenclature";
 			this.hbox3.Add(this.entryDefaultWaterNomenclature);
-			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryDefaultWaterNomenclature]));
-			w106.Position = 2;
+			global::Gtk.Box.BoxChild w114 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryDefaultWaterNomenclature]));
+			w114.Position = 2;
 			this.tableMainInfo.Add(this.hbox3);
 			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.tableMainInfo[this.hbox3]));
 			w38.TopAttach = ((uint)(15));
