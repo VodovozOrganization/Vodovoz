@@ -6,7 +6,7 @@ using DomainModel = QS.DomainModel;
 
 namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
-	public class EntitySelectionAdapter<TEntity> : IDisposable
+	public class EntitySelectionAdapter<TEntity> : IEntitySelectionAdapter<TEntity>, IDisposable
 		where TEntity : class, IDomainObject
 	{
 		private readonly IUnitOfWork _uow;

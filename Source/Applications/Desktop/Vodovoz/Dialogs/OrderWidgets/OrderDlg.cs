@@ -39,6 +39,7 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -860,8 +861,15 @@ namespace Vodovoz
 			var selector = new JournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
 				() => this, NavigationManager);
 			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
+			var entitySelector = new EntitySelectionAutocompleteSelector<DeliverySchedule>(
+				UoW,
+				() =>
+				DeliveryPoint?.District == null
+				? new List<int>()
+				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+				(text) => GetTitleCompare(text));
 
-			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, selector, adapter);
+			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, selector, adapter, entitySelector);
 
 			entityselectionDeliverySchedule.ViewModel = vm;
 
@@ -1130,6 +1138,11 @@ namespace Vodovoz
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private Expression<Func<DeliverySchedule, bool>> GetTitleCompare(string text)
+		{
+			return deliverySchedule => deliverySchedule.Name.IndexOf(text) >= 0;
 		}
 
 		private void SetPermissions()
