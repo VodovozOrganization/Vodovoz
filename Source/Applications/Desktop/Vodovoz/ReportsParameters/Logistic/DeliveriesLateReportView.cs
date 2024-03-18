@@ -1,5 +1,6 @@
-﻿using QS.Views;
+using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ViewWidgets.Reports;
 
 namespace Vodovoz.Views.ReportsParameters.Logistic
 {
@@ -23,7 +24,7 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 
 			ycheckOnlyFastSelect.Binding.AddBinding(ViewModel, vm => vm.IsOnlyFastSelect, w => w.Active).InitializeFromSource();
 			ycheckWithoutFastSelect.Binding.AddBinding(ViewModel, vm => vm.IsWithoutFastSelect, w => w.Active).InitializeFromSource();
-			ycheckAllSelect.Binding.AddBinding(ViewModel, vm => vm.AllOrderSelectMode, w => w.Active).InitializeFromSource();
+			ycheckAllSelect.Binding.AddBinding(ViewModel, vm => vm.AllOrderSelect, w => w.Active).InitializeFromSource();
 
 			dateperiodpicker.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
@@ -31,6 +32,11 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 				.InitializeFromSource();
 
 			ychkDriverSort.Binding.AddBinding(ViewModel, vm => vm.IsDriverSort, w => w.Active).InitializeFromSource();
+
+			var includeFilterView = new IncludeExludeFiltersView(ViewModel.IncludeFilterViewModel);
+
+			vbox1.Add(includeFilterView);
+			includeFilterView.Show();
 
 			buttonCreateReport.Clicked += (sender, args) => ViewModel.GenerateReportCommand.Execute();
 		}

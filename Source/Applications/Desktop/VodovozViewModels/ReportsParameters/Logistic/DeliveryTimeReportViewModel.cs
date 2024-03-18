@@ -33,8 +33,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 				.Select(x => new SelectableParameter { GeographicGroup = x, IsSelected = true })
 				.ToArray();
 
-			RouteListTypeOfUseList = Enum.GetValues(typeof(RouteListTypeOfUse)).Cast<RouteListTypeOfUse>()
-				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListTypeOfUse.Delivery })
+			RouteListTypeOfUseList = Enum.GetValues(typeof(RouteListOwnType)).Cast<RouteListOwnType>()
+				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListOwnType.Delivery })
 				.ToList();
 
 			OrdersEnRouteCountList = Enumerable.Range(0, 8);
@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			.Where(x => x.IsSelected)
 			.Select(x => x.GeographicGroup);
 
-		private IEnumerable<RouteListTypeOfUse> SelectedRouteListTypesOfUse => RouteListTypeOfUseList
+		private IEnumerable<RouteListOwnType> SelectedRouteListTypesOfUse => RouteListTypeOfUseList
 			.Where(x => x.IsSelected)
 			.Select(x => x.RouteListTypeOfUse);
 

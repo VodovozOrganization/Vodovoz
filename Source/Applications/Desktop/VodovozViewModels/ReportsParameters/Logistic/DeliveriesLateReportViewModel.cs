@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 {
@@ -18,16 +19,16 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		private bool _isWithoutFastSelect;
 		private IInteractiveService _interactiveService { get; }
 
-		public DeliveriesLateReportViewModel(RdlViewerViewModel rdlViewerViewModel, IUnitOfWorkFactory uowFactory, IInteractiveService interactiveService) : base(rdlViewerViewModel)
+		public DeliveriesLateReportViewModel(RdlViewerViewModel rdlViewerViewModel, IUnitOfWorkFactory uowFactory, IInteractiveService interactiveService)
+			: base(rdlViewerViewModel)
 		{
-			Title = "Отчет по опозданиям";
-			Identifier = "Logistic.DeliveriesLate";
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_uow = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot(Title);
 
-			GeoGroups = _uow.GetAll<GeoGroup>().ToList();
-			GenerateReportCommand = new DelegateCommand(GenerateReport);
-			AllOrderSelectMode = true;
+			Title = "Отчет по опозданиям";
+			Identifier = "Logistic.DeliveriesLate";
+
+			ConfigureFilters();
 		}
 
 		private void GenerateReport()
@@ -69,6 +70,23 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			return OrderSelectMode.All;
 		}
 
+		private void ConfigureFilters()
+		{
+			GeoGroups = _uow.GetAll<GeoGroup>().ToList();
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			AllOrderSelect = true;
+
+			IncludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService)
+			{
+				WithExcludes = false
+			};
+
+			IncludeFilterViewModel.AddFilter<RouteListOwnType>(config =>
+			{
+				config.RefreshFilteredElements();
+			});
+		}
+
 		protected override Dictionary<string, object> Parameters
 		{
 			get
@@ -81,10 +99,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 					{ "geographic_group_id", GeoGroup?.Id ?? 0 },
 					{ "geographic_group_name", GeoGroup?.Name ?? "Все" },
 					{ "exclude_truck_drivers_office_employees", false },
-					//{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active },
 					{ "order_select_mode", GetOrderSelectMode().ToString() },
 					{ "interval_select_mode", GetIntervalSelectedMode().ToString() },
 				};
+
+				foreach(var item in IncludeFilterViewModel.GetReportParametersSet())
+				{
+					parameters.Add(item.Key, item.Value);
+				}
 
 				return parameters;
 			}
@@ -119,13 +141,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		}
 
 		[PropertyChangedAlso(nameof(IsIntervalVisible))]
-		public bool AllOrderSelectMode
+		public bool AllOrderSelect
 		{
 			get => _allOrderSelectMode;
 			set => SetField(ref _allOrderSelectMode, value);
 		}
 
-		public bool IsIntervalVisible => IsOnlyFastSelect || AllOrderSelectMode;
+		public bool IsIntervalVisible => IsOnlyFastSelect || AllOrderSelect;
 
 		public bool IsIntervalFromFirstAddress { get; set; }
 		public bool IsIntervalFromTransferTime { get; set; }
@@ -138,7 +160,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 
 		public bool IsDriverSort { get; set; }
 
-		public DelegateCommand GenerateReportCommand { get; }
+		public DelegateCommand GenerateReportCommand { get; private set; }
+
+		public IncludeExludeFiltersViewModel IncludeFilterViewModel { get; private set; }
 
 		public void Dispose()
 		{
