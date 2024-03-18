@@ -540,9 +540,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 			carJournalPage.ViewModel.SelectionMode = JournalSelectionMode.Single;
 
-			carJournalPage.ViewModel.OnEntitySelectedResult += (o, args) =>
+			carJournalPage.ViewModel.OnSelectResult += (o, args) =>
 			{
-				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				var car = UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
 				DriversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 				driver.Car = car;
 			};

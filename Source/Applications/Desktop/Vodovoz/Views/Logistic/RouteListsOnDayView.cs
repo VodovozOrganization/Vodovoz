@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
 using Gdk;
@@ -1279,13 +1279,15 @@ namespace Vodovoz.Views.Logistic
 			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(
 				Tab,
 				OpenPageOptions.AsSlave,
-				viewModel => viewModel.SelectionMode = JournalSelectionMode.Single);
-
-			page.ViewModel.OnEntitySelectedResult += (o, args) =>
-			{
-				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
-				ViewModel.SelectCarForDriver(driver, car);
-			};
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += (o, args) =>
+					{
+						var car = ViewModel.UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
+						ViewModel.SelectCarForDriver(driver, car);
+					};
+				});
 		}
 
 		private void OnLoadTimeEdited(object o, EditedArgs args)
