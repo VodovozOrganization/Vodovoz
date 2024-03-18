@@ -367,15 +367,8 @@ namespace Vodovoz.EntityRepositories.Cash
 						&& _cashReceiptAlias.Status != CashReceiptStatus.DuplicateSum)
 					.Select(Projections.Id());
 				var result = query.List<int>();
-				var hasNeededReceipts = result.Any();
 
-				if(hasNeededReceipts)
-				{
-					return hasNeededReceipts;
-				}
-
-				var receiptNeeded = CashReceiptNeeded(uow, orderId);
-				return receiptNeeded;
+				return result.Any();
 			}
 		}
 
