@@ -240,10 +240,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					}
 
 					var entityId = Entity.Id;
+					var entityStatusIsGivenForTake = Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
 					SaveAndClose();
 
-					_cashRequestForDriverIsGivenForTakeNotificationReciever.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
+					if(entityStatusIsGivenForTake)
+					{
+						_cashRequestForDriverIsGivenForTakeNotificationReciever.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
+					}
 
 					if(AfterSave(out var messageText))
 					{
