@@ -2,33 +2,41 @@
 using System.Linq;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Validators;
+using CustomerAppsApi.Library.Factories;
+using CustomerAppsApi.Library.Validators;
+using CustomerAppsApi.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Settings.Common;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
-	public class DeliveryPointModel : IDeliveryPointModel
+	public class DeliveryPointService : IDeliveryPointService
 	{
-		private readonly ILogger<DeliveryPointModel> _logger;
+		private readonly ILogger<DeliveryPointService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointModelValidator _deliveryPointModelValidator;
 		private readonly IDeliveryPointFactory _deliveryPointFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IGlobalSettings _globalSettings;
 		private readonly IMD5HexHashFromString _md5HexHashFromString;
 		private readonly object _locker = new object();
 
-		public DeliveryPointModel(
-			ILogger<DeliveryPointModel> logger,
+		public DeliveryPointService(
+			ILogger<DeliveryPointService> logger,
 			IUnitOfWork uow,
 			IDeliveryPointModelValidator deliveryPointModelValidator,
 			IDeliveryPointFactory deliveryPointFactory,
 			IDeliveryPointRepository deliveryPointRepository,
+			IDeliveryRepository deliveryRepository,
+			IGlobalSettings globalSettings,
 			IMD5HexHashFromString md5HexHashFromString)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -37,6 +45,8 @@ namespace CustomerAppsApi.Models
 				deliveryPointModelValidator ?? throw new ArgumentNullException(nameof(deliveryPointModelValidator));
 			_deliveryPointFactory = deliveryPointFactory ?? throw new ArgumentNullException(nameof(deliveryPointFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_md5HexHashFromString = md5HexHashFromString ?? throw new ArgumentNullException(nameof(md5HexHashFromString));
 		}
 		
@@ -81,7 +91,7 @@ namespace CustomerAppsApi.Models
 					newDeliveryPointInfoDto.CounterpartyErpId,
 					validationResult);
 
-				statusCode = 500;
+				statusCode = StatusCodes.Status500InternalServerError;
 				return null;
 			}
 
@@ -108,7 +118,7 @@ namespace CustomerAppsApi.Models
 							newDeliveryPointInfoDto.CounterpartyErpId,
 							uniqueKey);
 
-						statusCode = 202;
+						statusCode = StatusCodes.Status202Accepted;
 						return null;
 					}
 
@@ -132,18 +142,23 @@ namespace CustomerAppsApi.Models
 							SourceTitle(newDeliveryPointInfoDto.Source),
 							newDeliveryPointInfoDto.CounterpartyErpId);
 
-						statusCode = 500;
+						statusCode = StatusCodes.Status500InternalServerError;
 						return null;
 					}
 				}
 
 				var deliveryPoint = _deliveryPointFactory.CreateNewDeliveryPoint(newDeliveryPointInfoDto);
-				deliveryPoint.SetСoordinates(newDeliveryPointInfoDto.Latitude, newDeliveryPointInfoDto.Longitude, _uow);
+				deliveryPoint.SetСoordinates(
+					newDeliveryPointInfoDto.Latitude,
+					newDeliveryPointInfoDto.Longitude,
+					_deliveryRepository,
+					_globalSettings,
+					_uow);
 				
 				_uow.Save(deliveryPoint);
 				_uow.Commit();
 
-				statusCode = 201;
+				statusCode = StatusCodes.Status201Created;
 				return _deliveryPointFactory.CreateDeliveryPointDto(newDeliveryPointInfoDto, deliveryPoint.Id);
 			}
 			catch(Exception e)
@@ -154,7 +169,7 @@ namespace CustomerAppsApi.Models
 					newDeliveryPointInfoDto.CounterpartyErpId,
 					SourceTitle(newDeliveryPointInfoDto.Source));
 
-				statusCode = 500;
+				statusCode = StatusCodes.Status500InternalServerError;
 				return null;
 			}
 		}

@@ -5,7 +5,7 @@ using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 
-namespace CustomerAppsApi.Factories
+namespace CustomerAppsApi.Library.Factories
 {
 	public class DeliveryPointFactory : IDeliveryPointFactory
 	{

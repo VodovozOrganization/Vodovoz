@@ -1,8 +1,8 @@
 ﻿using CustomerAppsApi.Library.Dto;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
-	public interface IDeliveryPointModel
+	public interface IDeliveryPointService
 	{
 		DeliveryPointsDto GetDeliveryPoints(Source source, int counterpartyErpId);
 		DeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode);

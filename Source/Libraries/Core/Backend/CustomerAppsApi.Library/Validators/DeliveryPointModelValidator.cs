@@ -6,7 +6,7 @@ using System.Text;
 using CustomerAppsApi.Library.Dto;
 using Gamma.Utilities;
 
-namespace CustomerAppsApi.Validators
+namespace CustomerAppsApi.Library.Validators
 {
 	public class DeliveryPointModelValidator : IDeliveryPointModelValidator
 	{

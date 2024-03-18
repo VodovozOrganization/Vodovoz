@@ -1,6 +1,6 @@
 ﻿using CustomerAppsApi.Library.Dto;
 
-namespace CustomerAppsApi.Validators
+namespace CustomerAppsApi.Library.Validators
 {
 	public interface IDeliveryPointModelValidator
 	{
