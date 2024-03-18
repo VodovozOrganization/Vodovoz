@@ -18,8 +18,6 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton ychkDriverSort;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckExcludeTruckAndOfficeEmployees;
-
 		private global::Gtk.Frame frameOrders;
 
 		private global::Gtk.Alignment GtkAlignmentOrders;
@@ -49,6 +47,12 @@ namespace Vodovoz.Reports.Logistic
 		private global::Gtk.RadioButton ycheckIntervalFromFirstAddress;
 
 		private global::Gtk.Label labelInterval;
+
+		private global::Gtk.Label label4;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeRouteListTypeOfUse;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -132,18 +136,6 @@ namespace Vodovoz.Reports.Logistic
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.ycheckExcludeTruckAndOfficeEmployees = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckExcludeTruckAndOfficeEmployees.CanFocus = true;
-			this.ycheckExcludeTruckAndOfficeEmployees.Name = "ycheckExcludeTruckAndOfficeEmployees";
-			this.ycheckExcludeTruckAndOfficeEmployees.Label = global::Mono.Unix.Catalog.GetString("Исключить водителей фур и офисных работников");
-			this.ycheckExcludeTruckAndOfficeEmployees.DrawIndicator = true;
-			this.ycheckExcludeTruckAndOfficeEmployees.UseUnderline = true;
-			this.vbox1.Add(this.ycheckExcludeTruckAndOfficeEmployees);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckExcludeTruckAndOfficeEmployees]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.frameOrders = new global::Gtk.Frame();
 			this.frameOrders.Name = "frameOrders";
 			this.frameOrders.ShadowType = ((global::Gtk.ShadowType)(0));
@@ -163,10 +155,10 @@ namespace Vodovoz.Reports.Logistic
 			this.ycheckAllSelect.UseUnderline = true;
 			this.ycheckAllSelect.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.yvboxOrders.Add(this.ycheckAllSelect);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.ycheckAllSelect]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.ycheckAllSelect]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child yvboxOrders.Gtk.Box+BoxChild
 			this.ycheckOnlyFastSelect = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("С доставкой за час"));
 			this.ycheckOnlyFastSelect.CanFocus = true;
@@ -175,10 +167,10 @@ namespace Vodovoz.Reports.Logistic
 			this.ycheckOnlyFastSelect.UseUnderline = true;
 			this.ycheckOnlyFastSelect.Group = this.ycheckAllSelect.Group;
 			this.yvboxOrders.Add(this.ycheckOnlyFastSelect);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.ycheckOnlyFastSelect]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.ycheckOnlyFastSelect]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child yvboxOrders.Gtk.Box+BoxChild
 			this.ycheckWithoutFastSelect = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Без доставки за час"));
 			this.ycheckWithoutFastSelect.CanFocus = true;
@@ -187,10 +179,10 @@ namespace Vodovoz.Reports.Logistic
 			this.ycheckWithoutFastSelect.UseUnderline = true;
 			this.ycheckWithoutFastSelect.Group = this.ycheckAllSelect.Group;
 			this.yvboxOrders.Add(this.ycheckWithoutFastSelect);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.ycheckWithoutFastSelect]));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.ycheckWithoutFastSelect]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.GtkAlignmentOrders.Add(this.yvboxOrders);
 			this.frameOrders.Add(this.GtkAlignmentOrders);
 			this.labelOrders = new global::Gtk.Label();
@@ -199,10 +191,10 @@ namespace Vodovoz.Reports.Logistic
 			this.labelOrders.UseMarkup = true;
 			this.frameOrders.LabelWidget = this.labelOrders;
 			this.vbox1.Add(this.frameOrders);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrders]));
-			w13.Position = 3;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrders]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.yhboxInterval = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxInterval.Name = "yhboxInterval";
@@ -227,10 +219,10 @@ namespace Vodovoz.Reports.Logistic
 			this.ycheckIntervalFromCreateTime.UseUnderline = true;
 			this.ycheckIntervalFromCreateTime.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.yvboxInterval.Add(this.ycheckIntervalFromCreateTime);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxInterval[this.ycheckIntervalFromCreateTime]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxInterval[this.ycheckIntervalFromCreateTime]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child yvboxInterval.Gtk.Box+BoxChild
 			this.ycheckIntervalFromTransferTime = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Переноса заказа в МЛ водителя"));
 			this.ycheckIntervalFromTransferTime.CanFocus = true;
@@ -239,10 +231,10 @@ namespace Vodovoz.Reports.Logistic
 			this.ycheckIntervalFromTransferTime.UseUnderline = true;
 			this.ycheckIntervalFromTransferTime.Group = this.ycheckIntervalFromCreateTime.Group;
 			this.yvboxInterval.Add(this.ycheckIntervalFromTransferTime);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxInterval[this.ycheckIntervalFromTransferTime]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxInterval[this.ycheckIntervalFromTransferTime]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child yvboxInterval.Gtk.Box+BoxChild
 			this.ycheckIntervalFromFirstAddress = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Попадания в первый МЛ"));
 			this.ycheckIntervalFromFirstAddress.CanFocus = true;
@@ -251,10 +243,10 @@ namespace Vodovoz.Reports.Logistic
 			this.ycheckIntervalFromFirstAddress.UseUnderline = true;
 			this.ycheckIntervalFromFirstAddress.Group = this.ycheckIntervalFromCreateTime.Group;
 			this.yvboxInterval.Add(this.ycheckIntervalFromFirstAddress);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxInterval[this.ycheckIntervalFromFirstAddress]));
-			w16.Position = 2;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxInterval[this.ycheckIntervalFromFirstAddress]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.GtkAlignmentInterval.Add(this.yvboxInterval);
 			this.frameInterval.Add(this.GtkAlignmentInterval);
 			this.labelInterval = new global::Gtk.Label();
@@ -263,15 +255,37 @@ namespace Vodovoz.Reports.Logistic
 			this.labelInterval.UseMarkup = true;
 			this.frameInterval.LabelWidget = this.labelInterval;
 			this.yhboxInterval.Add(this.frameInterval);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhboxInterval[this.frameInterval]));
-			w19.Position = 0;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxInterval[this.frameInterval]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
+			this.vbox1.Add(this.yhboxInterval);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yhboxInterval]));
+			w19.Position = 3;
 			w19.Expand = false;
 			w19.Fill = false;
-			this.vbox1.Add(this.yhboxInterval);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yhboxInterval]));
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.label4 = new global::Gtk.Label();
+			this.label4.Name = "label4";
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежность МЛ:");
+			this.vbox1.Add(this.label4);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label4]));
 			w20.Position = 4;
 			w20.Expand = false;
 			w20.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.HeightRequest = 100;
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeRouteListTypeOfUse = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeRouteListTypeOfUse.CanFocus = true;
+			this.ytreeRouteListTypeOfUse.Name = "ytreeRouteListTypeOfUse";
+			this.GtkScrolledWindow.Add(this.ytreeRouteListTypeOfUse);
+			this.vbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w22.Position = 5;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -279,10 +293,10 @@ namespace Vodovoz.Reports.Logistic
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w21.Position = 5;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w23.Position = 6;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
