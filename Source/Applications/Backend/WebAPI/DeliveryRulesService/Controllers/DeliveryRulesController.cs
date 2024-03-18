@@ -1,4 +1,5 @@
 ﻿using DeliveryRulesService.Cache;
+using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -8,16 +9,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using DeliveryRulesService.Constants;
-using Fias.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Models;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace DeliveryRulesService.Controllers
 {
@@ -29,23 +27,17 @@ namespace DeliveryRulesService.Controllers
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly FiasApiClientFactory _fiasApiClientFactory;
-		private readonly IFiasApiClient _fiasApiClient;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCache _districtCache;
 		private readonly DeliverySchedule _fastDeliverySchedule;
-		private readonly CancellationTokenSource _cancellationTokenSource;
 
 		public DeliveryRulesController(
 			ILogger<DeliveryRulesController> logger,
 			IUnitOfWorkFactory uowFactory,
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
-			FiasApiClientFactory fiasApiClientFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCache districtCache)
 		{
@@ -53,21 +45,15 @@ namespace DeliveryRulesService.Controllers
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_fiasApiClientFactory = fiasApiClientFactory ?? throw new ArgumentNullException(nameof(fiasApiClientFactory));
-			_deliveryRulesParametersProvider =
-				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings =
+				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
-			_nomenclatureParametersProvider =
-				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
-			_cancellationTokenSource = new CancellationTokenSource();
-
-			_fiasApiClient = _fiasApiClientFactory.CreateClient();
 
 			using(var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{
-				_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesParametersProvider.FastDeliveryScheduleId);
+				_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesSettings.FastDeliveryScheduleId);
 			}
 		}
 
@@ -123,7 +109,7 @@ namespace DeliveryRulesService.Controllers
 						WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
 					};
 
-					var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+					var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 
 					foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 					{
@@ -193,7 +179,7 @@ namespace DeliveryRulesService.Controllers
 					WeekDayDeliveryRules = new List<ExtendedWeekDayDeliveryRuleDto>()
 				};
 					
-				var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+				var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 					
 				foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 				{
@@ -246,12 +232,12 @@ namespace DeliveryRulesService.Controllers
 				return await ValueTask.FromResult(deliveryInfo);
 			}
 			
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
 			{
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 
 				var allowed =
-					!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday
+					!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday
 					&& fastDeliveryAllowed;
 
 				if(allowed)
@@ -274,11 +260,11 @@ namespace DeliveryRulesService.Controllers
 				return await ValueTask.FromResult(deliveryInfo);
 			}
 			
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
 			{
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 				
-				if(!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
+				if(!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
 				{
 					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
 					todayInfo.ScheduleRestrictions.Insert(0, new ExtendedScheduleRestrictionDto
@@ -287,7 +273,7 @@ namespace DeliveryRulesService.Controllers
 						ScheduleRestriction = _fastDeliverySchedule.Name
 					});
 					
-					var fastDeliveryNomenclature = _nomenclatureParametersProvider.GetFastDeliveryNomenclature(uow);
+					var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
 					deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
 				}
 			}
@@ -321,7 +307,7 @@ namespace DeliveryRulesService.Controllers
 		{
 			_logger.LogInformation(ServiceConstants.RequestToGetDeliveryRules());
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				District district;
 
@@ -389,7 +375,7 @@ namespace DeliveryRulesService.Controllers
 				WeekDayDeliveryInfos = new List<WeekDayDeliveryInfoDTO>(),
 			};
 
-			var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+			var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 
 			foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 			{
@@ -423,9 +409,19 @@ namespace DeliveryRulesService.Controllers
 		//Также сортировка в каждой группе по величине интервала и если она совпадает, по первому времени интервала
 		private static IEnumerable<DeliverySchedule> ReorderScheduleRestrictions(IList<DeliverySchedule> deliverySchedules)
 		{
-			return deliverySchedules
+			// Cуществует интервал с 17 до 19,  на него правила сортировки не должны действовать, этот интервал должен отображаться в самом конце в любом случае.
+			// (В дальнейшем появление подобных уникальных интервалов не планируется).
+			var valuesFrom17To19 = deliverySchedules.Where(x => x.From == TimeSpan.FromHours(17) && x.To == TimeSpan.FromHours(19)).ToList();
+
+			var result = deliverySchedules
+				.Where(x => x.From != TimeSpan.FromHours(17) || x.To != TimeSpan.FromHours(19))
 				.OrderBy(ds => ds.From)
-				.ThenBy(ds => ds.To);
+				.ThenByDescending(ds => ds.To)
+				.ToList();
+
+			result.AddRange(valuesFrom17To19);
+
+			return result;
 		}
 
 		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO<T>(IList<T> rules)
@@ -532,7 +528,6 @@ namespace DeliveryRulesService.Controllers
 				(double)latitude,
 				(double)longitude,
 				isGetClosestByRoute: false,
-				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
 
 			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);

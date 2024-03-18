@@ -1,107 +1,112 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using EdoService.Library;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Print;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Common;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForAdvancePaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForAdvancePayment>, ITdiTabAddedNotifier
 	{
-		private readonly IEmployeeService _employeeService;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IEmailSettings _emailSettings;
+		private readonly IEdoService _edoService;
+		private ILifetimeScope _lifetimeScope;
 		private UserSettings _currentUserSettings;
+		private IGenericRepository<EdoContainer> _edoContainerRepository;
+		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
+		private bool _canCreateBillsWithoutShipment;
+		private bool _canChoosePremiumDiscount;
+		private bool _canAddOnlineStoreNomenclaturesToOrder;
+		private bool _userHavePermissionToResendEdoDocuments;
 
-		private object selectedItem;
-		public object SelectedItem {
-			get => selectedItem;
-			set => SetField(ref selectedItem, value);
-		}
-		
-		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
-		
-		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
-		public IEntityUoWBuilder EntityUoWBuilder { get; }
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeService employeeService,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IDiscountReasonRepository discountReasonRepository,
-			IParametersProvider parametersProvider,
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
+			IGenericRepository<EdoContainer> edoContainerRepository,
+			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
+			IRDLPreviewOpener rdlPreviewOpener,
+			IEmailSettings emailSettings,
+			IEdoService edoService)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			if(parametersProvider == null)
-			{
-				throw new ArgumentNullException(nameof(parametersProvider));
-			}
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
+			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
+
 			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			
-			bool canCreateBillsWithoutShipment = 
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_bills_without_shipment");
-			CanChangeDiscountValue = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+
+			SetPermissions();
 			
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-			
-			if (uowBuilder.IsNewEntity)
+
+			if(uowBuilder.IsNewEntity)
 			{
-				if (canCreateBillsWithoutShipment)
+				if (_canCreateBillsWithoutShipment)
 				{
-					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
+					if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
 					{
 						AbortOpening();
+						return;
 					}
 					else
 					{
@@ -111,142 +116,188 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				else
 				{
 					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
+					return;
 				}
 			}
-			
+
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-			var loggerFactory = new LoggerFactory();
-			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
-					new EmailRepository(),
-					new EmailParametersProvider(settingsController),
+					uowFactory,
+					new EmailRepository(uowFactory),
+					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,
 					UoW);
 
 			FillDiscountReasons(discountReasonRepository);
+
+			UpdateEdoContainers();
+
+			AddForSaleCommand = new DelegateCommand(
+				() =>
+				{
+					if(!CanAddNomenclaturesToOrder())
+					{
+						return;
+					}
+
+					var defaultCategory = NomenclatureCategory.water;
+					if(CurrentUserSettings.DefaultSaleCategory.HasValue)
+					{
+						defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
+					}
+
+					Action<NomenclatureFilterViewModel> filterParams = f =>
+					{
+						f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+						f.SelectCategory = defaultCategory;
+						f.SelectSaleCategory = SaleCategory.forSale;
+						f.RestrictArchive = false;
+					};
+					
+					var journalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
+						new TypedParameter(typeof(Action<NomenclatureFilterViewModel>), filterParams));
+					
+					journalViewModel.SelectionMode = JournalSelectionMode.Single;
+					journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+					journalViewModel.TabName = "Номенклатура на продажу";
+					journalViewModel.CalculateQuantityOnStock = true;
+				
+					journalViewModel.OnSelectResult += (s, ea) =>
+					{
+						var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
+						
+						if(selectedNode == null)
+						{
+							return;
+						}
+
+						TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+					};
+					
+					TabParent.AddSlaveTab(this, journalViewModel);
+				},
+				() => true);
+
+			CancelCommand = new DelegateCommand(
+				() => Close(true, CloseSource.Cancel),
+				() => true);
+
+			DeleteItemCommand = new DelegateCommand(
+				() =>
+				{
+					var item = SelectedItem as OrderWithoutShipmentForAdvancePaymentItem;
+					Entity.RemoveItem(item);
+				},
+				() => SelectedItem != null);
+
+			OpenBillCommand = new DelegateCommand(
+				() =>
+				{
+					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+
+					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
+					{
+						if(Save(false))
+						{
+							_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
+						}
+					}
+
+					if(!UoWGeneric.HasChanges && Entity.Id > 0)
+					{
+						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
+					}
+				},
+				() => true);
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
-		
+
+		private void SetPermissions()
+		{
+			var permissionService = CommonServices.CurrentPermissionService;
+			
+			_canCreateBillsWithoutShipment = permissionService.ValidatePresetPermission("can_create_bills_without_shipment");
+			CanChangeDiscountValue = permissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			_canChoosePremiumDiscount = permissionService.ValidatePresetPermission("can_choose_premium_discount");
+			_canAddOnlineStoreNomenclaturesToOrder =
+				permissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
+			_userHavePermissionToResendEdoDocuments =
+				CommonServices.PermissionService.ValidateUserPresetPermission(
+					Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+		}
+
+
+		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
+
+		public IEntityUoWBuilder EntityUoWBuilder { get; }
+
+		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+
+		public object SelectedItem
+		{
+			get => _selectedItem;
+			set => SetField(ref _selectedItem, value);
+		}
+
 		private UserSettings CurrentUserSettings =>
 			_currentUserSettings ??
 			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
 
 		public IList<DiscountReason> DiscountReasons { get; private set; }
 		public IOrderDiscountsController DiscountsController { get; }
-		public bool CanChangeDiscountValue { get; }
+		public bool CanChangeDiscountValue { get; private set; }
 
 		#region Commands
 
-		private DelegateCommand addForSaleCommand;
-		public DelegateCommand AddForSaleCommand => addForSaleCommand ?? (addForSaleCommand = new DelegateCommand(
-			() =>
-			{
-				if(!CanAddNomenclaturesToOrder())
-				{
-					return;
-				}
+		public DelegateCommand AddForSaleCommand { get; }
 
-				var defaultCategory = NomenclatureCategory.water;
-				if(CurrentUserSettings.DefaultSaleCategory.HasValue)
-				{
-					defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
-				}
+		public DelegateCommand CancelCommand { get; }
 
-				var nomenclatureFilter = new NomenclatureFilterViewModel();
-				nomenclatureFilter.SetAndRefilterAtOnce(
-					x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-					x => x.SelectCategory = defaultCategory,
-					x => x.SelectSaleCategory = SaleCategory.forSale,
-					x => x.RestrictArchive = false
-				);
+		public DelegateCommand DeleteItemCommand { get; }
 
-				NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-					nomenclatureFilter,
-					UnitOfWorkFactory,
-					ServicesConfig.CommonServices,
-					_employeeService,
-					_nomenclatureSelectorFactory,
-					CounterpartySelectorFactory,
-					_nomenclatureRepository,
-					_userRepository
-				) {
-					SelectionMode = JournalSelectionMode.Single,
-				};
-				journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-				journalViewModel.TabName = "Номенклатура на продажу";
-				journalViewModel.CalculateQuantityOnStock = true;
-				journalViewModel.OnEntitySelectedResult += (s, ea) => {
-					var selectedNode = ea.SelectedNodes.FirstOrDefault();
-					if(selectedNode == null)
-						return;
-					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
-				};
-				TabParent.AddSlaveTab(this, journalViewModel);
-			},
-			() => true
-		));
-
-		private DelegateCommand cancelCommand;
-		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-			() =>Close(true, CloseSource.Cancel),
-			() => true
-		));
-
-		private DelegateCommand deleteItemCommand;
-		public DelegateCommand DeleteItemCommand => deleteItemCommand ?? (deleteItemCommand = new DelegateCommand(
-			() => {
-				var item = SelectedItem as OrderWithoutShipmentForAdvancePaymentItem;
-				Entity.RemoveItem(item);
-			},
-			() => SelectedItem != null
-		));
-
-		private DelegateCommand openBillCommand;
-		public DelegateCommand OpenBillCommand => openBillCommand ?? (openBillCommand = new DelegateCommand(
-			() =>
-			{
-				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-				
-				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
-				{
-					if(Save(false))
-					{
-						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
-					}
-				}
-
-				if(!UoWGeneric.HasChanges && Entity.Id > 0)
-				{
-					_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
-				}
-			},
-			() => true
-		));
-
-		public ICounterpartyJournalFactory CounterpartySelectorFactory => _counterpartySelectorFactory;
+		public DelegateCommand OpenBillCommand { get; }
 
 		#endregion Commands
+
+		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
+
+		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
+
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Client))
+			{
+				OnPropertyChanged(nameof(CanSendBillByEdo));
+				OnPropertyChanged(nameof(CanResendEdoBill));
+			}
+		}
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
+			{
 				OpenCounterpartyJournal?.Invoke(string.Empty);
+			}
 		}
 
 		private void FillDiscountReasons(IDiscountReasonRepository discountReasonRepository)
 		{
-			var canChoosePremiumDiscount = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
-			DiscountReasons = canChoosePremiumDiscount
+			DiscountReasons = _canChoosePremiumDiscount
 				? discountReasonRepository.GetActiveDiscountReasons(UoW)
 				: discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
 		}
-		
-		bool CanAddNomenclaturesToOrder()
+
+		private bool CanAddNomenclaturesToOrder()
 		{
-			if(Entity.Client == null) {
+			if(Entity.Client is null) {
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
 				return false;
 			}
@@ -254,10 +305,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			return true;
 		}
 
-		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		private void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
-			if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
-				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order"))
+			if(nomenclature.OnlineStore != null && !_canAddOnlineStoreNomenclaturesToOrder)
 			{
 				ShowWarningMessage("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
 				return;
@@ -265,15 +315,93 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
-		
+
+		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			var edoValidateResult = _edoService.ValidateEdoContainers(EdoContainers);
+
+			var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
+
+			if(edoValidateResult.IsFailure)
+			{
+				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+					&& !CommonServices.InteractiveService.Question(
+						"Вы уверены, что хотите отправить дубль?\n" +
+						string.Join("\n", errorMessages),
+						"Требуется подтверждение!"))
+				{
+					return;
+				}
+			}
+
+			if(UoW.IsNew)
+			{
+				if(CommonServices.InteractiveService.Question("Перед отправкой необходимо сохранить счёт, продолжить?"))
+				{
+					UoW.Save();
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, EdoDocumentType.BillWSForAdvancePayment);
+
+			UpdateEdoContainers();
+
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			OnPropertyChanged(nameof(CanResendEdoBill));
+
+			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Отправлено");
+		}
+
+		public void UpdateEdoContainers()
+		{
+			EdoContainers.Clear();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForAdvancePaymentId(Entity.Id)))
+				{
+					EdoContainers.Add(item);
+				}
+
+				var action = _orderEdoTrueMarkDocumentsActionsRepository.Get(uow,x => x.OrderWithoutShipmentForAdvancePayment.Id == Entity.Id && x.IsNeedToResendEdoBill == true)
+					.FirstOrDefault();
+
+				if(action != null)
+				{
+					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend };
+					EdoContainers.Add(tempContainer);
+				}
+			}
+		}
+
 		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
 		{
 			var email = Entity.GetEmailAddressForBill();
 
-			if (email != null)
-				SendDocViewModel.Update(Entity, email.Address);
-			else
+			if(email is null)
+			{
 				SendDocViewModel.Update(Entity, string.Empty);
+			}
+			else
+			{
+				SendDocViewModel.Update(Entity, email.Address);
+			}
+		}
+
+		public override bool Save(bool close)
+		{
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			return base.Save(close);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

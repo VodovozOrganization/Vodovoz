@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -11,15 +6,21 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.ViewModels;
-using QS.Project.Domain;
 using QS.DomainModel.UoW;
-using QS.Services;
 using QS.Navigation;
 using QS.Project.DB;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Services;
 using QS.Tdi;
+using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -46,6 +47,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -354,9 +356,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
-					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+							vm.OnSelectResult += OnMissingNomenclatureSelectedResult;
+						});
 				}
 			));
 		
@@ -1003,14 +1010,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			}
 		}
 
-		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			foreach(var node in e.SelectedNodes)
+			foreach(var node in selectedNodes)
 			{
 				if(Entity.ObservableNomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 				{

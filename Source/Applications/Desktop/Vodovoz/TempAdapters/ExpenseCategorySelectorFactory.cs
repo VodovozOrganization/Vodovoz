@@ -5,11 +5,9 @@ using QS.Project.Journal.EntitySelector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
@@ -34,7 +32,7 @@ namespace Vodovoz.TempAdapters
 			using(var uow =
 				unitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
 			{
-				_excludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
+				_excludedIds = new CategoryRepository().ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
 			}
 
 			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));

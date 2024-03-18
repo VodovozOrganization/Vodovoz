@@ -1,19 +1,19 @@
-﻿using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using System;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QSOrmProject;
 using QS.Validation;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using QS.Navigation;
+using QS.Project.Journal;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
-using Vodovoz.TempAdapters;
 using Vodovoz.Extensions;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using QS.Project.Services;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs
 {
@@ -28,7 +28,7 @@ namespace Vodovoz.Dialogs
 		public CertificateDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Certificate>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Certificate>();
 			TabName = "Новый сертификат";
 			ConfigureDlg();
 		}
@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs
 		public CertificateDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Certificate>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Certificate>(id);
 			ConfigureDlg();
 		}
 
@@ -71,7 +71,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -88,28 +88,35 @@ namespace Vodovoz.Dialogs
 
 		protected void OnBtnAddNomenclatureClicked(object sender, System.EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = NomenclatureCategory.water,
-				x => x.SelectSaleCategory = SaleCategory.forSale
-			);
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
-			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
-			journal.Title = "Номенклатура на продажу";
-			TabParent.AddSlaveTab(this, journal);
+			var journal =
+				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+						filter.SelectCategory = NomenclatureCategory.water;
+						filter.SelectSaleCategory = SaleCategory.forSale;
+					},
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.SelectionMode = JournalSelectionMode.Multiple;
+						vm.Title = "Номенклатура на продажу";
+						vm.OnSelectResult += JournalOnEntitySelectedResult;
+					}
+				).ViewModel;
 		}
 
-		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void JournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			var nomenclatures = UoWGeneric.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			var nomenclatures = UoWGeneric.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 			foreach(var nomenclature in nomenclatures)
 			{
 				if(!Entity.ObservableNomenclatures.Any(x => x == nomenclature))

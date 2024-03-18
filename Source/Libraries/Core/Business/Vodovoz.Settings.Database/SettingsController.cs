@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using NHibernate.Persister.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Linq;
 
 namespace Vodovoz.Settings.Database
 {

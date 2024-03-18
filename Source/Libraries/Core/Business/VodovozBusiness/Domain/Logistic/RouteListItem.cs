@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Tools;
 using QS.Utilities.Debug;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -17,9 +18,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -33,8 +36,23 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private AddressTransferType? _addressTransferType;
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
+		private RouteListItem _transferredTo;
+
+		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
+			.Resolve<INomenclatureRepository>();
+		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
+			.Resolve<IDeliveryRulesSettings>();
+		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
+			.Resolve<IEmployeeRepository>();
+		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
+			.Resolve<IUndeliveredOrdersRepository>();
+		private ISubdivisionRepository _subdivisionRepository => ScopeProvider.Scope
+			.Resolve<ISubdivisionRepository>();
+		private IRouteListItemRepository _routeListItemRepository => ScopeProvider.Scope
+			.Resolve<IRouteListItemRepository>();
+
 
 		#region Свойства
 
@@ -82,11 +100,10 @@ namespace Vodovoz.Domain.Logistic
 			? DateTime.Now
 			: _creationDate;
 
-		private RouteListItem transferedTo;
 		[Display(Name = "Перенесен в другой маршрутный лист")]
 		public virtual RouteListItem TransferedTo {
-			get => transferedTo;
-			protected set => SetField(ref transferedTo, value);
+			get => _transferredTo;
+			protected set => SetField(ref _transferredTo, value);
 		}
 
 		private bool wasTransfered;
@@ -537,6 +554,7 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 					RestoreOrder();
+					AutoCancelAutoTransfer(uow);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
@@ -552,6 +570,110 @@ namespace Vodovoz.Domain.Logistic
 
 			UpdateRouteListDebt();
 		}
+
+		/// <summary>
+		/// Автоотмена автопереноса - недовоз, созданный из возвращенного в путь заказа , получает комментарий, а также ответственного "Нет (не недовоз)"
+		/// Заказ, созданный из недовоза переходит в статус "Отменен".
+		/// Недовоз, созданный из автопереноса получает ответственного "Автоотмена автопереноса", а также аналогичный комментарий.
+		/// </summary>
+		private void AutoCancelAutoTransfer(IUnitOfWork uow)
+		{
+			var oldUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, Order);
+
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			var oldUndeliveryCommentText = "Доставлен в тот же день";
+
+			foreach(var oldUndelivery in oldUndeliveries)
+			{
+				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
+
+				var oldUndeliveredOrderResultComment = new UndeliveredOrderResultComment
+				{
+					Author = currentEmployee,
+					Comment = oldUndeliveryCommentText,
+					CreationTime = DateTime.Now,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				oldUndelivery.ResultComments.Add(oldUndeliveredOrderResultComment);
+
+				var oldOrderGuiltyInUndelivery = new GuiltyInUndelivery
+				{
+					GuiltySide = GuiltyTypes.None,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				oldUndelivery.GuiltyInUndelivery.Clear();
+				oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
+
+				uow.Save(oldUndelivery);
+
+				var oldUndeliveredOrderComment = new UndeliveredOrderComment
+				{
+					Comment = oldUndeliveryCommentText,
+					CommentedField = CommentedFields.Reason,
+					CommentDate = DateTime.Now,
+					Employee = currentEmployee,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				uow.Save(oldUndeliveredOrderComment);
+
+				if(oldUndelivery.NewOrder == null)
+				{
+					continue;
+				}
+
+				var newUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, oldUndelivery.NewOrder);
+
+				if(newUndeliveries.Any())
+				{
+					return;
+				}
+
+				var newUndeliveredOrder = new UndeliveredOrder
+				{
+					Author = currentEmployee,
+					OldOrder = oldUndelivery.NewOrder,
+					EmployeeRegistrator = currentEmployee,
+					TimeOfCreation = DateTime.Now,
+					InProcessAtDepartment = _subdivisionRepository.GetQCDepartment(uow)
+				};
+
+				var undeliveredOrderResultComment = new UndeliveredOrderResultComment
+				{
+					Author = currentEmployee,
+					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
+					CreationTime = DateTime.Now,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				newUndeliveredOrder.ResultComments.Add(undeliveredOrderResultComment);
+
+				var newOrderGuiltyInUndelivery = new GuiltyInUndelivery
+				{
+					GuiltySide = GuiltyTypes.AutoСancelAutoTransfer,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				newUndeliveredOrder.GuiltyInUndelivery = new List<GuiltyInUndelivery> { newOrderGuiltyInUndelivery };
+
+				uow.Save(newUndeliveredOrder);
+
+				var newUndeliveredOrderComment = new UndeliveredOrderComment
+				{
+					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
+					CommentedField = CommentedFields.Reason,
+					CommentDate = DateTime.Now,
+					Employee = currentEmployee,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				uow.Save(newUndeliveredOrderComment);
+			}
+		}
+
 
 		private void UpdateRouteListDebt()
 		{
@@ -585,6 +707,7 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 					RestoreOrder();
+					AutoCancelAutoTransfer(uow);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
@@ -613,7 +736,7 @@ namespace Vodovoz.Domain.Logistic
 			SetStatusWithoutOrderChange(uow, RouteListItemStatus.Transfered);
 		}
 		
-		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, WageParameterService wageParameterService, RouteListItem revertedAddress)
+		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, IWageParameterService wageParameterService, RouteListItem revertedAddress)
 		{
 			SetStatusWithoutOrderChange(uow, revertedAddress.Status);
 			SetTransferTo(null);
@@ -658,14 +781,16 @@ namespace Vodovoz.Domain.Logistic
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
-		public virtual void FirstFillClosing(WageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)
 				Status = RouteListItemStatus.Completed;
 
 			foreach(var item in Order.OrderItems)
-				item.ActualCount = IsDelivered() ? item.Count : 0;
+			{
+				item.SetActualCount(IsDelivered() ? item.Count : 0);
+			}
 
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = IsDelivered() ? equip.Count : 0;
@@ -692,17 +817,20 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RestoreOrder()
 		{
-			foreach(var item in Order.OrderItems) {
-				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue) {
-					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
-					item.DiscountReason = item.OriginalDiscountReason;
-					item.Discount = item.OriginalDiscount ?? 0;
-					item.OriginalDiscountMoney = null;
-					item.OriginalDiscountReason = null;
-					item.OriginalDiscount = null;
+			foreach(var item in Order.OrderItems)
+			{
+				item.RestoreOriginalDiscount();								
+
+				if(Status == RouteListItemStatus.EnRoute)
+				{
+					item.SetActualCount(null);
 				}
-				item.ActualCount = item.Count;
+				else
+				{
+					item.PreserveActualCount(true);
+				}
 			}
+
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = equip.Count;
 			foreach(var deposit in Order.OrderDepositItems)
@@ -744,33 +872,65 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
 			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), new NomenclatureParametersProvider(new ParametersProvider()));
+				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), _nomenclatureRepository);
 
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}
 
-		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
-		public virtual string GetTransferText(RouteListItem item)
+		public virtual string GetTransferText(bool isShort = false)
 		{
-			if(item.Status == RouteListItemStatus.Transfered) {
-				if(item.TransferedTo != null)
-					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.",
-						item.TransferedTo.RouteList.Id,
-						item.TransferedTo.RouteList.Driver.ShortName,
-						item.AddressTransferType?.GetEnumTitle());
-				else
+			if(Status == RouteListItemStatus.Transfered)
+			{
+				var transferredTo = _routeListItemRepository.GetTransferredTo(RouteList.UoW, this);
+				
+				if(transferredTo is null)
+				{
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
+				}
+				
+				var addressTransferType = _routeListItemRepository.GetAddressTransferType(routeList.UoW, Id, transferredTo.Id);
+				var transferType =  addressTransferType?.GetEnumTitle();
+
+				var result = isShort
+					? transferType
+					: $"Заказ был перенесен в МЛ №{transferredTo.RouteList.Id} " +
+					$"водителя {transferredTo.RouteList.Driver.ShortName}" +
+					$" {transferType}.";
+
+				return result;
 			}
-			if(item.WasTransfered) {
-				var transferedFrom = new RouteListItemRepository().GetTransferedFrom(RouteList.UoW, item);
-				if(transferedFrom != null)
-					return string.Format("Заказ из МЛ №{0} водителя {1} {2}.",
-						transferedFrom.RouteList.Id,
-						transferedFrom.RouteList.Driver.ShortName,
-						transferedFrom.AddressTransferType?.GetEnumTitle());
-				else
-					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
+			if(WasTransfered)
+			{
+				var transferredFrom = _routeListItemRepository.GetTransferredFrom(RouteList.UoW, this);
+
+				if(transferredFrom != null)
+				{
+					var transferType = AddressTransferType?.GetEnumTitle();
+
+					var result = isShort
+						? transferType
+						: $"Заказ из МЛ №{transferredFrom.RouteList.Id}" +
+						$" водителя {transferredFrom.RouteList.Driver.ShortName}" +
+						$" {transferType}.";
+
+					return result;
+				}
+				
+				return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
+
+			if(AddressTransferType != null)
+			{
+				var transferType = AddressTransferType?.GetEnumTitle();
+
+				var result = isShort
+						? transferType
+						: $"Заказ был добавлен в МЛ в пути " +
+						$"{transferType}.";
+
+				return result;
+			}
+
 			return null;
 		}
 
@@ -816,9 +976,15 @@ namespace Vodovoz.Domain.Logistic
 			for(int ix = 0; ix < RouteList.Addresses.Count; ix++) {
 				var address = RouteList.Addresses[ix];
 				if(ix == 0)
+				{
 					time = time.Add(RouteList.Addresses[ix].Order.DeliverySchedule.From);
+				}
 				else
-					time = time.AddSeconds(sputnikCache.TimeSec(RouteList.Addresses[ix - 1].Order.DeliveryPoint, RouteList.Addresses[ix].Order.DeliveryPoint));
+				{
+					time = time.AddSeconds(sputnikCache.TimeSec(
+						RouteList.Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+						RouteList.Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				if(address == this)
 					break;
@@ -846,9 +1012,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Зарплата
 
-		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver, _deliveryRulesParametersProvider);
+		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver, _deliveryRulesSettings);
 
-		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder, _deliveryRulesParametersProvider);
+		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder, _deliveryRulesSettings);
 
 		public virtual void SaveWageCalculationMethodics()
 		{

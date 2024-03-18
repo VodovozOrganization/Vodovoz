@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz;
 using Vodovoz.CommonEnums;
@@ -17,7 +18,7 @@ namespace Dialogs.Employees
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 			
-		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		private List<EmployeeWorkChart> loadedCharts = new List<EmployeeWorkChart>();
 		private List<EmployeeWorkChart> newCharts = new List<EmployeeWorkChart>();
 		private List<EmployeeWorkChart> chartsToDelete = new List<EmployeeWorkChart>();
@@ -39,6 +40,10 @@ namespace Dialogs.Employees
 
 		public bool HasChanges { get { return uow.HasChanges; } }
 
+		public virtual bool HasCustomCancellationConfirmationDialog { get; private set; }
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc { get; private set; }
+
 		#endregion
 
 		public EmployeeWorkChartDlg()
@@ -51,7 +56,7 @@ namespace Dialogs.Employees
 		{
 			DateTime now = DateTime.Now;
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Changed += YentryEmployee_Changed;
 

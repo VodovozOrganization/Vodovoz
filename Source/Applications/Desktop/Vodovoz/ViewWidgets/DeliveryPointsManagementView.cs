@@ -1,34 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using Fias.Client;
-using Fias.Client.Cache;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gtk;
-using QSOrmProject;
-using Vodovoz.Domain.Client;
 using QS.Project.Services;
 using QS.Services;
+using QS.Utilities;
+using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using QS.DomainModel.UoW;
 using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private Counterparty _counterparty;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeleteByPresetPermission;
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
 
 		public DeliveryPointsManagementView()
 		{
-			this.Build();
+			Build();
 
 			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
@@ -48,12 +48,8 @@ namespace Vodovoz
 				treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
 			}
 			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
-			
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
 		
 		public Counterparty Counterparty
@@ -72,7 +68,7 @@ namespace Vodovoz
 				UpdateNodes();
 			}
 		}
-		
+
 		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			var selected = treeDeliveryPoints.Selection.CountSelectedRows() > 0;
@@ -107,7 +103,8 @@ namespace Vodovoz
 			var dpId = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
-			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
+
+			dpViewModel.EntitySaved += (o, args) => UpdateNodesAndSelectEditedRow();
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
@@ -123,6 +120,60 @@ namespace Vodovoz
 		{
 			var result = _deliveryPointRepository.GetDeliveryPointsByCounterpartyId(UoW, _counterparty.Id);
 			treeDeliveryPoints.SetItemsSource(result);
+		}
+
+		private void UpdateNodesAndSelectEditedRow()
+		{
+			Gtk.Application.Invoke((s, arg) =>
+			{
+				var selectedDeliveryPoint = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>();
+				var scrollPosition = GtkScrolledWindow?.Vadjustment?.Value ?? 0;
+
+				UpdateNodes();
+
+				GtkHelper.WaitRedraw();
+
+				MoveScrollToPosition(scrollPosition);
+
+				if(selectedDeliveryPoint != null)
+				{
+					SelectDeliveryPointRow(selectedDeliveryPoint);
+				}
+			});
+		}
+
+		private void SelectDeliveryPointRow(DeliveryPoint deliveryPoint)
+		{
+			if(treeDeliveryPoints.ItemsDataSource is IList<DeliveryPoint> deliveryPoints)
+			{
+				if(treeDeliveryPoints.Model == null)
+				{
+					return;
+				}
+
+				treeDeliveryPoints.SelectedRow =
+						deliveryPoints.Any(dp => dp.Id == deliveryPoint.Id)
+						? deliveryPoint
+						: null;
+			}
+		}
+
+		private void MoveScrollToPosition(double scrollPosition)
+		{
+			if(GtkScrolledWindow?.Vadjustment != null)
+			{
+				GtkScrolledWindow.Vadjustment.Value =
+					scrollPosition > GtkScrolledWindow.Vadjustment.Upper
+					? GtkScrolledWindow.Vadjustment.Upper
+					: scrollPosition;
+			}
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

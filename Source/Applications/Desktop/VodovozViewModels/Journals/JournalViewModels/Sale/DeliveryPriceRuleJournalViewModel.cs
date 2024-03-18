@@ -1,42 +1,38 @@
-﻿using NHibernate.Transform;
-using NHibernate;
+﻿using NHibernate;
+using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
-using System;
 using Vodovoz.Domain.Sale;
-using Vodovoz.ViewModels.ViewModels.Sale;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ViewModels.Sale;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 {
-	public class DeliveryPriceRuleJournalViewModel : SingleEntityJournalViewModelBase<DeliveryPriceRule, DeliveryPriceRuleViewModel, DeliveryPriceRuleJournalNode>
+	public class DeliveryPriceRuleJournalViewModel
+		: EntityJournalViewModelBase<DeliveryPriceRule, DeliveryPriceRuleViewModel, DeliveryPriceRuleJournalNode>
 	{
-		private readonly IDistrictRuleRepository districtRuleRepository;
-
 		public DeliveryPriceRuleJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
-			IDistrictRuleRepository districtRuleRepository)
-			: base(unitOfWorkFactory, commonServices)
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager,
+			ICurrentPermissionService currentPermissionService)
+			: base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
+			TabName = "Правила для цен доставки";
 
-			TabName = "Правила цен доставки";
+			VisibleDeleteAction = false;
 
 			UpdateOnChanges(typeof(DeliveryPriceRule));
 		}
 
-		IUnitOfWorkFactory unitOfWorkFactory;
-
-		protected override Func<IUnitOfWork, IQueryOver<DeliveryPriceRule>> ItemsSourceQueryFunction => (uow) =>
+		protected override IQueryOver<DeliveryPriceRule> ItemsQuery(IUnitOfWork unitOfWork)
 		{
 			DeliveryPriceRuleJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<DeliveryPriceRule>()
+			var query = unitOfWork.Session.QueryOver<DeliveryPriceRule>()
 				.SelectList(list => list
 				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 				.Select(x => x.Water19LCount).WithAlias(() => resultAlias.Water19LCount)
@@ -46,38 +42,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				.Select(x => x.Water500mlCount).WithAlias(() => resultAlias.Water500mlCount)
 				.Select(x => x.RuleName).WithAlias(() => resultAlias.Name)
 				.Select(x => x.OrderMinSumEShopGoods).WithAlias(() => resultAlias.OrderMinSumEShopGoods))
-				.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleJournalNode>()).OrderBy(x => x.Id).Asc;
+				.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleJournalNode>());
 
-			query.Where(
-			GetSearchCriterion<DeliveryPriceRule>(
-				x => x.Id
-			)
-			);
+			query.Where(GetSearchCriterion<DeliveryPriceRule>(x => x.Id));
 
 			return query;
-		};
-
-		protected override Func<DeliveryPriceRuleViewModel> CreateDialogFunction => () => new DeliveryPriceRuleViewModel(
-			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			commonServices,
-			districtRuleRepository
-		);
-
-		protected override Func<DeliveryPriceRuleJournalNode, DeliveryPriceRuleViewModel> OpenDialogFunction =>
-			node => new DeliveryPriceRuleViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				unitOfWorkFactory,
-				commonServices,
-				districtRuleRepository
-		);
-
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
 		}
 	}
 }

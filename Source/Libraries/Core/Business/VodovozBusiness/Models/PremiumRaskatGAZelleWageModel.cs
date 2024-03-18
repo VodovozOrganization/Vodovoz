@@ -10,22 +10,23 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Models
 {
 	public class PremiumRaskatGAZelleWageModel
 	{
 		private readonly IEmployeeRepository employeeRepository;
-		private readonly IWageParametersProvider wageParametersProvider;
-		private readonly IPremiumRaskatGAZelleParametersProvider premiumRaskatGAZelleParametersProvider;
+		private readonly IWageSettings wageSettings;
+		private readonly IPremiumRaskatGAZelleSettings premiumRaskatGAZelleSettings;
 		private readonly RouteList routeList;
 
-		public PremiumRaskatGAZelleWageModel(IEmployeeRepository employeeRepository, IWageParametersProvider wageParametersProvider,
-			IPremiumRaskatGAZelleParametersProvider premiumRaskatGaZelleParametersProvider, RouteList routeList)
+		public PremiumRaskatGAZelleWageModel(IEmployeeRepository employeeRepository, IWageSettings wageSettings,
+			IPremiumRaskatGAZelleSettings premiumRaskatGaZelleSettings, RouteList routeList)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
-			this.premiumRaskatGAZelleParametersProvider = premiumRaskatGaZelleParametersProvider ?? throw new ArgumentNullException(nameof(premiumRaskatGaZelleParametersProvider));
+			this.wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
+			this.premiumRaskatGAZelleSettings = premiumRaskatGaZelleSettings ?? throw new ArgumentNullException(nameof(premiumRaskatGaZelleSettings));
 			this.routeList = routeList ?? throw new ArgumentNullException(nameof(routeList));
 		}
 
@@ -41,7 +42,7 @@ namespace Vodovoz.Models
 				PremiumReasonString = $"Автопремия для раскатных газелей МЛ №{routeList.Id.ToString()}",
 				Author = employeeRepository.GetEmployeeForCurrentUser(uow),
 				Date = DateTime.Today,
-				TotalMoney = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
+				TotalMoney = premiumRaskatGAZelleSettings.PremiumRaskatGAZelleMoney,
 				RouteList = routeList
 			};
 
@@ -51,7 +52,7 @@ namespace Vodovoz.Models
 			{
 				OperationType = WagesType.PremiumWage,
 				Employee = routeList.Driver,
-				Money = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
+				Money = premiumRaskatGAZelleSettings.PremiumRaskatGAZelleMoney,
 				OperationTime = DateTime.Today
 			};
 
@@ -61,7 +62,7 @@ namespace Vodovoz.Models
 			{
 				Premium = premiumRaskatGAZelle,
 				Employee = routeList.Driver,
-				Money = premiumRaskatGAZelleParametersProvider.PremiumRaskatGAZelleMoney,
+				Money = premiumRaskatGAZelleSettings.PremiumRaskatGAZelleMoney,
 				WageOperation = operation
 			};
 
@@ -70,7 +71,7 @@ namespace Vodovoz.Models
 
 		private bool NeedPremiumRaskatGAZelleInRouteListDate(IUnitOfWork uow)
 		{
-			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle
+			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleSettings.MinRecalculatedDistanceForPremiumRaskatGAZelle
 			   && routeList.GetCarVersion.CarOwnType == CarOwnType.Raskat
 			   && routeList.GetCarVersion.Car.CarModel.CarTypeOfUse == CarTypeOfUse.GAZelle)
 			{
@@ -99,7 +100,7 @@ namespace Vodovoz.Models
 					.JoinAlias(() => routeListAdressesAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 					.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Where(() => districtAlias.WageDistrict.Id == wageParametersProvider.GetSuburbWageDistrictId &&
+					.Where(() => districtAlias.WageDistrict.Id == wageSettings.SuburbWageDistrictId &&
 								 routeListAdressesAlias.RouteList.Id == routeList.Id)
 					.Take(1).SingleOrDefault();
 

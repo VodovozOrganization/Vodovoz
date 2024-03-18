@@ -5,7 +5,7 @@ using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.EntityRepositories.Sale
@@ -63,7 +63,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		}
 
 		public IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
-			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			IUnitOfWork uow, IGeographicGroupSettings geographicGroupSettings)
 		{
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
@@ -75,7 +75,18 @@ namespace Vodovoz.EntityRepositories.Sale
 						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
 						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
 				)
-				.Where(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId);
+				.Where(gg => gg.Id != geographicGroupSettings.EastGeographicGroupId);
+			return query.List();
+		}
+
+		public IList<GeoGroup> GeographicGroupsWithoutEast(
+			IUnitOfWork uow, IGeographicGroupSettings geographicGroupSettings)
+		{
+			GeoGroup geoGroupAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupAlias)
+				.Where(() => geoGroupAlias.Id != geographicGroupSettings.EastGeographicGroupId); 
+			
 			return query.List();
 		}
 	}

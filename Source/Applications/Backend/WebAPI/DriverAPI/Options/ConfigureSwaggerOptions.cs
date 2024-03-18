@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using DriverApi.Contracts;
+using FastPaymentsApi.Contracts;
+using LogisticsEventsApi.Contracts;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
-using System.Reflection;
+using Vodovoz.Presentation.WebApi.Authentication.Contracts;
+using Vodovoz.Presentation.WebApi.SwaggerGen;
 
 namespace DriverAPI.Options
 {
@@ -21,25 +26,42 @@ namespace DriverAPI.Options
 
 		public void Configure(SwaggerGenOptions options)
 		{
+			options.OperationFilter<ProblemDetailsOperationFilter>();
+
+			options.MapType<TimeSpan>(() => new OpenApiSchema
+			{
+				Type = "string",
+				Example = new OpenApiString("00:00:00")
+			});
+
+			options.MapType<TimeSpan?>(() => new OpenApiSchema
+			{
+				Type = "string",
+				Example = new OpenApiString("00:00:00")
+			});
+
+			options.DocumentFilter<EnumTypesDocumentFilter>();
+
 			foreach (var desvription in _apiVersionDescriptionProvider.ApiVersionDescriptions)
 			{
 				options.SwaggerDoc(desvription.GroupName, CreateVersionInfo(desvription));
 
-				// using System.Reflection;
-				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-				var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
-
-				options.IncludeXmlComments(xmlPath);
-				options.SchemaFilter<EnumTypesSchemaFilter>(xmlPath);
-
-				var libraryXmlFilename = $"{typeof(Library.DependencyInjection).Assembly.GetName().Name}.xml";
-				var libraryXmlPath = Path.Combine(AppContext.BaseDirectory, libraryXmlFilename);
-
-				options.IncludeXmlComments(libraryXmlPath);
-				options.SchemaFilter<EnumTypesSchemaFilter>(libraryXmlPath);
-
-				options.DocumentFilter<EnumTypesDocumentFilter>();
+				AddCommentsForAssembly<ConfigureSwaggerOptions>(options);
+				AddCommentsForAssembly<IDriverApiContractsAssemblyMarker>(options);
+				AddCommentsForAssembly<IWebApiAuthenticationContractsAssemblyMarker>(options);
+				AddCommentsForAssembly<IFastPaymentsApiContractsAssemblyMarker>(options);
+				AddCommentsForAssembly<ILogisticsEventsApiAssemblyMarker>(options);
 			}
+		}
+
+		private void AddCommentsForAssembly<TMarker>(SwaggerGenOptions options)
+			where TMarker : class
+		{
+			var libraryXmlFilename = $"{typeof(TMarker).Assembly.GetName().Name}.xml";
+			var libraryXmlPath = Path.Combine(AppContext.BaseDirectory, libraryXmlFilename);
+
+			options.IncludeXmlComments(libraryXmlPath);
+			options.SchemaFilter<EnumTypesSchemaFilter>(libraryXmlPath);
 		}
 
 		private OpenApiInfo CreateVersionInfo(ApiVersionDescription description)

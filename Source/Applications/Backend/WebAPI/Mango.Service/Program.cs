@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NLog.Web;
+using QS.Project.Core;
 
 namespace Mango.Service
 {
@@ -13,9 +15,17 @@ namespace Mango.Service
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureWebHostDefaults(cfg =>
 				{
 					cfg.UseStartup<Startup>();
+				})
+				.ConfigureServices((hostContext, services) =>
+				{
+					services
+						.AddMappingAssemblies(
+							typeof(Vodovoz.Settings.Database.SettingMap).Assembly
+							);
 				})
 				.UseNLog();
 	}

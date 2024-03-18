@@ -12,7 +12,8 @@ using QS.Navigation;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
-using Vodovoz.Domain.Client;
+using System.Linq;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -20,7 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	{
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IOrganizationSettings _organizationSettings;
 		private const int _paymentNumForUpdateBalance = 120820;
 		private const string _updateBalanceTag = "Ввод остатков";
 		private int _defaultPaymentNum = 1;
@@ -36,9 +37,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			INavigationManager navigationManager,
 			IPaymentsRepository paymentsRepository,
 			IProfitCategoryRepository profitCategoryRepository,
-			IProfitCategoryProvider profitCategoryProvider,
+			IPaymentSettings profitCategoryProvider,
 			IOrganizationRepository organizationRepository,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IOrganizationSettings organizationSettings,
 			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(profitCategoryRepository == null)
@@ -52,8 +53,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			Configure(profitCategoryRepository, profitCategoryProvider);
@@ -106,13 +107,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return base.BeforeSave();
 		}
 
-		private void Configure(IProfitCategoryRepository profitCategoryRepository, IProfitCategoryProvider profitCategoryProvider)
+		private void Configure(IProfitCategoryRepository profitCategoryRepository, IPaymentSettings paymentSettings)
 		{
 			Entity.PaymentNum = _defaultPaymentNum;
 			ProfitCategories = profitCategoryRepository.GetAllProfitCategories(UoW);
 			Entity.Date = DateTime.Today;
-			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationParametersProvider.VodovozOrganizationId);
-			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, profitCategoryProvider.GetDefaultProfitCategory());
+			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationSettings.VodovozOrganizationId);
+			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, paymentSettings.DefaultProfitCategory);
 			Entity.Status = PaymentState.undistributed;
 			Entity.IsManuallyCreated = true;
 		}
@@ -122,7 +123,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			if(e.PropertyName == nameof(Counterparty))
 			{
 				UpdatePaymentNum();
+				UpdateParameters();
 			}
+		}
+
+		private void UpdateParameters()
+		{
+			var defaultAccount = Entity.Counterparty?.Accounts.SingleOrDefault(x => x.IsDefault);
+
+			if(defaultAccount is null)
+			{
+				return;
+			}
+
+			Entity.CounterpartyBank = defaultAccount.InBank?.Name;
+			Entity.CounterpartyBik = defaultAccount.InBank?.Bik;
+			Entity.CounterpartyCurrentAcc = defaultAccount.Number;
+			Entity.CounterpartyAcc = defaultAccount.Number;
+			Entity.CounterpartyCorrespondentAcc = defaultAccount.BankCorAccount?.CorAccountNumber;
 		}
 
 		private void UpdatePaymentNum()
@@ -131,7 +149,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				Entity.PaymentNum =
 					_paymentsRepository.GetMaxPaymentNumFromManualPayments(
-						UoW, Entity.Counterparty.Id, _organizationParametersProvider.VodovozOrganizationId)
+						UoW, Entity.Counterparty.Id, _organizationSettings.VodovozOrganizationId)
 					+ 1;
 				_defaultPaymentNum = Entity.PaymentNum;
 			}

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -336,14 +338,22 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 			
 			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+			using(var uow = uowFactory.CreateWithoutRoot()) {
 				return orderOrganizationProvider.GetOrganizationForOrderWithoutShipment(uow,
 					OrderWithoutDeliveryForAdvancePayment);
 			}
+		}
+
+		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
+		{
+			IsDiscountInMoney = isDiscountInMoney;
+			Discount = discount;
+			DiscountReason = discountReason;
 		}
 
 		public OrderWithoutShipmentForAdvancePaymentItem() { }

@@ -1,10 +1,9 @@
-﻿using Gtk;
-using QS.DomainModel.UoW;
+﻿using Autofac;
+using Gtk;
 using QS.Project.Services;
 using QS.Tdi;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -13,9 +12,13 @@ using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
@@ -32,32 +35,37 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.DeliveryPointView:
 					return new DeliveryPointPanelView(ServicesConfig.CommonServices);
 				case PanelViewType.DeliveryPricePanelView:
-					return new DeliveryPricePanelView();
+					var deliveryPriceCalculator = ScopeProvider.Scope.Resolve<IDeliveryPriceCalculator>();
+					return new DeliveryPricePanelView(deliveryPriceCalculator);
 				case PanelViewType.UndeliveredOrdersPanelView:
 					return new UndeliveredOrdersPanelView();
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
+					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 					return new CallTaskPanelView(
-						new BaseParametersProvider(new ParametersProvider()),
+						employeeSettings,
 						new EmployeeRepository(),
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
-					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), new ComplaintParametersProvider(new ParametersProvider()));
+					var complaintSettigs = ScopeProvider.Scope.Resolve<IComplaintSettings>();
+					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), complaintSettigs);
 				case PanelViewType.SmsSendPanelView:
+					var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,
 						new FastPaymentRepository(),
-						new FastPaymentParametersProvider(new ParametersProvider()));
+						fastPaymentSettings);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
+					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 					return new CashInfoPanelView(
-						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.UnitOfWorkFactory,
 						new CashRepository(),
-						new SubdivisionRepository(new ParametersProvider()),
+						subdivisionRepository,
 						new UserRepository());
 				case PanelViewType.EdoLightsMatrixPanelView:
 					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
@@ -66,7 +74,8 @@ namespace Vodovoz.SidePanel
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
-					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()), Startup.MainWin.NavigationManager);
+					var _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
+					return new CarsMonitoringInfoPanelView(ServicesConfig.UnitOfWorkFactory, _deliveryRulesSettings, Startup.MainWin.NavigationManager);
 				default:
 					throw new NotSupportedException();
 			}

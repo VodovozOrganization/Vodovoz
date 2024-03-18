@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using Vodovoz.Services;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Id { get; set; }
 
 		PromotionalSet promotionalSet;
-		[Display(Name = "Промо-набор")]
+		[Display(Name = "Промонабор")]
 		public virtual PromotionalSet PromotionalSet {
 			get { return promotionalSet; }
 			set { SetField(ref promotionalSet, value, () => PromotionalSet); }
@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Orders
 
 		public abstract void Activate(Order order);
 		public abstract void Deactivate(Order order);
-		public abstract bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures);
+		public abstract bool IsValidForOrder(Order order, INomenclatureSettings nomenclatureSettings);
 
 		public abstract string Title { get; }
 	}

@@ -1,26 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private RegradingOfGoodsTemplateItem _newRow;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 		public RegradingOfGoodsTemplateItemsView()
 		{
-			this.Build();
+			Build();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsTemplateItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -58,22 +59,19 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var oldNomenclatureSelector =
-				CreateNomenclatureSelector("Выберите номенклатуру на замену", OldNomenclatureSelectorOnEntitySelectedResult);
-			MyTab.TabParent.AddSlaveTab(MyTab, oldNomenclatureSelector);
-		}
-		
-		private IEntitySelector CreateNomenclatureSelector(string tabName, EventHandler<JournalSelectedNodesEventArgs> onEntitySelectResult)
-		{
-			var newNomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector(null, false);
-			(newNomenclatureSelector as JournalViewModelBase).TabName = tabName;
-			newNomenclatureSelector.OnEntitySelectedResult += onEntitySelectResult;
-			return newNomenclatureSelector;
+			var page = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				MyTab,
+				QS.Navigation.OpenPageOptions.AsSlave,
+				vievModel =>
+				{
+					vievModel.TabName = "Выберите номенклатуру на замену";
+					vievModel.OnSelectResult += OldNomenclatureSelectorOnEntitySelectedResult;
+				});
 		}
 
-		private void OldNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OldNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var node = e.SelectedNodes.FirstOrDefault();
+			var node = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 
 			if(node == null)
 			{
@@ -87,14 +85,24 @@ namespace Vodovoz
 				NomenclatureOld = nomenclature
 			};
 
-			var newNomenclatureSelector =
-				CreateNomenclatureSelector("Выберите новую номенклатуру", NewNomenclatureSelectorOnEntitySelectedResult);
-			MyTab.TabParent.AddSlaveTab(MyTab, newNomenclatureSelector);
+			var page = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				MyTab,
+				filter =>
+				{
+					filter.RestrictArchive = true;
+					filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+				},
+				QS.Navigation.OpenPageOptions.AsSlave,
+				vievModel =>
+				{
+					vievModel.TabName = "Выберите новую номенклатуру";
+					vievModel.OnSelectResult += NewNomenclatureSelectorOnEntitySelectedResult;
+				});
 		}
 
-		private void NewNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void NewNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var node = e.SelectedNodes.FirstOrDefault();
+			var node = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 
 			if(node == null)
 			{
@@ -109,9 +117,14 @@ namespace Vodovoz
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var changeOldNomenclatureSelector =
-				CreateNomenclatureSelector("Изменить старую номенклатуру", ChangeOldNomenclatureSelectorOnEntitySelectedResult);
-			MyTab.TabParent.AddSlaveTab(MyTab, changeOldNomenclatureSelector);
+			var page = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				MyTab,
+				QS.Navigation.OpenPageOptions.AsSlave,
+				vievModel =>
+				{
+					vievModel.TabName = "Изменить старую номенклатуру";
+					vievModel.OnSelectResult += OldNomenclatureSelectorOnEntitySelectedResult;
+				});
 		}
 		
 		private void ChangeOldNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -130,15 +143,21 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var changeNewNomenclatureSelector =
-				CreateNomenclatureSelector("Изменить новую номенклатуру", ChangeNewNomenclatureSelectorOnEntitySelectedResult);
-			MyTab.TabParent.AddSlaveTab(MyTab, changeNewNomenclatureSelector);
+			var page = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				MyTab,
+				QS.Navigation.OpenPageOptions.AsSlave,
+				vievModel =>
+				{
+					vievModel.TabName = "Изменить новую номенклатуру";
+					vievModel.OnSelectResult += ChangeNewNomenclatureSelectorOnEntitySelectedResult;
+
+				});
 		}
 		
-		private void ChangeNewNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void ChangeNewNomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsTemplateItem>();
-			var node = e.SelectedNodes.FirstOrDefault();
+			var node = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 
 			if(node == null || row == null)
 			{
@@ -165,6 +184,12 @@ namespace Vodovoz
 				buttonChangeNew.Click();
 		}
 
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+		}
 	}
 }
 

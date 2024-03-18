@@ -16,12 +16,14 @@ using System.Linq;
 using Fias.Client;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
+using Autofac;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
 	public partial class MergeAddressesDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		private readonly IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private readonly IUnitOfWork _uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		private List<DublicateNode> _duplicates;
 		private GenericObservableList<DublicateNode> _observableDuplicates;
 		private readonly ReplaceEntity _replaceEntity;
@@ -35,7 +37,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				return;
 			}
 
-			this.Build();
+			Build();
 
 			TabName = "Дубликаты адресов";
 
@@ -54,7 +56,7 @@ namespace Vodovoz.ServiceDialogs.Database
 				.Finish();
 
 			_replaceEntity = new ReplaceEntity(DeleteConfig.Main);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
 
 		void DuplicateSelection_Changed(object sender, EventArgs e)
@@ -297,6 +299,13 @@ namespace Vodovoz.ServiceDialogs.Database
 			var id = ytreeviewAddresses.GetSelectedObject<AddressNode>().Address.Id;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(id);
 			TabParent.AddSlaveTab(this, dpViewModel);
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

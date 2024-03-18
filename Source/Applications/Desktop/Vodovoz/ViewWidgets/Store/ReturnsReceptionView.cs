@@ -1,43 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Journal;
 using QS.Project.Services;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReturnsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly ICarUnloadRepository _carUnloadRepository;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 
@@ -47,13 +45,11 @@ namespace Vodovoz
 
 		public ReturnsReceptionView()
 		{
-			var baseParameters = new BaseParametersProvider(new ParametersProvider());
-			_terminalNomenclatureProvider = baseParameters;
-			var routeListRepository = new RouteListRepository(new StockRepository(), baseParameters);
-			_carLoadDocumentRepository = new CarLoadDocumentRepository(routeListRepository);
+			_nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			_nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
 			_carUnloadRepository = new CarUnloadRepository();
-			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-			_nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
+			_subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 
 			Build();
 
@@ -83,6 +79,8 @@ namespace Vodovoz
 
 		private IUnitOfWork uow;
 
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
+
 		public IUnitOfWork UoW {
 			get => uow;
 			set {
@@ -97,7 +95,7 @@ namespace Vodovoz
 			get => warehouse;
 			set {
 				warehouse = value;
-				FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+				FillListReturnsFromRoute(_nomenclatureSettings.NomenclatureIdForTerminal);
 			}
 		}
 
@@ -109,7 +107,7 @@ namespace Vodovoz
 					return;
 				routeList = value;
 				if(routeList != null) {
-					FillListReturnsFromRoute(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+					FillListReturnsFromRoute(_nomenclatureSettings.NomenclatureIdForTerminal);
 				} else {
 					ReceptionReturnsList.Clear();
 				}
@@ -284,7 +282,7 @@ namespace Vodovoz
 				}
 			}
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 
 			if(ReceptionReturnsList.All(i => i.NomenclatureId != defaultBottleNomenclature.Id))
 			{
@@ -299,16 +297,6 @@ namespace Vodovoz
 		
 		protected void OnButtonAddNomenclatureClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories =
-				Nomenclature.GetCategoriesForGoods()
-					.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
-					.ToArray();
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
@@ -317,22 +305,35 @@ namespace Vodovoz
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 
-			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
-			{
-				journal.HideButtons();
-			}
-
-			MyTab.TabParent.AddSlaveTab(MyTab, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				MyTab,
+				filter =>
+				{
+					filter.AvailableCategories =
+						Nomenclature
+							.GetCategoriesForGoods()
+							.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
+							.ToArray();
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Multiple;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+					viewModel.HideButtons();
+				});
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			var nomenclatures = UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			var nomenclatures = UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 			foreach(var nomenclature in nomenclatures)
 			{
 				if(Items.Any(x => x.NomenclatureId == nomenclature.Id))
@@ -340,89 +341,13 @@ namespace Vodovoz
 				ReceptionReturnsList.Add(new ReceptionItemNode(nomenclature, 0));
 			}
 		}
-	}
 
-	public class ReceptionItemNode : PropertyChangedBase
-	{
-		private decimal _amount;
-		private decimal _expectedAmount;
-
-		public NomenclatureCategory NomenclatureCategory { get; set; }
-		public int NomenclatureId { get; set; }
-		public string Name { get; set; }
-
-		public virtual decimal Amount {
-			get => _amount;
-			set => SetField(ref _amount, value, () => Amount);
-		}
-
-		public virtual decimal ExpectedAmount {
-			get => _expectedAmount;
-			set => SetField(ref _expectedAmount, value, () => ExpectedAmount);
-		}
-
-		int equipmentId;
-		[PropertyChangedAlso("Serial")]
-		public int EquipmentId {
-			get => equipmentId;
-			set => SetField(ref equipmentId, value, () => EquipmentId);
-		}
-
-		[Display(Name = "№ кулера")]
-		public string Redhead {
-			get => CarUnloadDocumentItem.Redhead;
-			set {
-				if(value != CarUnloadDocumentItem.Redhead)
-					CarUnloadDocumentItem.Redhead = value;
-			}
-		}
-
-		ServiceClaim serviceClaim;
-
-		public virtual ServiceClaim ServiceClaim {
-			get => serviceClaim;
-			set => SetField(ref serviceClaim, value, () => ServiceClaim);
-		}
-
-		public Equipment NewEquipment { get; set; }
-		public bool Returned {
-			get => Amount > 0;
-			set => Amount = value ? 1 : 0;
-		}
-
-		GoodsAccountingOperation movementOperation = new GoodsAccountingOperation();
-
-		public virtual GoodsAccountingOperation MovementOperation {
-			get => movementOperation;
-			set => SetField(ref movementOperation, value, () => MovementOperation);
-		}
-
-		public ReceptionItemNode(Nomenclature nomenclature, int amount)
+		public override void Destroy()
 		{
-			Name = nomenclature.Name;
-			NomenclatureId = nomenclature.Id;
-			NomenclatureCategory = nomenclature.Category;
-			_amount = amount;
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
-
-		public ReceptionItemNode(GoodsAccountingOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
-		{
-			this.movementOperation = movementOperation;
-		}
-
-		CarUnloadDocumentItem carUnloadDocumentItem = new CarUnloadDocumentItem();
-
-		public virtual CarUnloadDocumentItem CarUnloadDocumentItem {
-			get => carUnloadDocumentItem;
-			set => SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem);
-		}
-
-		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.GoodsAccountingOperation)
-		{
-			this.carUnloadDocumentItem = carUnloadDocumentItem;
-		}
-
-		public ReceptionItemNode() { }
 	}
 }
 

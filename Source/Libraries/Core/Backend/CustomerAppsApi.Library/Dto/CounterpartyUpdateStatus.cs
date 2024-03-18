@@ -2,6 +2,9 @@
 
 namespace CustomerAppsApi.Library.Dto
 {
+	/// <summary>
+	/// Статус обновления клиента
+	/// </summary>
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum CounterpartyUpdateStatus
 	{

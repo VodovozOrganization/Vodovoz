@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::QS.Widgets.GtkUI.RepresentationTreeView treeviewSubdivisions;
+		private global::Gamma.GtkWidgets.yTreeView treeviewSubdivisions;
 
 		private global::QSWidgetLib.SearchEntity searchSubdivisions;
 
@@ -26,7 +26,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::QSWidgetLib.SearchEntity searchTypesOfEntities;
 
-		private global::Gtk.HBox hbox2;
+		private global::Gtk.HBox hbox4;
 
 		private global::Gtk.VBox vbox1;
 
@@ -66,7 +66,7 @@ namespace Vodovoz.Core.Permissions
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeviewSubdivisions = new global::QS.Widgets.GtkUI.RepresentationTreeView();
+			this.treeviewSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeviewSubdivisions.CanFocus = true;
 			this.treeviewSubdivisions.Name = "treeviewSubdivisions";
 			this.GtkScrolledWindow.Add(this.treeviewSubdivisions);
@@ -117,10 +117,10 @@ namespace Vodovoz.Core.Permissions
 			global::Gtk.Paned.PanedChild w9 = ((global::Gtk.Paned.PanedChild)(this.hpaned2[this.hbox5]));
 			w9.Resize = false;
 			// Container child hpaned2.Gtk.Paned+PanedChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
@@ -146,12 +146,12 @@ namespace Vodovoz.Core.Permissions
 			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.hbox2.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox1]));
+			this.hbox4.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox1]));
 			w12.Position = 0;
 			w12.Expand = false;
 			w12.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -160,10 +160,10 @@ namespace Vodovoz.Core.Permissions
 			this.ytreeviewPermissions.CanFocus = true;
 			this.ytreeviewPermissions.Name = "ytreeviewPermissions";
 			this.GtkScrolledWindow2.Add(this.ytreeviewPermissions);
-			this.hbox2.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.GtkScrolledWindow2]));
+			this.hbox4.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.GtkScrolledWindow2]));
 			w14.Position = 1;
-			this.hpaned2.Add(this.hbox2);
+			this.hpaned2.Add(this.hbox4);
 			this.hbox1.Add(this.hpaned2);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hpaned2]));
 			w16.Position = 0;

@@ -8,7 +8,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCarEventType;
 
@@ -52,12 +52,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.table1.Add(this.entityviewmodelentryCar);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.table1.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryCar]));
 			w1.TopAttach = ((uint)(1));
 			w1.BottomAttach = ((uint)(2));
 			w1.LeftAttach = ((uint)(3));
@@ -69,6 +68,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.entityviewmodelentryCarEventType.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCarEventType.Name = "entityviewmodelentryCarEventType";
 			this.entityviewmodelentryCarEventType.CanEditReference = true;
+			this.entityviewmodelentryCarEventType.CanDisposeEntitySelectorFactory = false;
+			this.entityviewmodelentryCarEventType.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityviewmodelentryCarEventType);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCarEventType]));
 			w2.TopAttach = ((uint)(1));
@@ -81,6 +82,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.CanDisposeEntitySelectorFactory = false;
+			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeAuthor);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
 			w3.TopAttach = ((uint)(2));
@@ -93,6 +96,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
 			w4.TopAttach = ((uint)(1));

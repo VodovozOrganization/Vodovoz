@@ -7,8 +7,10 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
@@ -25,7 +27,7 @@ namespace Vodovoz.ReportsParameters
 		public PlanImplementationReport(bool orderById = false)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureDlg();
 		}

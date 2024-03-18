@@ -2,24 +2,24 @@
 using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.JournalSelector;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public class DebtorsJournalFilterViewModel : FilterViewModelBase<DebtorsJournalFilterViewModel>
 	{
+		private ILifetimeScope _lifetimeScope;
 		private Counterparty _client;
 		private DeliveryPoint _address;
 		private PersonType? _opf;
@@ -43,11 +43,13 @@ namespace Vodovoz.Filters.ViewModels
 		private DeliveryPointCategory _selectedDeliveryPointCategory;
 		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
+		private DialogViewModelBase _journal;
 
-		public DebtorsJournalFilterViewModel()
+		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			UpdateWith(
 				x => x.Client,
 				x => x.Address,
@@ -206,17 +208,38 @@ namespace Vodovoz.Filters.ViewModels
 
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory =>
 			_deliveryPointSelectorFactory ?? (_deliveryPointSelectorFactory =
-				new DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel)
+				_lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), DeliveryPointJournalFilterViewModel))
 					.CreateDeliveryPointAutocompleteSelectorFactory());
 
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
-				Startup.AppDIContainer.BeginLifetimeScope().Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
+				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
-			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
+
+		public DialogViewModelBase Journal
+		{
+			get => _journal;
+			set
+			{
+				if(_journal is null)
+				{
+					_journal = value;
+
+					NomenclatureViewModel = new CommonEEVMBuilderFactory<DebtorsJournalFilterViewModel>(_journal, this, UoW, _journal.NavigationManager, _lifetimeScope)
+						.ForProperty(x => x.LastOrderNomenclature)
+						.UseViewModelDialog<NomenclatureViewModel>()
+						.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+						.Finish();
+				}
+			}
+		}
+
+		public override void Dispose()
+		{
+			_journal = null;
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

@@ -8,13 +8,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class CounterpartyRepository : ICounterpartyRepository
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public CounterpartyRepository(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		public QueryOver<Counterparty> ActiveClientsQuery()
 		{
 			return QueryOver.Of<Counterparty>()
@@ -31,13 +43,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<ClientCameFrom> GetPlacesClientCameFrom(IUnitOfWork uow, bool doNotShowArchive, bool orderByDescending = false)
 		{
 			var query = uow.Session.QueryOver<ClientCameFrom>();
-			
+
 			if(doNotShowArchive)
 			{
 				query.Where(f => !f.IsArchive);
 			}
 
-			return orderByDescending 
+			return orderByDescending
 				? query.OrderBy(f => f.Name).Desc().List()
 				: query.OrderBy(f => f.Name).Asc().List();
 		}
@@ -160,7 +172,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var allRequiredPhoneNumbers = phones.Select(p => p.DigitsNumber).Distinct();
 
 			var allPhonesItemsHavingRequiredNumbers = uow.GetAll<Phone>().Where(p => allRequiredPhoneNumbers.Contains(p.DigitsNumber) && !p.IsArchive);
-			
+
 			var counterpartiesHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.Counterparty != null && p.Counterparty.Id != currentCounterpartyId && !p.Counterparty.IsArchive)
 				.Select(p => new { Number = p.Number, Message = $"Карточка контрагента {p.Counterparty.FullName}" })
@@ -168,18 +180,18 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			var counterpartiesByDeliveryPointsHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.DeliveryPoint != null && p.DeliveryPoint.IsActive && p.DeliveryPoint.Counterparty != null)
-				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint } )
-				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d,c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
+				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint })
+				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d, c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
 				.Where(dc => dc.Counterparty != null && !dc.Counterparty.IsArchive && dc.Counterparty.Id != currentCounterpartyId)
-				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" } )
-				.ToList().Distinct();	
-			
+				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" })
+				.ToList().Distinct();
+
 
 			foreach(var phone in counterpartiesHavingRequiredNumbers)
 			{
 				if(!phoneWithMessages.ContainsKey(phone.Number))
 				{
-					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message } );
+					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message });
 				}
 				else
 				{
@@ -272,7 +284,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<Counterparty> GetDealers()
 		{
 			IList<Counterparty> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
 			{
 				result = uow.Session.QueryOver<Counterparty>()
 				   .Where(c => c.CounterpartyType == CounterpartyType.Dealer)
@@ -280,7 +292,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 			return result;
 		}
-		
+
 		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
 		{
 			return uow.Session.QueryOver<Counterparty>()
@@ -301,6 +313,185 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(x => x.Counterparty.Id == counterpartyId)
 				.OrderBy(x => x.Created).Desc
 				.List();
+		}
+
+		public IQueryable<int> GetLastClassificationCalculationSettingsId(IUnitOfWork uow)
+		{
+			var query = uow.Session.Query<CounterpartyClassification>()
+				.OrderByDescending(c => c.Id)
+				.Select(c => c.ClassificationCalculationSettingsId)
+				.Take(1);
+
+			return query;
+		}
+
+		public IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(
+			IUnitOfWork uow,
+			int lastCalculationSettingsId)
+		{
+			var query = uow.GetAll<CounterpartyClassification>()
+				.Where(c => c.ClassificationCalculationSettingsId == lastCalculationSettingsId)
+				.Select(c => new CounterpartyClassification
+				{
+					Id = c.Id,
+					CounterpartyId = c.CounterpartyId,
+					ClassificationByBottlesCount = c.ClassificationByBottlesCount,
+					ClassificationByOrdersCount = c.ClassificationByOrdersCount,
+					BottlesPerMonthAverageCount = c.BottlesPerMonthAverageCount,
+					OrdersPerMonthAverageCount = c.OrdersPerMonthAverageCount,
+					MoneyTurnoverPerMonthAverageSum = c.MoneyTurnoverPerMonthAverageSum,
+					ClassificationCalculationSettingsId = c.ClassificationCalculationSettingsId
+				});
+
+			return query;
+		}
+
+		public IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
+			IUnitOfWork uow,
+			CounterpartyClassificationCalculationSettings calculationSettings)
+		{
+			var creationDate = calculationSettings.SettingsCreationDate;
+
+			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
+			var dateTo = creationDate.Date.AddDays(1);
+
+			var query =
+				from o in uow.Session.Query<Domain.Orders.Order>()
+				join item in uow.GetAll<OrderItem>() on o.Id equals item.Order.Id into items
+				from oi in items.DefaultIfEmpty()
+				join nomenclature in uow.GetAll<Nomenclature>() on oi.Nomenclature.Id equals nomenclature.Id into nomenclatures
+				from n in nomenclatures.DefaultIfEmpty()
+				where
+					o.DeliveryDate < dateTo
+					&& o.DeliveryDate >= dateFrom
+					&& o.OrderStatus == OrderStatus.Closed
+				group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+				select new CounterpartyClassification
+				(
+					clientsGroups.Key.CleintId,
+					clientsGroups.Sum(data =>
+							(data.Nomenclature != null && data.Item != null
+								&& data.Nomenclature.Category == NomenclatureCategory.water
+								&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
+							? data.Item.Count
+							: 0),
+					clientsGroups.Select(data =>
+							data.Order.Id).Distinct().Count(),
+					clientsGroups.Sum(data =>
+							(data.Item != null
+							? (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney
+							: 0)),
+					calculationSettings);
+
+			return query;
+		}
+
+		public IQueryable<decimal> GetCounterpartyOrdersActuaSums(
+			IUnitOfWork unitOfWork,
+			int counterpartyId,
+			OrderStatus[] orderStatuses,
+			bool isExcludePaidOrders = false,
+			DateTime maxDeliveryDate = default)
+		{
+			var ordersActualSums = from order in unitOfWork.Session.Query<Domain.Orders.Order>()
+								   join counterparty in unitOfWork.GetAll<Counterparty>() on order.Client.Id equals counterparty.Id
+								   where
+								   (!isExcludePaidOrders || order.OrderPaymentStatus != OrderPaymentStatus.Paid)
+								   && orderStatuses.Contains(order.OrderStatus)
+								   && order.PaymentType == PaymentType.Cashless
+								   && counterparty.PersonType == PersonType.legal
+								   && counterparty.Id == counterpartyId
+								   && (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
+								   let orderSum = (decimal?)order.OrderItems.Sum(oi => oi.ActualSum) ?? 0m
+								   select orderSum;
+
+			return ordersActualSums;
+		}
+
+		public IQueryable<CounterpartyCashlessBalanceNode> GetCounterpartiesCashlessBalance(
+			IUnitOfWork unitOfWork,
+			OrderStatus[] orderStatuses,
+			int counterpartyId = default,
+			DateTime maxDeliveryDate = default)
+		{
+			var notPaidOrders =
+				from order in unitOfWork.Session.Query<Domain.Orders.Order>()
+				join counterparty in unitOfWork.GetAll<Counterparty>() on order.Client.Id equals counterparty.Id
+
+				let orderActualSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+												where orderItem.Order.Id == order.Id
+												select (decimal?)orderItem.ActualSum ?? 0m).Sum() ?? 0m
+
+				let partialPaidOrdersSum = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
+													  join operation in unitOfWork.Session.Query<CashlessMovementOperation>()
+													  on paymentItem.CashlessMovementOperation.Id equals operation.Id
+													  where
+													  paymentItem.Order.Id == order.Id
+													  && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+													  select (decimal?)operation.Expense ?? 0m).Sum() ?? 0m
+
+				where
+				orderStatuses.Contains(order.OrderStatus)
+				&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+				&& order.PaymentType == PaymentType.Cashless
+				&& counterparty.PersonType == PersonType.legal
+				&& (counterpartyId == default || counterparty.Id == counterpartyId)
+				&& (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
+				&& orderActualSum > 0
+				select new
+				{
+					OrderId = order.Id,
+					ClientId = counterparty.Id,
+					ClientInn = counterparty.INN,
+					ClientName = counterparty.FullName,
+					OrderItemActualSum = orderActualSum,
+					PartialPaidOrdersSum = partialPaidOrdersSum
+				};
+
+			var counterpartyCashlessBalance =
+				from notPaidOrder in notPaidOrders
+				group new { notPaidOrder.ClientInn, notPaidOrder.ClientName, notPaidOrder.OrderId, notPaidOrder.OrderItemActualSum, notPaidOrder.PartialPaidOrdersSum }
+				by notPaidOrder.ClientId into ordersByCounterparty
+
+				let cashlessMovementOperationsSum = (decimal?)(from operation in unitOfWork.Session.Query<CashlessMovementOperation>()
+															   where
+															   operation.Counterparty.Id == ordersByCounterparty.Key
+															   && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+															   select (decimal?)operation.Income ?? 0m).Sum() ?? 0m
+
+				let paymentsFromBankClientSums = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
+															join payment in unitOfWork.Session.Query<Payment>()
+															on paymentItem.Payment.Id equals payment.Id
+															where
+															payment.Counterparty.Id == ordersByCounterparty.Key
+															&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+															select (decimal?)paymentItem.Sum ?? 0m).Sum() ?? 0m
+				select new CounterpartyCashlessBalanceNode
+				{
+					CounterpartyId = ordersByCounterparty.Key,
+					CounterpartyInn = ordersByCounterparty.Select(o => o.ClientInn).FirstOrDefault() ?? string.Empty,
+					CounterpartyName = ordersByCounterparty.Select(o => o.ClientName).FirstOrDefault() ?? string.Empty,
+					NotPaidOrdersSum = ordersByCounterparty.Select(o => o.OrderItemActualSum).Sum(),
+					PartiallyPaidOrdersSum = ordersByCounterparty.Select(o => o.PartialPaidOrdersSum).Sum(),
+					CashlessMovementOperationsSum = cashlessMovementOperationsSum,
+					PaymentsFromBankClientSums = paymentsFromBankClientSums
+				};
+
+			return counterpartyCashlessBalance;
+		}
+
+		public IQueryable<CounterpartyInnName> GetCounterpartyNamesByInn(IUnitOfWork unitOfWork, IList<string> inns)
+		{
+			var query =
+				from counterparty in unitOfWork.Session.Query<Counterparty>()
+				where inns.Contains(counterparty.INN)
+				select new CounterpartyInnName
+				{
+					Inn = counterparty.INN,
+					Name = counterparty.FullName
+				};
+
+			return query;
 		}
 	}
 }

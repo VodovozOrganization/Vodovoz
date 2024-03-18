@@ -1,4 +1,5 @@
 ﻿using DriverAPI.Data;
+using DriverAPI.HealthChecks;
 using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Middleware;
@@ -18,24 +19,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Services;
 using QS.Services;
 using System;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text;
-using Vodovoz.Core.DataService;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -43,10 +40,12 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+using VodovozHealthCheck;
+using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Presentation.WebApi.BuildVersion;
 
 namespace DriverAPI
 {
@@ -87,22 +86,30 @@ namespace DriverAPI
 
 			// Конфигурация Nhibernate
 
-			try
-			{
-				CreateBaseConfig();
-			}
-			catch (Exception e)
-			{
-				_logger.LogCritical(e, e.Message);
-				throw;
-			}
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				;
 
-			var sdsf = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder();
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			services.AddStaticHistoryTracker();
 
 			RegisterDependencies(ref services);
 
 			// Аутентификация
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			services.Configure<IdentityOptions>(options =>
@@ -145,11 +152,15 @@ namespace DriverAPI
 			// Регистрация контроллеров
 
 			services.AddControllersWithViews();
-			services.AddControllers();
+
+			var commonWebApiPresentationAssembly = typeof(BuildVersionController).Assembly;
+
+			services.AddControllers()
+				.AddApplicationPart(commonWebApiPresentationAssembly);
 			
 			services.AddApiVersioning(config =>
 			{
-				config.DefaultApiVersion = new ApiVersion(1, 0);
+				config.DefaultApiVersion = new ApiVersion(5, 0);
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
 				config.ApiVersionReader = new UrlSegmentApiVersionReader();
@@ -180,11 +191,16 @@ namespace DriverAPI
 				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
 			});
+
+			services.ConfigureHealthCheckService<DriverApiHealthCheck>();
+
+			services.AddHttpClient();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			app.UseRequestResponseLogging();
 
 			app.UseSwagger();
@@ -227,71 +243,14 @@ namespace DriverAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 				endpoints.MapRazorPages();
 			});
-		}
 
-		private void CreateBaseConfig()
-		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig =							Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server =							domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port =							domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database =						domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID =							domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password =						domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.Driver<LoggedMySqlClientDriver>()
-				.AdoNetBatchSize(100);
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
-
-			var serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				var serviceUser = unitOfWork.Session.Query<User>()
-					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.FirstOrDefault();
-
-				serviceUserId = serviceUser.Id;
-
-				ServicesConfig.UserService = new UserService(serviceUser);
-			}
-
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
-
-			HistoryMain.Enable(conStrBuilder);
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void RegisterDependencies(ref IServiceCollection services)
 		{
+			services.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
 			// Сервисы для контроллеров
-
-			// Unit Of Work
-			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
-			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
 			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
@@ -313,15 +272,15 @@ namespace DriverAPI
 			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
-
-			// Провайдеры параметров
-			services.AddScoped<IParametersProvider, ParametersProvider>();
-			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
-			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
-			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
-			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
+			services.AddScoped<ICarRepository, CarRepository>();
 
 			services.AddDriverApiLibrary();
+
+			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+			services.AddScoped<ICallTaskWorker, CallTaskWorker>();
+			services.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance());
+			services.AddScoped<ICallTaskRepository, CallTaskRepository>();
 		}
 	}
 }

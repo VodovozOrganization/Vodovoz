@@ -12,8 +12,9 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Domain;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -26,14 +27,22 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			Action<CounterpartyJournalFilterViewModel> filterConfig = null)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			filterViewModel.Journal = this;
+
 			TabName = "Журнал контрагентов";
 			
 			_canOpenCloseDeliveries =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
-			
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
+			}
+
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(CounterpartyContract),
@@ -42,11 +51,6 @@ namespace Vodovoz.JournalViewModels
 				typeof(DeliveryPoint));
 
 			SearchEnabled = false;
-
-			if(filterConfig != null)
-			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
-			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {

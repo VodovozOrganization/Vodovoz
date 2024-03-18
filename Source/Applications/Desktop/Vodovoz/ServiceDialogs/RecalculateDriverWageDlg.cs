@@ -1,40 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
+using NHibernate.Criterion;
 using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
-using NHibernate.Criterion;
-using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ServiceDialogs
 {
-    [System.ComponentModel.ToolboxItem(true)]
+	[System.ComponentModel.ToolboxItem(true)]
     public partial class RecalculateDriverWageDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
     {
-	    private readonly IWageCalculationRepository _wageCalculationRepository = new WageCalculationRepository();
-	    private readonly WageParameterService _wageParameterService;
+	    private readonly IWageCalculationRepository _wageCalculationRepository = ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
+		private readonly IWageSettings _wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
+		private readonly WageParameterService _wageParameterService;
 	    public IUnitOfWork UoW { get; }
 
 	    public RecalculateDriverWageDlg()
         {
             this.Build();
             TabName = "Пересчет ЗП водителей";
-            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            _wageParameterService = new WageParameterService(_wageCalculationRepository, _wageSettings);
             ConfigureDlg();
-            _wageParameterService =
-	            new WageParameterService(_wageCalculationRepository, new BaseParametersProvider(new ParametersProvider()));
-        }
+		}
 
         private void ConfigureDlg()
         {
-            var employeeFactory = new EmployeeJournalFactory();
+            var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
             evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
             datePickerFrom.IsEditable = true;
             datePickerTo.IsEditable = true;
@@ -55,7 +55,7 @@ namespace Vodovoz.ServiceDialogs
                 throw new ArgumentNullException("Не выбрана дата по!");
             }
 
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
             {
                 var dateTimeFrom = datePickerFrom.Date.Date;
                 var dateTimeTo = datePickerTo.Date.Date.AddDays(1).AddMilliseconds(-1);
@@ -95,7 +95,7 @@ namespace Vodovoz.ServiceDialogs
                 throw new ArgumentNullException("Не выбрана дата по!");
             }
 
-            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+            using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
             {
                 var dateTimeFrom = datePickerFrom.Date.Date;
                 var dateTimeTo = datePickerTo.Date.Date.AddDays(1).AddMilliseconds(-1);

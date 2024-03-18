@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Retail;
@@ -20,6 +21,7 @@ namespace Vodovoz.ReportsParameters.Retail
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISalesChannelJournalFactory _salesChannelJournalFactory;
 		private readonly IInteractiveService _interactiveService;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
         
         public QualityReport(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -32,10 +34,12 @@ namespace Vodovoz.ReportsParameters.Retail
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_salesChannelJournalFactory = salesChannelJournalFactory ?? throw new ArgumentNullException(nameof(salesChannelJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            Build();
+            
+			Build();
+			
             UoW = unitOfWorkFactory.CreateWithoutRoot();
             Configure(
-				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope),
 				_salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(),
 				_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
         }
@@ -96,5 +100,15 @@ namespace Vodovoz.ReportsParameters.Retail
 
             return true;
         }
-    }
+
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
+		}
+	}
 }

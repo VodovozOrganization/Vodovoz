@@ -1,65 +1,92 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
-using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using QS.Utilities;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
+using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
-	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
+	public class FinesJournalViewModel : EntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode>
 	{
-		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
-		private readonly IEmployeeService employeeService;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IEmployeeSettings _employeeSettings;
-		private readonly ICommonServices commonServices;
+		private readonly FineFilterViewModel _filterViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
+		private readonly CompositeAlgebraicSearchViewModel _compositeAlgebraicSearchViewModel;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeService employeeService,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService,
+			CompositeAlgebraicSearchViewModel compositeAlgebraicSearchViewModel,
+			Action<FineFilterViewModel> filterConfig = null)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			if(filterViewModel is null)
+			{
+				throw new ArgumentNullException(nameof(filterViewModel));
+			}
 
-			TabName = "Журнал штрафов";
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			_compositeAlgebraicSearchViewModel = compositeAlgebraicSearchViewModel ?? throw new ArgumentNullException(nameof(compositeAlgebraicSearchViewModel));
+			
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+
+			Search = _compositeAlgebraicSearchViewModel;
+			Search.OnSearch += OnFiltered;
+
+			JournalFilter = filterViewModel;
+			_filterViewModel = filterViewModel;
+			filterViewModel.JournalViewModel = this;
+
+			filterViewModel.OnFiltered += OnFiltered;
+
+			if(filterConfig != null)
+			{
+				filterViewModel.ConfigureWithoutFiltering(filterConfig);
+			}
+
+			TabName = $"Журнал {typeof(Fine).GetClassUserFriendlyName().GenitivePlural}";
 			UpdateOnChanges(typeof(Fine), typeof(FineItem));
+
+			UseSlider = true;
 		}
-		
-		protected override void CreateNodeActions()
+
+		private void OnFiltered(object sender, EventArgs e)
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateEditAction();
-			CreateDefaultDeleteAction();
+			Refresh();
 		}
+
+		public ILifetimeScope Scope => _lifetimeScope;
 
 		private string GetTotalSumInfo()
 		{
-			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSumm);
+			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSum);
 			return CurrencyWorks.GetShortCurrencyString(total);
 		}
 
@@ -69,97 +96,71 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			set { }
 		}
 
-		private void CreateEditAction()
+		private new ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+			=> _compositeAlgebraicSearchViewModel.GetSearchCriterion(aliasPropertiesExpr);
+
+		protected override IQueryOver<Fine> ItemsQuery(IUnitOfWork unitOfWork)
 		{
-			var editAction = new JournalAction("Изменить",
-				(selected) => {
-					var selectedNodes = selected.OfType<FineJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return false;
-					}
-					FineJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return false;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanRead;
-				},
-				(selected) => true,
-				(selected) => {
-					var selectedNodes = selected.OfType<FineJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return;
-					}
-					FineJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
-					}
-				}
-			);
-			if(SelectionMode == JournalSelectionMode.None) {
-				RowActivatedAction = editAction;
-			}
-			NodeActionsList.Add(editAction);
-		}
-
-		protected override Func<IUnitOfWork, IQueryOver<Fine>> ItemsSourceQueryFunction => uow => {
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
-			Employee employeeAlias = null;
+			Employee finedEmployeeAlias = null;
+			Subdivision finedEmployeeSubdivision = null;
+			Employee fineAuthorAlias = null;
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<Fine>(() => fineAlias)
+			var query = unitOfWork.Session.QueryOver(() => fineAlias)
+				.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
 				.JoinAlias(f => f.Items, () => fineItemAlias)
-				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias)
+				.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
+				.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
 				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.Subdivision != null) {
-				query.Where(() => employeeAlias.Subdivision.Id == FilterViewModel.Subdivision.Id);
+			if(_filterViewModel.Subdivision != null)
+			{
+				query.Where(() => finedEmployeeAlias.Subdivision.Id == _filterViewModel.Subdivision.Id);
 			}
 
-			if(FilterViewModel.FineDateStart.HasValue) {
-				query.Where(() => fineAlias.Date >= FilterViewModel.FineDateStart.Value);
+			if(_filterViewModel.Author != null)
+			{
+				query.Where(() => fineAuthorAlias.Id == _filterViewModel.Author.Id);
 			}
 
-			if(FilterViewModel.FineDateEnd.HasValue) {
-				query.Where(() => fineAlias.Date <= FilterViewModel.FineDateEnd.Value);
+			if(_filterViewModel.FineDateStart.HasValue)
+			{
+				query.Where(() => fineAlias.Date >= _filterViewModel.FineDateStart.Value);
 			}
 
-			if(FilterViewModel.RouteListDateStart.HasValue) {
-				query.Where(() => routeListAlias.Date >= FilterViewModel.RouteListDateStart.Value);
+			if(_filterViewModel.FineDateEnd.HasValue)
+			{
+				query.Where(() => fineAlias.Date <= _filterViewModel.FineDateEnd.Value);
 			}
 
-			if(FilterViewModel.RouteListDateEnd.HasValue) {
-				query.Where(() => routeListAlias.Date <= FilterViewModel.RouteListDateEnd.Value);
+			if(_filterViewModel.RouteListDateStart.HasValue)
+			{
+				query.Where(() => routeListAlias.Date >= _filterViewModel.RouteListDateStart.Value);
 			}
 
-			if (FilterViewModel.ExcludedIds != null && FilterViewModel.ExcludedIds.Any())
-				query.WhereRestrictionOn(() => fineAlias.Id).Not.IsIn(FilterViewModel.ExcludedIds);
-			
-			if (FilterViewModel.FindFinesWithIds != null && FilterViewModel.FindFinesWithIds.Any())
-				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(FilterViewModel.FindFinesWithIds);
+			if(_filterViewModel.RouteListDateEnd.HasValue)
+			{
+				query.Where(() => routeListAlias.Date <= _filterViewModel.RouteListDateEnd.Value);
+			}
 
-			var employeeProjection = CustomProjections.Concat_WS(
-				" ",
-				() => employeeAlias.LastName,
-				() => employeeAlias.Name,
-				() => employeeAlias.Patronymic
-			);
+			if(_filterViewModel.ExcludedIds != null && _filterViewModel.ExcludedIds.Any())
+			{
+				query.WhereRestrictionOn(() => fineAlias.Id).Not.IsIn(_filterViewModel.ExcludedIds);
+			}
+
+			if(_filterViewModel.FindFinesWithIds != null && _filterViewModel.FindFinesWithIds.Any())
+			{
+				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
 				() => fineAlias.TotalMoney,
 				() => fineAlias.FineReasonString,
-				() => employeeProjection
-			));
+				() => EmployeeProjections.FinedEmployeeFioProjection));
 
 			return query
 				.SelectList(list => list
@@ -171,35 +172,27 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
-							Projections.Property(() => employeeAlias.LastName),
-							Projections.Property(() => employeeAlias.Name),
-							Projections.Property(() => employeeAlias.Patronymic)
+							Projections.Property(() => finedEmployeeAlias.LastName),
+							Projections.Property(() => finedEmployeeAlias.Name),
+							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
-						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
+						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
-					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSumm)
+					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
+					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
+							NHibernateUtil.String,
+							Projections.Constant(" "),
+							Projections.Property(() => fineAuthorAlias.LastName),
+							Projections.Property(() => fineAuthorAlias.Name),
+							Projections.Property(() => fineAuthorAlias.Patronymic)
+						)).WithAlias(() => resultAlias.AuthorName)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property(() => finedEmployeeSubdivision.Name),
+						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
 				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
-		};
-
-		protected override Func<FineViewModel> CreateDialogFunction => () => new FineViewModel(
-			EntityUoWBuilder.ForCreate(),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			undeliveryViewOpener,
-			employeeService,
-			_employeeJournalFactory,
-			_employeeSettings,
-			commonServices
-		);
-
-		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			undeliveryViewOpener,
-			employeeService,
-			_employeeJournalFactory,
-			_employeeSettings,
-			commonServices
-		);
+		}
 	}
 }

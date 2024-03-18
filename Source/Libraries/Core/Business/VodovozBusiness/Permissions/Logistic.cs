@@ -4,12 +4,12 @@ namespace Vodovoz.Permissions
 {
 	public static partial class Logistic
 	{
-		public static class RouteList
-		{
-			[Display(
-				Name = "Удаление заказов и маршрутных листов",
-				Description = "Пользователь может удалять заказы и маршрутные листы в журналах.")]
-			public static string CanDelete => "can_delete";
-		}
+		/// <summary>
+		/// Логистика - Доступ ко вкладке Логистика
+		/// </summary>
+		[Display(
+			Name = "Логистика",
+			Description = "Доступ ко вкладке Логистика")]
+		public static string IsLogistician => "logistican";
 	}
 }

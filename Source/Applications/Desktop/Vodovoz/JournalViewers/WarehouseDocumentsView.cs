@@ -5,37 +5,20 @@ using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.DocumentDialogs;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Documents;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Warehouses;
-using QS.Project.Domain;
-using Vodovoz.Services.Permissions;
-using QS.Project.Services;
-using Vodovoz.PermissionExtensions;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.TempAdapters;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.Models;
-using Vodovoz.Controllers;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Views.Warehouse.Documents;
-using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
-using Vodovoz.ViewWidgets;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.Views.Warehouse;
+using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -82,7 +65,7 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 
 			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
@@ -169,7 +152,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalGiveoutDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this
@@ -180,7 +163,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalReturnDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this

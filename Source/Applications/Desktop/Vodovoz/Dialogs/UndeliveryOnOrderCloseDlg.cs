@@ -1,23 +1,16 @@
-﻿using FluentNHibernate.Data;
-using Autofac;
-using Gamma.Utilities;
-using Gtk;
+﻿using Autofac;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
-using QS.Validation;
 using System;
 using System.Linq;
-using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Widgets;
 
@@ -28,15 +21,12 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly ISmsNotifierParametersProvider _smsNotifierParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly ISmsNotifierSettings _smsNotifierSettings = ScopeProvider.Scope.Resolve<ISmsNotifierSettings>();
 		private bool _addedCommentToOldUndelivery;
+		private OrderStatus _oldOrderStatus;
 
 		UndeliveredOrder undelivery;
 		Order order;
-
-		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
-			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
-				new NomenclatureParametersProvider(new ParametersProvider()));
 
 		private UndeliveredOrderViewModel _undeliveredOrderViewModel;
 
@@ -65,10 +55,13 @@ namespace Vodovoz.Dialogs
 				OldOrder = order
 			};
 
+			_oldOrderStatus = order.OrderStatus;
+
 			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
 				new TypedParameter(typeof(UndeliveredOrder), undelivery),
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;
@@ -85,15 +78,15 @@ namespace Vodovoz.Dialogs
 
 		public bool Save(bool needClose = true, bool forceSave = false)
 		{
-			if(HasOrderStatusExternalChangesAndCancellationImpossible(undelivery.OldOrder, out OrderStatus actualOrderStatus))
+			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelationWithCancellation().Contains(undelivery.OldOrder.OrderStatus);
+			var isSelfDeliveryOnLoadingOrder = order.SelfDelivery && undelivery.OldOrder.OrderStatus == OrderStatus.OnLoading;
+
+			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"В текущий момент заказ нельзя отменить");
 
 				return false;
 			}
-
-			UoW.Session.Refresh(undelivery.OldOrder);
 
 			var saved = SaveUndelivery(needClose, forceSave);
 
@@ -119,25 +112,24 @@ namespace Vodovoz.Dialogs
 			return true;
 		}
 
-		private bool HasOrderStatusExternalChangesAndCancellationImpossible(Order order, out OrderStatus actualOrderStatus)
+		private bool HasOrderStatusExternalChangesOrCancellationImpossible(out OrderStatus actualOrderStatus)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
 			{
 				actualOrderStatus = uow.GetById<Order>(order.Id).OrderStatus;
 			}
 
-			var hasOrderStatusChanges = order.OrderStatus != actualOrderStatus;
+			var hasOrderStatusChanges = _oldOrderStatus != actualOrderStatus;
 			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
 			var isSelfDeliveryOnLoadingOrder = order.SelfDelivery && actualOrderStatus == OrderStatus.OnLoading;
 
-			return hasOrderStatusChanges
-			       && isOrderStatusForbiddenForCancellation
-			       && !isSelfDeliveryOnLoadingOrder;
+			return (isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder)
+				|| hasOrderStatusChanges;
 		}
 
 		private bool SaveUndelivery(bool needClose = true, bool forceSave = false)
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(undelivery))
 			{
 				return false;
@@ -162,7 +154,7 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			var smsNotifier = new SmsNotifier(_smsNotifierParametersProvider);
+			var smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _smsNotifierSettings);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery, UoW);
 		}
 

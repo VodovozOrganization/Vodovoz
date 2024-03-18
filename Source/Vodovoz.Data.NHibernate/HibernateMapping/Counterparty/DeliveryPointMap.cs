@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
@@ -48,6 +48,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.AlwaysFreeDelivery).Column("always_free_delivery");
 			Map(x => x.OnlineComment).Column("online_comment");
 			Map(x => x.Intercom).Column("intercom");
+			Map(x => x.KPP).Column("KPP");
+			Map(x => x.Organization).Column("organization");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");

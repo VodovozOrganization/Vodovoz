@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using QS.Navigation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -354,21 +355,13 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory().CreateNomenclaturesJournalViewModel();
-			nomenclaturesJournalViewModel.CalculateQuantityOnStock = true;
-			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			filter.SelectCategory = NomenclatureCategory.equipment;
-			filter.SelectSaleCategory = SaleCategory.notForSale;
-			nomenclaturesJournalViewModel.FilterViewModel = filter;
-
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += NomenclatureToClient;
-			MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
+			var nomenclaturesJournalViewModel = OpenNomenclaturesJournalViewModel();
+			nomenclaturesJournalViewModel.OnSelectResult += NomenclatureToClient;
 		}
 
-		void NomenclatureToClient(object sender, JournalSelectedNodesEventArgs e)
+		void NomenclatureToClient(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}
@@ -382,26 +375,38 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
 		{
-			if(Order.Client == null) {
+			if(Order.Client == null)
+			{
 				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
 				return;
 			}
-
-			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory().CreateNomenclaturesJournalViewModel();
-			nomenclaturesJournalViewModel.CalculateQuantityOnStock = true;
-			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			filter.SelectCategory = NomenclatureCategory.equipment;
-			filter.SelectSaleCategory = SaleCategory.notForSale;
-			nomenclaturesJournalViewModel.FilterViewModel = filter;
-
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += NomenclatureFromClient;
-			MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
+			
+			var nomenclaturesJournalViewModel = OpenNomenclaturesJournalViewModel();
+			nomenclaturesJournalViewModel.OnSelectResult += NomenclatureFromClient;
 		}
 
-		void NomenclatureFromClient(object sender, JournalSelectedNodesEventArgs e)
+		private NomenclaturesJournalViewModel OpenNomenclaturesJournalViewModel()
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			return Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				MyTab,
+				f =>
+				{
+					f.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+					f.SelectCategory = NomenclatureCategory.equipment;
+					f.SelectSaleCategory = SaleCategory.notForSale;
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.CalculateQuantityOnStock = true;
+					vm.SelectionMode = JournalSelectionMode.Single;
+				})
+			.ViewModel;
+		}
+
+		void NomenclatureFromClient(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}

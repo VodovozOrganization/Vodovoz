@@ -1,58 +1,48 @@
-﻿using Autofac;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
-	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
+	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>, IDisposable
 	{
-		private readonly ITdiTab _dialogTab;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUserRepository _userRepository;
-		private readonly ILifetimeScope _scope;
+		private readonly INavigationManager _navigationManager;
+		private DialogViewModelBase _parentTab;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity,
-			ITdiTab dialogTab,
 			IUnitOfWork uow,
+			DialogViewModelBase parentTab,
 			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUserRepository userRepository,
-			ILifetimeScope scope) : base(entity, commonServices)
+			INavigationManager navigationManager) : base(entity, commonServices)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_navigationManager = navigationManager;
 
 			UoW = uow;
 			CreateCommands();
@@ -132,29 +122,27 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateAttachSubdivisionCommand()
 		{
 			AttachSubdivisionCommand = new DelegateCommand(
-				() => {
-					var filter = new SubdivisionFilterViewModel();
-					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-					var subdivisionSelector = new SubdivisionsJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						_employeeJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory,
-						_scope.BeginLifetimeScope()
-					) {
-						SelectionMode = JournalSelectionMode.Single
-					};
-					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null) {
+				() =>
+				{
+					var page = _navigationManager.OpenViewModel<SubdivisionsJournalViewModel, Action<SubdivisionFilterViewModel>>(
+						_parentTab,
+						filter =>
+							filter.ExcludedSubdivisionsIds = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray(),
+						OpenPageOptions.AsSlave,
+						vm => vm.SelectionMode = JournalSelectionMode.Single);
+
+					page.ViewModel.OnSelectResult += (s, e) =>
+					{
+						var selected = e.SelectedObjects.OfType<SubdivisionJournalNode>().FirstOrDefault();
+
+						if(selected is null)
+						{
 							return;
 						}
-						Subdivision subdivision = UoW.GetById<Subdivision>(selectedNode.Id);
+
+						var subdivision = UoW.GetById<Subdivision>(selected.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
-					_dialogTab.TabParent.AddSlaveTab(_dialogTab, subdivisionSelector);
 				},
 				() => CanAttachSubdivision
 			);
@@ -206,5 +194,10 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion AttachSubdivisionByComplaintKindCommand
 
 		#endregion Commands
+
+		public void Dispose()
+		{
+			_parentTab = null;
+		}
 	}
 }

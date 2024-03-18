@@ -1,19 +1,19 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GuiltyInUndeliveryView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 		private readonly bool _canEditGuiltyPermission =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_guilty_in_undeliveries");
 
@@ -34,6 +34,7 @@ namespace Vodovoz.ViewWidgets
 			enumBtnGuiltySide.ItemsEnum = typeof(GuiltyTypes);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.Driver, driverCanBeGuilty);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
+			enumBtnGuiltySide.SetSensitive(GuiltyTypes.AutoСancelAutoTransfer, false);
 			enumBtnGuiltySide.Sensitive = canEditGuilty;
 			undeliveredOrder.ObservableGuilty.ElementAdded += ObservableGuilty_ElementAdded;
 			undeliveredOrder.ObservableGuilty.ElementRemoved += ObservableGuilty_ElementRemoved;

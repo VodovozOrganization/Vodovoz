@@ -7,7 +7,8 @@ namespace Vodovoz.Domain
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны комментариев для штрафов",
-		Nominative = "шаблон комментария для штрафа")]
+		Nominative = "шаблон комментария для штрафа",
+		GenitivePlural = "шаблонов комментариев для штрафов")]
 	[EntityPermission]
 	public class FineTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
 	{

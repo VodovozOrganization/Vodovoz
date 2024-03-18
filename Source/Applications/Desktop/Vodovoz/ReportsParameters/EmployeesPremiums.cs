@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
 
@@ -15,8 +17,8 @@ namespace Vodovoz.ReportsParameters
 		public EmployeesPremiums()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var employeeFactory = new EmployeeJournalFactory();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, args) => ValidateParameters();
 		}

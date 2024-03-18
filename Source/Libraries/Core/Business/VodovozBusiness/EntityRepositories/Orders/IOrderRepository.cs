@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -7,8 +7,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Services;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -57,6 +58,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="client">Контрагент</param>
 		Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Order order, Counterparty client);
 
+		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId);
+		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
+
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
 		Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty);
@@ -100,9 +104,9 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
-		QueryOver<Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, Order orderBaseAlias = null);
+		QueryOver<Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, Order orderBaseAlias = null, bool excludeTrucks = false);
 		
-		IList<Order> GetOrdersToExport1c8(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider, Export1cMode mode, DateTime startDate, DateTime endDate, int? organizationId = null);
+		IList<Order> GetOrdersToExport1c8(IUnitOfWork uow, IOrderSettings orderSettings, Export1cMode mode, DateTime startDate, DateTime endDate, int? organizationId = null);
 
 		QueryOver<Order> GetSelfDeliveryOrdersForPaymentQuery();
 
@@ -127,7 +131,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
-		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroup);
 
 		/// <summary>
 		/// Проверка на перенос данной позиция в другой заказ
@@ -142,7 +146,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
-		IList<Order> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime startDate, int organizationId);
+		IList<Order> GetCashlessOrdersForEdoSendUpd(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
@@ -153,6 +157,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId);
 		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
+		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
+		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
+		OrderStatus[] GetStatusesForFreeBalanceOperations();
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
 	}
 
 	public class ClientEquipmentNode

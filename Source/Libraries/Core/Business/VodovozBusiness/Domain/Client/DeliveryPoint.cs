@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -18,8 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Client
 {
@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Client
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private IGlobalSettings _globalSettings;
 
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
@@ -99,9 +99,6 @@ namespace Vodovoz.Domain.Client
 		private DeliveryPointCategory _category;
 		private string _onlineComment;
 		private string _intercom;
-
-		//FIXME вынести зависимость
-		private readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
 
 		public DeliveryPoint()
 		{
@@ -796,10 +793,9 @@ namespace Vodovoz.Domain.Client
 		public virtual Point NetTopologyPoint => CoordinatesExist ? new Point((double)Latitude, (double)Longitude) : null;
 
 		public virtual PointOnEarth PointOnEarth => new PointOnEarth(Latitude.Value, Longitude.Value);
+		public virtual PointCoordinates PointCoordinates => new PointCoordinates(Latitude, Longitude);
 
 		public virtual GMap.NET.PointLatLng GmapPoint => new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
-
-		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
 		public virtual bool HasFixedPrices => NomenclatureFixedPrices.Any();
 
@@ -810,9 +806,9 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
 		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow)
+		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow, IDeliveryRepository deliveryRepository)
 		{
-			return !CoordinatesExist ? new List<District>() : _deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
+			return !CoordinatesExist ? new List<District>() : deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
 		}
 
 		/// <summary>
@@ -821,14 +817,14 @@ namespace Vodovoz.Domain.Client
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
 		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
-		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
+		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, IDeliveryRepository deliveryRepository, DistrictsSet districtsSet = null)
 		{
 			if(!CoordinatesExist)
 			{
 				return false;
 			}
 
-			District foundDistrict = _deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
+			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
 
 			if(foundDistrict == null)
 			{
@@ -848,14 +844,19 @@ namespace Vodovoz.Domain.Client
 		/// <param name="longitude">Долгота</param>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города
 		/// для определения расстояния до базы</param>
-		public virtual bool SetСoordinates(decimal? latitude, decimal? longitude, IUnitOfWork uow = null)
+		public virtual bool SetСoordinates(
+			decimal? latitude, 
+			decimal? longitude, 
+			IDeliveryRepository deliveryRepository, 
+			IGlobalSettings globalSettings, 
+			IUnitOfWork uow = null)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
 
 			OnPropertyChanged(nameof(CoordinatesExist));
 
-			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow, deliveryRepository))
 			{
 				return true;
 			}
@@ -872,7 +873,7 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 
-			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, globalSettings.ExcludeToll);
 
 			if(result == null)
 			{
@@ -897,31 +898,6 @@ namespace Vodovoz.Domain.Client
 				? $"{StreetTypeShort} "
 				: $"{StreetTypeShort}. ";
 		}
-
-		#region Фабричные методы
-
-		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)
-		{
-			IUnitOfWorkGeneric<DeliveryPoint> uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();
-
-			uow.Root.Counterparty = counterparty;
-
-			return uow;
-		}
-
-		public static DeliveryPoint Create(Counterparty counterparty)
-		{
-			DeliveryPoint point = new DeliveryPoint
-			{
-				Counterparty = counterparty
-			};
-
-			counterparty.DeliveryPoints.Add(point);
-
-			return point;
-		}
-
-		#endregion Фабричные методы
 
 		#region IValidatableObject Implementation
 
@@ -1028,13 +1004,13 @@ namespace Vodovoz.Domain.Client
 						"Необходимо заполнить поле \"Организация\"",
 						new[] { this.GetPropertyName(o => o.Organization) });
 				}
+			}
 
-				if(Organization?.Length > 45)
-				{
-					yield return new ValidationResult(
-						"Длина строки \"Организация\" не должна превышать 45 символов",
-						new[] { this.GetPropertyName(o => o.Organization) });
-				}
+			if(Organization?.Length > 45)
+			{
+				yield return new ValidationResult(
+					"Длина строки \"Организация\" не должна превышать 45 символов",
+					new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices

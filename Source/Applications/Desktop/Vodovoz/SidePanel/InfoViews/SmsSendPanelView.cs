@@ -1,10 +1,9 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.Dialog;
-using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Services;
 using Sms.Internal;
-using Sms.Internal.Client.Framework;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
@@ -12,10 +11,9 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Sms;
+using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Sms;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -27,12 +25,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IFastPaymentRepository _fastPaymentRepository;
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISmsSettings _smsSettings;
-		private readonly SmsClientChannelFactory _smsClientChannelFactory;
-
+		private readonly IFastPaymentSender _fastPaymentSender;
 		private readonly bool _canSendSmsForAdditionalOrderStatuses;
 		private readonly bool _canSendSmsForPayFromSbpByCard;
 		private Phone _selectedPhone;
@@ -43,15 +39,13 @@ namespace Vodovoz.SidePanel.InfoViews
 		public SmsSendPanelView(
 			ICommonServices commonServices,
 			IFastPaymentRepository fastPaymentRepository,
-			IFastPaymentParametersProvider fastPaymentParametersProvider)
+			IFastPaymentSettings fastPaymentSettings)
 		{
 			if(commonServices == null)
 			{
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
 			var currentPermissionService = commonServices.CurrentPermissionService;
 			_interactiveService = commonServices.InteractiveService;
 
@@ -61,8 +55,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
 			var settingsController = _lifetimeScope.Resolve<ISettingsController>();
-			_smsSettings = new SmsSettings(settingsController, Startup.DataBaseInfo);
-			_smsClientChannelFactory = new SmsClientChannelFactory(_smsSettings);
+			var databaseInfo = _lifetimeScope.Resolve<IDataBaseInfo>();
+			_smsSettings = new SmsSettings(settingsController, databaseInfo);
+			_fastPaymentSender = _lifetimeScope.Resolve<IFastPaymentSender>();
 
 			Configure();
 		}
@@ -136,8 +131,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			});
 
 			var isQr = (btn as yButton)?.Name == nameof(btnSendFastPaymentPayByQrUrlBySms);
-			var fastPaymentSender = new FastPaymentSender(_fastPaymentParametersProvider, _smsClientChannelFactory, _smsSettings);
-			var resultTask = fastPaymentSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
+
+			var resultTask = _fastPaymentSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
 			resultTask.Wait();
 			var result = resultTask.Result;
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -51,6 +52,7 @@ namespace Vodovoz.Domain.Goods
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			foreach(var validationResult in base.Validate(validationContext))
 			{
 				yield return validationResult;
@@ -62,7 +64,7 @@ namespace Vodovoz.Domain.Goods
 			}
 			else
 			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = uowFactory.CreateWithoutRoot())
 				{
 					var duplicatesInventory = uow.GetAll<InventoryNomenclatureInstance>()
 						.Where(x => x.Id != Id

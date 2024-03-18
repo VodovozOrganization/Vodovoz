@@ -1,5 +1,6 @@
 ﻿using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Store;
 
@@ -12,14 +13,14 @@ namespace Vodovoz
 		public RegradingOfGoodsTemplateDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsTemplate> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsTemplate> ();
 			ConfigureDlg ();
 		}
 
 		public RegradingOfGoodsTemplateDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsTemplate> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsTemplate> (id);
 			ConfigureDlg ();
 		}
 
@@ -35,7 +36,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

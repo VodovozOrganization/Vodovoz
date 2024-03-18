@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EdoService.Converters;
+﻿using EdoService.Library.Converters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Taxcom.Client.Api;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
+using Vodovoz.Settings;
 
 namespace TaxcomEdoApi.Services
 {
@@ -19,7 +19,7 @@ namespace TaxcomEdoApi.Services
 		private readonly ILogger<ContactsUpdaterService> _logger;
 		private readonly TaxcomApi _taxcomApi;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ISettingsController _settingsController;
 		private readonly IContactStateConverter _contactStateConverter;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private const int _delaySec = 120;
@@ -28,14 +28,14 @@ namespace TaxcomEdoApi.Services
 			ILogger<ContactsUpdaterService> logger,
 			TaxcomApi taxcomApi,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IParametersProvider parametersProvider,
+			ISettingsController settingsController,
 			IContactStateConverter contactStateConverter,
 			ICounterpartyRepository counterpartyRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 			_contactStateConverter = contactStateConverter ?? throw new ArgumentNullException(nameof(contactStateConverter));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 		}
@@ -43,7 +43,7 @@ namespace TaxcomEdoApi.Services
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			_logger.LogInformation("Процесс обновления контактов запущен");
-			var lastCheckContactsUpdates = _parametersProvider.GetValue<DateTime>("last_check_contacts_updates");
+			var lastCheckContactsUpdates = _settingsController.GetValue<DateTime>("last_check_contacts_updates");
 			await StartWorkingAsync(stoppingToken, lastCheckContactsUpdates);
 		}
 
@@ -174,7 +174,7 @@ namespace TaxcomEdoApi.Services
 				}
 				finally
 				{
-					_parametersProvider.CreateOrUpdateParameter("last_check_contacts_updates", $"{lastCheckContactsUpdates:s}");
+					_settingsController.CreateOrUpdateSetting("last_check_contacts_updates", $"{lastCheckContactsUpdates:s}");
 				}
 			}
 		}

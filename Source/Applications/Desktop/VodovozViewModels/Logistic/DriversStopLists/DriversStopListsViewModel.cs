@@ -13,10 +13,11 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
@@ -40,14 +41,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider
+			IGeneralSettings generalSettingsSettings
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			if(generalSettingsParametersProvider is null)
+			if(generalSettingsSettings is null)
 			{
-				throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+				throw new ArgumentNullException(nameof(generalSettingsSettings));
 			}
 
 			Title = "Снятие стоп-листов";
@@ -56,10 +57,10 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
 
 			_driversUnclosedRouteListsMaxCountParameter =
-				generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+				generalSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
 
 			_driversRouteListsDebtsMaxSumParameter =
-				generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+				generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}

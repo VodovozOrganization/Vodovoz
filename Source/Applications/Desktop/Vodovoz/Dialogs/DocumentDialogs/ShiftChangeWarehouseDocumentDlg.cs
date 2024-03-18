@@ -19,15 +19,15 @@ using Gamma.GtkWidgets;
 using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.Infrastructure;
+using QS.Navigation;
+using QS.Project.Journal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -37,16 +37,14 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private readonly IStockRepository _stockRepository = new StockRepository();
 
-		private SelectableParametersReportFilter filter;
+		private SelectableParametersReportFilter _filter;
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -54,7 +52,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(UoW.IsNew)
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
@@ -66,9 +64,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			ConfigureDlg(storeDocument);
 		}
 
@@ -88,7 +86,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
 			{
 				var permissionValidator = 
-					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+					new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 				
 				canEdit &= permissionValidator.Validate(
 					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
@@ -138,9 +136,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			filter = new SelectableParametersReportFilter(UoW);
+			_filter = new SelectableParametersReportFilter(UoW);
 
-			var nomenclatureParam = filter.CreateParameterSet(
+			var nomenclatureParam = _filter.CreateParameterSet(
 				"Номенклатуры",
 				nameof(Nomenclature),
 				new ParametersFactory(UoW, (filters) => {
@@ -165,7 +163,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				})
 			);
 
-			var nomenclatureTypeParam = filter.CreateParameterSet(
+			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",
 				nameof(NomenclatureCategory),
 				new ParametersEnumFactory<NomenclatureCategory>()
@@ -190,7 +188,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				.Fetch(SelectMode.Fetch, () => productGroupChildAlias)
 				.List();
 
-			filter.CreateParameterSet(
+			_filter.CreateParameterSet(
 				"Группы товаров",
 				nameof(ProductGroup),
 				new RecursiveParametersFactory<ProductGroup>(UoW,
@@ -210,7 +208,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				x => x.Childs)
 			);
 
-			var filterViewModel = new SelectableParameterReportFilterViewModel(filter);
+			var filterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 			var filterWidget = new SelectableParameterReportFilterView(filterViewModel);
 			vboxParameters.Add(filterWidget);
 			filterWidget.Show();
@@ -238,7 +236,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!CanSave)
 				return false;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -298,7 +296,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			List<int> productGroupToInclude = new List<int>();
 			List<int> productGroupToExclude = new List<int>();
 
-			foreach (SelectableParameterSet parameterSet in filter.ParameterSets) {
+			foreach (SelectableParameterSet parameterSet in _filter.ParameterSets) {
 				switch(parameterSet.ParameterName) {
 					case nameof(Nomenclature):
 						if (parameterSet.FilterType == SelectableFilterType.Include) {
@@ -370,19 +368,23 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
-			journal.FilterViewModel = filter;
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-			TabParent.AddSlaveTab(this, journal);
+			var journal =
+				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+					},
+					OpenPageOptions.AsSlave,
+					vm => vm.SelectionMode = JournalSelectionMode.Single
+				).ViewModel;
+				
+			journal.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

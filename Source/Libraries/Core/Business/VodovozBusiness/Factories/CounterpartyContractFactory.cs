@@ -8,7 +8,7 @@ using Vodovoz.Models;
 
 namespace Vodovoz.Factories
 {
-	public class CounterpartyContractFactory
+	public class CounterpartyContractFactory : ICounterpartyContractFactory
 	{
 		private readonly IOrganizationProvider _organizationProvider;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
@@ -18,23 +18,26 @@ namespace Vodovoz.Factories
 			_organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 		}
-		
-		public CounterpartyContract CreateContract(IUnitOfWork uow, Order order, DateTime? issueDate, Organization organization = null)
+
+		public CounterpartyContract CreateContract(IUnitOfWork unitOfWork, Order order, DateTime? issueDate, Organization organization = null)
 		{
 			var contractType = _counterpartyContractRepository.GetContractTypeForPaymentType(order.Client.PersonType, order.PaymentType);
-			var org = organization ?? _organizationProvider.GetOrganization(uow, order);
-			var contractSubNumber = CounterpartyContract.GenerateSubNumber(order.Client);
-			
-			CounterpartyContract contract = new CounterpartyContract {
-				 Counterparty = order.Client,
-				 ContractSubNumber = contractSubNumber,
-				 Organization = org,
-				 IsArchive = false,
-				 ContractType = contractType
+			var org = organization ?? _organizationProvider.GetOrganization(unitOfWork, order);
+
+			CounterpartyContract contract = new CounterpartyContract
+			{
+				Counterparty = order.Client,
+				Organization = org,
+				IsArchive = false,
+				ContractType = contractType
 			};
-			if(issueDate.HasValue) {
+			contract.GenerateSubNumber(order.Client);
+
+			if(issueDate.HasValue)
+			{
 				contract.IssueDate = issueDate.Value;
 			}
+
 			return contract;
 		}
 	}

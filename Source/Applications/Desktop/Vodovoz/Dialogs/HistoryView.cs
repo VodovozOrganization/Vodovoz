@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Exceptions;
@@ -15,10 +13,14 @@ using QS.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Commons;
 using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Attributes;
@@ -41,7 +43,7 @@ namespace Vodovoz.Dialogs
 		private bool _takenAllOld = false;
 		private bool _needToHideProperties = true;
 		private bool _isSearchFromOldMonitoring;
-		private IDiffFormatter _diffFormatter = new PangoDiffFormater();
+		private IDiffFormatter _diffFormatter = new ThemmedDiffFormater();
 		private HistoryTracePropertyJournalViewModel _historyTracePropertyJournalViewModel;
 
 		public IUnitOfWork UoW { get; private set; }
@@ -52,9 +54,9 @@ namespace Vodovoz.Dialogs
 
 			_needToHideProperties = !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_history_view_restricted_properties");
 
-			_historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService);
+			_historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices.InteractiveService);
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			comboAction.ItemsEnum = typeof(EntityChangeOperation);
 
@@ -63,7 +65,7 @@ namespace Vodovoz.Dialogs
 
 			entryObject3.SetNodeAutocompleteSelectorFactory(
 				new NodeAutocompleteSelectorFactory<HistoryTraceObjectJournalViewModel>(typeof(HistoryTraceObjectNode),
-				() => new HistoryTraceObjectJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService)));
+				() => new HistoryTraceObjectJournalViewModel(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices.InteractiveService)));
 
 			entryObject3.ChangedByUser += OnObjectChangedByUser;
 
@@ -75,7 +77,7 @@ namespace Vodovoz.Dialogs
 
 			ConfigureDataTrees();
 
-			var archiveSettings = new ArchiveDataSettings(new ParametersProvider());
+			var archiveSettings = ScopeProvider.Scope.Resolve<IArchiveDataSettings>();
 
 			if(archiveSettings.GetDatabaseNameForOldMonitoringAvailable == UoW.Session.Connection.Database)
 			{

@@ -1,59 +1,62 @@
-﻿using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
-using Vodovoz.Core.DataService;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Factories;
-using QS.Validation;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
 
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		
-		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
+		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
+
+		private GeoGroup _warehouseGeoGroup;
 
 		public SelfDeliveryDocumentDlg()
 		{
-			this.Build();
+			Build();
 
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -81,8 +84,8 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(int id)
 		{
-			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -98,6 +101,8 @@ namespace Vodovoz
 		{
 		}
 
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
+
 		private IPermissionResult CheckPermission()
 		{
 			IPermissionService permissionService = ServicesConfig.CommonServices.PermissionService;
@@ -106,7 +111,7 @@ namespace Vodovoz
 
 		private bool canEditDocument;
 
-		void ConfigureDlg()
+		private void ConfigureDlg()
 		{
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -126,8 +131,8 @@ namespace Vodovoz
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var orderFactory = new OrderSelectorFactory();
-			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
+			var orderFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector(() => _warehouseGeoGroup));
 			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 			evmeOrder.ChangedByUser += (sender, e) => 
@@ -162,40 +167,40 @@ namespace Vodovoz
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-                .AddColumn("Причина").AddEnumRenderer(
-                    node => node.DirectionReason
-                    ,true
-                ).AddSetter((c, n) =>
-                {
-                    switch (n.DirectionReason)
-                    {
-                        case DirectionReason.Rent:
-                            c.Text = "Закрытие аренды";
-                            break;
-                        case DirectionReason.Repair:
-                            c.Text = "В ремонт";
-                            break;
-                        case DirectionReason.Cleaning:
-                            c.Text = "На санобработку";
-                            break;
-                        case DirectionReason.RepairAndCleaning:
-                            c.Text = "В ремонт и санобработку";
-                            break;
-                        default:
-                            break;
-                    }
+				.AddColumn("Причина").AddEnumRenderer(
+					node => node.DirectionReason
+					,true
+				).AddSetter((c, n) =>
+				{
+					switch (n.DirectionReason)
+					{
+						case DirectionReason.Rent:
+							c.Text = "Закрытие аренды";
+							break;
+						case DirectionReason.Repair:
+							c.Text = "В ремонт";
+							break;
+						case DirectionReason.Cleaning:
+							c.Text = "На санобработку";
+							break;
+						case DirectionReason.RepairAndCleaning:
+							c.Text = "В ремонт и санобработку";
+							break;
+						default:
+							break;
+					}
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 
 
-                .AddColumn("")
+				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(
@@ -230,7 +235,7 @@ namespace Vodovoz
 			}
 		}
 
-		void LoadReturned()
+		private void LoadReturned()
 		{
 			GoodsReceptionList.Clear();
 			foreach(var item in Entity.ReturnedItems) {
@@ -255,7 +260,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -271,16 +276,18 @@ namespace Vodovoz
 			Entity.UpdateOperations(UoW);
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
+			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
+			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			var callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						new OrderRepository(),
-						_employeeRepository,
-						new BaseParametersProvider(new ParametersProvider()),
-						ServicesConfig.CommonServices.UserService,
-						ErrorReporter.Instance);
-			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
+				ServicesConfig.UnitOfWorkFactory,
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				new OrderRepository(),
+				_employeeRepository,
+				employeeSettings,
+				ServicesConfig.CommonServices.UserService,
+				ErrorReporter.Instance);
+			if(Entity.FullyShiped(UoW, nomenclatureSettings, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");
@@ -292,7 +299,27 @@ namespace Vodovoz
 			return true;
 		}
 
-		void UpdateOrderInfo()
+		private void UpdateWarehouseGeoGroup()
+		{
+			if(Entity.Warehouse == null)
+			{
+				_warehouseGeoGroup = null;
+				return;
+			}
+
+			var parentSubdivision = Entity.Warehouse?.OwningSubdivision;
+			var geoGroup = parentSubdivision?.GeographicGroup;
+
+			while(geoGroup == null && parentSubdivision != null )
+			{
+				parentSubdivision = parentSubdivision.ParentSubdivision;
+				geoGroup = parentSubdivision?.GeographicGroup;
+			}
+
+			_warehouseGeoGroup = geoGroup;
+		}
+
+		private void UpdateOrderInfo()
 		{
 			if(Entity.Order == null) {
 				ytextviewOrderInfo.Buffer.Text = String.Empty;
@@ -315,15 +342,16 @@ namespace Vodovoz
 			UpdateAmounts();
 			UpdateWidgets();
 			FillTrees();
+			UpdateWarehouseGeoGroup();
 		}
 
-		void UpdateAmounts()
+		private void UpdateAmounts()
 		{
 			foreach(var item in Entity.Items)
 				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded, item.AmountInStock);
 		}
 
-		void UpdateWidgets()
+		private void UpdateWidgets()
 		{
 			bool bottles = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
 			bool goods = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
@@ -333,14 +361,23 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector();
-			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
-			TabParent.AddTab(nomenclatureSelector, this);
+			(NavigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+				{
+					filter.RestrictArchive = true;
+					filter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
+				});
 		}
 
-		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
+			var nomenclatureNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			
 			if(nomenclatureNode == null)
 			{
@@ -365,6 +402,13 @@ namespace Vodovoz
 			{
 				GoodsReceptionList.Add(node);
 			}
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

@@ -1,81 +1,114 @@
-﻿using QS.Attachments.ViewModels.Widgets;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
+using QS.Attachments.ViewModels.Widgets;
+using QS.Commands;
+using QS.Dialog;
+using QS.Dialog.ViewModels;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using System.Threading;
-using NLog;
-using QS.Dialog.ViewModels;
-using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Factories;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.Widgets.Cars;
-using QS.Commands;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using QS.Project.Journal;
-using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Factories;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private readonly IGeoGroupJournalFactory _geoGroupJournalFactory;
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private const string _canChangeBottlesFromAddressPermissionName = "can_change_cars_bottles_from_address";
+		private readonly ILogger<CarViewModel> _logger;
 		private bool _canChangeBottlesFromAddress;
 		private DelegateCommand _addGeoGroupCommand;
 
+		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
+
 		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
+		private bool _isNeedToUpdateCarInfoInDriverEntity;
 
 		public CarViewModel(
+			ILogger<CarViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			ICarModelJournalFactory carModelJournalFactory,
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
-			IGeoGroupJournalFactory geoGroupJournalFactory,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
-			_geoGroupJournalFactory = geoGroupJournalFactory ?? throw new ArgumentNullException(nameof(geoGroupJournalFactory));
-			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			TabName = "Автомобиль";
 
-			EmployeeJournalFactory = employeeJournalFactory;
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			CarVersionsViewModel = (carVersionsViewModelFactory ?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory)))
 				.CreateCarVersionsViewModel(Entity);
+
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
-				_canChangeBottlesFromAddressPermissionName,
-				commonServices.UserService.CurrentUserId
-			);
+				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
+				commonServices.UserService.CurrentUserId);
 
-			CanEditCarModel = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
-			CanChangeCarModel = Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_model");
-			CanEditFuelCardNumber = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
+			CanChangeCarModel =
+				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
+			CanEditFuelCardNumber =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+
+			CarModelViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+				.ForProperty(x => x.CarModel)
+				.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
+				.UseViewModelDialog<CarModelViewModel>()
+				.Finish();
+
+			CarModelViewModel.ChangedByUser += OnCarModelViewModelChangedByUser;
+
+			DriverViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+			.ForProperty(x => x.Driver)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+				{
+					filter.Category = EmployeeCategory.driver;
+					filter.Status = EmployeeStatus.IsWorking;
+				})
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			DriverViewModel.ChangedByUser += OnDriverViewModelChangedByUser;
+
+			FuelTypeViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+				.ForProperty(x => x.FuelType)
+				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
+				.UseViewModelDialog<FuelTypeViewModel>()
+				.Finish();
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
@@ -84,6 +117,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					OnDriverChanged();
 				}
 			};
+
+			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
+
 			OnDriverChanged();
 		}
 
@@ -105,13 +141,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _attachmentsViewModel, value);
 		}
 
-		public bool CanEditCarModel { get; }
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICarModelJournalFactory CarModelJournalFactory { get; }
+
+		public IEntityEntryViewModel CarModelViewModel { get; }
+		public IEntityEntryViewModel DriverViewModel { get; }
+		public IEntityEntryViewModel FuelTypeViewModel { get; }
+
+		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
+
+		protected override bool BeforeSave()
+		{
+			var result = base.BeforeSave();
+
+			UpdateArchivingDate();
+
+			UpdateCarInfoInDriverEntity();
+
+			return result;
+		}
 
 		public override bool Save(bool close)
 		{
@@ -126,7 +176,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			_logger.Info("Запущен пересчёт зарплаты в МЛ");
+			_logger.LogInformation("Запущен пересчёт зарплаты в МЛ");
 
 			IPage<ProgressWindowViewModel> progressWindow = null;
 			var cts = new CancellationTokenSource();
@@ -146,7 +196,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				_routeListsWageController.ProgressBarDisplayable = progressBarDisplayable;
 				_routeListsWageController.RecalculateRouteListsWage(UoW, routeLists, cts.Token);
-				_logger.Info("Пересчёт зарплаты в МЛ завершён");
+				_logger.LogInformation("Пересчёт зарплаты в МЛ завершён");
 
 				progressBarDisplayable.Update("Сохранение...");
 
@@ -154,11 +204,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					UoW.Save(routeList);
 				}
+
 				return base.Save(close);
 			}
 			catch(OperationCanceledException)
 			{
-				_logger.Debug("Пересчёт зарплаты в МЛ был отменён");
+				_logger.LogDebug("Пересчёт зарплаты в МЛ был отменён");
+				return false;
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Пересчёт зарплаты в МЛ был отменён: {ExceptionMessage}", e.Message);
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error, $"Пересчёт зарплаты в МЛ был отменён: {e.Message}");
 				return false;
 			}
 			finally
@@ -171,6 +228,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						NavigationManager.ForceClosePage(progressWindow);
 					}
 				}
+			}
+		}
+
+		private void UpdateArchivingDate()
+		{
+			if(Entity.IsArchive && Entity.ArchivingDate == null)
+			{
+				Entity.ArchivingDate = DateTime.Now;
+			}
+
+			if(!Entity.IsArchive && Entity.ArchivingDate != null)
+			{
+				Entity.ArchivingDate = null;
 			}
 		}
 
@@ -194,6 +264,62 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		private void OnDriverViewModelChangedByUser(object sender, EventArgs e)
+		{
+			SetIsNeedToUpdateCarInfoInDriverEntity();
+		}
+
+		private void OnCarModelViewModelChangedByUser(object sender, EventArgs e)
+		{
+			SetIsNeedToUpdateCarInfoInDriverEntity();
+		}
+
+		private void OnObservableCarVersionsElementAdded(object aList, int[] aIdx)
+		{
+			SetIsNeedToUpdateCarInfoInDriverEntity();
+		}
+
+		private void SetIsNeedToUpdateCarInfoInDriverEntity()
+		{
+			_isNeedToUpdateCarInfoInDriverEntity = !(Entity.Driver is null);
+		}
+
+		private void UpdateCarInfoInDriverEntity()
+		{
+			if(!_isNeedToUpdateCarInfoInDriverEntity
+				|| Entity.IsArchive
+				|| Entity.Driver is null
+				|| Entity.Driver.Category != EmployeeCategory.driver)
+			{
+				return;
+			}
+
+			var changesInfo = string.Empty;
+
+			var newCarownType = Entity.CarVersions.OrderByDescending(c => c.StartDate).First().CarOwnType;
+
+			if(Entity.Driver.DriverOfCarOwnType is null || Entity.Driver.DriverOfCarOwnType != newCarownType)
+			{
+				Entity.Driver.DriverOfCarOwnType = newCarownType;
+				changesInfo += "\n- принадлежность автомобиля";
+			}
+
+			if(Entity.Driver.DriverOfCarTypeOfUse is null || Entity.Driver.DriverOfCarTypeOfUse != Entity.CarModel.CarTypeOfUse)
+			{
+				Entity.Driver.DriverOfCarTypeOfUse = Entity.CarModel.CarTypeOfUse;
+				changesInfo += "\n- тип автомобиля";
+			}
+
+			if(!string.IsNullOrEmpty(changesInfo))
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Внимание! В карточке водителя будут обновлены:{changesInfo}");
+			}
+
+			_isNeedToUpdateCarInfoInDriverEntity = false;
+		}
+
 		#region Add GeoGroup
 
 		public DelegateCommand AddGeoGroupCommand
@@ -211,17 +337,36 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void AddGeoGroup()
 		{
-			var journal = _geoGroupJournalFactory.CreateJournal();
-			journal.SelectionMode = JournalSelectionMode.Multiple;
-			journal.DisableChangeEntityActions();
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			if(_gooGroupPage != null)
+			{
+				NavigationManager.SwitchOn(_gooGroupPage);
+				return;
+			}
 
-			TabParent.AddSlaveTab(this, journal);
+			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel => 
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Multiple;
+					viewModel.DisableChangeEntityActions();
+				});
+
+			_gooGroupPage.ViewModel.OnSelectResult += OnJournalGeoGroupsSelectedResult;
+			_gooGroupPage.PageClosed += OnGeoGroupPagePageClosed;
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnGeoGroupPagePageClosed(object sender, PageClosedEventArgs e)
 		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			_gooGroupPage.PageClosed -= OnGeoGroupPagePageClosed;
+			_gooGroupPage.ViewModel.OnSelectResult -= OnJournalGeoGroupsSelectedResult;
+
+			_gooGroupPage = null;
+		}
+
+		private void OnJournalGeoGroupsSelectedResult(object sender, JournalSelectedEventArgs e)
+		{
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
 			{
 				return;
@@ -237,5 +382,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#endregion Add GeoGroup
+
+		public override void Dispose()
+		{
+			Entity.ObservableCarVersions.ElementAdded -= OnObservableCarVersionsElementAdded;
+			CarModelViewModel.ChangedByUser -= OnCarModelViewModelChangedByUser;
+			DriverViewModel.ChangedByUser -= OnDriverViewModelChangedByUser;
+
+			base.Dispose();
+		}
 	}
 }

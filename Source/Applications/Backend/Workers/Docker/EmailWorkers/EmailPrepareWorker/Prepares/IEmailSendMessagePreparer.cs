@@ -1,9 +1,10 @@
 ﻿using EmailPrepareWorker.SendEmailMessageBuilders;
+using RabbitMQ.MailSending;
 
 namespace EmailPrepareWorker.Prepares
 {
 	public interface IEmailSendMessagePreparer
 	{
-		byte[] PrepareMessage(SendEmailMessageBuilder builder);
+		SendEmailMessage PrepareMessage(SendEmailMessageBuilder builder, string connectionString);
 	}
 }

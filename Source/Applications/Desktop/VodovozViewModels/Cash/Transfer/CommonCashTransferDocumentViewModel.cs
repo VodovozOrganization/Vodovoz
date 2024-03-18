@@ -14,6 +14,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -21,6 +22,9 @@ using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Cash.Transfer
 {
@@ -91,6 +95,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 				e => e.IncomeCategoryId,
 				() => FinancialIncomeCategory);
 
+			CarEntryViewModel = BuildCarEntryViewModel();
+
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
 			ConfigureEntityChangingRelations();
@@ -154,6 +160,26 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 				.Finish();
 
 			viewModel.IsEditable = CanEdit;
+
+			return viewModel;
+		}
+
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
 
 			return viewModel;
 		}
@@ -289,6 +315,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			get => _subdivisionsTo;
 			set => SetField(ref _subdivisionsTo, value);
 		}
+
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
 
 		private void UpdateCashSubdivisions()
 		{

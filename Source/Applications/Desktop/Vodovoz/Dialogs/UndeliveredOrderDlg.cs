@@ -1,22 +1,21 @@
-using FluentNHibernate.Data;
-using Autofac;
-using Gtk;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
-using QS.Validation;
 using System;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Widgets;
@@ -28,8 +27,7 @@ namespace Vodovoz.Dialogs
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
+		private readonly ISubdivisionSettings _subdivisionSettings = ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
@@ -41,12 +39,14 @@ namespace Vodovoz.Dialogs
 		public virtual CallTaskWorker CallTaskWorker {
 			get {
 				if(callTaskWorker == null) {
+					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 					callTaskWorker = new CallTaskWorker(
+						ServicesConfig.UnitOfWorkFactory,
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						_orderRepository,
 						_employeeRepository,
-						_baseParametersProvider,
+						employeeSettings,
 						ServicesConfig.CommonServices.UserService,
 						ErrorReporter.Instance);
 				}
@@ -58,7 +58,7 @@ namespace Vodovoz.Dialogs
 		public UndeliveredOrderDlg(bool isForSalesDepartment = false)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
 			UndeliveredOrder.Author = UndeliveredOrder.EmployeeRegistrator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
@@ -76,7 +76,7 @@ namespace Vodovoz.Dialogs
 		public UndeliveredOrderDlg(int id, bool isForSalesDepartment = false)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
 			TabName = UndeliveredOrder.Title;
 			ConfigureDlg(isForSalesDepartment);
@@ -95,22 +95,22 @@ namespace Vodovoz.Dialogs
 		{
 			if(isForSalesDepartment)
 			{
-				var salesDepartmentId = _subdivisionParametersProvider.GetSalesSubdivisionId();
+				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
 				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
-
 
 			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
 				new TypedParameter(typeof(UndeliveredOrder), UndeliveredOrder),
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;
 
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
-				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
+				IUnitOfWork UoWForComments = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 				unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
 				unOrderCmntView.CommentAdded += (sender, e) => CommentAdded?.Invoke(sender, e);
 				this.Destroyed += (sender, e) =>
@@ -128,15 +128,16 @@ namespace Vodovoz.Dialogs
 
 		private bool Save(bool needClose = true)
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(UndeliveredOrder))
 			{
 				return false;
 			}
 
+			var _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			if(UndeliveredOrder.Id == 0)
 			{
-				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
+				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
 			}
 
 			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
@@ -193,7 +194,9 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
+			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+			var smsNotifierSettings = ScopeProvider.Scope.Resolve<ISmsNotifierSettings>();
+			SmsNotifier smsNotifier = new SmsNotifier(uowFactory, smsNotifierSettings);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
 		}
 

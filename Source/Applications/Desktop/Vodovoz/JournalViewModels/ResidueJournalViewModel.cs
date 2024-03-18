@@ -1,78 +1,53 @@
-﻿using System;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Services;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel>
+	public class ResidueJournalViewModel : EntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode>
 	{
-		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly ResidueFilterViewModel _filterViewModel;
 
 		public ResidueJournalViewModel(
 			ResidueFilterViewModel filterViewModel,
-			IEmployeeService employeeService,
-			IRepresentationEntityPicker representationEntityPicker,
-			IMoneyRepository moneyRepository,
-			IDepositRepository depositRepository,
-			IBottlesRepository bottlesRepository,
+			INavigationManager navigationManager,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
-			ICounterpartyJournalFactory counterpartyJournalFactory
-		) 
-		: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IInteractiveService interactiveService,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService) 
+			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+
+			_filterViewModel.OnFiltered += OnFfilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
+
 			TabName = "Журнал остатков";
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
-			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
-			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
-			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			SetOrder(x => x.Date, true);
-			UpdateOnChanges(
-				typeof(Residue)
-			);
+			UseSlider = true;
+
+			UpdateOnChanges(typeof(Residue));
 		}
 
-		private readonly IEmployeeService employeeService;
-		private readonly IRepresentationEntityPicker representationEntityPicker;
-		private readonly IMoneyRepository moneyRepository;
-		private readonly IDepositRepository depositRepository;
-		private readonly IBottlesRepository bottlesRepository;
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private void OnFfilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
+		protected override IQueryOver<Residue> ItemsQuery(IUnitOfWork uow)
+		{
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
@@ -80,13 +55,14 @@ namespace Vodovoz.JournalViewModels
 			Residue residueAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 
-			var residueQuery = uow.Session.QueryOver<Residue>(() => residueAlias)
+			var residueQuery = uow.Session.QueryOver(() => residueAlias)
 				.JoinQueryOver(() => residueAlias.Customer, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.LastEditAuthor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if(FilterViewModel != null) {
+			if(_filterViewModel != null)
+			{
 				var dateCriterion = Projections.SqlFunction(
 					   new SQLFunctionTemplate(
 						   NHibernateUtil.Date,
@@ -96,12 +72,14 @@ namespace Vodovoz.JournalViewModels
 					   Projections.Property(() => residueAlias.Date)
 					);
 
-				if(FilterViewModel.StartDate.HasValue) {
-					residueQuery.Where(Restrictions.Ge(dateCriterion, FilterViewModel.StartDate.Value));
+				if(_filterViewModel.StartDate.HasValue)
+				{
+					residueQuery.Where(Restrictions.Ge(dateCriterion, _filterViewModel.StartDate.Value));
 				}
 
-				if(FilterViewModel.EndDate.HasValue) {
-					residueQuery.Where(Restrictions.Le(dateCriterion, FilterViewModel.EndDate.Value));
+				if(_filterViewModel.EndDate.HasValue)
+				{
+					residueQuery.Where(Restrictions.Le(dateCriterion, _filterViewModel.EndDate.Value));
 				}
 			}
 
@@ -127,37 +105,15 @@ namespace Vodovoz.JournalViewModels
 				)
 				.OrderBy(() => residueAlias.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<ResidueJournalNode>());
+
 			return resultQuery;
-		};
+		}
 
-		protected override Func<ResidueViewModel> CreateDialogFunction => () => new ResidueViewModel(
-			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			employeeService, 
-			representationEntityPicker, 
-			bottlesRepository, 
-			depositRepository, 
-			moneyRepository, 
-			commonServices,
-			_employeeJournalFactory,
-			_subdivisionJournalFactory,
-			_subdivisionParametersProvider,
-			_counterpartyJournalFactory
-		);
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFfilterViewModelFiltered;
 
-		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			employeeService, 
-			representationEntityPicker, 
-			bottlesRepository, 
-			depositRepository, 
-			moneyRepository, 
-			commonServices,
-			_employeeJournalFactory,
-			_subdivisionJournalFactory,
-			_subdivisionParametersProvider,
-			_counterpartyJournalFactory
-		);
+			base.Dispose();
+		}
 	}
 }

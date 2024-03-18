@@ -1,33 +1,37 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IEntitySelectorFactory _employeeSelectorFactory;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICarEventSettings _carEventSettings;
+		private readonly ILifetimeScope _lifetimeScope;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		public decimal RepairCost
 		{
@@ -72,23 +76,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			ICarEventJournalFactory carEventSelectorFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeSettings employeeSettings,
-			ICarEventSettings carEventSettings
-			)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			ICarEventSettings carEventSettings,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
@@ -102,9 +106,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			CreateCommands();
 
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
-			CarEventSelectorFactory = carEventSelectorFactory.CreateCarEventAutocompleteSelectorFactory();
+			
+			OriginalCarEventViewModel = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.OriginalCarEvent)
+				.UseViewModelDialog<CarEventViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarEventJournalViewModel, CarEventFilterViewModel>(filter =>
+				{
+					filter.ExcludeEventIds.Add(Entity.Id);
+				})
+				.Finish();
+
+			OriginalCarEventViewModel.IsEditable = CanEdit;
+
+			CarEntryViewModel = BuildCarEntryViewModel();
+
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -216,10 +232,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			base.Dispose();
 		}
 
-		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarEventTypeSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory CarEventSelectorFactory { get; }
+		public IEntityEntryViewModel OriginalCarEventViewModel { get; private set; }
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
 
 		private void SetCar(Car car)
 		{
@@ -317,58 +351,35 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void CreateAttachFine()
 		{
-			var fineJournalViewModel = CreateFinesJournalViewModel();
-			fineJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+			var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
 			{
-				var selectedNode = e.SelectedNodes.FirstOrDefault();
-				if(selectedNode == null)
+				filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+			});
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+
+			page.ViewModel.OnSelectResult += (sender, e) =>
+			{
+				var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+				if(!(selectedObject is FineJournalNode selectedNode))
 				{
 					return;
 				}
+
 				Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 			};
-			TabParent.AddSlaveTab(this, fineJournalViewModel);
 		}
 
 		private void CreateAddFine()
 		{
-			var fineViewModel = new FineViewModel(
-						   EntityUoWBuilder.ForCreate(),
-						   QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						   _undeliveryViewOpener,
-						   EmployeeService,
-						   EmployeeJournalFactory,
-						   _employeeSettings,
-						   CommonServices
-					   )
-			{
-				FineReasonString = Entity.GetFineReason()
-			};
-			fineViewModel.EntitySaved += (sender, e) =>
+			var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+			page.ViewModel.FineReasonString = Entity.GetFineReason();
+
+			page.ViewModel.EntitySaved += (sender, e) =>
 			{
 				Entity.AddFine(e.Entity as Fine);
-			};
-			TabParent.AddSlaveTab(this, fineViewModel);
-		}
-
-		private FinesJournalViewModel CreateFinesJournalViewModel()
-		{
-			var fineFilter = new FineFilterViewModel(true)
-			{
-				ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray()
-			};
-
-			return new FinesJournalViewModel(
-				fineFilter,
-				_undeliveryViewOpener,
-				EmployeeService,
-				EmployeeJournalFactory,
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				_employeeSettings,
-				CommonServices
-			)
-			{
-				SelectionMode = JournalSelectionMode.Single
 			};
 		}
 

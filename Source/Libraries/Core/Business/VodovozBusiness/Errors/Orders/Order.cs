@@ -2,6 +2,12 @@
 {
 	public static partial class Order
 	{
+		public static Error NotFound =>
+			new Error(
+				typeof(Order),
+				nameof(NotFound),
+				"Заказ не найден");
+
 		public static Error CantEdit =>
 			new Error(
 				typeof(Order),
@@ -26,6 +32,11 @@
 				nameof(AcceptAbortedByUser),
 				"Подтверждение заказа отменено пользователем.");
 
+		public static Error AcceptException => new Error(
+			typeof(Order),
+			nameof(AcceptException),
+			"Исключение при подтверждении заказа");
+
 		public static Error UnableToShipPromoSet =>
 			new Error(
 				typeof(Order),
@@ -38,5 +49,11 @@
 				typeof(Order),
 				nameof(Save),
 				"Произошла ошибка при сохранении");
+
+		public static Error NotInOnTheWayStatus =>
+			new Error(
+				typeof(Order),
+				nameof(NotInOnTheWayStatus),
+				"Заказ не в статусе в пути");
 	}
 }

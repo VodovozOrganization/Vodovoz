@@ -1,5 +1,4 @@
-using NHibernate.Driver;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -7,13 +6,16 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
 	public class GeneralSettingsViewModel : TabViewModelBase
 	{
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private const int _carLoadDocumentInfoStringMaxLength = 80;
+		private const int _billAdditionalInfoMaxLength = 140;
+
+		private readonly IGeneralSettings _generalSettingsSettings;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
@@ -35,8 +37,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly bool _canActivateClientsSecondOrderDiscount;
 		private bool _isClientsSecondOrderDiscountActive;
 
+		private bool _isOrderWaitUntilActive;
+
+		private string _billAdditionalInfo;
+		private string _carLoadDocumentInfoString;
+
+
 		public GeneralSettingsViewModel(
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IGeneralSettings generalSettingsSettings,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -45,31 +53,43 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_generalSettingsParametersProvider =
-				generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_generalSettingsSettings =
+				generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 
 			TabName = "Общие настройки";
 
-			RouteListPrintedFormPhones = _generalSettingsParametersProvider.GetRouteListPrintedFormPhones;
-			CanAddForwardersToLargus = _generalSettingsParametersProvider.GetCanAddForwardersToLargus;
+			RouteListPrintedFormPhones = _generalSettingsSettings.GetRouteListPrintedFormPhones;
+			CanAddForwardersToLargus = _generalSettingsSettings.GetCanAddForwardersToLargus;
 			CanEditRouteListPrintedFormPhones =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
 			CanEditCanAddForwardersToLargus =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
 			CanEditOrderAutoComment =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
-			OrderAutoComment = _generalSettingsParametersProvider.OrderAutoComment;
+			OrderAutoComment = _generalSettingsSettings.OrderAutoComment;
 
 			InitializeSettingsViewModels();
 
 			_canEditDriversStopListSettings = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
-			_driversUnclosedRouteListsHavingDebtCount = _generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
-			_driversRouteListsDebtMaxSum = _generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+			_driversUnclosedRouteListsHavingDebtCount = _generalSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
+			_driversRouteListsDebtMaxSum = _generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
-			_canActivateClientsSecondOrderDiscount = 
+			_canActivateClientsSecondOrderDiscount =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanActivateClientsSecondOrderDiscount);
-			_isClientsSecondOrderDiscountActive = _generalSettingsParametersProvider.GetIsClientsSecondOrderDiscountActive;
-	}
+			_isClientsSecondOrderDiscountActive = _generalSettingsSettings.GetIsClientsSecondOrderDiscountActive;
+
+			_isOrderWaitUntilActive = _generalSettingsSettings.GetIsOrderWaitUntilActive;
+			CanEditOrderWaitUntilSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditOrderWaitUntil);
+			SaveOrderWaitUntilActiveCommand = new DelegateCommand(SaveIsEditOrderWaitUntilActive, () => CanEditOrderWaitUntilSetting);
+
+			_billAdditionalInfo = _generalSettingsSettings.GetBillAdditionalInfo;
+			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.Documents.CanEditBillAdditionalInfo);
+			SaveBillAdditionalInfoCommand = new DelegateCommand(SaveBillAdditionalInfo, () => CanSaveBillAdditionalInfo);
+
+			_carLoadDocumentInfoString = _generalSettingsSettings.GetCarLoadDocumentInfoString;
+			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
+			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
+		}
 
 		#region RouteListPrintedFormPhones
 
@@ -98,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				return;
 			}
 
-			_generalSettingsParametersProvider.UpdateRouteListPrintedFormPhones(RouteListPrintedFormPhones);
+			_generalSettingsSettings.UpdateRouteListPrintedFormPhones(RouteListPrintedFormPhones);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
@@ -135,7 +155,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public DelegateCommand SaveCanAddForwardersToLargusCommand => _saveCanAddForwardersToLargusCommand
 			?? (_saveCanAddForwardersToLargusCommand = new DelegateCommand(() =>
 				{
-					_generalSettingsParametersProvider.UpdateCanAddForwardersToLargus(CanAddForwardersToLargus);
+					_generalSettingsSettings.UpdateCanAddForwardersToLargus(CanAddForwardersToLargus);
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 				})
 			);
@@ -157,7 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public DelegateCommand SaveOrderAutoCommentCommand =>
 			_saveOrderAutoCommentCommand ?? (_saveOrderAutoCommentCommand = new DelegateCommand(() =>
 			{
-				_generalSettingsParametersProvider.UpdateOrderAutoComment(OrderAutoComment);
+				_generalSettingsSettings.UpdateOrderAutoComment(OrderAutoComment);
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 			}));
 
@@ -204,8 +224,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveDriversStopListProperties()
 		{
-			_generalSettingsParametersProvider.UpdateDriversUnclosedRouteListsHavingDebtMaxCount(DriversUnclosedRouteListsHavingDebtCount);
-			_generalSettingsParametersProvider.UpdateDriversRouteListsMaxDebtSum(DriversRouteListsDebtMaxSum);
+			_generalSettingsSettings.UpdateDriversUnclosedRouteListsHavingDebtMaxCount(DriversUnclosedRouteListsHavingDebtCount);
+			_generalSettingsSettings.UpdateDriversRouteListsMaxDebtSum(DriversRouteListsDebtMaxSum);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 		#endregion
@@ -235,7 +255,78 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveSecondOrderDiscountAvailability()
 		{
-			_generalSettingsParametersProvider.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
+			_generalSettingsSettings.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region OrderWaitUntil
+
+		public bool IsOrderWaitUntilActive
+		{
+			get => _isOrderWaitUntilActive;
+			set => SetField(ref _isOrderWaitUntilActive, value);
+		}
+
+		public DelegateCommand SaveOrderWaitUntilActiveCommand { get; }
+		public bool CanEditOrderWaitUntilSetting { get; }
+
+		private void SaveIsEditOrderWaitUntilActive()
+		{
+			_generalSettingsSettings.UpdateIsOrderWaitUntilActive(IsOrderWaitUntilActive);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region BillAdditionalInfo
+
+		public string BillAdditionalInfo
+		{
+			get => _billAdditionalInfo;
+			set => SetField(ref _billAdditionalInfo, value);
+		}
+
+		public DelegateCommand SaveBillAdditionalInfoCommand { get; }
+
+		public bool CanSaveBillAdditionalInfo { get; }
+
+		private void SaveBillAdditionalInfo()
+		{
+			if(!string.IsNullOrEmpty(BillAdditionalInfo) && BillAdditionalInfo.Length > _billAdditionalInfoMaxLength)
+			{
+				ShowMaxStringLengthExceededErrorMessage(BillAdditionalInfo.Length, _billAdditionalInfoMaxLength);
+				return;
+			}
+
+			_generalSettingsSettings.UpdateBillAdditionalInfo(BillAdditionalInfo);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region CarLoadDocumentInfoString
+
+		public string CarLoadDocumentInfoString
+		{
+			get => _carLoadDocumentInfoString;
+			set => SetField(ref _carLoadDocumentInfoString, value);
+		}
+
+		public DelegateCommand SaveCarLoadDocumentInfoStringCommand { get; }
+
+		public bool CanSaveCarLoadDocumentInfoString { get; }
+
+		private void SaveCarLoadDocumentInfoString()
+		{
+			if(!string.IsNullOrEmpty(CarLoadDocumentInfoString) && CarLoadDocumentInfoString.Length > _carLoadDocumentInfoStringMaxLength)
+			{
+				ShowMaxStringLengthExceededErrorMessage(CarLoadDocumentInfoString.Length, _carLoadDocumentInfoStringMaxLength);
+				return;
+			}
+
+			_generalSettingsSettings.UpdateCarLoadDocumentInfoString(CarLoadDocumentInfoString);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
@@ -244,7 +335,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void InitializeSettingsViewModels()
 		{
 			ComplaintsSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
-				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriverParameterName)
+				_generalSettingsSettings, _generalSettingsSettings.SubdivisionsToInformComplaintHasNoDriverParameterName)
 			{
 				CanEdit = CanEditRouteListPrintedFormPhones,
 				MainTitle = "<b>Настройки рекламаций</b>",
@@ -256,7 +347,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			var canEditAlternativePrices = _commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
 
 			AlternativePricesSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
-				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsAlternativePricesName)
+				_generalSettingsSettings, _generalSettingsSettings.SubdivisionsAlternativePricesName)
 			{
 				CanEdit = canEditAlternativePrices,
 				MainTitle = "<b>Настройки альтернативных цен</b>",
@@ -266,13 +357,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			WarehousesForPricesAndStocksIntegrationViewModel =
 				new WarehousesSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
-				_generalSettingsParametersProvider, _generalSettingsParametersProvider.WarehousesForPricesAndStocksIntegrationName)
-			{
-				CanEdit = true,
-				MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
-				DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
-				Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
-			};
+				_generalSettingsSettings, _generalSettingsSettings.WarehousesForPricesAndStocksIntegrationName)
+				{
+					CanEdit = true,
+					MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
+					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
+					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
+				};
 
 			FillItemSources();
 		}
@@ -283,7 +374,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			{
 				unitOfWork.Session.DefaultReadOnly = true;
 
-				var subdivisionIdToRetrieve = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver;
+				var subdivisionIdToRetrieve = _generalSettingsSettings.SubdivisionsToInformComplaintHasNoDriver;
 
 				var retrievedSubdivisions = unitOfWork.Session.Query<Subdivision>()
 					.Where(subdivision => subdivisionIdToRetrieve.Contains(subdivision.Id))
@@ -294,7 +385,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					ComplaintsSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
 				}
 
-				var subdivisionIdsForAlternativePrices = _generalSettingsParametersProvider.SubdivisionsForAlternativePrices;
+				var subdivisionIdsForAlternativePrices = _generalSettingsSettings.SubdivisionsForAlternativePrices;
 
 				var subdivisionForAlternativePrices = unitOfWork.Session.Query<Subdivision>()
 					.Where(s => subdivisionIdsForAlternativePrices.Contains(s.Id))
@@ -305,6 +396,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					AlternativePricesSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
 				}
 			}
+		}
+
+		private void ShowMaxStringLengthExceededErrorMessage(int currentLength, int maxLength)
+		{
+			_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Сохранение недоступно!" +
+					$"\nМаксимально допустимая длина строки составляет {maxLength} символов." +
+					$"\nВы ввели {currentLength} символов.");
 		}
 	}
 }

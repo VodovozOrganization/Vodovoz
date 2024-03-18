@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -23,6 +24,7 @@ namespace PushNotificationsWorker
 		private readonly TimeSpan _interval;
 
 		public TransferedFastDeliveryNotificationWorker(
+			IUserService userService,
 			ILogger<TransferedFastDeliveryNotificationWorker> logger,
 			IOptions<TransferedFastDeliveryNotificationWorkerSettings> settings,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -96,11 +98,13 @@ namespace PushNotificationsWorker
 							"Адрес маршрутного листа {RouteListAddressId}, заказ {OrderId} был перенесен",
 							routeListAddress.Id,
 							routeListAddress.Order.Id);
-
-						if(!string.IsNullOrWhiteSpace(routeListAddress.RouteList.Driver.AndroidToken))
+						
+						var userApp = routeListAddress.RouteList.Driver.DriverAppUser;
+						
+						if(userApp != null && !string.IsNullOrWhiteSpace(userApp.Token))
 						{
 							await _firebaseService.SendFastDeliveryAddressCanceledMessage(
-								routeListAddress.RouteList.Driver.AndroidToken,
+								userApp.Token,
 								routeListAddress.Order.Id);
 						}
 

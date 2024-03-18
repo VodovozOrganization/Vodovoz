@@ -74,7 +74,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 					case DocumentType.RegradingOfGoodsDocument:
 						return $"По складу: {FromStorage}";
 					case DocumentType.SelfDeliveryDocument:
-						return $"Склад: {FromStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}";
+						return string.IsNullOrWhiteSpace(FromStorage)
+							? $"Склад: {ToStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}"
+							: $"Склад: {FromStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}";
 					case DocumentType.DriverTerminalGiveout:
 						return "Выдача терминала водителю " +
 							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromStorage}";
@@ -91,17 +93,13 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public int OrderId { get; set; }
 
-		public string FromWarehouse { get; set; }
 		public string FromStorage { get; set; }
 
-		public int FromWarehouseId { get; set; }
 		public int FromStorageId { get; set; }
 		public StorageType StorageFromType { get; set; }
 
-		public string ToWarehouse { get; set; }
 		public string ToStorage { get; set; }
 
-		public int ToWarehouseId { get; set; }
 		public int ToStorageId { get; set; }
 
 		public decimal Amount { get; set; }
@@ -110,8 +108,16 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public string Comment { get; set; }
 
+		/// <summary>
+		/// Откуда списалась номенклатура
+		/// Исключает <see cref="Target"/>
+		/// </summary>
 		public string Source { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Куда пришла номенклатура
+		/// Исключает <see cref="Source"/>
+		/// </summary>
 		public string Target { get; set; } = string.Empty;
 
 		public string CarNumber { get; set; }

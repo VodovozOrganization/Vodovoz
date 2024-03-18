@@ -54,5 +54,11 @@ namespace Vodovoz.ViewWidgets.Logistics
 		{
 			ytreeNomenclatures.ItemsDataSource = ViewModel?.AdditionalLoadingDocument?.ObservableItems;
 		}
+
+		protected override void OnDestroyed()
+		{
+			ViewModel.Dispose();
+			base.OnDestroyed();
+		}
 	}
 }

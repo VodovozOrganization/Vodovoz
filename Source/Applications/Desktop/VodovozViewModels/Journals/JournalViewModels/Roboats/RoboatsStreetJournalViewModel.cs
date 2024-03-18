@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class RoboatsStreetJournalViewModel : SingleEntityJournalViewModelBase<RoboatsStreet, RoboatsStreetViewModel, RoboatsStreetJournalNode>
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly ICommonServices _commonServices;
 		private OpenViewModelCommand _openViewModelCommand;
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			ICommonServices commonServices
 		) : base(unitOfWorkFactory, commonServices)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Улицы для Roboats";
@@ -149,9 +151,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		};
 
 		protected override Func<RoboatsStreetViewModel> CreateDialogFunction => () =>
-			new RoboatsStreetViewModel(EntityUoWBuilder.ForCreate(), _roboatsViewModelFactory, _commonServices);
+			new RoboatsStreetViewModel(EntityUoWBuilder.ForCreate(), _roboatsViewModelFactory, _unitOfWorkFactory, _commonServices);
 
 		protected override Func<RoboatsStreetJournalNode, RoboatsStreetViewModel> OpenDialogFunction => (node) =>
-			new RoboatsStreetViewModel(EntityUoWBuilder.ForOpen(node.Id), _roboatsViewModelFactory, _commonServices);
+			new RoboatsStreetViewModel(EntityUoWBuilder.ForOpen(node.Id), _roboatsViewModelFactory, _unitOfWorkFactory, _commonServices);
 	}
 }

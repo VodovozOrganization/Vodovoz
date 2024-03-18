@@ -1,18 +1,8 @@
 ﻿using System;
 using Gamma.Widgets;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -31,7 +21,7 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
 			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			EntryCounterparty_ChangedByUser(this, new EventArgs());
@@ -80,6 +70,8 @@ namespace Vodovoz.Views.Complaints
 
 		void EntryCounterparty_ChangedByUser(object sender, System.EventArgs e)
 		{
+			entryOrder.SetEntitySelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
+
 			if(ViewModel.Entity.Counterparty != null) {
 				spLstAddress.NameForSpecialStateNot = "Самовывоз";
 				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.Utilities;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Domain.Client
 {

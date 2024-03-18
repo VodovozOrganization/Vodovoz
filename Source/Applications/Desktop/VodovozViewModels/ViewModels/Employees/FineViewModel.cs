@@ -1,12 +1,15 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Linq;
@@ -16,91 +19,59 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
+using static Vodovoz.ViewModels.Journals.JournalViewModels.Employees.FineTemplateJournalViewModel;
 
 namespace Vodovoz.ViewModels.Employees
 {
 	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
+
+		private Employee _currentEmployee;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices
-		) : base(uowBuilder, uowFactory, commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope
+		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
+
+			RouteListViewModel = BuildRouteListEntityViewModel();
 		}
 
-		private void ConfigureEntityPropertyChanges()
+		public Employee CurrentEmployee
 		{
-			SetPropertyChangeRelation(e => e.FineType,
-				() => IsFuelOverspendingFine,
-				() => IsStandartFine
-			);
-
-			SetPropertyChangeRelation(e => e.FineReasonString,
-				() => FineReasonString
-			);
-
-			SetPropertyChangeRelation(e => e.RouteList,
-				() => CanShowRequestRouteListMessage,
-				() => DateEditable
-			);
-
-			OnEntityPropertyChanged(SetDefaultReason,
-				x => x.FineType
-			);
-
-			OnEntityPropertyChanged(Entity.UpdateItems,
-				x => x.FineType
-			);
-
-			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
-		}
-
-		private void CalculateMoneyFromLiters()
-		{
-			if(Entity.ObservableItems.Count() > 1)
+			get
 			{
-				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
-			}
-			
-			if(RouteList != null)
-			{
-				decimal fuelCost = RouteList.Car.FuelType.Cost;
-				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
-				var item = Entity.ObservableItems.FirstOrDefault();
-				
-				if(item != null)
+				if(_currentEmployee == null)
 				{
-					item.Money = Entity.TotalMoney;
-					item.LitersOverspending = Entity.LitersOverspending;
+					_currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
-			}
-		}
 
-		private Employee currentEmployee;
-		public Employee CurrentEmployee {
-			get {
-				if(currentEmployee == null) {
-					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-				}
-				return currentEmployee;
+				return _currentEmployee;
 			}
 		}
 
@@ -173,6 +144,74 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
+		public IEntityEntryViewModel RouteListViewModel { get; }
+
+		public void SetRouteListById(int routeListId)
+		{
+			RouteList = UoW.GetById<RouteList>(routeListId);
+		}
+
+		private void ConfigureEntityPropertyChanges()
+		{
+			SetPropertyChangeRelation(e => e.FineType,
+				() => IsFuelOverspendingFine,
+				() => IsStandartFine);
+
+			SetPropertyChangeRelation(e => e.FineReasonString,
+				() => FineReasonString);
+
+			SetPropertyChangeRelation(e => e.RouteList,
+				() => CanShowRequestRouteListMessage,
+				() => DateEditable);
+
+			OnEntityPropertyChanged(SetDefaultReason,
+				x => x.FineType);
+
+			OnEntityPropertyChanged(Entity.UpdateItems,
+				x => x.FineType);
+
+			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
+		}
+
+		private void CalculateMoneyFromLiters()
+		{
+			if(Entity.ObservableItems.Count() > 1)
+			{
+				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+			}
+
+			if(RouteList != null)
+			{
+				decimal fuelCost = RouteList.Car.FuelType.Cost;
+				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
+				var item = Entity.ObservableItems.FirstOrDefault();
+
+				if(item != null)
+				{
+					item.Money = Entity.TotalMoney;
+					item.LitersOverspending = Entity.LitersOverspending;
+				}
+			}
+		}
+
+		private IEntityEntryViewModel BuildRouteListEntityViewModel()
+		{
+			var routeListEntryViewModelBuilder = new CommonEEVMBuilderFactory<Fine>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = routeListEntryViewModelBuilder
+				.ForProperty(x => x.RouteList)
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
+				{
+					filter.StartDate = DateTime.Today.AddDays(-7);
+					filter.EndDate = DateTime.Today.AddDays(1);
+				})
+				.Finish();
+
+			viewModel.IsEditable = CanEdit;
+
+			return viewModel;
+		}
+
 		private void SetDefaultReason()
 		{
 			Entity.FineReasonString = Entity.FineType.GetEnumTitle();
@@ -213,6 +252,7 @@ namespace Vodovoz.ViewModels.Employees
 		{
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
+
 			return base.BeforeSave();
 		}
 
@@ -224,7 +264,7 @@ namespace Vodovoz.ViewModels.Employees
 			}
 
 			return base.Save(close);
-		}		
+		}
 
 		#region Commands
 
@@ -244,7 +284,16 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateAttachFineCommand()
 		{
 			OpenUndeliveryCommand = new DelegateCommand(
-				() => _undeliveryViewOpener.OpenFromFine(this, Entity.UndeliveredOrder.OldOrder, Entity.UndeliveredOrder.OldOrder.DeliveryDate, Entity.UndeliveredOrder.UndeliveryStatus),
+				() =>
+				{
+					NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
+						{
+							filter.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder;
+							filter.RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate;
+							filter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate;
+							filter.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus;
+						});
+				},
 				() => true
 			);
 		}
@@ -272,24 +321,22 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateSelectReasonTemplateCommand()
 		{
 			SelectReasonTemplateCommand = new DelegateCommand(
-				() => {
-					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
-						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), _uowFactory, CommonServices),
-						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), _uowFactory, CommonServices),
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
-					);
-					fineTemplatesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fineTemplatesJournalViewModel.OnEntitySelectedResult += (sender, args) => {
-						var selectedNode = args.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null || Entity.FineType == FineTypes.FuelOverspending) {
+				() =>
+				{
+					var page = NavigationManager.OpenViewModel<FineTemplateJournalViewModel>(this);
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnSelectResult += (sender, args) =>
+					{
+						var selectedNode = args.SelectedObjects.FirstOrDefault();
+						if(selectedNode == null || Entity.FineType == FineTypes.FuelOverspending)
+						{
 							return;
 						}
-						var selectedFineTemplate = UoW.GetById<FineTemplate>(selectedNode.Id);
+						var selectedFineTemplate = UoW.GetById<FineTemplate>((selectedNode as FineTemplateJournalNode).Id);
 						Entity.FineReasonString = selectedFineTemplate.Reason;
 						Entity.TotalMoney = selectedFineTemplate.FineMoney;
 					};
-					TabParent.AddSlaveTab(this, fineTemplatesJournalViewModel);
 				},
 				() => true
 			);
@@ -304,11 +351,14 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateAddFineItemCommand()
 		{
 			AddFineItemCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var employeeSelector = _employeeSelectorFactory.CreateSelector();
-					employeeSelector.OnEntitySelectedResult += (sender, e) => {
+					employeeSelector.OnEntitySelectedResult += (sender, e) =>
+					{
 						var node = e.SelectedNodes.FirstOrDefault();
-						if(node == null) {
+						if(node == null)
+						{
 							return;
 						}
 

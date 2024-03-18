@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 {
@@ -25,5 +26,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 
 		string Format(decimal value) => string.Format("{0:F" + UnitDigits + "} {1}", value, UnitName);
 		bool UsedStock => CalculateQtyOnStock && Nomenclature.GetCategoriesForGoods().Contains(Category);
+
+		public GlassHolderType? GlassHolderType {  get; set; }
+		public string GlassHolderTypeString => 
+			GlassHolderType.HasValue
+			? GlassHolderType.Value.GetEnumDisplayName()
+			: string.Empty;
 	}
 }

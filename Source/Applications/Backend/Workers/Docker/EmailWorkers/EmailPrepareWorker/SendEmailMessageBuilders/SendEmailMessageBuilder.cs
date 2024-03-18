@@ -1,27 +1,35 @@
 ﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
+using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class SendEmailMessageBuilder
 	{
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IUnitOfWork _unitOfWork;
+		protected readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private readonly int _instanceId;
 
 		protected SendEmailMessage _sendEmailMessage = new();
 
-		public SendEmailMessageBuilder(IEmailParametersProvider emailParametersProvider, IEmailDocumentPreparer emailDocumentPreparer,
-			CounterpartyEmail counterpartyEmail, int instanceId)
+		public SendEmailMessageBuilder(
+			IUnitOfWork unitOfWork,
+			IEmailSettings emailSettings,
+			IEmailDocumentPreparer emailDocumentPreparer,
+			CounterpartyEmail counterpartyEmail,
+			int instanceId)
 		{
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
-			_emailDocumentPreparer = emailDocumentPreparer;
+			_unitOfWork = unitOfWork;
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 			_instanceId = instanceId;
 		}
@@ -35,8 +43,8 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		{
 			_sendEmailMessage.From = new EmailContact
 			{
-				Name = _emailParametersProvider.DocumentEmailSenderName,
-				Email = _emailParametersProvider.DocumentEmailSenderAddress
+				Name = _emailSettings.DocumentEmailSenderName,
+				Email = _emailSettings.DocumentEmailSenderAddress
 			};
 
 			return this;
@@ -68,7 +76,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			return this;
 		}
 
-		public virtual SendEmailMessageBuilder AddAttachment()
+		public virtual SendEmailMessageBuilder AddAttachment(string connectionString)
 		{
 			var inlinedAttachments = new List<InlinedEmailAttachment>();
 
@@ -89,10 +97,18 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 			_sendEmailMessage.InlinedAttachments = inlinedAttachments;
 
-			var attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>
+			var attachments = new List<EmailAttachment>
 			{
-				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
+				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
+
+			if(document.Order.IsFirstOrder
+				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument
+				&& _emailDocumentPreparer
+					.PrepareOfferAgreementDocument(_unitOfWork, document.Order.Contract, connectionString) is EmailAttachment additionalAgreement)
+			{
+				attachments.Add(additionalAgreement);
+			}
 
 			_sendEmailMessage.Attachments = attachments;
 

@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
-using FastPaymentsAPI.Library.DTO_s.Responses;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Validators;
 using Mailjet.Api.Abstractions;
@@ -20,7 +20,7 @@ using RabbitMQ.MailSending;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using VodovozInfrastructure.Configuration;
 
 namespace FastPaymentsAPI.Library.Models
@@ -30,20 +30,20 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IFastPaymentValidator _fastPaymentValidator;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IOrderRequestManager _orderRequestManager;
 
 		public FastPaymentOrderModel(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailSettings,
 			IOrderRequestManager orderRequestManager)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_fastPaymentValidator = fastPaymentValidator ?? throw new ArgumentNullException(nameof(fastPaymentValidator));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_orderRequestManager = orderRequestManager ?? throw new ArgumentNullException(nameof(orderRequestManager));
 		}
 
@@ -99,8 +99,8 @@ namespace FastPaymentsAPI.Library.Models
 			{
 				From = new EmailContact
 				{
-					Name = _emailParametersProvider.DocumentEmailSenderName,
-					Email = _emailParametersProvider.DocumentEmailSenderAddress
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = new List<EmailContact>
@@ -108,7 +108,7 @@ namespace FastPaymentsAPI.Library.Models
 					new EmailContact
 					{
 						Name = "Уважаемый пользователь",
-						Email = _emailParametersProvider.InvalidSignatureNotificationEmailAddress
+						Email = _emailSettings.InvalidSignatureNotificationEmailAddress
 					}
 				},
 

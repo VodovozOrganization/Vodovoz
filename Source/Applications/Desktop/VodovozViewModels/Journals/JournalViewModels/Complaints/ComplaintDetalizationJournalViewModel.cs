@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core;
 using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -16,6 +13,11 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -29,6 +31,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -49,7 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private const string _fillByWarehouse = "Заполнить по складу";
 		private const string _fillByCar = "Заполнить по автомобилю";
 		private readonly CommonMessages _commonMessages;
-		private readonly StoreDocumentHelper _documentHelper;
+		private readonly IStoreDocumentHelper _documentHelper;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private readonly IReportViewOpener _reportViewOpener;
@@ -78,7 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			CommonMessages commonMessages,
-			StoreDocumentHelper documentHelper,
+			IStoreDocumentHelper documentHelper,
 			IStockRepository stockRepository,
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
 			IReportViewOpener reportViewOpener,
@@ -286,10 +289,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
-					page.ViewModel.FilterViewModel.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						filter => filter.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+						OpenPageOptions.AsSlave);
+
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
+					page.ViewModel.OnSelectResult += OnMissingNomenclatureSelectedResult;
 				}
 			));
 
@@ -393,6 +399,19 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		#endregion
 
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
+			{
+				SortDocumentItems();
+			}
+		}
+
+		private void SortDocumentItems()
+		{
+			Entity.SortItems(Entity.SortedByNomenclatureName);
+		}
+
 		protected override bool BeforeValidation() => CanSave;
 
 		protected override bool BeforeSave()
@@ -451,6 +470,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			if(Entity.ObservableInstanceItems.Count > 0)
 			{
 				UpdateInstanceDiscrepancies();
+			}
+
+			if(Entity.SortedByNomenclatureName)
+			{
+				SortDocumentItems();
 			}
 		}
 		
@@ -723,6 +747,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() => FillNomenclatureInstancesByStorageTitle);
 			
 			SetStoragePropertiesChangeRelation();
+
+			Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
 		private void SetStoragePropertiesChangeRelation()
@@ -735,14 +761,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() => CanChangeShiftChangeResidueDocumentType);
 		}
 
-		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			foreach(var node in e.SelectedNodes)
+			foreach(var node in selectedNodes)
 			{
 				if(Entity.NomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 				{
@@ -849,6 +877,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		public override void Dispose()
 		{
+			Entity.PropertyChanged -= EntityPropertyChanged;
 			WarehouseStorageEntryViewModel.BeforeChangeByUser -= OnWarehouseBeforeChangeByUser;
 			WarehouseStorageEntryViewModel.ChangedByUser -= OnWarehouseChangedByUser;
 			CarStorageEntryViewModel.BeforeChangeByUser -= OnCarBeforeChangeByUser;

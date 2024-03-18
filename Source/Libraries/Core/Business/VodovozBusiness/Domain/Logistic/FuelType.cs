@@ -12,7 +12,8 @@ namespace Vodovoz.Domain.Logistic
 
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "виды топлива",
-		Nominative = "вид топлива")]
+		Nominative = "вид топлива",
+		GenitivePlural = "Видов топлива")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class FuelType : PropertyChangedBase, IDomainObject, IValidatableObject
