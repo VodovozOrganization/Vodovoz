@@ -387,18 +387,4 @@ namespace Vodovoz.Domain.Logistic.Cars
 			return result ?? 0;
 		}
 	}
-
-	public enum ArchivingReason
-	{
-		[Display(Name = "Продано")]
-		Sales,
-		[Display(Name = "Утиль")]
-		Scrap
-	}
-
-	public class GenderStringType : EnumStringType
-	{
-		public GenderStringType() : base(typeof(Gender))
-		{ }
-	}
 }
