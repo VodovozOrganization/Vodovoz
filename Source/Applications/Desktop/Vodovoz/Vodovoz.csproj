@@ -2039,8 +2039,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeAlgebraicSearchView.cs" />
     <Compile Include="Views\Payments\PaymentsDiscrepanciesAnalysisView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentsDiscrepanciesAnalysisView.cs" />
-    <Compile Include="ReportsParameters\Logistic\RouteListOwnView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListOwnView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

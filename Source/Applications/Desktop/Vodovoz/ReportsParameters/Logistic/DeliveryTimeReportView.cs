@@ -28,12 +28,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 				.AddBinding(vm => vm.GeoGroupList, w => w.ItemsDataSource)
 				.InitializeFromSource();
 
-			/*ytreeRouteListTypeOfUse.HeadersVisible = false;
+			ytreeRouteListTypeOfUse.HeadersVisible = false;
 			ytreeRouteListTypeOfUse.ColumnsConfig = FluentColumnsConfig<SelectableParameter>.Create()
 				.AddColumn("").AddToggleRenderer(x => x.IsSelected)
 				.AddColumn("").AddEnumRenderer(x => x.RouteListTypeOfUse)
 				.Finish();
-			ytreeRouteListTypeOfUse.ItemsDataSource = ViewModel.RouteListTypeOfUseList;*/
+			ytreeRouteListTypeOfUse.ItemsDataSource = ViewModel.RouteListTypeOfUseList;
 
 			ytimeDelivery.Binding.AddBinding(ViewModel, vm => vm.Time, w => w.Time).InitializeFromSource();
 
