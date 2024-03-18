@@ -1,5 +1,6 @@
 ﻿using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.Project.Journal.EntitySelector;
 using QS.ViewModels.Control;
 using System;
 using System.ComponentModel;
@@ -38,6 +39,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			{
 				EntityAdapter = entityAdapter;
 			}
+
 			if(autocompleteSelector != null)
 			{
 				AutocompleteSelector = autocompleteSelector;
@@ -108,7 +110,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public int AutocompleteListSize { get; set; }
 
-		public EntitySelectionAutocompleteSelector<TEntity> AutocompleteSelector
+		public IEntitySelectionAutocompleteSelector<TEntity> AutocompleteSelector
 		{
 			get => _autocompleteSelector;
 			set

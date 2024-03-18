@@ -75,16 +75,16 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		IList<TEntity> GetEntities();
 	}
 
-	public interface IEntityJournalSelector
-	{
-		void OpenSelector(string dialogTitle = null);
-		event EventHandler<EntitySelectedEventArgs> EntitySelected;
-	}
-
 	public interface IEntitySelectionAdapter<TEntity>
 		where TEntity : class, IDomainObject
 	{
 		TEntity GetEntityByNode(object node);
 		EntitySelectionViewModel<TEntity> EntitySelectionViewModel { set; }
+	}
+
+	public interface IEntityJournalSelector
+	{
+		void OpenSelector(string dialogTitle = null);
+		event EventHandler<EntitySelectedEventArgs> EntitySelected;
 	}
 }
