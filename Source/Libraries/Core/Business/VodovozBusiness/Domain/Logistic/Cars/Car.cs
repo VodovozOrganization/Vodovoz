@@ -396,12 +396,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		Scrap
 	}
 
-	public class CarTypeOfUseStringType : EnumStringType
-	{
-		public CarTypeOfUseStringType() : base(typeof(CarTypeOfUse))
-		{ }
-	}
-
 	public class GenderStringType : EnumStringType
 	{
 		public GenderStringType() : base(typeof(Gender))
