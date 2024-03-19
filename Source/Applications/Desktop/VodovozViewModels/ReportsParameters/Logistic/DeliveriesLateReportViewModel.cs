@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		private bool _isOnlyFastSelect;
 		private bool _allOrderSelectMode;
 		private bool _isWithoutFastSelect;
-		private IInteractiveService _interactiveService { get; }
+		private IInteractiveService _interactiveService;
 
 		public DeliveriesLateReportViewModel(RdlViewerViewModel rdlViewerViewModel, IUnitOfWorkFactory uowFactory, IInteractiveService interactiveService)
 			: base(rdlViewerViewModel)

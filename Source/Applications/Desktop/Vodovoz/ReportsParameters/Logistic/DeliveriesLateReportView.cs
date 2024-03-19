@@ -16,8 +16,10 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 		{
 			yhboxInterval.Binding.AddBinding(ViewModel, vm => vm.IsIntervalVisible, w => w.Visible).InitializeFromSource();
 
-			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeoGroup, w => w.SelectedItem).InitializeFromSource();
-			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeoGroups, w => w.ItemsList).InitializeFromSource();
+			ySpecCmbGeographicGroup.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroup, w => w.SelectedItem)
+				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
+				.InitializeFromSource();
 			
 			ycheckIntervalFromFirstAddress.Binding.AddBinding(ViewModel, vm => vm.IsIntervalFromFirstAddress, w => w.Active).InitializeFromSource();
 			ycheckIntervalFromTransferTime.Binding.AddBinding(ViewModel, vm => vm.IsIntervalFromTransferTime, w => w.Active).InitializeFromSource();
@@ -38,7 +40,9 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 			yhboxRouteListOwnType.Add(includeFilterView);
 			includeFilterView.Show();
 
-			buttonCreateReport.Clicked += (sender, args) => ViewModel.GenerateReportCommand.Execute();
+			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
+
+		private void OnButtonCreateReportClicked(object sender, System.EventArgs e) => ViewModel.GenerateReportCommand.Execute();
 	}
 }
