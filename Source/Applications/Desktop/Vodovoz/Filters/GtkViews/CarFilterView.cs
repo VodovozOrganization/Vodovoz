@@ -1,6 +1,8 @@
 ﻿using Gamma.Widgets.Additions;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
@@ -45,6 +47,31 @@ namespace Vodovoz.Filters.GtkViews
 			entryModel.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeCarModel, w => w.Sensitive)
 				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.ExcludedCarTypesOfUse))
+			{
+				RefreshHiddenElements();
+			}
+		}
+
+		private void RefreshHiddenElements()
+		{
+			enumcheckCarTypeOfUse.ClearEnumHideList();
+
+			if(ViewModel.ExcludedCarTypesOfUse is null || !ViewModel.ExcludedCarTypesOfUse.Any())
+			{
+				return;
+			}
+
+			foreach(var excludedCarTypeOfUse in ViewModel.ExcludedCarTypesOfUse)
+			{
+				enumcheckCarTypeOfUse.AddEnumToHideList(excludedCarTypeOfUse);
+			}
 		}
 	}
 }
