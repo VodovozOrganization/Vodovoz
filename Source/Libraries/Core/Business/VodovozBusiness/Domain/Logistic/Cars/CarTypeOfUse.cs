@@ -9,6 +9,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		[Display(Name = "Фура")]
 		Truck,
 		[Display(Name = "Грузовой")]
-		GAZelle
+		GAZelle,
+		[Display(Name = "Погрузчик")]
+		Loader
 	}
 }
