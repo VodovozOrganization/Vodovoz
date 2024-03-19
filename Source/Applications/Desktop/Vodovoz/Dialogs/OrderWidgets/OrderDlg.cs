@@ -858,7 +858,7 @@ namespace Vodovoz
 			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			var binder = new PropertyBinder<Order, DeliverySchedule>(Entity, e => e.DeliverySchedule);
-			var selector = new JournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
+			var selector = new EntityJournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
 				() => this, NavigationManager);
 			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
 			var entitySelector = new EntitySelectionAutocompleteSelector<DeliverySchedule>(

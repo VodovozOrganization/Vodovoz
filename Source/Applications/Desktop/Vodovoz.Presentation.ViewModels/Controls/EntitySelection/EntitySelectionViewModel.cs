@@ -1,6 +1,5 @@
 ﻿using QS.Commands;
 using QS.DomainModel.Entity;
-using QS.Project.Journal.EntitySelector;
 using QS.ViewModels.Control;
 using System;
 using System.ComponentModel;
@@ -49,15 +48,9 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			ClearEntityCommand = new DelegateCommand(ClearEntity, () => CanClearEntity);
 		}
 
-		#region События
-
 		public event EventHandler Changed;
 		public event EventHandler ChangedByUser;
 		public event EventHandler<AutocompleteUpdatedEventArgs> AutoCompleteListUpdated;
-
-		#endregion
-
-		#region Свойства
 
 		public DelegateCommand OpenSelectDialogCommand { get; }
 		public DelegateCommand ClearEntityCommand { get; }
@@ -106,6 +99,42 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			}
 		}
 
+		public IEntityJournalSelector EntitySelector
+		{
+			get => _entitySelector;
+			set
+			{
+				_entitySelector = value;
+				EntitySelector.EntitySelected += EntitySelector_EntitySelected;
+				OnPropertyChanged(nameof(CanSelectEntity));
+			}
+		}
+
+		public bool IsEditable
+		{
+			get { return _isEditable; }
+			set
+			{
+				if(_isEditable == value)
+				{
+					return;
+				}
+
+				_isEditable = value;
+
+				OnPropertyChanged(nameof(CanSelectEntity));
+				OnPropertyChanged(nameof(CanClearEntity));
+				OnPropertyChanged(nameof(CanAutoCompleteEntry));
+			}
+		}
+
+		public bool DisposeViewModel { get; set; } = true;
+		public string EntityTitle => Entity?.GetTitle();
+
+		public virtual bool CanSelectEntity => IsEditable && EntitySelector != null;
+		public virtual bool CanClearEntity => IsEditable && Entity != null;
+		public virtual bool CanAutoCompleteEntry => IsEditable && AutocompleteSelector != null;
+
 		#region AutoCompletion
 
 		public int AutocompleteListSize { get; set; }
@@ -116,7 +145,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			set
 			{
 				_autocompleteSelector = value;
-				OnPropertyChanged(nameof(SensitiveAutoCompleteEntry));
+				OnPropertyChanged(nameof(CanAutoCompleteEntry));
 				_autocompleteSelector.AutocompleteLoaded += AutocompleteSelector_AutocompleteLoaded;
 			}
 		}
@@ -143,45 +172,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			ChangedByUser?.Invoke(this, EventArgs.Empty);
 		}
 
-		#endregion
-
-		public bool IsEditable
-		{
-			get { return _isEditable; }
-			set
-			{
-				if(_isEditable == value)
-				{
-					return;
-				}
-
-				_isEditable = value;
-
-				OnPropertyChanged(nameof(CanSelectEntity));
-				OnPropertyChanged(nameof(CanClearEntity));
-				OnPropertyChanged(nameof(SensitiveAutoCompleteEntry));
-			}
-		}
-
-		public bool DisposeViewModel { get; set; } = true;
-		public string EntityTitle => Entity?.GetTitle();
-
-		public virtual bool CanSelectEntity => IsEditable && EntitySelector != null;
-		public virtual bool CanClearEntity => IsEditable && Entity != null;
-		public virtual bool SensitiveAutoCompleteEntry => IsEditable && AutocompleteSelector != null;
-
-		public bool CanViewEntity { get; set; } = true;
-
-		public IEntityJournalSelector EntitySelector
-		{
-			get => _entitySelector;
-			set
-			{
-				_entitySelector = value;
-				EntitySelector.EntitySelected += EntitySelector_EntitySelected;
-				OnPropertyChanged(nameof(CanSelectEntity));
-			}
-		}
 		#endregion
 
 		private void EntitySelector_EntitySelected(object sender, EntitySelectedEventArgs e)

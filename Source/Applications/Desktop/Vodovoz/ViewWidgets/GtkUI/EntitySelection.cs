@@ -63,7 +63,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 				ybuttonSelectEntity.Sensitive = _viewModel.CanSelectEntity;
 				ybuttonClear.Sensitive = _viewModel.CanClearEntity;
-				yentryObject.IsEditable = _viewModel.SensitiveAutoCompleteEntry;
+				yentryObject.IsEditable = _viewModel.CanAutoCompleteEntry;
 				SetEntryText(_viewModel.EntityTitle);
 
 				_viewModel.AutocompleteListSize = 20;
@@ -81,8 +81,8 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				case nameof(IEntitySelectionViewModel.CanClearEntity):
 					ybuttonClear.Sensitive = ViewModel.CanClearEntity;
 					break;
-				case nameof(IEntitySelectionViewModel.SensitiveAutoCompleteEntry):
-					yentryObject.IsEditable = ViewModel.SensitiveAutoCompleteEntry;
+				case nameof(IEntitySelectionViewModel.CanAutoCompleteEntry):
+					yentryObject.IsEditable = ViewModel.CanAutoCompleteEntry;
 					break;
 				case nameof(IEntitySelectionViewModel.EntityTitle):
 					SetEntryText(ViewModel.EntityTitle);
