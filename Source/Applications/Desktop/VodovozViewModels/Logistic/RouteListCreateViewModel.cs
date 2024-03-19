@@ -39,6 +39,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -275,7 +276,10 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Car)
-				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.ExcludedCarTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Loader };
+				})
 				.UseViewModelDialog<CarViewModel>()
 				.Finish();
 		}
