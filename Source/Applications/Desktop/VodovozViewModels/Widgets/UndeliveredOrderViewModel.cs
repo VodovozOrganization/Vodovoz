@@ -57,6 +57,8 @@ namespace Vodovoz.ViewModels.Widgets
 		private DelegateCommand _addCommentToTheFieldCommand;
 		private DelegateCommand _clearDetalizationCommand;
 		private ITdiTab _newOrderDlg;
+		private UndeliveryObject _undeliveryObject;
+		private bool _isUndeliveryStatusChanged;
 
 		public UndeliveredOrderViewModel(
 			UndeliveredOrder entity,
@@ -171,7 +173,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			if(e.PropertyName == nameof(Entity.UndeliveryStatus))
 			{
-				Entity.AddAutoCommentByChangeStatus();
+				_isUndeliveryStatusChanged = true;				
 			}
 
 			if(e.PropertyName == nameof(Entity.DriverCallType))
@@ -426,7 +428,6 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
 		public Func<bool> IsSaved;
-		private UndeliveryObject _undeliveryObject;
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -468,6 +469,10 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand BeforeSaveCommand => _beforeSaveCommand ?? (_beforeSaveCommand = new DelegateCommand(
 			() =>
 			{
+				if(_isUndeliveryStatusChanged)
+				{
+					Entity.AddAutoCommentByChangeStatus();
+				}
 				AddAutocomment();
 				Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				Entity.LastEditedTime = DateTime.Now;

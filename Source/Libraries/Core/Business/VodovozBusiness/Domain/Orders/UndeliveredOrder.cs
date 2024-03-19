@@ -47,8 +47,11 @@ namespace Vodovoz.Domain.Orders
 			get => _undeliveryStatus;
 			protected set
 			{
-				_oldUndeliveryStatus = _undeliveryStatus;
 				SetField(ref _undeliveryStatus, value);
+				if(_oldUndeliveryStatus == null)
+				{
+					_oldUndeliveryStatus = _undeliveryStatus;
+				}
 			}
 		}
 
