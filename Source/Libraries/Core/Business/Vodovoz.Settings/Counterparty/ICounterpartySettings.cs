@@ -6,5 +6,6 @@
 		int GetMobileAppCounterpartyCameFromId { get; }
 		int GetWebSiteCounterpartyCameFromId { get; }
 		string RevenueServiceClientAccessToken { get; }
+		int ReferFriendPromotionId { get; }
 	}
 }

@@ -378,6 +378,25 @@ namespace Vodovoz
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			ConfigureCounterpartyEntityEntry();
+		}
+
+		private void ConfigureCounterpartyEntityEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Counterparty>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+
+			entityentryCounterparty.ViewModel = builder.ForProperty(x => x.Referrer)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			entityentryCounterparty.ViewModel.DisposeViewModel = false;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -487,6 +506,8 @@ namespace Vodovoz
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
+
+			yhboxReferrer.Binding.AddFuncBinding(Entity, e => e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionId, w => w.Visible).InitializeFromSource();
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
@@ -1112,6 +1133,7 @@ namespace Vodovoz
 			_validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
 			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
+			_validationContext.ServiceContainer.AddService(typeof(ICounterpartySettings), _counterpartySettings);
 		}
 
 		private void ConfigureTabEmails()
