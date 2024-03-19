@@ -1,44 +1,50 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.Services;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Delivery;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Validation;
 
 namespace Vodovoz
 {
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddBusiness(this IServiceCollection services) => services
-			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
-			.AddScoped<IWageParameterService, WageParameterService>()
-			.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
-			.AddScoped<IAddressTransferController, AddressTransferController>()
-			.AddScoped<IRouteListProfitabilityController, RouteListProfitabilityController>()
+
+			.RegisterClassesByInterfaces("Controller")
+			.RegisterClassesByInterfaces("Repository")
+			.RegisterClassesByInterfaces("Service")
+			.RegisterClassesByInterfaces("Handler")
+			
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
-			.AddScoped<IWageCalculationRepository, WageCalculationRepository>()
 			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
-			.AddScoped<IProfitabilityConstantsRepository, ProfitabilityConstantsRepository>()
-			.AddScoped<IRouteListProfitabilityRepository, RouteListProfitabilityRepository>()
-			.AddScoped<INomenclatureRepository, NomenclatureRepository>()
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
 			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
 			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
-			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
-			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
-			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>()
-			.AddScoped<IDeliveryRepository, DeliveryRepository>()
-			.AddScoped<IEmailService, EmailService>();
+			.AddScoped<FastDeliveryHandler>()
+			.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
+			.AddScoped<ICallTaskWorker, CallTaskWorker>()
+			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
+		;
+
+		private static IServiceCollection RegisterClassesByInterfaces(this IServiceCollection services, string classEndsWith)
+		{
+			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
+				.Where(t => t.IsClass
+					&& t.Name.EndsWith(classEndsWith)
+					&& t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"));
+
+			foreach(var type in settingsTypes)
+			{
+				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+			}
+			
+			return services;
+		}
 	}
 }

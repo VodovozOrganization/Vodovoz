@@ -1,6 +1,4 @@
-﻿using VodovozInfrastructure.Cryptography;
-
-namespace FastPaymentsAPI.Library.Managers
+﻿namespace VodovozInfrastructure.Cryptography
 {
 	public class SignatureManager : ISignatureManager
 	{
@@ -21,10 +19,10 @@ namespace FastPaymentsAPI.Library.Managers
 			return md5Hash3.ToUpper();
 		}
 
-		public bool Validate(string bankSignature, SignatureParams parameters, out string paymentSignature)
+		public bool Validate(string sourceSignature, SignatureParams parameters, out string generatedSignature)
 		{
-			paymentSignature = GenerateSignature(parameters);
-			return paymentSignature == bankSignature;
+			generatedSignature = GenerateSignature(parameters);
+			return generatedSignature == sourceSignature;
 		}
 	}
 }

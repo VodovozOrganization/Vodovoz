@@ -22,6 +22,18 @@ namespace Vodovoz.Errors.Orders
 				nameof(IsEmptyDeliveryPoint),
 				"Не указана точка доставки");
 		
+		public static Error IncorrectDeliveryDate =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IncorrectDeliveryDate),
+				"Дата доставки не может быть раньше сегодняшнего дня");
+		
+		public static Error IsEmptyDistrictFromDeliveryPoint =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsEmptyDistrictFromDeliveryPoint),
+				"Не указан логистический район у точки доставки, невозможно расcчитать доставку");
+		
 		public static Error IsEmptyDeliverySchedule =>
 			new Error(
 				typeof(OnlineOrder),
@@ -39,6 +51,18 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrder),
 				nameof(IsArchivedOnlineOrderPromoSet),
 				$"Промонабор {promoSetTitle} является архивным");
+		
+		public static Error IsIncorrectOnlineOrderPromoSetItemsCount(string promoSetTitle) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsIncorrectOnlineOrderPromoSetItemsCount),
+				$"Переданный промонабор {promoSetTitle} содержит неверное количестов товаров");
+		
+		public static Error IsIncorrectOnlineOrderPromoSetForNewClientsCount() =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IsIncorrectOnlineOrderPromoSetForNewClientsCount),
+				$"В онлайн заказе содержится больше одного промонабора для новых клиентов");
 		
 		public static Error IncorrectCountNomenclatureInOnlineOrderPromoSet(
 			string promoSetTitle, int position, string nomenclature, int countFromPromoSet, int countFromOnlineOrderItem) =>

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Dto.Orders
 {
@@ -11,6 +11,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 	/// </summary>
 	public class OnlineOrderInfoDto
 	{
+		public bool FaultedMessage { get; set; }
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
@@ -18,9 +19,19 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		public Source Source { get; set; }
 		
 		/// <summary>
+		/// Номер онлайн заказа из ИПЗ
+		/// </summary>
+		public Guid ExternalOrderId { get; set; }
+		
+		/// <summary>
 		/// Id контрагента в ДВ
 		/// </summary>
 		public int? CounterpartyErpId { get; set; }
+		
+		/// <summary>
+		/// Контрольная сумма заказа, для проверки валидности отправителя
+		/// </summary>
+		public string Signature { get; set; }
 		
 		/// <summary>
 		/// Id клиента в ИПЗ
@@ -79,7 +90,12 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Id времени доставки из ДВ
 		/// </summary>
 		public int? DeliveryScheduleId { get; set; }
-
+		
+		/// <summary>
+		/// Отзвон за
+		/// </summary>
+		public int?CallBeforeArrivalMinutes { get; set; }
+		
 		/// <summary>
 		/// Доставка за час?
 		/// </summary>
@@ -104,6 +120,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Бутылей на возврат
 		/// </summary>
 		public int? BottlesReturn { get; set; }
+		
+		/// <summary>
+		/// Сумма онлайн заказа
+		/// </summary>
+		public decimal OrderSum { get; set; }
 
 		/// <summary>
 		/// Список товаров

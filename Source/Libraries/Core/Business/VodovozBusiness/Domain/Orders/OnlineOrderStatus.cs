@@ -6,8 +6,6 @@ namespace Vodovoz.Domain.Orders
 	{
 		[Display(Name = "Новый")]
 		New,
-		[Display(Name = "Обрабатывается")]
-		Processing,
 		[Display(Name = "Заказ оформлен")]
 		OrderPerformed,
 		[Display(Name = "Отменен")]

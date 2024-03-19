@@ -22,10 +22,12 @@ namespace Vodovoz.Views.Orders
 			lblIdTitle.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowId, w => w.Visible)
 				.InitializeFromSource();
-			lblIdTitle.Binding
+			
+			lblId.Selectable = true;
+			lblId.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanShowId, w => w.LabelProp)
-				.AddBinding(vm => vm.IdToString, w => w.Visible)
+				.AddBinding(vm => vm.CanShowId, w => w.Visible)
+				.AddBinding(vm => vm.IdToString, w => w.LabelProp)
 				.InitializeFromSource();
 			
 			chkIsArchive.Binding

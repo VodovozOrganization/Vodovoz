@@ -1,6 +1,11 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -17,12 +22,42 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
+			var btnCreateOrder = new yButton();
+			btnCreateOrder.Label = "Создать заказ";
+			btnCreateOrder.Show();
+			
+			var btnAssignCounterparty = new yButton();
+			btnAssignCounterparty.Label = "Привязать КА";
+			btnAssignCounterparty.Show();
+			hboxHandleButtons.Add(btnCreateOrder);
+			hboxHandleButtons.Add(btnAssignCounterparty);
+			
 			btnGetToWork.Clicked += (sender, args) => ViewModel.GetToWorkCommand.Execute();
+			btnCreateOrder.Clicked += OnCreateOrderClicked;
+			btnAssignCounterparty.Clicked += (sender, args) => ViewModel.OpenExternalCounterpartyMatchingCommand.Execute();
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			btnCancelOnlineOrder.Clicked += (sender, args) => ViewModel.CancelOnlineOrderCommand.Execute();
+
+			var boxBtnCreateOrder = (Box.BoxChild)hboxHandleButtons[btnCreateOrder];
+			boxBtnCreateOrder.Position = 1;
+			boxBtnCreateOrder.Expand = false;
+			boxBtnCreateOrder.Fill = false;
+			
+			var boxBtnAssignCounterparty = (Box.BoxChild)hboxHandleButtons[btnAssignCounterparty];
+			boxBtnAssignCounterparty.Position = 2;
+			boxBtnAssignCounterparty.Expand = false;
+			boxBtnAssignCounterparty.Fill = false;
 			
 			btnGetToWork.Binding
 				.AddBinding(ViewModel, vm => vm.CanGetToWork, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnCreateOrder.Binding
+				.AddBinding(ViewModel, vm => vm.CanCreateOrder, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnAssignCounterparty.Binding
+				.AddBinding(ViewModel, vm => vm.CanOpenExternalCounterpartyMatching, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			btnCancelOnlineOrder.Binding
@@ -158,12 +193,8 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanShowContactPhone, w => w.Visible)
 				.InitializeFromSource();
 			
-			lblCancellationReasonTitle.Binding
-				.AddBinding(ViewModel, vm => vm.CanShowCancellationReason, w => w.Visible)
-				.InitializeFromSource();
-
 			cancellationReasonEntry.Binding
-				.AddBinding(ViewModel, vm => vm.CanShowCancellationReason, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditCancellationReason, w => w.Sensitive)
 				.InitializeFromSource();
 			cancellationReasonEntry.ViewModel = ViewModel.CancellationReasonViewModel;
 			
@@ -287,6 +318,61 @@ namespace Vodovoz.Views.Orders
 
 			treeViewOnlineRentPackages.Visible = ViewModel.CanShowRentPackages;
 			treeViewOnlineRentPackages.ItemsDataSource = ViewModel.OnlineRentPackages;
+		}
+
+		private void OnCreateOrderClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.HasEmptyCounterpartyAndNotNullDataForMatching)
+			{
+				var externalCounterpartyMatching =
+					ViewModel.ExternalCounterpartyMatchingRepository.GetExternalCounterpartyMatching(
+							ViewModel.UoW,
+							ViewModel.Entity.ExternalCounterpartyId.Value,
+							ViewModel.Entity.ContactPhone)
+						.FirstOrDefault();
+						
+				if(externalCounterpartyMatching != null)
+				{
+					if(externalCounterpartyMatching.Status == ExternalCounterpartyMatchingStatus.Processed)
+					{
+						ViewModel.Entity.Counterparty =
+							ViewModel.UoW.GetById<Domain.Client.Counterparty>(
+								externalCounterpartyMatching.AssignedExternalCounterparty.Phone.Counterparty.Id);
+						ViewModel.Save(false);
+					}
+					else
+					{
+						ViewModel.ShowMessage("Перед соданием заказа присвойте контрагента нажав по соответствующей кнопке");
+						return;
+					}
+				}
+			}
+
+			ViewModel.OrderCreatingState = true;
+			OpenOrderDlgAndFillOnlineOrderData();
+		}
+
+		private void OpenOrderDlgAndFillOnlineOrderData()
+		{
+			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
+				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity);
+			page.PageClosed += OnOrderTabClosed;
+		}
+		
+		private void OnOrderTabClosed(object sender, EventArgs e)
+		{
+			var dlg = (sender as ITdiPage).TdiTab as OrderDlg;
+
+			if(dlg.Entity.Id > 0)
+			{
+				var order = ViewModel.UoW.GetById<Order>(dlg.Entity.Id);
+				ViewModel.Entity.SetOrderPerformed(order);
+				var notification = ViewModel.CreateNewNotification();
+				ViewModel.UoW.Save(notification);
+				ViewModel.Save(true);
+			}
+			
+			ViewModel.OrderCreatingState = false;
 		}
 	}
 }

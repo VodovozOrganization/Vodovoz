@@ -45,7 +45,7 @@ namespace Vodovoz.Controllers
 		{
 			get
 			{
-				if(_driverApiHelper == null)
+				if(_driverApiHelper is null)
 				{
 					var driverApiConfig = new DriverApiHelperConfiguration
 					{
@@ -94,7 +94,7 @@ namespace Vodovoz.Controllers
 					.FirstOrDefault(x => x.IsValidToFastDelivery)
 					?.RouteList;
 
-				if(RouteListToAddFastDeliveryOrder == null)
+				if(RouteListToAddFastDeliveryOrder is null)
 				{
 					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}

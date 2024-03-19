@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Orders
 	{
 		private int? _freeRentPackageId;
 		private FreeRentPackage _freeRentPackage;
-		private decimal _count;
+		private int _count;
 		private decimal _price;
 		private OnlineOrder _onlineOrder;
 
@@ -38,7 +38,7 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		[Display(Name = "Количество")]
-		public virtual decimal Count
+		public virtual int Count
 		{
 			get => _count;
 			set => SetField(ref _count, value);
@@ -58,7 +58,7 @@ namespace Vodovoz.Domain.Orders
 
 		public static OnlineFreeRentPackage Create(
 			int? rentPackageId,
-			decimal count,
+			int count,
 			decimal price,
 			FreeRentPackage rentPackage,
 			OnlineOrder onlineOrder)

@@ -2,7 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Factories
+namespace CustomerOnlineOrdersRegistrar.Factories
 {
 	public interface IOnlineOrderFactory
 	{

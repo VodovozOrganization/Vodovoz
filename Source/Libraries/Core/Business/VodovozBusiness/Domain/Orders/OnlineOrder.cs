@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -19,11 +21,13 @@ namespace Vodovoz.Domain.Orders
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _version;
+		private DateTime _created;
 		private Source _source;
 		private int? _counterpartyId;
 		private Counterparty _counterparty;
 		private int? _deliveryPointId;
 		private DeliveryPoint _deliveryPoint;
+		private Guid _externalOrderId;
 		private Guid? _externalCounterpartyId;
 		private bool _isSelfDelivery;
 		private int? _selfDeliveryGeoGroupId;
@@ -35,6 +39,7 @@ namespace Vodovoz.Domain.Orders
 		private bool _isNeedConfirmationByCall;
 		private DateTime _deliveryDate;
 		private int? _deliveryScheduleId;
+		private int? _callBeforeArrivalMinutes;
 		private DeliverySchedule _deliverySchedule;
 		private bool _isFastDelivery;
 		private string _contactPhone;
@@ -57,12 +62,26 @@ namespace Vodovoz.Domain.Orders
 			get => _version;
 			set => SetField(ref _version, value);
 		}
+		
+		[Display(Name = "Дата создания")]
+		public virtual DateTime Created
+		{
+			get => _created;
+			set => SetField(ref _created, value);
+		}
 
 		[Display(Name = "Источник онлайн заказа")]
 		public virtual Source Source
 		{
 			get => _source;
 			set => SetField(ref _source, value);
+		}
+
+		[Display(Name = "Номер заказа из ИПЗ")]
+		public virtual Guid ExternalOrderId
+		{
+			get => _externalOrderId;
+			set => SetField(ref _externalOrderId, value);
 		}
 
 		[Display(Name = "Клиент")]
@@ -177,6 +196,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _deliveryScheduleId, value);
 		}
 		
+		[Display(Name = "Отзвон за")]
+		public virtual int? CallBeforeArrivalMinutes
+		{
+			get => _callBeforeArrivalMinutes;
+			set => SetField(ref _callBeforeArrivalMinutes, value);
+		}
+		
 		[Display(Name = "Время доставки")]
 		public virtual DeliverySchedule DeliverySchedule
 		{
@@ -264,6 +290,17 @@ namespace Vodovoz.Domain.Orders
 		public virtual void CalculateSum()
 		{
 			OnlineOrderSum = OnlineOrderItems.Sum(x => x.Sum) + OnlineRentPackages.Sum(x => x.Sum);
+		}
+
+		public virtual void SetOrderPerformed(Order order, Employee employee = null)
+		{
+			if(employee != null)
+			{
+				EmployeeWorkWith = employee;
+			}
+			
+			Order = order;
+			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
 	}
 }

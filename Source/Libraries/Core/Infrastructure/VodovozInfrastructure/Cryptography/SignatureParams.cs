@@ -1,4 +1,4 @@
-﻿namespace FastPaymentsAPI.Library.Managers
+﻿namespace VodovozInfrastructure.Cryptography
 {
 	public class SignatureParams
 	{

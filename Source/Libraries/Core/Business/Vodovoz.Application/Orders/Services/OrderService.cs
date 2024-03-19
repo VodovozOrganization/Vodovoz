@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Sms.Internal;
 using System;
+using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
+using QS.DomainModel.Tracking;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -15,18 +16,13 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
-using Vodovoz.Models;
-using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
-using System;
 using Vodovoz.Models.Orders;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
+using Vodovoz.Settings.Employee;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -42,10 +38,11 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly OrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
+		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly FastDeliveryHandler _fastDeliveryHandler;
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
+		private readonly IEmployeeSettings _employeeSettings;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -57,10 +54,11 @@ namespace Vodovoz.Application.Orders.Services
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
 			ICallTaskWorker callTaskWorker,
-			OrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
+			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			FastDeliveryHandler fastDeliveryHandler,
-			IPromotionalSetRepository promotionalSetRepository
+			IPromotionalSetRepository promotionalSetRepository,
+			IEmployeeSettings employeeSettings
 			)
 		{
 			if(nomenclatureSettings is null)
@@ -80,6 +78,7 @@ namespace Vodovoz.Application.Orders.Services
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
@@ -302,16 +301,32 @@ namespace Vodovoz.Application.Orders.Services
 
 		public int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
-			//валидируем онлайн заказ на правильность заполнения данных
+			if(onlineOrder.IsNeedConfirmationByCall)
+			{
+				return 0;
+			}
+			
 			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(onlineOrder);
 
 			if(validationResult.IsFailure)
 			{
-				return SaveOnlineOrderAndReturnDefaultValue(onlineOrder, validationResult, uow);
+				return 0;
 			}
 			
-			//Пытаемся создать заказ по пришедшим данным
-			var employee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			Employee employee = null;
+			switch(onlineOrder.Source)
+			{
+				case Source.MobileApp:
+					employee = uow.GetById<Employee>(_employeeSettings.MobileAppEmployee);
+					break;
+				case Source.VodovozWebSite:
+					employee = uow.GetById<Employee>(_employeeSettings.VodovozWebSiteEmployee);
+					break;
+				case Source.KulerSaleWebSite:
+					employee = uow.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
+					break;
+			}
+			
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 			
 			UpdateDeliveryCost(uow, order);
@@ -319,27 +334,60 @@ namespace Vodovoz.Application.Orders.Services
 			order.AddFastDeliveryNomenclatureIfNeeded();
 			
 			//TODO проверка возможности добавления промонаборов
-
-			//Попытка подтвердить заказ при успешном создании
+			
+			//TODO проверить работу сохранения заказов
+			
+			//для открытия внутренней транзакции
+			uow.Save(onlineOrder);
 			var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
+
 			if(acceptResult.IsFailure)
 			{
-				return SaveOnlineOrderAndReturnDefaultValue(onlineOrder, acceptResult, uow);
+				return 0;
 			}
-			
-			uow.Save(onlineOrder);
-			//uow.Save(order); уже будет в сессии при удачном подтверждении
-			uow.Commit();
 
-			return order.Id;
-		}
-		
-		private int SaveOnlineOrderAndReturnDefaultValue(OnlineOrder onlineOrder, Result result, IUnitOfWork uow)
-		{
-			uow.Save(onlineOrder);
+			onlineOrder.SetOrderPerformed(order, employee);
+			var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
+			uow.Save(notification);
 			uow.Commit();
+			
+			/*using(var transaction = uow.Session.BeginTransaction())
+			{
+				try
+				{
+					var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
 					
-			return 0;
+					if(acceptResult.IsFailure)
+					{
+						return 0;
+					}
+
+					onlineOrder.SetOrderPerformed(order, employee);
+					uow.Save(onlineOrder);
+					var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
+					uow.Save(notification);
+					transaction.Commit();
+					GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)uow);
+				}
+				catch(Exception e)
+				{
+					if(!transaction.WasCommitted
+						&& !transaction.WasRolledBack
+						&& transaction.IsActive
+						&& uow.Session.Connection.State == ConnectionState.Open)
+					{
+						try
+						{
+							transaction.Rollback();
+						}
+						catch { }
+					}
+
+					return 0;
+				}
+			}*/
+			
+			return order.Id;
 		}
 		
 		private Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
@@ -350,13 +398,17 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
-			
-			//Проверяем доступность быстрой доставки
-			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
-			
-			if(fastDeliveryResult.IsFailure)
+
+			if(!order.SelfDelivery)
 			{
-				return fastDeliveryResult;
+				var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
+			
+				if(fastDeliveryResult.IsFailure)
+				{
+					return fastDeliveryResult;
+				}
+				
+				_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
 			}
 			
 			order.AcceptOrder(order.Author, _callTaskWorker);

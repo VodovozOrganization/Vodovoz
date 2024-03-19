@@ -8,10 +8,11 @@ namespace Vodovoz.JournalColumnsConfigs
 		: ColumnsConfigRegistrarBase<OnlineOrderCancellationReasonsJournalViewModel, OnlineOrderCancellationReasonsJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OnlineOrderCancellationReasonsJournalNode> config) =>
-			config.AddColumn("Номер")
-				.AddNumericRenderer(node => node.Id)
+			config
+				.AddColumn("Номер").AddNumericRenderer(node => node.Id)
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
 				.AddColumn("Архивная").AddToggleRenderer(node => node.IsArchive).Editing(false)
+				.AddColumn("")
 				.Finish();
 	}
 }

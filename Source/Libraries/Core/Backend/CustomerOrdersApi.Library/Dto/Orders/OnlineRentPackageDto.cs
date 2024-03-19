@@ -18,6 +18,6 @@
 		/// <summary>
 		/// Количество
 		/// </summary>
-		public decimal Count { get; set; }
+		public int Count { get; set; }
 	}
 }

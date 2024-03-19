@@ -4,6 +4,6 @@ namespace CustomerOrdersApi.Library.Services
 {
 	public interface ICustomerOrdersService
 	{
-		int CreateOrderFromOnlineOrder(OnlineOrderInfoDto onlineOrderInfoDto);
+		bool ValidateSignature(OnlineOrderInfoDto onlineOrderInfoDto, out string generatedSignature);
 	}
 }

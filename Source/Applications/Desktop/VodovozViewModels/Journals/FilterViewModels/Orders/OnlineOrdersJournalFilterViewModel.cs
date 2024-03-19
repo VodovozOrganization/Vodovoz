@@ -6,6 +6,7 @@ using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -33,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private OnlineOrderPaymentType? _restrictPaymentType;
 		private DateTime? _restrictStartDate;
 		private OnlineOrderStatus? _restrictStatus;
-		private Vodovoz.Domain.Client.Source? _restrictSource;
+		private Core.Domain.Clients.Source? _restrictSource;
 		private bool _canChangeDeliveryPoint = true;
 		private DeliveryPoint _deliveryPoint;
 		private Employee _employeeWorkWith;
@@ -109,7 +110,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 		public bool CanChangeStatus { get; private set; } = true;
 		
-		public Vodovoz.Domain.Client.Source? RestrictSource
+		public Core.Domain.Clients.Source? RestrictSource
 		{
 			get => _restrictSource;
 			set

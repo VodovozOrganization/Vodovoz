@@ -26,6 +26,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OnlinePaymentSource).Column("online_payment_source");
 			Map(x => x.IsNeedConfirmationByCall).Column("is_need_confirmation_by_call");
 			Map(x => x.DeliveryDate).Column("delivery_date");
+			Map(x => x.Created).Column("created");
 			Map(x => x.DeliveryScheduleId).Column("first_delivery_schedule_id");
 			Map(x => x.IsFastDelivery).Column("is_fast_delivery");
 			Map(x => x.ContactPhone).Column("contact_phone");
@@ -33,6 +34,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Trifle).Column("trifle");
 			Map(x => x.BottlesReturn).Column("bottles_return");
 			Map(x => x.OnlineOrderSum).Column("online_order_sum");
+			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

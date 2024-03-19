@@ -1,0 +1,58 @@
+﻿using System;
+using CustomerOnlineOrdersRegistrar.Factories;
+using CustomerOrdersApi.Library.Dto.Orders;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using Vodovoz.Application.Orders.Services;
+
+namespace CustomerOnlineOrdersRegistrar.Consumers
+{
+	public abstract class OnlineOrderConsumer
+	{
+		protected readonly ILogger<OnlineOrderConsumer> Logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOnlineOrderFactory _onlineOrderFactory;
+		private readonly IOrderService _orderService;
+
+		protected OnlineOrderConsumer(
+			ILogger<OnlineOrderConsumer> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOnlineOrderFactory onlineOrderFactory,
+			IOrderService orderService)
+		{
+			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
+			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+		}
+		
+		protected virtual void TryRegisterOnlineOrder(OnlineOrderInfoDto message)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(uow, message);
+
+				uow.Save(onlineOrder);
+				uow.Commit();
+
+				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
+
+				var orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
+					
+				if(orderId == default)
+				{
+					Logger.LogInformation(
+						"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
+						message.ExternalOrderId);
+				}
+				else
+				{
+					Logger.LogInformation(
+						"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
+						message.ExternalOrderId,
+						orderId);
+				}
+			}
+		}
+	}
+}

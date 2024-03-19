@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Core.Domain.Orders
 {
 	public enum OnlinePaymentSource
 	{
@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Orders
 		FromVodovozWebSite,
 		[Display(Name = "Сайт ВВ по QR")]
 		FromVodovozWebSiteByQr,
-		[Display(Name = "МП по QR")]
+		[Display(Name = "Мобильное приложение")]
 		FromMobileApp
 	}
 }

@@ -1,0 +1,17 @@
+﻿using QS.DomainModel.UoW;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
+
+namespace Vodovoz.Application.Orders.Services
+{
+	public interface IOrderFromOnlineOrderCreator
+	{
+		Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder);
+
+		Order FillOrderFromOnlineOrder(
+			Order order,
+			OnlineOrder onlineOrder,
+			Employee employee = null,
+			bool manualCreation = false);
+	}
+}

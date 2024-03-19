@@ -56,6 +56,9 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="Domain\Orders\OnlineOrderStatusUpdatedNotification.cs" />
+    <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
@@ -92,7 +95,6 @@
     <Compile Include="Domain\Client\ReasonForLeaving.cs" />
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
-    <Compile Include="Domain\Client\Source.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Employees\ExternalApplicationUser.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
@@ -137,10 +139,7 @@
     <Compile Include="Domain\Orders\OnlineOrder.cs" />
     <Compile Include="Domain\Orders\OnlineOrderCancellationReason.cs" />
     <Compile Include="Domain\Orders\OnlineOrderItem.cs" />
-    <Compile Include="Domain\Orders\OnlineOrderPaymentStatus.cs" />
-    <Compile Include="Domain\Orders\OnlineOrderPaymentType.cs" />
     <Compile Include="Domain\Orders\OnlineOrderStatus.cs" />
-    <Compile Include="Domain\Orders\OnlinePaymentSource.cs" />
     <Compile Include="Domain\Orders\OnlineFreeRentPackage.cs" />
     <Compile Include="Domain\Orders\OrderItemRentSubType.cs" />
     <Compile Include="Domain\Orders\OrderRentType.cs" />

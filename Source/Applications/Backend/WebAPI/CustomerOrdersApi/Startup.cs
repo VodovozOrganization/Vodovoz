@@ -1,6 +1,6 @@
-using System.Linq;
-using System.Reflection;
 using CustomerOrdersApi.Library;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,19 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Project.DB;
-using QS.Project.Domain;
-using QS.Project.Repositories;
-using QS.Project.Services;
 using QS.Services;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Settings.Database;
 
 namespace CustomerOrdersApi
 {
@@ -40,26 +29,47 @@ namespace CustomerOrdersApi
 		{
 			services.AddControllers();
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerOrdersApi", Version = "v1" }); });
-			
+
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+				})
+				
+				.AddMessageTransportSettings()
+				.AddMassTransit(busConf => busConf.ConfigureRabbitMq());
+
+				/*configurator.ReceiveEndpoint("online-orders", x =>
+				{
+					x.ConfigureConsumeTopology = false;
+
+					x.Bind<OnlineOrderInfoDto>(s =>
+					{
+						s.RoutingKey = "False";
+						s.ExchangeType = ExchangeType.Direct;
+					});
 				});
-			
-			services.AddCustomerOrdersApiLibrary();
 
-			//services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
+				configurator.ReceiveEndpoint("online-orders-fault", x =>
+				{
+					x.ConfigureConsumeTopology = false;
+
+					x.Bind<OnlineOrderInfoDto>(s =>
+					{
+						s.RoutingKey = "True";
+						s.ExchangeType = ExchangeType.Direct;
+					});
+				});*/
+				
 			services.AddHttpClient();
-
-			CreateBaseConfig();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -74,60 +84,6 @@ namespace CustomerOrdersApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-		}
-		
-		private void CreateBaseConfig()
-		{
-            var conStrBuilder = new MySqlConnectionStringBuilder();
-
-            var domainDbConfig = Configuration.GetSection("DomainDB");
-
-            conStrBuilder.Server = domainDbConfig.GetValue<string>("Server");
-            conStrBuilder.Port = domainDbConfig.GetValue<uint>("Port");
-            conStrBuilder.Database = domainDbConfig.GetValue<string>("Database");
-            conStrBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
-            conStrBuilder.Password = domainDbConfig.GetValue<string>("Password");
-            conStrBuilder.SslMode = MySqlSslMode.None;
-
-            var connectionString = conStrBuilder.GetConnectionString(true);
-
-            var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-            	.Dialect<MySQL57SpatialExtendedDialect>()
-            	.ConnectionString(connectionString)
-            	.Driver<LoggedMySqlClientDriver>()
-            	.AdoNetBatchSize(100);
-
-            // Настройка ORM
-            OrmConfig.ConfigureOrm(
-            	dbConfig,
-            	new Assembly[]
-            	{
-            		Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-            		Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-            		Assembly.GetAssembly(typeof(Bank)),
-            		Assembly.GetAssembly(typeof(HistoryMain)),
-            		Assembly.GetAssembly(typeof(TypeOfEntity)),
-            		Assembly.GetAssembly(typeof(Attachment)),
-            		Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-            	}
-            );
-
-            var userLogin = domainDbConfig.GetValue<string>("UserID");
-            var serviceUserId = 0;
-
-            using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-            {
-            	var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-            		.Where(u => u.Login == userLogin)
-            		.FirstOrDefault();
-
-            	serviceUserId = serviceUser.Id;
-
-            	ServicesConfig.UserService = new UserService(serviceUser);
-            }
-
-            UserRepository.GetCurrentUserId = () => serviceUserId;
-            HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

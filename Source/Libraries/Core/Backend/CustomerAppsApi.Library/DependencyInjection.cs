@@ -13,11 +13,8 @@ using QS.Project.DB;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
@@ -26,14 +23,16 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Delivery;
+using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Roboats;
 
 namespace CustomerAppsApi.Library
@@ -93,11 +92,10 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyContractRepository, CounterpartyContractRepository>()
 				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
 				.AddScoped<FastDeliveryHandler>()
-				.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>()
-				.AddScoped<IDeliveryRulesParametersProvider, DeliveryRulesParametersProvider>()
+				.AddScoped<IDriverApiSettings, DriverApiSettings>()
+				.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
-				.AddScoped<IPersonProvider, BaseParametersProvider>()
 				.AddScoped<IUserService>(context => ServicesConfig.UserService)
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 				.AddScoped<IWarehouseModel, WarehouseModel>()

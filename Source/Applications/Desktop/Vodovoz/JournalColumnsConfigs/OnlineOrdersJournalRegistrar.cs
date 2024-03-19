@@ -12,13 +12,17 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	public class OnlineOrdersJournalRegistrar : ColumnsConfigRegistrarBase<OnlineOrdersJournalViewModel, OnlineOrdersJournalNode>
 	{
-		private static readonly Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
+		private static readonly Pixbuf _emptyImg = null;
 		private static readonly Pixbuf _greenCircle = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.green_circle16.png");
 
 		public override IColumnsConfig Configure(FluentColumnsConfig<OnlineOrdersJournalNode> config) =>
 			config.AddColumn("Номер")
 					.AddTextRenderer(node => node.Id.ToString())
-					.AddPixbufRenderer(node => string.IsNullOrWhiteSpace(node.ManagerWorkWith) ? _greenCircle : _emptyImg)
+					.AddPixbufRenderer(node =>
+						node.OnlineOrderStatus == OnlineOrderStatus.New
+						&& string.IsNullOrWhiteSpace(node.ManagerWorkWith)
+							? _greenCircle
+							: _emptyImg)
 				.AddColumn("Дата доставки").AddTextRenderer(node => node.DeliveryDate.ToShortDateString())
 				.AddColumn("Время доставки").AddTextRenderer(
 					node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
@@ -34,10 +38,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.RowCells().AddSetter<CellRendererText>((cell, node) =>
 				{
 					var color = GdkColors.PrimaryText;
-
+					
 					if(node.OnlineOrderStatus == OnlineOrderStatus.New && node.IsFastDelivery)
 					{
-						color = GdkColors.InsensitiveText; //должен быть красный
+						color = GdkColors.DangerText;
 					}
 					else if(node.OnlineOrderStatus == OnlineOrderStatus.New && node.IsNeedConfirmationByCall)
 					{
@@ -46,7 +50,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 					if(node.OnlineOrderStatus == OnlineOrderStatus.Canceled)
 					{
-						color = GdkColors.InfoText;
+						color = GdkColors.InsensitiveText;
 					}
 
 					cell.ForegroundGdk = color;

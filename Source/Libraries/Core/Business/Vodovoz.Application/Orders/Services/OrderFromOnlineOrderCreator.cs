@@ -12,7 +12,7 @@ using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class OrderFromOnlineOrderCreator
+	public class OrderFromOnlineOrderCreator : IOrderFromOnlineOrderCreator
 	{
 		private readonly IOrderSettings _orderSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -70,21 +70,25 @@ namespace Vodovoz.Application.Orders.Services
 			order.OnlineOrder = onlineOrder.OnlinePayment;
 			order.PaymentByCardFrom = paymentFrom;
 			order.Trifle = onlineOrder.Trifle;
-			order.Comment = onlineOrder.OnlineOrderComment;
+
+			if(!string.IsNullOrWhiteSpace(onlineOrder.OnlineOrderComment))
+			{
+				order.Comment = onlineOrder.OnlineOrderComment;
+			}
+			
+			if(!order.SelfDelivery)
+			{
+				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes ?? 15;
+				order.IsDoNotMakeCallBeforeArrival = false;
+			}
 			
 			order.UpdateOrCreateContract(order.UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 
 			//TODO проверка доступности быстрой доставки, если заказ с быстрой доставкой
 			//скорее всего достаточно будет одной проверки при подтверждении заказа
 			
-			//заполнить строки заказа
 			AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
-			
-			//добавить аренду
 			AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
-			
-			//TODO необходимо перепроверить нужность вызова этого метода
-			//order.RecalculateItemsPrice();
 			
 			return order;
 		}
@@ -118,8 +122,14 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void AddPromoSetFromManualCreationOrder(Order order, IEnumerable<PromotionalSet> promoSets)
 		{
+			var addedPromoSetsForNewClients = new Dictionary<int, bool>();
 			foreach(var promoSet in promoSets)
 			{
+				if(promoSet.PromotionalSetForNewClients && addedPromoSetsForNewClients.Any())
+				{
+					continue;
+				}
+				
 				foreach(var proSetItem in promoSet.PromotionalSetItems)
 				{
 					order.AddNomenclature(
@@ -129,6 +139,11 @@ namespace Vodovoz.Application.Orders.Services
 						proSetItem.IsDiscountInMoney,
 						null,
 						proSetItem.PromoSet);
+				}
+
+				if(promoSet.PromotionalSetForNewClients)
+				{
+					addedPromoSetsForNewClients.Add(promoSet.Id, true);
 				}
 			}
 		}

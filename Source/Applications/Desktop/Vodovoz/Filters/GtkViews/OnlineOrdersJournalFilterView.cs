@@ -5,6 +5,8 @@ using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;

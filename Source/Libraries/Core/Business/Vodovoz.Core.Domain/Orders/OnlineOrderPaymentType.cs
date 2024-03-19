@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Core.Domain.Orders
 {
 	public enum OnlineOrderPaymentType
 	{

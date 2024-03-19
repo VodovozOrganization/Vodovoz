@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 
-namespace CustomerOrdersApi.Library.Factories
+namespace CustomerOnlineOrdersRegistrar.Factories
 {
 	public class OnlineOrderFactory : IOnlineOrderFactory
 	{
@@ -22,6 +23,7 @@ namespace CustomerOrdersApi.Library.Factories
 				DeliveryPointId = orderInfoDto.DeliveryPointId,
 				DeliveryDate = orderInfoDto.DeliveryDate,
 				DeliveryScheduleId = orderInfoDto.DeliveryScheduleId,
+				CallBeforeArrivalMinutes = orderInfoDto.CallBeforeArrivalMinutes,
 				SelfDeliveryGeoGroupId = orderInfoDto.SelfDeliveryGeoGroupId,
 				IsSelfDelivery = orderInfoDto.IsSelfDelivery,
 				IsFastDelivery = orderInfoDto.IsFastDelivery,
@@ -41,6 +43,7 @@ namespace CustomerOrdersApi.Library.Factories
 			AddOrderItems(uow, onlineOrder, orderInfoDto.OnlineOrderItems);
 			AddRentPackages(uow, onlineOrder, orderInfoDto.OnlineRentPackages);
 			onlineOrder.CalculateSum();
+			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
 		}

@@ -4291,8 +4291,7 @@ namespace Vodovoz.Domain.Orders
 			IUnitOfWork uow,
 			Employee currentEmployee,
 			IOrderDailyNumberController orderDailyNumberController,
-			IPaymentFromBankClientController paymentFromBankClientController,
-			bool isRootUnitOfWork = true)
+			IPaymentFromBankClientController paymentFromBankClientController)
 		{
 			SetFirstOrder();
 
@@ -4324,7 +4323,7 @@ namespace Vodovoz.Domain.Orders
 				Comment = $"{_generalSettingsParameters.OrderAutoComment}{Environment.NewLine}{Comment}";
 			}
 
-			if(isRootUnitOfWork)
+			if(uow is IUnitOfWorkGeneric<Order>)
 			{
 				uow.Save();
 			}

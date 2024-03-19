@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
@@ -16,7 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public string DeliveryTime { get; set; }
 		public OnlineOrderStatus OnlineOrderStatus { get; set; }
 		public string ManagerWorkWith { get; set; }
-		public Domain.Client.Source Source { get; set; }
+		public Core.Domain.Clients.Source Source { get; set; }
 		public decimal OnlineOrderSum { get; set; }
 		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
 		public int? OnlinePayment { get; set; }

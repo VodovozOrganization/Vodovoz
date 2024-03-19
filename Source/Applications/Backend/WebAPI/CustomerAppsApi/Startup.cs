@@ -1,9 +1,4 @@
 using CustomerAppsApi.HealthChecks;
-using CustomerAppsApi.Library.Converters;
-using CustomerAppsApi.Library.Factories;
-using CustomerAppsApi.Library.Models;
-using CustomerAppsApi.Library.Repositories;
-using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,33 +11,9 @@ using NLog.Web;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
 using QS.Services;
-using QS.Utilities.Numeric;
-using Vodovoz.Controllers;
-using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Models;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Factories;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Settings.Database.Roboats;
-using Vodovoz.Settings.Roboats;
 using VodovozHealthCheck;
 
 namespace CustomerAppsApi
@@ -93,35 +64,6 @@ namespace CustomerAppsApi
 				.AddTrackedUoW()
 
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
-				.AddSingleton<IPhoneRepository, PhoneRepository>()
-				.AddSingleton<IEmailRepository, EmailRepository>()
-				.AddSingleton<ISettingsController, SettingsController>()
-				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
-				.AddSingleton<IRoboatsRepository, RoboatsRepository>()
-				.AddSingleton<IBottlesRepository, BottlesRepository>()
-				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
-				.AddSingleton<INomenclatureRepository, NomenclatureRepository>()
-				.AddSingleton<IStockRepository, StockRepository>()
-				.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>()
-				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
-				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
-				.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
-				.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
-				.AddSingleton<CounterpartyModelFactory>()
-				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
-				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
-				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
-				.AddSingleton<ICameFromConverter, CameFromConverter>()
-				.AddSingleton<ISourceConverter, SourceConverter>()
-				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
-				.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>()
-				.AddSingleton<ContactFinderForExternalCounterpartyFromMany>()
-				.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>()
-				.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>()
-				.AddScoped<ICounterpartyModel, CounterpartyModel>()
-				.AddScoped<INomenclatureModel, NomenclatureModel>()
-				.AddScoped<CounterpartyModelValidator>()
-
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
 
 				.AddHttpClient()

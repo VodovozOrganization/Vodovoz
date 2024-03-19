@@ -123,7 +123,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			SubdivisionQualityServiceShortName =
 				UoW.GetById<Subdivision>(_subdivisionSettings.QualityServiceSubdivisionId).ShortName ?? "?";
 			SubdivisionAuditDepartmentShortName =
-				UoW.GetById<Subdivision>(_subdivisionSettings.AuditDepartmentSubdivisionId).ShortName ?? "?";
+				UoW.GetById<Subdivision>(_subdivisionSettings.AuditDepartmentSubdivisionId)?.ShortName ?? "?";
 			
 			RegisterComplaints();
 

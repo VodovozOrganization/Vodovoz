@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
 

@@ -4,6 +4,7 @@ using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Models;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.EntityRepositories.RentPackages;
 
 namespace CustomerAppsApi.Library.Models

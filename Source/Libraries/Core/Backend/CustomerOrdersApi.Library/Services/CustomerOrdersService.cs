@@ -1,40 +1,48 @@
 ﻿using System;
 using CustomerOrdersApi.Library.Dto.Orders;
-using CustomerOrdersApi.Library.Factories;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Domain.Clients;
+using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.Services
 {
 	public class CustomerOrdersService : ICustomerOrdersService
 	{
 		private readonly ILogger<CustomerOrdersService> _logger;
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IOnlineOrderFactory _onlineOrderFactory;
-		private readonly IOrderService _orderService;
+		private readonly ISignatureManager _signatureManager;
+		private readonly IConfigurationSection _signaturesSection;
 
 		public CustomerOrdersService(
 			ILogger<CustomerOrdersService> logger,
-			IUnitOfWork unitOfWork,
-			IOnlineOrderFactory onlineOrderFactory,
-			IOrderService orderService)
+			ISignatureManager signatureManager,
+			IConfiguration configuration)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
-			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
+
+			_signaturesSection = configuration.GetSection("Signatures");
 		}
 
-		public int CreateOrderFromOnlineOrder(OnlineOrderInfoDto onlineOrderInfoDto)
+		public bool ValidateSignature(OnlineOrderInfoDto onlineOrderInfoDto, out string generatedSignature)
 		{
-			var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(_unitOfWork, onlineOrderInfoDto);
-			_unitOfWork.Save(onlineOrder);
-			_unitOfWork.Commit();
+			var sourceSign = GetSourceSign(onlineOrderInfoDto.Source);
 			
-			_logger.LogInformation("Создаем заказ из онлайн заказа {OnlineOrderId} и пытаемся его подтвердить", onlineOrder.Id);
-			
-			return _orderService.TryCreateOrderFromOnlineOrderAndAccept(_unitOfWork, onlineOrder);
+			return _signatureManager.Validate(
+				onlineOrderInfoDto.Signature,
+				new SignatureParams
+				{
+					OrderId = onlineOrderInfoDto.ExternalOrderId.ToString(),
+					OrderSumInKopecks = (int)onlineOrderInfoDto.OrderSum * 100,
+					ShopId = (int)onlineOrderInfoDto.Source,
+					Sign = sourceSign
+				},
+				out generatedSignature);
+		}
+
+		private string GetSourceSign(Source source)
+		{
+			return _signaturesSection.GetValue<string>(source.ToString());
 		}
 	}
 }

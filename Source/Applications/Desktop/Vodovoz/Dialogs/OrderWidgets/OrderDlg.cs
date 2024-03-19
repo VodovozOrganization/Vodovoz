@@ -256,7 +256,7 @@ namespace Vodovoz
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
 		private FastDeliveryHandler _fastDeliveryHandler;
-		private OrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
+		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -393,7 +393,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
-			//AddCommentsFromDeliveryPoint();
+			AddCommentsFromDeliveryPoint();
 			SetLogisticsRequirementsCheckboxes();
 		}
 
@@ -545,17 +545,6 @@ namespace Vodovoz
 			SetLogisticsRequirementsCheckboxes();
 		}
 
-		public void CopyFromOnlineOrder(OnlineOrder onlineOrder)
-		{
-			Entity.Client = onlineOrder.Counterparty;
-			Entity.DeliveryPoint = onlineOrder.DeliveryPoint;
-			Entity.SelfDelivery = onlineOrder.IsFastDelivery;
-			Entity.DeliverySchedule = onlineOrder.DeliverySchedule;
-			Entity.IsFastDelivery = onlineOrder.IsFastDelivery;
-			Entity.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
-			
-		}
-
 		public void ConfigureDlg()
 		{
 			SetPermissions();
@@ -573,7 +562,7 @@ namespace Vodovoz
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
-			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<OrderFromOnlineOrderCreator>();
+			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<IOrderFromOnlineOrderCreator>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 

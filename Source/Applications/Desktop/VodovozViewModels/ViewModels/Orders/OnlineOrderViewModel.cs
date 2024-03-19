@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using QS.Commands;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Orders;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -25,8 +25,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	{
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly Employee _currentEmployee;
+		private bool _orderCreatingState;
 
 		public OnlineOrderViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -35,8 +35,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			INavigationManager navigation,
 			IEmployeeService employeeService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			ILifetimeScope scope,
-			IGtkTabsOpener gtkTabsOpener)
+			IExternalCounterpartyMatchingRepository externalCounterpartyMatchingRepository,
+			ILifetimeScope scope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_currentEmployee =
@@ -49,8 +49,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			ExternalCounterpartyMatchingRepository =
+				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			
 			CreateCommands();
 			CreatePropertyChangeRelations();
@@ -61,21 +62,30 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public DelegateCommand GetToWorkCommand { get; private set; }
 		public DelegateCommand CancelOnlineOrderCommand { get; private set; }
+		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
+		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
 
 		private void CreateCommands()
 		{
 			CreateGetToWorkCommand();
 			CreateCancelOnlineOrderCommand();
+			CreateOpenExternalCounterpartyMatchingCommand();
 		}
 
 		public bool CanShowId => Entity.Id > 0;
 
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
-		public bool CanGetToWork => Entity.Order is null;
-		public bool CanCancelOnlineOrder => Entity.Order is null;
+		public bool CanGetToWork => Entity.EmployeeWorkWith is null;
+		public bool CanCreateOrder =>
+			OrderIsNullAndOnlineOrderNotCanceledStatus
+				&& Entity.EmployeeWorkWith != null
+				&& Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
+		public bool CanCancelOnlineOrder =>
+			OrderIsNullAndOnlineOrderNotCanceledStatus && !_orderCreatingState;
+		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
 		public bool CanShowOrder => Entity.Order != null;
@@ -86,6 +96,21 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowPromoItems => OnlineOrderPromoItems.Any();
 		public bool CanShowRentPackages => OnlineRentPackages.Any();
 		public bool CanShowCancellationReason => Entity.OnlineOrderCancellationReason != null;
+		public bool CanOpenExternalCounterpartyMatching => HasEmptyCounterpartyAndNotNullDataForMatching;
+		public bool HasEmptyCounterpartyAndNotNullDataForMatching =>
+			Entity.Counterparty is null
+			&& Entity.ExternalCounterpartyId.HasValue
+			&& !string.IsNullOrWhiteSpace(Entity.ContactPhone);
+		
+		public bool OrderCreatingState
+		{
+			get => _orderCreatingState;
+			set
+			{
+				_orderCreatingState = value;
+				OnPropertyChanged(nameof(CanCancelOnlineOrder));
+			}
+		}
 
 		public string IdToString => Entity.Id.ToString();
 
@@ -138,6 +163,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string ValidationErrors { get; private set; }
 		
 		public IEntityEntryViewModel CancellationReasonViewModel { get; private set; }
+		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
+			Entity.Order is null && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
+		
+		public OnlineOrderStatusUpdatedNotification CreateNewNotification() =>
+			OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(Entity);
+
+		public void ShowMessage(string message, string title = null)
+		{
+			ShowInfoMessage(message, title);
+		}
 
 		private void CreateGetToWorkCommand()
 		{
@@ -153,14 +188,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					if(Entity.EmployeeWorkWith is null)
 					{
 						Entity.EmployeeWorkWith = _currentEmployee;
-					
-						if(!Save(false))
-						{
-							return;
-						}
+						Save(false);
 					}
-
-					OpenOrderDlgAndFillOnlineOrderData();
 				});
 		}
 		
@@ -169,28 +198,72 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CancelOnlineOrderCommand = new DelegateCommand(
 				() =>
 				{
+					if(Entity.OnlineOrderCancellationReason is null)
+					{
+						ShowWarningMessage("Укажите причину отмены онлайн заказа");
+						return;
+					}
+					
 					var oldStatus = Entity.OnlineOrderStatus;
 					Entity.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+					var notification = CreateNewNotification();
+					UoW.Save(notification);
 					
 					if(!Save())
 					{
 						Entity.OnlineOrderStatus = oldStatus;
+						return;
 					}
+					
+					Close(false, CloseSource.Save);
 				});
 		}
 
-		private void OpenOrderDlgAndFillOnlineOrderData()
+		private void CreateOpenExternalCounterpartyMatchingCommand()
 		{
-			var page = _gtkTabsOpener.OpenOrderDlgByNavigatorForCreateFromOnlineOrder(this, Entity);
-			(page as ITdiDialog).EntitySaved += OnOrderSaved;
-		}
+			OpenExternalCounterpartyMatchingCommand = new DelegateCommand(
+				() =>
+				{
+					if(Entity.ExternalCounterpartyId is null)
+					{
+						return;
+					}
+					
+					var externalCounterpartyMatching =
+						ExternalCounterpartyMatchingRepository.GetExternalCounterpartyMatching(
+								UoW,
+								Entity.ExternalCounterpartyId.Value,
+								Entity.ContactPhone)
+							.FirstOrDefault();
+					
+					if(externalCounterpartyMatching != null)
+					{
+						if(externalCounterpartyMatching.Status == ExternalCounterpartyMatchingStatus.Processed)
+						{
+							Entity.Counterparty = UoW.GetById<Domain.Client.Counterparty>(
+								externalCounterpartyMatching.AssignedExternalCounterparty.Phone.Counterparty.Id);
+							Save(false);
+						}
+						else
+						{
+							NavigationManager.OpenViewModel<ExternalCounterpartyMatchingViewModel, IEntityUoWBuilder>(
+								this,
+								EntityUoWBuilder.ForOpen(externalCounterpartyMatching.Id),
+								OpenPageOptions.AsSlave,
+								vm => vm.EntitySaved += (sender, args) =>
+								{
+									var matching = args.GetEntity<ExternalCounterpartyMatching>();
+									if(matching.Status == ExternalCounterpartyMatchingStatus.Processed)
+									{
+										Entity.Counterparty =
+											UoW.GetById<Domain.Client.Counterparty>(matching.AssignedExternalCounterparty.Phone.Counterparty.Id);
 
-		private void OnOrderSaved(object sender, EntitySavedEventArgs e)
-		{
-			var order = UoW.GetById<Order>(e.Entity.GetId());
-			Entity.OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
-			Entity.Order = order;
-			Save(true);
+										Save(false);
+									}
+								});
+						}
+					}
+				});
 		}
 
 		private void CreatePropertyChangeRelations()
@@ -203,20 +276,28 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			SetPropertyChangeRelation(
 				e => e.EmployeeWorkWith,
 				() => CanShowEmployeeWorkWith,
+				() => CanCreateOrder,
 				() => EmployeeWorkWith);
 			
 			SetPropertyChangeRelation(
+				e => e.Counterparty,
+				() => Counterparty,
+				() => CanOpenExternalCounterpartyMatching);
+			
+			SetPropertyChangeRelation(
 				e => e.OnlineOrderStatus,
-				() => OnlineOrderStatusString);
+				() => OnlineOrderStatusString,
+				() => CanGetToWork,
+				() => CanCreateOrder,
+				() => CanCancelOnlineOrder,
+				() => CanEditCancellationReason);
 			
 			SetPropertyChangeRelation(
 				e => e.Order,
 				() => CanGetToWork,
-				() => CanCancelOnlineOrder);
-			
-			SetPropertyChangeRelation(
-				e => e.OnlineOrderCancellationReason,
-				() => CanShowCancellationReason);
+				() => CanCreateOrder,
+				() => CanCancelOnlineOrder,
+				() => CanEditCancellationReason);
 		}
 		
 		private void GetOnlineOrderItems()

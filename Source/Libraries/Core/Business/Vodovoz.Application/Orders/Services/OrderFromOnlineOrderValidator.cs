@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
@@ -31,9 +32,21 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			else
 			{
+				if(_onlineOrder.Counterparty is null)
+				{
+					validationResults.Add(Errors.Orders.OnlineOrder.IsEmptyCounterparty);
+				}
+				
 				if(_onlineOrder.DeliveryPoint is null)
 				{
 					validationResults.Add(Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint);
+				}
+				else
+				{
+					if(_onlineOrder.DeliveryPoint.District is null)
+					{
+						validationResults.Add(Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint);
+					}
 				}
 
 				if(_onlineOrder.DeliverySchedule is null)
@@ -41,10 +54,27 @@ namespace Vodovoz.Application.Orders.Services
 					validationResults.Add(Errors.Orders.OnlineOrder.IsEmptyDeliverySchedule);
 				}
 			}
+			
+			if(_onlineOrder.DeliveryDate < DateTime.Today)
+			{
+				validationResults.Add(Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
+			}
 
 			ValidateOnlineOrderItems(validationResults);
+			//CanShipPromoSets(validationResults);
+			//CanFastDelivery(validationResults);
 			
 			return !validationResults.Any() ? Result.Success() : Result.Failure(validationResults);
+		}
+
+		private void CanFastDelivery(List<Error> validationResults)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void CanShipPromoSets(List<Error> validationResults)
+		{
+			throw new NotImplementedException();
 		}
 
 		private void ValidateOnlineOrderItems(ICollection<Error> errors)
@@ -69,7 +99,13 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					errors.Add(Errors.Orders.OnlineOrder.IsArchivedOnlineOrderPromoSet(promoSet.Title));
 				}
+
+				var promoSetItemsCount = promoSet.PromotionalSetItems.Count;
+				var onlinePromoItemsCount = onlineOrderItemGroup.Count();
 				
+				CheckCorrectPromoSetItemsCount(errors, promoSetItemsCount, onlinePromoItemsCount, promoSet.Title);
+				CheckPromoSetForNewClientsCount(errors, promoSetItemsCount, onlinePromoItemsCount, promoSet);
+					
 				var i = 0;
 				foreach(var onlineOrderItem in onlineOrderItemGroup)
 				{
@@ -78,7 +114,39 @@ namespace Vodovoz.Application.Orders.Services
 					ValidatePrice(onlineOrderItem, errors);
 					ValidateDiscount(onlineOrderItem, i, errors);
 					i++;
+
+					if(i >= promoSetItemsCount)
+					{
+						i = 0;
+					}
 				}
+			}
+		}
+
+		private void CheckCorrectPromoSetItemsCount(
+			ICollection<Error> errors,
+			int promoSetItemsCount,
+			int onlinePromoItemsCount,
+			string promoSetTitle)
+		{
+			if(promoSetItemsCount < onlinePromoItemsCount)
+			{
+				if(onlinePromoItemsCount % promoSetItemsCount != 0)
+				{
+					errors.Add(Errors.Orders.OnlineOrder.IsIncorrectOnlineOrderPromoSetItemsCount(promoSetTitle));
+				}
+			}
+		}
+		
+		private void CheckPromoSetForNewClientsCount(
+			ICollection<Error> errors,
+			int promoSetItemsCount,
+			int onlinePromoItemsCount,
+			PromotionalSet promoSet)
+		{
+			if(promoSetItemsCount < onlinePromoItemsCount && promoSet.PromotionalSetForNewClients)
+			{
+				errors.Add(Errors.Orders.OnlineOrder.IsIncorrectOnlineOrderPromoSetForNewClientsCount());
 			}
 		}
 
@@ -158,11 +226,13 @@ namespace Vodovoz.Application.Orders.Services
 			onlineOrderItem.DiscountFromPromoSet = discountItemFromPromoSet;
 			onlineOrderItem.IsDiscountInMoneyFromPromoSet = discountInMoneyFromPromoSet;
 
+			var position = ++index;
+
 			if(discountInMoneyFromPromoSet != onlineOrderItem.IsDiscountInMoney)
 			{
 				errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrderPromoSet(
 					onlineOrderItem.PromoSet.Title,
-					++index,
+					position,
 					onlineOrderItem.Nomenclature.ToString(),
 					discountInMoneyFromPromoSet,
 					onlineOrderItem.IsDiscountInMoney));
@@ -172,7 +242,7 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountInOnlineOrderPromoSet(
 					onlineOrderItem.PromoSet.Title,
-					++index,
+					position,
 					onlineOrderItem.Nomenclature.ToString(),
 					discountItemFromPromoSet,
 					onlineOrderItemDiscount));

@@ -344,7 +344,7 @@ namespace Vodovoz
 
 					#region Controllers
 
-					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
+					/*builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
 						.Where(t => (t.Name.EndsWith("Controller") || t.Name.EndsWith("Handler"))
 							&& t.GetInterfaces()
 								.Where(i => i.Name == $"I{t.Name}")
@@ -352,7 +352,7 @@ namespace Vodovoz
 						.As((s) => s.GetTypeInfo()
 							.GetInterfaces()
 							.Where(i => i.Name == $"I{s.Name}")
-							.First());
+							.First());*/
 
 					builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
 					builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
@@ -408,9 +408,11 @@ namespace Vodovoz
 
 					#region Репозитории
 
-					builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
+					builder.RegisterGeneric(typeof(GenericRepository<>))
+						.As(typeof(IGenericRepository<>))
+						.InstancePerLifetimeScope();
 					
-					builder.RegisterAssemblyTypes(
+					/*builder.RegisterAssemblyTypes(
 						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),
 						Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder))
 						)
@@ -422,7 +424,7 @@ namespace Vodovoz
 							.GetInterfaces()
 							.Where(i => i.Name == $"I{s.Name}")
 							.First())
-						.SingleInstance();
+						.SingleInstance();*/
 
 					#endregion
 
@@ -715,11 +717,6 @@ namespace Vodovoz
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
-						.AddScoped<FastDeliveryHandler>()
-						.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
-						.AddScoped<OrderFromOnlineOrderCreator>()
-						.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
-						.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 						.AddSingleton<ViewModelWidgetResolver, BasedOnNameViewModelWidgetResolver>()
 						.AddSingleton<ITDIWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
 						.AddSingleton<IFilterWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
@@ -728,7 +725,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness()
-
+						.AddCoreDataRepositories()
 
 						//Messages
 						.AddSingleton<MessagesHostedService>()
