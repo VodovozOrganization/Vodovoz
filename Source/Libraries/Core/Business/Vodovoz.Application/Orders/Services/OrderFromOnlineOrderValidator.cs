@@ -55,7 +55,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 			}
 			
-			if(_onlineOrder.DeliveryDate < DateTime.Today)
+			if(_onlineOrder.DeliveryDate < DateTime.Today && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				validationResults.Add(Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
 			}
