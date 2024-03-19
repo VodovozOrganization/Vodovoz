@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
 using Gdk;
@@ -1269,23 +1269,24 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран водитель!");
 				return;
 			}
-			
-			var filter = new CarJournalFilterViewModel(ViewModel.LifetimeScope, ViewModel.CarModelJournalFactory);
-			filter.SetAndRefilterAtOnce(
-				x => x.Archive = false,
-				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
-			);
 
-			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(
+			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel, Action<CarJournalFilterViewModel>>(
 				Tab,
+				filter =>
+				{
+					filter.Archive = false;
+					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
+				},
 				OpenPageOptions.AsSlave,
-				viewModel => viewModel.SelectionMode = JournalSelectionMode.Single);
-
-			page.ViewModel.OnEntitySelectedResult += (o, args) =>
-			{
-				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
-				ViewModel.SelectCarForDriver(driver, car);
-			};
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += (o, args) =>
+					{
+						var car = ViewModel.UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
+						ViewModel.SelectCarForDriver(driver, car);
+					};
+				});
 		}
 
 		private void OnLoadTimeEdited(object o, EditedArgs args)

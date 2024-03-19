@@ -22,54 +22,16 @@ namespace RoboatsService.Controllers
 
 		public RoboatsController(ILogger<RoboatsController> logger, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator roboatsCallRegistrator)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_handlerFactory = handlerFactory ?? throw new System.ArgumentNullException(nameof(handlerFactory));
-			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new System.ArgumentNullException(nameof(roboatsCallRegistrator));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
+			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 		}
 
 		[HttpGet]
-		public string Get(
-			[FromQuery(Name = "CID")] string clientPhone,
-			[FromQuery(Name = "CALL_UUID")] string callUUID,
-			[FromQuery(Name = "request")] string requestType,
-			[FromQuery(Name = "address_id")] string addressId,
-			[FromQuery(Name = "order_id")] string orderId,
-			[FromQuery(Name = "add")] string isAddOrder,
-			[FromQuery(Name = "return")] string returnBottlesCount,
-			[FromQuery(Name = "date")] string date,
-			[FromQuery(Name = "time")] string time,
-			[FromQuery(Name = "fullorder")] string fullOrder,
-			[FromQuery(Name = "show")] string checkType,
-			[FromQuery(Name = "waterquantity")] string waterQuantity,
-			[FromQuery(Name = "bill")] string banknoteForReturn,
-			[FromQuery(Name = "payment_type")] string paymentType
-			)
+		public string Get([FromQuery] RequestDto request)
 		{
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
-
-			if(!Guid.TryParse(callUUID, out Guid callGuid))
-			{
-				return "ERROR. UUID has incorrect format";
-			}
-
-			var request = new RequestDto
-			{
-				ClientPhone = clientPhone,
-				CallGuid = callGuid,
-				RequestType = requestType,
-				AddressId = addressId,
-				Date = date,
-				Time = time,
-				IsAddOrder = isAddOrder,
-				ReturnBottlesCount = returnBottlesCount,
-				WaterQuantity = waterQuantity,
-				BanknoteForReturn = banknoteForReturn,
-				PaymentType = paymentType,
-				IsFullOrder = fullOrder,
-				RequestSubType = checkType,
-				OrderId = orderId
-			};
 
 			_roboatsCallRegistrator.RegisterCall(request.ClientPhone, request.CallGuid);
 
