@@ -27,7 +27,7 @@ namespace Vodovoz.JournalViewModels
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
-			Action<CarJournalFilterViewModel> filterConfiguration = null)
+			Action<CarModelJournalFilterViewModel> filterConfiguration = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_filterViewModel = filterViewModel
@@ -37,7 +37,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(filterConfiguration != null)
 			{
-				_filterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+				_filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
 			}
 
 			TabName = "Журнал моделей автомобилей";
@@ -46,7 +46,12 @@ namespace Vodovoz.JournalViewModels
 
 			UpdateOnChanges(typeof(CarModel));
 
-			_filterViewModel.OnFiltered += (s, e) => Refresh();
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh()
 		}
 
 		protected override IQueryOver<CarModel> ItemsQuery(IUnitOfWork uow)
@@ -85,6 +90,12 @@ namespace Vodovoz.JournalViewModels
 				.TransformUsing(Transformers.AliasToBean<CarModelJournalNode>());
 
 			return result;
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			base.Dispose();
 		}
 	}
 }

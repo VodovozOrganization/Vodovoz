@@ -73,5 +73,11 @@ namespace Vodovoz.Filters.GtkViews
 				enumcheckCarTypeOfUse.AddEnumToHideList(excludedCarTypeOfUse);
 			}
 		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
+		}
 	}
 }

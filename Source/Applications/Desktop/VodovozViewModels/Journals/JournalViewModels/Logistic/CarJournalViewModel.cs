@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(filterConfiguration != null)
 			{
-				filterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+				filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
 			}
 
 			TabName = "Журнал автомобилей";
