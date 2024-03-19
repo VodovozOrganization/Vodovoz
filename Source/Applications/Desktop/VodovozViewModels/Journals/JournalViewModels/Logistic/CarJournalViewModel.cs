@@ -51,7 +51,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(CarModel),
 				typeof(Employee));
 
-			_filterViewModel.OnFiltered += (s, e) => Refresh();
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected override IQueryOver<Car> ItemsQuery(IUnitOfWork uow)
@@ -138,6 +143,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
 			return result;
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			base.Dispose();
 		}
 	}
 }
