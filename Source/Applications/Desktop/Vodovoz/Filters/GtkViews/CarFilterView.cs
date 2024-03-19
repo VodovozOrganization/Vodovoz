@@ -40,7 +40,8 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
 				.InitializeFromSource();
 
-			entryModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory.CreateCarModelAutocompleteSelectorFactory(ViewModel.LifetimeScope));
+			//entryModel.ViewModel = ViewModel.CarModelViewModel;
+
 			entryModel.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeCarModel, w => w.Sensitive)
 				.AddBinding(vm => vm.CarModel, w => w.Subject)

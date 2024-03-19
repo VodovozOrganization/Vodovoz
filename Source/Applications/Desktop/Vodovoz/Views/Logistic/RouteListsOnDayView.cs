@@ -1269,15 +1269,14 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран водитель!");
 				return;
 			}
-			
-			var filter = new CarJournalFilterViewModel(ViewModel.LifetimeScope, ViewModel.CarModelJournalFactory);
-			filter.SetAndRefilterAtOnce(
-				x => x.Archive = false,
-				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
-			);
 
-			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(
+			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel, Action<CarJournalFilterViewModel>>(
 				Tab,
+				filter =>
+				{
+					filter.Archive = false;
+					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
+				},
 				OpenPageOptions.AsSlave,
 				viewModel =>
 				{

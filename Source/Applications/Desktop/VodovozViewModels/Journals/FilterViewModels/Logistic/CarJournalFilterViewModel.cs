@@ -1,40 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Utilities.Enums;
+using QS.ViewModels.Control.EEVM;
+using System.Collections.Generic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
 	public class CarJournalFilterViewModel : FilterViewModelBase<CarJournalFilterViewModel>
 	{
+		private readonly ViewModelEEVMBuilder<CarModel> _carModelViewModelBuilder;
+
+		private CarModel _carModel;
+		private CarJournalViewModel _journal;
+
 		private bool? _archive = false;
 		private bool? _visitingMasters;
-		private CarModel _carModel;
 		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
 		private IList<CarOwnType> _restrictedCarOwnTypes;
-
 		private bool _canChangeCarModel;
 		private bool _canChangeRestrictedCarOwnTypes;
 		private bool _canChangeIsArchive;
 		private bool _canChangeVisitingMasters;
 		private bool _canChangeRestrictedCarTypesOfUse;
 
-		public CarJournalFilterViewModel(
-			ILifetimeScope lifetimeScope,
-			ICarModelJournalFactory carModelJournalFactory)
+		public CarJournalFilterViewModel(ViewModelEEVMBuilder<CarModel> carModelViewModelBuilder)
 		{
-			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			SetFilterSensitivity(true);
+			_carModelViewModelBuilder = carModelViewModelBuilder;
 		}
 
-		public ILifetimeScope LifetimeScope { get; }
-		public ICarModelJournalFactory CarModelJournalFactory { get; }
+		public CarJournalViewModel Journal
+		{
+			get => _journal;
+			set
+			{
+				if(_journal != null)
+				{
+					return;
+				}
+
+				_journal = value;
+
+
+				CarModelViewModel = _carModelViewModelBuilder
+					.SetViewModel(value)
+					.SetUnitOfWork(value.UoW)
+					.ForProperty(this, x => x.CarModel)
+					.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
+					.UseViewModelDialog<CarModelViewModel>()
+					.Finish();
+			}
+		}
+
+		public IEntityEntryViewModel CarModelViewModel { get; private set; }
 
 		public virtual bool? Archive
 		{

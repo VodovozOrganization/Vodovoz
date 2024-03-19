@@ -1,45 +1,51 @@
-﻿using System;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
-using Vodovoz.Controllers;
+using System;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class CarModelJournalViewModel : FilterableSingleEntityJournalViewModelBase
-		<CarModel, CarModelViewModel, CarModelJournalNode, CarModelJournalFilterViewModel>
+	public class CarModelJournalViewModel : EntityJournalViewModelBase<CarModel, CarModelViewModel, CarModelJournalNode>
 	{
-		private readonly ICarManufacturerJournalFactory _carManufacturerJournalFactory;
-		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly CarModelJournalFilterViewModel _filterViewModel;
 
 		public CarModelJournalViewModel(
 			CarModelJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
-			ICarManufacturerJournalFactory carManufacturerJournalFactory,
-			IRouteListProfitabilityController routeListProfitabilityController,
-			bool hideJournalForOpenDialog = false,
-			bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService,
+			Action<CarJournalFilterViewModel> filterConfiguration = null)
+			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_carManufacturerJournalFactory =
-				carManufacturerJournalFactory ?? throw new ArgumentNullException(nameof(carManufacturerJournalFactory));
-			_routeListProfitabilityController =
-				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			
+			_filterViewModel = filterViewModel
+				?? throw new ArgumentNullException(nameof(filterViewModel));
+
+			JournalFilter = _filterViewModel;
+
+			if(filterConfiguration != null)
+			{
+				_filterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+			}
+
 			TabName = "Журнал моделей автомобилей";
+
+			UseSlider = true;
+
 			UpdateOnChanges(typeof(CarModel));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<CarModel>> ItemsSourceQueryFunction => (uow) =>
+		protected override IQueryOver<CarModel> ItemsQuery(IUnitOfWork uow)
 		{
 			CarModel carModelAlias = null;
 			CarModelJournalNode resultNode = null;
@@ -48,18 +54,16 @@ namespace Vodovoz.JournalViewModels
 			var query = uow.Session.QueryOver(() => carModelAlias)
 				.Left.JoinAlias(() => carModelAlias.CarManufacturer, () => carManufacturerAlias);
 
-			if(FilterViewModel.Archive.HasValue)
+			if(_filterViewModel.Archive.HasValue)
 			{
-				query.Where(() => carModelAlias.IsArchive == FilterViewModel.Archive);
+				query.Where(() => carModelAlias.IsArchive == _filterViewModel.Archive);
 			}
 
 			query.Where(
 				GetSearchCriterion(
 					() => carModelAlias.Id,
 					() => carModelAlias.Name,
-					() => carManufacturerAlias.Name
-				)
-			);
+					() => carManufacturerAlias.Name));
 
 			var result = query
 				.SelectList(list => list
@@ -72,22 +76,6 @@ namespace Vodovoz.JournalViewModels
 				.TransformUsing(Transformers.AliasToBean<CarModelJournalNode>());
 
 			return result;
-		};
-
-		protected override Func<CarModelViewModel> CreateDialogFunction => () =>
-			new CarModelViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory,
-				commonServices,
-				_carManufacturerJournalFactory,
-				_routeListProfitabilityController);
-
-		protected override Func<CarModelJournalNode, CarModelViewModel> OpenDialogFunction => node =>
-			new CarModelViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory,
-				commonServices,
-				_carManufacturerJournalFactory,
-				_routeListProfitabilityController);
+		}
 	}
 }

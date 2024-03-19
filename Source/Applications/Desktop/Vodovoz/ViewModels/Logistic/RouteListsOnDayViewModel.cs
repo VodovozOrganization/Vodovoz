@@ -45,7 +45,6 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -89,7 +88,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeService employeeService,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			ICarModelJournalFactory carModelJournalFactory,
 			IRouteOptimizer routeOptimizer,
 			IGlobalSettings globalSettings,
 			IRouteListProfitabilityController routeListProfitabilityController)
@@ -108,7 +106,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
-			CarModelJournalFactory = carModelJournalFactory;
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
@@ -220,7 +217,6 @@ namespace Vodovoz.ViewModels.Logistic
 		public ICarRepository CarRepository { get; }
 		public IList<GeoGroup> GeographicGroupsExceptEast { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
-		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public IOrderRepository OrderRepository { get; }
 
 		private void CreateCommands()

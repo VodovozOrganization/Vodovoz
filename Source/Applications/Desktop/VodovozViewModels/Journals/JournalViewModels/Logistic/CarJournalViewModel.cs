@@ -28,12 +28,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
-			ICurrentPermissionService currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			Action<CarJournalFilterViewModel> filterConfiguration = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_filterViewModel = filterViewModel
+				?? throw new ArgumentNullException(nameof(filterViewModel));
+
+			filterViewModel.Journal = this;
 
 			JournalFilter = filterViewModel;
+
+			if(filterConfiguration != null)
+			{
+				filterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+			}
 
 			TabName = "Журнал автомобилей";
 
