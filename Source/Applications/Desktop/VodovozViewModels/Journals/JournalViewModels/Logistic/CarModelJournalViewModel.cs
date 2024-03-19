@@ -51,7 +51,7 @@ namespace Vodovoz.JournalViewModels
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
-			Refresh()
+			Refresh();
 		}
 
 		protected override IQueryOver<CarModel> ItemsQuery(IUnitOfWork uow)
