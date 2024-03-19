@@ -50,6 +50,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(Car),
 				typeof(CarModel),
 				typeof(Employee));
+
+			_filterViewModel.OnFiltered += (s, e) => Refresh();
 		}
 
 		protected override IQueryOver<Car> ItemsQuery(IUnitOfWork uow)
@@ -94,6 +96,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			if(_filterViewModel.RestrictedCarTypesOfUse != null)
 			{
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(_filterViewModel.RestrictedCarTypesOfUse.ToArray());
+			}
+
+			if(_filterViewModel.ExcludedCarTypesOfUse != null && _filterViewModel.ExcludedCarTypesOfUse.Any())
+			{
+				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).Not.IsIn(_filterViewModel.ExcludedCarTypesOfUse.ToArray());
 			}
 
 			if(_filterViewModel.RestrictedCarOwnTypes != null)

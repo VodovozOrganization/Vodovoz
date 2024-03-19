@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool _canChangeIsArchive;
 		private bool _canChangeVisitingMasters;
 		private bool _canChangeRestrictedCarTypesOfUse;
+		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
 
 		public CarJournalFilterViewModel(ViewModelEEVMBuilder<CarModel> carModelViewModelBuilder)
 		{
@@ -44,14 +45,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 					return;
 				}
 
-				_journal = value;
-
+				SetField(ref _journal, value);
 
 				CarModelViewModel = _carModelViewModelBuilder
 					.SetViewModel(value)
 					.SetUnitOfWork(value.UoW)
 					.ForProperty(this, x => x.CarModel)
-					.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
+					.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel, CarModelJournalFilterViewModel>(filter =>
+					{
+						filter.ExcludedCarTypesOfUse = ExcludedCarTypesOfUse;
+					})
 					.UseViewModelDialog<CarModelViewModel>()
 					.Finish();
 			}
@@ -81,6 +84,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _restrictedCarTypesOfUse;
 			set => UpdateFilterField(ref _restrictedCarTypesOfUse, value);
+		}
+
+		public IEnumerable<CarTypeOfUse> ExcludedCarTypesOfUse
+		{
+			get => _excludedCarTypesOfUse;
+			set => UpdateFilterField(ref _excludedCarTypesOfUse, value);
 		}
 
 		public IList<CarOwnType> RestrictedCarOwnTypes
@@ -126,6 +135,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			CanChangeRestrictedCarTypesOfUse = isSensitive;
 			CanChangeRestrictedCarOwnTypes = isSensitive;
 			CanChangeCarModel = isSensitive;
+		}
+
+		public override void Dispose()
+		{
+			_journal = null;
+			base.Dispose();
 		}
 	}
 }

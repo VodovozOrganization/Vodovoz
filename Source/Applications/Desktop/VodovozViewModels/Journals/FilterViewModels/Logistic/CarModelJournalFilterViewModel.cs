@@ -1,4 +1,5 @@
 ﻿using QS.Project.Filter;
+using System.Collections.Generic;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
@@ -8,6 +9,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool? _archive;
 		private CarOwnType? _restrictedCarOwnType;
 		private bool _canChangeRestrictedCarOwnType;
+		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
 
 		public CarModelJournalFilterViewModel()
 		{
@@ -18,6 +20,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _restrictedCarOwnType;
 			set => UpdateFilterField(ref _restrictedCarOwnType, value);
+		}
+
+		public IEnumerable<CarTypeOfUse> ExcludedCarTypesOfUse
+		{
+			get => _excludedCarTypesOfUse;
+			set => UpdateFilterField(ref _excludedCarTypesOfUse, value);
 		}
 
 		public bool? Archive

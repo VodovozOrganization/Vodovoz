@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
+using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -7,6 +8,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
@@ -43,6 +45,8 @@ namespace Vodovoz.JournalViewModels
 			UseSlider = true;
 
 			UpdateOnChanges(typeof(CarModel));
+
+			_filterViewModel.OnFiltered += (s, e) => Refresh();
 		}
 
 		protected override IQueryOver<CarModel> ItemsQuery(IUnitOfWork uow)
@@ -57,6 +61,11 @@ namespace Vodovoz.JournalViewModels
 			if(_filterViewModel.Archive.HasValue)
 			{
 				query.Where(() => carModelAlias.IsArchive == _filterViewModel.Archive);
+			}
+
+			if(_filterViewModel.ExcludedCarTypesOfUse != null && _filterViewModel.ExcludedCarTypesOfUse.Any())
+			{
+				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).Not.IsIn(_filterViewModel.ExcludedCarTypesOfUse.ToArray());
 			}
 
 			query.Where(
