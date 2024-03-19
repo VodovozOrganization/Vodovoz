@@ -225,6 +225,8 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.IntervalSelectMode.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.OrderSelectMode.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.ReportType.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.cs" />

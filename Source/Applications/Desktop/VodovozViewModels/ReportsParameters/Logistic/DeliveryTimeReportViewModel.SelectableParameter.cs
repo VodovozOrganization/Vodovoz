@@ -8,7 +8,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		{
 			public bool IsSelected { get; set; }
 			public GeoGroup GeographicGroup { get; set; }
-			public RouteListOwnType RouteListTypeOfUse { get; set; }
+			public RouteListOwnType RouteListOwnType { get; set; }
 		}
 	}
 }

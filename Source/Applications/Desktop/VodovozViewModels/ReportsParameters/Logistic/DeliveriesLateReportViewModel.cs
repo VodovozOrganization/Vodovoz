@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -111,20 +111,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 
 				return parameters;
 			}
-		}
-
-		private enum OrderSelectMode
-		{
-			All,
-			DeliveryInAnHour,
-			WithoutDeliveryInAnHour
-		}
-
-		private enum IntervalSelectMode
-		{
-			Create,
-			Transfer,
-			FirstAddress
 		}
 
 		[PropertyChangedAlso(nameof(IsIntervalVisible))]

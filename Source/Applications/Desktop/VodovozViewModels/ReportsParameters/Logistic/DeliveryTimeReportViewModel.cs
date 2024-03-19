@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 				.ToArray();
 
 			RouteListTypeOfUseList = Enum.GetValues(typeof(RouteListOwnType)).Cast<RouteListOwnType>()
-				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListOwnType.Delivery })
+				.Select(x => new SelectableParameter { RouteListOwnType = x, IsSelected = x == RouteListOwnType.Delivery })
 				.ToList();
 
 			OrdersEnRouteCountList = Enumerable.Range(0, 8);
@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 
 		private IEnumerable<RouteListOwnType> SelectedRouteListTypesOfUse => RouteListTypeOfUseList
 			.Where(x => x.IsSelected)
-			.Select(x => x.RouteListTypeOfUse);
+			.Select(x => x.RouteListOwnType);
 
 		protected override Dictionary<string, object> Parameters
 		{
