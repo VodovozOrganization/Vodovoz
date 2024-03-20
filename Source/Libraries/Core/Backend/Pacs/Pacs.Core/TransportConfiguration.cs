@@ -53,8 +53,8 @@ namespace Pacs.Core
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<Messages.Events.CallEvent>(x => x.SetEntityName("pacs.event.call.publish"));
-			cfg.Publish<Messages.Events.CallEvent>(x =>
+			cfg.Message<PacsCallEvent>(x => x.SetEntityName("pacs.event.call.publish"));
+			cfg.Publish<PacsCallEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
@@ -66,7 +66,6 @@ namespace Pacs.Core
 			//Исключение базовых классов
 			cfg.Publish<IDomainObject>(x => x.Exclude = true);
 			cfg.Publish<PropertyChangedBase>(x => x.Exclude = true);
-			cfg.Publish<Vodovoz.Core.Domain.Pacs.CallEvent>(x => x.Exclude = true);
 		}
 
 		public static IServiceCollection AddPacsMassTransit(

@@ -33,15 +33,11 @@ namespace Pacs.Calls.Service
 							logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 						})
 						.AddMappingAssemblies(
-							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-							typeof(Vodovoz.Settings.Database.SettingMap).Assembly
+							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-
-						//Настройки бд должны регистрироваться до настроек MassTransit
-						.AddDatabaseSettings()
 
 						.AddMessageTransportSettings()
 						.AddPacsMangoCallsServices()

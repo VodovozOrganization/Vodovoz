@@ -1,4 +1,5 @@
-﻿using Mango.Core.Dto;
+﻿using Core.Infrastructure;
+using Mango.Core.Dto;
 using MassTransit;
 
 namespace Pacs.MangoCalls.Consumers.Definitions
@@ -7,7 +8,12 @@ namespace Pacs.MangoCalls.Consumers.Definitions
 	{
 		public MangoCallEventConsumerDefinition()
 		{
-			EndpointName = $"pacs.mango.call_event.consumer";
+			Endpoint(x =>
+			{
+				var key = SimpleKeyGenerator.GenerateKey(16);
+				x.Name = $"pacs.mango.event.call.consumer-server";
+				x.InstanceId = $"-{key}";
+			});
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
