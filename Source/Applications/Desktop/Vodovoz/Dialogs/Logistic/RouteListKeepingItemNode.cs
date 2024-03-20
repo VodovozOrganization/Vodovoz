@@ -1,0 +1,103 @@
+﻿using QS.DomainModel.Entity;
+using System;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Infrastructure;
+using Vodovoz.Tools.CallTasks;
+
+namespace Vodovoz
+{
+	public class RouteListKeepingItemNode : PropertyChangedBase
+	{
+		public bool HasChanged = false;
+		public bool ChangedDeliverySchedule = false;
+		public event EventHandler<StatusChangedEventArgs> StatusChanged;
+
+		private RouteListItem _routeListItem;
+
+		public Gdk.Color RowColor
+		{
+			get
+			{
+				switch(RouteListItem.Status)
+				{
+					case RouteListItemStatus.Overdue:
+						return GdkColors.DangerBase;
+					case RouteListItemStatus.Completed:
+						return GdkColors.SuccessBase;
+					case RouteListItemStatus.Canceled:
+						return GdkColors.InsensitiveBase;
+					default:
+						return GdkColors.PrimaryBase;
+				}
+			}
+		}
+
+		public RouteListItemStatus Status
+		{
+			get => RouteListItem.Status;
+			set
+			{
+				StatusChanged?.Invoke(this, new StatusChangedEventArgs(value));
+			}
+		}
+
+		public TimeSpan? WaitUntil
+		{
+			get => RouteListItem.Order.WaitUntilTime;
+			set => RouteListItem.Order.WaitUntilTime = value;
+		}
+
+		public string Comment
+		{
+			get => RouteListItem.Comment;
+			set
+			{
+				RouteListItem.Comment = value;
+				OnPropertyChanged(() => Comment);
+			}
+		}
+
+		public string LastUpdate
+		{
+			get
+			{
+				var maybeLastUpdate = RouteListItem.StatusLastUpdate;
+				if(maybeLastUpdate.HasValue)
+				{
+					if(maybeLastUpdate.Value.Date == DateTime.Today)
+					{
+						return maybeLastUpdate.Value.ToShortTimeString();
+					}
+					else
+					{
+						return maybeLastUpdate.Value.ToString();
+					}
+				}
+				return string.Empty;
+			}
+		}
+
+		public RouteListItem RouteListItem
+		{
+			get => _routeListItem;
+			set
+			{
+				_routeListItem = value;
+				if(RouteListItem != null)
+				{
+					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged(() => RouteListItem);
+				}
+			}
+		}
+
+		public string Transferred => RouteListItem.GetTransferText();
+
+		public void UpdateStatus(RouteListItemStatus value, ICallTaskWorker callTaskWorker)
+		{
+			var uow = RouteListItem.RouteList.UoW;
+			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);
+			HasChanged = true;
+			OnPropertyChanged(() => Status);
+		}
+	}
+}
