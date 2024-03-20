@@ -20,7 +20,7 @@ using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.Logistic
 {
-	public partial class RouteListKeepingDlg : TabViewBase<RouteListKeepingViewModel>, ITDICloseControlTab
+	public partial class RouteListKeepingView : TabViewBase<RouteListKeepingViewModel>, ITDICloseControlTab
 	{
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
