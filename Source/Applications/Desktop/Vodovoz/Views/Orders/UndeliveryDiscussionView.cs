@@ -1,5 +1,8 @@
 ﻿using Gamma.ColumnConfig;
+using Gtk;
 using QS.Views.GtkUI;
+using System.Linq;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
@@ -22,37 +25,29 @@ namespace Vodovoz.Views.Orders
 
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();
-
+			
 			yenumcomboStatus.ItemsEnum = typeof(UndeliveryDiscussionStatus);
-			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
-			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
+			yenumcomboStatus.Binding
+				.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive)
+				.InitializeFromSource();
+
 			UpdateStatusEnum();
 
 			ytreeviewComments.ShowExpanders = false;
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<UndeliveryDiscussionComment>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => "", useMarkup: true)
-					.AddSetter((c, n) =>
-					{
-						c.Markup = $"<span foreground=\"{GetColor(n)}\"><b>{GetTime(n)}</b></span>";
-					})
+					.AddTextRenderer(n => GetTime(n), useMarkup: true)
 				.AddColumn("Автор")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => "", useMarkup: true)
-					.AddSetter((c, n) =>
-					{
-						c.Markup = $"<span foreground=\"{GetColor(n)}\"><b>{GetAuthor(n)}</b></span>";
-					})
+					.AddTextRenderer(n => GetAuthor(n), useMarkup: true)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => "", useMarkup: true)
+					.AddTextRenderer(n => n.Comment, useMarkup: true)
 						.WrapWidth(300)
 						.WrapMode(Pango.WrapMode.WordChar)
-					.AddSetter((c, n) =>
-					{
-						c.Markup = $"<span foreground=\"{GetColor(n)}\"><b>{n.Comment}</b></span>";
-					})
+				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
 
 			ytreeviewComments.ItemsDataSource = ViewModel.Entity.ObservableComments;			
@@ -75,6 +70,11 @@ namespace Vodovoz.Views.Orders
 			filesView.Sensitive = false;
 		}
 
+		private void SetColor(CellRenderer cell, object node)
+		{
+			cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
+		}
+
 		private string GetColor(UndeliveryDiscussionComment n) => ViewModel.Entity.ObservableComments.IndexOf(n) % 2 == 0 ? GdkColors.InfoText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor();
 
 		private void UpdateStatusEnum()
@@ -83,7 +83,7 @@ namespace Vodovoz.Views.Orders
 
 			if(!ViewModel.CanCompleteDiscussion)
 			{
-				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenDiscussionStatuses);
+				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenDiscussionStatuses.Cast<object>().ToArray());
 			}
 
 			yenumcomboStatus.SelectedItem = ViewModel.Entity.Status;

@@ -377,7 +377,7 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			}
 			else
 			{

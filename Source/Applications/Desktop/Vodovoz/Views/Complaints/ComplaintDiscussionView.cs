@@ -121,7 +121,7 @@ namespace Vodovoz.Views.Complaints
 		private void SetColor(CellRenderer cell, object node)
 		{
 			if(node is ComplaintDiscussionComment) {
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			} else {
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}

@@ -7,6 +7,7 @@ using System.Text;
 using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
@@ -24,6 +25,7 @@ namespace Vodovoz.Domain.Orders
 				Prepositional = "недовезённом заказе",
 				PrepositionalPlural = "недовезённых заказах")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
 		private UndeliveryTransferAbsenceReason _undeliveryTransferAbsenceReason;

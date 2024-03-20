@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
+using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Orders
 					newComment.Author = CurrentEmployee;
 					newComment.Comment = NewCommentText;
 					newComment.UndeliveryDiscussion = Entity;
+					newComment.CreationTime = DateTime.Now;
 					Entity.ObservableComments.Add(newComment);
 					NewCommentText = string.Empty;
 				},
