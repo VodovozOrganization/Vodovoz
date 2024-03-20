@@ -40,6 +40,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 					case CarTypeOfUse.Truck:
 						str = "Ф";
 						break;
+					case CarTypeOfUse.Loader:
+						str = "П";
+						break;
 					default:
 						throw new NotSupportedException($"{CarTypeOfUse.GetEnumTitle()} is not supported");
 				}
