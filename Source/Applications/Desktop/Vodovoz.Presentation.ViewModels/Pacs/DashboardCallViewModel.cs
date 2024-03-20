@@ -23,9 +23,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
 			_model.PropertyChanged += OnModelPropertyChanged;
-			Time = _model.CurrentState.EventTime.ToString("HH:mm:ss");
-			Phone = _model.CurrentState.FromNumber
-				+ (string.IsNullOrWhiteSpace(_model.CurrentState.FromExtension) ? "" : $" ({_model.CurrentState.FromExtension})");
+			Time = _model.Started.ToString("HH:mm:ss");
+			Phone = _model.Call.FromNumber;
 			Operator = GetOperator();
 			State = GetState();
 		}
@@ -60,7 +59,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(CallModel.CurrentState):
+				case nameof(CallModel.Call):
 					var oper = GetOperator();
 					var state = GetState();
 
@@ -94,7 +93,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private string GetState()
 		{
-			return AttributeUtil.GetEnumTitle(_model.CurrentState.CallState);
+			return AttributeUtil.GetEnumTitle(_model.Call.Status);
 		}
 	}
 }

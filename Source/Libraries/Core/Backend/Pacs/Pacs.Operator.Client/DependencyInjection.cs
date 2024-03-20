@@ -18,7 +18,7 @@ namespace Pacs.Operators.Client
 				.AddSingleton<IObservable<OperatorStateEvent>>(ctx => ctx.GetService<OperatorStateConsumer>())
 
 				.AddSingleton<PacsCallEventConsumer>()
-				.AddSingleton<IObservable<Vodovoz.Core.Domain.Pacs.CallEvent>>(ctx => ctx.GetService<PacsCallEventConsumer>())
+				.AddSingleton<IObservable<PacsCallEvent>>(ctx => ctx.GetService<PacsCallEventConsumer>())
 
 				.AddSingleton<GlobalBreakAvailabilityConsumer>()
 				.AddSingleton<IObservable<GlobalBreakAvailability>>(ctx => ctx.GetService<GlobalBreakAvailabilityConsumer>())

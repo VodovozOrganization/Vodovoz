@@ -297,7 +297,7 @@ namespace Vodovoz
 					builder.RegisterType<PacsDashboardModel>()
 						.AsSelf()
 						.As<IObserver<OperatorState>>()
-						.As<IObserver<Pacs.Core.Messages.Events.CallEvent>>();
+						.As<IObserver<Pacs.Core.Messages.Events.PacsCallEvent>>();
 
 					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
 						.SingleInstance();
@@ -668,7 +668,6 @@ namespace Vodovoz
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
 							typeof(QS.Report.Domain.UserPrintSettings).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly,
 							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly
 						)

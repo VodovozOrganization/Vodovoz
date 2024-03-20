@@ -11,13 +11,12 @@ using System.Threading;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Services;
-using CallEventEntity = Vodovoz.Core.Domain.Pacs.CallEvent;
 
 namespace Vodovoz.Application.Pacs
 {
 	public class PacsDashboardModel : PropertyChangedBase, 
 		IObserver<OperatorState>, 
-		IObserver<CallEventEntity>, 
+		IObserver<PacsCallEvent>, 
 		IObserver<SettingsEvent>,
 		IDisposable
 	{
@@ -30,7 +29,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly IPacsRepository _repository;
 		private readonly AdminClient _adminClient;
 		private readonly ConcurrentQueue<OperatorState> _operatorStatesQueue = new ConcurrentQueue<OperatorState>();
-		private readonly ConcurrentQueue<CallEventEntity> _callEventsQueue = new ConcurrentQueue<CallEventEntity>();
+		private readonly ConcurrentQueue<PacsCallEvent> _callEventsQueue = new ConcurrentQueue<PacsCallEvent>();
 		private Timer _operatorStatesWorker;
 		private Timer _callsWorker;
 
@@ -47,7 +46,7 @@ namespace Vodovoz.Application.Pacs
 			OperatorStateAdminConsumer operatorStateAdminConsumer,
 			IObservable<SettingsEvent> settingsPublisher,
 			AdminClient adminClient,
-			IObservable<CallEventEntity> callPublisher)
+			IObservable<PacsCallEvent> callPublisher)
 		{
 			if(operatorStateAdminConsumer is null)
 			{
@@ -103,7 +102,7 @@ namespace Vodovoz.Application.Pacs
 			{
 				while(_callEventsQueue.TryDequeue(out var callEvent))
 				{
-					AddCallState(callEvent);
+					UpdateCall(callEvent.Call);
 				}
 			}, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
 		}
@@ -122,7 +121,7 @@ namespace Vodovoz.Application.Pacs
 			var activeCallsEvents = _repository.GetCalls(from);
 			foreach(var callEvent in activeCallsEvents)
 			{
-				AddCallState(callEvent);
+				UpdateCall(callEvent);
 			}
 		}
 
@@ -161,23 +160,27 @@ namespace Vodovoz.Application.Pacs
 
 		#region IObserver<CallEvent>
 
-		void IObserver<CallEventEntity>.OnCompleted()
+		void IObserver<PacsCallEvent>.OnCompleted()
 		{
 			_callSubscription?.Dispose();
 		}
 
-		void IObserver<CallEventEntity>.OnError(Exception error)
+		void IObserver<PacsCallEvent>.OnError(Exception error)
 		{
 		}
 
-		void IObserver<CallEventEntity>.OnNext(CallEventEntity value)
+		void IObserver<PacsCallEvent>.OnNext(PacsCallEvent value)
 		{
 			_callEventsQueue.Enqueue(value);
 		}
 
-		private void OnCallMissed(object sender, EventArgs e)
+		private void CheckCallMissed(CallModel model)
 		{
-			var model = (CallModel)sender;
+			if(model.Call.EntryResult != CallEntryResult.Missed)
+			{
+				return;
+			}
+
 			var missedCallModel = new MissedCallModel(model, _operatorStatesDic.Values);
 			lock(MissedCalls)
 			{
@@ -207,21 +210,19 @@ namespace Vodovoz.Application.Pacs
 			}
 		}
 
-		private void AddCallState(CallEventEntity callEvent)
+		private void UpdateCall(Call call)
 		{
 			lock(_callsDic)
 			{
-				if(_callsDic.TryGetValue(callEvent.CallId, out var model))
+				if(!_callsDic.TryGetValue(call.CallId, out var model))
 				{
-					model.AddEvent(callEvent);
-					return;
+					model = new CallModel(_operatorStatesDic.Values);
+					_callsDic.Add(call.CallId, model);
+					Calls.Insert(0, model);
 				}
 
-				model = new CallModel(_operatorStatesDic.Values);
-				model.CallMissed += OnCallMissed;
-				model.AddEvent(callEvent);
-				_callsDic.Add(callEvent.CallId, model);
-				Calls.Insert(0, model);
+				model.UpdateCall(call);
+				CheckCallMissed(model);
 			}
 		}
 

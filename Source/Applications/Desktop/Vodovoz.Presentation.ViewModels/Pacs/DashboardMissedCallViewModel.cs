@@ -17,8 +17,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_model = missedCallModel ?? throw new ArgumentNullException(nameof(missedCallModel));
 
 			Time = _model.Started.ToString("HH:mm:ss");
-			Phone = _model.Call.CurrentState.FromNumber
-				+ (string.IsNullOrWhiteSpace(_model.Call.CurrentState.FromExtension) ? "" : $" ({_model.Call.CurrentState.FromExtension})");
+			Phone = _model.CallModel.Call.FromNumber;
 			PossibleOperatorsCount = _model.PossibleOperatorsCount.ToString();
 		}
 

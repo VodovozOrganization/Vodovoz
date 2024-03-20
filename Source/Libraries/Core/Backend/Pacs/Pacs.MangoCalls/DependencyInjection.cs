@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Pacs.Core;
 using Pacs.MangoCalls.Services;
 using System.Reflection;
-using Vodovoz.Settings.Database.Pacs;
-using Vodovoz.Settings.Pacs;
+using Vodovoz.Core.Data.NHibernate.Repositories;
+using Vodovoz.Core.Data.Repositories;
 
 namespace Pacs.MangoCalls
 {
@@ -13,14 +13,15 @@ namespace Pacs.MangoCalls
 		public static IServiceCollection AddPacsMangoCallsServices(this IServiceCollection services)
 		{
 			services
-				.AddSingleton<IPacsSettings, PacsSettings>()
-				.AddSingleton<ICallEventSequenceValidator, CallEventSequenceValidator>()
+				.AddSingleton<IPacsRepository, PacsRepository>()
 				.AddScoped<ICallEventRegistrar, CallEventRegistrar>()
+				.AddScoped<CallEventHandler>()
+				.AddScoped<CallEventHandlerFactory>()
 
 				.AddPacsMassTransit(
 					(context, cfg) =>
 					{
-						cfg.AddCallsProducerTopology(context);
+						cfg.AddCallsTopology(context);
 					},
 					(busCfg) =>
 					{
