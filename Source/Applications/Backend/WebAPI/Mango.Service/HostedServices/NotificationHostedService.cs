@@ -1,5 +1,5 @@
 ﻿using Grpc.Core;
-using Mango.Core.Settings;
+using Mango.Core;
 using Mango.Service.Calling;
 using Mango.Service.Extensions;
 using Mango.Service.Services;
@@ -7,7 +7,6 @@ using MangoService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,7 +122,7 @@ namespace Mango.Service.HostedServices
 					var message = new NotificationMessage
 					{
 						CallId = info.LastEvent.CallId,
-						Timestamp = info.LastEvent.Timestamp.ParseTimestamp(),
+						Timestamp = info.LastEvent.Timestamp.ParseProtoTimestamp(),
 						State = CallState.Disconnected,
 					};
 
@@ -248,8 +247,8 @@ namespace Mango.Service.HostedServices
 			var message = new NotificationMessage
 			{
 				CallId = info.LastEvent.CallId,
-				Timestamp = info.LastEvent.Timestamp.ParseTimestamp(),
-				State = info.LastEvent.CallState.ParseCallState(),
+				Timestamp = info.LastEvent.Timestamp.ParseProtoTimestamp(),
+				State = (CallState)info.LastEvent.CallState,
 				CallFrom = caller
 			};
 			if(info.OnHoldCall != null)

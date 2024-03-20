@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Application.Pacs
 {
@@ -10,7 +11,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly List<OperatorModel> _possibleOperators;
 
 		public DateTime Started => _callModel.Started;
-		public CallModel Call => _callModel;
+		public CallModel CallModel => _callModel;
 		public int PossibleOperatorsCount => _possibleOperators.Count;
 		public IEnumerable<OperatorModel> PossibleOperators => _possibleOperators;
 
@@ -26,9 +27,22 @@ namespace Vodovoz.Application.Pacs
 
 		private void FindPossibleOperators()
 		{
+			//Операторы которым был дозвон для этого звонка
+			var appearedOperators = _callModel.GetAppearedExtensions();
+
 			foreach(var oper in _operators)
 			{
-				if(oper.CanTakeCallBetween(_callModel.Started, _callModel.Ended))
+				if(!appearedOperators.Contains(oper.CurrentState.PhoneNumber))
+				{
+					return;
+				}
+
+				if(_callModel.Ended == null)
+				{
+					return;
+				}
+
+				if(oper.CanTakeCallBetween(_callModel.Started, _callModel.Ended.Value))
 				{
 					_possibleOperators.Add(oper);
 				}

@@ -11,8 +11,7 @@
 		"Docker.Development": {
 			"commandName": "Docker",
 			"environmentVariables": {
-				"ASPNETCORE_ENVIRONMENT": "Development",
-				"ASPNETCORE_URLS": "http://+:5001"
+				"DOTNET_ENVIRONMENT": "Development"
 			},
 			"publishAllPorts": true,
 			"useSSL": false,
