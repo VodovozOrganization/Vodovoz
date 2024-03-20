@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V4;
+using DriverApi.Contracts.V4;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V4.Converters;
@@ -521,7 +521,7 @@ namespace DriverAPI.Library.V4.Models
 					codeEntity = new TrueMarkWaterIdentificationCode
 					{
 						IsInvalid = false,
-						RawCode = parsedCode.SourceCode,
+						RawCode = parsedCode.SourceCode.Substring(0, 255),
 						GTIN = parsedCode.GTIN,
 						SerialNumber = parsedCode.SerialNumber,
 						CheckCode = parsedCode.CheckCode

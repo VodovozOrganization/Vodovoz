@@ -147,7 +147,7 @@ namespace Vodovoz.Models.TrueMark
 			var codeEntity = new TrueMarkWaterIdentificationCode
 			{
 				IsInvalid = false,
-				RawCode = code.SourceCode,
+				RawCode = code.SourceCode.Substring(0, 255),
 				GTIN = code.GTIN,
 				SerialNumber = code.SerialNumber,
 				CheckCode = code.CheckCode
