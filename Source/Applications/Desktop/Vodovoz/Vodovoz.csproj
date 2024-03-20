@@ -822,7 +822,7 @@
     <Compile Include="Commons\OrderPopupMenu.cs" />
     <Compile Include="Views\Logistic\DriversInfoExportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
-    <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
+    <Compile Include="Logistic\RouteListKeepingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />

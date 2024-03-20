@@ -18,7 +18,7 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
 
-namespace Vodovoz
+namespace Vodovoz.Logistic
 {
 	public partial class RouteListKeepingDlg : TabViewBase<RouteListKeepingViewModel>, ITDICloseControlTab
 	{
