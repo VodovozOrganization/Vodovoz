@@ -31,8 +31,7 @@ namespace Pacs.Operators.Service
 
 			services
 				.AddMappingAssemblies(
-					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-					typeof(Vodovoz.Settings.Database.SettingMap).Assembly
+					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
