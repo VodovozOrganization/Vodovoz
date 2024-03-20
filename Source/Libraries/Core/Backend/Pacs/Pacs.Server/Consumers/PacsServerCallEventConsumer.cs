@@ -2,12 +2,13 @@
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Operators;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using CallState = Vodovoz.Core.Domain.Pacs.CallState;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Consumers
 {
-	public class PacsServerCallEventConsumer : IConsumer<CallEvent>
+	public class PacsServerCallEventConsumer : IConsumer<PacsCallEvent>
 	{
 		private readonly IOperatorControllerProvider _operatorControllerProvider;
 
@@ -16,31 +17,34 @@ namespace Pacs.Server.Consumers
 			_operatorControllerProvider = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
 		}
 
-		public async Task Consume(ConsumeContext<CallEvent> context)
+		public async Task Consume(ConsumeContext<PacsCallEvent> context)
 		{
-			if(string.IsNullOrWhiteSpace(context.Message.ToExtension))
+			var call = context.Message.Call;
+
+			if(call.CallDirection.HasValue && call.CallDirection != CallDirection.Incoming)
 			{
 				return;
 			}
 
-			var operatorController = _operatorControllerProvider.GetOperatorController(context.Message.ToExtension);
+			var connectedSubCall = call.SubCalls.FirstOrDefault(x => x.WasConnected);
+			if(connectedSubCall == null)
+			{
+				return;
+			}
+
+			var operatorController = _operatorControllerProvider.GetOperatorController(connectedSubCall.ToExtension);
 			if(operatorController == null)
 			{
 				return;
 			}
 
-			switch(context.Message.CallState)
+			if(call.Status == CallStatus.Connected)
 			{
-				case CallState.Connected:
-					await operatorController.TakeCall(context.Message.CallId);
-					break;
-				case CallState.Disconnected:
-					await operatorController.EndCall(context.Message.CallId);
-					break;
-				case CallState.Appeared:
-				case CallState.OnHold:
-				default:
-						break;
+				await operatorController.TakeCall(connectedSubCall.CallId);
+			}
+			else
+			{
+				await operatorController.EndCall(connectedSubCall.CallId);
 			}
 		}
 	}

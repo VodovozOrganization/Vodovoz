@@ -1,9 +1,8 @@
-﻿using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.SqlCommand;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Pacs;
@@ -19,35 +18,28 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public IEnumerable<CallEvent> GetActiveCalls()
+		public IEnumerable<Call> GetActiveCalls()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				CallEvent callEventAlias = null;
-				CallEvent callEvent2Alias = null;
+				Call callAlias = null;
 
-				var result = uow.Session.QueryOver(() => callEventAlias)
-					.JoinEntityAlias(
-						() => callEvent2Alias,
-						() => callEventAlias.CallId == callEvent2Alias.CallId
-							&& callEvent2Alias.CallState == CallState.Disconnected,
-						JoinType.LeftOuterJoin)
-					.WhereRestrictionOn(() => callEvent2Alias.Id).IsNull
-					.Where(() => callEventAlias.CreationTime > DateTime.Now.AddDays(-1))
+				var result = uow.Session.QueryOver(() => callAlias)
+					.Where(() => callAlias.Status != CallStatus.Disconnected)
 					.List();
 
 				return result;
 			}
 		}
 
-		public IEnumerable<CallEvent> GetCalls(DateTime from)
+		public IEnumerable<Call> GetCalls(DateTime from)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				CallEvent callEventAlias = null;
+				Call callAlias = null;
 
-				var result = uow.Session.QueryOver(() => callEventAlias)
-					.Where(() => callEventAlias.CreationTime >= from)
+				var result = uow.Session.QueryOver(() => callAlias)
+					.Where(() => callAlias.CreationTime >= from)
 					.List();
 
 				return result;
@@ -148,6 +140,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				var oper = uow.GetById<Operator>(employeeId);
 				return oper != null && oper.PacsEnabled;
 			}
+		}
+
+		public async Task<Call> GetCallByEntryAsync(IUnitOfWork uow, string entryId)
+		{
+			return await uow.Session.GetAsync<Call>(entryId);
 		}
 	}
 }
