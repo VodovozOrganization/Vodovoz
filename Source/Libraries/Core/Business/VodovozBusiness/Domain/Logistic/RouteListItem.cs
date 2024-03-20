@@ -87,6 +87,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _isDriverForeignDistrict;
 		private GenericObservableList<Fine> _observableFines;
 		private Dictionary<int, decimal> _goodsByRouteColumns;
+		private DateTime? _recievedTransferAt;
 
 		public RouteListItem() { }
 
@@ -158,6 +159,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _wasTransfered;
 			set => SetField(ref _wasTransfered, value);
+		}
+
+		[Display(Name = "Перенос принят в:")]
+		public virtual DateTime? RecievedTransferAt
+		{
+			get => _recievedTransferAt;
+			set => SetField(ref _recievedTransferAt, value);
 		}
 
 		[Display(Name = "Комментарий кассира")]
