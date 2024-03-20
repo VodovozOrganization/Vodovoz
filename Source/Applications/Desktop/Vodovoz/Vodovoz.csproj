@@ -2041,6 +2041,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentsDiscrepanciesAnalysisView.cs" />
     <Compile Include="ViewWidgets\GtkUI\EntitySelection.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.EntitySelection.cs" />
+    <Compile Include="Views\EntityButtonsSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
