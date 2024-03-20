@@ -138,6 +138,7 @@
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.DateFilterType.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\ExternalCounterpartiesMatchingJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Enums\OnlineRequestsType.cs" />
     <Compile Include="Journals\FilterViewModels\GeoGroup\GeoGroupJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarJournalFilterViewModel.cs" />
@@ -539,6 +540,7 @@
     <Compile Include="Dialogs\Mango\SubscriberSelectionViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\InternalTalkViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
+    <Compile Include="ViewModels\Orders\RequestForCallViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryObjectViewModel.cs" />

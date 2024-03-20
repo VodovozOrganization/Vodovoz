@@ -8,7 +8,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 	public class OnlineOrdersJournalNode : JournalEntityNodeBase
 	{
 		public override string Title => string.Empty;
-
 		public string CounterpartyName { get; set; }
 		public string CompiledAddress { get; set; }
 		public DateTime DeliveryDate { get; set; }
