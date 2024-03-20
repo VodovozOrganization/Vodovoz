@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -216,9 +216,11 @@
     <Compile Include="Logistic\DriversStopLists\DriverStopListRemovalViewModel.cs" />
     <Compile Include="Logistic\RouteListCreateViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
+    <Compile Include="Logistic\RouteListKeepingItemNode.cs" />
     <Compile Include="Logistic\RouteListMileageCheckJournalViewModel.cs" />
     <Compile Include="Logistic\RouteListTransferringViewModel.cs" />
     <Compile Include="Logistic\RouteListTransferringViewModel.RouteListItemNode.cs" />
+    <Compile Include="Logistic\StatusChangedEventArgs.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
