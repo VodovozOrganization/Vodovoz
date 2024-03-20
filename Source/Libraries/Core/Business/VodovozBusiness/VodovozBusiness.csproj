@@ -58,6 +58,7 @@
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
+    <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
