@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.Helpers;
@@ -654,7 +654,7 @@ namespace DriverAPI.Library.V5.Services
 					codeEntity = new TrueMarkWaterIdentificationCode
 					{
 						IsInvalid = false,
-						RawCode = parsedCode.SourceCode.Substring(0, 255),
+						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
 						GTIN = parsedCode.GTIN,
 						SerialNumber = parsedCode.SerialNumber,
 						CheckCode = parsedCode.CheckCode

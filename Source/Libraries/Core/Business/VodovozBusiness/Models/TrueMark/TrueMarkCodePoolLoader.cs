@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Irony.Parsing;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -147,7 +148,7 @@ namespace Vodovoz.Models.TrueMark
 			var codeEntity = new TrueMarkWaterIdentificationCode
 			{
 				IsInvalid = false,
-				RawCode = code.SourceCode.Substring(0, 255),
+				RawCode = code.SourceCode.Substring(0, Math.Min(255, code.SourceCode.Length)),
 				GTIN = code.GTIN,
 				SerialNumber = code.SerialNumber,
 				CheckCode = code.CheckCode
