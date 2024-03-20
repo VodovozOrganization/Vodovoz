@@ -32,7 +32,7 @@ namespace Vodovoz.Logistic
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
-		public RouteListKeepingDlg(RouteListKeepingViewModel viewModel)
+		public RouteListKeepingView(RouteListKeepingViewModel viewModel)
 			: base(viewModel)
 		{
 			Build();
