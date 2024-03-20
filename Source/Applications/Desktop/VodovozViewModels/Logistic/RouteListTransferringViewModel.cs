@@ -12,6 +12,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -29,6 +30,7 @@ using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -42,9 +44,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ILogger<RouteListTransferringViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IInteractiveService _interactiveService;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IUserService _userService;
@@ -97,15 +98,20 @@ namespace Vodovoz.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			ILifetimeScope lifetimeScope,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
-			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
+			INomenclatureSettings nomenclatureSettings,
 			IRouteListRepository routeListRepository,
 			IRouteListService routeListService,
 			IUserService userService,
 			IEmployeeService employeeService,
 			IGtkTabsOpener gtkTabsOpener,
-			IRouteListItemRepository routeListItemRepository)
+			IRouteListItemRepository routeListItemRepository,
+			RouteListJournalFilterViewModel sourceRouteListJournalFilterViewModel,
+			RouteListJournalFilterViewModel targetRouteListJournalFilterViewModel,
+			DeliveryFreeBalanceViewModel sourceDeliveryFreeBalanceViewModel,
+			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
+			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
+			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -114,8 +120,6 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_interactiveService = interactiveService
 				?? throw new ArgumentNullException(nameof(interactiveService));
-			_lifetimeScope = lifetimeScope
-				?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
 			_nomenclatureSettings = nomenclatureSettings 
@@ -132,10 +136,36 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_routeListItemRepository = routeListItemRepository
 				?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			SourceRouteListJournalFilterViewModel = sourceRouteListJournalFilterViewModel
+				?? throw new ArgumentNullException(nameof(sourceRouteListJournalFilterViewModel));
+			TargetRouteListJournalFilterViewModel = targetRouteListJournalFilterViewModel
+				?? throw new ArgumentNullException(nameof(targetRouteListJournalFilterViewModel));
+			SourceRouteListDeliveryFreeBalanceViewModel = sourceDeliveryFreeBalanceViewModel
+				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
+			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
+				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
 
-			SourceRouteListDeliveryFreeBalanceViewModel = _lifetimeScope.Resolve<DeliveryFreeBalanceViewModel>();
+			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
+			{
+				filter.DisplayableStatuses = _defaultSourceRouteListStatuses;
+				filter.StartDate = _defaultSourceRouteListStartDate;
+				filter.EndDate = _defaultSourceRouteListEndDate;
+				filter.AddressTypeNodes.ForEach(x => x.Selected = true);
+				filter.ExcludeIds = ExcludeIds;
+			});
 
-			TargetRouteListDeliveryFreeBalanceViewModel = _lifetimeScope.Resolve<DeliveryFreeBalanceViewModel>();
+			SourceRouteListJournalFilterViewModel.DisposeOnDestroy = false;
+
+			TargetRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
+			{
+				filter.DisplayableStatuses = _defaultTargetRouteListStatuses;
+				filter.StartDate = _defaultTargetRouteListStartDate;
+				filter.EndDate = _defaultTargetRouteListEndDate;
+				filter.AddressTypeNodes.ForEach(x => x.Selected = true);
+				filter.ExcludeIds = ExcludeIds;
+			});
+
+			TargetRouteListJournalFilterViewModel.DisposeOnDestroy = false;
 
 			TabName = "Перенос адресов маршрутных листов";
 
@@ -148,6 +178,34 @@ namespace Vodovoz.ViewModels.Logistic
 			TransferTerminalCommand = new DelegateCommand(TransferTerminal, () => IsTargetAndSourceRouteListsSelected);
 
 			RevertTransferTerminalCommand = new DelegateCommand(RevertTransferTerminal, () => IsTargetAndSourceRouteListsSelected);
+
+			SourceRouteListViewModel = sourceRouteListEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, vm => vm.SourceRouteList)
+				.UseViewModelDialog<RouteListCreateViewModel>()
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(SourceRouteListJournalFilterViewModel)
+				.Finish();
+
+			TargetRouteListViewModel = targetRouteListEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, vm => vm.SourceRouteList)
+				.UseViewModelDialog<RouteListCreateViewModel>()
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(TargetRouteListJournalFilterViewModel)
+				.Finish();
+
+			PropertyChanged += OnRouteListTransferringViewModelPropertyChanged;
+		}
+
+		private void OnRouteListTransferringViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(SourceRouteListId)
+				|| e.PropertyName == nameof(TargetRouteListId))
+			{
+				TargetRouteListJournalFilterViewModel.ExcludeIds = ExcludeIds;
+				SourceRouteListJournalFilterViewModel.ExcludeIds = ExcludeIds;
+			}
 		}
 
 		#region Source RouteList
@@ -219,7 +277,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		public IEntityEntryViewModel SourceRouteListViewModel { get; set; }
+		public IEntityEntryViewModel SourceRouteListViewModel { get; }
 
 		public GenericObservableList<RouteListItemNode> SourceRouteListAddresses { get; }
 			= new GenericObservableList<RouteListItemNode>();
@@ -302,7 +360,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		public IEntityEntryViewModel TargetRouteListViewModel { get; set; }
+		public IEntityEntryViewModel TargetRouteListViewModel { get; }
 
 		public GenericObservableList<RouteListItemNode> TargetRouteListAddresses { get; }
 			= new GenericObservableList<RouteListItemNode>();
@@ -370,30 +428,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CanRevertTransferTerminal => TargetRouteListDriverNomenclatureBalance.Any();
 
-		#region Temp Legacy Properties
+		public RouteListJournalFilterViewModel SourceRouteListJournalFilterViewModel { get; }
 
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public ILifetimeScope LifetimeScope => _lifetimeScope;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public RouteListStatus[] DefaultSourceRouteListStatuses => _defaultSourceRouteListStatuses;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultSourceRouteListStartDate => _defaultSourceRouteListStartDate;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultSourceRouteListEndDate => _defaultSourceRouteListEndDate;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public RouteListStatus[] DefaultTargetRouteListStatuses => _defaultTargetRouteListStatuses;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultTargetRouteListStartDate => _defaultTargetRouteListStartDate;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultTargetRouteListEndDate => _defaultTargetRouteListEndDate;
-
-		#endregion Temp Legacy Properties
+		public RouteListJournalFilterViewModel TargetRouteListJournalFilterViewModel { get; }
 
 		private void RefreshSourceRouteListAddresses()
 		{
@@ -896,6 +933,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 			FillObservableDriverBalance(TargetRouteListDriverNomenclatureBalance, SourceRouteList);
 			FillObservableDriverBalance(SourceRouteListDriverNomenclatureBalance, TargetRouteList);
+		}
+
+		public override void Dispose()
+		{
+			SourceRouteListJournalFilterViewModel?.Dispose();
+			TargetRouteListJournalFilterViewModel?.Dispose();
+			OpenLegacyOrderForRouteListJournalViewModelHandler = null;
+			base.Dispose();
 		}
 	}
 }
