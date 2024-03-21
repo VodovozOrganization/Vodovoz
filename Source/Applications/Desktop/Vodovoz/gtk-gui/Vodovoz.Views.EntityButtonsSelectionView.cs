@@ -8,13 +8,15 @@ namespace Vodovoz.Views
 
 		private global::Gamma.GtkWidgets.yLabel ylabelTopLabel;
 
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxButtons;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxLeftButtons;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxRightButtons;
 
-		private global::Gamma.GtkWidgets.yVBox yvbox4;
+		private global::Gamma.GtkWidgets.yVBox yvboxNoButtons;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelNoButtons;
 
@@ -42,6 +44,13 @@ namespace Vodovoz.Views
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w2 = new global::Gtk.Viewport();
+			w2.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.yhboxButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxButtons.Name = "yhboxButtons";
 			this.yhboxButtons.Spacing = 6;
@@ -50,36 +59,36 @@ namespace Vodovoz.Views
 			this.yvboxLeftButtons.Name = "yvboxLeftButtons";
 			this.yvboxLeftButtons.Spacing = 6;
 			this.yhboxButtons.Add(this.yvboxLeftButtons);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yvboxLeftButtons]));
-			w2.Position = 0;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yvboxLeftButtons]));
+			w3.Position = 0;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.yvboxRightButtons = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxRightButtons.Name = "yvboxRightButtons";
 			this.yvboxRightButtons.Spacing = 6;
 			this.yhboxButtons.Add(this.yvboxRightButtons);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yvboxRightButtons]));
-			w3.Position = 1;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yvboxRightButtons]));
+			w4.Position = 1;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
-			this.yvbox4 = new global::Gamma.GtkWidgets.yVBox();
-			this.yvbox4.Name = "yvbox4";
-			this.yvbox4.Spacing = 6;
-			// Container child yvbox4.Gtk.Box+BoxChild
+			this.yvboxNoButtons = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxNoButtons.Name = "yvboxNoButtons";
+			this.yvboxNoButtons.Spacing = 6;
+			// Container child yvboxNoButtons.Gtk.Box+BoxChild
 			this.ylabelNoButtons = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelNoButtons.Name = "ylabelNoButtons";
 			this.ylabelNoButtons.Xalign = 0F;
 			this.ylabelNoButtons.LabelProp = global::Mono.Unix.Catalog.GetString("NoButtons");
 			this.ylabelNoButtons.UseMarkup = true;
-			this.yvbox4.Add(this.ylabelNoButtons);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvbox4[this.ylabelNoButtons]));
-			w4.Position = 0;
-			this.yhboxButtons.Add(this.yvbox4);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yvbox4]));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
-			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
-			w6.Position = 1;
+			this.yvboxNoButtons.Add(this.ylabelNoButtons);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxNoButtons[this.ylabelNoButtons]));
+			w5.Position = 0;
+			this.yhboxButtons.Add(this.yvboxNoButtons);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yvboxNoButtons]));
+			w6.Position = 2;
+			w2.Add(this.yhboxButtons);
+			this.GtkScrolledWindow.Add(w2);
+			this.yvboxMain.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			w9.Position = 1;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ybuttonSelectFromJournal = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSelectFromJournal.CanFocus = true;
@@ -87,10 +96,10 @@ namespace Vodovoz.Views
 			this.ybuttonSelectFromJournal.UseUnderline = true;
 			this.ybuttonSelectFromJournal.Label = global::Mono.Unix.Catalog.GetString("Выбрать из журнала");
 			this.yvboxMain.Add(this.ybuttonSelectFromJournal);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonSelectFromJournal]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonSelectFromJournal]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

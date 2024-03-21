@@ -38,7 +38,7 @@ namespace Vodovoz.Views
 
 			yvboxLeftButtons.Visible = isViewModelHasDeliverySchedules;
 			yvboxRightButtons.Visible = isViewModelHasDeliverySchedules;
-			yvbox4.Visible = !isViewModelHasDeliverySchedules;
+			yvboxNoButtons.Visible = !isViewModelHasDeliverySchedules;
 		}
 
 		private void ConfigureManualScheduleSelectionEvent()
