@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz

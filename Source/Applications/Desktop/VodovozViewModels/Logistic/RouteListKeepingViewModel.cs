@@ -31,7 +31,9 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 
@@ -51,7 +53,6 @@ namespace Vodovoz
 		private readonly IGeneralSettings _generalSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IFileDialogService _fileDialogService;
-		private IGeneralSettings _generalSettingsSettings;
 		private readonly IPermissionResult _permissionResult;
 
 		private Employee _previousForwarder = null;
@@ -100,23 +101,41 @@ namespace Vodovoz
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_forwarderViewModelEEVMBuilder = forwarderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(forwarderViewModelEEVMBuilder));
+
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
 			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
 			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
-			IsOrderWaitUntilActive = _generalSettingsSettings.GetIsOrderWaitUntilActive;
+			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 			LogisticanEditing = IsUserLogist && AllEditing;
 
 			CarViewModel = BuildCarEntryViewModel();
+			DriverViewModel = BuildDriverEntryViewModel();
+			ForwarderViewModel = BuildForwarderEntryViewModel();
 
 			Initialize();
 		}
 
-		public void SelectOrdersById(int[] selectedOrderIds)
-		{
-			SelectedRouteListAddresses = _items.Where(x => selectedOrderIds.Contains(x.RouteListItem.Order.Id)).ToArray();
-		}
+		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
+		public RouteListKeepingItemNode[] SelectedRouteListAddresses { get; private set; }
+		public string BottlesInfo { get; private set; }
+		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; }
+		public IEntityEntryViewModel CarViewModel { get; private set; }
+		public IEntityEntryViewModel DriverViewModel { get; private set; }
+		public IEntityEntryViewModel ForwarderViewModel { get; private set; }
+		public DeliveryFreeBalanceViewModel DeliveryFreeBalanceViewModel { get; }
+
+		//2 уровня доступа к виджетам, для всех и для логистов.
+		public bool LogisticanEditing { get; }
+		public bool IsUserLogist { get; }
+		public bool AllEditing { get; }
+
+		public bool IsOrderWaitUntilActive { get; }
+
+		public bool CanChangeForwarder => LogisticanEditing && Entity.CanAddForwarder;
+		public IList<DeliveryShift> ActiveShifts => _deliveryShiftRepository.ActiveShifts(UoW);
+		public bool AskSaveOnClose => _permissionResult.CanUpdate;
 
 		public override bool HasChanges
 		{
@@ -131,52 +150,11 @@ namespace Vodovoz
 			}
 		}
 
-		public bool AskSaveOnClose => _permissionResult.CanUpdate;
-
-		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
-		public RouteListKeepingItemNode[] SelectedRouteListAddresses { get; private set; }
-		public string BottlesInfo { get; private set; }
-		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; }
-		public IEntityEntryViewModel CarViewModel { get; private set; }
-		public DeliveryFreeBalanceViewModel DeliveryFreeBalanceViewModel { get; }
-
-		//2 уровня доступа к виджетам, для всех и для логистов.
-		public bool LogisticanEditing { get; }
-		public bool IsUserLogist { get; }
-		public bool AllEditing { get; }
-
-		public IList<DeliveryShift> ActiveShifts => _deliveryShiftRepository.ActiveShifts(UoW);
-
-		public bool IsOrderWaitUntilActive { get; }
-
 		private void Initialize()
 		{
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
-			
-			//entityentryCar.Sensitive = LogisticanEditing;
-
-			//var driverFilter = new EmployeeFilterViewModel();
-			//driverFilter.SetAndRefilterAtOnce(
-			//	x => x.Status = EmployeeStatus.IsWorking,
-			//	x => x.RestrictCategory = EmployeeCategory.driver);
-			//var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
-			//evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			//evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			//evmeDriver.Sensitive = LogisticanEditing;
-			//evmeDriver.Changed += OnEvmeDriverChanged;
-
-			//var forwarderFilter = new EmployeeFilterViewModel();
-			//forwarderFilter.SetAndRefilterAtOnce(
-			//	x => x.Status = EmployeeStatus.IsWorking,
-			//	x => x.RestrictCategory = EmployeeCategory.forwarder);
-			//var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
-			//evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
-			//evmeForwarder.Binding.AddSource(Entity)
-			//	.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
-			//	.AddFuncBinding(rl => LogisticanEditing && rl.CanAddForwarder, widget => widget.Sensitive)
-			//	.InitializeFromSource();
 
 			//evmeForwarder.Changed += ReferenceForwarder_Changed;
 
@@ -211,6 +189,13 @@ namespace Vodovoz
 			UpdateNodes();
 		}
 
+		public void SelectOrdersById(int[] selectedOrderIds)
+		{
+			SelectedRouteListAddresses = _items
+				.Where(x => selectedOrderIds.Contains(x.RouteListItem.Order.Id))
+				.ToArray();
+		}
+
 		private IEntityEntryViewModel BuildCarEntryViewModel()
 		{
 			var viewModel = _carViewModelEEVMBuilder
@@ -225,6 +210,44 @@ namespace Vodovoz
 				.Finish();
 
 			viewModel.CanViewEntity = _currentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
+		private IEntityEntryViewModel BuildDriverEntryViewModel()
+		{
+			var viewModel = _driverViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Driver)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+				{
+					filter.Status = EmployeeStatus.IsWorking;
+					filter.RestrictCategory = EmployeeCategory.driver;
+				})
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			viewModel.Changed += OnEvmeDriverChanged;
+
+			return viewModel;
+		}
+
+		private IEntityEntryViewModel BuildForwarderEntryViewModel()
+		{
+			var viewModel = _forwarderViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Forwarder)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+				{
+					filter.Status = EmployeeStatus.IsWorking;
+					filter.RestrictCategory = EmployeeCategory.forwarder;
+				})
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			viewModel.Changed += OnReferenceForwarderChanged;
 
 			return viewModel;
 		}
@@ -378,7 +401,7 @@ namespace Vodovoz
 			//	&& AllEditing;
 		}
 
-		private void ReferenceForwarder_Changed(object sender, EventArgs e)
+		private void OnReferenceForwarderChanged(object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
 

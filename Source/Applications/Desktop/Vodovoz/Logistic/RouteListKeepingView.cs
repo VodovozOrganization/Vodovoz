@@ -63,14 +63,18 @@ namespace Vodovoz.Logistic
 	
 		private void Initialize()
 		{
-			buttonSave.Sensitive = _allEditing;
+			ybuttonSave.Sensitive = _allEditing;
 
-			//entityentryCar.ViewModel = BuildCarEntryViewModel();
-			//entityentryCar.Sensitive = _logisticanEditing;
+			entityentryCar.ViewModel = ViewModel.CarViewModel;
+			entityentryCar.Binding
+				.AddBinding(ViewModel, vm => vm.LogisticanEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
 			var deliveryfreebalanceview = new DeliveryFreeBalanceView(ViewModel.DeliveryFreeBalanceViewModel);
+
 			deliveryfreebalanceview.Binding
-				.AddBinding(ViewModel.Entity,
+				.AddBinding(
+					ViewModel.Entity,
 					e => e.ObservableDeliveryFreeBalanceOperations,
 					w => w.ObservableDeliveryFreeBalanceOperations)
 				.InitializeFromSource();
@@ -78,32 +82,16 @@ namespace Vodovoz.Logistic
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
-			var driverFilter = new EmployeeFilterViewModel();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver);
-			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
+			entityentryDriver.ViewModel = ViewModel.DriverViewModel;
+			entityentryDriver.Binding
+				.AddBinding(ViewModel, vm => vm.LogisticanEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
-			//evmeDriver.Binding.AddBinding(
-			//	ViewModel.Entity,
-			//	rl => rl.Driver,
-			//	widget => widget.Subject)
-			//	.InitializeFromSource();
-
-			//evmeDriver.Sensitive = _logisticanEditing;
-			//evmeDriver.Changed += OnEvmeDriverChanged;
-
-			//var forwarderFilter = new EmployeeFilterViewModel();
-			//forwarderFilter.SetAndRefilterAtOnce(
-			//	x => x.Status = EmployeeStatus.IsWorking,
-			//	x => x.RestrictCategory = EmployeeCategory.forwarder);
-			//var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
-			//evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
-			//evmeForwarder.Binding.AddSource(ViewModel.Entity)
-			//	.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
-			//	.AddFuncBinding(rl => _logisticanEditing && rl.CanAddForwarder, widget => widget.Sensitive)
-			//	.InitializeFromSource();
+			entityentryForwarder.ViewModel = ViewModel.ForwarderViewModel;
+			entityentryForwarder.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.CanChangeForwarder, w => w.Sensitive)
+				.InitializeFromSource();
 
 			//evmeForwarder.Changed += ReferenceForwarder_Changed;
 
@@ -112,9 +100,12 @@ namespace Vodovoz.Logistic
 			//evmeLogistician.Binding.AddBinding(ViewModel.Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 			//evmeLogistician.Sensitive = _logisticanEditing;
 
-			speccomboShift.ItemsList = ViewModel.ActiveShifts;
-			speccomboShift.Binding.AddBinding(ViewModel.Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
-			speccomboShift.Sensitive = _logisticanEditing;
+			speciallistcomboboxShift.ItemsList = ViewModel.ActiveShifts;
+			speciallistcomboboxShift.Binding
+				.AddBinding(ViewModel.Entity, rl => rl.Shift, widget => widget.SelectedItem)
+				.InitializeFromSource();
+
+			speciallistcomboboxShift.Sensitive = _logisticanEditing;
 
 			datePickerDate.Binding.AddBinding(ViewModel.Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = _logisticanEditing;
