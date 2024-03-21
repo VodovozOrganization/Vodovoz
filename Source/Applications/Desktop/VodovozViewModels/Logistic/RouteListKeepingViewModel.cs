@@ -8,7 +8,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -26,11 +25,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -45,18 +42,13 @@ namespace Vodovoz
 {
 	public partial class RouteListKeepingViewModel : EntityTabViewModelBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
-		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private IEmployeeRepository _employeeRepository;
 		private IDeliveryShiftRepository _deliveryShiftRepository;
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IWageParameterService _wageParameterService;
-		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
-		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly IGeneralSettings _generalSettings;
-		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IFileDialogService _fileDialogService;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IPermissionResult _permissionResult;
 
@@ -66,7 +58,6 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
-		private RouteListKeepingItemNode _selectedItem;
 		private bool _canClose = true;
 
 		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
@@ -82,11 +73,7 @@ namespace Vodovoz
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IWageParameterService wageParameterService,
-			IDeliveryScheduleRepository deliveryScheduleRepository,
-			IRoboatsSettings roboatsSettings,
 			IGeneralSettings generalSettings,
-			ICallTaskWorker callTaskWorker,
-			IFileDialogService fileDialogService,
 			IServiceProvider serviceProvider,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
@@ -101,11 +88,7 @@ namespace Vodovoz
 			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
-			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
@@ -138,6 +121,11 @@ namespace Vodovoz
 			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
 			RefreshCommand = new DelegateCommand(RefreshCommandHandler);
 			CreateFine = new DelegateCommand(CreateFineCommandHandler);
+			ReturnToEnRouteStatus = new DelegateCommand(Entity.RollBackEnRouteStatus);
+			CallMadenCommand = new DelegateCommand(CallMadenHandler);
+			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler);
+			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler);
+			ReDeliverCommand = new DelegateCommand(ReDeliverHandler);
 		}
 
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
@@ -151,10 +139,16 @@ namespace Vodovoz
 
 		public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; }
+
+		#region EEVMs
+
 		public IEntityEntryViewModel CarViewModel { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
 		public IEntityEntryViewModel ForwarderViewModel { get; }
 		public IEntityEntryViewModel LogisticianViewModel { get; }
+
+		#endregion EEVMs
+
 		public DeliveryFreeBalanceViewModel DeliveryFreeBalanceViewModel { get; }
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
@@ -175,10 +169,15 @@ namespace Vodovoz
 		}
 
 		public bool CanChangeForwarder => LogisticanEditing && Entity.CanAddForwarder;
+
 		public bool CanReturnRouteListToEnRouteStatus =>
 			Entity.Status == RouteListStatus.OnClosing
 			&& IsUserLogist
 			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
+
+		public bool CanChangeDeliveryTime => SelectedRouteListAddresses.Count() == 1
+			&& _currentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")
+			&& AllEditing;
 
 		public IList<DeliveryShift> ActiveShifts => _deliveryShiftRepository.ActiveShifts(UoW);
 		public bool AskSaveOnClose => _permissionResult.CanUpdate;
@@ -202,15 +201,15 @@ namespace Vodovoz
 		public DelegateCommand CancelCommand { get; }
 		public DelegateCommand RefreshCommand { get; }
 		public DelegateCommand CreateFine { get; }
+		public DelegateCommand ReturnToEnRouteStatus { get; }
+		public DelegateCommand CallMadenCommand { get; }
+		public DelegateCommand ChangeDeliveryTimeCommand { get; }
+		public DelegateCommand SetStatusCompleteCommand { get; }
+		public DelegateCommand ReDeliverCommand { get; }
 
 		#endregion Commands
 
-		public void SelectOrdersById(int[] selectedOrderIds)
-		{
-			SelectedRouteListAddresses = Items
-				.Where(x => selectedOrderIds.Contains(x.RouteListItem.Order.Id))
-				.ToArray();
-		}
+		#region EEVMBuilding
 
 		private IEntityEntryViewModel BuildCarEntryViewModel()
 		{
@@ -266,6 +265,15 @@ namespace Vodovoz
 			viewModel.Changed += OnForwarderChanged;
 
 			return viewModel;
+		}
+
+		#endregion EEVMBuilding
+
+		public void SelectOrdersById(int[] selectedOrderIds)
+		{
+			SelectedRouteListAddresses = Items
+				.Where(x => selectedOrderIds.Contains(x.RouteListItem.Order.Id))
+				.ToArray();
 		}
 
 		private void OnDriverChanged(object sender, EventArgs e)
@@ -424,15 +432,6 @@ namespace Vodovoz
 			}
 		}
 
-		public void OnSelectionChanged(object sender, EventArgs args)
-		{
-			//buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any() && AllEditing;
-			//buttonChangeDeliveryTime.Sensitive =
-			//	ytreeviewAddresses.GetSelectedObjects().Count() == 1
-			//	&& _currentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")
-			//	&& AllEditing;
-		}
-
 		private void OnForwarderChanged(object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
@@ -474,9 +473,10 @@ namespace Vodovoz
 		protected override void AfterSave()
 		{
 			base.AfterSave();
+
 			var changedList = Items
-					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
-					.ToList();
+				.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+				.ToList();
 
 			IsCanClose = true;
 			if(changedList.Count == 0)
@@ -505,7 +505,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonChangeDeliveryTimeClicked(object sender, EventArgs e)
+		protected void ChangeDeliveryTimeHandler()
 		{
 			if(_currentPermissionService.ValidatePresetPermission("logistic_changedeliverytime"))
 			{
@@ -522,12 +522,13 @@ namespace Vodovoz
 					viewModel.SelectionMode = JournalSelectionMode.Single;
 					viewModel.OnEntitySelectedResult += (s, args) =>
 					{
-						var selectedResult = args.SelectedNodes.First() as DeliveryScheduleJournalNode;
-						if(selectedResult == null)
+						if(!(args.SelectedNodes.FirstOrDefault() is DeliveryScheduleJournalNode selectedResult))
 						{
 							return;
 						}
+
 						var selectedEntity = UoW.GetById<DeliverySchedule>(selectedResult.Id);
+
 						if(selectedAddress.RouteListItem.Order.DeliverySchedule.Id != selectedEntity.Id)
 						{
 							selectedAddress.RouteListItem.Order.DeliverySchedule = selectedEntity;
@@ -538,7 +539,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonSetStatusCompleteClicked(object sender, EventArgs e)
+		protected void SetStatusCompleteHandler()
 		{
 			foreach(RouteListKeepingItemNode item in SelectedRouteListAddresses)
 			{
@@ -558,17 +559,12 @@ namespace Vodovoz
 			page.ViewModel.SetRouteListById(Entity.Id);
 		}
 
-		protected void OnButtonMadeCallClicked(object sender, EventArgs e)
+		protected void CallMadenHandler()
 		{
 			Entity.LastCallTime = DateTime.Now;
 		}
 
-		protected void OnButtonRetriveEnRouteClicked(object sender, EventArgs e)
-		{
-			Entity.RollBackEnRouteStatus();
-		}
-
-		protected void OnBtnReDeliverClicked(object sender, EventArgs e)
+		protected void ReDeliverHandler()
 		{
 			Entity.UpdateStatus(isIgnoreAdditionalLoadingDocument: true);
 		}

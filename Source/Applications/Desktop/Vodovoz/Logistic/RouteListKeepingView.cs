@@ -2,6 +2,7 @@
 using Gamma.GtkWidgets;
 using Gdk;
 using Gtk;
+using NHibernate.Util;
 using QS.Commands;
 using QS.Tdi;
 using QS.Views.GtkUI;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Dialogs;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
@@ -25,11 +27,6 @@ namespace Vodovoz.Logistic
 		private readonly Color _insensitiveBaseColor = GdkColors.InsensitiveBase;
 		private readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
-		//2 уровня доступа к виджетам, для всех и для логистов.
-		private readonly bool _allEditing;
-		private readonly bool _logisticanEditing;
-		private readonly bool _isUserLogist;
-
 		private readonly Dictionary<RouteListItemStatus, Pixbuf> _statusIcons
 			= new Dictionary<RouteListItemStatus, Pixbuf>();
 		private RouteListKeepingItemNode _selectedItem;
@@ -40,6 +37,24 @@ namespace Vodovoz.Logistic
 			: base(viewModel)
 		{
 			CopyIdCommand = new DelegateCommand(CopyEntityId);
+
+			ViewModel.UndeliveryOpenDlgAction = (order, unitOfWork, newStatus) =>
+			{
+				var result = new UndeliveryOnOrderCloseDlg(order, unitOfWork);
+
+				result.DlgSaved += (s, ea) =>
+				{
+					var address = ViewModel.SelectedRouteListAddresses
+						.Where(x => x.RouteListItem.Order.Id == order.Id)
+						.FirstOrDefault();
+
+					address.UpdateStatus(newStatus, ViewModel.CallTaskWorker);
+					ViewModel.UoW.Save(address.RouteListItem);
+					ViewModel.UoW.Commit();
+				};
+
+				return result;
+			};
 
 			Build();
 			Initialize();
@@ -52,6 +67,8 @@ namespace Vodovoz.Logistic
 				.InitializeFromSource();
 
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
+
+			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
 
 			entityentryCar.ViewModel = ViewModel.CarViewModel;
 			entityentryCar.Binding
@@ -90,9 +107,8 @@ namespace Vodovoz.Logistic
 			speciallistcomboboxShift.ItemsList = ViewModel.ActiveShifts;
 			speciallistcomboboxShift.Binding
 				.AddBinding(ViewModel.Entity, rl => rl.Shift, widget => widget.SelectedItem)
+				.AddBinding(ViewModel, wm => wm.LogisticanEditing, w => w.Sensitive)
 				.InitializeFromSource();
-
-			speciallistcomboboxShift.Sensitive = _logisticanEditing;
 
 			datePickerDate.Binding
 				.AddBinding(ViewModel.Entity, rl => rl.Date, widget => widget.Date)
@@ -114,7 +130,25 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.InitializeFromSource();
 
-			//ybuttonCallMaden.Clicked += OnYbuttonCallMadenClicked;
+			ylabelBottleInfo.UseMarkup = true;
+
+			ylabelBottleInfo.Binding
+				.AddBinding(ViewModel, vm => vm.BottlesInfo, w => w.LabelProp)
+				.InitializeFromSource();
+
+			ybuttonCallMaden.BindCommand(ViewModel.CallMadenCommand);
+
+			ybuttonSetStatusComplete.Binding
+				.AddFuncBinding(
+					ViewModel,
+					vm => ytreeviewAddresses.GetSelectedObjects().Any()
+						&& vm.AllEditing,
+					w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonChangeDeliveryTime.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryTime, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybuttonSetStatusEnRoute.Binding
 				.AddBinding(
@@ -122,6 +156,8 @@ namespace Vodovoz.Logistic
 					vm => vm.CanReturnRouteListToEnRouteStatus,
 					w => w.Sensitive)
 				.InitializeFromSource();
+
+			ybuttonSetStatusEnRoute.BindCommand(ViewModel.ReturnToEnRouteStatus);
 
 			ybuttonSetStatusDelivered.Binding
 				.AddBinding(
@@ -255,7 +291,7 @@ namespace Vodovoz.Logistic
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
-					.AddSetter((c, n) => c.Editable = _allEditing && n.Status != RouteListItemStatus.Transfered)
+					.AddSetter((c, n) => c.Editable = ViewModel.AllEditing && n.Status != RouteListItemStatus.Transfered)
 				.AddColumn("Отгрузка")
 					.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
 					.Where(b => b.Nomenclature.Category == NomenclatureCategory.water && b.Nomenclature.TareVolume == TareVolume.Vol19L)
@@ -270,7 +306,7 @@ namespace Vodovoz.Logistic
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
-					.Editable(_allEditing)
+					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
 				.RowCells()
@@ -296,14 +332,11 @@ namespace Vodovoz.Logistic
 
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			//ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
-			ytreeviewAddresses.Sensitive = _allEditing;
 			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
 
 			ytreeviewAddresses.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedRouteListAddressesObjects, w => w.SelectedRows)
-				.InitializeFromSource();
-
-			ytreeviewAddresses.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.Items, w => w.ItemsDataSource)
 				.InitializeFromSource();
 		}
@@ -373,12 +406,6 @@ namespace Vodovoz.Logistic
 		public bool CanClose()
 		{
 			return ViewModel.CanClose();
-		}
-
-		private void SetSensetivity(bool isSensetive)
-		{
-			ybuttonSave.Sensitive = isSensetive;
-			ybuttonCancel.Sensitive = isSensetive;
 		}
 	}
 }
