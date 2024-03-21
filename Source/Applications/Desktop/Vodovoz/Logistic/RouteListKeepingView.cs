@@ -62,10 +62,6 @@ namespace Vodovoz.Logistic
 	
 		private void Initialize()
 		{
-			ybuttonSave.Binding
-				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 
 			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
@@ -126,10 +122,6 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonCallMaden.Binding
-				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonCallMaden.BindCommand(ViewModel.CallMadenCommand);
 
 			ylabelBottleInfo.UseMarkup = true;
@@ -138,48 +130,15 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.BottlesInfo, w => w.LabelProp)
 				.InitializeFromSource();
 
-			ybuttonSetStatusComplete.Binding
-				.AddBinding(
-					ViewModel,
-					vm => vm.CanComplete,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonSetStatusComplete.BindCommand(ViewModel.SetStatusCompleteCommand);
-
-			ybuttonChangeDeliveryTime.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryTime, w => w.Sensitive)
-				.InitializeFromSource();
 
 			ybuttonChangeDeliveryTime.BindCommand(ViewModel.ChangeDeliveryTimeCommand);
 
-			ybuttonSetStatusEnRoute.Binding
-				.AddBinding(
-					ViewModel,
-					vm => vm.CanReturnRouteListToEnRouteStatus,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonSetStatusEnRoute.BindCommand(ViewModel.ReturnToEnRouteStatus);
-
-			ybuttonSetStatusDelivered.Binding
-				.AddBinding(
-					ViewModel.Entity,
-					e => e.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument,
-					w => w.Sensitive)
-				.InitializeFromSource();
 
 			ybuttonSetStatusDelivered.BindCommand(ViewModel.ReDeliverCommand);
 
-			ybuttonCreateFine.Binding
-				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonCreateFine.BindCommand(ViewModel.CreateFineCommand);
-
-			ybuttonRefresh.Binding
-				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
-				.InitializeFromSource();
 
 			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
 

@@ -124,15 +124,15 @@ namespace Vodovoz
 				() => CanSave,
 				() => CanComplete);
 
-			SaveCommand = new DelegateCommand(SaveAndClose);
+			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
 			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
-			RefreshCommand = new DelegateCommand(RefreshCommandHandler);
-			CreateFineCommand = new DelegateCommand(CreateFineCommandHandler);
-			ReturnToEnRouteStatus = new DelegateCommand(Entity.RollBackEnRouteStatus);
-			CallMadenCommand = new DelegateCommand(CallMadenHandler);
-			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler);
-			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler);
-			ReDeliverCommand = new DelegateCommand(ReDeliverHandler);
+			RefreshCommand = new DelegateCommand(RefreshCommandHandler, () => AllEditing);
+			CreateFineCommand = new DelegateCommand(CreateFineCommandHandler, () => AllEditing);
+			ReturnToEnRouteStatus = new DelegateCommand(Entity.RollBackEnRouteStatus, () => CanReturnRouteListToEnRouteStatus);
+			CallMadenCommand = new DelegateCommand(CallMadenHandler, () => AllEditing);
+			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler, () => CanChangeDeliveryTime);
+			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler, () => CanComplete);
+			ReDeliverCommand = new DelegateCommand(ReDeliverHandler, () => Entity.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
 		}
 
 		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
@@ -510,7 +510,7 @@ namespace Vodovoz
 
 			if(changedList.Count == 0)
 			{
-				return false;
+				return true;
 			}
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
