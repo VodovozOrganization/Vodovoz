@@ -140,7 +140,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DatePicker pickerBillDate;
 
-		private global::QS.Widgets.GtkUI.SimpleSelectionDatePicker pickerDeliveryDate;
+		private global::Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker pickerDeliveryDate;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbSelfDeliveryGeoGroup;
 
@@ -1331,13 +1331,9 @@ namespace Vodovoz
 			w67.XOptions = ((global::Gtk.AttachOptions)(4));
 			w67.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.pickerDeliveryDate = new global::QS.Widgets.GtkUI.SimpleSelectionDatePicker();
+			this.pickerDeliveryDate = new global::Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker();
 			this.pickerDeliveryDate.Events = ((global::Gdk.EventMask)(256));
 			this.pickerDeliveryDate.Name = "pickerDeliveryDate";
-			this.pickerDeliveryDate.HideCalendarButton = false;
-			this.pickerDeliveryDate.Date = new global::System.DateTime(0);
-			this.pickerDeliveryDate.IsEditable = true;
-			this.pickerDeliveryDate.AutoSeparation = true;
 			this.table1.Add(this.pickerDeliveryDate);
 			global::Gtk.Table.TableChild w68 = ((global::Gtk.Table.TableChild)(this.table1[this.pickerDeliveryDate]));
 			w68.TopAttach = ((uint)(10));
@@ -3551,8 +3547,6 @@ namespace Vodovoz
 			this.ybuttonToDeliveryAddressType.Clicked += new global::System.EventHandler(this.OnYbuttonToDeliveryAddressTypeClicked);
 			this.ybuttonToStorageLogicAddressType.Clicked += new global::System.EventHandler(this.OnYbuttonToStorageLogicAddressTypeClicked);
 			this.btnSaveComment.Clicked += new global::System.EventHandler(this.OnBtnSaveCommentClicked);
-			this.pickerDeliveryDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
-			this.pickerDeliveryDate.DateChangedByUser += new global::System.EventHandler(this.OnPickerDeliveryDateDateChangedByUser);
 			this.pickerBillDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
 			this.checkSelfDelivery.Toggled += new global::System.EventHandler(this.OnCheckSelfDeliveryToggled);
 			this.enumSignatureType.Changed += new global::System.EventHandler(this.OnEnumSignatureTypeChanged);
