@@ -1,20 +1,18 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
+using Gdk;
 using Gtk;
-using QS.Project.Services;
+using QS.Commands;
 using QS.Tdi;
 using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Widgets;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
 
@@ -22,12 +20,18 @@ namespace Vodovoz.Logistic
 {
 	public partial class RouteListKeepingView : TabViewBase<RouteListKeepingViewModel>, ITDICloseControlTab
 	{
+		private readonly Color _dangerBaseColor = GdkColors.DangerBase;
+		private readonly Color _successBaseColor = GdkColors.SuccessBase;
+		private readonly Color _insensitiveBaseColor = GdkColors.InsensitiveBase;
+		private readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
+
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
 		private readonly bool _logisticanEditing;
 		private readonly bool _isUserLogist;
 
-		private readonly Dictionary<RouteListItemStatus, Gdk.Pixbuf> _statusIcons = new Dictionary<RouteListItemStatus, Gdk.Pixbuf>();
+		private readonly Dictionary<RouteListItemStatus, Pixbuf> _statusIcons
+			= new Dictionary<RouteListItemStatus, Pixbuf>();
 		private RouteListKeepingItemNode _selectedItem;
 
 		public event RowActivatedHandler OnClosingItemActivated;
@@ -35,35 +39,19 @@ namespace Vodovoz.Logistic
 		public RouteListKeepingView(RouteListKeepingViewModel viewModel)
 			: base(viewModel)
 		{
+			CopyIdCommand = new DelegateCommand(CopyEntityId);
+
 			Build();
 			Initialize();
 		}
-
-		//public RouteListKeepingDlg(int id)
-		//{
-		//	Build();
-
-		//	ConfigureDlg();
-		//}
-
-		//public RouteListKeepingDlg(RouteList sub) : this(sub.Id) { }
-
-		//public RouteListKeepingDlg(int routeId, int[] selectOrderId) : this(routeId)
-		//{
-		//	var selectedItems = _items.Where(x => selectOrderId.Contains(x.RouteListItem.Order.Id)).ToArray();
-
-		//	if(selectedItems.Any())
-		//	{
-		//		ytreeviewAddresses.SelectObject(selectedItems);
-		//		var iter = ytreeviewAddresses.YTreeModel.IterFromNode(selectedItems[0]);
-		//		var path = ytreeviewAddresses.YTreeModel.GetPath(iter);
-		//		ytreeviewAddresses.ScrollToCell(path, ytreeviewAddresses.Columns[0], true, 0.5f, 0.5f);
-		//	}
-		//}
 	
 		private void Initialize()
 		{
-			ybuttonSave.Sensitive = _allEditing;
+			ybuttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 
 			entityentryCar.ViewModel = ViewModel.CarViewModel;
 			entityentryCar.Binding
@@ -80,7 +68,8 @@ namespace Vodovoz.Logistic
 				.InitializeFromSource();
 
 			deliveryfreebalanceview.ShowAll();
-			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+			yhboxDeliveryFreeBalance
+				.PackStart(deliveryfreebalanceview, true, true, 0);
 
 			entityentryDriver.ViewModel = ViewModel.DriverViewModel;
 			entityentryDriver.Binding
@@ -93,12 +82,10 @@ namespace Vodovoz.Logistic
 				.AddFuncBinding(vm => vm.CanChangeForwarder, w => w.Sensitive)
 				.InitializeFromSource();
 
-			//evmeForwarder.Changed += ReferenceForwarder_Changed;
-
-			//var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
-			//evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			//evmeLogistician.Binding.AddBinding(ViewModel.Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
-			//evmeLogistician.Sensitive = _logisticanEditing;
+			entityentryLogistician.ViewModel = ViewModel.LogisticianViewModel;
+			entityentryLogistician.Binding
+				.AddBinding(ViewModel, vm => vm.LogisticanEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
 			speciallistcomboboxShift.ItemsList = ViewModel.ActiveShifts;
 			speciallistcomboboxShift.Binding
@@ -107,30 +94,152 @@ namespace Vodovoz.Logistic
 
 			speciallistcomboboxShift.Sensitive = _logisticanEditing;
 
-			datePickerDate.Binding.AddBinding(ViewModel.Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
-			datePickerDate.Sensitive = _logisticanEditing;
+			datePickerDate.Binding
+				.AddBinding(ViewModel.Entity, rl => rl.Date, widget => widget.Date)
+				.AddBinding(ViewModel, vm => vm.LogisticanEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
-			//ylabelLastTimeCall.Binding.AddFuncBinding(ViewModel.Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource();
-			yspinActualDistance.Sensitive = _allEditing;
+			ylabelLastTimeCall.Binding
+				.AddFuncBinding(
+					ViewModel.Entity,
+					e => ViewModel.GetLastCallTime(e.LastCallTime),
+					w => w.LabelProp)
+				.InitializeFromSource();
 
-			buttonMadeCall.Sensitive = _allEditing;
+			yspinActualDistance.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
-			buttonRetriveEnRoute.Sensitive = ViewModel.Entity.Status == RouteListStatus.OnClosing && _isUserLogist
-				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_retrieve_routelist_en_route");
+			ybuttonCallMaden.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
-			btnReDeliver.Binding.AddBinding(ViewModel.Entity, e => e.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument, w => w.Sensitive).InitializeFromSource();
+			//ybuttonCallMaden.Clicked += OnYbuttonCallMadenClicked;
 
-			buttonNewFine.Sensitive = _allEditing;
-			buttonRefresh.Sensitive = _allEditing;
+			ybuttonSetStatusEnRoute.Binding
+				.AddBinding(
+					ViewModel,
+					vm => vm.CanReturnRouteListToEnRouteStatus,
+					w => w.Sensitive)
+				.InitializeFromSource();
 
-			//Заполняем иконки
-			var ass = Assembly.GetAssembly(typeof(Startup));
-			_statusIcons.Add(RouteListItemStatus.EnRoute, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.car.png"));
-			_statusIcons.Add(RouteListItemStatus.Completed, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-smile-grin.png"));
-			_statusIcons.Add(RouteListItemStatus.Overdue, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-angry.png"));
-			_statusIcons.Add(RouteListItemStatus.Canceled, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-crying.png"));
-			_statusIcons.Add(RouteListItemStatus.Transfered, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-uncertain.png"));
+			ybuttonSetStatusDelivered.Binding
+				.AddBinding(
+					ViewModel.Entity,
+					e => e.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument,
+					w => w.Sensitive)
+				.InitializeFromSource();
 
+			ybuttonCreateFine.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonRefresh.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
+
+			InitilizeItemsRowsIcons();
+
+			InitializeRouteListAddressesTreeView();
+
+			InitializePhones();
+
+			ybuttonCopyId.BindCommand(CopyIdCommand);
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.SelectedRouteListAddresses))
+			{
+				var selectedItems = ViewModel.Items
+					.Where(x => ViewModel.SelectedRouteListAddresses
+						.Select(srla => srla.RouteListItem.Order.Id)
+						.Contains(x.RouteListItem.Order.Id))
+					.ToArray();
+
+				if(selectedItems.Any())
+				{
+					ytreeviewAddresses.SelectObject(selectedItems);
+					var iter = ytreeviewAddresses.YTreeModel.IterFromNode(selectedItems[0]);
+					var path = ytreeviewAddresses.YTreeModel.GetPath(iter);
+					ytreeviewAddresses.ScrollToCell(path, ytreeviewAddresses.Columns[0], true, 0.5f, 0.5f);
+				}
+			}
+		}
+
+		private void InitializePhones()
+		{
+			if(ViewModel.Entity.Driver != null && ViewModel.Entity.Driver.Phones.Count > 0)
+			{
+				uint rows = Convert.ToUInt32(ViewModel.Entity.Driver.Phones.Count + 1);
+				PhonesTable1.Resize(rows, 2);
+				var label = new Label();
+				label.LabelProp = $"{ViewModel.Entity.Driver.FullName}";
+				PhonesTable1.Attach(label, 0, 2, 0, 1);
+
+				for(uint i = 1; i < rows; i++)
+				{
+					var l = new Label();
+					l.LabelProp = "+7 " + ViewModel.Entity.Driver.Phones[Convert.ToInt32(i - 1)].Number;
+					l.Selectable = true;
+					PhonesTable1.Attach(l, 0, 1, i, i + 1);
+
+					var h = new HandsetView(
+						ViewModel.Entity.Driver.Phones[Convert.ToInt32(i - 1)].DigitsNumber);
+					PhonesTable1.Attach(h, 1, 2, i, i + 1);
+				}
+			}
+
+			if(ViewModel.Entity.Forwarder != null && ViewModel.Entity.Forwarder.Phones.Count > 0)
+			{
+				uint rows = Convert.ToUInt32(ViewModel.Entity.Forwarder.Phones.Count + 1);
+				PhonesTable2.Resize(rows, 2);
+				var label = new Label();
+				label.LabelProp = $"{ViewModel.Entity.Forwarder.FullName}";
+				PhonesTable2.Attach(label, 0, 2, 0, 1);
+
+				for(uint i = 1; i < rows; i++)
+				{
+					var l = new Label();
+					l.LabelProp = "+7 " + ViewModel.Entity.Forwarder.Phones[Convert.ToInt32(i - 1)].Number;
+					l.Selectable = true;
+					PhonesTable2.Attach(l, 0, 1, i, i + 1);
+
+					var h = new HandsetView(
+						ViewModel.Entity.Forwarder.Phones[Convert.ToInt32(i - 1)].DigitsNumber);
+					PhonesTable2.Attach(h, 1, 2, i, i + 1);
+				}
+			}
+
+			//Телефон
+			PhonesTable1.ShowAll();
+			PhonesTable2.ShowAll();
+
+			var mangoManager = Startup.MainWin.MangoManager;
+
+			phoneLogistican.MangoManager = mangoManager;
+			phoneDriver.MangoManager = mangoManager;
+			phoneForwarder.MangoManager = mangoManager;
+
+			phoneLogistican.Binding
+				.AddBinding(ViewModel.Entity, e => e.Logistician, w => w.Employee)
+				.InitializeFromSource();
+
+			phoneDriver.Binding
+				.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee)
+				.InitializeFromSource();
+
+			phoneForwarder.Binding
+				.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee)
+				.InitializeFromSource();
+		}
+
+		private void InitializeRouteListAddressesTreeView()
+		{
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("№ п/п").AddNumericRenderer(x => x.RouteListItem.IndexInRoute + 1)
 				.AddColumn("Заказ")
@@ -164,8 +273,25 @@ namespace Vodovoz.Logistic
 					.Editable(_allEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
-				//.RowCells()
-				//	.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.RowColor)
+				.RowCells()
+					.AddSetter<CellRenderer>((cell, node) =>
+					{
+						switch(node.Status)
+						{
+							case RouteListItemStatus.Overdue:
+								cell.CellBackgroundGdk = _dangerBaseColor;
+								break;
+							case RouteListItemStatus.Completed:
+								cell.CellBackgroundGdk = _successBaseColor;
+								break;
+							case RouteListItemStatus.Canceled:
+								cell.CellBackgroundGdk = _insensitiveBaseColor;
+								break;
+							default:
+								cell.CellBackgroundGdk = _primaryBaseColor;
+								break;
+						}
+					})
 				.Finish();
 
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
@@ -173,67 +299,55 @@ namespace Vodovoz.Logistic
 			ytreeviewAddresses.Sensitive = _allEditing;
 			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
 
-			//Point!
-			//Заполняем телефоны
+			ytreeviewAddresses.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedRouteListAddressesObjects, w => w.SelectedRows)
+				.InitializeFromSource();
 
-			if(ViewModel.Entity.Driver != null && ViewModel.Entity.Driver.Phones.Count > 0)
-			{
-				uint rows = Convert.ToUInt32(ViewModel.Entity.Driver.Phones.Count + 1);
-				PhonesTable1.Resize(rows, 2);
-				Label label = new Label();
-				label.LabelProp = $"{ViewModel.Entity.Driver.FullName}";
-				PhonesTable1.Attach(label, 0, 2, 0, 1);
-
-				for(uint i = 1; i < rows; i++)
-				{
-					Label l = new Label();
-					l.LabelProp = "+7 " + ViewModel.Entity.Driver.Phones[Convert.ToInt32(i - 1)].Number;
-					l.Selectable = true;
-					PhonesTable1.Attach(l, 0, 1, i, i + 1);
-
-					HandsetView h = new HandsetView(ViewModel.Entity.Driver.Phones[Convert.ToInt32(i - 1)].DigitsNumber);
-					PhonesTable1.Attach(h, 1, 2, i, i + 1);
-				}
-			}
-
-			if(ViewModel.Entity.Forwarder != null && ViewModel.Entity.Forwarder.Phones.Count > 0)
-			{
-				uint rows = Convert.ToUInt32(ViewModel.Entity.Forwarder.Phones.Count + 1);
-				PhonesTable2.Resize(rows, 2);
-				Label label = new Label();
-				label.LabelProp = $"{ViewModel.Entity.Forwarder.FullName}";
-				PhonesTable2.Attach(label, 0, 2, 0, 1);
-
-				for(uint i = 1; i < rows; i++)
-				{
-					Label l = new Label();
-					l.LabelProp = "+7 " + ViewModel.Entity.Forwarder.Phones[Convert.ToInt32(i - 1)].Number;
-					l.Selectable = true;
-					PhonesTable2.Attach(l, 0, 1, i, i + 1);
-
-					HandsetView h = new HandsetView(ViewModel.Entity.Forwarder.Phones[Convert.ToInt32(i - 1)].DigitsNumber);
-					PhonesTable2.Attach(h, 1, 2, i, i + 1);
-				}
-			}
-
-			//Телефон
-			PhonesTable1.ShowAll();
-			PhonesTable2.ShowAll();
-
-			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = Startup.MainWin.MangoManager;
-			phoneLogistican.Binding.AddBinding(ViewModel.Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
-			phoneDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
-			phoneForwarder.Binding.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
-
-			//Заполняем информацию о бутылях
-			//UpdateBottlesSummaryInfo();
-
-			//UpdateNodes();
-
-			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+			ytreeviewAddresses.Binding
+				.AddBinding(ViewModel, vm => vm.Items, w => w.ItemsDataSource)
+				.InitializeFromSource();
 		}
 
-		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		/// <summary>
+		/// Заполнение иконок для дальнейшего отображения
+		/// </summary>
+		public void InitilizeItemsRowsIcons()
+		{
+			var waterDeliveryApplicationAssembly = Assembly.GetAssembly(typeof(Startup));
+			_statusIcons.Add(
+				RouteListItemStatus.EnRoute,
+				new Gdk.Pixbuf(
+					waterDeliveryApplicationAssembly,
+					"Vodovoz.icons.status.car.png"));
+
+			_statusIcons.Add(
+				RouteListItemStatus.Completed,
+				new Gdk.Pixbuf(
+					waterDeliveryApplicationAssembly,
+					"Vodovoz.icons.status.face-smile-grin.png"));
+
+			_statusIcons.Add(
+				RouteListItemStatus.Overdue,
+				new Gdk.Pixbuf(
+					waterDeliveryApplicationAssembly,
+					"Vodovoz.icons.status.face-angry.png"));
+
+			_statusIcons.Add(
+				RouteListItemStatus.Canceled,
+				new Gdk.Pixbuf(
+					waterDeliveryApplicationAssembly,
+					"Vodovoz.icons.status.face-crying.png"));
+
+			_statusIcons.Add(
+				RouteListItemStatus.Transfered,
+				new Gdk.Pixbuf(
+					waterDeliveryApplicationAssembly,
+					"Vodovoz.icons.status.face-uncertain.png"));
+		}
+
+		private DelegateCommand CopyIdCommand { get; }
+
+		protected void CopyEntityId()
 		{
 			if(ViewModel.Entity.Id > 0)
 			{
@@ -263,8 +377,8 @@ namespace Vodovoz.Logistic
 
 		private void SetSensetivity(bool isSensetive)
 		{
-			buttonSave.Sensitive = isSensetive;
-			buttonCancel.Sensitive = isSensetive;
+			ybuttonSave.Sensitive = isSensetive;
+			ybuttonCancel.Sensitive = isSensetive;
 		}
 	}
 }
