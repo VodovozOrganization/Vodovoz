@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
-	public class EntitySelectionAutocompleteSelector<TEntity> : IEntitySelectionAutocompleteSelector<TEntity>, IDisposable
+	public class EntitySelectionAutocompleteSelector<TEntity> : IEntitySelectionAutocompleteSelector<TEntity>
 		where TEntity : class, IDomainObject
 	{
 		private readonly IUnitOfWork _uow;
@@ -35,11 +35,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			AutocompleteLoaded?.Invoke(this, new AutocompleteUpdatedEventArgs(items));
 		}
 
-		public IList<TEntity> GetEntities()
-		{
-			return GetQuery().ToList();
-		}
-
 		private IQueryable<TEntity> GetQuery(string[] searchText = null, int? entitiesMaxCount = null)
 		{
 			var query = _uow.Session.Query<TEntity>();
@@ -63,11 +58,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			}
 
 			return query;
-		}
-
-		public void Dispose()
-		{
-
 		}
 	}
 }
