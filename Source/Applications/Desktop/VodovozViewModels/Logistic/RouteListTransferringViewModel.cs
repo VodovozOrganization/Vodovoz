@@ -190,7 +190,7 @@ namespace Vodovoz.ViewModels.Logistic
 			TargetRouteListViewModel = targetRouteListEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(this, vm => vm.SourceRouteList)
+				.ForProperty(this, vm => vm.TargetRouteList)
 				.UseViewModelDialog<RouteListCreateViewModel>()
 				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(TargetRouteListJournalFilterViewModel)
 				.Finish();
