@@ -130,13 +130,13 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonCallMaden.BindCommand(ViewModel.CallMadenCommand);
+
 			ylabelBottleInfo.UseMarkup = true;
 
 			ylabelBottleInfo.Binding
 				.AddBinding(ViewModel, vm => vm.BottlesInfo, w => w.LabelProp)
 				.InitializeFromSource();
-
-			ybuttonCallMaden.BindCommand(ViewModel.CallMadenCommand);
 
 			ybuttonSetStatusComplete.Binding
 				.AddFuncBinding(
@@ -146,9 +146,13 @@ namespace Vodovoz.Logistic
 					w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonSetStatusComplete.BindCommand(ViewModel.SetStatusCompleteCommand);
+
 			ybuttonChangeDeliveryTime.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryTime, w => w.Sensitive)
 				.InitializeFromSource();
+
+			ybuttonChangeDeliveryTime.BindCommand(ViewModel.ChangeDeliveryTimeCommand);
 
 			ybuttonSetStatusEnRoute.Binding
 				.AddBinding(
@@ -166,9 +170,13 @@ namespace Vodovoz.Logistic
 					w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonSetStatusDelivered.BindCommand(ViewModel.ReDeliverCommand);
+
 			ybuttonCreateFine.Binding
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.InitializeFromSource();
+
+			ybuttonCreateFine.BindCommand(ViewModel.CreateFineCommand);
 
 			ybuttonRefresh.Binding
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)

@@ -44,10 +44,10 @@ namespace Vodovoz
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private IEmployeeRepository _employeeRepository;
-		private IDeliveryShiftRepository _deliveryShiftRepository;
-		private IRouteListProfitabilityController _routeListProfitabilityController;
-		private IWageParameterService _wageParameterService;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IDeliveryShiftRepository _deliveryShiftRepository;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly IWageParameterService _wageParameterService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IPermissionResult _permissionResult;
@@ -120,7 +120,7 @@ namespace Vodovoz
 			SaveCommand = new DelegateCommand(SaveAndClose);
 			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
 			RefreshCommand = new DelegateCommand(RefreshCommandHandler);
-			CreateFine = new DelegateCommand(CreateFineCommandHandler);
+			CreateFineCommand = new DelegateCommand(CreateFineCommandHandler);
 			ReturnToEnRouteStatus = new DelegateCommand(Entity.RollBackEnRouteStatus);
 			CallMadenCommand = new DelegateCommand(CallMadenHandler);
 			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler);
@@ -176,7 +176,7 @@ namespace Vodovoz
 			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
 
 		public bool CanChangeDeliveryTime => SelectedRouteListAddresses.Count() == 1
-			&& _currentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")
+			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
 		public IList<DeliveryShift> ActiveShifts => _deliveryShiftRepository.ActiveShifts(UoW);
@@ -200,7 +200,7 @@ namespace Vodovoz
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 		public DelegateCommand RefreshCommand { get; }
-		public DelegateCommand CreateFine { get; }
+		public DelegateCommand CreateFineCommand { get; }
 		public DelegateCommand ReturnToEnRouteStatus { get; }
 		public DelegateCommand CallMadenCommand { get; }
 		public DelegateCommand ChangeDeliveryTimeCommand { get; }
@@ -507,7 +507,7 @@ namespace Vodovoz
 
 		protected void ChangeDeliveryTimeHandler()
 		{
-			if(_currentPermissionService.ValidatePresetPermission("logistic_changedeliverytime"))
+			if(_currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime))
 			{
 				if(SelectedRouteListAddresses.Count() != 1)
 				{
