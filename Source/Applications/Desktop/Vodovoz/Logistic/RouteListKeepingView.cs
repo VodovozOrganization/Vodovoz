@@ -339,7 +339,6 @@ namespace Vodovoz.Logistic
 				.Finish();
 
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
-			//ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
 			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
 
 			ytreeviewAddresses.Binding
