@@ -495,7 +495,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, warehouse.Id).Any()) {
+				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, new []{ warehouse.Id }).Any()) {
 					return new GoodsInRouteListResult {
 						NomenclatureId = terminalId,
 						Amount = amount
@@ -624,7 +624,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, warehouse.Id).Any())
+				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, new []{ warehouse.Id }).Any())
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{
