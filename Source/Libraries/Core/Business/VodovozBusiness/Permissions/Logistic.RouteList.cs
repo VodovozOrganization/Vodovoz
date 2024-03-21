@@ -45,6 +45,13 @@ namespace Vodovoz.Permissions
 				Name = "Просмотр рентабельности МЛ",
 				Description = "Просмотр рентабельности МЛ")]
 			public static string CanReadRouteListProfitability => "can_read_route_list_profitability";
+
+			/// <summary>
+			/// Возможность вернуть статус МЛ в путь
+			/// </summary>
+			[Display(
+				Name = "Возможность вернуть статус МЛ в путь")]
+			public static string CanReturnRouteListToEnRouteStatus => "can_retrieve_routelist_en_route";
 		}
 	}
 }
