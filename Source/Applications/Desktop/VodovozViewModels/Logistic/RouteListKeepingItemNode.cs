@@ -13,24 +13,6 @@ namespace Vodovoz
 
 		private RouteListItem _routeListItem;
 
-		//public Gdk.Color RowColor
-		//{
-		//	get
-		//	{
-		//		switch(RouteListItem.Status)
-		//		{
-		//			case RouteListItemStatus.Overdue:
-		//				return GdkColors.DangerBase;
-		//			case RouteListItemStatus.Completed:
-		//				return GdkColors.SuccessBase;
-		//			case RouteListItemStatus.Canceled:
-		//				return GdkColors.InsensitiveBase;
-		//			default:
-		//				return GdkColors.PrimaryBase;
-		//		}
-		//	}
-		//}
-
 		public RouteListItemStatus Status
 		{
 			get => RouteListItem.Status;
