@@ -1629,7 +1629,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(OPComment) });
 			}
 
-			if(!SelfDelivery && CallBeforeArrivalMinutes == null && (IsDoNotMakeCallBeforeArrival is null || IsDoNotMakeCallBeforeArrival == false))
+			if(!SelfDelivery && !IsFastDelivery && CallBeforeArrivalMinutes == null && (IsDoNotMakeCallBeforeArrival is null || IsDoNotMakeCallBeforeArrival == false))
 			{
 				yield return new ValidationResult($"В заказе не заполнено поле \"Отзвон за\"",
 					new[] { nameof(CallBeforeArrivalMinutes) });
