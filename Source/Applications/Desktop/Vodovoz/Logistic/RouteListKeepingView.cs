@@ -96,7 +96,7 @@ namespace Vodovoz.Logistic
 			entityentryForwarder.ViewModel = ViewModel.ForwarderViewModel;
 			entityentryForwarder.Binding
 				.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.CanChangeForwarder, w => w.Sensitive)
+				.AddBinding(vm => vm.CanChangeForwarder, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entityentryLogistician.ViewModel = ViewModel.LogisticianViewModel;
@@ -139,10 +139,9 @@ namespace Vodovoz.Logistic
 				.InitializeFromSource();
 
 			ybuttonSetStatusComplete.Binding
-				.AddFuncBinding(
+				.AddBinding(
 					ViewModel,
-					vm => ytreeviewAddresses.GetSelectedObjects().Any()
-						&& vm.AllEditing,
+					vm => vm.CanComplete,
 					w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -339,7 +338,7 @@ namespace Vodovoz.Logistic
 				.Finish();
 
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
-			ytreeviewAddresses.RowActivated += YtreeviewAddresses_RowActivated;
+			ytreeviewAddresses.RowActivated += OnYtreeviewAddressesRowActivated;
 
 			ytreeviewAddresses.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedRouteListAddressesObjects, w => w.SelectedRows)
@@ -395,7 +394,7 @@ namespace Vodovoz.Logistic
 			}
 		}
 
-		private void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
+		private void OnYtreeviewAddressesRowActivated(object o, RowActivatedArgs args)
 		{
 			_selectedItem = ytreeviewAddresses.GetSelectedObjects<RouteListKeepingItemNode>().FirstOrDefault();
 

@@ -61,8 +61,6 @@ namespace Vodovoz
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 
-		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
-
 		public RouteListKeepingViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -101,7 +99,6 @@ namespace Vodovoz
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
-			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
 			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 			LogisticanEditing = IsUserLogist && AllEditing;
@@ -120,6 +117,12 @@ namespace Vodovoz
 
 			UpdateNodes();
 
+			SetPropertyChangeRelation(rl => rl.Status,
+				() => AllEditing,
+				() => CanReturnRouteListToEnRouteStatus,
+				() => CanSave,
+				() => CanComplete);
+
 			SaveCommand = new DelegateCommand(SaveAndClose);
 			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
 			RefreshCommand = new DelegateCommand(RefreshCommandHandler);
@@ -130,6 +133,8 @@ namespace Vodovoz
 			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler);
 			ReDeliverCommand = new DelegateCommand(ReDeliverHandler);
 		}
+
+		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
 
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
@@ -142,11 +147,18 @@ namespace Vodovoz
 		public IEnumerable<object> SelectedRouteListAddressesObjects
 		{
 			get => _selectedRouteListAddressesObjects;
-			set => SetField(ref _selectedRouteListAddressesObjects, value);
+			set
+			{
+				if(SetField(ref _selectedRouteListAddressesObjects, value))
+				{
+					OnPropertyChanged(() => CanComplete);
+					OnPropertyChanged(() => CanChangeDeliveryTime);
+				}
+			}
 		}
 
 		public string BottlesInfo { get; private set; }
-		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; }
+		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
 		#region EEVMs
 
@@ -162,12 +174,13 @@ namespace Vodovoz
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		public bool LogisticanEditing { get; }
 		public bool IsUserLogist { get; }
-		public bool AllEditing { get; }
 
 		public bool IsOrderWaitUntilActive { get; }
 
 		public bool CanSave => IsCanClose && AllEditing;
 		public bool CanCancel => IsCanClose;
+
+		public bool CanComplete => AllEditing && SelectedRouteListAddresses.Any();
 
 		[PropertyChangedAlso(nameof(CanSave), nameof(CanCancel))]
 		public bool IsCanClose
@@ -175,6 +188,8 @@ namespace Vodovoz
 			get => _canClose;
 			set => SetField(ref _canClose, value);
 		}
+
+		public bool AllEditing => Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
 
 		public bool CanChangeForwarder => LogisticanEditing && Entity.CanAddForwarder;
 
@@ -370,7 +385,9 @@ namespace Vodovoz
 		public void UpdateNodes()
 		{
 			var emptyDP = new List<string>();
-			Items = new GenericObservableList<RouteListKeepingItemNode>();
+
+			Items.ForEach(i => i.StatusChanged -= OnRouteListAddressNodeStatusChanged);
+			Items.Clear();
 
 			foreach(var item in Entity.Addresses.Where(x => x != null))
 			{
@@ -391,18 +408,19 @@ namespace Vodovoz
 				return;
 			}
 
-			Items.ForEach(i => i.StatusChanged += RLI_StatusChanged);
+			Items.ForEach(i => i.StatusChanged += OnRouteListAddressNodeStatusChanged);
 
 			Items = new GenericObservableList<RouteListKeepingItemNode>(Items);
 		}
 
-		private void RLI_StatusChanged(object sender, StatusChangedEventArgs e)
+		private void OnRouteListAddressNodeStatusChanged(object sender, StatusChangedEventArgs e)
 		{
 			var newStatus = e.NewStatus;
 
 			if(sender is RouteListKeepingItemNode rli)
 			{
-				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue)
+				if(newStatus == RouteListItemStatus.Canceled
+					|| newStatus == RouteListItemStatus.Overdue)
 				{
 					if(UndeliveryOpenDlgAction is null)
 					{
