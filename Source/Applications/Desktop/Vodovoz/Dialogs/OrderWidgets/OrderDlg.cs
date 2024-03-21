@@ -857,10 +857,35 @@ namespace Vodovoz
 			//entryDeliverySchedule.CanEditReference = true;
 			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
-			var binder = new PropertyBinder<Order, DeliverySchedule>(Entity, e => e.DeliverySchedule);
+			///////////////////
+			//var binder = new PropertyBinder<Order, DeliverySchedule>(Entity, e => e.DeliverySchedule);
 
-			var journalSelector = new EntityJournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
-				() => this, NavigationManager);
+			//var journalSelector = new EntityJournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
+			//	() => this, NavigationManager);
+
+			
+
+			//var dialogEntitiesSelector = new SelectionDialogSelector<DeliverySchedule>(
+			//	NavigationManager,
+			//	UoW,
+			//	() => DeliveryPoint?.District == null
+			//	? new List<int>()
+			//	: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+			//	dialogSettings
+			//	);
+
+			//var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
+
+			//var autocompleteSelector = new EntitySelectionAutocompleteSelector<DeliverySchedule>(
+			//	UoW,
+			//	() => DeliveryPoint?.District == null
+			//	? new List<int>()
+			//	: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+			//	(text) => GetTitleCompare(text));
+
+			//var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, dialogEntitiesSelector, autocompleteSelector, journalSelector, adapter);
+
+			var builder = new LegacyEntitySelectionViewModelBuilder<DeliverySchedule>(_lifetimeScope, NavigationManager);
 
 			var dialogSettings = new SelectionDialogSettings
 			{
@@ -871,27 +896,24 @@ namespace Vodovoz
 				IsCanOpenJournal = true
 			};
 
-			var dialogEntitiesSelector = new SelectionDialogSelector<DeliverySchedule>(
-				NavigationManager,
-				UoW,
+			var vm1 = builder
+				.SetDialogTab(() => this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, e => e.DeliverySchedule)
+				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel>()
+				.UseAutocompleter(
+					() => DeliveryPoint?.District == null
+					? new List<int>()
+					: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+					(text) => GetTitleCompare(text))
+				.UseSelectionDialogSelector(
 				() => DeliveryPoint?.District == null
 				? new List<int>()
 				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
-				dialogSettings
-				);
+				dialogSettings)
+				.Finish();
 
-			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
-
-			var autocompleteSelector = new EntitySelectionAutocompleteSelector<DeliverySchedule>(
-				UoW,
-				() => DeliveryPoint?.District == null
-				? new List<int>()
-				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
-				(text) => GetTitleCompare(text));
-
-			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, dialogEntitiesSelector, autocompleteSelector, journalSelector, adapter);
-
-			entityselectionDeliverySchedule.ViewModel = vm;
+			entityselectionDeliverySchedule.ViewModel = vm1;
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 

@@ -420,6 +420,7 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
+    <Compile Include="Factories\LegacyEntitySelectionViewModelBuilder.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="JournalColumnsConfigs\InnerPhonesJournalRegistrar.cs" />
