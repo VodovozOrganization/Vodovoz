@@ -115,7 +115,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 		
 		public IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
-			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+			IUnitOfWork uow,
+			GoodsOnlineParameterType parameterType,
+			IEnumerable<int> warehouses)
 		{
 			PromotionalSet promotionalSetAlias = null;
 			PromotionalSetItem promotionalSetItemAlias = null;
@@ -135,6 +137,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					() => nomenclature2Alias.Id == operationAlias.Nomenclature.Id,
 					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclature2Alias.Id)
+				.AndRestrictionOn(() => operationAlias.Warehouse).IsInG(warehouses)
 				.Select(Projections.Sum(() => operationAlias.Amount));
 
 			return uow.Session.QueryOver<PromotionalSetOnlineParameters>()
