@@ -117,8 +117,9 @@ namespace Vodovoz
 
 			UpdateNodes();
 
+			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
+
 			SetPropertyChangeRelation(rl => rl.Status,
-				() => AllEditing,
 				() => CanReturnRouteListToEnRouteStatus,
 				() => CanSave,
 				() => CanComplete);
@@ -189,7 +190,7 @@ namespace Vodovoz
 			set => SetField(ref _canClose, value);
 		}
 
-		public bool AllEditing => Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
+		public bool AllEditing { get; }
 
 		public bool CanChangeForwarder => LogisticanEditing && Entity.CanAddForwarder;
 
