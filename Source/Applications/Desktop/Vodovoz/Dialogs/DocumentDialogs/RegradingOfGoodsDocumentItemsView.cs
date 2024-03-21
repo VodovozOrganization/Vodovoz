@@ -222,8 +222,12 @@ namespace Vodovoz
 		private void LoadStock()
 		{
 			var nomenclatureIds = DocumentUoW.Root.Items.Select(x => x.NomenclatureOld.Id).ToArray();
-			var inStock = _stockRepository.NomenclatureInStock(DocumentUoW, nomenclatureIds, DocumentUoW.Root.Warehouse.Id,
-				DocumentUoW.Root.TimeStamp);
+			var inStock =
+				_stockRepository.NomenclatureInStock(
+					DocumentUoW,
+					nomenclatureIds,
+					new []{ DocumentUoW.Root.Warehouse.Id },
+					DocumentUoW.Root.TimeStamp);
 
 			foreach(var item in DocumentUoW.Root.Items)
 			{

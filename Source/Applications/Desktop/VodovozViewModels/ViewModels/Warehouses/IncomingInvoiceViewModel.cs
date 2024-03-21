@@ -289,7 +289,10 @@ namespace Vodovoz.ViewModels.Warehouses
 								if(nomIds != null && nomIds.Any())
 								{
 									nomIds = nomIds.Distinct().ToList();
-									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.Warehouse.Id);
+									nomsAmount = _stockRepository.NomenclatureInStock(
+										UoW,
+										nomIds.ToArray(),
+										new []{ Entity.Warehouse.Id });
 								}
 								//Если такие уже добавлены, то только увеличить их количество
 								foreach(var item in orderItems)
