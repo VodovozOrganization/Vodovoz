@@ -11,17 +11,17 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		where TEntity : class, IDomainObject
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly Func<IList<int>> _selectRestriction;
-		private readonly Func<string, Expression<Func<TEntity, bool>>> _entityTitleFunc;
+		private readonly Func<IList<int>> _entityIdRestrictionFunc;
+		private readonly Func<string, Expression<Func<TEntity, bool>>> _entityTitleComparerFunc;
 
 		public EntitySelectionAutocompleteSelector(
 			IUnitOfWork uow,
-			Func<IList<int>> selectRestriction = null,
-			Func<string, Expression<Func<TEntity, bool>>> entityTitleFunc = null)
+			Func<IList<int>> entityIdRestrictionFunc = null,
+			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_selectRestriction = selectRestriction;
-			_entityTitleFunc = entityTitleFunc;
+			_entityIdRestrictionFunc = entityIdRestrictionFunc;
+			_entityTitleComparerFunc = entityTitleComparerFunc;
 		}
 
 		public event EventHandler<AutocompleteUpdatedEventArgs> AutocompleteLoaded;
@@ -44,24 +44,59 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		{
 			var query = _uow.Session.Query<TEntity>();
 
-			if(_selectRestriction != null)
+			if(_entityIdRestrictionFunc != null)
 			{
-				query = query.Where(e => _selectRestriction.Invoke().Contains(e.Id));
+				query = query.Where(e => _entityIdRestrictionFunc.Invoke().Contains(e.Id));
 			}
 
-			if(searchText != null && _entityTitleFunc != null)
+			if(searchText != null && _entityTitleComparerFunc != null)
 			{
 				foreach(var text in searchText)
 				{
-					var expression = _entityTitleFunc(text);
-
-					query = query.Where(expression);
+					query = query.Where(_entityTitleComparerFunc(text));
 				}
 			}
 
 			if(entitiesMaxCount != null)
 			{
 				query = query.Take(entitiesMaxCount.Value);
+			}
+
+			return query;
+		}
+
+		public void Dispose()
+		{
+
+		}
+	}
+
+	public class SelectionDialogEntitiesLoader<TEntity> : ISelectionDialogEntitiesLoader<TEntity>, IDisposable
+		where TEntity : class, IDomainObject
+	{
+		private readonly IUnitOfWork _uow;
+		private readonly Func<IList<int>> _entityIdRestrictionFunc;
+
+		public SelectionDialogEntitiesLoader(
+			IUnitOfWork uow,
+			Func<IList<int>> entityIdRestrictionFunc = null)
+		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_entityIdRestrictionFunc = entityIdRestrictionFunc;
+		}
+
+		public IList<TEntity> GetEntities()
+		{
+			return GetQuery().ToList();
+		}
+
+		private IQueryable<TEntity> GetQuery()
+		{
+			var query = _uow.Session.Query<TEntity>();
+
+			if(_entityIdRestrictionFunc != null)
+			{
+				query = query.Where(e => _entityIdRestrictionFunc.Invoke().Contains(e.Id));
 			}
 
 			return query;

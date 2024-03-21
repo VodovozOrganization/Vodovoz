@@ -1,42 +1,57 @@
 ﻿using QS.Commands;
-using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
-namespace Vodovoz.Presentation.ViewModels.Logistic
+namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
-	public class EntityButtonsSelectionViewModel<TEntity> : WindowDialogViewModelBase
-		where TEntity : class, IDomainObject
+	public class EntityButtonsSelectionViewModel : WindowDialogViewModelBase
 	{
+		private string _topMessageString;
+		private bool _isCanOpenJournal;
+		private string _noEntitiesMessage;
+
 		public event EventHandler<EntitySelectedEventArgs> EntitySelected;
 		public event EventHandler SelectEntityFromJournalSelected;
 
 		public EntityButtonsSelectionViewModel(
 			INavigationManager navigation,
-			IList<object> entities,
+			IDictionary<object, string> entities,
 			bool isUserCanOpenJournal = false
 			) : base(navigation)
 		{
 			Entities = entities;
 			IsCanOpenJournal = isUserCanOpenJournal;
 
-			SelectEntityCommand = new DelegateCommand<TEntity>(SelectEntity);
+			SelectEntityCommand = new DelegateCommand<object>(SelectEntity);
 			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => IsCanOpenJournal);
 		}
 
-		public string TopMessageString { get; set; }
-		public bool IsCanOpenJournal { get; set; } = false;
-		public IList<object> Entities { get; }
-		public string NoEntitiesMessage { get; set; } =
-			"Данные отсутствуют";
+		public string TopMessageString
+		{
+			get => _topMessageString;
+			set => SetField( ref _topMessageString, value );
+		}
 
-		public DelegateCommand<TEntity> SelectEntityCommand { get; }
+		public bool IsCanOpenJournal
+		{
+			get => _isCanOpenJournal;
+			set => SetField(ref _isCanOpenJournal, value);
+		}
+
+		public string NoEntitiesMessage
+		{
+			get => _noEntitiesMessage;
+			set => SetField(ref _noEntitiesMessage, value);
+		}
+
+		public IDictionary<object, string> Entities { get; }
+
+		public DelegateCommand<object> SelectEntityCommand { get; }
 		public DelegateCommand SelectEntityFromJournalCommand { get; }
 
-		private void SelectEntity(TEntity entity)
+		private void SelectEntity(object entity)
 		{
 			EntitySelected?.Invoke(this, new EntitySelectedEventArgs(entity));
 			CloseWindow();

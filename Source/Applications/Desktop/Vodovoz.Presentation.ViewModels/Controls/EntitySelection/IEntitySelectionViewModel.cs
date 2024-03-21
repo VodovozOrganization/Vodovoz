@@ -3,7 +3,6 @@ using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
-using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections;
@@ -22,6 +21,11 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		object Entity { get; set; }
 		#endregion
 
+		#region Диалог для выбора сущности
+		IEnumerable<object> AvailableEntities { get; }
+		SelectionDialogSettings SelectionDialogSettings { get; }
+		#endregion
+
 		#region События для внешних подписчиков
 		event EventHandler Changed;
 		event EventHandler ChangedByUser;
@@ -29,16 +33,18 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		#region Настройки виджета
 		bool IsEditable { get; set; }
+		bool IsUserHasAccessToOpenJournal { get; set; }
 		#endregion
 
 		#region Доступность функций View
 		bool CanSelectEntity { get; }
 		bool CanClearEntity { get; }
 		bool CanAutoCompleteEntry { get; }
+		bool CanSelectEntityFromJournal { get; }
 		#endregion
 
 		#region Команды от View
-		DelegateCommand OpenSelectDialogCommand { get; }
+		DelegateCommand OpenEntityJournalCommand { get; }
 		DelegateCommand ClearEntityCommand { get; }
 		#endregion
 
@@ -77,6 +83,11 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		string GetTitle(object node);
 		event EventHandler<AutocompleteUpdatedEventArgs> AutocompleteLoaded;
 		void LoadAutocompletion(string[] searchText, int takeCount);
+	}
+
+	public interface ISelectionDialogEntitiesLoader<TEntity>
+		where TEntity : class, IDomainObject
+	{
 		IList<TEntity> GetEntities();
 	}
 

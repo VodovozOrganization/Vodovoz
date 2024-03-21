@@ -1,6 +1,7 @@
 ﻿using Gamma.Binding.Core;
 using Gdk;
 using Gtk;
+using QS.DomainModel.Entity;
 using QS.Extensions;
 using System;
 using System.Collections;
@@ -94,7 +95,8 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		protected void OnButtonSelectEntityClicked(object sender, EventArgs e)
 		{
-			ViewModel.OpenSelectDialogCommand?.Execute();
+			CreateSelectButtonsDialog();
+			ViewModel.OpenEntityJournalCommand?.Execute();
 		}
 
 		protected void OnButtonClearClicked(object sender, EventArgs e)
@@ -112,7 +114,122 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			_isInternalTextSet = false;
 		}
 
+		private void CreateSelectButtonsDialog()
+		{
+			var availableEntities = _viewModel.AvailableEntities;
 
+			var selectDialog = GetSelectDialog();
+
+			var topLabel = GetTopLabel();
+
+			var buttonsVbox = availableEntities.Count() > 0
+				? GetButtonsVbox(availableEntities)
+				: GetNoEntitesToSelectVbox();
+
+			var selectFromJournalButton = GetSelectFromJournalButton();
+
+			selectDialog.VBox.Add(topLabel);
+			selectDialog.VBox.Add(buttonsVbox);
+			selectDialog.VBox.Add(selectFromJournalButton);
+
+			selectDialog.ShowAll();
+			selectDialog.Run();
+
+			selectDialog.Destroy();
+		}
+
+		private Dialog GetSelectDialog()
+		{
+			Gtk.Window parentWin = (Gtk.Window)Toplevel;
+
+			var selectDialog = new Dialog(
+				_viewModel.SelectionDialogSettings.Title,
+				parentWin,
+				DialogFlags.DestroyWithParent
+			)
+			{
+				HeightRequest = _viewModel.SelectionDialogSettings.Height,
+				WidthRequest = _viewModel.SelectionDialogSettings.Width,
+				Modal = true
+			};
+
+			return selectDialog;
+		}
+
+		private Label GetTopLabel()
+		{
+			return new Label()
+			{
+				UseMarkup = true,
+				Markup = _viewModel.SelectionDialogSettings.TopLabelText
+			};
+		}
+
+		private VBox GetButtonsVbox(IEnumerable entities)
+		{
+			var leftVbox = new VBox();
+			var rightVbox = new VBox();
+
+			var counter = 0;
+
+			foreach(var entity in entities)
+			{
+				if(counter%2 == 0)
+				{
+					leftVbox.Add(CreateButton(entity));
+				}
+				else
+				{
+					leftVbox.Add(CreateButton(entity));
+				}
+
+				counter++;
+			}
+
+			var vboxButtons = new VBox
+			{
+				leftVbox,
+				rightVbox
+			};
+
+			return vboxButtons;
+		}
+
+		private Button CreateButton(object  entity)
+		{
+			var button = new Button
+			{
+				Label = entity.GetTitle()
+			};
+
+			return button;
+		}
+
+		private VBox GetNoEntitesToSelectVbox()
+		{
+			var label = new Label
+			{
+				UseMarkup = true,
+				Markup = _viewModel.SelectionDialogSettings.NoEntitiesTextMessage
+			};
+
+			var vbox = new VBox
+			{
+				label
+			};
+
+			return vbox;
+		}
+
+		private Button GetSelectFromJournalButton()
+		{
+			var button = new Button
+			{
+				Label = _viewModel.SelectionDialogSettings.SelectFromJournalButtonLabelText
+			};
+
+			return button;
+		}
 		#region AutoCompletion
 
 		private void ConfigureEntryComplition()
@@ -139,7 +256,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			foreach(var word in words)
 			{
 				string pattern = string.Format("{0}", Regex.Escape(word));
-				title = Regex.Replace(title, pattern, (match) => String.Format("<b>{0}</b>", match.Value), RegexOptions.IgnoreCase);
+				title = Regex.Replace(title, pattern, (match) => string.Format("<b>{0}</b>", match.Value), RegexOptions.IgnoreCase);
 			}
 			(cell as CellRendererText).Markup = title;
 		}

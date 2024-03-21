@@ -2,7 +2,9 @@
 using QS.DomainModel.Entity;
 using QS.ViewModels.Control;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
@@ -10,18 +12,23 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		where TEntity : class, IDomainObject
 	{
 		private TEntity _entity;
-		private IEntitySelectionAdapter<TEntity> _entityAdapter;
-		private IEntityJournalSelector _entitySelector;
 		private IPropertyBinder<TEntity> _entityBinder;
+		private ISelectionDialogEntitiesLoader<TEntity> _selectionDialogEntitiesLoader;
 		private IEntitySelectionAutocompleteSelector<TEntity> _autocompleteSelector;
+		private IEntityJournalSelector _entityJournalSelector;
+		private IEntitySelectionAdapter<TEntity> _entityAdapter;
 
 		private bool _isEditable = true;
+		private bool _isUserHasAccessToOpenJournal;
+		private readonly Func<SelectionDialogSettings> _selectionDialogSettingsFunc;
 
 		public EntitySelectionViewModel(
 			IPropertyBinder<TEntity> binder = null,
-			IEntityJournalSelector entitySelector = null,
+			ISelectionDialogEntitiesLoader<TEntity> selectionDialogEntitiesLoader = null,
+			IEntitySelectionAutocompleteSelector<TEntity> autocompleteSelector = null,
+			IEntityJournalSelector entityJournalSelector = null,
 			IEntitySelectionAdapter<TEntity> entityAdapter = null,
-			IEntitySelectionAutocompleteSelector<TEntity> autocompleteSelector = null
+			Func<SelectionDialogSettings> selectionDialogSettingsFunc = null
 			)
 		{
 			if(binder != null)
@@ -29,14 +36,9 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				EntityBinder = binder;
 			}
 
-			if(entitySelector != null)
+			if(selectionDialogEntitiesLoader != null)
 			{
-				EntitySelector = entitySelector;
-			}
-
-			if(entityAdapter != null)
-			{
-				EntityAdapter = entityAdapter;
+				SelectionDialogEntitiesLoader = selectionDialogEntitiesLoader;
 			}
 
 			if(autocompleteSelector != null)
@@ -44,7 +46,19 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				AutocompleteSelector = autocompleteSelector;
 			}
 
-			OpenSelectDialogCommand = new DelegateCommand(OpenSelectDialog, () => CanSelectEntity);
+			if(entityJournalSelector != null)
+			{
+				EntityJournalSelector = entityJournalSelector;
+			}
+
+			if(entityAdapter != null)
+			{
+				EntityAdapter = entityAdapter;
+			}
+
+			_selectionDialogSettingsFunc = selectionDialogSettingsFunc;
+
+			OpenEntityJournalCommand = new DelegateCommand(OpenEntityJournal, () => CanSelectEntityFromJournal);
 			ClearEntityCommand = new DelegateCommand(ClearEntity, () => CanClearEntity);
 		}
 
@@ -52,9 +66,8 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		public event EventHandler ChangedByUser;
 		public event EventHandler<AutocompleteUpdatedEventArgs> AutoCompleteListUpdated;
 
-		public DelegateCommand OpenSelectDialogCommand { get; }
+		public DelegateCommand OpenEntityJournalCommand { get; }
 		public DelegateCommand ClearEntityCommand { get; }
-
 
 		public virtual TEntity Entity
 		{
@@ -88,6 +101,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		}
 
 		object IEntitySelectionViewModel.Entity { get => Entity; set => Entity = (TEntity)value; }
+		public IEnumerable<object> AvailableEntities => SelectionDialogEntitiesLoader?.GetEntities()?.Cast<object>() ?? new List<object>();
 
 		public IEntitySelectionAdapter<TEntity> EntityAdapter
 		{
@@ -99,13 +113,22 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			}
 		}
 
-		public IEntityJournalSelector EntitySelector
+		public ISelectionDialogEntitiesLoader<TEntity> SelectionDialogEntitiesLoader
 		{
-			get => _entitySelector;
+			get => _selectionDialogEntitiesLoader;
 			set
 			{
-				_entitySelector = value;
-				EntitySelector.EntitySelected += EntitySelector_EntitySelected;
+				_selectionDialogEntitiesLoader = value;
+			}
+		}
+
+		public IEntityJournalSelector EntityJournalSelector
+		{
+			get => _entityJournalSelector;
+			set
+			{
+				_entityJournalSelector = value;
+				EntityJournalSelector.EntitySelected += EntitySelector_EntitySelected;
 				OnPropertyChanged(nameof(CanSelectEntity));
 			}
 		}
@@ -125,15 +148,34 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				OnPropertyChanged(nameof(CanSelectEntity));
 				OnPropertyChanged(nameof(CanClearEntity));
 				OnPropertyChanged(nameof(CanAutoCompleteEntry));
+				OnPropertyChanged(nameof(CanSelectEntityFromJournal));
+			}
+		}
+
+		public bool IsUserHasAccessToOpenJournal
+		{
+			get => _isUserHasAccessToOpenJournal;
+			set
+			{
+				if(_isUserHasAccessToOpenJournal == value)
+				{
+					return;
+				}
+
+				_isUserHasAccessToOpenJournal = value;
+
+				OnPropertyChanged(nameof(CanSelectEntityFromJournal));
 			}
 		}
 
 		public bool DisposeViewModel { get; set; } = true;
 		public string EntityTitle => Entity?.GetTitle();
+		public SelectionDialogSettings SelectionDialogSettings => _selectionDialogSettingsFunc?.Invoke() ?? new SelectionDialogSettings();
 
-		public virtual bool CanSelectEntity => IsEditable && EntitySelector != null;
+		public virtual bool CanSelectEntity => CanAutoCompleteEntry || CanSelectEntityFromJournal;
 		public virtual bool CanClearEntity => IsEditable && Entity != null;
 		public virtual bool CanAutoCompleteEntry => IsEditable && AutocompleteSelector != null;
+		public virtual bool CanSelectEntityFromJournal => IsEditable && IsUserHasAccessToOpenJournal && EntityJournalSelector != null;
 
 		#region AutoCompletion
 
@@ -186,10 +228,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		}
 
 		#region Команды View
-		private void OpenSelectDialog()
-		{
-			OpenEntityJournal();
-		}
 
 		private void ClearEntity()
 		{
@@ -199,7 +237,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		private void OpenEntityJournal()
 		{
-			_entitySelector?.OpenSelector();
+			_entityJournalSelector?.OpenSelector();
 		}
 
 		#endregion
@@ -232,7 +270,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		{
 			UnsubscribeAll();
 
-			if(EntitySelector is IDisposable esd)
+			if(EntityJournalSelector is IDisposable esd)
 			{
 				esd.Dispose();
 			}
@@ -252,7 +290,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				asd.Dispose();
 			}
 
-			_entitySelector = null;
+			_entityJournalSelector = null;
 			_entityBinder = null;
 			_entityAdapter = null;
 		}
@@ -283,9 +321,9 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		private void UnsubscribeEntitySelector()
 		{
-			if(_entitySelector != null)
+			if(_entityJournalSelector != null)
 			{
-				_entitySelector.EntitySelected += EntitySelector_EntitySelected;
+				_entityJournalSelector.EntitySelected += EntitySelector_EntitySelected;
 			}
 		}
 

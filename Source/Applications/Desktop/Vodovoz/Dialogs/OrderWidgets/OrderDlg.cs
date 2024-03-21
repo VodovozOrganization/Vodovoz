@@ -858,18 +858,27 @@ namespace Vodovoz
 			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			var binder = new PropertyBinder<Order, DeliverySchedule>(Entity, e => e.DeliverySchedule);
-			var selector = new EntityJournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
+
+			var journalSelector = new EntityJournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
 				() => this, NavigationManager);
-			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
-			var entitySelector = new EntitySelectionAutocompleteSelector<DeliverySchedule>(
+
+			var dialogEntitiesLoader = new SelectionDialogEntitiesLoader<DeliverySchedule>(
 				UoW,
-				() =>
-				DeliveryPoint?.District == null
+				() => DeliveryPoint?.District == null
+				? new List<int>()
+				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList()
+				);
+
+			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
+
+			var autocompleteSelector = new EntitySelectionAutocompleteSelector<DeliverySchedule>(
+				UoW,
+				() => DeliveryPoint?.District == null
 				? new List<int>()
 				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
 				(text) => GetTitleCompare(text));
 
-			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, selector, adapter, entitySelector);
+			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, dialogEntitiesLoader, autocompleteSelector, journalSelector);
 
 			entityselectionDeliverySchedule.ViewModel = vm;
 
