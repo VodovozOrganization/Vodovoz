@@ -205,7 +205,7 @@ namespace Vodovoz
 			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
-		public IList<DeliveryShift> ActiveShifts { get; private set; }
+		public IList<DeliveryShift> ActiveShifts { get; }
 		public bool AskSaveOnClose => _permissionResult.CanUpdate;
 
 		public override bool HasChanges
@@ -537,8 +537,6 @@ namespace Vodovoz
 			{
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();
-
-				ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 			}
 		}
 
