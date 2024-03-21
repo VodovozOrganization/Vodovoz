@@ -143,6 +143,7 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using QS.ViewModels.Control.EEVM;
 
 namespace Vodovoz
 {
@@ -733,6 +734,7 @@ namespace Vodovoz
 						.AddScoped<MessageEndpointConnector>()
 						.AddScoped<PacsEndpointsConnector>()
 
+						.AddTransient(typeof(ViewModelEEVMBuilder<>))
 						.AddTransient<EntityModelFactory>()
 						
 						.AddPacsOperatorClient()

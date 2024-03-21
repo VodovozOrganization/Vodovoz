@@ -1,12 +1,10 @@
-﻿using Autofac;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Project.Journal;
-using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Logistic;
@@ -14,7 +12,6 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Logistics;
 using static Vodovoz.ViewModels.Logistic.RouteListTransferringViewModel;
@@ -25,8 +22,6 @@ namespace Vodovoz.Logistic
 	{
 		private Color _successBaseColor = GdkColors.SuccessBase;
 		private Color _primaryBaseColor = GdkColors.PrimaryBase;
-		private RouteListJournalFilterViewModel _sourceRouteListsFilter;
-		private RouteListJournalFilterViewModel _targetRouteListsFilter;
 
 		public RouteListAddressesTransferringView(RouteListTransferringViewModel viewModel)
 			: base(viewModel)
@@ -43,59 +38,7 @@ namespace Vodovoz.Logistic
 				return page;
 			};
 
-			_sourceRouteListsFilter = ViewModel.LifetimeScope.Resolve<RouteListJournalFilterViewModel>();
-
-			_sourceRouteListsFilter.SetAndRefilterAtOnce(filter =>
-			{
-				filter.DisplayableStatuses = ViewModel.DefaultSourceRouteListStatuses;
-				filter.StartDate = ViewModel.DefaultSourceRouteListStartDate;
-				filter.EndDate = ViewModel.DefaultSourceRouteListEndDate;
-				filter.AddressTypeNodes.ForEach(x => x.Selected = true);
-				filter.ExcludeIds = ViewModel.ExcludeIds;
-			});
-
-			_sourceRouteListsFilter.DisposeOnDestroy = false;
-
-			ViewModel.SourceRouteListViewModel =
-				new LegacyEEVMBuilderFactory<RouteListTransferringViewModel>(ViewModel, Tab, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope)
-				.ForProperty(x => x.SourceRouteList)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(_sourceRouteListsFilter)
-				.Finish();
-
-			_targetRouteListsFilter = ViewModel.LifetimeScope.Resolve<RouteListJournalFilterViewModel>();
-
-			_targetRouteListsFilter.SetAndRefilterAtOnce(filter =>
-			{
-				filter.DisplayableStatuses = ViewModel.DefaultTargetRouteListStatuses;
-				filter.StartDate = ViewModel.DefaultTargetRouteListStartDate;
-				filter.EndDate = ViewModel.DefaultTargetRouteListEndDate;
-				filter.AddressTypeNodes.ForEach(x => x.Selected = true);
-				filter.ExcludeIds = ViewModel.ExcludeIds;
-			});
-
-			_targetRouteListsFilter.DisposeOnDestroy = false;
-
-			ViewModel.TargetRouteListViewModel =
-				new LegacyEEVMBuilderFactory<RouteListTransferringViewModel>(ViewModel, Tab, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope)
-				.ForProperty(x => x.TargetRouteList)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(_targetRouteListsFilter)
-				.Finish();
-
 			Initialize();
-
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-		}
-
-		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.SourceRouteListId)
-				|| e.PropertyName == nameof(ViewModel.TargetRouteListId))
-			{
-				_targetRouteListsFilter.ExcludeIds = ViewModel.ExcludeIds;
-				_sourceRouteListsFilter.ExcludeIds = ViewModel.ExcludeIds;
-			}
 		}
 
 		private void Initialize()
@@ -245,17 +188,7 @@ namespace Vodovoz.Logistic
 
 		public override void Destroy()
 		{
-			_targetRouteListsFilter.DisposeOnDestroy = true;
-			_targetRouteListsFilter?.Dispose();
-			_targetRouteListsFilter = null;
-			_sourceRouteListsFilter.DisposeOnDestroy = true;
-			_sourceRouteListsFilter?.Dispose();
-			_sourceRouteListsFilter = null;
-
-			if(ViewModel != null)
-			{
-				ViewModel.OpenLegacyOrderForRouteListJournalViewModelHandler = null;
-			}
+			ViewModel?.Dispose();
 			base.Destroy();
 		}
 	}

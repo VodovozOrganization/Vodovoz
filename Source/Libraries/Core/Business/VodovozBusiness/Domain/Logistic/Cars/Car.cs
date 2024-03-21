@@ -1,5 +1,4 @@
-﻿using NHibernate.Type;
-using QS.Attachments.Domain;
+﻿using QS.Attachments.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -8,7 +7,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -79,7 +77,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			}
 		}
 
-		[Display(Name ="Дата архивации")]
+		[Display(Name = "Дата архивации")]
 		public virtual DateTime? ArchivingDate
 		{
 			get => _archivingDate;
@@ -107,9 +105,9 @@ namespace Vodovoz.Domain.Logistic.Cars
 			get => _odometerReadings;
 			set => SetField(ref _odometerReadings, value);
 		}
-		
-		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings 
-		    ?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
+
+		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings
+			?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
 
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber
@@ -333,7 +331,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			{
 				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
 			}
-			
+
 			if(CarModel == null)
 			{
 				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
@@ -381,30 +379,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 			{
 				return 0;
 			}
-			
+
 			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate).FirstOrDefault()?.FuelConsumption;
 
 			return result ?? 0;
 		}
-	}
-
-	public enum ArchivingReason
-	{
-		[Display(Name = "Продано")]
-		Sales,
-		[Display(Name = "Утиль")]
-		Scrap
-	}
-
-	public class CarTypeOfUseStringType : EnumStringType
-	{
-		public CarTypeOfUseStringType() : base(typeof(CarTypeOfUse))
-		{ }
-	}
-
-	public class GenderStringType : EnumStringType
-	{
-		public GenderStringType() : base(typeof(Gender))
-		{ }
 	}
 }

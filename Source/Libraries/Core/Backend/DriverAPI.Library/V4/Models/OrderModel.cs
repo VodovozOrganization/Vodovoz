@@ -521,7 +521,7 @@ namespace DriverAPI.Library.V4.Models
 					codeEntity = new TrueMarkWaterIdentificationCode
 					{
 						IsInvalid = false,
-						RawCode = parsedCode.SourceCode,
+						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
 						GTIN = parsedCode.GTIN,
 						SerialNumber = parsedCode.SerialNumber,
 						CheckCode = parsedCode.CheckCode

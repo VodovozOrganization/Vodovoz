@@ -363,20 +363,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			{
 				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
 					.Where(() => _cashReceiptAlias.Order.Id == orderId)
-					.Where(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded)
+					.And(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded
+						&& _cashReceiptAlias.Status != CashReceiptStatus.DuplicateSum)
 					.Select(Projections.Id());
 				var result = query.List<int>();
-				var hasNeededReceipts = result.Any();
 
-				if(hasNeededReceipts)
-				{
-					return hasNeededReceipts;
-				}
-				else
-				{
-					var receiptNeeded = CashReceiptNeeded(uow, orderId);
-					return receiptNeeded;
-				}
+				return result.Any();
 			}
 		}
 

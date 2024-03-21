@@ -5,7 +5,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
