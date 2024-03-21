@@ -87,7 +87,8 @@ namespace Vodovoz.FirebaseCloudMessaging
 						{
 							Headers = new Dictionary<string, string>
 							{
-								{ "apns-priority" , "10" }
+								{ "apns-priority" , "10" },
+								{ "content_available", "true" }
 							}
 						}
 					}
