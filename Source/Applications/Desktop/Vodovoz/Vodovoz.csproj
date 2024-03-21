@@ -407,6 +407,7 @@
     <EmbeddedResource Include="icons\pacs\short-break-default.png" />
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
     <EmbeddedResource Include="icons\toolbar\1s_default.png" />
+    <EmbeddedResource Include="icons\common\Сalendar.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -2044,6 +2045,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.EntitySelection.cs" />
     <Compile Include="Views\EntityButtonsSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
+    <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
