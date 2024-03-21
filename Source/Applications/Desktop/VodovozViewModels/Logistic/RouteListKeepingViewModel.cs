@@ -103,6 +103,8 @@ namespace Vodovoz
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 			LogisticanEditing = IsUserLogist && AllEditing;
 
+			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
+
 			CarViewModel = BuildCarEntryViewModel();
 			DriverViewModel = BuildDriverEntryViewModel();
 			ForwarderViewModel = BuildForwarderEntryViewModel();
@@ -203,7 +205,7 @@ namespace Vodovoz
 			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
-		public IList<DeliveryShift> ActiveShifts => _deliveryShiftRepository.ActiveShifts(UoW);
+		public IList<DeliveryShift> ActiveShifts { get; private set; }
 		public bool AskSaveOnClose => _permissionResult.CanUpdate;
 
 		public override bool HasChanges
@@ -535,6 +537,8 @@ namespace Vodovoz
 			{
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();
+
+				ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 			}
 		}
 
