@@ -24,7 +24,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			var nomenclatureIds = myExport.Catalog.Goods.NomenclatureIds;
 			var warehousesIds = warehouses.Select(x => x.Id).ToArray();
 
-			_amounts = _stockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
+			_amounts = _stockRepository.NomenclatureInStock(myExport.UOW, nomenclatureIds, warehousesIds);
 		}
 
 		Export myExport;

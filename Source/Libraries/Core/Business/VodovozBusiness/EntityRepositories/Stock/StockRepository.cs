@@ -53,7 +53,7 @@ namespace Vodovoz.EntityRepositories.Stock
 		public Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow,
 			int[] nomenclatureIds,
-			int? warehouseId = null,
+			IEnumerable<int> warehouseIds = null,
 			DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;
@@ -72,9 +72,9 @@ namespace Vodovoz.EntityRepositories.Stock
 				query.And(() => operationAlias.OperationTime < onDate.Value);
 			}
 
-			if(warehouseId.HasValue)
+			if(warehouseIds != null && warehouseIds.Any())
 			{
-				query.And(() => operationAlias.Warehouse.Id == warehouseId);
+				query.AndRestrictionOn(() => operationAlias.Warehouse.Id).IsInG(warehouseIds);
 			}
 
 			var stockList = query.SelectList(list => list
@@ -183,30 +183,6 @@ namespace Vodovoz.EntityRepositories.Stock
 				.List<NomenclatureStockNode>();
 
 			return result.ToDictionary(x => x.NomenclatureId, x => x.Stock);
-		}
-
-		public Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int[] warehouseIds, int[] nomenclatureIds)
-		{
-			var total = new Dictionary<int, decimal>();
-			
-			foreach(var warehouse in warehouseIds)
-			{
-				var stockTotal = NomenclatureInStock(uow, nomenclatureIds, warehouse);
-				
-				foreach(var pair in stockTotal)
-				{
-					if(total.ContainsKey(pair.Key))
-					{
-						total[pair.Key] += pair.Value;
-					}
-					else
-					{
-						total.Add(pair.Key, pair.Value);
-					}
-				}
-			}
-			
-			return total;
 		}
 	}
 }
