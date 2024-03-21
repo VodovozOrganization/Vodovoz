@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -23,6 +24,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
@@ -55,6 +57,7 @@ namespace Vodovoz
 		private readonly IGeneralSettings _generalSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IServiceProvider _serviceProvider;
 		private readonly IPermissionResult _permissionResult;
 
 		private Employee _previousForwarder = null;
@@ -65,6 +68,8 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
 		private RouteListKeepingItemNode _selectedItem;
 		private bool _canClose = true;
+
+		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
 
 		public RouteListKeepingViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -82,6 +87,7 @@ namespace Vodovoz
 			IGeneralSettings generalSettings,
 			ICallTaskWorker callTaskWorker,
 			IFileDialogService fileDialogService,
+			IServiceProvider serviceProvider,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
@@ -100,6 +106,7 @@ namespace Vodovoz
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
@@ -128,7 +135,9 @@ namespace Vodovoz
 			UpdateNodes();
 
 			SaveCommand = new DelegateCommand(SaveAndClose);
+			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
 			RefreshCommand = new DelegateCommand(RefreshCommandHandler);
+			CreateFine = new DelegateCommand(CreateFineCommandHandler);
 		}
 
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
@@ -155,6 +164,16 @@ namespace Vodovoz
 
 		public bool IsOrderWaitUntilActive { get; }
 
+		public bool CanSave => IsCanClose && AllEditing;
+		public bool CanCancel => IsCanClose;
+
+		[PropertyChangedAlso(nameof(CanSave), nameof(CanCancel))]
+		public bool IsCanClose
+		{
+			get => _canClose;
+			set => SetField(ref _canClose, value);
+		}
+
 		public bool CanChangeForwarder => LogisticanEditing && Entity.CanAddForwarder;
 		public bool CanReturnRouteListToEnRouteStatus =>
 			Entity.Status == RouteListStatus.OnClosing
@@ -176,6 +195,15 @@ namespace Vodovoz
 				return base.HasChanges;
 			}
 		}
+
+		#region Commands
+
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CancelCommand { get; }
+		public DelegateCommand RefreshCommand { get; }
+		public DelegateCommand CreateFine { get; }
+
+		#endregion Commands
 
 		public void SelectOrdersById(int[] selectedOrderIds)
 		{
@@ -360,24 +388,24 @@ namespace Vodovoz
 			{
 				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue)
 				{
-					//UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
-					//TabParent.AddSlaveTab(this, dlg);
+					if(UndeliveryOpenDlgAction is null)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Error, "Не назначено действие открытие диалога, обратитесь в отдел разработки", "Ошибка");
+					}
 
-					//dlg.DlgSaved += (s, ea) =>
-					//{
-					//	rli.UpdateStatus(newStatus, CallTaskWorker);
-					//	UoW.Save(rli.RouteListItem);
-					//	UoW.Commit();
-					//};
+					var dlg = UndeliveryOpenDlgAction.Invoke(
+						rli.RouteListItem.Order,
+						rli.RouteListItem.RouteList.UoW,
+						newStatus);
 
-					//return;
+					TabParent.AddSlaveTab(this, dlg);
+
+					return;
 				}
 
-				var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
-
-				var validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+				var validationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
 				{
-					{ "uowFactory", uowFactory }
+					{ "uowFactory", UnitOfWorkFactory }
 				});
 
 				var canCreateSeveralOrdersValidationResult =
@@ -423,67 +451,48 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			if(!_canClose)
+			if(!IsCanClose)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Дождитесь завершения работы задачи и повторите");
 			}
 
-			return _canClose;
+			return IsCanClose;
 		}
 
-		private void SetSensetivity(bool isSensetive)
+		protected override bool BeforeSave()
 		{
-			//_canClose = isSensetive;
-			//buttonSave.Sensitive = isSensetive;
-			//buttonCancel.Sensitive = isSensetive;
+			IsCanClose = false;
+			UoWGeneric.Save();
+
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			UoW.Save(Entity.RouteListProfitability);
+
+			Entity.CalculateWages(_wageParameterService);
+			return base.BeforeSave();
 		}
 
+		protected override void AfterSave()
+		{
+			base.AfterSave();
+			var changedList = Items
+					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+					.ToList();
 
-		//public override bool Save()
-		//{
-		//	try
-		//	{
-		//		SetSensetivity(false);
+			IsCanClose = true;
+			if(changedList.Count == 0)
+			{
+				return;
+			}
 
-		//		Entity.CalculateWages(_wageParameterService);
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 
-		//		UoWGeneric.Save();
-
-		//		_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-		//		UoW.Save(Entity.RouteListProfitability);
-		//		UoW.Commit();
-
-		//		var changedList = _items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
-
-		//		if(changedList.Count == 0)
-		//		{
-		//			return true;
-		//		}
-
-		//		var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-
-		//		if(currentEmployee == null)
-		//		{
-		//			_interactiveService.ShowMessage(ImportanceLevel.Info, "Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
-		//			return true;
-		//		}
-
-		//		return true;
-		//	}
-		//	finally
-		//	{
-		//		SetSensetivity(true);
-		//	}
-		//}
+			if(currentEmployee == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Info, "Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+			}
+		}
 
 		#endregion
-
-		#region Commands
-
-		public DelegateCommand RefreshCommand { get; }
-		public DelegateCommand SaveCommand { get; }
-
-		#endregion Commands
 
 		protected void RefreshCommandHandler()
 		{
@@ -542,7 +551,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonNewFineClicked(object sender, EventArgs e)
+		protected void CreateFineCommandHandler()
 		{
 			var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
