@@ -44,7 +44,7 @@ namespace Vodovoz.Logistic
 
 				result.DlgSaved += (s, ea) =>
 				{
-					var address = ViewModel.SelectedRouteListAddresses
+					var address = ViewModel.Items
 						.Where(x => x.RouteListItem.Order.Id == order.Id)
 						.FirstOrDefault();
 
@@ -197,7 +197,7 @@ namespace Vodovoz.Logistic
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(ViewModel.SelectedRouteListAddresses))
+			if(e.PropertyName == nameof(ViewModel.SelectedRouteListAddressesObjects))
 			{
 				var selectedItems = ViewModel.Items
 					.Where(x => ViewModel.SelectedRouteListAddresses

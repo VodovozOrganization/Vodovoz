@@ -103,6 +103,8 @@ namespace Vodovoz.JournalViewModels
 
 			filterViewModel.Journal = this;
 
+			UseSlider = false;
+
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
 			RegisterOrdersWithoutShipmentForPayment();

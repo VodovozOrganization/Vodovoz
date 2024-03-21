@@ -59,6 +59,7 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
 		private bool _canClose = true;
+		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 
 		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
 
@@ -75,6 +76,7 @@ namespace Vodovoz
 			IWageParameterService wageParameterService,
 			IGeneralSettings generalSettings,
 			IServiceProvider serviceProvider,
+			ICallTaskWorker callTaskWorker,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
@@ -90,6 +92,7 @@ namespace Vodovoz
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
@@ -129,12 +132,17 @@ namespace Vodovoz
 		}
 
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
-		public IEnumerable<RouteListKeepingItemNode> SelectedRouteListAddresses { get; private set; } = Enumerable.Empty<RouteListKeepingItemNode>();
+
+		public IEnumerable<RouteListKeepingItemNode> SelectedRouteListAddresses
+		{
+			get => SelectedRouteListAddressesObjects.Cast<RouteListKeepingItemNode>();
+			set => SelectedRouteListAddressesObjects = value;
+		}
 
 		public IEnumerable<object> SelectedRouteListAddressesObjects
 		{
-			get => SelectedRouteListAddresses;
-			set => SelectedRouteListAddresses = SelectedRouteListAddressesObjects.Cast<RouteListKeepingItemNode>();
+			get => _selectedRouteListAddressesObjects;
+			set => SetField(ref _selectedRouteListAddressesObjects, value);
 		}
 
 		public string BottlesInfo { get; private set; }
@@ -458,30 +466,32 @@ namespace Vodovoz
 			return IsCanClose;
 		}
 
+		protected override bool BeforeValidation()
+		{
+			ValidationContext = new ValidationContext(Entity);
+
+			return base.BeforeValidation();
+		}
+
 		protected override bool BeforeSave()
 		{
 			IsCanClose = false;
 			UoWGeneric.Save();
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+
 			UoW.Save(Entity.RouteListProfitability);
-
-			Entity.CalculateWages(_wageParameterService);
-			return base.BeforeSave();
-		}
-
-		protected override void AfterSave()
-		{
-			base.AfterSave();
+			UoW.Commit();
 
 			var changedList = Items
 				.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 				.ToList();
 
 			IsCanClose = true;
+
 			if(changedList.Count == 0)
 			{
-				return;
+				return false;
 			}
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
@@ -490,6 +500,10 @@ namespace Vodovoz
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 			}
+
+			Entity.CalculateWages(_wageParameterService);
+
+			return base.BeforeSave();
 		}
 
 		#endregion
