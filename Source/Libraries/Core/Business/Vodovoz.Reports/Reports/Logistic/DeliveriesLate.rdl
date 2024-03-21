@@ -45,7 +45,6 @@ FROM
     route_lists
         INNER JOIN employees driver ON
                 driver.id = route_lists.driver_id
-                AND driver.visiting_master = 0
         LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN orders ON orders.id = route_list_addresses.order_id
         LEFT JOIN counterparty ON counterparty.id = orders.client_id
@@ -180,7 +179,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </Fields>
     </DataSet>
     <DataSet Name="LatenessSummary">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	Sum(Delays.delay &lt; '00:05:00') AS LessThan5Minutes,
@@ -259,7 +258,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="LessThan5Minutes">
           <DataField>LessThan5Minutes</DataField>
           <TypeName>System.String</TypeName>
@@ -1583,7 +1582,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
