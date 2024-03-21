@@ -352,32 +352,39 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="text">Текст комментария</param>
 		public virtual void AddAutoCommentToOkkDiscussion(IUnitOfWork uow, string text)
 		{
-			var subdivision = uow.GetById<Subdivision>(_subdivisionSettings.GetOkkId());
-
-			var discussion = ObservableUndeliveryDiscussions.FirstOrDefault(x => x.Subdivision.Id == subdivision.Id);
-
-			if(discussion == null)
-			{
-				discussion = new UndeliveryDiscussion
-				{
-					StartSubdivisionDate = DateTime.Now,
-					Status = UndeliveryDiscussionStatus.InProcess,
-					Undelivery = this,
-					Subdivision = subdivision
-				};
-			}
+			var okkDiscussion = OkkDiscussion ??  CreateOkkDiscussion(uow);
 
 			var comment = new UndeliveryDiscussionComment
 			{
 				Comment = text,
 				Author = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
-				UndeliveryDiscussion = discussion
+				UndeliveryDiscussion = okkDiscussion
 			};
 
-			discussion.ObservableComments.Add(comment);
+			okkDiscussion.ObservableComments.Add(comment);
 
-			uow.Save(discussion);
+			uow.Save(okkDiscussion);
 		}
+
+		public virtual UndeliveryDiscussion CreateOkkDiscussion(IUnitOfWork uow)
+		{
+			var okkSubdivision = uow.GetById<Subdivision>(_subdivisionSettings.GetOkkId());
+
+			var	okkDiscussion = new UndeliveryDiscussion
+			{
+				StartSubdivisionDate = DateTime.Now,
+				Status = UndeliveryDiscussionStatus.InProcess,
+				Undelivery = this,
+				Subdivision = okkSubdivision
+			};
+
+			ObservableUndeliveryDiscussions.Add(okkDiscussion);
+
+			return okkDiscussion;
+		}
+
+		public virtual UndeliveryDiscussion OkkDiscussion => ObservableUndeliveryDiscussions.FirstOrDefault(x => x.Subdivision.Id == _subdivisionSettings.GetOkkId());
+		
 
 		/// <summary>
 		/// Сбор различной информации о недоставленном заказе

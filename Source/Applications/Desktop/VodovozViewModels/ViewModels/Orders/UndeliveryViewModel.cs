@@ -88,6 +88,8 @@ namespace Vodovoz.ViewModels.Orders
 
 			TabName = "Новый недовоз";
 			UndeliveredOrder.TimeOfCreation = DateTime.Now;
+
+			UndeliveredOrder.CreateOkkDiscussion(UoW);
 		}
 
 		private void OnObservableUndeliveryDiscussionsListContentChanged(object sender, EventArgs e)

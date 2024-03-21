@@ -65,6 +65,8 @@ namespace Vodovoz.Dialogs
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;
+
+			undelivery.CreateOkkDiscussion(UoW);
 		}
 
 		private bool IsSaved() => Save(false, true);
