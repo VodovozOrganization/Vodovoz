@@ -862,11 +862,22 @@ namespace Vodovoz
 			var journalSelector = new EntityJournalViewModelSelector<DeliverySchedule, DeliveryScheduleJournalViewModel>(
 				() => this, NavigationManager);
 
-			var dialogEntitiesLoader = new SelectionDialogEntitiesLoader<DeliverySchedule>(
+			var dialogSettings = new SelectionDialogSettings
+			{
+				Title = "Время доставки",
+				TopLabelText = @"<b>На понедельник</b> дата",
+				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
+				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
+				IsCanOpenJournal = true
+			};
+
+			var dialogEntitiesSelector = new SelectionDialogSelector<DeliverySchedule>(
+				NavigationManager,
 				UoW,
 				() => DeliveryPoint?.District == null
 				? new List<int>()
-				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList()
+				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+				dialogSettings
 				);
 
 			var adapter = new EntitySelectionAdapter<DeliverySchedule>(UoW);
@@ -878,7 +889,7 @@ namespace Vodovoz
 				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
 				(text) => GetTitleCompare(text));
 
-			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, dialogEntitiesLoader, autocompleteSelector, journalSelector);
+			var vm = new EntitySelectionViewModel<DeliverySchedule>(binder, dialogEntitiesSelector, autocompleteSelector, journalSelector, adapter);
 
 			entityselectionDeliverySchedule.ViewModel = vm;
 

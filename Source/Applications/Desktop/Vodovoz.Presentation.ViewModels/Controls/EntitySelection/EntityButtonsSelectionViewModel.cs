@@ -8,46 +8,25 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
 	public class EntityButtonsSelectionViewModel : WindowDialogViewModelBase
 	{
-		private string _topMessageString;
-		private bool _isCanOpenJournal;
-		private string _noEntitiesMessage;
+		public EntityButtonsSelectionViewModel(
+			INavigationManager navigation,
+			IList<object> entities,
+			SelectionDialogSettings dialogSettings
+			) : base(navigation)
+		{
+			Entities = entities;
+			DialogSettings = dialogSettings;
+			SelectEntityCommand = new DelegateCommand<object>(SelectEntity);
+			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => dialogSettings.IsCanOpenJournal);
+
+			Title = dialogSettings.Title;
+		}
 
 		public event EventHandler<EntitySelectedEventArgs> EntitySelected;
 		public event EventHandler SelectEntityFromJournalSelected;
 
-		public EntityButtonsSelectionViewModel(
-			INavigationManager navigation,
-			IDictionary<object, string> entities,
-			bool isUserCanOpenJournal = false
-			) : base(navigation)
-		{
-			Entities = entities;
-			IsCanOpenJournal = isUserCanOpenJournal;
-
-			SelectEntityCommand = new DelegateCommand<object>(SelectEntity);
-			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => IsCanOpenJournal);
-		}
-
-		public string TopMessageString
-		{
-			get => _topMessageString;
-			set => SetField( ref _topMessageString, value );
-		}
-
-		public bool IsCanOpenJournal
-		{
-			get => _isCanOpenJournal;
-			set => SetField(ref _isCanOpenJournal, value);
-		}
-
-		public string NoEntitiesMessage
-		{
-			get => _noEntitiesMessage;
-			set => SetField(ref _noEntitiesMessage, value);
-		}
-
-		public IDictionary<object, string> Entities { get; }
-
+		public IList<object> Entities { get; }
+		public SelectionDialogSettings DialogSettings { get; }
 		public DelegateCommand<object> SelectEntityCommand { get; }
 		public DelegateCommand SelectEntityFromJournalCommand { get; }
 

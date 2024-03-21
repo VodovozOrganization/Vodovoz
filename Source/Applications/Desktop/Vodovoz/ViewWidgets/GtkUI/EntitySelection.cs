@@ -1,7 +1,6 @@
 ﻿using Gamma.Binding.Core;
 using Gdk;
 using Gtk;
-using QS.DomainModel.Entity;
 using QS.Extensions;
 using System;
 using System.Collections;
@@ -16,7 +15,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 	public partial class EntitySelection : Gtk.Bin
 	{
 		public static uint QueryDelay = 0;
-		
+
 		private readonly string _normalEntryToolTipMarkup;
 		private readonly string _dangerEntryToolTipMarkup = "Введён текст для поиска, но не выбрана сущность из справочника или выпадающего списка.";
 
@@ -38,7 +37,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			ybuttonClear.Clicked += (s, e) => OnButtonClearClicked(s, e);
 			yentryObject.FocusOutEvent += (s, e) => OnEntryObjectFocusOutEvent(s, e);
 			yentryObject.Changed += (s, e) => OnEntryObjectChanged(s, e);
-			yentryObject.WidgetEvent += (s, e) => OnEntryObjectWidgetEvent(s ,e);
+			yentryObject.WidgetEvent += (s, e) => OnEntryObjectWidgetEvent(s, e);
 
 			_normalEntryToolTipMarkup = yentryObject.TooltipMarkup;
 		}
@@ -50,7 +49,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			get => _viewModel;
 			set
 			{
-				if (_viewModel == value)
+				if(_viewModel == value)
 				{
 					return;
 				}
@@ -95,8 +94,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		protected void OnButtonSelectEntityClicked(object sender, EventArgs e)
 		{
-			CreateSelectButtonsDialog();
-			ViewModel.OpenEntityJournalCommand?.Execute();
+			ViewModel.SelectEntityCommand?.Execute();
 		}
 
 		protected void OnButtonClearClicked(object sender, EventArgs e)
@@ -114,122 +112,6 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			_isInternalTextSet = false;
 		}
 
-		private void CreateSelectButtonsDialog()
-		{
-			var availableEntities = _viewModel.AvailableEntities;
-
-			var selectDialog = GetSelectDialog();
-
-			var topLabel = GetTopLabel();
-
-			var buttonsVbox = availableEntities.Count() > 0
-				? GetButtonsVbox(availableEntities)
-				: GetNoEntitesToSelectVbox();
-
-			var selectFromJournalButton = GetSelectFromJournalButton();
-
-			selectDialog.VBox.Add(topLabel);
-			selectDialog.VBox.Add(buttonsVbox);
-			selectDialog.VBox.Add(selectFromJournalButton);
-
-			selectDialog.ShowAll();
-			selectDialog.Run();
-
-			selectDialog.Destroy();
-		}
-
-		private Dialog GetSelectDialog()
-		{
-			Gtk.Window parentWin = (Gtk.Window)Toplevel;
-
-			var selectDialog = new Dialog(
-				_viewModel.SelectionDialogSettings.Title,
-				parentWin,
-				DialogFlags.DestroyWithParent
-			)
-			{
-				HeightRequest = _viewModel.SelectionDialogSettings.Height,
-				WidthRequest = _viewModel.SelectionDialogSettings.Width,
-				Modal = true
-			};
-
-			return selectDialog;
-		}
-
-		private Label GetTopLabel()
-		{
-			return new Label()
-			{
-				UseMarkup = true,
-				Markup = _viewModel.SelectionDialogSettings.TopLabelText
-			};
-		}
-
-		private VBox GetButtonsVbox(IEnumerable entities)
-		{
-			var leftVbox = new VBox();
-			var rightVbox = new VBox();
-
-			var counter = 0;
-
-			foreach(var entity in entities)
-			{
-				if(counter%2 == 0)
-				{
-					leftVbox.Add(CreateButton(entity));
-				}
-				else
-				{
-					leftVbox.Add(CreateButton(entity));
-				}
-
-				counter++;
-			}
-
-			var vboxButtons = new VBox
-			{
-				leftVbox,
-				rightVbox
-			};
-
-			return vboxButtons;
-		}
-
-		private Button CreateButton(object  entity)
-		{
-			var button = new Button
-			{
-				Label = entity.GetTitle()
-			};
-
-			return button;
-		}
-
-		private VBox GetNoEntitesToSelectVbox()
-		{
-			var label = new Label
-			{
-				UseMarkup = true,
-				Markup = _viewModel.SelectionDialogSettings.NoEntitiesTextMessage
-			};
-
-			var vbox = new VBox
-			{
-				label
-			};
-
-			return vbox;
-		}
-
-		private Button GetSelectFromJournalButton()
-		{
-			var button = new Button
-			{
-				Label = _viewModel.SelectionDialogSettings.SelectFromJournalButtonLabelText
-			};
-
-			return button;
-		}
 		#region AutoCompletion
 
 		private void ConfigureEntryComplition()
@@ -271,7 +153,8 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		void ViewModel_AutoCompleteListUpdated(object sender, AutocompleteUpdatedEventArgs e)
 		{
-			Gtk.Application.Invoke((s, arg) => {
+			Gtk.Application.Invoke((s, arg) =>
+			{
 				FillAutocomplete(e.List);
 			});
 		}

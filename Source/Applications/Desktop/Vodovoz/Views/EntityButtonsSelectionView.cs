@@ -1,11 +1,16 @@
 ﻿using Gtk;
+using QS.DomainModel.Entity;
 using QS.Views.Dialog;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
 namespace Vodovoz.Views
 {
 	public partial class EntityButtonsSelectionView : DialogViewBase<EntityButtonsSelectionViewModel>
 	{
+		private readonly string _dangerTextHtmlColor = GdkColors.DangerText.ToHtmlColor();
+
 		public EntityButtonsSelectionView(EntityButtonsSelectionViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -22,9 +27,9 @@ namespace Vodovoz.Views
 
 		private void SetLabelsContent()
 		{
-			ylabelTopLabel.Markup = ViewModel.TopMessageString;
+			ylabelTopLabel.Markup = ViewModel.DialogSettings.TopLabelText;
 
-			ylabelNoButtons.Markup = ViewModel.NoEntitiesMessage;
+			ylabelNoButtons.Markup = $"<span foreground='{_dangerTextHtmlColor}'><b>{ViewModel.DialogSettings.NoEntitiesMessage}</b></span>";
 		}
 
 		private void SetContainersVisibitity()
@@ -38,37 +43,35 @@ namespace Vodovoz.Views
 
 		private void ConfigureManualScheduleSelectionEvent()
 		{
-			ybuttonSelectFromJournal.Visible = ViewModel.IsCanOpenJournal;
+			ybuttonSelectFromJournal.Visible = ViewModel.DialogSettings.IsCanOpenJournal;
 			ybuttonSelectFromJournal.Clicked += (s, e) => ViewModel.SelectEntityFromJournalCommand.Execute();
 		}
 
 		private void AddButtons()
 		{
-			var counter = 0;
-
-			foreach(var entity in ViewModel.Entities)
+			for(var i = 0; i < ViewModel.Entities.Count; i++)
 			{
-				if(counter % 2 == 0)
+				var entity = ViewModel.Entities[i];
+
+				if(i % 2 == 0)
 				{
-					yvboxLeftButtons.Add(GetButton(entity.Key, entity.Value));
+					yvboxLeftButtons.Add(GetButton(entity));
 
 					continue;
 				}
 
-				yvboxRightButtons.Add(GetButton(entity.Key, entity.Value));
-
-				counter++;
+				yvboxRightButtons.Add(GetButton(entity));
 			}
 
 			yvboxLeftButtons.ShowAll();
 			yvboxRightButtons.ShowAll();
 		}
 
-		private Button GetButton(object entity, string buttonLabel)
+		private Button GetButton(object entity)
 		{
 			var button = new Button
 			{
-				Label = buttonLabel
+				Label = entity.GetTitle()
 			};
 
 			button.Clicked += (s, e) => ViewModel.SelectEntityCommand.Execute(entity);
