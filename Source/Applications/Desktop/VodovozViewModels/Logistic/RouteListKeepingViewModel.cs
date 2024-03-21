@@ -108,9 +108,9 @@ namespace Vodovoz
 			ForwarderViewModel = BuildForwarderEntryViewModel();
 			LogisticianViewModel = BuildLogisticianEntryViewModel();
 
-			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
-			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
-			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
+			Entity.ObservableAddresses.ElementAdded += OnObservableAddressesElementAdded;
+			Entity.ObservableAddresses.ElementRemoved += OnObservableAddressesElementRemoved;
+			Entity.ObservableAddresses.ElementChanged += OnObservableAddressesElementChanged;
 
 			//Заполняем информацию о бутылях
 			UpdateBottlesSummaryInfo();
@@ -353,17 +353,17 @@ namespace Vodovoz
 			BottlesInfo = bottles;
 		}
 
-		private void ObservableAddresses_ElementAdded(object aList, int[] aIdx)
+		private void OnObservableAddressesElementAdded(object aList, int[] aIdx)
 		{
 			UpdateBottlesSummaryInfo();
 		}
 
-		private void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void OnObservableAddressesElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			UpdateBottlesSummaryInfo();
 		}
 
-		private void ObservableAddresses_ElementChanged(object aList, int[] aIdx)
+		private void OnObservableAddressesElementChanged(object aList, int[] aIdx)
 		{
 			UpdateBottlesSummaryInfo();
 		}
@@ -604,9 +604,9 @@ namespace Vodovoz
 
 		public override void Dispose()
 		{
-			Entity.ObservableAddresses.ElementAdded -= ObservableAddresses_ElementAdded;
-			Entity.ObservableAddresses.ElementRemoved -= ObservableAddresses_ElementRemoved;
-			Entity.ObservableAddresses.ElementChanged -= ObservableAddresses_ElementChanged;
+			Entity.ObservableAddresses.ElementAdded -= OnObservableAddressesElementAdded;
+			Entity.ObservableAddresses.ElementRemoved -= OnObservableAddressesElementRemoved;
+			Entity.ObservableAddresses.ElementChanged -= OnObservableAddressesElementChanged;
 
 			base.Dispose();
 		}
