@@ -455,6 +455,61 @@ namespace Vodovoz.Domain.Sale
 			return result.ToString();
 		}
 
+		public virtual IEnumerable<DeliveryScheduleRestriction> GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(DateTime? deliveryDate)
+		{
+			if(deliveryDate == null)
+			{
+				return new List<DeliveryScheduleRestriction>();
+			}
+
+			var deliveryScheduleRestriction = GetDeliveryScheduleRestrictionsByDeliveryDate(deliveryDate);
+
+			var isDeliveryDateToday = deliveryDate.Value == DateTime.Today;
+			var isDeliveryDateTomorrow = deliveryDate.Value == DateTime.Today.AddDays(1);
+
+			if(isDeliveryDateToday || isDeliveryDateTomorrow)
+			{
+				var nowTime = DateTime.Now.TimeOfDay;
+
+				return deliveryScheduleRestriction.Where(r => r.AcceptBefore == null || r.AcceptBefore?.Time > nowTime);
+			}
+
+			return deliveryScheduleRestriction;
+		}
+
+		private IEnumerable<DeliveryScheduleRestriction> GetDeliveryScheduleRestrictionsByDeliveryDate(DateTime? deliveryDate)
+		{
+			if(deliveryDate == null)
+			{
+				return new List<DeliveryScheduleRestriction>();
+			}
+
+			if(deliveryDate.Value == DateTime.Today)
+			{
+				return TodayDeliveryScheduleRestrictions;
+			}
+
+			switch (deliveryDate.Value.DayOfWeek)
+			{
+				case DayOfWeek.Sunday:
+					return SundayDeliveryScheduleRestrictions;
+				case DayOfWeek.Monday:
+					return MondayDeliveryScheduleRestrictions;
+				case DayOfWeek.Tuesday:
+					return TuesdayDeliveryScheduleRestrictions;
+				case DayOfWeek.Wednesday:
+					return WednesdayDeliveryScheduleRestrictions;
+				case DayOfWeek.Thursday:
+					return ThursdayDeliveryScheduleRestrictions;
+				case DayOfWeek.Friday:
+					return FridayDeliveryScheduleRestrictions;
+				case DayOfWeek.Saturday:
+					return SaturdayDeliveryScheduleRestrictions;
+				default:
+					return new List<DeliveryScheduleRestriction>();
+			}
+		}
+
 		public virtual IEnumerable<DeliveryScheduleRestriction> GetAllDeliveryScheduleRestrictions()
 		{
 			return TodayDeliveryScheduleRestrictions

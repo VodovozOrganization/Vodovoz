@@ -731,6 +731,7 @@ namespace Vodovoz
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
+			pickerDeliveryDate.DateChangedByUser += OnPickerDeliveryDateDateChangedByUser;
 
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.Cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
@@ -1148,9 +1149,7 @@ namespace Vodovoz
 				.ForProperty(Entity, e => e.DeliverySchedule)
 				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
 				.UseSelectionDialogAndAutocompleteSelector(
-					() => DeliveryPoint?.District == null
-					? new List<int>()
-					: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+					() => Entity.GetAvailableDeliveryScheduleIds(),
 					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
 					selectionDialogSettings)
 				.Finish();
@@ -3448,6 +3447,8 @@ namespace Vodovoz
 				OnFormOrderActions();
 				TryAddFlyers();
 			}
+
+			OnPickerDeliveryDateDateChanged(sender, e);
 		}
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
