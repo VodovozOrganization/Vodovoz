@@ -143,6 +143,7 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.yhboxRouteListOwnType = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxRouteListOwnType.HeightRequest = 200;
 			this.yhboxRouteListOwnType.Name = "yhboxRouteListOwnType";
 			this.yhboxRouteListOwnType.Spacing = 6;
 			this.vbox1.Add(this.yhboxRouteListOwnType);
