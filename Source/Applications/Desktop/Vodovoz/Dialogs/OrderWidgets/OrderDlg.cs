@@ -1133,8 +1133,6 @@ namespace Vodovoz
 		{
 			var builder = ScopeProvider.Scope.Resolve<LegacyEntitySelectionViewModelBuilder<DeliverySchedule>>();
 
-			//var builder = new LegacyEntitySelectionViewModelBuilder<DeliverySchedule>(_lifetimeScope, NavigationManager);
-
 			var selectionDialogSettings = new SelectionDialogSettings
 			{
 				Title = "Время доставки",
