@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -144,6 +144,7 @@ using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
 namespace Vodovoz
 {
@@ -735,6 +736,7 @@ namespace Vodovoz
 						.AddScoped<PacsEndpointsConnector>()
 
 						.AddTransient(typeof(ViewModelEEVMBuilder<>))
+						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
 						.AddTransient<EntityModelFactory>()
 						
 						.AddPacsOperatorClient()

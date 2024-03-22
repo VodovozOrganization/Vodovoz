@@ -9,9 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
-using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
-namespace Vodovoz.Factories
+namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
 	public class LegacyEntitySelectionViewModelBuilder<TEntity>
 		where TEntity : class, IDomainObject

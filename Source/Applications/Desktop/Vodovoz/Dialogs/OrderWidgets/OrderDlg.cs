@@ -855,34 +855,10 @@ namespace Vodovoz
 			//entryDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
 			//entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			//entryDeliverySchedule.CanEditReference = true;
-			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
+			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();			
 
-
-			var builder = new LegacyEntitySelectionViewModelBuilder<DeliverySchedule>(_lifetimeScope, NavigationManager);
-
-			var dialogSettings = new SelectionDialogSettings
-			{
-				Title = "Время доставки",
-				TopLabelText = @"<b>На понедельник</b> дата",
-				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
-				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
-				IsCanOpenJournal = true
-			};
-
-			var vm1 = builder
-				.SetDialogTab(() => this)
-				.SetUnitOfWork(UoW)
-				.ForProperty(Entity, e => e.DeliverySchedule)
-				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
-				.UseSelectionDialogAndAutocompleteSelector(
-					() => DeliveryPoint?.District == null
-					? new List<int>()
-					: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
-					(text) => GetTitleCompare(text),
-					dialogSettings)
-				.Finish();
-
-			entityselectionDeliverySchedule.ViewModel = vm1;
+			entityselectionDeliverySchedule.ViewModel = CreateEntityselectionDeliveryScheduleViewModel();
+			entityselectionDeliverySchedule.ViewModel.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 
@@ -980,7 +956,7 @@ namespace Vodovoz
 					specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
 				}
 
-				//entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+				entityselectionDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 				ybuttonFastDeliveryCheck.Sensitive =
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
 				lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
@@ -1151,6 +1127,37 @@ namespace Vodovoz
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private EntitySelectionViewModel<DeliverySchedule> CreateEntityselectionDeliveryScheduleViewModel()
+		{
+			var builder = ScopeProvider.Scope.Resolve<LegacyEntitySelectionViewModelBuilder<DeliverySchedule>>();
+
+			//var builder = new LegacyEntitySelectionViewModelBuilder<DeliverySchedule>(_lifetimeScope, NavigationManager);
+
+			var selectionDialogSettings = new SelectionDialogSettings
+			{
+				Title = "Время доставки",
+				TopLabelText = @"<b>На понедельник</b> дата",
+				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
+				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
+				IsCanOpenJournal = true
+			};
+
+			var viewModel = builder
+				.SetDialogTab(() => this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, e => e.DeliverySchedule)
+				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
+				.UseSelectionDialogAndAutocompleteSelector(
+					() => DeliveryPoint?.District == null
+					? new List<int>()
+					: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
+					(text) => GetTitleCompare(text),
+					selectionDialogSettings)
+				.Finish();
+
+			return viewModel;
 		}
 
 		private Expression<Func<DeliverySchedule, bool>> GetTitleCompare(string text)
@@ -4315,7 +4322,7 @@ namespace Vodovoz
 			{
 				entryDeliveryPoint.ViewModel.IsEditable = val;
 			}
-			//entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
+			entityselectionDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
 			lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
