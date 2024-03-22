@@ -175,7 +175,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					Identifier = "Store.ShiftChangeWarehouse",
 					Parameters = new Dictionary<string, object>
 					{
-						{ "document_id",  Entity.Id }
+						{ "document_id",  Entity.Id },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
 					}
 				};
 
