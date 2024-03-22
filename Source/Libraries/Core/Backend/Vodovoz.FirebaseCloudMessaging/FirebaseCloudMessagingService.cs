@@ -85,15 +85,13 @@ namespace Vodovoz.FirebaseCloudMessaging
 						},
 						Apns = new ApnsConfig
 						{
-							Headers = new Dictionary<string, string>
+							Payload = new Dictionary<string, object>
 							{
-								{ "apns-priority" , "10" },
-								{ "content_available", "true" }
+								{ "content-available", 1 }
 							}
-						}
+						},
 					}
 				}, _options.Value.ProjectId).ExecuteAsync();
-
 
 				if(!string.IsNullOrWhiteSpace(result.Name))
 				{
