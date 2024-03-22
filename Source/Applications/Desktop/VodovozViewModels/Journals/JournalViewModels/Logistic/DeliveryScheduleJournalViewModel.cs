@@ -28,13 +28,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IDeliveryScheduleRepository deliveryScheduleRepository,
 			IRoboatsViewModelFactory roboatsViewModelFactory,
 			bool hideJournalForOpenDialog = false,
-			bool hideJournalForCreateDialog = false)
+			bool hideJournalForCreateDialog = false,
+			Action<DeliveryScheduleFilterViewModel> filterConfiguration = null)
 		: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 
 			Title = "Графики доставки";
+
+			if(filterConfiguration != null)
+			{
+				SetFilterConfiguration(filterConfiguration);
+			}
 
 			UpdateOnChanges(typeof(DeliverySchedule));
 		}
@@ -45,12 +51,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			UpdateActions();
 		}
 
-		private DeliveryScheduleFilterViewModel _filterViewModel;
+		private void SetFilterConfiguration(Action<DeliveryScheduleFilterViewModel> filterConfiguration)
+		{
+			if(filterConfiguration == null)
+			{
+				return;
+			}
 
-		public DeliveryScheduleFilterViewModel  FilterViewModel
+			_filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
+
+			Filter = FilterViewModel;
+			JournalFilter = FilterViewModel;
+		}
+
+		private DeliveryScheduleFilterViewModel _filterViewModel = new DeliveryScheduleFilterViewModel();
+
+		public DeliveryScheduleFilterViewModel FilterViewModel
 		{
 			get => _filterViewModel;
-			set {
+			set
+			{
 				SetField(ref _filterViewModel, value);
 				Filter = _filterViewModel;
 			}
@@ -93,7 +113,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var action = new JournalAction("Добавить",
 				(selected) => entityConfig.PermissionResult.CanCreate,
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var docConfig = entityConfig.EntityDocumentConfigurations.First();
 					var viewModel = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction() as ViewModelBase;
 					if(_openViewModelCommand.CanExecute(viewModel))
@@ -121,7 +142,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var action = new JournalAction(actionName,
 				(selected) => canOpen && selected.Any(),
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNode = selected.FirstOrDefault() as DeliveryScheduleJournalNode;
 					var docConfig = entityConfig.EntityDocumentConfigurations.First();
 					var viewModel = docConfig.GetOpenEntityDlgFunction().Invoke(selectedNode) as ViewModelBase;
