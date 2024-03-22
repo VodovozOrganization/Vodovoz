@@ -45,7 +45,6 @@ namespace Vodovoz.Representations
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly IEmployeeRepository _employeeRepository;
 		private readonly Employee _currentEmployee;
 		private readonly bool _canSendBulkEmails;
 		private Task _newTask;
@@ -66,11 +65,15 @@ namespace Vodovoz.Representations
 			IFileDialogService fileDialogService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			if(employeeRepository is null)
+			{
+				throw new ArgumentNullException(nameof(employeeRepository));
+			}
+
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
@@ -83,7 +86,6 @@ namespace Vodovoz.Representations
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
-
 		}
 
 		public override string FooterInfo
@@ -109,6 +111,7 @@ namespace Vodovoz.Representations
 			{
 				FooterInfo = $"Идёт загрузка данных...";
 				var result = CountQueryFunction.Invoke(uow);
+
 				if(token.IsCancellationRequested)
 				{
 					return;
@@ -146,34 +149,37 @@ namespace Vodovoz.Representations
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(new Disjunction().Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
-														&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
-														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-					Projections.Sum(() => bottlesMovementAlias.Returned),
-					Projections.Sum(() => bottlesMovementAlias.Delivered)}
-				));
+				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+				.And(new Disjunction()
+					.Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+						&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+						&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[]
+						{
+							Projections.Sum(() => bottlesMovementAlias.Returned),
+							Projections.Sum(() => bottlesMovementAlias.Delivered)
+						}));
 
 			var residueQuery = QueryOver.Of(() => residueAlias)
-			.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-			.Select(Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "IF(?1 IS NOT NULL,'есть', 'нет')"),
-				NHibernateUtil.String,
-				Projections.Property(() => residueAlias.Id)))
-			.Take(1);
+				.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Select(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "IF(?1 IS NOT NULL,'есть', 'нет')"),
+					NHibernateUtil.String,
+					Projections.Property(() => residueAlias.Id)))
+				.Take(1);
 
 			var bottleDebtByClientQuery = QueryOver.Of(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-								Projections.Sum(() => bottlesMovementAlias.Returned),
-								Projections.Sum(() => bottlesMovementAlias.Delivered)}
-				));
+				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[]
+						{
+							Projections.Sum(() => bottlesMovementAlias.Returned),
+							Projections.Sum(() => bottlesMovementAlias.Delivered)
+						}));
 
 			var TaskExistQuery = QueryOver.Of(() => taskAlias)
 				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
@@ -203,8 +209,7 @@ namespace Vodovoz.Representations
 						CustomProjections.Concat_WS(
 							"",
 							Projections.Constant("8"),
-							Projections.Property(() => phoneAlias.DigitsNumber)
-						),
+							Projections.Property(() => phoneAlias.DigitsNumber)),
 						separator: ";\n"));
 
 			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
@@ -215,8 +220,7 @@ namespace Vodovoz.Representations
 						CustomProjections.Concat_WS(
 							"",
 							Projections.Constant("8"),
-							Projections.Property(() => phoneAlias.DigitsNumber)
-							),
+							Projections.Property(() => phoneAlias.DigitsNumber)),
 						separator: ";\n"));
 
 			var phoneProjection = Projections.Conditional(
@@ -264,9 +268,8 @@ namespace Vodovoz.Representations
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
-						.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
-						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
-				);
+					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
+					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery));
 
 			var orderFromSuspended = QueryOver.Of(() => orderFromAnotherDPAlias)
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
@@ -298,8 +301,7 @@ namespace Vodovoz.Representations
 				.Where(
 					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
 				.Select(Projections.GroupProperty(
-					Projections.Property<Order>(o => o.Client.Id))
-				);
+					Projections.Property<Order>(o => o.Client.Id)));
 
 			#endregion LastOrder
 
@@ -447,15 +449,17 @@ namespace Vodovoz.Representations
 				{
 					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
 				}
+
+				ordersQuery.Where(() => counterpartyAlias.ExcludeFromAutoCalls == FilterViewModel.ExcludeFromAutoCalls);
 			}
 
 			#endregion Filter
 
 			ordersQuery.Where(GetSearchCriterion(
-					() => deliveryPointAlias.Id,
-					() => deliveryPointAlias.CompiledAddress,
-					() => counterpartyAlias.Id,
-					() => counterpartyAlias.Name));
+				() => deliveryPointAlias.Id,
+				() => deliveryPointAlias.CompiledAddress,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.Name));
 
 			var resultQuery = ordersQuery
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
@@ -507,17 +511,17 @@ namespace Vodovoz.Representations
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(new Disjunction().Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
-														&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
-														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-					Projections.Sum(() => bottlesMovementAlias.Returned),
-					Projections.Sum(() => bottlesMovementAlias.Delivered)}
-				));
+				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+				.And(new Disjunction()
+					.Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+						&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+						&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[] {
+						Projections.Sum(() => bottlesMovementAlias.Returned),
+						Projections.Sum(() => bottlesMovementAlias.Delivered)}));
 
 			OrderStatus[] statusOptions = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
@@ -529,8 +533,7 @@ namespace Vodovoz.Representations
 				.Where(
 					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
 				.Select(Projections.GroupProperty(
-					Projections.Property<Order>(o => o.Client.Id))
-				);
+					Projections.Property<Order>(o => o.Client.Id)));
 
 			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
 				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
@@ -548,7 +551,8 @@ namespace Vodovoz.Representations
 
 			var LastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
+					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
@@ -578,8 +582,8 @@ namespace Vodovoz.Representations
 				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
 				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
 				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-						.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
-						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery));
+					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
+					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery));
 
 			var ordersCountSubQuery = QueryOver.Of(() => orderCountAlias)
 				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
@@ -750,13 +754,16 @@ namespace Vodovoz.Representations
 
 				if(FilterViewModel.HideWithoutFixedPrices)
 				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);//.Where(Restrictions.Gt(Projections.SubQuery(countDeliveryPointFixedPricesSubQuery), 0));
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);
+					//.Where(Restrictions.Gt(Projections.SubQuery(countDeliveryPointFixedPricesSubQuery), 0));
 				}
 
 				if(FilterViewModel.SelectedDeliveryPointCategory != null)
 				{
 					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
 				}
+
+				ordersQuery.Where(() => counterpartyAlias.ExcludeFromAutoCalls == FilterViewModel.ExcludeFromAutoCalls);
 			}
 
 			#endregion Filter
@@ -772,7 +779,9 @@ namespace Vodovoz.Representations
 			var queryResult = ordersQuery
 				.JoinAlias(c => c.DeliveryPoint,
 					() => deliveryPointAlias,
-					(FilterViewModel != null && FilterViewModel.HideWithoutFixedPrices) ? NHibernate.SqlCommand.JoinType.InnerJoin : NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					(FilterViewModel != null && FilterViewModel.HideWithoutFixedPrices)
+						? NHibernate.SqlCommand.JoinType.InnerJoin
+						: NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
 				.Select(sumProj).UnderlyingCriteria.SetTimeout(300).UniqueResult<int>();
@@ -837,7 +846,6 @@ namespace Vodovoz.Representations
 						CreateTask(selectedNodes.ToArray());
 					}
 				}));
-
 		}
 
 		protected override void CreateNodeActions()
@@ -927,7 +935,7 @@ namespace Vodovoz.Representations
 					bulkEmailView.Show();
 				});
 		}
-		
+
 		//Имена параметров должны быть такие же как и в основном запросе
 		private QueryOver<Order, Order> GetLastOrderIdWithDateQuery(
 			Order lastOrderAlias,
@@ -949,7 +957,7 @@ namespace Vodovoz.Representations
 			{
 				query.And(() => lastOrderAlias.DeliveryDate >= FilterViewModel.StartDate);
 			}
-			
+
 			if(FilterViewModel?.EndDate != null)
 			{
 				query.And(() => lastOrderAlias.DeliveryDate <= FilterViewModel.EndDate);
@@ -971,7 +979,7 @@ namespace Vodovoz.Representations
 					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Order>(p => p.Id));
-			
+
 			if(FilterViewModel?.EndDate != null)
 			{
 				query.And(() => lastOrderAlias.DeliveryDate > FilterViewModel.EndDate);

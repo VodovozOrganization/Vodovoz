@@ -11,7 +11,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -45,6 +44,7 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
 		private DialogViewModelBase _journal;
+		private bool _excludeFromAutoCalls = false;
 
 		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
@@ -65,8 +65,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.HideActiveCounterparty,
 				x => x.ShowSuspendedCounterparty,
 				x => x.ShowCancellationCounterparty,
-				x => x.DebtorsTaskStatus
-			);
+				x => x.DebtorsTaskStatus,
+				x => x.ExcludeFromAutoCalls);
 		}
 
 		public Counterparty Client
@@ -198,6 +198,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _debtorsTaskStatus;
 			set => UpdateFilterField(ref _debtorsTaskStatus, value);
+		}
+
+		public bool ExcludeFromAutoCalls
+		{
+			get => _excludeFromAutoCalls;
+			set => UpdateFilterField(ref _excludeFromAutoCalls, value);
 		}
 
 		public IEnumerable<DeliveryPointCategory> DeliveryPointCategories =>
