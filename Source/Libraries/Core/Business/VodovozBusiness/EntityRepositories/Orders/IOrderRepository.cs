@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -163,6 +163,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
+		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
+		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, int referrerId, int referFriendReasonId);
 	}
 
 	public class ClientEquipmentNode

@@ -1569,6 +1569,40 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
+		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
+		{
+			var referredCounterpartiesCount =
+			(
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.Referrer.Id == referrerId
+
+				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
+										  where orders.Client.Id == counterparty.Id
+										  && orders.OrderStatus == OrderStatus.Closed
+										  select orders.Id
+
+				where finishedReferOrders.Any()
+				select counterparty.Id
+			)
+			.Count();
+
+			return referredCounterpartiesCount;
+		}
+
+		public int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, int referrerId, int referFriendReasonId)
+		{
+			var alreadyReceivedBottlesByReferPromotion =
+			(
+				from orderItems in uow.Session.Query<OrderItem>()
+				where orderItems.Order.Client.Id == referrerId
+				&& orderItems.DiscountReason.Id == referFriendReasonId
+				select orderItems.ActualCount
+			)
+			.Sum();
+
+			return (int)(alreadyReceivedBottlesByReferPromotion ?? 0);
+		}
+
 		public class NotFullyPaidOrderNode
 		{
 			public int Id { get; set; }

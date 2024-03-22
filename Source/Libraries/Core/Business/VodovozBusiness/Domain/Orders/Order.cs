@@ -1682,6 +1682,24 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			#endregion
+
+			#region Проверка кол-ва бутылей по акции Приведи друга
+			
+			var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(UoW, Client.Id);			
+			var alreadyReceivedBottles = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(UoW, Client.Id, _orderSettings.ReferFriendDiscountReasonId);
+			var maxReferPromoBottles = referredCounterparties - alreadyReceivedBottles;
+
+			var referPromoBottlesInOrderCount = OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.Count);
+
+			if(referPromoBottlesInOrderCount > maxReferPromoBottles)
+			{
+				yield return new ValidationResult($"Для данного КА по акции приведи друга заработано {referredCounterparties} бесплатных бутылей\n" +
+					$"Ранее отвезено данному КА {alreadyReceivedBottles} бесплатных бутылей\n" +
+					$"В заказе можно указать не более {maxReferPromoBottles} бесплатных бутылей",
+					new[] { nameof(OrderItem) });
+			}
+
+			#endregion
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)

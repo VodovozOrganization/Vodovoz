@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -1201,6 +1201,8 @@ namespace Vodovoz
 						{
 							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
+
+						_orderService.CheckAndAddBottlesToReferrerByReferFriendPromo(UoW, Entity, _canChangeDiscountValue);
 					}
 					UpdateAvailableEnumSignatureTypes();
 					UpdateOrderAddressTypeWithUI();

@@ -1625,7 +1625,7 @@ namespace Vodovoz.Domain.Client
 				}
 			}
 
-			if(CameFrom != null && Referrer == null && CameFrom.Id == counterpartySettings.ReferFriendPromotionId)
+			if(CameFrom != null && Referrer == null && CameFrom.Id == counterpartySettings.ReferFriendPromotionCameFromId)
 			{
 				yield return new ValidationResult("Не выбран клиент, который привёл друга");
 			}
