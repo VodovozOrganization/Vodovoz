@@ -64,6 +64,111 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		{
 			EntitySelected?.Invoke(this, new EntitySelectedEventArgs(e.SelectedObjects.First()));
 		}
+	}
 
+	public class EntityJournalViewModelSelector<TEntity, TJournalViewModel, TJournalFilterViewModel> : EntityJournalViewModelSelector<TEntity, TJournalViewModel>
+		where TEntity : IDomainObject
+		where TJournalViewModel : JournalViewModelBase
+		where TJournalFilterViewModel : class, IJournalFilterViewModel
+	{
+		private readonly Action<TJournalFilterViewModel> _filterParams;
+		private readonly TJournalFilterViewModel _filter;
+
+		public EntityJournalViewModelSelector(
+			DialogViewModelBase parentViewModel,
+			INavigationManager navigationManager,
+			TJournalFilterViewModel filter
+			) : base(parentViewModel, navigationManager)
+		{
+			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
+		}
+
+		public EntityJournalViewModelSelector(
+			DialogViewModelBase parentViewModel,
+			INavigationManager navigationManager,
+			Action<TJournalFilterViewModel> filterParams
+			) : base(parentViewModel, navigationManager)
+		{
+			_filterParams = filterParams ?? throw new ArgumentNullException(nameof(filterParams));
+		}
+
+		/// <summary>
+		/// Специальный конструктор для старых диалогов базирующихся ITdiTab
+		/// </summary>
+		[Obsolete("Конструктор для совместимости со старыми диалогами, в классах с ViewModel используйте другой конструктор.")]
+		public EntityJournalViewModelSelector(
+			Func<ITdiTab> getParentTab,
+			INavigationManager navigationManager,
+			Action<TJournalFilterViewModel> filterParams
+			) : base(getParentTab, navigationManager)
+		{
+			_filterParams = filterParams ?? throw new ArgumentNullException(nameof(filterParams));
+		}
+
+		/// <summary>
+		/// Специальный конструктор для старых диалогов базирующихся ITdiTab
+		/// </summary>
+		[Obsolete("Конструктор для совместимости со старыми диалогами, в классах с ViewModel используйте другой конструктор.")]
+		public EntityJournalViewModelSelector(
+			Func<ITdiTab> getParentTab,
+			INavigationManager navigationManager,
+			TJournalFilterViewModel filter
+			) : base(getParentTab, navigationManager)
+		{
+			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
+		}
+
+		public override void OpenSelector(string dialogTitle = null)
+		{
+			IPage<TJournalViewModel> page;
+			if(ParentViewModel != null)
+			{
+				if(_filter != null)
+				{
+					page = NavigationManager.OpenViewModel<TJournalViewModel, TJournalFilterViewModel>(ParentViewModel, _filter, OpenPageOptions.AsSlave);
+				}
+				else
+				{
+					page = NavigationManager.OpenViewModel<TJournalViewModel>(ParentViewModel, OpenPageOptions.AsSlave);
+				}
+			}
+			else
+			{
+				if(_filter != null)
+				{
+					page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel, TJournalFilterViewModel>(GetParentTab(), _filter, OpenPageOptions.AsSlave);
+				}
+				else
+				{
+					page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel>(GetParentTab(), OpenPageOptions.AsSlave);
+				}
+			}
+
+			if(page.ViewModel.JournalFilter != null)
+			{
+				if(page.ViewModel.JournalFilter is IJournalFilterViewModel filter)
+				{
+					if(_filterParams != null)
+					{
+						filter.SetAndRefilterAtOnce(_filterParams);
+					}
+				}
+				else
+				{
+					throw new InvalidCastException($"Для установки параметров, фильтр {page.ViewModel.JournalFilter.GetType()} должен является типом {typeof(IJournalFilterViewModel)}");
+				}
+			}
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+
+			if(!string.IsNullOrEmpty(dialogTitle))
+			{
+				page.ViewModel.TabName = dialogTitle;
+			}
+
+			//Сначала на всякий случай отписываемся от события, вдруг это повторное открытие не не
+			page.ViewModel.OnSelectResult -= ViewModel_OnSelectResult;
+			page.ViewModel.OnSelectResult += ViewModel_OnSelectResult;
+		}
 	}
 }

@@ -5,7 +5,6 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
 using QS.ViewModels.Control;
-using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -128,6 +127,40 @@ namespace Vodovoz.Factories
 			return this;
 		}
 
+		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseViewModelJournalSelector<TJournalViewModel, TJournalFilterViewModel>(Action<TJournalFilterViewModel> filterParams)
+			where TJournalViewModel : JournalViewModelBase
+			where TJournalFilterViewModel : class, IJournalFilterViewModel
+		{
+			if(!IsParametersCreated)
+			{
+				throw new InvalidOperationException("Базовые параметры не установлены");
+			}
+
+			EntityJournalSelector = new EntityJournalViewModelSelector<TEntity, TJournalViewModel, TJournalFilterViewModel>(
+				_parameters.DialogTabFunc,
+				_parameters.NavigationManager,
+				filterParams);
+
+			return this;
+		}
+
+		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseViewModelJournalSelector<TJournalViewModel, TJournalFilterViewModel>(TJournalFilterViewModel filter)
+			where TJournalViewModel : JournalViewModelBase
+			where TJournalFilterViewModel : class, IJournalFilterViewModel
+		{
+			if(!IsParametersCreated)
+			{
+				throw new InvalidOperationException("Базовые параметры не установлены");
+			}
+
+			EntityJournalSelector = new EntityJournalViewModelSelector<TEntity, TJournalViewModel, TJournalFilterViewModel>(
+				_parameters.DialogTabFunc,
+				_parameters.NavigationManager,
+				filter);
+
+			return this;
+		}
+
 		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseAutocompleter(
 			Func<IList<int>> entityIdRestrictionFunc = null,
 			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null)
@@ -158,10 +191,10 @@ namespace Vodovoz.Factories
 				throw new InvalidOperationException("Базовые параметры не установлены");
 			}
 
-			var entityAdapter = 
+			var entityAdapter =
 				EntityAdapter ?? new EntitySelectionAdapter<TEntity>(_parameters.UnitOfWork);
 
-			var selectionDialogSelector = 
+			var selectionDialogSelector =
 				SelectionDialogSelector ?? new SelectionDialogSelector<TEntity>(_parameters.NavigationManager, _parameters.UnitOfWork);
 
 			return new EntitySelectionViewModel<TEntity>(PropertyBinder, selectionDialogSelector, AutocompleteSelector, EntityJournalSelector, entityAdapter);
