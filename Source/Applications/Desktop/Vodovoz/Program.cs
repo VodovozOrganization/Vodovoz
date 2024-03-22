@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -470,7 +470,6 @@ namespace Vodovoz
 					builder.RegisterType<CashierCommentsReport>().AsSelf();
 					builder.RegisterType<OnecCommentsReport>().AsSelf();
 					builder.RegisterType<DriversWageBalanceReport>().AsSelf();
-					builder.RegisterType<DeliveriesLateReport>().AsSelf();
 					builder.RegisterType<QualityReport>().AsSelf();
 					builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
 					builder.RegisterType<RoutesListRegisterReport>().AsSelf();					
