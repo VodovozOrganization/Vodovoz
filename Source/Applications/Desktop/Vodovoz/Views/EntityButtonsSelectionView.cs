@@ -19,10 +19,17 @@ namespace Vodovoz.Views
 
 		private void Configure()
 		{
+			SetWindowSize();
 			SetLabelsContent();
 			SetContainersVisibitity();
 			ConfigureManualScheduleSelectionEvent();
 			AddButtons();
+		}
+
+		private void SetWindowSize()
+		{
+			HeightRequest = ViewModel.DialogSettings.WindowHeight;
+			WidthRequest = ViewModel.DialogSettings.WindowWidth;
 		}
 
 		private void SetLabelsContent()
