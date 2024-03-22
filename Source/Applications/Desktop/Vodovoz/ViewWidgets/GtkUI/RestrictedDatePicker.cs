@@ -1,27 +1,31 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq.Expressions;
-using Gamma.Binding.Core;
+﻿using Gamma.Binding.Core;
 using Gtk;
 using Pango;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewWidgets.GtkUI
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RestrictedDatePicker : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class RestrictedDatePicker : Bin
 	{
 		public static int? CalendarFontSize;
 
-		public BindingControler<RestrictedDatePicker> Binding { get; private set; }
+		private readonly Gdk.Color _dangerTextHtmlColor = GdkColors.DangerText;
 
-		protected DateTime? date = null;
-		public event EventHandler DateChanged;
-		public event EventHandler DateChangedByUser;
-		protected Gtk.Dialog editDate;
+		private DateTime? _date = null;
+		private Dialog _editDateDialog;
+		private bool _autoSeparation = true;
+		private Func<IEnumerable<DateTime>> _buttonsDatesLoaderFunc;
 
 		public RestrictedDatePicker()
 		{
-			this.Build();
+			Build();
 
 			Binding = new BindingControler<RestrictedDatePicker>(this, new Expression<Func<RestrictedDatePicker, object>>[] {
 				(w => w.Date),
@@ -29,7 +33,18 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				(w => w.DateText),
 				(w => w.IsEmpty)
 			});
+
+			yentryDate.FocusInEvent += (s, e) => OnEntryDateFocusInEvent(s, e);
+			yentryDate.FocusOutEvent += (s, e) => OnEntryDateFocusOutEvent(s, e);
+			yentryDate.Changed += (s, e) => OnEntryDateChanged(s, e);
+			yentryDate.TextInserted += (s, e) => OnEntryDateTextInserted(s, e);
+			yentryDate.Activated += (s, e) => OnEntryDateActivated(s, e);
 		}
+
+		public event EventHandler DateChanged;
+		public event EventHandler DateChangedByUser;
+
+		public BindingControler<RestrictedDatePicker> Binding { get; private set; }
 
 		public bool HideCalendarButton
 		{
@@ -41,40 +56,27 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		public DateTime? DateOrNull
 		{
-			get => date;
+			get => _date;
 			set
 			{
-				if(date == value)
+				if(_date == value)
+				{
 					return;
-				date = value;
+				}
 
-				EntrySetDateTime(date);
+				_date = value;
+
+				EntrySetDateTime(_date);
 				OnDateChanged();
 			}
 		}
 
-		protected virtual void OnDateChanged()
-		{
-			Binding.FireChange(new Expression<Func<RestrictedDatePicker, object>>[] {
-				(w => w.Date),
-				(w => w.DateOrNull),
-				(w => w.DateText),
-				(w => w.IsEmpty)
-			});
-			DateChanged?.Invoke(this, EventArgs.Empty);
-		}
-
-		protected virtual void OnDateChangedByUser()
-		{
-			DateChangedByUser?.Invoke(this, EventArgs.Empty);
-		}
-
 		public DateTime Date
 		{
-			get => date.GetValueOrDefault();
+			get => _date.GetValueOrDefault();
 			set
 			{
-				if(value == default(DateTime))
+				if(value == default)
 				{
 					DateOrNull = null;
 				}
@@ -85,7 +87,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			}
 		}
 
-		public bool IsEmpty => !date.HasValue;
+		public bool IsEmpty => !_date.HasValue;
 
 		[DefaultValue(true)]
 		public bool IsEditable
@@ -98,18 +100,32 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			}
 		}
 
-		private bool _AutoSeparation = true;
 		[DefaultValue(true)]
 		public bool AutoSeparation
 		{
-			get => _AutoSeparation;
-			set => _AutoSeparation = value;
+			get => _autoSeparation;
+			set => _autoSeparation = value;
+		}
+
+		public Func<IEnumerable<DateTime>> ButtonsDatesLoaderFunc
+		{
+			get => _buttonsDatesLoaderFunc;
+			set
+			{
+				if(_buttonsDatesLoaderFunc == value)
+				{
+					return;
+				}
+
+				_buttonsDatesLoaderFunc = value;
+			}
 		}
 
 		protected void OnButtonEditDateClicked(object sender, EventArgs e)
 		{
-			Window parentWin = (Window)this.Toplevel;
-			editDate = new Gtk.Dialog(
+			Window parentWin = (Window)Toplevel;
+
+			_editDateDialog = new Dialog(
 				"Укажите дату",
 				parentWin,
 				DialogFlags.DestroyWithParent
@@ -120,75 +136,104 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				Modal = true
 			};
 
-			editDate.VBox.Add(GetButtonsVbox());
+			_editDateDialog.VBox.Add(GetButtonsVbox());
 
-			editDate.AddButton("Отмена", ResponseType.Cancel);
+			_editDateDialog.AddButton("Отмена", ResponseType.Cancel);
 
-			editDate.ShowAll();
-			editDate.Run();
+			_editDateDialog.ShowAll();
+			_editDateDialog.Run();
 
-			editDate.Destroy();
+			_editDateDialog.Destroy();
 		}
 
 		private VBox GetButtonsVbox()
 		{
-			var todayButton = new Button
-			{
-				Label = $"Сегодня {DateTime.Now: dd.MM.yyyy}"
-			};
-			todayButton.Clicked += (s, ev) => {
-				SetTodayDate();
-			};
+			var vboxButtons = new VBox();
 
-			var tommorowButton = new Button
-			{
-				Label = $"Завтра {DateTime.Now.AddDays(1): dd.MM.yyyy}"
-			};
-			tommorowButton.Clicked += (s, ev) => {
-				SetTommorowDate();
-			};
+			var dates = ButtonsDatesLoaderFunc?.Invoke() ?? new List<DateTime>();
 
-			var otherDateButton = new Button
+			if(dates.Count() > 0)
+			{
+				var date = dates.Take(1).First();
+
+				var firstDateButton = new Button
+				{
+					Label = GetDateString(date)
+				};
+
+				firstDateButton.Clicked +=
+					(s, ev) => OnDateSelected(new DateSelectedEventArgs { Date = date });
+
+				vboxButtons.Add(firstDateButton);
+			}
+
+			if(dates.Count() > 1)
+			{
+				var date = dates.Skip(1).Take(1).First();
+
+				var seconDatedButton = new Button
+				{
+					Label = GetDateString(date)
+				};
+
+				seconDatedButton.Clicked +=
+					(s, ev) => OnDateSelected(new DateSelectedEventArgs { Date = date });
+
+				vboxButtons.Add(seconDatedButton);
+			}
+
+			var selectDateFromCalendarButton = new Button
 			{
 				Label = $"Другая дата"
 			};
-			otherDateButton.Clicked += (s, ev) => {
-				SetOtherDate();
-			};
 
-			var vboxButtons = new VBox {
-				todayButton,
-				tommorowButton,
-				otherDateButton
-			};
+			selectDateFromCalendarButton.Clicked += (s, ev) => OnSelectDateFromCalendarButtonClicked();
+
+			vboxButtons.Add(selectDateFromCalendarButton);
 
 			return vboxButtons;
 		}
 
-		private void SetTodayDate()
+		private string GetDateString(DateTime date)
 		{
-			editDate.Destroy();
-			DateOrNull = DateTime.Now.Date;
+			if(date.Date == DateTime.Today)
+			{
+				return $"Сегодня {date: dd.MM.yyyy}";
+			}
+
+			if(date.Date == DateTime.Today.AddDays(1))
+			{
+				return $"Завтра {date: dd.MM.yyyy}";
+			}
+
+			var cultureInfo = CultureInfo.GetCultureInfo("ru-RU");
+			var dayOfWeek = cultureInfo.DateTimeFormat.GetDayName(date.DayOfWeek);
+
+			return $"{cultureInfo.TextInfo.ToTitleCase(dayOfWeek)} {date: dd.MM.yyyy}";
+		}
+
+		private void OnDateSelected(DateSelectedEventArgs dateSelectedEventArgs)
+		{
+			_editDateDialog.Destroy();
+			DateOrNull = dateSelectedEventArgs.Date;
 			OnDateChangedByUser();
 		}
 
-		private void SetTommorowDate()
+		protected void OnSelectDateFromCalendarButtonClicked()
 		{
-			editDate.Destroy();
-			DateOrNull = DateTime.Now.Date + TimeSpan.FromDays(1);
-			OnDateChangedByUser();
+			_editDateDialog.Destroy();
+
+			OpenCalendarWindow();
 		}
 
-		protected void SetOtherDate()
+		private void OpenCalendarWindow()
 		{
-			editDate.Destroy();
-
-			if(!(this.Toplevel is Window parentWin))
+			if(!(Toplevel is Window parentWin))
 			{
 				return;
 			}
 
-			editDate = new Gtk.Dialog(
+			_editDateDialog = new Dialog(
 				"Укажите дату",
 				parentWin,
 				DialogFlags.DestroyWithParent)
@@ -196,41 +241,60 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				Modal = true
 			};
 
-			editDate.AddButton("Отмена", ResponseType.Cancel);
-			editDate.AddButton("Ok", ResponseType.Ok);
+			_editDateDialog.AddButton("Отмена", ResponseType.Cancel);
+			_editDateDialog.AddButton("Ok", ResponseType.Ok);
 
-			var selectDate = new Calendar();
-			selectDate.DisplayOptions =
+			var calendar = new Calendar();
+
+			calendar.DisplayOptions =
 				CalendarDisplayOptions.ShowHeading |
 				CalendarDisplayOptions.ShowDayNames |
 				CalendarDisplayOptions.ShowWeekNumbers;
-			selectDate.DaySelectedDoubleClick += OnCalendarDaySelectedDoubleClick;
-			selectDate.Date = date ?? DateTime.Now.Date;
+
+			calendar.DaySelectedDoubleClick += OnCalendarDaySelectedDoubleClick;
+			calendar.Date = _date ?? DateTime.Now.Date;
 
 			if(CalendarFontSize.HasValue)
 			{
 				var desc = new FontDescription { AbsoluteSize = CalendarFontSize.Value * 1000 };
-				selectDate.ModifyFont(desc);
+				calendar.ModifyFont(desc);
 			}
 
-			editDate.VBox.Add(selectDate);
-			editDate.ShowAll();
+			_editDateDialog.VBox.Add(calendar);
+			_editDateDialog.ShowAll();
 
-			int response = editDate.Run();
+			int response = _editDateDialog.Run();
 
 			if(response == (int)ResponseType.Ok)
 			{
-				DateOrNull = selectDate.GetDate();
+				DateOrNull = calendar.GetDate();
 				OnDateChangedByUser();
 			}
 
-			selectDate.Destroy();
-			editDate.Destroy();
+			calendar.Destroy();
+			_editDateDialog.Destroy();
 		}
 
 		public void Clear()
 		{
 			DateOrNull = null;
+		}
+
+		protected virtual void OnDateChanged()
+		{
+			Binding.FireChange(new Expression<Func<RestrictedDatePicker, object>>[] {
+				(w => w.Date),
+				(w => w.DateOrNull),
+				(w => w.DateText),
+				(w => w.IsEmpty)
+			});
+
+			DateChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		protected virtual void OnDateChangedByUser()
+		{
+			DateChangedByUser?.Invoke(this, EventArgs.Empty);
 		}
 
 		protected void OnEntryDateFocusInEvent(object o, FocusInEventArgs args)
@@ -247,8 +311,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				return;
 			}
 
-			DateTime outDate;
-			if(DateTime.TryParse(yentryDate.Text, out outDate))
+			if(DateTime.TryParse(yentryDate.Text, out DateTime outDate))
 			{
 				DateOrNull = outDate;
 				OnDateChangedByUser();
@@ -262,30 +325,39 @@ namespace Vodovoz.ViewWidgets.GtkUI
 		void EntrySetDateTime(DateTime? date)
 		{
 			if(date.HasValue)
+			{
 				yentryDate.Text = date.Value.ToShortDateString();
+			}
 			else
-				yentryDate.Text = String.Empty;
+			{
+				yentryDate.Text = string.Empty;
+			}
 		}
 
 		protected void OnEntryDateChanged(object sender, EventArgs e)
 		{
 			if(DateTime.TryParse(yentryDate.Text, out DateTime outDate))
+			{
 				yentryDate.ModifyText(StateType.Normal);
+			}
 			else
-				yentryDate.ModifyText(StateType.Normal, new Gdk.Color(255, 0, 0));
+			{
+				yentryDate.ModifyText(StateType.Normal, _dangerTextHtmlColor);
+			}
 		}
 
 		protected void OnCalendarDaySelectedDoubleClick(object sender, EventArgs e)
 		{
-			editDate.Respond(ResponseType.Ok);
+			_editDateDialog.Respond(ResponseType.Ok);
 		}
 
 		protected void OnEntryDateTextInserted(object o, TextInsertedArgs args)
 		{
-			if(!_AutoSeparation)
+			if(!_autoSeparation)
 			{
 				return;
 			}
+
 			if(args.Length == 1 &&
 			   (args.Position == 3 || args.Position == 6) &&
 			   args.Text != System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator &&
@@ -299,12 +371,17 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		protected void OnEntryDateActivated(object sender, EventArgs e)
 		{
-			this.ChildFocus(DirectionType.TabForward);
+			ChildFocus(DirectionType.TabForward);
 		}
 
 		public new void ModifyBase(StateType state, Gdk.Color color)
 		{
 			yentryDate.ModifyBase(state, color);
+		}
+
+		class DateSelectedEventArgs : EventArgs
+		{
+			public DateTime Date { get; set; }
 		}
 	}
 }
