@@ -1,5 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,24 +9,35 @@ using System.Linq.Expressions;
 
 namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
-	public class EntitySelectionAutocompleteSelector<TEntity> : IEntitySelectionAutocompleteSelector<TEntity>
+	public class EntityDialogSelectionAutocompleteSelector<TEntity> : IEntityDialogSelectionAutocompleteSelector<TEntity>
 		where TEntity : class, IDomainObject
 	{
+		private readonly INavigationManager _navigationManager;
 		private readonly IUnitOfWork _uow;
 		private readonly Func<IList<int>> _entityIdRestrictionFunc;
 		private readonly Func<string, Expression<Func<TEntity, bool>>> _entityTitleComparerFunc;
+		private readonly SelectionDialogSettings _dialogSettings;
 
-		public EntitySelectionAutocompleteSelector(
+		private EntityButtonsSelectionViewModel _selectionDialog;
+
+		public EntityDialogSelectionAutocompleteSelector(
+			INavigationManager navigationManager,
 			IUnitOfWork uow,
 			Func<IList<int>> entityIdRestrictionFunc = null,
-			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null)
+			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null,
+			SelectionDialogSettings dialogSettings = null)
 		{
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_entityIdRestrictionFunc = entityIdRestrictionFunc;
 			_entityTitleComparerFunc = entityTitleComparerFunc;
+			_dialogSettings = dialogSettings ?? new SelectionDialogSettings();
 		}
 
 		public event EventHandler<AutocompleteUpdatedEventArgs> AutocompleteLoaded;
+
+		public event EventHandler<EntitySelectedEventArgs> EntitySelected;
+		public event EventHandler SelectEntityFromJournalSelected;
 
 		public string GetTitle(object node) => node.GetTitle();
 
@@ -33,6 +46,43 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			var items = GetQuery(searchText, takeCount).ToList();
 
 			AutocompleteLoaded?.Invoke(this, new AutocompleteUpdatedEventArgs(items));
+		}
+
+		public void OpenSelector()
+		{
+			_selectionDialog = _navigationManager.OpenViewModel<EntityButtonsSelectionViewModel, IList<object>, SelectionDialogSettings>(
+				null,
+				GetEntities(),
+				_dialogSettings)
+				.ViewModel;
+
+			_selectionDialog.EntitySelected += OnEntitySelected;
+			_selectionDialog.SelectEntityFromJournalSelected += OnSelectEntityFromJournalSelected;
+		}
+
+		private void OnEntitySelected(object sender, EntitySelectedEventArgs e)
+		{
+			if(_selectionDialog != null)
+			{
+				_selectionDialog.EntitySelected -= OnEntitySelected;
+			}
+
+			EntitySelected?.Invoke(this, e);
+		}
+
+		private void OnSelectEntityFromJournalSelected(object sender, EventArgs e)
+		{
+			if(_selectionDialog != null)
+			{
+				_selectionDialog.SelectEntityFromJournalSelected -= OnSelectEntityFromJournalSelected;
+			}
+
+			SelectEntityFromJournalSelected?.Invoke(this, e);
+		}
+
+		private IList<object> GetEntities()
+		{
+			return GetQuery().Cast<object>().ToList();
 		}
 
 		private IQueryable<TEntity> GetQuery(string[] searchText = null, int? entitiesMaxCount = null)

@@ -874,16 +874,12 @@ namespace Vodovoz
 				.SetUnitOfWork(UoW)
 				.ForProperty(Entity, e => e.DeliverySchedule)
 				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
-				.UseAutocompleter(
+				.UseSelectionDialogAndAutocompleteSelector(
 					() => DeliveryPoint?.District == null
 					? new List<int>()
 					: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
-					(text) => GetTitleCompare(text))
-				.UseSelectionDialogSelector(
-				() => DeliveryPoint?.District == null
-				? new List<int>()
-				: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
-				dialogSettings)
+					(text) => GetTitleCompare(text),
+					dialogSettings)
 				.Finish();
 
 			entityselectionDeliverySchedule.ViewModel = vm1;

@@ -10,8 +10,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		where TEntity : class, IDomainObject
 	{
 		private IPropertyBinder<TEntity> _entityBinder;
-		private ISelectionDialogSelector<TEntity> _selectionDialogSelector;
-		private IEntitySelectionAutocompleteSelector<TEntity> _autocompleteSelector;
+		private IEntityDialogSelectionAutocompleteSelector<TEntity> _dialogSelectionAndAutocompleteSelector;
 		private IEntityJournalSelector _entityJournalSelector;
 		private IEntitySelectionAdapter<TEntity> _entityAdapter;
 
@@ -21,8 +20,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public EntitySelectionViewModel(
 			IPropertyBinder<TEntity> binder = null,
-			ISelectionDialogSelector<TEntity> selectionDialogSelector = null,
-			IEntitySelectionAutocompleteSelector<TEntity> autocompleteSelector = null,
+			IEntityDialogSelectionAutocompleteSelector<TEntity> dialogSelectionAndAutocompleteSelector = null,
 			IEntityJournalSelector entityJournalSelector = null,
 			IEntitySelectionAdapter<TEntity> entityAdapter = null
 			)
@@ -32,14 +30,9 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				EntityBinder = binder;
 			}
 
-			if(selectionDialogSelector != null)
+			if(dialogSelectionAndAutocompleteSelector != null)
 			{
-				SelectionDialogSelector = selectionDialogSelector;
-			}
-
-			if(autocompleteSelector != null)
-			{
-				AutocompleteSelector = autocompleteSelector;
+				DialogSelectionAndAutocompleteSelector = dialogSelectionAndAutocompleteSelector;
 			}
 
 			if(entityJournalSelector != null)
@@ -120,6 +113,31 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				}
 			}
 		}
+		public IEntityDialogSelectionAutocompleteSelector<TEntity> DialogSelectionAndAutocompleteSelector
+		{
+			get => _dialogSelectionAndAutocompleteSelector;
+			set
+			{
+				if(_dialogSelectionAndAutocompleteSelector == value)
+				{
+					return;
+				}
+
+				UnsubscribeDialogSelectionAndAutocompleteSelector();
+
+				_dialogSelectionAndAutocompleteSelector = value;
+
+				if(_dialogSelectionAndAutocompleteSelector != null)
+				{
+					_dialogSelectionAndAutocompleteSelector.AutocompleteLoaded += AutocompleteSelector_AutocompleteLoaded;
+					_dialogSelectionAndAutocompleteSelector.EntitySelected += OnSelectionDialogEntitySelected;
+					_dialogSelectionAndAutocompleteSelector.SelectEntityFromJournalSelected += OnSelectionDialogSelectEntityFromJournalSelected;
+				}
+
+				OnPropertyChanged(nameof(CanSelectEntity));
+				OnPropertyChanged(nameof(CanSelectEntityFromDialog));
+			}
+		}
 
 		public IEntitySelectionAdapter<TEntity> EntityAdapter
 		{
@@ -140,34 +158,8 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 				OnPropertyChanged(nameof(CanSelectEntity));
 				OnPropertyChanged(nameof(CanSelectEntityFromDialog));
-				OnPropertyChanged(nameof(CanAutoCompleteEntry));
 				OnPropertyChanged(nameof(CanSelectEntityFromJournal));
 				OnPropertyChanged(nameof(CanClearEntity));
-			}
-		}
-
-		public ISelectionDialogSelector<TEntity> SelectionDialogSelector
-		{
-			get => _selectionDialogSelector;
-			set
-			{
-				if(_selectionDialogSelector == value)
-				{
-					return;
-				}
-
-				UnsubscribeDialogEntitySelector();
-
-				_selectionDialogSelector = value;
-
-				if(SelectionDialogSelector != null)
-				{
-					_selectionDialogSelector.EntitySelected += OnSelectionDialogEntitySelected;
-					_selectionDialogSelector.SelectEntityFromJournalSelected += OnSelectionDialogSelectEntityFromJournalSelected;
-				}
-
-				OnPropertyChanged(nameof(CanSelectEntity));
-				OnPropertyChanged(nameof(CanSelectEntityFromDialog));
 			}
 		}
 
@@ -209,7 +201,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 				OnPropertyChanged(nameof(CanSelectEntity));
 				OnPropertyChanged(nameof(CanSelectEntityFromDialog));
-				OnPropertyChanged(nameof(CanAutoCompleteEntry));
 				OnPropertyChanged(nameof(CanSelectEntityFromJournal));
 				OnPropertyChanged(nameof(CanClearEntity));
 			}
@@ -218,9 +209,8 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		public bool DisposeViewModel { get; set; } = true;
 		public string EntityTitle => Entity?.GetTitle();
 
-		public virtual bool CanSelectEntity => CanSelectEntityFromDialog || CanAutoCompleteEntry || CanSelectEntityFromJournal;
-		public virtual bool CanSelectEntityFromDialog => IsEditable && SelectionDialogSelector != null;
-		public virtual bool CanAutoCompleteEntry => IsEditable && AutocompleteSelector != null;
+		public virtual bool CanSelectEntity => CanSelectEntityFromDialog || CanSelectEntityFromJournal;
+		public virtual bool CanSelectEntityFromDialog => IsEditable && DialogSelectionAndAutocompleteSelector != null;
 		public virtual bool CanSelectEntityFromJournal =>
 			IsEditable && EntityJournalSelector != null;
 		public virtual bool CanClearEntity => IsEditable && Entity != null;
@@ -235,21 +225,10 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public int AutocompleteListSize { get; set; }
 
-		public IEntitySelectionAutocompleteSelector<TEntity> AutocompleteSelector
-		{
-			get => _autocompleteSelector;
-			set
-			{
-				_autocompleteSelector = value;
-				OnPropertyChanged(nameof(CanAutoCompleteEntry));
-				_autocompleteSelector.AutocompleteLoaded += AutocompleteSelector_AutocompleteLoaded;
-			}
-		}
-
 		public void AutocompleteTextEdited(string searchText)
 		{
 			var words = searchText.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-			AutocompleteSelector?.LoadAutocompletion(words, AutocompleteListSize);
+			DialogSelectionAndAutocompleteSelector?.LoadAutocompletion(words, AutocompleteListSize);
 		}
 
 		void AutocompleteSelector_AutocompleteLoaded(object sender, AutocompleteUpdatedEventArgs e)
@@ -259,7 +238,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public string GetAutocompleteTitle(object node)
 		{
-			return AutocompleteSelector.GetTitle(node);
+			return DialogSelectionAndAutocompleteSelector.GetTitle(node);
 		}
 
 		public void AutocompleteSelectNode(object node)
@@ -299,7 +278,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		private void SelectEntityFromSelectionDialog()
 		{
-			SelectionDialogSelector?.OpenSelector();
+			DialogSelectionAndAutocompleteSelector?.OpenSelector();
 		}
 
 		private void SelectEntityFromJournal()
@@ -327,9 +306,9 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				entityBinder.Dispose();
 			}
 
-			if(SelectionDialogSelector is IDisposable selectionDialogSelector)
+			if(DialogSelectionAndAutocompleteSelector is IDisposable dialogSelectionAndAutocompleteSelector)
 			{
-				selectionDialogSelector.Dispose();
+				dialogSelectionAndAutocompleteSelector.Dispose();
 			}
 
 			if(EntityJournalSelector is IDisposable entityJournalSelector)
@@ -342,25 +321,18 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				entityAdapter.Dispose();
 			}
 
-			if(AutocompleteSelector is IDisposable autocompleteSelector)
-			{
-				autocompleteSelector.Dispose();
-			}
-
 			_entityBinder = null;
-			_selectionDialogSelector = null;
+			_dialogSelectionAndAutocompleteSelector = null;
 			_entityJournalSelector = null;
 			_entityAdapter = null;
-			_autocompleteSelector = null;
 		}
 
 		private void UnsubscribeAll()
 		{
 			UnsubscribeEntity();
 			UnsubscribeBinder();
-			UnsubscribeDialogEntitySelector();
 			UnsubscribeJournalEntitySelector();
-			UnsubscribeAutoCompleteSelector();
+			UnsubscribeDialogSelectionAndAutocompleteSelector();
 		}
 
 		private void UnsubscribeBinder()
@@ -379,12 +351,13 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			}
 		}
 
-		private void UnsubscribeDialogEntitySelector()
+		private void UnsubscribeDialogSelectionAndAutocompleteSelector()
 		{
-			if(_selectionDialogSelector != null)
+			if(_dialogSelectionAndAutocompleteSelector != null)
 			{
-				_selectionDialogSelector.EntitySelected -= OnSelectionDialogEntitySelected;
-				_selectionDialogSelector.SelectEntityFromJournalSelected -= OnSelectionDialogSelectEntityFromJournalSelected;
+				_dialogSelectionAndAutocompleteSelector.EntitySelected -= OnSelectionDialogEntitySelected;
+				_dialogSelectionAndAutocompleteSelector.SelectEntityFromJournalSelected -= OnSelectionDialogSelectEntityFromJournalSelected;
+				_dialogSelectionAndAutocompleteSelector.AutocompleteLoaded -= AutocompleteSelector_AutocompleteLoaded;
 			}
 		}
 
@@ -393,14 +366,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			if(_entityJournalSelector != null)
 			{
 				_entityJournalSelector.EntitySelected += OnEntityJournalSelectorEntitySelected;
-			}
-		}
-
-		private void UnsubscribeAutoCompleteSelector()
-		{
-			if(_autocompleteSelector != null)
-			{
-				_autocompleteSelector.AutocompleteLoaded -= AutocompleteSelector_AutocompleteLoaded;
 			}
 		}
 	}

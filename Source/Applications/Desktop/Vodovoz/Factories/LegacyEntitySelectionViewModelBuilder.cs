@@ -22,8 +22,7 @@ namespace Vodovoz.Factories
 		#endregion
 
 		#region Опциональные компоненты
-		protected ISelectionDialogSelector<TEntity> SelectionDialogSelector;
-		protected IEntitySelectionAutocompleteSelector<TEntity> AutocompleteSelector;
+		protected IEntityDialogSelectionAutocompleteSelector<TEntity> DialogSelectionAndAutocompleteSelector;
 		protected IEntityJournalSelector EntityJournalSelector;
 		protected IEntitySelectionAdapter<TEntity> EntityAdapter;
 		private Func<ITdiTab> _dialogTabFunc;
@@ -94,24 +93,6 @@ namespace Vodovoz.Factories
 			return this;
 		}
 
-		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseSelectionDialogSelector(
-			Func<IList<int>> entityIdRestrictionFunc = null,
-			SelectionDialogSettings dialogSettings = null)
-		{
-			if(!IsParametersCreated)
-			{
-				throw new InvalidOperationException("Базовые параметры не установлены");
-			}
-
-			SelectionDialogSelector = new SelectionDialogSelector<TEntity>(
-				_parameters.NavigationManager,
-				_parameters.UnitOfWork,
-				entityIdRestrictionFunc,
-				dialogSettings);
-
-			return this;
-		}
-
 		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseViewModelJournalSelector<TJournalViewModel>()
 			where TJournalViewModel : JournalViewModelBase
 		{
@@ -161,19 +142,22 @@ namespace Vodovoz.Factories
 			return this;
 		}
 
-		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseAutocompleter(
+		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseSelectionDialogAndAutocompleteSelector(
 			Func<IList<int>> entityIdRestrictionFunc = null,
-			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null)
+			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null,
+			SelectionDialogSettings dialogSettings = null)
 		{
 			if(!IsParametersCreated)
 			{
 				throw new InvalidOperationException("Базовые параметры не установлены");
 			}
 
-			AutocompleteSelector = new EntitySelectionAutocompleteSelector<TEntity>(
+			DialogSelectionAndAutocompleteSelector = new EntityDialogSelectionAutocompleteSelector<TEntity>(
+				_parameters.NavigationManager,
 				_parameters.UnitOfWork,
 				entityIdRestrictionFunc,
-				entityTitleComparerFunc);
+				entityTitleComparerFunc,
+				dialogSettings);
 
 			return this;
 		}
@@ -195,9 +179,9 @@ namespace Vodovoz.Factories
 				EntityAdapter ?? new EntitySelectionAdapter<TEntity>(_parameters.UnitOfWork);
 
 			var selectionDialogSelector =
-				SelectionDialogSelector ?? new SelectionDialogSelector<TEntity>(_parameters.NavigationManager, _parameters.UnitOfWork);
+				DialogSelectionAndAutocompleteSelector ?? new EntityDialogSelectionAutocompleteSelector<TEntity>(_parameters.NavigationManager, _parameters.UnitOfWork);
 
-			return new EntitySelectionViewModel<TEntity>(PropertyBinder, selectionDialogSelector, AutocompleteSelector, EntityJournalSelector, entityAdapter);
+			return new EntitySelectionViewModel<TEntity>(PropertyBinder, selectionDialogSelector, EntityJournalSelector, entityAdapter);
 		}
 		#endregion
 
@@ -221,6 +205,7 @@ namespace Vodovoz.Factories
 			public ILifetimeScope AutofacScope { get; }
 		}
 	}
+
 	public interface ILegacyESVMBuilderParameters
 	{
 		Func<ITdiTab> DialogTabFunc { get; }

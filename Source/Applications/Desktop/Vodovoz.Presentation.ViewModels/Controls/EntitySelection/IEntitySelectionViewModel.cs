@@ -24,9 +24,9 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		#region Доступность функций View
 		bool CanSelectEntity { get; }
-		bool CanClearEntity { get; }
-		bool CanAutoCompleteEntry { get; }
+		bool CanSelectEntityFromDialog { get; }
 		bool CanSelectEntityFromJournal { get; }
+		bool CanClearEntity { get; }
 		#endregion
 
 		#region Команды от View

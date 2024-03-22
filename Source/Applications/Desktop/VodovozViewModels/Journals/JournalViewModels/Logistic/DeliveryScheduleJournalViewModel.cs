@@ -37,10 +37,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			Title = "Графики доставки";
 
-			if(filterConfiguration != null)
-			{
-				SetFilterConfiguration(filterConfiguration);
-			}
+			SetFilterConfiguration(filterConfiguration);
+			Filter = FilterViewModel;
+			JournalFilter = FilterViewModel;
 
 			UpdateOnChanges(typeof(DeliverySchedule));
 		}
@@ -59,9 +58,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			}
 
 			_filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
-
-			Filter = FilterViewModel;
-			JournalFilter = FilterViewModel;
 		}
 
 		private DeliveryScheduleFilterViewModel _filterViewModel = new DeliveryScheduleFilterViewModel();
