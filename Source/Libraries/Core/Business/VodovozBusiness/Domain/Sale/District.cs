@@ -455,7 +455,8 @@ namespace Vodovoz.Domain.Sale
 			return result.ToString();
 		}
 
-		public virtual IEnumerable<DeliveryScheduleRestriction> GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(DateTime? deliveryDate)
+		public virtual IEnumerable<DeliveryScheduleRestriction> GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(
+			DateTime? deliveryDate)
 		{
 			if(deliveryDate == null)
 			{
@@ -508,6 +509,34 @@ namespace Vodovoz.Domain.Sale
 				default:
 					return new List<DeliveryScheduleRestriction>();
 			}
+		}
+
+		public virtual IEnumerable<DateTime> GetNearestDatesWhenDeliveryIsPossible(
+			int datesCountInResult = 2,
+			int maxSearchPeriodInDays = 30)
+		{
+			var nearestDates = new List<DateTime>();
+			var startDate = DateTime.Today;
+
+			for(int i = 0; i < maxSearchPeriodInDays; i++)
+			{
+				var date = startDate.AddDays(i);
+
+				var deliveryScheduleRestrictions =
+					GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(date);
+
+				if (deliveryScheduleRestrictions.Count() > 0)
+				{
+					nearestDates.Add(date);
+				}
+
+				if(nearestDates.Count == 2)
+				{
+					break;
+				}
+			}
+
+			return nearestDates;
 		}
 
 		public virtual IEnumerable<DeliveryScheduleRestriction> GetAllDeliveryScheduleRestrictions()
