@@ -197,11 +197,7 @@ namespace Vodovoz.Views.Complaints
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
-			if(string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
-			{
-				handsetPhone.SetPhone(string.Empty);
-			}
-			else
+			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
 			{
 				handsetPhone.SetPhone(ViewModel.Entity.Phone);
 			}
