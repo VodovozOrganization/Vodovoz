@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -1321,37 +1322,13 @@ namespace Vodovoz.Domain.Client
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(bottlesRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(IDepositRepository)) is IDepositRepository depositRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(depositRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(IMoneyRepository)) is IMoneyRepository moneyRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(moneyRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(
-				typeof(ICounterpartyRepository)) is ICounterpartyRepository counterpartyRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(counterpartyRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(IOrderRepository)) is IOrderRepository orderRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(ICounterpartySettings)) is ICounterpartySettings counterpartySettings))
-			{
-				throw new ArgumentNullException($"Не найдены настройки {nameof(counterpartySettings)}");
-			}
+		{			
+			var counterpartySettings = validationContext.GetRequiredService<ICounterpartySettings>();
+			var counterpartyRepository = validationContext.GetRequiredService<ICounterpartyRepository>();
+			var bottlesRepository = validationContext.GetRequiredService<IBottlesRepository>();
+			var depositRepository = validationContext.GetRequiredService<IDepositRepository>();
+			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
+			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();			
 
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver))
 			{

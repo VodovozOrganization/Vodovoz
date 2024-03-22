@@ -1127,13 +1127,6 @@ namespace Vodovoz
 		private void ConfigureValidationContext()
 		{
 			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
-
-			_validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
-			_validationContext.ServiceContainer.AddService(typeof(ICounterpartySettings), _counterpartySettings);
 		}
 
 		private void ConfigureTabEmails()
