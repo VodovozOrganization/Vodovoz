@@ -197,6 +197,15 @@ namespace Vodovoz.Views.Complaints
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
+			if(string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
+			{
+				handsetPhone.SetPhone(string.Empty);
+			}
+			else
+			{
+				handsetPhone.SetPhone(ViewModel.Entity.Phone);
+			}
+
 			ViewModel.Entity.PropertyChanged += (o, e) =>
 			{
 				if(e.PropertyName == nameof(ViewModel.Entity.Phone))

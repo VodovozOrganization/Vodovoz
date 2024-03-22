@@ -4,29 +4,32 @@ using System.Linq.Expressions;
 using Gamma.Binding.Core;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using System.ComponentModel;
-using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Application.Mango;
 
 namespace Vodovoz.ViewWidgets.Mango
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class HandsetView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private MangoManager _mangoManager;
 		private Phone _phone;
 		public BindingControler<HandsetView> Binding { get; private set; }
 
-		public HandsetView(string number)
+		public HandsetView()
 		{
-			this.Build();
+			Build();
 
 			Binding = new BindingControler<HandsetView>(this, new Expression<Func<HandsetView, object>>[] { w => w.Sensitive });
-			SetPhone(number);
 			_mangoManager = Startup.MainWin.MangoManager;
 			if(_mangoManager != null)
 			{
 				_mangoManager.PropertyChanged += MangoManagerPropertyChanged;
 			}
+		}
+
+		public HandsetView(string number) : this()
+		{
+			SetPhone(number);
 		}
 
 		private void MangoManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -53,7 +56,9 @@ namespace Vodovoz.ViewWidgets.Mango
 
 		protected void Clicked_buttonMakeCall(object sender, EventArgs e)
 		{
-			if(_mangoManager == null || _mangoManager.ConnectionState == ConnectionState.Disconnected)
+			if(_mangoManager == null
+				|| _phone is null
+				|| _mangoManager.ConnectionState == ConnectionState.Disconnected)
 			{
 				return;
 			}
