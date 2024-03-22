@@ -244,7 +244,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			_editDateDialog.AddButton("Отмена", ResponseType.Cancel);
 			_editDateDialog.AddButton("Ok", ResponseType.Ok);
 
-			var calendar = new Calendar();
+			var calendar = new Gtk.Calendar();
 
 			calendar.DisplayOptions =
 				CalendarDisplayOptions.ShowHeading |
