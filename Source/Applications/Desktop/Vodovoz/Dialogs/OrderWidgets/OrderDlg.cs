@@ -822,6 +822,9 @@ namespace Vodovoz
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
 			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
 
+			entityselectionDeliverySchedule.ViewModel = CreateEntityselectionDeliveryScheduleViewModel();
+			entityselectionDeliverySchedule.ViewModel.Changed += (s, e) => UpdateClientSecondOrderDiscount();
+
 			var counterpartyFilter = _lifetimeScope.Resolve<CounterpartyJournalFilterViewModel>();
 
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
@@ -849,17 +852,6 @@ namespace Vodovoz
 			var fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService,
 				ServicesConfig.CommonServices.CurrentPermissionService);
-
-			//var deliveryScheduleJournalFactory = new DeliveryScheduleJournalFactory(ServicesConfig.UnitOfWorkFactory,
-			//	ServicesConfig.CommonServices, deliveryScheduleRepository, _roboatsViewModelFactory);
-			//deliveryScheduleJournalFactory.RestrictIsNotArchive = true;
-			//entryDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
-			//entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
-			//entryDeliverySchedule.CanEditReference = true;
-			//entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();			
-
-			entityselectionDeliverySchedule.ViewModel = CreateEntityselectionDeliveryScheduleViewModel();
-			entityselectionDeliverySchedule.ViewModel.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 
@@ -957,7 +949,8 @@ namespace Vodovoz
 					specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
 				}
 
-				entityselectionDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+				SetDeliveryScheduleSelectionEditable();
+
 				ybuttonFastDeliveryCheck.Sensitive =
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
 				lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
@@ -1128,33 +1121,6 @@ namespace Vodovoz
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
-		}
-
-		private EntitySelectionViewModel<DeliverySchedule> CreateEntityselectionDeliveryScheduleViewModel()
-		{
-			var builder = ScopeProvider.Scope.Resolve<LegacyEntitySelectionViewModelBuilder<DeliverySchedule>>();
-
-			var selectionDialogSettings = new SelectionDialogSettings
-			{
-				Title = "Время доставки",
-				TopLabelText = @"<b>На понедельник</b> дата",
-				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
-				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
-				IsCanOpenJournal = true
-			};
-
-			var viewModel = builder
-				.SetDialogTab(() => this)
-				.SetUnitOfWork(UoW)
-				.ForProperty(Entity, e => e.DeliverySchedule)
-				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
-				.UseSelectionDialogAndAutocompleteSelector(
-					() => Entity.GetAvailableDeliveryScheduleIds(),
-					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
-					selectionDialogSettings)
-				.Finish();
-
-			return viewModel;
 		}
 
 		private void SetPermissions()
@@ -3449,6 +3415,9 @@ namespace Vodovoz
 			}
 
 			OnPickerDeliveryDateDateChanged(sender, e);
+
+			ResetSelectedDeliverySchedulte();
+			SetDeliveryScheduleSelectionEditable();
 		}
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
@@ -3531,6 +3500,8 @@ namespace Vodovoz
 
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.DeliveryPoint));
 
+			ResetSelectedDeliveryDate();
+
 			if(Entity.DeliveryPoint != null)
 			{
 				UpdateProxyInfo();
@@ -3550,6 +3521,8 @@ namespace Vodovoz
 			{
 				RemoveFlyers();
 			}
+
+			SetDeliveryDatePickerSensetive();
 		}
 
 		private void RemoveFlyers()
@@ -4316,7 +4289,9 @@ namespace Vodovoz
 			{
 				entryDeliveryPoint.ViewModel.IsEditable = val;
 			}
-			entityselectionDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
+
+			SetDeliveryScheduleSelectionEditable(val);
+
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
 			lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
@@ -4406,18 +4381,26 @@ namespace Vodovoz
 				buttonSelectPaymentType.Sensitive = false;
 			}
 
+			SetDeliveryDatePickerSensetive();
+		}
+
+		private void SetDeliveryDatePickerSensetive()
+		{
 			if(isEditOrderClicked)
 			{
 				pickerDeliveryDate.Sensitive =
 					Order.OrderStatus == OrderStatus.NewOrder
 					&& Order.Id != 0
-					&& _canEditDeliveryDateAfterOrderConfirmation;
+					&& _canEditDeliveryDateAfterOrderConfirmation
+					&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 			}
 			else
 			{
 				if(Order.OrderStatus == OrderStatus.NewOrder && Order.Id != 0)
 				{
-					pickerDeliveryDate.Sensitive = _canEditDeliveryDateAfterOrderConfirmation;
+					pickerDeliveryDate.Sensitive =
+						_canEditDeliveryDateAfterOrderConfirmation
+						&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 				}
 			}
 		}
@@ -5159,6 +5142,59 @@ namespace Vodovoz
 					break;
 			}
 			ylabelOrderAddressType.Visible = true;
+		}
+
+		private EntitySelectionViewModel<DeliverySchedule> CreateEntityselectionDeliveryScheduleViewModel()
+		{
+			var builder = ScopeProvider.Scope.Resolve<LegacyEntitySelectionViewModelBuilder<DeliverySchedule>>();
+
+			var selectionDialogSettings = new SelectionDialogSettings
+			{
+				Title = "Время доставки",
+				TopLabelText = @"<b>На понедельник</b> дата",
+				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
+				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
+				IsCanOpenJournal = true
+			};
+
+			var viewModel = builder
+				.SetDialogTab(() => this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, e => e.DeliverySchedule)
+				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
+				.UseSelectionDialogAndAutocompleteSelector(
+					() => Entity.GetAvailableDeliveryScheduleIds(),
+					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
+					selectionDialogSettings)
+				.Finish();
+
+			return viewModel;
+		}
+
+		private void SetDeliveryScheduleSelectionEditable(bool isCanEditOrder = true)
+		{
+			var isEditable =
+				isCanEditOrder
+				&& !checkSelfDelivery.Active
+				&& Entity.DeliveryDate.HasValue
+				&& Entity.DeliveryPoint != null;
+
+			if(entityselectionDeliverySchedule.ViewModel != null)
+			{
+				entityselectionDeliverySchedule.ViewModel.IsEditable = isEditable;
+			}
+
+			labelDeliverySchedule.Sensitive = isEditable;
+		}
+
+		private void ResetSelectedDeliveryDate()
+		{
+			Entity.DeliveryDate = null;
+		}
+
+		private void ResetSelectedDeliverySchedulte()
+		{
+			Entity.DeliverySchedule = null;
 		}
 
 		#endregion FreeRent
