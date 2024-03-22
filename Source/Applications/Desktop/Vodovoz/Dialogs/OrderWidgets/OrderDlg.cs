@@ -1121,6 +1121,7 @@ namespace Vodovoz
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
+			SetNearestDeliveryDateLoaderFunc();
 		}
 
 		private void SetPermissions()
@@ -3523,6 +3524,7 @@ namespace Vodovoz
 			}
 
 			SetDeliveryDatePickerSensetive();
+			SetNearestDeliveryDateLoaderFunc();
 		}
 
 		private void RemoveFlyers()
@@ -5195,6 +5197,12 @@ namespace Vodovoz
 		private void ResetSelectedDeliverySchedulte()
 		{
 			Entity.DeliverySchedule = null;
+		}
+
+		private void SetNearestDeliveryDateLoaderFunc()
+		{
+			pickerDeliveryDate.ButtonsDatesLoaderFunc =
+				() => Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
 		}
 
 		#endregion FreeRent
