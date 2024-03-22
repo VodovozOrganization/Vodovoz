@@ -99,6 +99,7 @@ namespace Vodovoz.Domain.Client
 		private DeliveryPointCategory _category;
 		private string _onlineComment;
 		private string _intercom;
+		public const int IntercomMaxLength = 100;
 
 		public DeliveryPoint()
 		{
@@ -1011,6 +1012,12 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult(
 					"Длина строки \"Организация\" не должна превышать 45 символов",
 					new[] { this.GetPropertyName(o => o.Organization) });
+			}
+			
+			if(Intercom?.Length > IntercomMaxLength)
+			{
+				yield return new ValidationResult(
+					$"Длина строки \"Домофон\" не должна превышать {IntercomMaxLength} символов");
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices

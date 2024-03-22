@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using CustomerAppsApi.Library.Dto;
 using Gamma.Utilities;
+using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Validators
 {
@@ -16,7 +17,6 @@ namespace CustomerAppsApi.Library.Validators
 		private const int _floorLimit = 20;
 		private const int _roomLimit = 20;
 		private const int _entranceLimit = 50;
-		private const int _intercomLimit = 100;
 		
 		private const string _invalidParameter = "Поле {0} заполнено некорректно";
 		private const string _parameterEmpty = "Поле {0} не заполнено";
@@ -121,9 +121,9 @@ namespace CustomerAppsApi.Library.Validators
 				AppendLineParameterOutLimit(sb, _roomLimit, newDeliveryPointInfoDto, x => x.Room);
 			}
 			
-			if(newDeliveryPointInfoDto.Intercom?.Length > _intercomLimit)
+			if(newDeliveryPointInfoDto.Intercom?.Length > DeliveryPoint.IntercomMaxLength)
 			{
-				AppendLineParameterOutLimit(sb, _intercomLimit, newDeliveryPointInfoDto, x => x.Intercom);
+				AppendLineParameterOutLimit(sb, DeliveryPoint.IntercomMaxLength, newDeliveryPointInfoDto, x => x.Intercom);
 			}
 		}
 		
