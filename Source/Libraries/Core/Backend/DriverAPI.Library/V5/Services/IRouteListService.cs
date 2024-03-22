@@ -14,5 +14,6 @@ namespace DriverAPI.Library.V5.Services
 		Result RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId);
 		bool IsRouteListBelongToDriver(int routeListId, int driverId);
 		Result RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId);
+		string GetPreActualDriverPushNotificationsTokenByOrderId(int orderId);
 	}
 }
