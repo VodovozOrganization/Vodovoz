@@ -80,6 +80,15 @@ namespace Vodovoz.ViewModels.Complaints
 						}
 
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
+						
+						if(complaintFile.ByteFile.Length > 16_250_000)
+						{
+							CommonServices.InteractiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								$"Слишком большой размер файла: {complaintFile.FileStorageId} ");
+							continue;
+						}
+						
 						Entity.AddFile(complaintFile);
 					}
 				},
