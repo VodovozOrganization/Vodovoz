@@ -1151,16 +1151,11 @@ namespace Vodovoz
 					() => DeliveryPoint?.District == null
 					? new List<int>()
 					: DeliveryPoint.District.GetAllDeliveryScheduleRestrictions().Where(d => d.WeekDay == WeekDayName.Today).Select(d => d.DeliverySchedule.Id).ToList(),
-					(text) => GetTitleCompare(text),
+					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
 					selectionDialogSettings)
 				.Finish();
 
 			return viewModel;
-		}
-
-		private Expression<Func<DeliverySchedule, bool>> GetTitleCompare(string text)
-		{
-			return deliverySchedule => deliverySchedule.Name.IndexOf(text) >= 0;
 		}
 
 		private void SetPermissions()
