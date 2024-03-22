@@ -492,5 +492,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
 		}
+
+		public bool WithExcludes { get; set; } = true;
 	}
 }
