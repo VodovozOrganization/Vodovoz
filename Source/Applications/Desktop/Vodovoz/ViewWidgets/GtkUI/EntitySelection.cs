@@ -7,6 +7,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
 namespace Vodovoz.ViewWidgets.GtkUI
@@ -15,6 +16,8 @@ namespace Vodovoz.ViewWidgets.GtkUI
 	public partial class EntitySelection : Gtk.Bin
 	{
 		public static uint QueryDelay = 0;
+
+		private readonly Color _dangerTextHtmlColor = GdkColors.DangerText;
 
 		private readonly string _normalEntryToolTipMarkup;
 		private readonly string _dangerEntryToolTipMarkup = "Введён текст для поиска, но не выбрана сущность из справочника или выпадающего списка.";
@@ -161,7 +164,6 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		private void FillAutocomplete(IList list)
 		{
-			//logger.Info("Запрос данных для автодополнения...");
 			_completionListStore = new ListStore(typeof(object));
 
 			foreach(var item in list)
@@ -176,7 +178,6 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 			yentryObject.Completion.Model = _completionListStore;
 			yentryObject.Completion.PopupCompletion = true;
-			//logger.Debug("Получено {0} строк автодополения...", completionListStore.IterNChildren());
 		}
 
 		protected void OnEntryObjectFocusOutEvent(object sender, EventArgs e)
@@ -189,7 +190,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 			}
 			else if(yentryObject.Text != ViewModel.EntityTitle)
 			{
-				yentryObject.ModifyText(StateType.Normal, new Gdk.Color(255, 0, 0));
+				yentryObject.ModifyText(StateType.Normal, _dangerTextHtmlColor);
 				yentryObject.TooltipMarkup = _dangerEntryToolTipMarkup;
 			}
 		}
@@ -233,7 +234,6 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				}
 			}
 		}
-
 		#endregion
 
 		protected override void OnDestroyed()
