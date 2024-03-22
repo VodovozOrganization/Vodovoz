@@ -28,9 +28,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.WithForwarder).Column("with_forwarder");
 			Map(x => x.StatusLastUpdate).Column("status_last_update");
 			Map(x => x.Comment).Column("comment").Length(150);
-			Map(x => x.Status).Column("status").CustomType<RouteListItemStatusStringType>();
-			Map(x => x.AddressTransferType).Column("address_transfer_type").CustomType<AddressTransferTypeStringType>();
+			Map(x => x.Status).Column("status");
+			Map(x => x.AddressTransferType).Column("address_transfer_type");
 			Map(x => x.WasTransfered).Column("was_transfered");
+			Map(x => x.RecievedTransferAt).Column("recieved_transfer_at");
 			Map(x => x.CashierComment).Column("cashier_comment");
 			Map(x => x.CashierCommentCreateDate).Column("cashier_comment_create_date");
 			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");

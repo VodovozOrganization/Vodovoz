@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -940,8 +940,8 @@
     <Compile Include="Dialogs\Logistic\TrackOnMapWnd.cs" />
     <Compile Include="gtk-gui\Dialogs.Logistic.TrackOnMapWnd.cs" />
     <Compile Include="Additions\Logistic\NumericPointMarker.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.DeliveriesLateReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Logistic.DeliveriesLateReportView.cs" />
     <Compile Include="ReportsParameters\Logistic\RoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.RoutesListRegisterReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportView.cs" />

@@ -928,9 +928,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveriesLateActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.DeliveriesLateReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.DeliveriesLateReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DeliveriesLateReportViewModel));
 	}
 
 	/// <summary>

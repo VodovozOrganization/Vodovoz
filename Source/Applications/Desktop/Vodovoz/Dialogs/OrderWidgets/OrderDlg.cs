@@ -966,6 +966,8 @@ namespace Vodovoz
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				UpdateOrderItemsPrices();
 				SetLogisticsRequirementsCheckboxes();
+
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = null;
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -1520,6 +1522,8 @@ namespace Vodovoz
 			}
 
 			Entity.RemoveFastDeliveryNomenclature();
+
+			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = null;
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
