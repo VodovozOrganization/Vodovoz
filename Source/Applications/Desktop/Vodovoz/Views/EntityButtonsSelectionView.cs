@@ -59,15 +59,21 @@ namespace Vodovoz.Views
 			for(var i = 0; i < ViewModel.Entities.Count; i++)
 			{
 				var entity = ViewModel.Entities[i];
+				var button = GetButton(entity);
+				Box.BoxChild box;
 
 				if(i % 2 == 0)
 				{
-					yvboxLeftButtons.Add(GetButton(entity));
-
-					continue;
+					yvboxLeftButtons.Add(button);
+					box = (Box.BoxChild)yvboxLeftButtons[button];
+				}
+				else
+				{
+					yvboxRightButtons.Add(button);
+					box = (Box.BoxChild)yvboxRightButtons[button];
 				}
 
-				yvboxRightButtons.Add(GetButton(entity));
+				box.Expand = false;
 			}
 
 			yvboxLeftButtons.ShowAll();
@@ -78,7 +84,9 @@ namespace Vodovoz.Views
 		{
 			var button = new Button
 			{
-				Label = entity.GetTitle()
+				Label = entity.GetTitle(),
+				HeightRequest = ViewModel.DialogSettings.ButtonHeight,
+				WidthRequest = ViewModel.DialogSettings.ButtonWidth
 			};
 
 			button.Clicked += (s, e) => ViewModel.SelectEntityCommand.Execute(entity);
