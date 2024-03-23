@@ -11,15 +11,16 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		public EntityButtonsSelectionViewModel(
 			INavigationManager navigation,
 			IList<object> entities,
-			SelectionDialogSettings dialogSettings
+			Func<SelectionDialogSettings> dialogSettingsFunc
 			) : base(navigation)
 		{
 			Entities = entities;
-			DialogSettings = dialogSettings;
-			SelectEntityCommand = new DelegateCommand<object>(SelectEntity);
-			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => dialogSettings.IsCanOpenJournal);
+			DialogSettings = dialogSettingsFunc != null ? dialogSettingsFunc.Invoke() : new SelectionDialogSettings();
 
-			Title = dialogSettings.Title;
+			SelectEntityCommand = new DelegateCommand<object>(SelectEntity);
+			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => DialogSettings.IsCanOpenJournal);
+
+			Title = DialogSettings.Title;
 		}
 
 		public event EventHandler<EntitySelectedEventArgs> EntitySelected;

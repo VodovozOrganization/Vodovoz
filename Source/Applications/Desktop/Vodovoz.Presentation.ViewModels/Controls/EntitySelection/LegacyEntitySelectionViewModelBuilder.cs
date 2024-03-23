@@ -144,7 +144,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		public virtual LegacyEntitySelectionViewModelBuilder<TEntity> UseSelectionDialogAndAutocompleteSelector(
 			Func<IList<int>> entityIdRestrictionFunc = null,
 			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null,
-			SelectionDialogSettings dialogSettings = null)
+			Func<SelectionDialogSettings> dialogSettingsFunc = null)
 		{
 			if(!IsParametersCreated)
 			{
@@ -156,7 +156,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				_parameters.UnitOfWork,
 				entityIdRestrictionFunc,
 				entityTitleComparerFunc,
-				dialogSettings);
+				dialogSettingsFunc);
 
 			return this;
 		}

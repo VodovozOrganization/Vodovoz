@@ -16,7 +16,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		private readonly IUnitOfWork _uow;
 		private readonly Func<IList<int>> _entityIdRestrictionFunc;
 		private readonly Func<string, Expression<Func<TEntity, bool>>> _entityTitleComparerFunc;
-		private readonly SelectionDialogSettings _dialogSettings;
+		private readonly Func<SelectionDialogSettings> _dialogSettingsFunc;
 
 		private EntityButtonsSelectionViewModel _selectionDialog;
 
@@ -25,13 +25,13 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			IUnitOfWork uow,
 			Func<IList<int>> entityIdRestrictionFunc = null,
 			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null,
-			SelectionDialogSettings dialogSettings = null)
+			Func<SelectionDialogSettings> dialogSettingsFunc = null)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_entityIdRestrictionFunc = entityIdRestrictionFunc;
 			_entityTitleComparerFunc = entityTitleComparerFunc;
-			_dialogSettings = dialogSettings ?? new SelectionDialogSettings();
+			_dialogSettingsFunc = dialogSettingsFunc;
 		}
 
 		public event EventHandler<AutocompleteUpdatedEventArgs> AutocompleteLoaded;
@@ -50,10 +50,10 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public void OpenSelector()
 		{
-			_selectionDialog = _navigationManager.OpenViewModel<EntityButtonsSelectionViewModel, IList<object>, SelectionDialogSettings>(
+			_selectionDialog = _navigationManager.OpenViewModel<EntityButtonsSelectionViewModel, IList<object>, Func<SelectionDialogSettings>>(
 				null,
 				GetEntities(),
-				_dialogSettings)
+				_dialogSettingsFunc)
 				.ViewModel;
 
 			_selectionDialog.EntitySelected += OnEntitySelected;

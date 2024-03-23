@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Infrastructure;
+using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.ViewWidgets.GtkUI
 {
@@ -196,20 +197,9 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		private string GetDateString(DateTime date)
 		{
-			if(date.Date == DateTime.Today)
-			{
-				return $"Сегодня {date: dd.MM.yyyy}";
-			}
+			var dayName = GeneralUtils.GetDayNameByDate(date, true);
 
-			if(date.Date == DateTime.Today.AddDays(1))
-			{
-				return $"Завтра {date: dd.MM.yyyy}";
-			}
-
-			var cultureInfo = CultureInfo.GetCultureInfo("ru-RU");
-			var dayOfWeek = cultureInfo.DateTimeFormat.GetDayName(date.DayOfWeek);
-
-			return $"{cultureInfo.TextInfo.ToTitleCase(dayOfWeek)} {date: dd.MM.yyyy}";
+			return $"{dayName} {date: dd.MM.yyyy}";
 		}
 
 		private void OnDateSelected(DateSelectedEventArgs dateSelectedEventArgs)

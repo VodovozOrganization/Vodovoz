@@ -131,6 +131,7 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
@@ -5152,15 +5153,6 @@ namespace Vodovoz
 		{
 			var builder = ScopeProvider.Scope.Resolve<LegacyEntitySelectionViewModelBuilder<DeliverySchedule>>();
 
-			var selectionDialogSettings = new SelectionDialogSettings
-			{
-				Title = "Время доставки",
-				TopLabelText = @"<b>На понедельник</b> дата",
-				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
-				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
-				IsCanOpenJournal = true
-			};
-
 			var viewModel = builder
 				.SetDialogTab(() => this)
 				.SetUnitOfWork(UoW)
@@ -5169,10 +5161,31 @@ namespace Vodovoz
 				.UseSelectionDialogAndAutocompleteSelector(
 					() => Entity.GetAvailableDeliveryScheduleIds(),
 					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
-					selectionDialogSettings)
+					() => GetSelectionDialogSettings())
 				.Finish();
 
 			return viewModel;
+		}
+
+		private SelectionDialogSettings GetSelectionDialogSettings()
+		{
+			string deliveryDate = string.Empty;
+
+			if(Entity.DeliveryDate.HasValue)
+			{
+				deliveryDate = $"<b>На {GeneralUtils.GetDayNameByDate(Entity.DeliveryDate.Value)}</b> {Entity.DeliveryDate.Value: dd.MM.yyyy}";
+			}
+
+			var selectionDialogSettings = new SelectionDialogSettings
+			{
+				Title = "Время доставки",
+				TopLabelText = deliveryDate,
+				NoEntitiesMessage = "На данный день\nинтервалы\nдоставки\nотсутствуют",
+				SelectFromJournalButtonLabelText = "Выбрать интервал вручную",
+				IsCanOpenJournal = true
+			};
+
+			return selectionDialogSettings;
 		}
 
 		private void SetDeliveryScheduleSelectionEditable(bool isCanEditOrder = true)
