@@ -5146,6 +5146,8 @@ namespace Vodovoz
 			ylabelOrderAddressType.Visible = true;
 		}
 
+		#endregion FreeRent
+
 		private EntitySelectionViewModel<DeliverySchedule> CreateEntityselectionDeliveryScheduleViewModel()
 		{
 			var builder = ScopeProvider.Scope.Resolve<LegacyEntitySelectionViewModelBuilder<DeliverySchedule>>();
@@ -5206,8 +5208,6 @@ namespace Vodovoz
 				? new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1)}
 				: Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
 		}
-
-		#endregion FreeRent
 
 		private Nomenclature TryGetSelectedNomenclature(JournalSelectedEventArgs e)
 		{
