@@ -5202,7 +5202,9 @@ namespace Vodovoz
 		private void SetNearestDeliveryDateLoaderFunc()
 		{
 			pickerDeliveryDate.ButtonsDatesLoaderFunc =
-				() => Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
+				() => Entity.SelfDelivery
+				? new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1)}
+				: Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
 		}
 
 		#endregion FreeRent
