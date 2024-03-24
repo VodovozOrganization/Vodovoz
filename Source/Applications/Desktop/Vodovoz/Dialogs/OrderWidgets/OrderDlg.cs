@@ -4347,6 +4347,8 @@ namespace Vodovoz
 				textManagerComments.Editable = sensitive;
 				enumDiverCallType.Sensitive = sensitive;
 			}
+
+			SetDeliveryDatePickerSensetive();
 		}
 
 		private void ChangeGoodsTabSensitiveWithoutGoods(bool sensitive)
@@ -4383,29 +4385,14 @@ namespace Vodovoz
 			{
 				buttonSelectPaymentType.Sensitive = false;
 			}
-
-			SetDeliveryDatePickerSensetive();
 		}
 
 		private void SetDeliveryDatePickerSensetive()
 		{
-			if(isEditOrderClicked)
-			{
-				pickerDeliveryDate.Sensitive =
-					Order.OrderStatus == OrderStatus.NewOrder
-					&& Order.Id != 0
-					&& _canEditDeliveryDateAfterOrderConfirmation
-					&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
-			}
-			else
-			{
-				if(Order.OrderStatus == OrderStatus.NewOrder && Order.Id != 0)
-				{
-					pickerDeliveryDate.Sensitive =
-						_canEditDeliveryDateAfterOrderConfirmation
-						&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
-				}
-			}
+			pickerDeliveryDate.Sensitive =
+				Order.OrderStatus == OrderStatus.NewOrder
+				&& (_canEditDeliveryDateAfterOrderConfirmation || Order.Id == 0)
+				&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 		}
 
 		void SetSensitivityOfPaymentType()
