@@ -166,7 +166,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				page.ViewModel.TabName = dialogTitle;
 			}
 
-			//Сначала на всякий случай отписываемся от события, вдруг это повторное открытие не не
+			//Сначала на всякий случай отписываемся от события, вдруг это повторное открытие
 			page.ViewModel.OnSelectResult -= ViewModel_OnSelectResult;
 			page.ViewModel.OnSelectResult += ViewModel_OnSelectResult;
 		}

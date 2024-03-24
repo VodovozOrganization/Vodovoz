@@ -38,7 +38,6 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -3418,7 +3417,7 @@ namespace Vodovoz
 
 			OnPickerDeliveryDateDateChanged(sender, e);
 
-			ResetSelectedDeliverySchedulte();
+			ResetSelectedDeliverySchedule();
 			SetDeliveryScheduleSelectionEditable();
 		}
 
@@ -5197,7 +5196,7 @@ namespace Vodovoz
 			Entity.DeliveryDate = null;
 		}
 
-		private void ResetSelectedDeliverySchedulte()
+		private void ResetSelectedDeliverySchedule()
 		{
 			Entity.DeliverySchedule = null;
 		}
@@ -5206,7 +5205,7 @@ namespace Vodovoz
 		{
 			pickerDeliveryDate.ButtonsDatesLoaderFunc =
 				() => Entity.SelfDelivery
-				? new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1)}
+				? new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1) }
 				: Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
 		}
 

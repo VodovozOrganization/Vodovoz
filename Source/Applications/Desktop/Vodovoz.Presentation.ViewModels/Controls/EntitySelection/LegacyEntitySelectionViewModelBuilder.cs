@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 
 namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
-	public class LegacyEntitySelectionViewModelBuilder<TEntity>
+	public partial class LegacyEntitySelectionViewModelBuilder<TEntity>
 		where TEntity : class, IDomainObject
 	{
 		#region Обазательные параметры
@@ -185,33 +185,5 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			return new EntitySelectionViewModel<TEntity>(PropertyBinder, selectionDialogSelector, EntityJournalSelector, entityAdapter);
 		}
 		#endregion
-
-		public class LegacyESVMBuilderParameters : ILegacyESVMBuilderParameters
-		{
-			public LegacyESVMBuilderParameters(
-				Func<ITdiTab> dialogTabFunc,
-				IUnitOfWork unitOfWork,
-				INavigationManager navigationManager,
-				ILifetimeScope autofacScope)
-			{
-				DialogTabFunc = dialogTabFunc ?? throw new ArgumentNullException(nameof(dialogTabFunc));
-				UnitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-				NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-				AutofacScope = autofacScope ?? throw new ArgumentNullException(nameof(autofacScope));
-			}
-
-			public Func<ITdiTab> DialogTabFunc { get; }
-			public IUnitOfWork UnitOfWork { get; }
-			public INavigationManager NavigationManager { get; }
-			public ILifetimeScope AutofacScope { get; }
-		}
-	}
-
-	public interface ILegacyESVMBuilderParameters
-	{
-		Func<ITdiTab> DialogTabFunc { get; }
-		IUnitOfWork UnitOfWork { get; }
-		INavigationManager NavigationManager { get; }
-		ILifetimeScope AutofacScope { get; }
 	}
 }

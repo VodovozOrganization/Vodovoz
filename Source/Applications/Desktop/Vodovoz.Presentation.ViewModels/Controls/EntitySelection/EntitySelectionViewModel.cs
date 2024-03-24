@@ -113,6 +113,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				}
 			}
 		}
+
 		public IEntityDialogSelectionAutocompleteSelector<TEntity> DialogSelectionAndAutocompleteSelector
 		{
 			get => _dialogSelectionAndAutocompleteSelector;
