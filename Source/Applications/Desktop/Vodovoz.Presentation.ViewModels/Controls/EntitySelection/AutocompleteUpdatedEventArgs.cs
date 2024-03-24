@@ -9,7 +9,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		public AutocompleteUpdatedEventArgs(IList list)
 		{
-			this.List = list ?? throw new ArgumentNullException(nameof(list));
+			List = list ?? throw new ArgumentNullException(nameof(list));
 		}
 	}
 }
