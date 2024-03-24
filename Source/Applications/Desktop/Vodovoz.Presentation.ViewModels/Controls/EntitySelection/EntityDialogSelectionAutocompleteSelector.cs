@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Services.FileDialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +15,8 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		private readonly IUnitOfWork _uow;
 		private readonly Func<IList<int>> _entityIdRestrictionFunc;
 		private readonly Func<string, Expression<Func<TEntity, bool>>> _entityTitleComparerFunc;
+		private readonly Func<IEnumerable<TEntity>, IEnumerable<TEntity>> _resultCollectionProcessingFunc;
 		private readonly Func<SelectionDialogSettings> _dialogSettingsFunc;
-
 		private EntityButtonsSelectionViewModel _selectionDialog;
 
 		public EntityDialogSelectionAutocompleteSelector(
@@ -25,12 +24,14 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			IUnitOfWork uow,
 			Func<IList<int>> entityIdRestrictionFunc = null,
 			Func<string, Expression<Func<TEntity, bool>>> entityTitleComparerFunc = null,
+			Func<IEnumerable<TEntity>, IEnumerable<TEntity>> resultCollectionProcessingFunc = null,
 			Func<SelectionDialogSettings> dialogSettingsFunc = null)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_entityIdRestrictionFunc = entityIdRestrictionFunc;
 			_entityTitleComparerFunc = entityTitleComparerFunc;
+			_resultCollectionProcessingFunc = resultCollectionProcessingFunc;
 			_dialogSettingsFunc = dialogSettingsFunc;
 		}
 
@@ -85,7 +86,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			return GetQuery().Cast<object>().ToList();
 		}
 
-		private IQueryable<TEntity> GetQuery(string[] searchText = null, int? entitiesMaxCount = null)
+		private IEnumerable<TEntity> GetQuery(string[] searchText = null, int? entitiesMaxCount = null)
 		{
 			var query = _uow.Session.Query<TEntity>();
 
@@ -107,7 +108,12 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 				query = query.Take(entitiesMaxCount.Value);
 			}
 
-			return query;
+			if(_resultCollectionProcessingFunc != null)
+			{
+				return _resultCollectionProcessingFunc.Invoke(query.ToList());
+			}
+
+			return query.ToList();
 		}
 	}
 }

@@ -5161,6 +5161,7 @@ namespace Vodovoz
 				.UseSelectionDialogAndAutocompleteSelector(
 					() => Entity.GetAvailableDeliveryScheduleIds(),
 					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
+					(entity) => entity.OrderBy(e => e.Name.Length).ThenBy(e => e.Name),
 					() => GetSelectionDialogSettings())
 				.Finish();
 
