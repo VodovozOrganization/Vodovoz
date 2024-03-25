@@ -1,28 +1,32 @@
-﻿using FirebaseCloudMessaging.Client.Options;
+﻿using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using FirebaseCloudMessaging.Client.Options;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 using Vodovoz.Application.FirebaseCloudMessaging;
-using GoogleClientInitializer = Google.Apis.Services.BaseClientService.Initializer;
-using GoogleFirebaseCloudMessagingService = Google.Apis.FirebaseCloudMessaging.v1.FirebaseCloudMessagingService;
 
 namespace Vodovoz.FirebaseCloudMessaging
 {
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddFirebaseCloudMessaging(this IServiceCollection services, IConfiguration configuration)
-			=> services.AddScoped<IFirebaseCloudMessagingService, FirebaseCloudMessagingService>()
-				.AddScoped<GoogleClientInitializer>(serviceProvider =>
+			=> services.AddScoped<FirebaseApp>(serviceProvider =>
 				{
 					var options = serviceProvider.GetRequiredService<IOptions<FirebaseCloudMessagingSettings>>();
-					return new GoogleClientInitializer
+
+					var credentialsJson = JsonSerializer.Serialize(options.Value);
+
+					return FirebaseApp.Create(new AppOptions
 					{
-						ApplicationName = "Vodovoz Firebase Cloud Messaging Service Client",
-						ApiKey = options.Value.ApiKey,
-					};
+						ProjectId = options.Value.ProjectId,
+						Credential = GoogleCredential.FromFile("firebase.key.json")
+					});
 				})
-				.AddScoped<GoogleFirebaseCloudMessagingService>(serviceProvider =>
-					new GoogleFirebaseCloudMessagingService(serviceProvider.GetRequiredService<GoogleClientInitializer>()))
+				.AddScoped<IFirebaseCloudMessagingService, FirebaseCloudMessagingService>()
+				.AddScoped<FirebaseMessaging>(sp => FirebaseMessaging.DefaultInstance)
 				.Configure<FirebaseCloudMessagingSettings>(firebaseSettings =>
 					configuration.GetSection(nameof(FirebaseCloudMessagingSettings)).Bind(firebaseSettings));
 	}

@@ -6,13 +6,8 @@
 	public class FirebaseCloudMessagingSettings
 	{
 		/// <summary>
-		/// Идентификатор приложения
+		/// Идентификатор проекта, должен совпадать с идентификатором в ключе
 		/// </summary>
 		public string ProjectId { get; set; }
-
-		/// <summary>
-		/// Access token
-		/// </summary>
-		public string ApiKey { get; set; }
 	}
 }

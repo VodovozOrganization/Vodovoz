@@ -1,33 +1,26 @@
-﻿using FirebaseCloudMessaging.Client.Options;
-using Google.Apis.FirebaseCloudMessaging.v1.Data;
+﻿using FirebaseAdmin.Messaging;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Errors;
-using GoogleFirebaseCloudMessagingService = Google.Apis.FirebaseCloudMessaging.v1.FirebaseCloudMessagingService;
 
 namespace Vodovoz.FirebaseCloudMessaging
 {
 	public class FirebaseCloudMessagingService : IFirebaseCloudMessagingService
 	{
 		private readonly ILogger<FirebaseCloudMessagingService> _logger;
-		private readonly IOptions<FirebaseCloudMessagingSettings> _options;
-		private readonly GoogleFirebaseCloudMessagingService _cloudMessagingService;
+		private readonly FirebaseMessaging _firebaseMessaging;
 
 		public FirebaseCloudMessagingService(
 			ILogger<FirebaseCloudMessagingService> logger,
-			IOptions<FirebaseCloudMessagingSettings> options,
-			GoogleFirebaseCloudMessagingService cloudMessagingService)
+			FirebaseMessaging firebaseMessaging)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_options = options
-				?? throw new ArgumentNullException(nameof(options));
-			_cloudMessagingService = cloudMessagingService
-				?? throw new ArgumentNullException(nameof(cloudMessagingService));
+			_firebaseMessaging = firebaseMessaging
+				?? throw new ArgumentNullException(nameof(firebaseMessaging));
 		}
 
 		public async Task<Result> SendFastDeliveryAddressCanceledMessage(string recipientToken, int orderId)
@@ -42,23 +35,21 @@ namespace Vodovoz.FirebaseCloudMessaging
 		{
 			try
 			{
-				var result = await _cloudMessagingService.Projects.Messages.Send(new SendMessageRequest
+				var message = new Message
 				{
-					Message = new Message
+					Token = recipientToken,
+					Notification = new Notification
 					{
-						Token = recipientToken,
-						Notification = new Notification
-						{
-							Title = title,
-							Body = body
-						}
+						Title = title,
+						Body = body
 					}
-				}, _options.Value.ProjectId).ExecuteAsync();
+				};
 
+				var messageId = await _firebaseMessaging.SendAsync(message);
 
-				if(!string.IsNullOrWhiteSpace(result.Name))
+				if(!string.IsNullOrWhiteSpace(messageId))
 				{
-					_logger.LogInformation("Сообщение отправлено успешно: {FirebaseCloudMessageName}", result.Name);
+					_logger.LogInformation("Сообщение отправлено успешно: {FirebaseCloudMessageId}", messageId);
 				}
 
 				return Result.Success();
@@ -74,28 +65,27 @@ namespace Vodovoz.FirebaseCloudMessaging
 		{
 			try
 			{
-				var result = await _cloudMessagingService.Projects.Messages.Send(new SendMessageRequest
+				var message = new Message
 				{
-					Message = new Message
+					Token = recipientToken,
+					Android = new AndroidConfig
 					{
-						Token = recipientToken,
-						Android = new AndroidConfig
+						Priority = Priority.High,
+					},
+					Apns = new ApnsConfig
+					{
+						CustomData = new Dictionary<string, object>
 						{
-							Priority = "high",
-						},
-						Apns = new ApnsConfig
-						{
-							Payload = new Dictionary<string, object>
-							{
-								{ "content-available", 1 }
-							}
-						},
-					}
-				}, _options.Value.ProjectId).ExecuteAsync();
+							{ "content-available", 1 }
+						}
+					},
+				};
 
-				if(!string.IsNullOrWhiteSpace(result.Name))
+				var messageId = await _firebaseMessaging.SendAsync(message);
+
+				if(!string.IsNullOrWhiteSpace(messageId))
 				{
-					_logger.LogInformation("Сообщение отправлено успешно: {FirebaseCloudMessageName}", result.Name);
+					_logger.LogInformation("Сообщение отправлено успешно: {FirebaseCloudMessageId}", messageId);
 				}
 
 				return Result.Success();
