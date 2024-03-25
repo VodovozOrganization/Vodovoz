@@ -1,7 +1,6 @@
 ﻿using FirebaseAdmin.Messaging;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Errors;
@@ -74,9 +73,9 @@ namespace Vodovoz.FirebaseCloudMessaging
 					},
 					Apns = new ApnsConfig
 					{
-						CustomData = new Dictionary<string, object>
+						Aps = new Aps
 						{
-							{ "content-available", 1 }
+							ContentAvailable = true,
 						}
 					},
 				};
