@@ -125,9 +125,13 @@
     <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\CarManufacturerJournalFactory.cs" />
+    <Compile Include="Factories\IUndeliveredOrderViewModelFactory.cs" />
+    <Compile Include="Factories\IUndeliveryDiscussionsViewModelFactory.cs" />
     <Compile Include="Factories\LeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Factories\UndeliveryDiscussionsViewModelFactory.cs" />
+    <Compile Include="Factories\UndeliveredOrderViewModelFactory.cs" />
     <Compile Include="FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
     <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
@@ -536,6 +540,9 @@
     <Compile Include="Dialogs\Mango\SubscriberSelectionViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\InternalTalkViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDiscussionsViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDiscussionViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryObjectViewModel.cs" />
