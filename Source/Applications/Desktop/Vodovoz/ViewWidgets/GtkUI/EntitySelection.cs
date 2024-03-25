@@ -158,7 +158,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 		{
 			Gtk.Application.Invoke((s, arg) =>
 			{
-				FillAutocomplete(e.List);
+				FillAutocomplete(e.AutocompleteItems);
 			});
 		}
 

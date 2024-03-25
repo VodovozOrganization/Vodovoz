@@ -5,11 +5,11 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
 	public class AutocompleteUpdatedEventArgs : EventArgs
 	{
-		public IList List;
-
-		public AutocompleteUpdatedEventArgs(IList list)
+		public AutocompleteUpdatedEventArgs(IList autocompleteItems)
 		{
-			List = list ?? throw new ArgumentNullException(nameof(list));
+			AutocompleteItems = autocompleteItems ?? throw new ArgumentNullException(nameof(autocompleteItems));
 		}
+
+		public IList AutocompleteItems { get; set; }
 	}
 }
