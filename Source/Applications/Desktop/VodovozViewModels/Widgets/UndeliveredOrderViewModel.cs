@@ -472,7 +472,7 @@ namespace Vodovoz.ViewModels.Widgets
 					Entity.AddAutoCommentByChangeStatus();
 				}
 
-				if(_isDepartmentChanged) 
+				if(_isDepartmentChanged && _initialProcDepartmentName != Entity.InProcessAtDepartment?.Name) 
 				{
 					Entity.AddAutoCommentToOkkDiscussion(UoW, $"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\"");
 				}
