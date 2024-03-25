@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V4;
+﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.V4.Models;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -51,7 +51,6 @@ namespace DriverAPI.Controllers.V4
 			IEmployeeModel employeeData,
 			IWakeUpDriverClientService wakeUpDriverClientService,
 			IFirebaseCloudMessagingService firebaseCloudMessagingService,
-			IWakeUpDriverClientService wakeUpDriverClientService,
 			IGenericRepository<CashRequest> cashRequestRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
