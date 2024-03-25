@@ -118,6 +118,8 @@ namespace PushNotificationsWorker
 
 					unitOfWork.Session.Flush();
 
+					unitOfWork.Commit();
+
 					await Task.Delay(_interval, stoppingToken);
 				}
 				catch(Exception ex)
