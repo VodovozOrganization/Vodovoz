@@ -116,8 +116,6 @@ namespace PushNotificationsWorker
 						unitOfWork.Session.Save(newChange);
 					}
 
-					unitOfWork.Session.Flush();
-
 					unitOfWork.Commit();
 
 					await Task.Delay(_interval, stoppingToken);
