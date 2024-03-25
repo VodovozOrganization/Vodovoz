@@ -64,7 +64,15 @@ namespace Vodovoz.Logistic
 		{
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 
+			ybuttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
+
+			ybuttonCancel.Binding
+				.AddBinding(ViewModel, vm => vm.IsCanClose, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entityentryCar.ViewModel = ViewModel.CarViewModel;
 			entityentryCar.Binding
@@ -124,6 +132,10 @@ namespace Vodovoz.Logistic
 
 			ybuttonCallMaden.BindCommand(ViewModel.CallMadenCommand);
 
+			ybuttonCallMaden.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ylabelBottleInfo.UseMarkup = true;
 
 			ylabelBottleInfo.Binding
@@ -132,15 +144,39 @@ namespace Vodovoz.Logistic
 
 			ybuttonSetStatusComplete.BindCommand(ViewModel.SetStatusCompleteCommand);
 
+			ybuttonSetStatusComplete.Binding
+				.AddBinding(ViewModel, vm => vm.CanComplete, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonChangeDeliveryTime.BindCommand(ViewModel.ChangeDeliveryTimeCommand);
+
+			ybuttonChangeDeliveryTime.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryTime, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybuttonSetStatusEnRoute.BindCommand(ViewModel.ReturnToEnRouteStatus);
 
+			ybuttonSetStatusEnRoute.Binding
+				.AddBinding(ViewModel, vm => vm.CanReturnRouteListToEnRouteStatus, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonSetStatusDelivered.BindCommand(ViewModel.ReDeliverCommand);
+
+			ybuttonSetStatusDelivered.Binding
+				.AddBinding(ViewModel.Entity, e => e.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybuttonCreateFine.BindCommand(ViewModel.CreateFineCommand);
 
+			ybuttonCreateFine.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
+
+			ybuttonRefresh.Binding
+				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
+				.InitializeFromSource();
 
 			InitilizeItemsRowsIcons();
 

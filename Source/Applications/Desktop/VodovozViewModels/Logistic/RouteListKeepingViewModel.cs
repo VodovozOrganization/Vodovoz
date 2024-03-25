@@ -120,7 +120,6 @@ namespace Vodovoz
 
 			UpdateNodes();
 
-
 			SetPropertyChangeRelation(rl => rl.Status,
 				() => CanReturnRouteListToEnRouteStatus,
 				() => CanSave,
