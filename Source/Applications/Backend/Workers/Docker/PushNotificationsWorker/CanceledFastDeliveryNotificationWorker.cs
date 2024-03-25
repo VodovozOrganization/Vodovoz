@@ -1,4 +1,4 @@
-﻿using FirebaseCloudMessaging.Client;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,15 +19,13 @@ namespace PushNotificationsWorker
 	internal sealed class CanceledFastDeliveryNotificationWorker : BackgroundService
 	{
 		private readonly ILogger<CanceledFastDeliveryNotificationWorker> _logger;
-		private readonly IFirebaseCloudMessagingService _firebaseService;
-		private readonly IUnitOfWork _unitOfWork;
+		private readonly IServiceProvider _serviceProvider;
 		private readonly TimeSpan _interval;
 
 		public CanceledFastDeliveryNotificationWorker(
 			ILogger<CanceledFastDeliveryNotificationWorker> logger,
 			IOptions<CanceledFastDeliveryNotificationWorkerSettings> settings,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IFirebaseCloudMessagingService firebaseService)
+			IServiceProvider serviceProvider)
 		{
 			if(settings is null)
 			{
@@ -36,15 +34,8 @@ namespace PushNotificationsWorker
 
 			_interval = settings.Value.Interval;
 
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_firebaseService = firebaseService ?? throw new ArgumentNullException(nameof(firebaseService));
-
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Сервис PUSH сообщений");
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -56,18 +47,25 @@ namespace PushNotificationsWorker
 			{
 				try
 				{
+					using var scope = _serviceProvider.CreateScope();
+
+					var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
+					var firebaseService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
+
+					var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Сервис PUSH сообщений");
+
 					var today = DateTime.Today;
 
 					var routeListsCanceled =
-						from routeListAddress in _unitOfWork.Session.Query<RouteListItem>()
-						join order in _unitOfWork.Session.Query<Order>()
+						from routeListAddress in unitOfWork.Session.Query<RouteListItem>()
+						join order in unitOfWork.Session.Query<Order>()
 						on routeListAddress.Order.Id equals order.Id
-						join routeList in _unitOfWork.Session.Query<RouteList>()
+						join routeList in unitOfWork.Session.Query<RouteList>()
 						on routeListAddress.RouteList.Id equals routeList.Id
-						join driver in _unitOfWork.Session.Query<Employee>()
+						join driver in unitOfWork.Session.Query<Employee>()
 						on routeList.Driver.Id equals driver.Id
 						let notNotified = (
-							from change in _unitOfWork.Session.Query<FastDeliveryChange>()
+							from change in unitOfWork.Session.Query<FastDeliveryChange>()
 							where change.RouteList.Id == routeListAddress.RouteList.Id
 							&& change.ChangeType == FastDeliveryChange.ChangeTypeEnum.Canceled
 							select change.Id
@@ -102,7 +100,7 @@ namespace PushNotificationsWorker
 
 						if(userApp != null && !string.IsNullOrWhiteSpace(userApp.Token))
 						{
-							await _firebaseService.SendFastDeliveryAddressCanceledMessage(
+							await firebaseService.SendFastDeliveryAddressCanceledMessage(
 								userApp.Token,
 								routeListAddress.Order.Id);
 						}
@@ -115,10 +113,10 @@ namespace PushNotificationsWorker
 							CreatedAt = DateTime.Now
 						};
 
-						_unitOfWork.Session.Save(newChange);
+						unitOfWork.Session.Save(newChange);
 					}
 
-					_unitOfWork.Session.Flush();
+					unitOfWork.Session.Flush();
 
 					await Task.Delay(_interval, stoppingToken);
 				}

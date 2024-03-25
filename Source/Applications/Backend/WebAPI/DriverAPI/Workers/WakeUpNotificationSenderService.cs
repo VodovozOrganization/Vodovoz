@@ -42,7 +42,7 @@ namespace DriverAPI.Workers
 		{
 			try
 			{
-				using var scope = _serviceProvider.CreateAsyncScope();
+				using var scope = _serviceProvider.CreateScope();
 
 				var firebaseCloudMessagingService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
 
