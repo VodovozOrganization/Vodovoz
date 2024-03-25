@@ -450,7 +450,10 @@ namespace Vodovoz.Representations
 					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
 				}
 
-				ordersQuery.Where(() => counterpartyAlias.ExcludeFromAutoCalls == FilterViewModel.ExcludeFromAutoCalls);
+				if(FilterViewModel.HideExcludeFromAutoCalls)
+				{
+					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
+				}
 			}
 
 			#endregion Filter
@@ -763,7 +766,10 @@ namespace Vodovoz.Representations
 					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
 				}
 
-				ordersQuery.Where(() => counterpartyAlias.ExcludeFromAutoCalls == FilterViewModel.ExcludeFromAutoCalls);
+				if(FilterViewModel.HideExcludeFromAutoCalls)
+				{
+					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
+				}
 			}
 
 			#endregion Filter

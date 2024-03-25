@@ -707,9 +707,9 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active)
 				.InitializeFromSource();
 
-			//ycheckExcludeFromAutoCalls.Binding
-			//	.AddBinding(Entity, e => e.ExcludeFromAutoCalls, w => w.Active)
-			//	.InitializeFromSource();
+			ycheckExcludeFromAutoCalls.Binding
+				.AddBinding(Entity, e => e.ExcludeFromAutoCalls, w => w.Active)
+				.InitializeFromSource();
 
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)

@@ -942,6 +942,9 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _roboatsExclude, value);
 		}
 
+		/// <summary>
+		/// Отказ от автообзвона
+		/// </summary>
 		[Display(Name = "Отказ от автообзвонов")]
 		public virtual bool ExcludeFromAutoCalls
 		{
