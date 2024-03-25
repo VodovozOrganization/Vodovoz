@@ -52,7 +52,7 @@ namespace PushNotificationsWorker
 					var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 					var firebaseService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
 
-					var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Сервис PUSH сообщений");
+					using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Сервис PUSH сообщений");
 
 					var today = DateTime.Today;
 
