@@ -1,10 +1,10 @@
-﻿using DriverAPI.Library.Helpers;
-using DriverAPI.Services;
+﻿using DriverAPI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure;
 
 namespace DriverAPI.Workers
@@ -12,18 +12,23 @@ namespace DriverAPI.Workers
 	internal class WakeUpNotificationSenderService : TimerBackgroundServiceBase
 	{
 		protected readonly ILogger<WakeUpNotificationSenderService> _logger;
-		private readonly IFCMAPIHelper _fCMAPIHelper;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
+		private readonly IFirebaseCloudMessagingService _firebaseCloudMessagingService;
 
 		public WakeUpNotificationSenderService(
 			ILogger<WakeUpNotificationSenderService> logger,
 			IConfiguration configuration,
-			IFCMAPIHelper fCMAPIHelper,
-			IWakeUpDriverClientService wakeUpDriverClientService)
+			IWakeUpDriverClientService wakeUpDriverClientService,
+			IFirebaseCloudMessagingService firebaseCloudMessagingService)
 		{
-			_logger = logger;
-			_fCMAPIHelper = fCMAPIHelper;
-			_wakeUpDriverClientService = wakeUpDriverClientService;
+			if(configuration is null)
+			{
+				throw new ArgumentNullException(nameof(configuration));
+			}
+
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_wakeUpDriverClientService = wakeUpDriverClientService ?? throw new ArgumentNullException(nameof(wakeUpDriverClientService));
+			_firebaseCloudMessagingService = firebaseCloudMessagingService ?? throw new ArgumentNullException(nameof(firebaseCloudMessagingService));
 			var interval = configuration.GetValue("WakeUpCoordinatesNotificationInterval", 30);
 			Interval = TimeSpan.FromSeconds(interval);
 
@@ -45,9 +50,9 @@ namespace DriverAPI.Workers
 					try
 					{
 						_logger.LogInformation("Попытка отправки WakeUp-сообщения для водителя {DriverId} с токеном {FirebaseToken}", clientId, clientToken);
-						await _fCMAPIHelper.SendWakeUpNotification(clientToken);
+						await _firebaseCloudMessagingService.SendWakeUpMessage(clientToken);
 					}
-					catch(FCMException e)
+					catch(Exception e)
 					{
 						_logger.LogError(e, "Ошибка отправки WakeUp-сообщения, пропуск цикла {StopExecutedAt}", DateTime.Now);
 						break;
