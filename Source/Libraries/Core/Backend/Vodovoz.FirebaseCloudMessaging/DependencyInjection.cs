@@ -15,19 +15,19 @@ namespace Vodovoz.FirebaseCloudMessaging
 		public static IServiceCollection AddFirebaseCloudMessaging(this IServiceCollection services, IConfiguration configuration)
 			=> services.AddScoped<FirebaseApp>(serviceProvider =>
 				{
-					var options = serviceProvider.GetRequiredService<IOptions<FirebaseCloudMessagingSettings>>();
+					var options = serviceProvider.GetRequiredService<IOptions<FirebaseCloudMessagingKeySettings>>();
 
-					var credentialsJson = JsonSerializer.Serialize(options.Value);
+					var t = JsonSerializer.Serialize(options.Value);
 
 					return FirebaseApp.Create(new AppOptions
 					{
-						ProjectId = options.Value.ProjectId,
-						Credential = GoogleCredential.FromFile("firebase.key.json")
+						ProjectId = options.Value.project_id,
+						Credential = GoogleCredential.FromJson(JsonSerializer.Serialize(options.Value))
 					});
 				})
 				.AddScoped<IFirebaseCloudMessagingService, FirebaseCloudMessagingService>()
 				.AddScoped<FirebaseMessaging>(sp => FirebaseMessaging.DefaultInstance)
-				.Configure<FirebaseCloudMessagingSettings>(firebaseSettings =>
-					configuration.GetSection(nameof(FirebaseCloudMessagingSettings)).Bind(firebaseSettings));
+				.Configure<FirebaseCloudMessagingKeySettings>(firebaseSettings =>
+					configuration.GetSection(nameof(FirebaseCloudMessagingKeySettings)).Bind(firebaseSettings));
 	}
 }
