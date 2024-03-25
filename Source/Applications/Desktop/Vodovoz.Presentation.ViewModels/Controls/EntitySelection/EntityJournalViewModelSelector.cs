@@ -42,22 +42,32 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 			if(ParentViewModel != null)
 			{
-				page = NavigationManager.OpenViewModel<TJournalViewModel>(ParentViewModel, OpenPageOptions.AsSlave);
+				page = NavigationManager.OpenViewModel<TJournalViewModel>(
+					ParentViewModel,
+					OpenPageOptions.AsSlave,
+					GetJournalViewModelConfiguration(dialogTitle));
 			}
 			else
 			{
-				page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel>(GetParentTab(), OpenPageOptions.AsSlave);
+				page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel>(
+					GetParentTab(),
+					OpenPageOptions.AsSlave,
+					GetJournalViewModelConfiguration(dialogTitle));
 			}
+		}
 
-			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-
-			if(!string.IsNullOrEmpty(dialogTitle))
+		protected Action<TJournalViewModel> GetJournalViewModelConfiguration(string dialogTitle)
+		{
+			return viewModel =>
 			{
-				page.ViewModel.TabName = dialogTitle;
-			}
-
-			page.ViewModel.OnSelectResult -= ViewModel_OnSelectResult;
-			page.ViewModel.OnSelectResult += ViewModel_OnSelectResult;
+				if(!string.IsNullOrEmpty(dialogTitle))
+				{
+					viewModel.TabName = dialogTitle;
+				}
+				viewModel.SelectionMode = JournalSelectionMode.Single;
+				viewModel.OnSelectResult -= ViewModel_OnSelectResult;
+				viewModel.OnSelectResult += ViewModel_OnSelectResult;
+			};
 		}
 
 		protected void ViewModel_OnSelectResult(object sender, JournalSelectedEventArgs e)
@@ -125,22 +135,36 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			{
 				if(_filter != null)
 				{
-					page = NavigationManager.OpenViewModel<TJournalViewModel, TJournalFilterViewModel>(ParentViewModel, _filter, OpenPageOptions.AsSlave);
+					page = NavigationManager.OpenViewModel<TJournalViewModel, TJournalFilterViewModel>(
+						ParentViewModel,
+						_filter,
+						OpenPageOptions.AsSlave,
+						GetJournalViewModelConfiguration(dialogTitle));
 				}
 				else
 				{
-					page = NavigationManager.OpenViewModel<TJournalViewModel>(ParentViewModel, OpenPageOptions.AsSlave);
+					page = NavigationManager.OpenViewModel<TJournalViewModel>(
+						ParentViewModel,
+						OpenPageOptions.AsSlave,
+						GetJournalViewModelConfiguration(dialogTitle));
 				}
 			}
 			else
 			{
 				if(_filter != null)
 				{
-					page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel, TJournalFilterViewModel>(GetParentTab(), _filter, OpenPageOptions.AsSlave);
+					page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel, TJournalFilterViewModel>(
+						GetParentTab(),
+						_filter,
+						OpenPageOptions.AsSlave,
+						GetJournalViewModelConfiguration(dialogTitle));
 				}
 				else
 				{
-					page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel>(GetParentTab(), OpenPageOptions.AsSlave);
+					page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<TJournalViewModel>(
+						GetParentTab(),
+						OpenPageOptions.AsSlave,
+						GetJournalViewModelConfiguration(dialogTitle));
 				}
 			}
 
@@ -158,17 +182,6 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 					throw new InvalidCastException($"Для установки параметров, фильтр {page.ViewModel.JournalFilter.GetType()} должен является типом {typeof(IJournalFilterViewModel)}");
 				}
 			}
-
-			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-
-			if(!string.IsNullOrEmpty(dialogTitle))
-			{
-				page.ViewModel.TabName = dialogTitle;
-			}
-
-			//Сначала на всякий случай отписываемся от события, вдруг это повторное открытие
-			page.ViewModel.OnSelectResult -= ViewModel_OnSelectResult;
-			page.ViewModel.OnSelectResult += ViewModel_OnSelectResult;
 		}
 	}
 }
