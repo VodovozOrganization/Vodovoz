@@ -39,6 +39,8 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
+		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
+
 		private readonly IDebtorsSettings _debtorsParameters;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IEmailSettings _emailSettings;
@@ -291,15 +293,13 @@ namespace Vodovoz.Representations
 				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQuery)
 				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
 
-			OrderStatus[] statusOptions = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
-
 			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
 				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
 				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
 				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
 				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
 				.Where(
-					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
+					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), _notDeliveredStatuses)))
 				.Select(Projections.GroupProperty(
 					Projections.Property<Order>(o => o.Client.Id)));
 
@@ -313,8 +313,6 @@ namespace Vodovoz.Representations
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
-
-			ordersQuery.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			#region Filter
 
@@ -466,6 +464,7 @@ namespace Vodovoz.Representations
 
 			var resultQuery = ordersQuery
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
 				.SelectList(list => list
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
@@ -526,15 +525,13 @@ namespace Vodovoz.Representations
 						Projections.Sum(() => bottlesMovementAlias.Returned),
 						Projections.Sum(() => bottlesMovementAlias.Delivered)}));
 
-			OrderStatus[] statusOptions = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
-
 			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
 				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
 				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
 				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
 				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
 				.Where(
-					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
+					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), _notDeliveredStatuses)))
 				.Select(Projections.GroupProperty(
 					Projections.Property<Order>(o => o.Client.Id)));
 
@@ -788,7 +785,7 @@ namespace Vodovoz.Representations
 					(FilterViewModel != null && FilterViewModel.HideWithoutFixedPrices)
 						? NHibernate.SqlCommand.JoinType.InnerJoin
 						: NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Inner.JoinAlias(c => c.Client, () => counterpartyAlias)
+				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
 				.Select(sumProj).UnderlyingCriteria.SetTimeout(300).UniqueResult<int>();
 
