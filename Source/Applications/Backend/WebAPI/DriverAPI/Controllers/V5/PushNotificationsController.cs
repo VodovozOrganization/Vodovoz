@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V5.Requests;
+﻿using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -248,7 +248,7 @@ namespace DriverAPI.Controllers.V5
 
 				try
 				{
-					await _iFCMAPIHelper.SendPushNotification(
+					await _firebaseCloudMessagingService.SendMessage(
 						firebaseToken,
 						"Веселый водовоз",
 						"Вам начислена премия, просьба пройти в кассу для ее получения");
