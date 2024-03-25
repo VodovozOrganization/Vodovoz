@@ -8,7 +8,7 @@ namespace Vodovoz.NotificationRecievers
 		public string NotifyOfSmsPaymentStatusChangedURI { get; set; }
 		public string NotifyOfFastDeliveryOrderAddedURI { get; set; }
 		public string NotifyOfWaitingTimeChangedURI { get; set; }
+		public string NotifyOfOrderWithGoodsTransferingIsTransferedUri { get; set; }
 		public string NotifyOfCashRequestForDriverIsGivenForTakeUri { get; set; }
-		public string NotifyOfOrderWithGoodsTransferingIsTransferedUri { get; internal set; }
 	}
 }
