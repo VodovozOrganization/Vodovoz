@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5.Requests;
+using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -195,6 +195,22 @@ namespace DriverAPI.Controllers.V5
 				_logger.LogInformation("Отправка PUSH-сообщения об изменении времени ожидания заказа ({OrderId})", orderId);
 				await _firebaseCloudMessagingService.SendMessage(token, "Уведомление об изменении времени ожидания заказа", $"Время ожидания заказа {orderId} изменено");
 			}
+
+			return NoContent();
+		}
+
+		/// <summary>
+		/// Оповещение о переносе адреса МЛ с передачей товаров по номеру заказа
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns></returns>
+		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		{
+			var targetDriverFirebaseToken =
+				_routeListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+
+			var sourceDriverFirebaseToken =
+				_routeListService.GetPreActualDriverPushNotificationsTokenByOrderId(orderId);
 
 			return NoContent();
 		}
