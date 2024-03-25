@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
@@ -53,6 +54,7 @@ namespace Vodovoz.Application.Logistics
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
+		private readonly IRouteListTransferhandByHandReciever _routeListTransferhandByHandReciever;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -74,7 +76,8 @@ namespace Vodovoz.Application.Logistics
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
-			RouteGeometryCalculator routeGeometryCalculator)
+			RouteGeometryCalculator routeGeometryCalculator,
+			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -114,6 +117,8 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeGeometryCalculator = routeGeometryCalculator
 				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
+			_routeListTransferhandByHandReciever = routeListTransferhandByHandReciever
+				?? throw new ArgumentNullException(nameof(routeListTransferhandByHandReciever));
 			_productGroupRepository = productGroupRepository
 				?? throw new ArgumentNullException(nameof(productGroupRepository));
 		}
@@ -768,6 +773,11 @@ namespace Vodovoz.Application.Logistics
 
 			unitOfWork.Save(sourceRouteList);
 			unitOfWork.Save(targetRouteList);
+
+			if(addressTransferType == AddressTransferType.FromHandToHand)
+			{
+				_routeListTransferhandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(address.Order.Id).GetAwaiter().GetResult();
+			}
 
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}

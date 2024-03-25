@@ -204,6 +204,11 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns></returns>
+		[HttpPost]
+		[AllowAnonymous]
+		[ApiExplorerSettings(IgnoreApi = true)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
 		{
 			var targetDriverFirebaseToken =
@@ -211,6 +216,9 @@ namespace DriverAPI.Controllers.V5
 
 			var sourceDriverFirebaseToken =
 				_routeListService.GetPreActualDriverPushNotificationsTokenByOrderId(orderId);
+
+			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+			await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
 
 			return NoContent();
 		}
