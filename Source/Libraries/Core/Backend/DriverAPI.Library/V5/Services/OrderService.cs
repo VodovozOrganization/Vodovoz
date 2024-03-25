@@ -747,5 +747,15 @@ namespace DriverAPI.Library.V5.Services
 		{
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
+
+		public Result GetTransferingOrder(int orderId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Result GetRecievingOrder(int orderId)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
