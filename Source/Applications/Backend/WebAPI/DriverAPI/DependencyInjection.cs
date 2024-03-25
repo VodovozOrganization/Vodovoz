@@ -32,9 +32,6 @@ namespace DriverAPI
 				// Сервисы
 				.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>()
 
-				// Workers
-				.AddHostedService<WakeUpNotificationSenderService>()
-
 				// Репозитории водовоза
 				.AddScoped<ITrackRepository, TrackRepository>()
 				.AddScoped<IComplaintsRepository, ComplaintsRepository>()
@@ -52,6 +49,9 @@ namespace DriverAPI
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddScoped<ICallTaskRepository, CallTaskRepository>();
+				.AddScoped<ICallTaskRepository, CallTaskRepository>()
+
+				// Workers
+				.AddHostedService<WakeUpNotificationSenderService>();
 	}
 }
