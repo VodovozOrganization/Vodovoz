@@ -139,11 +139,17 @@ namespace Vodovoz.Dialogs
 
 			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
 
-			if(!CanCreateUndelivery() && !forceSave)
+			if(forceSave)
+			{
+				UoW.Save(undelivery);
+			}
+
+			if(!CanCreateUndelivery())
 			{
 				OnCloseTab(false);
 				return false;
 			}
+
 			UoW.Save(undelivery);
 			
 			if(needClose)
