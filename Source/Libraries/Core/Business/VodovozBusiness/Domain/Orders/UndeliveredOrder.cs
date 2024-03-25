@@ -358,7 +358,8 @@ namespace Vodovoz.Domain.Orders
 			{
 				Comment = text,
 				Author = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
-				UndeliveryDiscussion = okkDiscussion
+				UndeliveryDiscussion = okkDiscussion,
+				CreationTime = DateTime.Now
 			};
 
 			okkDiscussion.ObservableComments.Add(comment);

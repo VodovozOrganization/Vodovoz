@@ -59,6 +59,7 @@ namespace Vodovoz.ViewModels.Widgets
 		private ITdiTab _newOrderDlg;
 		private UndeliveryObject _undeliveryObject;
 		private bool _isUndeliveryStatusChanged;
+		private bool _isDepartmentChanged;
 
 		public UndeliveredOrderViewModel(
 			UndeliveredOrder entity,
@@ -427,7 +428,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
-		public Func<bool> IsSaved;
+		public Func<bool> IsSaved;		
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -444,10 +445,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand AddCommentToTheFieldCommand => _addCommentToTheFieldCommand ?? (_addCommentToTheFieldCommand = new DelegateCommand(
 			() =>
 			{
-				Entity.AddAutoCommentToOkkDiscussion(
-					UoW,
-					$"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\""
-				);
+				_isDepartmentChanged = true;
 			}));
 
 		public DelegateCommand AddResultCommand => _addResultCommand ?? (_addResultCommand = new DelegateCommand(
@@ -473,6 +471,12 @@ namespace Vodovoz.ViewModels.Widgets
 				{
 					Entity.AddAutoCommentByChangeStatus();
 				}
+
+				if(_isDepartmentChanged) 
+				{
+					Entity.AddAutoCommentToOkkDiscussion(UoW, $"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\"");
+				}
+
 				AddAutocomment();
 				Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				Entity.LastEditedTime = DateTime.Now;
