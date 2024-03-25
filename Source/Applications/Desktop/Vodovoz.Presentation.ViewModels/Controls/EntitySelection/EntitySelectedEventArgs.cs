@@ -4,11 +4,11 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 {
 	public class EntitySelectedEventArgs : EventArgs
 	{
-		public object Entity;
-
-		public EntitySelectedEventArgs(object entity)
+		public EntitySelectedEventArgs(object selectedObject)
 		{
-			Entity = entity ?? throw new ArgumentNullException(nameof(entity));
+			SelectedObject = selectedObject ?? throw new ArgumentNullException(nameof(selectedObject));
 		}
+
+		public object SelectedObject { get; set; }
 	}
 }

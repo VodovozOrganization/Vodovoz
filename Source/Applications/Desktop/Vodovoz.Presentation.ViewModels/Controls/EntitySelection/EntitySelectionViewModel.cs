@@ -251,7 +251,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		private void OnSelectionDialogEntitySelected(object sender, EntitySelectedEventArgs e)
 		{
-			SelectEntity(e.Entity);
+			SelectEntity(e.SelectedObject);
 		}
 
 		private void OnSelectionDialogSelectEntityFromJournalSelected(object sender, EventArgs e)
@@ -261,7 +261,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 		private void OnEntityJournalSelectorEntitySelected(object sender, EntitySelectedEventArgs e)
 		{
-			SelectEntity(e.Entity);
+			SelectEntity(e.SelectedObject);
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
