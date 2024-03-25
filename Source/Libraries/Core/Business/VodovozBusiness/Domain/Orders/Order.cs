@@ -3112,7 +3112,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 			var routeList = routeListItem?.RouteList;
@@ -3203,14 +3203,16 @@ namespace Vodovoz.Domain.Orders
 			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
 
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
-			if(undeliveries.Any()) {
+			if(undeliveries.Any())
+			{
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
 					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
 				);
-				foreach(var u in undeliveries) {
-					u.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+				foreach(var u in undeliveries)
+				{
+					u.AddAutoCommentToOkkDiscussion(UoW, text);
 				}
 			}
 		}

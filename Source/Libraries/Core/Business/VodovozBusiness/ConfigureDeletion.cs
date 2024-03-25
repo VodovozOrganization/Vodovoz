@@ -773,11 +773,14 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<UndeliveredOrder>()
 						.AddDeleteDependence<GuiltyInUndelivery>(x => x.UndeliveredOrder)
-						.AddDeleteDependence<UndeliveredOrderComment>(x => x.UndeliveredOrder)
+						.AddDeleteDependence<UndeliveryDiscussion>(item => item.Undelivery)
 						.AddDeleteDependence<Fine>(x => x.UndeliveredOrder)
 						.AddDeleteDependence<UndeliveredOrderResultComment>(x => x.UndeliveredOrder)
 						;
-			DeleteConfig.AddHibernateDeleteInfo<UndeliveredOrderComment>();
+
+			DeleteConfig.AddHibernateDeleteInfo<UndeliveryDiscussion>()
+						.AddDeleteDependence<UndeliveryDiscussionComment>(item => item.UndeliveryDiscussion);
+
 			DeleteConfig.AddHibernateDeleteInfo<GuiltyInUndelivery>();
 			DeleteConfig.AddHibernateDeleteInfo<UndeliveredOrderResultComment>();
 

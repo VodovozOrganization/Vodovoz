@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -98,14 +99,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			(_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
 
 		private void RegisterUndeliveredOrders()
-		{
+		{			
 			var isFosSalesDepartment = FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value;
 			var undeliveredrdersConfig = RegisterEntity<UndeliveredOrder>(GetUndeliveredOrdersQuery, GetItemsCount)
 				.AddDocumentConfiguration(
-					//функция диалога создания документа
-					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this,  isForSalesDepartment: isFosSalesDepartment),
-					//функция диалога открытия документа
-					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, id: node.Id),
+					//функция диалога создания документа					
+					() => NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder, bool>(this, EntityUoWBuilder.ForCreate(), isFosSalesDepartment).ViewModel,
+					//функция диалога открытия документа					
+					(UndeliveredOrderJournalNode node) => NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					//функция идентификации документа 
 					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"
