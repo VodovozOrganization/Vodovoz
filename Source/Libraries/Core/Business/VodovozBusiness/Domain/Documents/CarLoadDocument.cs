@@ -132,11 +132,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateStockAmount(IUnitOfWork uow, IStockRepository stockRepository)
 		{
 			if(!Items.Any() || Warehouse == null)
+			{
 				return;
+			}
+
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),
-				Warehouse.Id,
+				new []{ Warehouse.Id },
 				TimeStamp
 			);
 
