@@ -13,13 +13,13 @@ namespace DriverAPI.Workers
 	internal class WakeUpNotificationSenderService : TimerBackgroundServiceBase
 	{
 		protected readonly ILogger<WakeUpNotificationSenderService> _logger;
-		private readonly IServiceProvider _serviceProvider;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 
 		public WakeUpNotificationSenderService(
 			ILogger<WakeUpNotificationSenderService> logger,
 			IConfiguration configuration,
-			IServiceProvider serviceProvider,
+			IServiceScopeFactory serviceScopeFactory,
 			IWakeUpDriverClientService wakeUpDriverClientService)
 		{
 			if(configuration is null)
@@ -28,7 +28,7 @@ namespace DriverAPI.Workers
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_serviceProvider = serviceProvider;
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_wakeUpDriverClientService = wakeUpDriverClientService ?? throw new ArgumentNullException(nameof(wakeUpDriverClientService));
 			var interval = configuration.GetValue("WakeUpCoordinatesNotificationInterval", 30);
 			Interval = TimeSpan.FromSeconds(interval);
@@ -42,7 +42,7 @@ namespace DriverAPI.Workers
 		{
 			try
 			{
-				using var scope = _serviceProvider.CreateScope();
+				using var scope = _serviceScopeFactory.CreateScope();
 
 				var firebaseCloudMessagingService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
 

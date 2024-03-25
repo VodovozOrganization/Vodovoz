@@ -19,13 +19,13 @@ namespace PushNotificationsWorker
 	internal sealed class TransferedFastDeliveryNotificationWorker : BackgroundService
 	{
 		private readonly ILogger<TransferedFastDeliveryNotificationWorker> _logger;
-		private readonly IServiceProvider _serviceProvider;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TimeSpan _interval;
 
 		public TransferedFastDeliveryNotificationWorker(
 			ILogger<TransferedFastDeliveryNotificationWorker> logger,
 			IOptions<TransferedFastDeliveryNotificationWorkerSettings> settings,
-			IServiceProvider serviceProvider)
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			if(settings is null)
 			{
@@ -35,7 +35,7 @@ namespace PushNotificationsWorker
 			_interval = settings.Value.Interval;
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,7 +47,7 @@ namespace PushNotificationsWorker
 			{
 				try
 				{
-					using var scope = _serviceProvider.CreateScope();
+					using var scope = _serviceScopeFactory.CreateScope();
 
 					var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 					var firebaseService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
