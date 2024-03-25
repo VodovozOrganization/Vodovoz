@@ -1885,10 +1885,17 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository)))
+			validationContext.Items.TryGetValue(nameof(IRouteListItemRepository), out var rliRepositoryObject);
+
+			if(!(rliRepositoryObject is IRouteListItemRepository rliRepository))
 			{
-				var rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
-				foreach(var address in Addresses) {
+				rliRepository = validationContext.GetService<IRouteListItemRepository>();
+			}
+
+			if(rliRepository != null)
+			{
+				foreach(var address in Addresses)
+				{
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
 					{
 						yield return new ValidationResult($"Адрес {address.Order.Id} находится в другом МЛ");

@@ -226,7 +226,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
+					tdiNavigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeList.Id));
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);

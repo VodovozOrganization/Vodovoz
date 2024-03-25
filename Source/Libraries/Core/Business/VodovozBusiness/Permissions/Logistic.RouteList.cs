@@ -45,6 +45,21 @@ namespace Vodovoz.Permissions
 				Name = "Просмотр рентабельности МЛ",
 				Description = "Просмотр рентабельности МЛ")]
 			public static string CanReadRouteListProfitability => "can_read_route_list_profitability";
+
+			/// <summary>
+			/// Возможность вернуть статус МЛ в путь
+			/// </summary>
+			[Display(
+				Name = "Возможность вернуть статус МЛ в путь")]
+			public static string CanReturnRouteListToEnRouteStatus => "can_retrieve_routelist_en_route";
+
+			/// <summary>
+			/// Логистика. Ведение МЛ. Изменение времени доставки - Пользователь может изменять время доставки в диалоге ведения маршрутного листа
+			/// </summary>
+			[Display(
+				Name = "Логистика. Ведение МЛ. Изменение времени доставки",
+				Description = "Пользователь может изменять время доставки в диалоге ведения маршрутного листа")]
+			public static string CanChangeDeliveryTime => "logistic_changedeliverytime";
 		}
 	}
 }
