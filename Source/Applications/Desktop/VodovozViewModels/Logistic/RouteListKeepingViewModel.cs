@@ -99,9 +99,10 @@ namespace Vodovoz
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
+			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
 			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
-			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 			LogisticanEditing = IsUserLogist && AllEditing;
+			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 
@@ -119,7 +120,6 @@ namespace Vodovoz
 
 			UpdateNodes();
 
-			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
 
 			SetPropertyChangeRelation(rl => rl.Status,
 				() => CanReturnRouteListToEnRouteStatus,
