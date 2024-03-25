@@ -2,6 +2,7 @@
 using Gdk;
 using Gtk;
 using QS.Extensions;
+using ReactiveUI;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -36,8 +37,6 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 			ConfigureEntryComplition();
 
-			ybuttonSelectEntity.Clicked += (s, e) => OnButtonSelectEntityClicked(s, e);
-			ybuttonClear.Clicked += (s, e) => OnButtonClearClicked(s, e);
 			yentryObject.FocusOutEvent += (s, e) => OnEntryObjectFocusOutEvent(s, e);
 			yentryObject.Changed += (s, e) => OnEntryObjectChanged(s, e);
 			yentryObject.WidgetEvent += (s, e) => OnEntryObjectWidgetEvent(s, e);
@@ -71,6 +70,9 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 				_viewModel.AutocompleteListSize = 20;
 				_viewModel.AutoCompleteListUpdated += ViewModel_AutoCompleteListUpdated;
+
+				ybuttonSelectEntity.BindCommand(ViewModel.SelectEntityCommand);
+				ybuttonClear.BindCommand(ViewModel.ClearEntityCommand);
 			}
 		}
 
@@ -93,16 +95,6 @@ namespace Vodovoz.ViewWidgets.GtkUI
 				default:
 					break;
 			}
-		}
-
-		protected void OnButtonSelectEntityClicked(object sender, EventArgs e)
-		{
-			ViewModel.SelectEntityCommand?.Execute();
-		}
-
-		protected void OnButtonClearClicked(object sender, EventArgs e)
-		{
-			ViewModel.ClearEntityCommand?.Execute();
 		}
 
 		private void SetEntryText(string text)
