@@ -97,6 +97,9 @@ namespace Vodovoz.Domain.Client
 		private decimal _fixPrice5;
 		private bool _addCertificatesAlways;
 		private DeliveryPointCategory _category;
+		private string _onlineComment;
+		private string _intercom;
+		public const int IntercomMaxLength = 100;
 
 		public DeliveryPoint()
 		{
@@ -760,6 +763,24 @@ namespace Vodovoz.Domain.Client
 
 		#endregion Временные поля для хранения фиксированных цен из 1с
 
+		#region Свойства для интеграции
+
+		[Display(Name = "Комментарий к ТД из ИПЗ")]
+		public virtual string OnlineComment
+		{
+			get => _onlineComment;
+			set => SetField(ref _onlineComment, value);
+		}
+		
+		[Display(Name = "Домофон")]
+		public virtual string Intercom
+		{
+			get => _intercom;
+			set => SetField(ref _intercom, value);
+		}
+
+		#endregion
+
 		#endregion Свойства
 
 		#region Расчетные
@@ -991,6 +1012,12 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult(
 					"Длина строки \"Организация\" не должна превышать 45 символов",
 					new[] { this.GetPropertyName(o => o.Organization) });
+			}
+			
+			if(Intercom?.Length > IntercomMaxLength)
+			{
+				yield return new ValidationResult(
+					$"Длина строки \"Домофон\" не должна превышать {IntercomMaxLength} символов");
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices
