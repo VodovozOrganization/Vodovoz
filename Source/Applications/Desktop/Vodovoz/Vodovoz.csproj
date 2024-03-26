@@ -2044,6 +2044,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderRatingReasonView.cs" />
     <Compile Include="Filters\GtkViews\OrdersRatingsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrdersRatingsJournalFilterView.cs" />
+    <Compile Include="Views\Orders\OrderRatingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderRatingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
