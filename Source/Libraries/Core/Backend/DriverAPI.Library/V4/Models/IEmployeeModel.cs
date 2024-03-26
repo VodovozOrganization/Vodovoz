@@ -9,5 +9,6 @@ namespace DriverAPI.Library.V4.Models
 		void EnablePushNotifications(ExternalApplicationUser driverAppUser, string token);
 		IEnumerable<Employee> GetAllPushNotifiableEmployees();
 		Employee GetByAPILogin(string login);
+		string GetDriverPushTokenById(int notifyableEmployeeId);
 	}
 }

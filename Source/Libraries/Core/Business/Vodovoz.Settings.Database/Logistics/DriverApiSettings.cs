@@ -26,5 +26,7 @@ namespace Vodovoz.Settings.Database.Logistics
 		}
 
 		public static bool NotificationsEnabled { get; private set; }
+
+		public string NotifyOfCashRequestForDriverIsGivenForTakeUri => _settingsController.GetValue<string>(nameof(NotifyOfCashRequestForDriverIsGivenForTakeUri));
 	}
 }

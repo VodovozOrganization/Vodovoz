@@ -10,9 +10,11 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
@@ -40,6 +42,25 @@ namespace Vodovoz
 			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>()
 			.AddScoped<IDeliveryRepository, DeliveryRepository>()
 			.AddScoped<IEmailService, EmailService>()
-			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>();
+			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
+			.AddDriverApiHelper();
+
+		public static IServiceCollection AddDriverApiHelper(this IServiceCollection services) =>
+			services.AddScoped<DriverApiHelperConfiguration>(serviceProvider =>
+				{
+					var databaseSettings = serviceProvider.GetRequiredService<IDriverApiSettings>();
+					return new DriverApiHelperConfiguration
+					{
+						ApiBase = databaseSettings.ApiBase,
+						NotifyOfCashRequestForDriverIsGivenForTakeUri = databaseSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri,
+						NotifyOfFastDeliveryOrderAddedURI = databaseSettings.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfSmsPaymentStatusChangedURI = databaseSettings.NotifyOfSmsPaymentStatusChangedUri,
+						NotifyOfWaitingTimeChangedURI = databaseSettings.NotifyOfWaitingTimeChangedURI
+					};
+				})
+				.AddScoped<ISmsPaymentStatusNotificationReciever, DriverAPIHelper>()
+				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverAPIHelper>()
+				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
+				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>();
 	}
 }

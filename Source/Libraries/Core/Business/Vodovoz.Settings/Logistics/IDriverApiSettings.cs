@@ -10,5 +10,6 @@ namespace Vodovoz.Settings.Logistics
 		string NotifyOfSmsPaymentStatusChangedUri { get; }
 		string NotifyOfFastDeliveryOrderAddedUri { get; }
 		string NotifyOfWaitingTimeChangedURI { get; }
+		string NotifyOfCashRequestForDriverIsGivenForTakeUri { get;}
 	}
 }

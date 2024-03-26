@@ -26,5 +26,6 @@ namespace Vodovoz.EntityRepositories.Employees
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp);
 		EmployeeRegistration EmployeeRegistrationDuplicateExists(IUnitOfWorkFactory uowFactory, EmployeeRegistration registration);
 		IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow);
+		string GetDriverPushTokenById(IUnitOfWork unitOfWork, int notifyableEmployeeId);
 	}
 }

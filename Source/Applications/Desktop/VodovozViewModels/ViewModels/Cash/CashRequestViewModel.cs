@@ -21,6 +21,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
@@ -37,7 +38,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ILifetimeScope _scope;
+		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private bool _needToNotifyDriverOfReadyToGiveOut = false;
 
 		public CashRequestViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -46,7 +49,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IEmployeeRepository employeeRepository,
 			ICashRepository cashRepository,
 			INavigationManager navigation,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(employeeRepository is null)
@@ -64,6 +68,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
+				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
 			CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(UoWGeneric.IsNew)
@@ -158,7 +164,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					}
 					else
 					{
+						_needToNotifyDriverOfReadyToGiveOut = true;
 						ChangeStateAndSave(PayoutRequestState.GivenForTake);
+						_needToNotifyDriverOfReadyToGiveOut = false;
 					}
 				},
 				() => true);
@@ -231,7 +239,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 						return;
 					}
 
+					var entityId = Entity.Id;
+					var entityStatusIsGivenForTake = Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
+
 					SaveAndClose();
+
+					if(entityStatusIsGivenForTake)
+					{
+						_cashRequestForDriverIsGivenForTakeNotificationReciever.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
+					}
 
 					if(AfterSave(out var messageText))
 					{

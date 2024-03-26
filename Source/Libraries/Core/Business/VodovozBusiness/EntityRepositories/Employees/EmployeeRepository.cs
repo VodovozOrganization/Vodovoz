@@ -171,5 +171,14 @@ namespace Vodovoz.EntityRepositories.Employees
 
 			return query.ToList();
 		}
+
+		public string GetDriverPushTokenById(IUnitOfWork unitOfWork, int notifyableEmployeeId)
+		{
+			return (from externalUser in unitOfWork.Session.Query<ExternalApplicationUser>()
+					where externalUser.Employee.Id == notifyableEmployeeId
+					   && externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
+					select externalUser.Token)
+					.FirstOrDefault();
+		}
 	}
 }
