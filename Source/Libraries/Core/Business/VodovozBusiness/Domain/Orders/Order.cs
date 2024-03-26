@@ -1688,13 +1688,13 @@ namespace Vodovoz.Domain.Orders
 			#region Проверка кол-ва бутылей по акции Приведи друга
 
 			// Отменять заказ с акцией можно
-			if(newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
+			if((newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
+				&& OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
+				&& referPromoBottlesInOrderCount > 0)
 			{
 				var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(UoW, Client.Id);
 				var alreadyReceivedBottles = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(UoW, this, _orderSettings.ReferFriendDiscountReasonId);
 				var maxReferPromoBottles = referredCounterparties - alreadyReceivedBottles;
-
-				var referPromoBottlesInOrderCount = OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.Count);
 
 				if(referPromoBottlesInOrderCount > maxReferPromoBottles)
 				{
