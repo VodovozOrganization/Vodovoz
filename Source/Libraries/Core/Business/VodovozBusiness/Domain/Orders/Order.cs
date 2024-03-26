@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
 using NHibernate.Exceptions;
+using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -1824,9 +1825,17 @@ namespace Vodovoz.Domain.Orders
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
 									   x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
+		public virtual int Total1500mlBottlesToDeliver =>
+			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
+									   x.Nomenclature.TareVolume == TareVolume.Vol1500ml).Sum(x => x.Count);
+
 		public virtual int Total600mlBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
 									   x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
+
+		public virtual int Total500mlBottlesToDeliver =>
+			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
+									   x.Nomenclature.TareVolume == TareVolume.Vol500ml).Sum(x => x.Count);
 
 		public virtual int TotalWeight =>
 			(int)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Weight);
@@ -1921,6 +1930,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual bool HasPermissionsForAlternativePrice => Author?.Subdivision?.Id != null && _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
+
+		public virtual bool IsCoolerAddedToOrder => OrderItems
+			.Where(x => x.Nomenclature.Kind != null)
+			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Nomenclature.Kind.Id))
+			.Count() > 0;
 
 		#endregion
 
