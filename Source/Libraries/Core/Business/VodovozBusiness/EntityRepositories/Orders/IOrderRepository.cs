@@ -164,7 +164,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
 		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
-		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, int referrerId, int referFriendReasonId);
+		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 	}
 
 	public class ClientEquipmentNode

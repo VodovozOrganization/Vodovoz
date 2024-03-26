@@ -507,7 +507,10 @@ namespace Vodovoz
 
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 
-			yhboxReferrer.Binding.AddFuncBinding(Entity, e => e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId, w => w.Visible).InitializeFromSource();
+			yhboxReferrer.Binding.AddSource(Entity)
+				.AddFuncBinding(e => e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId, w => w.Visible)
+				.AddFuncBinding(e => e.Id == 0 && CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 

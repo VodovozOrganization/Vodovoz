@@ -1263,11 +1263,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 
+			OrderStatus? newStatus = null;
+
 			if(validationContext.Items.ContainsKey("NewStatus")) {
-				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
+				newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
 
-					var key = new OrderStateKey(this, newStatus);
+					var key = new OrderStateKey(this, newStatus.Value);
 					var messages = new List<string>();
 					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
 						foreach(var msg in messages) {
@@ -1684,19 +1686,23 @@ namespace Vodovoz.Domain.Orders
 			#endregion
 
 			#region Проверка кол-ва бутылей по акции Приведи друга
-			
-			var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(UoW, Client.Id);			
-			var alreadyReceivedBottles = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(UoW, Client.Id, _orderSettings.ReferFriendDiscountReasonId);
-			var maxReferPromoBottles = referredCounterparties - alreadyReceivedBottles;
 
-			var referPromoBottlesInOrderCount = OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.Count);
-
-			if(referPromoBottlesInOrderCount > maxReferPromoBottles)
+			// Отменять заказ с акцией можно
+			if(newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
 			{
-				yield return new ValidationResult($"Для данного КА по акции приведи друга заработано {referredCounterparties} бесплатных бутылей\n" +
-					$"Ранее отвезено данному КА {alreadyReceivedBottles} бесплатных бутылей\n" +
-					$"В заказе можно указать не более {maxReferPromoBottles} бесплатных бутылей",
-					new[] { nameof(OrderItem) });
+				var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(UoW, Client.Id);
+				var alreadyReceivedBottles = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(UoW, this, _orderSettings.ReferFriendDiscountReasonId);
+				var maxReferPromoBottles = referredCounterparties - alreadyReceivedBottles;
+
+				var referPromoBottlesInOrderCount = OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.Count);
+
+				if(referPromoBottlesInOrderCount > maxReferPromoBottles)
+				{
+					yield return new ValidationResult($"Для данного КА по акции приведи друга заработано {referredCounterparties} бесплатных бутылей\n" +
+						$"Ранее отвезено данному КА {alreadyReceivedBottles} бесплатных бутылей\n" +
+						$"В заказе можно указать не более {maxReferPromoBottles} бесплатных бутылей",
+						new[] { nameof(OrderItem) });
+				}
 			}
 
 			#endregion

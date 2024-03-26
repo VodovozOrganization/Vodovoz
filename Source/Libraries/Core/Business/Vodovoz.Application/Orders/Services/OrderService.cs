@@ -368,7 +368,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(uow, order.Client.Id);
-			var alreadyReceived = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(uow, order.Client.Id, _orderSettings.ReferFriendDiscountReasonId);
+			var alreadyReceived = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(uow, order, _orderSettings.ReferFriendDiscountReasonId);
 
 			var bottlesToAdd = referredCounterparties - alreadyReceived;
 
