@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -717,7 +717,7 @@ namespace Vodovoz
 						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
-						.AddBusiness()
+						.AddBusiness(hostingContext.Configuration)
 
 
 						//Messages

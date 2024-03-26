@@ -54,7 +54,7 @@ namespace DriverAPI.Library
 			services.AddScoped<IGlobalSettings, GlobalSettings>()
 				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
-			services.AddBusiness()
+			services.AddBusiness(configuration)
 				.AddApplication()
 				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
