@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
@@ -11,6 +12,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
+using Vodovoz.Options;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Delivery;
@@ -21,8 +23,8 @@ namespace Vodovoz
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddBusiness(this IServiceCollection services) => services
-			.ConfigureBusinessOptions()
+		public static IServiceCollection AddBusiness(this IServiceCollection services, IConfiguration configuration) => services
+			.ConfigureBusinessOptions(configuration)
 			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 			.AddScoped<IWageParameterService, WageParameterService>()
 			.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
@@ -46,8 +48,9 @@ namespace Vodovoz
 			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
 			.AddDriverApiHelper();
 
-		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services) =>
-			services.ConfigureOptions<PushNotificationSettings>();
+		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
+			.Configure<PushNotificationSettings>(pushNotificationOptions =>
+				configuration.GetSection(nameof(PushNotificationSettings)).Bind(pushNotificationOptions));
 
 		public static IServiceCollection AddDriverApiHelper(this IServiceCollection services) =>
 			services.AddScoped<DriverApiHelperConfiguration>(serviceProvider =>

@@ -73,7 +73,7 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddApplication();
-			services.AddBusiness();
+			services.AddBusiness(Configuration);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
