@@ -210,7 +210,7 @@ namespace DriverAPI.Controllers.V5
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> NotifyOfCashRequestForDriverIsGivenForTake(int cashRequestId, [FromServices] IUnitOfWork unitOfWork)
+		public async Task<IActionResult> NotifyOfCashRequestForDriverIsGivenForTake([FromBody] int cashRequestId, [FromServices] IUnitOfWork unitOfWork)
 		{
 			var cashRequest = _cashRequestRepository
 				.Get(
@@ -224,6 +224,8 @@ namespace DriverAPI.Controllers.V5
 					"Не найдена заявка на выдачу денежных средств {CashRequestId} или заявка не в статусе {PayoutRequestState}",
 					cashRequestId,
 					PayoutRequestState.GivenForTake);
+
+				return Problem($"Заявка на выдачу денежных средств {cashRequestId} не найдена");
 			}
 
 			var driversIds = cashRequest.Sums

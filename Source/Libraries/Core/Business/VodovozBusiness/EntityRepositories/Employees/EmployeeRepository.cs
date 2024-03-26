@@ -179,9 +179,8 @@ namespace Vodovoz.EntityRepositories.Employees
 					on employee.Id equals externalUser.Employee.Id
 					where employee.Id == notifyableEmployeeId
 					   && externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
-					   && ! string.IsNullOrWhiteSpace(externalUser.Token)
 					select externalUser.Token)
-						.FirstOrDefault();
+					.FirstOrDefault();
 		}
 	}
 }

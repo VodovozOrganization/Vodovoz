@@ -209,6 +209,7 @@ namespace DriverAPI.Controllers.V4
 					"Не найдена заявка на выдачу денежных средств {CashRequestId} или заявка не в статусе {PayoutRequestState}",
 					cashRequestId,
 					PayoutRequestState.GivenForTake);
+				return BadRequest();
 			}
 
 			var driversIds = cashRequest.Sums
