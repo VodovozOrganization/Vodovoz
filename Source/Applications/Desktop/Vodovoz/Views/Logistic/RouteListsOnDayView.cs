@@ -803,9 +803,19 @@ namespace Vodovoz.Views.Logistic
 				ttText += WordWrapText($"Бутылей 6л: {order.Total6LBottlesToDeliver}", maxCharsInRow);
 			}
 
+			if(order.Total1500mlBottlesToDeliver > 0)
+			{
+				ttText += WordWrapText($"Бутылей 1,5л: {order.Total1500mlBottlesToDeliver}", maxCharsInRow);
+			}
+
 			if(order.Total600mlBottlesToDeliver > 0)
 			{
 				ttText += WordWrapText($"Бутылей 0,6л: {order.Total600mlBottlesToDeliver}", maxCharsInRow);
+			}
+
+			if(order.Total500mlBottlesToDeliver > 0)
+			{
+				ttText += WordWrapText($"Бутылей 0,5л: {order.Total500mlBottlesToDeliver}", maxCharsInRow);
 			}
 
 			ttText += WordWrapText($"Забор бутылей: {order.BottlesReturn}", maxCharsInRow);
