@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -22,6 +22,7 @@ namespace Vodovoz
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddBusiness(this IServiceCollection services) => services
+			.ConfigureBusinessOptions()
 			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 			.AddScoped<IWageParameterService, WageParameterService>()
 			.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
@@ -44,6 +45,9 @@ namespace Vodovoz
 			.AddScoped<IEmailService, EmailService>()
 			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
 			.AddDriverApiHelper();
+
+		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services) =>
+			services.ConfigureOptions<PushNotificationSettings>();
 
 		public static IServiceCollection AddDriverApiHelper(this IServiceCollection services) =>
 			services.AddScoped<DriverApiHelperConfiguration>(serviceProvider =>

@@ -18,8 +18,17 @@ using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI
 {
+	/// <summary>
+	/// Конфигурация контейнера зависимостей
+	/// </summary>
 	public static class DependencyInjection
 	{
+		/// <summary>
+		/// Основная конфигурация DriverApi
+		/// </summary>
+		/// <param name="services"></param>
+		/// <param name="configuration"></param>
+		/// <returns></returns>
 		public static IServiceCollection AddDriverApi(this IServiceCollection services, IConfiguration configuration) =>
 			services.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				// Сервисы для контроллеров
@@ -50,8 +59,14 @@ namespace DriverAPI
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
 				.AddScoped<ICallTaskRepository, CallTaskRepository>()
+				.AddDriverApiHostedServices();
 
-				// Workers
-				.AddHostedService<WakeUpNotificationSenderService>();
+		/// <summary>
+		/// Добавление сервисок работающих в фоновом режиме
+		/// </summary>
+		/// <param name="services"></param>
+		/// <returns></returns>
+		public static IServiceCollection AddDriverApiHostedServices(this IServiceCollection services) =>
+			services.AddHostedService<WakeUpNotificationSenderService>();
 	}
 }

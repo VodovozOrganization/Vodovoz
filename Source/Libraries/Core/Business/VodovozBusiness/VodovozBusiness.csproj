@@ -66,6 +66,7 @@
     <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Options\PushNotificationSettings.cs" />
     <Compile Include="NotificationRecievers\ICashRequestForDriverIsGivenForTakeNotificationReciever.cs" />
     <Compile Include="Permissions\Bookkeepping.cs" />
     <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
