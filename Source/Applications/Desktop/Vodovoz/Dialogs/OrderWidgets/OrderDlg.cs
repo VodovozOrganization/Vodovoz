@@ -540,8 +540,7 @@ namespace Vodovoz
 					x => x.OrderAddressType,
 					x => x.ContactPhone)
 				.CopyPromotionalSets()
-				.CopyOrderItemsExceptEquipmentReferenced()
-				.CopyOrderDepositItems();
+				.CopyOrderItemsExceptEquipmentReferenced();
 
 			if(Entity.Client.PersonType == PersonType.legal)
 			{
