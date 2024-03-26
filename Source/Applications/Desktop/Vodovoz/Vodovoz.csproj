@@ -822,8 +822,8 @@
     <Compile Include="Commons\OrderPopupMenu.cs" />
     <Compile Include="Views\Logistic\DriversInfoExportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
-    <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
+    <Compile Include="Logistic\RouteListKeepingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.RouteListKeepingView.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
@@ -1066,8 +1066,6 @@
     <Compile Include="Dialogs\Goods\Folder1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.Folder1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureGroupCatalog.cs" />
-    <Compile Include="Dialogs\UndeliveredOrderDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderDlg.cs" />
     <Compile Include="ReportsParameters\OrderRegistryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderRegistryReport.cs" />
     <Compile Include="ReportsParameters\Store\EquipmentBalance.cs" />
@@ -1086,8 +1084,6 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveriesWithCommentsPrintDlg.cs" />
-    <Compile Include="ViewWidgets\UndeliveredOrderCommentsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderCommentsView.cs" />
     <Compile Include="ViewWidgets\GuiltyInUndeliveryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GuiltyInUndeliveryView.cs" />
     <Compile Include="SidePanel\InfoViews\EmailsPanelView.cs" />
@@ -2039,6 +2035,12 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeAlgebraicSearchView.cs" />
     <Compile Include="Views\Payments\PaymentsDiscrepanciesAnalysisView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.PaymentsDiscrepanciesAnalysisView.cs" />
+    <Compile Include="Views\Orders\UndeliveryDiscussionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionsView.cs" />
+    <Compile Include="Views\Orders\UndeliveryDiscussionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionView.cs" />
+    <Compile Include="Views\Orders\UndeliveryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

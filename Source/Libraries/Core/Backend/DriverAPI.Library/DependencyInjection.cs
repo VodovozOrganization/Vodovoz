@@ -1,4 +1,4 @@
-using DriverAPI.Library.Helpers;
+﻿using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using EventsApi.Library;
@@ -16,6 +16,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using DriverAPI.Library.V4.Models;
 using DriverAPI.Library.V5.Services;
+using Vodovoz.FirebaseCloudMessaging;
+using Microsoft.Extensions.Configuration;
 
 namespace DriverAPI.Library
 {
@@ -29,7 +31,7 @@ namespace DriverAPI.Library
 		/// </summary>
 		/// <param name="services"></param>
 		/// <returns></returns>
-		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services)
+		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services, IConfiguration configuration)
 		{
 			// Конвертеры
 			foreach(var type in typeof(DependencyInjection)
@@ -44,7 +46,6 @@ namespace DriverAPI.Library
 
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>()
-				.AddScoped<IFCMAPIHelper, FCMAPIHelper>()
 				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
 			services.AddVersion4()
@@ -56,7 +57,8 @@ namespace DriverAPI.Library
 			services.AddBusiness()
 				.AddApplication()
 				.AddDatabaseSettings()
-				.AddDriverEventsDependencies();
+				.AddDriverEventsDependencies()
+				.AddFirebaseCloudMessaging(configuration);
 
 			services.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
 				.AddScoped<IEmailRepository, EmailRepository>()

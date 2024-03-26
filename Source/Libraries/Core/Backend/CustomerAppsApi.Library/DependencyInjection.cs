@@ -13,6 +13,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
@@ -22,9 +23,14 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Roboats;
+using VodovozInfrastructure.Cryptography;
 
 namespace CustomerAppsApi.Library
 {
@@ -49,6 +55,8 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<INomenclatureRepository, NomenclatureRepository>()
 				.AddSingleton<IOrderRepository, OrderRepository>()
 				.AddSingleton<IStockRepository, StockRepository>()
+				.AddSingleton<IDeliveryPointRepository, DeliveryPointRepository>()
+				.AddSingleton<IDeliveryRepository, DeliveryRepository>()
 				.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>()
 				.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>()
 				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
@@ -57,6 +65,8 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ISettingsController, SettingsController>()
 				.AddSingleton<ISessionProvider, DefaultSessionProvider>()
 				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
+				.AddSingleton<IGlobalSettings, GlobalSettings>()
+				.AddSingleton<IDeliveryRulesSettings, DeliveryRulesSettings>()
 				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
@@ -66,6 +76,7 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
 				.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>()
 				.AddSingleton<IRentPackageFactory, RentPackageFactory>()
+				.AddSingleton<IDeliveryPointFactory, DeliveryPointFactory>()
 				.AddSingleton<ICameFromConverter, CameFromConverter>()
 				.AddSingleton<ISourceConverter, SourceConverter>()
 				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
@@ -79,7 +90,10 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<IWarehouseModel, WarehouseModel>()
 				.AddScoped<IRentPackageModel, RentPackageModel>()
+				.AddScoped<IDeliveryPointService, DeliveryPointService>()
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
+				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()

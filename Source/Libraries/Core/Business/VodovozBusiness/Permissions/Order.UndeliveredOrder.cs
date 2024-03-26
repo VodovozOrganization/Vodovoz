@@ -17,6 +17,14 @@ namespace Vodovoz.Permissions
 			public static string CanEditUndeliveries => "can_edit_undeliveries";
 			public static string CanCloseUndeliveries => "can_close_undeliveries";
 			public static string CanChangeUndeliveryProblemSource => "can_change_undelivery_problem_source";
+
+			/// <summary>
+			/// Завершение обсуждения в недовозе
+			/// </summary>
+			[Display(
+				Name = "Завершение обсуждения в недовозе",
+				Description = "Дает возможность пользователю завершить обсуждение в недовозе")]
+			public static string CanCompleteUndeliveryDiscussion => "can_complete_undelivery_discussion";
 		}
 	}
 }

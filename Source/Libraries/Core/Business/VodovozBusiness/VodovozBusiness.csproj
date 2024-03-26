@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -68,6 +68,10 @@
     <Compile Include="Errors\Employees\Driver.cs" />
     <Compile Include="Permissions\Bookkeepping.cs" />
     <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDiscussionComment.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDiscussionStatus.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDiscussion.cs" />
+    <Compile Include="Domain\Sms\ISmsNotifier.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
@@ -97,6 +101,7 @@
     <Compile Include="Domain\Client\DebtType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
     <Compile Include="Domain\Client\EntranceType.cs" />
+    <Compile Include="Domain\Client\ExternalCreatingDeliveryPoint.cs" />
     <Compile Include="Domain\Client\ISupplierPriceNode.cs" />
     <Compile Include="Domain\Client\OrderStatusForSendingUpd.cs" />
     <Compile Include="Domain\Client\PersonType.cs" />
@@ -560,6 +565,7 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\DeliveryPointForSendNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\DocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyAssignNotificationRepository.cs" />
@@ -681,10 +687,7 @@
     <Compile Include="EntityRepositories\Store\SelfDeliveryAddressDto.cs" />
     <Compile Include="EntityRepositories\TrueMark\ITrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\TrueMark\TrueMarkRepository.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
@@ -1046,7 +1049,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrder.cs" />
     <Compile Include="Domain\Orders\Documents\InvoiceContractDoc.cs" />
     <Compile Include="Domain\Orders\Documents\EquipmentReturnDocument.cs" />
-    <Compile Include="Domain\Orders\UndeliveredOrderComment.cs" />
     <Compile Include="Domain\Client\ClientCameFrom.cs" />
     <Compile Include="Tools\CommerceML\Export.cs" />
     <Compile Include="Tools\IXmlConvertable.cs" />

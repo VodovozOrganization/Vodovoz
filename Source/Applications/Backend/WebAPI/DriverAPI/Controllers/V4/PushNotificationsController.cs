@@ -1,5 +1,4 @@
 ﻿using DriverApi.Contracts.V4;
-using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V4.Models;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Application.FirebaseCloudMessaging;
 
 namespace DriverAPI.Controllers.V4
 {
@@ -22,9 +22,9 @@ namespace DriverAPI.Controllers.V4
 		private readonly ILogger<PushNotificationsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IRouteListModel _aPIRouteListData;
-		private readonly IFCMAPIHelper _iFCMAPIHelper;
 		private readonly IEmployeeModel _employeeData;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
+		private readonly IFirebaseCloudMessagingService _firebaseCloudMessagingService;
 
 		/// <summary>
 		/// Конструктор
@@ -32,24 +32,24 @@ namespace DriverAPI.Controllers.V4
 		/// <param name="logger"></param>
 		/// <param name="userManager"></param>
 		/// <param name="aPIRouteListData"></param>
-		/// <param name="iFCMAPIHelper"></param>
 		/// <param name="employeeData"></param>
 		/// <param name="wakeUpDriverClientService"></param>
+		/// <param name="firebaseCloudMessagingService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,
 			IRouteListModel aPIRouteListData,
-			IFCMAPIHelper iFCMAPIHelper,
 			IEmployeeModel employeeData,
-			IWakeUpDriverClientService wakeUpDriverClientService)
+			IWakeUpDriverClientService wakeUpDriverClientService,
+			IFirebaseCloudMessagingService firebaseCloudMessagingService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
-			_iFCMAPIHelper = iFCMAPIHelper ?? throw new ArgumentNullException(nameof(iFCMAPIHelper));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_wakeUpDriverClientService = wakeUpDriverClientService ?? throw new ArgumentNullException(nameof(wakeUpDriverClientService));
+			_firebaseCloudMessagingService = firebaseCloudMessagingService ?? throw new ArgumentNullException(nameof(firebaseCloudMessagingService));
 		}
 
 		/// <summary>
@@ -126,7 +126,7 @@ namespace DriverAPI.Controllers.V4
 			else
 			{
 				_logger.LogInformation("Отправка PUSH-сообщения об изменении статуса заказа {OrderId}", orderId);
-				await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
+				await _firebaseCloudMessagingService.SendMessage(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
 			}
 		}
 
@@ -148,7 +148,7 @@ namespace DriverAPI.Controllers.V4
 			else
 			{
 				_logger.LogInformation("Отправка PUSH-сообщения о добавлении заказа ({OrderId}) для доставки за час", orderId);
-				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ {orderId} с доставкой за час");
+				await _firebaseCloudMessagingService.SendMessage(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ {orderId} с доставкой за час");
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace DriverAPI.Controllers.V4
 			else
 			{
 				_logger.LogInformation("Отправка PUSH-сообщения об изменении времени ожидания заказа ({OrderId})", orderId);
-				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление об изменении времени ожидания заказа", $"Время ожидания заказа {orderId} изменено");
+				await _firebaseCloudMessagingService.SendMessage(token, "Уведомление об изменении времени ожидания заказа", $"Время ожидания заказа {orderId} изменено");
 			}
 		}
 	}
