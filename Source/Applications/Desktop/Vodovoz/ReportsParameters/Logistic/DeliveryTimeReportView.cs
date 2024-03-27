@@ -31,7 +31,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			ytreeRouteListTypeOfUse.HeadersVisible = false;
 			ytreeRouteListTypeOfUse.ColumnsConfig = FluentColumnsConfig<SelectableParameter>.Create()
 				.AddColumn("").AddToggleRenderer(x => x.IsSelected)
-				.AddColumn("").AddEnumRenderer(x => x.RouteListTypeOfUse)
+				.AddColumn("").AddEnumRenderer(x => x.RouteListOwnType)
 				.Finish();
 			ytreeRouteListTypeOfUse.ItemsDataSource = ViewModel.RouteListTypeOfUseList;
 

@@ -1,10 +1,11 @@
-﻿using DriverAPI.Library.Helpers;
-using DriverAPI.Services;
+﻿using DriverAPI.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure;
 
 namespace DriverAPI.Workers
@@ -12,18 +13,23 @@ namespace DriverAPI.Workers
 	internal class WakeUpNotificationSenderService : TimerBackgroundServiceBase
 	{
 		protected readonly ILogger<WakeUpNotificationSenderService> _logger;
-		private readonly IFCMAPIHelper _fCMAPIHelper;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 
 		public WakeUpNotificationSenderService(
 			ILogger<WakeUpNotificationSenderService> logger,
 			IConfiguration configuration,
-			IFCMAPIHelper fCMAPIHelper,
+			IServiceScopeFactory serviceScopeFactory,
 			IWakeUpDriverClientService wakeUpDriverClientService)
 		{
-			_logger = logger;
-			_fCMAPIHelper = fCMAPIHelper;
-			_wakeUpDriverClientService = wakeUpDriverClientService;
+			if(configuration is null)
+			{
+				throw new ArgumentNullException(nameof(configuration));
+			}
+
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_wakeUpDriverClientService = wakeUpDriverClientService ?? throw new ArgumentNullException(nameof(wakeUpDriverClientService));
 			var interval = configuration.GetValue("WakeUpCoordinatesNotificationInterval", 30);
 			Interval = TimeSpan.FromSeconds(interval);
 
@@ -36,6 +42,10 @@ namespace DriverAPI.Workers
 		{
 			try
 			{
+				using var scope = _serviceScopeFactory.CreateScope();
+
+				var firebaseCloudMessagingService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
+
 				_logger.LogInformation("Начало цикла отправки WakeUp-сообщений {StartExecutedAt}, сообщений ожидают {WakeUpNotificationsClientsCount} клиентов мобильного приложения",
 					DateTime.Now,
 					_wakeUpDriverClientService.Clients.Count);
@@ -45,9 +55,9 @@ namespace DriverAPI.Workers
 					try
 					{
 						_logger.LogInformation("Попытка отправки WakeUp-сообщения для водителя {DriverId} с токеном {FirebaseToken}", clientId, clientToken);
-						await _fCMAPIHelper.SendWakeUpNotification(clientToken);
+						await firebaseCloudMessagingService.SendWakeUpMessage(clientToken);
 					}
-					catch(FCMException e)
+					catch(Exception e)
 					{
 						_logger.LogError(e, "Ошибка отправки WakeUp-сообщения, пропуск цикла {StopExecutedAt}", DateTime.Now);
 						break;

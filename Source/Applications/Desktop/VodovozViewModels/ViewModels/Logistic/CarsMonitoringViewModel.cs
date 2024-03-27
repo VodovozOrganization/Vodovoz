@@ -423,7 +423,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Command Handlers
 		private void OpenRouteListKeepingTab(int routeListId)
 		{
-			_gtkTabsOpener.OpenRouteListKeepingDlg(this, routeListId);
+			NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(routeListId));
 		}
 
 		private void OpenChangeRouteListFastDeliveryMaxDistanceDlg(int routeListId)

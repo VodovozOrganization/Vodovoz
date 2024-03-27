@@ -30,7 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Firebase.Client\FirebaseCloudMessaging.Client.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>

@@ -282,6 +282,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			UnsubscribeOnCheckChanged();
 			_addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
+			DisposeOnDestroy = true;
 			base.Dispose();
 		}
 	}

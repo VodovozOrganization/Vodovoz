@@ -1,9 +1,8 @@
-﻿using FirebaseCloudMessaging.Client;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PushNotificationsWorker.Options;
-using Vodovoz.Data.NHibernate;
+using Vodovoz.FirebaseCloudMessaging;
 
 namespace PushNotificationsWorker
 {
@@ -11,7 +10,7 @@ namespace PushNotificationsWorker
 	{
 		public static IServiceCollection AddPushNotificationsWorker(this IServiceCollection services, HostBuilderContext hostContext) =>
 			services
-				.AddFirebaseClient(hostContext.Configuration)
+				.AddFirebaseCloudMessaging(hostContext.Configuration)
 				.Configure<TransferedFastDeliveryNotificationWorkerSettings>((options) =>
 				{
 					hostContext.Configuration.GetSection(nameof(TransferedFastDeliveryNotificationWorkerSettings)).Bind(options);
