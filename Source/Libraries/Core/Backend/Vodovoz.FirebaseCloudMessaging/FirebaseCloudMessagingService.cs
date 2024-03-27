@@ -35,6 +35,14 @@ namespace Vodovoz.FirebaseCloudMessaging
 				$"Заказ №{orderId} с доставкой за час отменен");
 		}
 
+		public async Task<Result> SendFastDeliveryAddressTransferedMessage(string recipientToken, int orderId)
+		{
+			return await SendMessage(
+				recipientToken,
+				"Добавление заказа с доставкой за час",
+				$"Заказ №{orderId} с доставкой за час был добавлен в ваш маршрутный лист");
+		}
+
 		public async Task<Result> SendMessage(string recipientToken, string title, string body)
 		{
 			try
