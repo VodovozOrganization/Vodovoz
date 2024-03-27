@@ -90,7 +90,7 @@ namespace DriverAPI.Controllers.V5
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
-			var routeLists = _apiRouteListService.Get(routeListsIds);
+			var routeLists = _apiRouteListService.GetRouteLists(routeListsIds);
 			var ordersIds = routeLists
 				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
@@ -128,7 +128,7 @@ namespace DriverAPI.Controllers.V5
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				tokenStr);
 
-			return Ok(_apiRouteListService.Get(routeListId));
+			return Ok(_apiRouteListService.GetRouteList(routeListId));
 		}
 
 		/// <summary>

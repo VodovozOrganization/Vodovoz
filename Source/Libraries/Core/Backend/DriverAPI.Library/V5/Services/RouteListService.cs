@@ -40,12 +40,7 @@ namespace DriverAPI.Library.V5.Services
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 
-		/// <summary>
-		/// Получение информации о маошрутном листе в требуемом формате
-		/// </summary>
-		/// <param name="routeListId">Идентификатор МЛ</param>
-		/// <returns>APIRouteList</returns>
-		public RouteListDto Get(int routeListId)
+		public RouteListDto GetRouteList(int routeListId)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
@@ -60,12 +55,7 @@ namespace DriverAPI.Library.V5.Services
 			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
 		}
 
-		/// <summary>
-		/// Получение информации о маршрутных листах в требуемом формате
-		/// </summary>
-		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
-		/// <returns>IEnumerable APIRouteList</returns>
-		public IEnumerable<RouteListDto> Get(int[] routeListsIds)
+		public IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds)
 		{
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
@@ -92,11 +82,6 @@ namespace DriverAPI.Library.V5.Services
 			return routeLists;
 		}
 
-		/// <summary>
-		/// Получение списка идентификаторов МЛ для водителя по его Email адресу
-		/// </summary>
-		/// <param name="login">Android - login</param>
-		/// <returns>Список идентификаторов</returns>
 		public Result<IEnumerable<int>> GetRouteListsIdsForDriverByAndroidLogin(string login)
 		{
 			var driver = _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login);
@@ -242,6 +227,21 @@ namespace DriverAPI.Library.V5.Services
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId);
 
 			return routeList?.Driver?.Id == driverId;
+		}
+
+		public Result<RouteListAddressTransferInfo> GetTransfersShortInfoByRecievingDriverId(int driverId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Result<RouteListAddressTransferInfo> GetTransfersShortInfoByTransferingDriverId(int driverId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Result<RouteListAddressTransferDto> GetFullTransferInfo(int routelistAddtessId)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
