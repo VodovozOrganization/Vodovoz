@@ -37,6 +37,8 @@ namespace Vodovoz.Settings.Database.Orders
 			_settingsController.GetIntValue("discount_reason_stock_bottle_20_percents");
 		public int GetClientsSecondOrderDiscountReasonId =>
 			_settingsController.GetIntValue("clients_second_order_discount_reason_id");
+		public int ReferFriendDiscountReasonId =>
+			_settingsController.GetValue<int>(nameof(ReferFriendDiscountReasonId));
 
 		public int[] PaymentsByCardFromAvangard =>
 			new[]

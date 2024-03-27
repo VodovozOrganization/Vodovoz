@@ -378,6 +378,25 @@ namespace Vodovoz
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			ConfigureCounterpartyEntityEntry();
+		}
+
+		private void ConfigureCounterpartyEntityEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Counterparty>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+
+			entityentryCounterparty.ViewModel = builder.ForProperty(x => x.Referrer)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			entityentryCounterparty.ViewModel.DisposeViewModel = false;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -487,6 +506,11 @@ namespace Vodovoz
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
+
+			yhboxReferrer.Binding.AddSource(Entity)
+				.AddFuncBinding(e => e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId, w => w.Visible)
+				.AddFuncBinding(e => e.Id == 0 && CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
@@ -1106,12 +1130,6 @@ namespace Vodovoz
 		private void ConfigureValidationContext()
 		{
 			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
-
-			_validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
 		}
 
 		private void ConfigureTabEmails()
