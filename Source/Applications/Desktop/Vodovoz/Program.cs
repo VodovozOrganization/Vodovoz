@@ -145,6 +145,7 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Sms;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
 namespace Vodovoz
 {
@@ -735,6 +736,7 @@ namespace Vodovoz
 						.AddScoped<PacsEndpointsConnector>()
 
 						.AddTransient(typeof(ViewModelEEVMBuilder<>))
+						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
 						.AddTransient<EntityModelFactory>()
 						
 						.AddPacsOperatorClient()

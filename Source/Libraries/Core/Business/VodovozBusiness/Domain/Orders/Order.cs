@@ -5059,5 +5059,24 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		#region Правила доставки
+		public virtual IList<int> GetAvailableDeliveryScheduleIds()
+		{
+			var availableDeliverySchedules = new List<int>();
+
+			if(DeliveryPoint?.District != null)
+			{
+				availableDeliverySchedules = DeliveryPoint
+					.District
+					.GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(DeliveryDate)
+					.OrderBy(s => s.DeliverySchedule.DeliveryTime)
+					.Select(r => r.DeliverySchedule.Id)
+					.ToList();
+			}
+
+			return availableDeliverySchedules;
+		}
+		#endregion
 	}
 }
