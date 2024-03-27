@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -145,6 +145,7 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Sms;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
 namespace Vodovoz
 {
@@ -717,7 +718,7 @@ namespace Vodovoz
 						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
-						.AddBusiness()
+						.AddBusiness(hostingContext.Configuration)
 
 
 						//Messages
@@ -735,6 +736,7 @@ namespace Vodovoz
 						.AddScoped<PacsEndpointsConnector>()
 
 						.AddTransient(typeof(ViewModelEEVMBuilder<>))
+						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
 						.AddTransient<EntityModelFactory>()
 						
 						.AddPacsOperatorClient()

@@ -168,6 +168,52 @@ namespace Vodovoz.Models.Orders
 		}
 
 		/// <summary>
+		/// Копирование товаров (<see cref="OrderItem"/>) заказа за исключением тех,
+		/// которые связаны с оборудованием (например, позиции аренды оборудования) (<see cref="OrderEquipment"/>)
+		/// </summary>
+		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
+		/// <param name="withPrices">true - ставим ценам флаг ручного изменения, чтобы они были неизменны
+		/// false - выставляем флаг ручной цены из копируемого заказа</param>
+		/// <param name="forceUseAlternativePrice">Использование альтернативной цены номенклатуры</param>
+		public CopyingOrder CopyOrderItemsExceptEquipmentReferenced(bool withDiscounts = false, bool withPrices = false)
+		{
+			var equipmentReferencedOrderItems = GetEquipmentReferencedOrderItems();
+
+			var orderItems = _copiedOrder.OrderItems
+				.Where(x => x.PromoSet == null)
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
+				.Where(x => !equipmentReferencedOrderItems.Contains(x));
+
+			foreach(var orderItem in orderItems)
+			{
+				CopyOrderItem(orderItem, withDiscounts, withPrices);
+				CopyDependentOrderEquipment(orderItem);
+			}
+
+			_resultOrder.RecalculateItemsPrice();
+
+			return this;
+		}
+
+		private IEnumerable<OrderItem> GetEquipmentReferencedOrderItems()
+		{
+			var orderRentDepositItems = _copiedOrder.OrderEquipments
+				.Where(x => x.OrderRentDepositItem != null)
+				.Select(x => x.OrderRentDepositItem);
+
+			var orderRentServiceItem = _copiedOrder.OrderEquipments
+				.Where(x => x.OrderRentServiceItem != null)
+				.Select(x => x.OrderRentServiceItem);
+
+			var equipmentReferencedItems = _copiedOrder.OrderEquipments
+				.Where(x => x.OrderItem != null)
+				.Select(x => x.OrderItem);
+
+			return orderRentDepositItems.Concat(orderRentServiceItem).Concat(equipmentReferencedItems);
+		}
+
+		/// <summary>
 		/// Копирование доставки. При переносе из недовоза платная доставка должна переносится со всеми скидками и старой ценой.
 		/// Использовать только после выполнения (<see cref="CopyOrderItems"/>)
 		/// </summary>

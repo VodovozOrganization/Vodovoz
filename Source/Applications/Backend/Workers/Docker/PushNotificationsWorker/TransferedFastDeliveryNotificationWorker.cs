@@ -100,7 +100,7 @@ namespace PushNotificationsWorker
 						
 						if(userApp != null && !string.IsNullOrWhiteSpace(userApp.Token))
 						{
-							await firebaseService.SendFastDeliveryAddressCanceledMessage(
+							await firebaseService.SendFastDeliveryAddressTransferedMessage(
 								userApp.Token,
 								routeListAddress.Order.Id);
 						}

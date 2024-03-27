@@ -25,6 +25,7 @@ using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -712,6 +713,20 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.NotDelivered,
 				OrderStatus.DeliveryCanceled,
 				OrderStatus.Canceled
+			};
+		}
+
+		public static OrderStatus[] GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion()
+		{
+			return new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
 			};
 		}
 
@@ -1570,6 +1585,42 @@ namespace Vodovoz.EntityRepositories.Orders
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 
 			return query.List<OrderWithAllocation>();
+		}
+
+		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
+		{
+			var referredCounterpartiesCount =
+			(
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.Referrer.Id == referrerId
+
+				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
+										  where orders.Client.Id == counterparty.Id
+										  && GetOnClosingOrderStatuses().Contains(orders.OrderStatus)
+										  select orders.Id
+
+				where finishedReferOrders.Any()
+				select counterparty.Id
+			)
+			.Count();
+
+			return referredCounterpartiesCount;
+		}
+
+		public int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId)
+		{
+			var alreadyReceivedBottlesByReferPromotion =
+			(
+				from orderItems in uow.Session.Query<OrderItem>()
+				where orderItems.Order.Client.Id == order.Client.Id
+				&& orderItems.Order.Id != order.Id
+				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
+				select (orderItems.ActualCount ?? orderItems.Count)
+			)
+			.Sum(x => (int?)x);
+
+			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
 
 		public class NotFullyPaidOrderNode

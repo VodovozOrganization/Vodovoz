@@ -54,7 +54,7 @@ namespace RoboatsCallsWorker
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddBusiness()
+				.AddBusiness(Configuration)
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

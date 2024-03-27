@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -407,6 +407,7 @@
     <EmbeddedResource Include="icons\pacs\short-break-default.png" />
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
     <EmbeddedResource Include="icons\toolbar\1s_default.png" />
+    <EmbeddedResource Include="icons\common\Сalendar.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -2041,11 +2042,18 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionView.cs" />
     <Compile Include="Views\Orders\UndeliveryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryView.cs" />
+    <Compile Include="ViewWidgets\GtkUI\EntitySelection.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.EntitySelection.cs" />
+    <Compile Include="Views\EntityButtonsSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
+    <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="ViewWidgets\GtkUI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
