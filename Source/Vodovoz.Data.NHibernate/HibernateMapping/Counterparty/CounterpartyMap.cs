@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
@@ -68,6 +67,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			Map(x => x.RoboatsExclude).Column("roboats_exclude");
+			Map(x => x.ExcludeFromAutoCalls).Column("exclude_from_auto_calls");
 			Map(x => x.ReasonForLeaving).Column("reason_for_leaving");
 			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status");
 			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
@@ -126,14 +126,16 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
 				.KeyColumn("counterparty_id");
 
-			HasManyToMany(x => x.Tags).Table("counterparty_tags")
-									  .ParentKeyColumn("counterparty_id")
-									  .ChildKeyColumn("tag_id")
-									  .LazyLoad();
-			HasManyToMany(x => x.SalesChannels).Table("sales_channel_to_counterparty")
-						  .ParentKeyColumn("counterparty_id")
-						  .ChildKeyColumn("sales_channel_id")
-						  .LazyLoad();
+			HasManyToMany(x => x.Tags)
+				.Table("counterparty_tags")
+				.ParentKeyColumn("counterparty_id")
+				.ChildKeyColumn("tag_id")
+				.LazyLoad();
+			HasManyToMany(x => x.SalesChannels)
+				.Table("sales_channel_to_counterparty")
+				.ParentKeyColumn("counterparty_id")
+				.ChildKeyColumn("sales_channel_id")
+				.LazyLoad();
 		}
 	}
 }
