@@ -1,10 +1,10 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.Services;
 using QS.Utilities;
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,7 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Settings.Counterparty;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
@@ -160,6 +161,8 @@ namespace Vodovoz.Domain.Client
 		private CounterpartySubtype _counterpartySubtype;
 		private bool _isLiquidating;
 		private bool _sendBillByEdo;
+		private bool _excludeFromAutoCalls;
+		private Counterparty _refferer;
 
 		#region Свойства
 
@@ -939,6 +942,16 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _roboatsExclude, value);
 		}
 
+		/// <summary>
+		/// Отказ от автообзвона
+		/// </summary>
+		[Display(Name = "Отказ от автообзвонов")]
+		public virtual bool ExcludeFromAutoCalls
+		{
+			get => _excludeFromAutoCalls;
+			set => SetField(ref _excludeFromAutoCalls, value);
+		}
+
 		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
 		[Display(Name = "Каналы сбыта")]
 		public virtual IList<SalesChannel> SalesChannels
@@ -1039,6 +1052,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _worksThroughOrganization;
 			set => SetField(ref _worksThroughOrganization, value);
+		}
+
+		[Display(Name = "Клиент, который привёл друга")]
+		public virtual Counterparty Referrer
+		{
+			get => _refferer;
+			set => SetField(ref _refferer, value);
 		}
 
 		#endregion Свойства
@@ -1313,32 +1333,13 @@ namespace Vodovoz.Domain.Client
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(bottlesRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(IDepositRepository)) is IDepositRepository depositRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(depositRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(IMoneyRepository)) is IMoneyRepository moneyRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(moneyRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(
-				typeof(ICounterpartyRepository)) is ICounterpartyRepository counterpartyRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(counterpartyRepository)}");
-			}
-
-			if(!(validationContext.ServiceContainer.GetService(typeof(IOrderRepository)) is IOrderRepository orderRepository))
-			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderRepository)}");
-			}
+		{			
+			var counterpartySettings = validationContext.GetRequiredService<ICounterpartySettings>();
+			var counterpartyRepository = validationContext.GetRequiredService<ICounterpartyRepository>();
+			var bottlesRepository = validationContext.GetRequiredService<IBottlesRepository>();
+			var depositRepository = validationContext.GetRequiredService<IDepositRepository>();
+			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
+			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();			
 
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver))
 			{
@@ -1611,6 +1612,12 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult($"Адрес электронной почты {email.Address} имеет неправильный формат.");
 				}
 			}
+
+			if(CameFrom != null && Referrer == null && CameFrom.Id == counterpartySettings.ReferFriendPromotionCameFromId)
+			{
+				yield return new ValidationResult("Не выбран клиент, который привёл друга");
+			}
+
 		}
 
 		#endregion

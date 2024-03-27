@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
-			Map(x => x.CarTypeOfUse).Column("car_type_of_use").CustomType<CarTypeOfUseStringType>();
+			Map(x => x.CarTypeOfUse).Column("car_type_of_use");
 			Map(x => x.MaxVolume).Column("max_volume");
 			Map(x => x.MaxWeight).Column("max_weight");
 

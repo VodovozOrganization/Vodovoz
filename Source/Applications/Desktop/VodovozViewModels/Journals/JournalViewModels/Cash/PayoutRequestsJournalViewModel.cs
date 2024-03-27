@@ -25,6 +25,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
@@ -40,7 +41,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IUserRepository _userRepository;
-
+		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
@@ -76,6 +77,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
 			IUserRepository userRepository,
+			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever,
 			bool createSelectAction = true)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -89,7 +91,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository)); ;
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
+				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
 			_createSelectAction = createSelectAction;
 
 			TabName = "Журнал заявок ДС";
@@ -476,7 +480,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_employeeRepository,
 				_cashRepository,
 				NavigationManager,
-				_scope
+				_scope,
+				_cashRequestForDriverIsGivenForTakeNotificationReciever
 			);
 		}
 

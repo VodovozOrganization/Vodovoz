@@ -6,6 +6,7 @@ using QS.Deletion;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
@@ -334,10 +335,9 @@ namespace Vodovoz.JournalViewModels
 						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var route in routes) {
-							tdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
-								() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
-							);
+							var page = NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(route.Key));
+
+							page.ViewModel.SelectOrdersById(route.Select(x => x.Order.Id).ToArray());
 						}
 					}
 				)

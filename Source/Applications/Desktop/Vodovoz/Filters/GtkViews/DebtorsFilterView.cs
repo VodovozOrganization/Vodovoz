@@ -127,6 +127,10 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxHasTask.Binding
 				.AddBinding(ViewModel, x => x.DebtorsTaskStatus, x => x.SelectedItemOrNull)
 				.InitializeFromSource();
+
+			ycheckbuttonHideExcludedFromAutoCalls.Binding
+				.AddBinding(ViewModel, vm => vm.HideExcludeFromAutoCalls, w => w.Active)
+				.InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)

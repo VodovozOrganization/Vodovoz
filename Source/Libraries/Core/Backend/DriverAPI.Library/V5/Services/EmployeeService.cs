@@ -42,5 +42,10 @@ namespace DriverAPI.Library.V5.Services
 		{
 			return _employeeRepository.GetSubscribedToPushNotificationsDrivers(_unitOfWork);
 		}
+
+		public string GetDriverPushTokenById(int notifyableEmployeeId)
+		{
+			return _employeeRepository.GetDriverPushTokenById(_unitOfWork, notifyableEmployeeId);
+		}
 	}
 }

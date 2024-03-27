@@ -65,6 +65,8 @@ namespace Vodovoz.Dialogs
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;
+
+			undelivery.CreateOkkDiscussion(UoW);
 		}
 
 		private bool IsSaved() => Save(false, true);
@@ -172,7 +174,7 @@ namespace Vodovoz.Dialogs
 				return true;
 			}
 
-			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo(_orderRepository));
+			otherUndelivery.AddAutoCommentToOkkDiscussion(UoW, undelivery.GetUndeliveryInfo(_orderRepository));
 			_addedCommentToOldUndelivery = true;
 			return false;
 		}

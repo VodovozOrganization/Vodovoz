@@ -367,7 +367,7 @@ namespace Vodovoz.JournalViewModels
 					navigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
 					return null;
 				case RouteListStatus.EnRoute:
-					navigationManager.OpenTdiTab<RouteListKeepingDlg, int>(this, node.Id);
+					navigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
 					return null;
 				case RouteListStatus.Delivered:
 				case RouteListStatus.OnClosing:

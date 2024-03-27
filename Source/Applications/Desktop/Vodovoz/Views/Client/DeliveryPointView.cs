@@ -46,18 +46,18 @@ namespace Vodovoz.Views.Client
 
 		private void Configure()
 		{
-			notebook1.Binding
+			notebook.Binding
 				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
 				.InitializeFromSource();
 
-			notebook1.SwitchPage += (o, args) =>
+			notebook.SwitchPage += (o, args) =>
 			{
 				if(args.PageNum == 1)
 				{
 					radioFixedPrices.Active = true;
 				}
 			};
-			notebook1.ShowTabs = false;
+			notebook.ShowTabs = false;
 			buttonSave.Clicked += (sender, args) =>
 			{
 				ViewModel.Save(true);
@@ -76,8 +76,19 @@ namespace Vodovoz.Views.Client
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
 				(s, a) => ViewModel.ApplyOrderSumLimitsToAllDeliveryPointsOfClient();
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Sensitive = ViewModel.CanEdit;
-			radioInformation.Toggled += RadioInformationOnToggled;
+			
+			radioInformation.Binding
+				.AddBinding(ViewModel, vm => vm.IsInformationActive, w => w.Active)
+				.InitializeFromSource();
+			
 			radioFixedPrices.Toggled += RadioFixedPricesOnToggled;
+			radioFixedPrices.Binding
+				.AddBinding(ViewModel, vm => vm.IsFixedPricesActive, w => w.Active)
+				.InitializeFromSource();
+			
+			radioSitesAndApps.Binding
+				.AddBinding(ViewModel, vm => vm.IsSitesAndAppsActive, w => w.Active)
+				.InitializeFromSource();
 
 			ybuttonOpenOnMap.Binding
 				.AddBinding(ViewModel.Entity, e => e.CoordinatesExist, w => w.Visible)
@@ -277,6 +288,18 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.LunchTimeTo, w => w.Time)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
+			#region Вкладка Сайты и приложения
+			
+			textViewOnlineComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.OnlineComment, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			entryIntercom.Binding
+				.AddBinding(ViewModel.Entity, e => e.Intercom, w => w.Text)
+				.InitializeFromSource();
+
+			#endregion
 
 			//make actions menu
 			var menu = new Menu();
@@ -673,14 +696,6 @@ namespace Vodovoz.Views.Client
 
 		#region Toggles
 
-		private void RadioInformationOnToggled(object sender, EventArgs e)
-		{
-			if(radioInformation.Active)
-			{
-				notebook1.CurrentPage = 0;
-			}
-		}
-
 		private void RadioFixedPricesOnToggled(object sender, EventArgs e)
 		{
 			if(radioFixedPrices.Active)
@@ -690,8 +705,6 @@ namespace Vodovoz.Views.Client
 					fixedpricesview.ViewModel = ViewModel.FixedPricesViewModel;
 					fixedpricesview.Sensitive = ViewModel.CanEditNomenclatureFixedPrice && ViewModel.CanEdit;
 				}
-
-				notebook1.CurrentPage = 1;
 			}
 		}
 

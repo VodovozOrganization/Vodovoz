@@ -8,7 +8,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryModel;
+		private global::QS.Views.Control.EntityEntry entryModel;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowOwnType;
 
@@ -56,10 +56,9 @@ namespace Vodovoz.Filters.GtkViews
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryModel = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryModel = new global::QS.Views.Control.EntityEntry();
 			this.entryModel.Events = ((global::Gdk.EventMask)(256));
 			this.entryModel.Name = "entryModel";
-			this.entryModel.CanEditReference = false;
 			this.table1.Add(this.entryModel);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryModel]));
 			w2.TopAttach = ((uint)(2));

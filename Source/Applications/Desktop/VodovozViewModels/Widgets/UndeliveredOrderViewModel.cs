@@ -11,7 +11,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,7 +39,6 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private UndeliveryObject _entityObject;
 		private IList<UndeliveryObject> _entityObjectSource;
 		private IList<UndeliveryKind> _entityKindSource;
 		private IList<UndeliveryKind> _entityKinds;
@@ -59,6 +57,9 @@ namespace Vodovoz.ViewModels.Widgets
 		private DelegateCommand _addCommentToTheFieldCommand;
 		private DelegateCommand _clearDetalizationCommand;
 		private ITdiTab _newOrderDlg;
+		private UndeliveryObject _undeliveryObject;
+		private bool _isUndeliveryStatusChanged;
+		private bool _isDepartmentChanged;
 
 		public UndeliveredOrderViewModel(
 			UndeliveredOrder entity,
@@ -173,7 +174,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			if(e.PropertyName == nameof(Entity.UndeliveryStatus))
 			{
-				Entity.AddAutoCommentByChangeStatus();
+				_isUndeliveryStatusChanged = true;				
 			}
 
 			if(e.PropertyName == nameof(Entity.DriverCallType))
@@ -301,7 +302,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 				if(sb.Length > 0)
 				{
-					Entity.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+					Entity.AddAutoCommentToOkkDiscussion(UoW, text);
 				}
 			}
 
@@ -427,8 +428,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
-		public Func<bool> IsSaved;
-		private UndeliveryObject _undeliveryObject;
+		public Func<bool> IsSaved;		
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -445,11 +445,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand AddCommentToTheFieldCommand => _addCommentToTheFieldCommand ?? (_addCommentToTheFieldCommand = new DelegateCommand(
 			() =>
 			{
-				Entity.AddCommentToTheField(
-					UoW,
-					CommentedFields.Reason,
-					$"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\""
-				);
+				_isDepartmentChanged = true;
 			}));
 
 		public DelegateCommand AddResultCommand => _addResultCommand ?? (_addResultCommand = new DelegateCommand(
@@ -471,6 +467,16 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand BeforeSaveCommand => _beforeSaveCommand ?? (_beforeSaveCommand = new DelegateCommand(
 			() =>
 			{
+				if(_isUndeliveryStatusChanged)
+				{
+					Entity.AddAutoCommentByChangeStatus();
+				}
+
+				if(_isDepartmentChanged && _initialProcDepartmentName != Entity.InProcessAtDepartment?.Name) 
+				{
+					Entity.AddAutoCommentToOkkDiscussion(UoW, $"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\"");
+				}
+
 				AddAutocomment();
 				Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				Entity.LastEditedTime = DateTime.Now;

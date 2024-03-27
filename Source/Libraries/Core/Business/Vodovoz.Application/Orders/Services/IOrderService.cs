@@ -8,6 +8,7 @@ namespace Vodovoz.Application.Orders.Services
 	{
 		int PaidDeliveryNomenclatureId { get; }
 
+		void CheckAndAddBottlesToReferrerByReferFriendPromo(IUnitOfWork uow, Order order, bool canChangeDiscountValue);
 		int CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs);
 		int CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
 		Task<Order> CreateOrderWithPaymentByQrCode(string phone, RoboatsOrderArgs roboatsOrderArgs, bool needAcceptOrder);
