@@ -159,5 +159,39 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			return uow.GetById<RouteListItem>(routeListAddressId);
 		}
+
+		public IDictionary<RouteListItem, RouteListItem> GetRouteListTransfersToDriver(IUnitOfWork unitOfWork, int driverId)
+		{
+			var targetAddresses =
+				(from routeListAddress in unitOfWork.Session.Query<RouteListItem>()
+				 where routeListAddress.RouteList.Driver.Id == driverId
+				  && routeListAddress.WasTransfered
+				 select routeListAddress)
+				.ToList();
+
+			var result = new Dictionary<RouteListItem, RouteListItem>();
+
+			foreach(var targetAddress in targetAddresses)
+			{
+
+			}
+		}
+
+		public IDictionary<RouteListItem, RouteListItem> GetRouteListTransfersFromDriver(IUnitOfWork unitOfWork, int driverId)
+		{
+			var sourceAddresses =
+				(from routeListAddress in unitOfWork.Session.Query<RouteListItem>()
+				 where routeListAddress.RouteList.Driver.Id == driverId
+				  && routeListAddress.WasTransfered
+				 select routeListAddress)
+				.ToList();
+
+			var result = new Dictionary<RouteListItem, RouteListItem>();
+
+			foreach(var sourceAddress in sourceAddresses)
+			{
+				
+			}
+		}
 	}
 }

@@ -10,13 +10,14 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Library.V5.Services
 {
 	internal class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
-		private readonly Vodovoz.Services.Logistics.IRouteListService _routeListService;
+		private readonly IDomainRouteListService _domainRouteListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly RouteListConverter _routeListConverter;
@@ -29,7 +30,7 @@ namespace DriverAPI.Library.V5.Services
 			RouteListConverter routeListConverter,
 			IEmployeeRepository employeeRepository,
 			IUnitOfWork unitOfWork,
-			Vodovoz.Services.Logistics.IRouteListService routeListService)
+			IDomainRouteListService domainRouteListService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -37,7 +38,7 @@ namespace DriverAPI.Library.V5.Services
 			_routeListConverter = routeListConverter ?? throw new ArgumentNullException(nameof(routeListConverter));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
 		}
 
 		public RouteListDto GetRouteList(int routeListId)
@@ -49,7 +50,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(!routeList.SpecialConditionsAccepted)
 			{
-				spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+				spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
 			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
@@ -68,7 +69,7 @@ namespace DriverAPI.Library.V5.Services
 
 					if(!routeList.SpecialConditionsAccepted)
 					{
-						spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
+						spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
 					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
@@ -229,12 +230,12 @@ namespace DriverAPI.Library.V5.Services
 			return routeList?.Driver?.Id == driverId;
 		}
 
-		public Result<RouteListAddressTransferInfo> GetTransfersShortInfoByRecievingDriverId(int driverId)
+		public Result<IEnumerable<RouteListAddressTransferInfo>> GetTransfersShortInfoByRecievingDriverId(int driverId)
 		{
-			throw new NotImplementedException();
+			var transfers = _routeListItemRepository.GetRouteListTransfersToDriver(driverId);
 		}
 
-		public Result<RouteListAddressTransferInfo> GetTransfersShortInfoByTransferingDriverId(int driverId)
+		public Result<IEnumerable<RouteListAddressTransferInfo>> GetTransfersShortInfoByTransferingDriverId(int driverId)
 		{
 			throw new NotImplementedException();
 		}
