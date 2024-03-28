@@ -1523,7 +1523,8 @@ namespace Vodovoz.EntityRepositories.Orders
 					ODZComment = o.ODZComment,
 					OPComment = o.OPComment,
 					DriverMobileAppComment = o.DriverMobileAppComment,
-					IsCoolerAddedToOrder = o.IsCoolerAddedToOrder
+					IsCoolerAddedToOrder = o.IsCoolerAddedToOrder,
+					IsSmallBottlesAddedToOrder = o.IsSmallBottlesAddedToOrder
 				})
 				.ToList();
 
@@ -1658,10 +1659,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			public string OPComment { get; set; }
 			public string DriverMobileAppComment { get; set; }
 			public bool IsCoolerAddedToOrder { get; set; }
-			public bool IsSmallBottlesAddedToOrder =>
-				Total500mlBottlesToDeliver > 10
-				|| Total1500mlBottlesToDeliver > 4
-				|| Total6LBottlesToDeliver > 2;
+			public bool IsSmallBottlesAddedToOrder { get; set; }
 		}
 	}
 
