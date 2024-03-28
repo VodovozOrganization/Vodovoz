@@ -1,41 +1,58 @@
-﻿using System;
+﻿using GMap.NET;
+using GMap.NET.GtkSharp;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.Serialization;
-using GMap.NET;
-using GMap.NET.GtkSharp;
-using NHibernate.Util;
 
 namespace Vodovoz.Additions.Logistic
 {
 	[Serializable]
 	public class PointMarker : GMapMarker, ISerializable, IDeserializationCallback
 	{
-		Bitmap Bitmap;
-		Bitmap BitmapShadow;
-		Bitmap _bitmapLogisticsRequirements;
+		private static readonly Dictionary<string, Bitmap> _iconCache = new Dictionary<string, Bitmap>();
 
-		private PointMarkerType type;
-		public PointMarkerType Type
+		private Bitmap _mainMarker;
+		private Bitmap _shadowMarker;
+		private Bitmap _logisticsRequirementsMarker;
+		private Bitmap _orderInfoMarker;
+
+		private PointMarkerType _mainMarkerType;
+		private PointMarkerShape _mainMarkerShape;
+		private PointMarkerType? _orderInfoMarkerType;
+		private PointMarkerShape? _orderInfoMarkerShape;
+		private PointMarkerType? _logisticsRequirementsMarkerType;
+		private PointMarkerShape? _logisticsRequirementsMarkerShape;
+
+		public PointMarker(PointLatLng p, PointMarkerType mainMarkerType)
+			: base(p)
 		{
-			get
-			{
-				return type;
-			}
+			MainMarkerType = mainMarkerType;
+		}
+
+		public PointMarker(PointLatLng p, PointMarkerType mainMarkerType, PointMarkerShape mainMarkerShape)
+			: this(p, mainMarkerType)
+		{
+			MainMarkerShape = mainMarkerShape;
+		}
+
+		public PointMarkerType MainMarkerType
+		{
+			get => _mainMarkerType;
 			set
 			{
-				type = value;
-				if (type != PointMarkerType.none && shape != PointMarkerShape.none)
+				_mainMarkerType = value;
+
+				if(_mainMarkerType != PointMarkerType.none && _mainMarkerShape != PointMarkerShape.none)
 				{
-					LoadBitmap();
+					SetMainAndShadowMarkers();
 				}
 
-				if (IsVisible)
+				if(IsVisible)
 				{
-					if (Overlay != null && Overlay.Control != null)
+					if(Overlay != null && Overlay.Control != null)
 					{
-						if (!Overlay.Control.HoldInvalidation)
+						if(!Overlay.Control.HoldInvalidation)
 						{
 							Overlay.Control.Invalidate();
 						}
@@ -44,125 +61,204 @@ namespace Vodovoz.Additions.Logistic
 			}
 		}
 
-		private PointMarkerShape shape;
-		public PointMarkerShape Shape {
-			get => shape;
-			set {
-				shape = value;
-				if(shape != PointMarkerShape.none && type != PointMarkerType.none)
-					LoadBitmap();				
+		public PointMarkerShape MainMarkerShape
+		{
+			get => _mainMarkerShape;
+			set
+			{
+				_mainMarkerShape = value;
+				if(_mainMarkerShape != PointMarkerShape.none && _mainMarkerType != PointMarkerType.none)
+				{
+					SetMainAndShadowMarkers();
+				}
 
 				if(IsVisible
 				   && Overlay != null && Overlay.Control != null
 				   && !Overlay.Control.HoldInvalidation)
+				{
 					Overlay.Control.Invalidate();
+				}
 			}
 		}
-
-		private PointMarkerShape? _logisticsRequirementsMarkerShape;
-		public PointMarkerShape? LogisticsRequirementsMarkerShape
-		{
-			get { return _logisticsRequirementsMarkerShape; }
-			set { _logisticsRequirementsMarkerShape = value; }
-		}
-
-		private PointMarkerType? _logisticsRequirementsMarkerType;
 
 		public PointMarkerType? LogisticsRequirementsMarkerType
 		{
-			get { return _logisticsRequirementsMarkerType; }
-			set { _logisticsRequirementsMarkerType = value; }
-		}
-
-
-		public PointMarker(PointLatLng p, PointMarkerType type)
-			: base(p)
-		{
-			this.Type = type;
-		}
-
-		public PointMarker(PointLatLng p, PointMarkerType type, PointMarkerShape shape)
-			: this(p, type)
-		{
-			this.Shape = shape;
-		}
-
-		public PointMarker(PointLatLng p, PointMarkerType type, PointMarkerShape shape, PointMarkerType logisticsRequirementsType, PointMarkerShape logisticsRequirementsShape)
-			: this(p, type)
-		{
-			LogisticsRequirementsMarkerShape = logisticsRequirementsShape;
-			LogisticsRequirementsMarkerType = logisticsRequirementsType;
-			Shape = shape;
-		}
-
-		void LoadBitmap()
-		{
-			string iconPath = string.Join(".", Shape.ToString(), Type.ToString());
-			Bitmap = GetIcon(iconPath);
-			Size = new Size(Bitmap.Width, Bitmap.Height);
-
-			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
-
-			string shadowPath = string.Join(".", Shape.ToString(), "marker_shadow");
-			BitmapShadow = GetIcon(shadowPath);
-
-			if (LogisticsRequirementsMarkerShape != null 
-				&& LogisticsRequirementsMarkerType != null 
-				&& LogisticsRequirementsMarkerShape != PointMarkerShape.none 
-				&& LogisticsRequirementsMarkerType != PointMarkerType.none)
+			get => _logisticsRequirementsMarkerType;
+			set
 			{
-				string logisticsRequirementsIconPath = string.Join(".", LogisticsRequirementsMarkerShape.ToString(), LogisticsRequirementsMarkerType.ToString());
-				_bitmapLogisticsRequirements = GetIcon(logisticsRequirementsIconPath);
+				_logisticsRequirementsMarkerType = value;
+				SetLogisticsRequirementsMarker();
 			}
 		}
 
-		static readonly Dictionary<string, Bitmap> iconCache = new Dictionary<string, Bitmap>();
+		public PointMarkerShape? LogisticsRequirementsMarkerShape
+		{
+			get => _logisticsRequirementsMarkerShape;
+			set
+			{
+				_logisticsRequirementsMarkerShape = value;
+				SetLogisticsRequirementsMarker();
+			}
+		}
+
+		public PointMarkerType? OrderInfoMarkerType
+		{
+			get => _orderInfoMarkerType;
+			set
+			{
+				_orderInfoMarkerType = value;
+				SetOrderInfoMarker();
+			}
+		}
+
+		public PointMarkerShape? OrderInfoMarkerShape
+		{
+			get => _orderInfoMarkerShape;
+			set
+			{
+				_orderInfoMarkerShape = value;
+				SetOrderInfoMarker();
+			}
+		}
+
+		private void SetMainAndShadowMarkers()
+		{
+			SetMainMarker();
+			SetShadowMarker();
+		}
+
+		private void SetMainMarker()
+		{
+			var iconPath = string.Join(".", MainMarkerShape.ToString(), MainMarkerType.ToString());
+
+			_mainMarker = GetIcon(iconPath);
+
+			Size = new Size(_mainMarker.Width, _mainMarker.Height);
+			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
+		}
+
+		private void SetShadowMarker()
+		{
+			var shadowPath = string.Join(".", MainMarkerShape.ToString(), "marker_shadow");
+			_shadowMarker = GetIcon(shadowPath);
+		}
+
+		private void SetLogisticsRequirementsMarker()
+		{
+			if(LogisticsRequirementsMarkerShape == null
+				|| LogisticsRequirementsMarkerShape == PointMarkerShape.none
+				|| LogisticsRequirementsMarkerType == null
+				|| LogisticsRequirementsMarkerType == PointMarkerType.none)
+			{
+				_logisticsRequirementsMarker = null;
+
+				return;
+			}
+
+			var logisticsRequirementsIconPath = string.Join(
+				 ".",
+				 LogisticsRequirementsMarkerShape.ToString(),
+				 LogisticsRequirementsMarkerType.ToString());
+
+			_logisticsRequirementsMarker = GetIcon(logisticsRequirementsIconPath);
+		}
+
+		private void SetOrderInfoMarker()
+		{
+			if(OrderInfoMarkerShape == null || OrderInfoMarkerShape == PointMarkerShape.none
+				|| OrderInfoMarkerType == null || OrderInfoMarkerType == PointMarkerType.none)
+			{
+				_orderInfoMarker = null;
+
+				return;
+			}
+
+			var orderInfoIconPath = string.Join(".", OrderInfoMarkerShape.ToString(), OrderInfoMarkerType.ToString());
+			_orderInfoMarker = GetIcon(orderInfoIconPath);
+		}
 
 		internal static Bitmap GetIcon(string name)
 		{
-			Bitmap ret;
-			if (!iconCache.TryGetValue(name, out ret))
+			if(!_iconCache.TryGetValue(name, out Bitmap ret))
 			{
-				string resourceName = String.Format("Vodovoz.icons.map.points.{0}.png", name);
+				string resourceName = string.Format("Vodovoz.icons.map.points.{0}.png", name);
 				ret = new Bitmap(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName));
-				iconCache.Add(name, ret);
+				_iconCache.Add(name, ret);
 			}
+
 			return ret;
 		}
 
 		public static Gdk.Pixbuf GetIconPixbuf(string name, PointMarkerShape shape = PointMarkerShape.circle)
 		{
-			string resourceName = String.Format("Vodovoz.icons.map.points.{0}.{1}.png", shape.ToString(), name);
+			var resourceName = string.Format("Vodovoz.icons.map.points.{0}.{1}.png", shape.ToString(), name);
 			return new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(), resourceName);
 		}
 
 		public override void OnRender(Graphics g)
 		{
-			if(BitmapShadow != null)
+			if(_shadowMarker != null)
 			{
-				g.DrawImage(BitmapShadow, LocalPosition.X, LocalPosition.Y, BitmapShadow.Width, BitmapShadow.Height);
+				g.DrawImage(_shadowMarker, LocalPosition.X, LocalPosition.Y, _shadowMarker.Width, _shadowMarker.Height);
 			}
-			if(_bitmapLogisticsRequirements != null)
+			if(_logisticsRequirementsMarker != null)
 			{
 				g.DrawImage(
-					_bitmapLogisticsRequirements, 
-					LocalPosition.X + Size.Width, 
-					LocalPosition.Y - Size.Height + 8, 
-					_bitmapLogisticsRequirements.Width, 
-					_bitmapLogisticsRequirements.Height
+					_logisticsRequirementsMarker,
+					LocalPosition.X + Size.Width + 1,
+					LocalPosition.Y - Size.Height + 8,
+					_logisticsRequirementsMarker.Width,
+					_logisticsRequirementsMarker.Height
 					);
 			}
-			g.DrawImage(Bitmap, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);
+			if(_orderInfoMarker != null)
+			{
+				g.DrawImage(
+					_orderInfoMarker,
+					LocalPosition.X - _orderInfoMarker.Width - 1,
+					LocalPosition.Y - Size.Height + 8,
+					_orderInfoMarker.Width,
+					_orderInfoMarker.Height
+					);
+			}
+			g.DrawImage(_mainMarker, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);
 		}
 
 		public override void Dispose()
 		{
-			if (Bitmap != null)
+			if(_mainMarker != null)
 			{
-				if (!iconCache.ContainsValue(Bitmap))
+				if(!_iconCache.ContainsValue(_mainMarker))
 				{
-					Bitmap.Dispose();
-					Bitmap = null;
+					_mainMarker.Dispose();
+					_mainMarker = null;
+				}
+			}
+
+			if(_shadowMarker != null)
+			{
+				if(!_iconCache.ContainsValue(_shadowMarker))
+				{
+					_shadowMarker.Dispose();
+					_shadowMarker = null;
+				}
+			}
+
+			if(_logisticsRequirementsMarker != null)
+			{
+				if(!_iconCache.ContainsValue(_logisticsRequirementsMarker))
+				{
+					_logisticsRequirementsMarker.Dispose();
+					_logisticsRequirementsMarker = null;
+				}
+			}
+
+			if(_orderInfoMarker != null)
+			{
+				if(!_iconCache.ContainsValue(_orderInfoMarker))
+				{
+					_orderInfoMarker.Dispose();
+					_orderInfoMarker = null;
 				}
 			}
 
@@ -173,8 +269,8 @@ namespace Vodovoz.Additions.Logistic
 
 		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			info.AddValue("type", this.type);
-			info.AddValue("shape", this.shape);
+			info.AddValue("type", _mainMarkerType);
+			info.AddValue("shape", _mainMarkerShape);
 
 			base.GetObjectData(info, context);
 		}
@@ -182,8 +278,8 @@ namespace Vodovoz.Additions.Logistic
 		protected PointMarker(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
-			this.type = GMap.NET.Extensions.GetStruct<PointMarkerType>(info, "type", PointMarkerType.none);
-			this.Shape = GMap.NET.Extensions.GetStruct<PointMarkerShape>(info, "shape", PointMarkerShape.none);
+			MainMarkerType = GMap.NET.Extensions.GetStruct<PointMarkerType>(info, "type", PointMarkerType.none);
+			MainMarkerShape = GMap.NET.Extensions.GetStruct<PointMarkerShape>(info, "shape", PointMarkerShape.none);
 		}
 
 		#endregion
@@ -192,9 +288,9 @@ namespace Vodovoz.Additions.Logistic
 
 		public void OnDeserialization(object sender)
 		{
-			if (type != PointMarkerType.none && Shape != PointMarkerShape.none)
+			if(_mainMarkerType != PointMarkerType.none && MainMarkerShape != PointMarkerShape.none)
 			{
-				LoadBitmap();
+				SetMainAndShadowMarkers();
 			}
 		}
 

@@ -1513,14 +1513,18 @@ namespace Vodovoz.EntityRepositories.Orders
 					DeliverySchedule = o.DeliverySchedule,
 					Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
 					Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
+					Total1500mlBottlesToDeliver = o.Total1500mlBottlesToDeliver,
 					Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
+					Total500mlBottlesToDeliver = o.Total500mlBottlesToDeliver,
 					BottlesReturn = o.BottlesReturn,
 					OrderComment = o.Comment,
 					DeliveryPointComment = o.DeliveryPoint.Comment,
 					CommentManager = o.CommentManager,
 					ODZComment = o.ODZComment,
 					OPComment = o.OPComment,
-					DriverMobileAppComment = o.DriverMobileAppComment
+					DriverMobileAppComment = o.DriverMobileAppComment,
+					IsCoolerAddedToOrder = o.IsCoolerAddedToOrder,
+					IsSmallBottlesAddedToOrder = o.IsSmallBottlesAddedToOrder
 				})
 				.ToList();
 
@@ -1644,7 +1648,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			public DeliverySchedule DeliverySchedule { get; set; }
 			public int Total19LBottlesToDeliver { get; set; }
 			public int Total6LBottlesToDeliver { get; set; }
+			public int Total1500mlBottlesToDeliver { get; set; }
 			public int Total600mlBottlesToDeliver { get; set; }
+			public int Total500mlBottlesToDeliver { get; set; }
 			public int? BottlesReturn { get; set; }
 			public string OrderComment { get; set; }
 			public string DeliveryPointComment { get; set; }
@@ -1652,6 +1658,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			public string ODZComment { get; set; }
 			public string OPComment { get; set; }
 			public string DriverMobileAppComment { get; set; }
+			public bool IsCoolerAddedToOrder { get; set; }
+			public bool IsSmallBottlesAddedToOrder { get; set; }
 		}
 	}
 
