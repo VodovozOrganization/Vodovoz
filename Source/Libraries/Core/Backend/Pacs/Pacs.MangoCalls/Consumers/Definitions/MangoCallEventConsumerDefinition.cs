@@ -27,6 +27,12 @@ namespace Pacs.MangoCalls.Consumers.Definitions
 				rmq.Bind<MangoCallEvent>(x =>
 					x.RoutingKey = "#"
 				);
+
+				rmq.Batch<MangoCallEvent>(x =>
+				{
+					x.MessageLimit = 50;
+					x.ConcurrencyLimit = 1;
+				});
 			}
 		}
 	}

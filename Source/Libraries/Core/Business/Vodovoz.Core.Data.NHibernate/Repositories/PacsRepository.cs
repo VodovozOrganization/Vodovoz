@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Employees;
@@ -26,7 +27,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 				var result = uow.Session.QueryOver(() => callAlias)
 					.Where(() => callAlias.Status != CallStatus.Disconnected)
-					.List();
+					.Where(() => callAlias.CallDirection == CallDirection.Incoming)
+					.Select(Projections.RootEntity())
+					.List()
+					.Distinct();
 
 				return result;
 			}
@@ -40,7 +44,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 				var result = uow.Session.QueryOver(() => callAlias)
 					.Where(() => callAlias.CreationTime >= from)
-					.List();
+					.Where(() => callAlias.CallDirection == CallDirection.Incoming)
+					.List()
+					.Distinct();
 
 				return result;
 			}

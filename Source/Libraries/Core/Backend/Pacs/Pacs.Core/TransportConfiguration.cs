@@ -92,6 +92,7 @@ namespace Pacs.Core
 						}
 					);
 
+					rabbitCfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
 					configureRabbit?.Invoke(context, rabbitCfg);
 
 					rabbitCfg.ConfigureEndpoints(context);

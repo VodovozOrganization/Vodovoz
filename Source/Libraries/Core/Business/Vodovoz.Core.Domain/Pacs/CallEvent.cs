@@ -34,7 +34,7 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual CallDctType? DctType { get; set; }
 		public virtual string SipCallId { get; set; }
 		public virtual string CommandId { get; set; }
-		public virtual string TaskId { get; set; }
+		public virtual int? TaskId { get; set; }
 		public virtual string CallbackInitiator { get; set; }
 	}
 }
