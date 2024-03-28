@@ -768,6 +768,37 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
+		private void FillTypeAndShapeOrderInfoMarker(OrderOnDayNode order, out PointMarkerShape shape, out PointMarkerType type)
+		{
+			shape = PointMarkerShape.none;
+			type = PointMarkerType.none;
+
+			if(!order.IsCoolerAddedToOrder && !order.IsSmallBottlesAddedToOrder)
+			{
+				return;
+			}
+
+			shape = PointMarkerShape.custom;
+
+			if(order.IsCoolerAddedToOrder && order.IsSmallBottlesAddedToOrder)
+			{
+				type = PointMarkerType.order_info_many;
+				return;
+			}
+
+			if(order.IsCoolerAddedToOrder && !order.IsSmallBottlesAddedToOrder)
+			{
+				type = PointMarkerType.order_info_cooler;
+				return;
+			}
+
+			if(!order.IsCoolerAddedToOrder && order.IsSmallBottlesAddedToOrder)
+			{
+				type = PointMarkerType.order_info_small_bottles;
+				return;
+			}
+		}
+
 		private PointMarker FillBaseMarker(GeoGroup geoGroup)
 		{
 			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
@@ -834,10 +865,14 @@ namespace Vodovoz.Views.Logistic
 
 			FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape logisticsRequirementsShape, out PointMarkerType logisticsRequirementsType);
 
+			FillTypeAndShapeOrderInfoMarker(order, out PointMarkerShape orderInfoShape, out PointMarkerType orderInfoType);
+
 			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape, logisticsRequirementsType, logisticsRequirementsShape)
 			{
 				Tag = order,
-				ToolTipText = ttText
+				ToolTipText = ttText,
+				OrderInfoMarkerShape = orderInfoShape,
+				OrderInfoMarkerType = orderInfoType
 			};
 
 			if(route != null)

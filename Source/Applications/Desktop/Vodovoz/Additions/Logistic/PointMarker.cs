@@ -15,6 +15,7 @@ namespace Vodovoz.Additions.Logistic
 		Bitmap Bitmap;
 		Bitmap BitmapShadow;
 		Bitmap _bitmapLogisticsRequirements;
+		Bitmap _bitmapLogisticsOrderInfo;
 
 		private PointMarkerType type;
 		public PointMarkerType Type
@@ -59,6 +60,35 @@ namespace Vodovoz.Additions.Logistic
 			}
 		}
 
+		private PointMarkerShape? _orderInfoMarkerShape;
+		public PointMarkerShape? OrderInfoMarkerShape
+		{
+			get => _orderInfoMarkerShape;
+			set
+			{
+				_orderInfoMarkerShape = value;
+				if(_orderInfoMarkerType != PointMarkerType.none && _orderInfoMarkerShape != PointMarkerShape.none)
+				{
+					LoadBitmap();
+				}
+			}
+		}
+
+		private PointMarkerType? _orderInfoMarkerType;
+
+		public PointMarkerType? OrderInfoMarkerType
+		{
+			get => _orderInfoMarkerType;
+			set
+			{
+				_orderInfoMarkerType = value;
+				if(_orderInfoMarkerType != PointMarkerType.none && _orderInfoMarkerShape != PointMarkerShape.none)
+				{
+					LoadBitmap();
+				}
+			}
+		}
+
 		private PointMarkerShape? _logisticsRequirementsMarkerShape;
 		public PointMarkerShape? LogisticsRequirementsMarkerShape
 		{
@@ -92,7 +122,7 @@ namespace Vodovoz.Additions.Logistic
 		{
 			LogisticsRequirementsMarkerShape = logisticsRequirementsShape;
 			LogisticsRequirementsMarkerType = logisticsRequirementsType;
-			Shape = shape;
+			this.Shape = shape;
 		}
 
 		void LoadBitmap()
@@ -113,6 +143,13 @@ namespace Vodovoz.Additions.Logistic
 			{
 				string logisticsRequirementsIconPath = string.Join(".", LogisticsRequirementsMarkerShape.ToString(), LogisticsRequirementsMarkerType.ToString());
 				_bitmapLogisticsRequirements = GetIcon(logisticsRequirementsIconPath);
+			}
+
+			if(OrderInfoMarkerShape != null && OrderInfoMarkerShape != PointMarkerShape.none
+				&& OrderInfoMarkerType != null && OrderInfoMarkerType != PointMarkerType.none)
+			{
+				string orderInfoIconPath = string.Join(".", OrderInfoMarkerShape.ToString(), OrderInfoMarkerType.ToString());
+				_bitmapLogisticsOrderInfo = GetIcon(orderInfoIconPath);
 			}
 		}
 
@@ -150,6 +187,16 @@ namespace Vodovoz.Additions.Logistic
 					LocalPosition.Y - Size.Height + 8, 
 					_bitmapLogisticsRequirements.Width, 
 					_bitmapLogisticsRequirements.Height
+					);
+			}
+			if(_bitmapLogisticsOrderInfo != null)
+			{
+				g.DrawImage(
+					_bitmapLogisticsOrderInfo,
+					LocalPosition.X - Size.Width,
+					LocalPosition.Y - Size.Height + 8,
+					_bitmapLogisticsOrderInfo.Width,
+					_bitmapLogisticsOrderInfo.Height
 					);
 			}
 			g.DrawImage(Bitmap, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2053,7 +2053,6 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewWidgets\GtkUI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2662,6 +2661,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\1s_work.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\map\points\custom\order_info_cooler.png" />
+    <EmbeddedResource Include="icons\map\points\custom\order_info_many.png" />
+    <EmbeddedResource Include="icons\map\points\custom\order_info_small_bottles.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
