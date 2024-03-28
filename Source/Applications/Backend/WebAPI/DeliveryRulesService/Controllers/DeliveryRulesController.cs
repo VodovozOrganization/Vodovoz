@@ -120,7 +120,7 @@ namespace DeliveryRulesService.Controllers
 						//Если правил дня недели нет берем общие правила района
 						if(!rulesToAdd.Any())
 						{
-							rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
+							rulesToAdd = district.CommonDistrictRuleItems.Select(x => x.Title).ToList();
 						}
 
 						var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
@@ -188,7 +188,7 @@ namespace DeliveryRulesService.Controllers
 						
 					if (!rulesToAdd.Any())
 					{
-						rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
+						rulesToAdd = district.CommonDistrictRuleItems.Select(x => x.Title).ToList();
 					}
 						
 					var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
@@ -387,7 +387,7 @@ namespace DeliveryRulesService.Controllers
 				{
 					DeliveryRules = rules.Any()
 						? FillDeliveryRuleDTO(rules) //Берём все правила дня недели
-						: FillDeliveryRuleDTO(district.ObservableCommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
+						: FillDeliveryRuleDTO(district.CommonDistrictRuleItems), //Если правил дня недели нет берем общие правила района
 					WeekDayEnum = weekDay,
 					ScheduleRestrictions = ReorderScheduleRestrictions(scheduleRestrictions).Select(x => x.Name).ToList()
 				};
