@@ -8,9 +8,9 @@ namespace DeliveryRulesService.Workers
 	public class DistrictCacheWorker : TimerServiceBase
 	{
 		private readonly ILogger<DistrictCacheWorker> _logger;
-		private readonly DistrictCacheService _districtCache;
+		private readonly DeliveryRulesCacheService _districtCache;
 
-		public DistrictCacheWorker(ILogger<DistrictCacheWorker> logger, DistrictCacheService districtCache)
+		public DistrictCacheWorker(ILogger<DistrictCacheWorker> logger, DeliveryRulesCacheService districtCache)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));

@@ -22,7 +22,7 @@ namespace DeliveryRulesService
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-			services.AddDeliveryRulesService();
+			services.AddDeliveryRulesService(Configuration);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

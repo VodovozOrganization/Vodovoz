@@ -2,13 +2,16 @@
 using DeliveryRulesService.HealthChecks;
 using DeliveryRulesService.Workers;
 using Fias.Client;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Models;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
@@ -17,7 +20,7 @@ namespace DeliveryRulesService
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddDeliveryRulesService(this IServiceCollection services)
+		public static IServiceCollection AddDeliveryRulesService(this IServiceCollection services, IConfiguration configuration)
 		{
 			services
 				.AddMvc()
@@ -45,7 +48,8 @@ namespace DeliveryRulesService
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-
+				.AddBusiness(configuration)
+				.AddScoped<FastDeliveryAvailabilityHistoryModel>()
 				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
 				.AddHttpClient()
 				.AddFiasClient()
@@ -54,7 +58,7 @@ namespace DeliveryRulesService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services
-				.AddSingleton<DistrictCacheService>()
+				.AddSingleton<DeliveryRulesCacheService>()
 				.AddScoped<IErrorReporter, ErrorReporter>(_ => ErrorReporter.Instance)
 				.AddScoped<IUserService, UserService>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
