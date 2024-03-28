@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Sale
 		private WeekDayName _weekDay;
 
 		[Display(Name = "День недели")]
-		public virtual WeekDayName WeekDay {
+		public virtual WeekDayName WeekDay
+		{
 			get => _weekDay;
 			set => SetField(ref _weekDay, value);
 		}

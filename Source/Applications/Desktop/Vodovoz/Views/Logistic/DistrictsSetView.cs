@@ -500,8 +500,8 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Мин. бутылей для бесплатной доставки")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x =>
-						x.ObservableCommonDistrictRuleItems.Any()
-							? x.ObservableCommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount).ToString()
+						x.CommonDistrictRuleItems.Any()
+							? x.CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount).ToString()
 							: "-")
 					.XAlign(0.5f)
 				.AddColumn("")
