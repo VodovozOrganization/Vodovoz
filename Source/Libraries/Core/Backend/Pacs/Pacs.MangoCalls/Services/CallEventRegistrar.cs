@@ -15,18 +15,18 @@ namespace Pacs.MangoCalls.Services
 {
 	internal class CallEventRegistrar : ICallEventRegistrar
 	{
-		private readonly ILogger<CallEventRegistrar> _logger;
+		private readonly ILogger _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly CallEventHandlerFactory _callEventHandlerFactory;
 		private readonly IBus _messageBus;
 
 		public CallEventRegistrar(
-			ILogger<CallEventRegistrar> logger,
+			ILoggerFactory loggerFactory,
 			IUnitOfWorkFactory uowFactory,
 			CallEventHandlerFactory callEventHandlerFactory,
 			IBus messageBus)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_logger = loggerFactory.CreateLogger("EventRegistrar.Sequence");
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_callEventHandlerFactory = callEventHandlerFactory ?? throw new ArgumentNullException(nameof(callEventHandlerFactory));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -34,6 +34,8 @@ namespace Pacs.MangoCalls.Services
 
 		public async Task RegisterCallEvents(IEnumerable<MangoCallEvent> mangoCallEvents)
 		{
+			var id = Guid.NewGuid();
+			_logger.LogInformation("Start call event. Thread: {threadId}", id);
 			var callEventHanlers = new Dictionary<string, CallEventHandler>();
 			var pacsCallEvents = new List<PacsCallEvent>();
 
@@ -58,15 +60,18 @@ namespace Pacs.MangoCalls.Services
 				var publishTasks = pacsCallEvents.Select(x => _messageBus.Publish(x));
 				await Task.WhenAll(publishTasks);
 			}
+			_logger.LogInformation("Stop call event. Thread: {threadId}", id);
 		}
 
 		public async Task RegisterSummaryEvent(MangoSummaryEvent summaryEvent)
 		{
+			var id = Guid.NewGuid();
+			_logger.LogInformation("Start summary event. Thread: {threadId}", id);
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var callEventHandler = _callEventHandlerFactory.CreateCallEventHandler(summaryEvent.EntryId, uow);
 				var call = await callEventHandler.HandleSummaryEvent(summaryEvent);
-				_logger.LogInformation($"Summary event | entryId: {summaryEvent.EntryId}, endTime: {summaryEvent.EndTime} ({call.EndTime})");
+				//_logger.LogInformation($"Summary event | entryId: {summaryEvent.EntryId}, endTime: {summaryEvent.EndTime} ({call.EndTime})");
 				await uow.CommitAsync();
 
 				if(call.CallDirection == CallDirection.Incoming)
@@ -74,6 +79,7 @@ namespace Pacs.MangoCalls.Services
 					await _messageBus.Publish(new PacsCallEvent { Call = call });
 				}
 			}
+			_logger.LogInformation("Start summary event. Thread: {threadId}", id);
 		}
 	}
 }

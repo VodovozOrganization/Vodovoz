@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using DocumentFormat.OpenXml.Drawing;
+using Gamma.ColumnConfig;
 using Gtk;
 using QS.ViewModels;
 using QS.Views.GtkUI;
@@ -87,16 +88,24 @@ namespace Vodovoz.Views.Pacs
 					.AddReadOnlyTextRenderer(x => x.Operator)
 				.AddColumn("Статус").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.State)
+				.AddColumn("Результат").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Result)
 				.AddColumn("")
 				.Finish();
 			treeViewAllCalls.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Calls, w => w.ItemsDataSource)
 				.InitializeFromSource();
 			treeViewAllCalls.RowActivated += OnActivateCallRow;
+			treeViewAllCalls.Vadjustment.Changed += Vadjustment_Changed;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
 			hboxHeader.Visible = false;
+		}
+
+		private void Vadjustment_Changed(object sender, System.EventArgs e)
+		{
+			treeViewAllCalls.Vadjustment.Value = 0;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

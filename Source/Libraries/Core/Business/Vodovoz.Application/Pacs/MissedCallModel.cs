@@ -28,18 +28,18 @@ namespace Vodovoz.Application.Pacs
 		private void FindPossibleOperators()
 		{
 			//Операторы которым был дозвон для этого звонка
-			var appearedOperators = _callModel.GetAppearedExtensions();
+			var appearedOperators = _callModel.OperatorSubCalls.Select(x => x.ToExtension);
 
 			foreach(var oper in _operators)
 			{
 				if(!appearedOperators.Contains(oper.CurrentState.PhoneNumber))
 				{
-					return;
+					continue;
 				}
 
 				if(_callModel.Ended == null)
 				{
-					return;
+					continue;
 				}
 
 				if(oper.CanTakeCallBetween(_callModel.Started, _callModel.Ended.Value))

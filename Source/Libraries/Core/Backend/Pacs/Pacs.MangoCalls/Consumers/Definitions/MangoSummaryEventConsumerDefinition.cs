@@ -1,6 +1,7 @@
 ﻿using Core.Infrastructure;
 using Mango.Core.Dto;
 using MassTransit;
+using System;
 
 namespace Pacs.MangoCalls.Consumers.Definitions
 {
@@ -25,6 +26,9 @@ namespace Pacs.MangoCalls.Consumers.Definitions
 				rmq.Durable = true;
 
 				rmq.Bind<MangoSummaryEvent>();
+
+				rmq.ConcurrentMessageLimit = 1;
+				rmq.PrefetchCount = 10;
 			}
 		}
 	}

@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Applications/Backend/WebAPI/Mango.Api.Service/Mango.Api.Service.csproj", "Applications/Backend/WebAPI/Mango.Api.Service/"]
-COPY ["Libraries/Core/Backend/Mango/MangoClient/Mango.Api.csproj", "Libraries/Core/Backend/Mango/MangoClient/"]
+COPY ["Libraries/Core/Backend/Mango/Mango.Api/Mango.Api.csproj", "Libraries/Core/Backend/Mango/Mango.Api/"]
 COPY ["Libraries/Core/Backend/Mango/Mango.CallsPublishing/Mango.CallsPublishing.csproj", "Libraries/Core/Backend/Mango/Mango.CallsPublishing/"]
 COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
 COPY ["Libraries/Core/Backend/Infrastructure/MessageTransport/MessageTransport.csproj", "Libraries/Core/Backend/Infrastructure/MessageTransport/"]
