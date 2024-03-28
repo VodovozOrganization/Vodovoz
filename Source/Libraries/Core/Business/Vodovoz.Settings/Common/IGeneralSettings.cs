@@ -36,6 +36,10 @@ namespace Vodovoz.Settings.Common
 
 		bool GetIsOrderWaitUntilActive { get; }
 		void UpdateIsOrderWaitUntilActive(bool value);
+		bool IsFastDelivery19LBottlesLimitActive { get; }
+		int FastDelivery19LBottlesLimitCount { get; }
+		void UpdateIsFastDelivery19LBottlesLimitActive(bool value);
+		void UpdateFastDelivery19LBottlesLimitCount(int fastDelivery19LBottlesLimitCount);
 		string GetBillAdditionalInfo { get; }
 		void UpdateBillAdditionalInfo(string value);
 		string GetCarLoadDocumentInfoString { get; }

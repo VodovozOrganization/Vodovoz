@@ -55,5 +55,11 @@
 				typeof(Order),
 				nameof(NotInOnTheWayStatus),
 				"Заказ не в статусе в пути");
+
+		public static Error FastDelivery19LBottlesLimitError(int water19lInOrder, int fastDelivery19LBottlesLimit) =>
+			new Error(
+				typeof(Order),
+				nameof(FastDelivery19LBottlesLimitError),
+				$"Максимально допустимое кол-во 19л воды для доставки за час - {fastDelivery19LBottlesLimit}, в заказе указано {water19lInOrder}");
 	}
 }

@@ -2457,6 +2457,23 @@ namespace Vodovoz
 
 			if(Entity.IsFastDelivery)
 			{
+				var isFastDelivery19LBottlesLimitActive = _generalSettingsSettings.IsFastDelivery19LBottlesLimitActive;
+
+				if(isFastDelivery19LBottlesLimitActive)
+				{
+					var water19LInOrderCount = Entity.OrderItems
+					.Where(oi => oi.Nomenclature.Category == NomenclatureCategory.water
+						&& oi.Nomenclature.TareVolume == TareVolume.Vol19L)
+					.Sum(oi => oi.Count);
+
+					var fastDelivery19LBottlesLimitCount = _generalSettingsSettings.FastDelivery19LBottlesLimitCount;
+
+					if(water19LInOrderCount > fastDelivery19LBottlesLimitCount)
+					{
+						return Result.Failure(Errors.Orders.Order.FastDelivery19LBottlesLimitError((int)water19LInOrderCount, fastDelivery19LBottlesLimitCount));
+					}
+				}
+
 				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
 
 				if(fastDeliveryValidationResult.IsFailure)

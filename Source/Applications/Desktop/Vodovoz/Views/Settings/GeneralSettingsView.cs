@@ -65,6 +65,18 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveWaitUntil.Clicked += (sender, args) => ViewModel.SaveOrderWaitUntilActiveCommand.Execute();
 
+			frameFastDeliveryBottlesLimit.Sensitive = ViewModel.CanEditFastDelivery19LBottlesLimitSetting;
+
+			ycheckFastDeliveryBottlesLimit.Binding
+				.AddBinding(ViewModel, vm => vm.IsFastDelivery19LBottlesLimitActive, v => v.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveFastDeliveryBottlesLimit.Clicked += (sender, args) => ViewModel.SaveFastDelivery19LBottlesLimitActiveCommand.Execute();
+
+			yspinbuttonFastDeliveryBottlesLimit.Binding
+				.AddBinding(ViewModel, vm => vm.FastDelivery19LBottlesLimitCount, w => w.ValueAsInt)
+				.InitializeFromSource();
+
 			yentryBillAdditionalinfo.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.BillAdditionalInfo, w => w.Text)

@@ -388,14 +388,14 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
-		public bool Has19LWater(IUnitOfWork uow, int[] siteNomenclaturesIds)
+		public IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] siteNomenclaturesIds)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
 				.WhereRestrictionOn(n => n.Id).IsIn(siteNomenclaturesIds)
 				.And(n => n.Category == NomenclatureCategory.water)
 				.And(n => n.TareVolume == TareVolume.Vol19L)
-				.List()
-				.Any();
+				.Select(n => n.Id)
+				.List<int>();
 		}
 
 		public IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(

@@ -81,7 +81,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		int GetIdentifierOfOnlineShopGroup();
 		decimal GetWaterPriceIncrement { get; }
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
-		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
+		IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] nomenclaturesIds);
 		IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(

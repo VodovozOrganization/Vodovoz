@@ -34,6 +34,15 @@ namespace Vodovoz.Permissions
 		public static string CanEditOrderWaitUntil => nameof(CanEditOrderWaitUntil);
 
 		/// <summary>
+		/// Настройка для редактирование поля "Ожидает до" в заказах<br/>
+		/// Разрешить управлять настройкой для редактирования поля "Ожидает до" в заказах
+		/// </summary>
+		[Display(
+			Name = "Настройка для редактирования лимита бутылей 19л для доставки за час\"",
+			Description = "Разрешить управлять настройкой лимита бутылей 19л для доставки за час\"")]
+		public static string CanEditFastDelivery19LBottlesLimit => nameof(CanEditFastDelivery19LBottlesLimit);
+
+		/// <summary>
 		/// Изменение заказа при наличии кассового чека<br/>
 		/// Пользователь может изменять товары, цены, контрагента в заказе даже при наличии кассового чека по данному заказу
 		/// </summary>
