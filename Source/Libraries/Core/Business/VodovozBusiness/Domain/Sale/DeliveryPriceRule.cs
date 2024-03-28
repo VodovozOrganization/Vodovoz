@@ -9,15 +9,12 @@ using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Domain.Sale
 {
-	[
-		Appellative(
-			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "правила цен доставки",
-			Nominative = "правило цены доставки",
-			Prepositional = "правиле цены доставки",
-			PrepositionalPlural = "правилах цен доставки"
-		)
-	]
+	[Appellative(
+		Gender = GrammaticalGender.Masculine,
+		NominativePlural = "правила цен доставки",
+		Nominative = "правило цены доставки",
+		Prepositional = "правиле цены доставки",
+		PrepositionalPlural = "правилах цен доставки")]
 	[EntityPermission]
 	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
@@ -132,7 +129,7 @@ namespace Vodovoz.Domain.Sale
 
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 
 			if(Water19LCount > 0
 				|| Water6LCount > 0
