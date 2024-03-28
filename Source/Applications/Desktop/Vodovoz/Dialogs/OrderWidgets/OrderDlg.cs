@@ -4406,7 +4406,7 @@ namespace Vodovoz
 		private void SetDeliveryDatePickerSensetive()
 		{
 			pickerDeliveryDate.Sensitive =
-				Order.OrderStatus == OrderStatus.NewOrder
+				(Order.OrderStatus == OrderStatus.NewOrder || Order.OrderStatus == OrderStatus.WaitForPayment)
 				&& (_canEditDeliveryDateAfterOrderConfirmation || Order.Id == 0)
 				&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 		}

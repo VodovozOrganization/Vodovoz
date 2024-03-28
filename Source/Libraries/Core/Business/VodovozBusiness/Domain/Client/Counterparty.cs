@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -161,6 +161,7 @@ namespace Vodovoz.Domain.Client
 		private CounterpartySubtype _counterpartySubtype;
 		private bool _isLiquidating;
 		private bool _sendBillByEdo;
+		private bool _excludeFromAutoCalls;
 		private Counterparty _refferer;
 
 		#region Свойства
@@ -939,6 +940,16 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _roboatsExclude;
 			set => SetField(ref _roboatsExclude, value);
+		}
+
+		/// <summary>
+		/// Отказ от автообзвона
+		/// </summary>
+		[Display(Name = "Отказ от автообзвонов")]
+		public virtual bool ExcludeFromAutoCalls
+		{
+			get => _excludeFromAutoCalls;
+			set => SetField(ref _excludeFromAutoCalls, value);
 		}
 
 		[PropertyChangedAlso(nameof(ObservableSalesChannels))]

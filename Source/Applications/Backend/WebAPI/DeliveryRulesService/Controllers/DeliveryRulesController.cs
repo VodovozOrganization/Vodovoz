@@ -518,23 +518,25 @@ namespace DeliveryRulesService.Controllers
 				})
 				.ToList();
 
+			var nomenclatures19LWaterIds = _nomenclatureRepository.Get19LWaterNomenclatureIds(uow, nomenclatureNodes.Select(x => x.NomenclatureId).ToArray());
+
+			if(!nomenclatures19LWaterIds.Any())
+			{
+				return await ValueTask.FromResult(false);
+			}
+
 			var isFastDelivery19LBottlesLimitActive = _generalSettings.IsFastDelivery19LBottlesLimitActive;
-			
+
 			if(isFastDelivery19LBottlesLimitActive)
 			{
-				var nomenclatures19LWaterIds = _nomenclatureRepository.Get19LWaterNomenclatureIds(uow, nomenclatureNodes.Select(x => x.NomenclatureId).ToArray());
+				var water19LInOrderNodes = nomenclatureNodes.Where(n => nomenclatures19LWaterIds.Contains(n.NomenclatureId));
 
-				if(nomenclatures19LWaterIds.Any())
+				var bottles19lWaterInOrderCount = water19LInOrderNodes.Sum(s => s.Amount);
+				var fastDelivery19LBottlesLimitCount = _generalSettings.FastDelivery19LBottlesLimitCount;
+
+				if(bottles19lWaterInOrderCount > fastDelivery19LBottlesLimitCount)
 				{
-					var water19LInOrderNodes = nomenclatureNodes.Where(n => nomenclatures19LWaterIds.Contains(n.NomenclatureId));
-
-					var bottles19lWaterInOrderCount = water19LInOrderNodes.Sum(s => s.Amount);
-					var fastDelivery19LBottlesLimitCount = _generalSettings.FastDelivery19LBottlesLimitCount;
-
-					if(bottles19lWaterInOrderCount > fastDelivery19LBottlesLimitCount)
-					{
-						return await ValueTask.FromResult(false);
-					}
+					return await ValueTask.FromResult(false);
 				}
 			}
 
