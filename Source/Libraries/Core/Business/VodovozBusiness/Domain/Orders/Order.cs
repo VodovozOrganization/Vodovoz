@@ -1956,9 +1956,9 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool HasPermissionsForAlternativePrice => Author?.Subdivision?.Id != null && _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 
 		public virtual bool IsSmallBottlesAddedToOrder =>
-			OrderItems.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol500ml).Sum(x => x.Count) > 10
-			|| OrderItems.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol1500ml).Sum(x => x.Count) > 4
-			|| OrderItems.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count) > 2;
+			Total500mlBottlesToDeliver > 10
+			|| Total1500mlBottlesToDeliver > 4
+			|| Total6LBottlesToDeliver > 2;
 
 		public virtual bool IsCoolerAddedToOrder => 
 			OrderItems.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature)
