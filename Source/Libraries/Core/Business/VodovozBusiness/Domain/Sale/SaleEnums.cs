@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -10,11 +10,6 @@ namespace Vodovoz.Domain.Sale
         FixForDistrict,
         [Display(Name = "По расстоянию")]
         ByDistance,
-    }
-
-    public class DistrictWaterPriceStringType : NHibernate.Type.EnumStringType
-    {
-        public DistrictWaterPriceStringType() : base(typeof(DistrictWaterPrice)) { }
     }
 	
     public enum WeekDayName
@@ -35,10 +30,5 @@ namespace Vodovoz.Domain.Sale
         Saturday = 6,
         [Display(Name = "Воскресенье")]
         Sunday = 7
-    }
-
-    public class WeekDayNameStringType : NHibernate.Type.EnumStringType
-    {
-        public WeekDayNameStringType() : base(typeof(WeekDayName)) { }
     }
 }

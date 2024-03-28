@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 {
@@ -12,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.WeekDay).Column("week_day").CustomType<WeekDayNameStringType>();
+			Map(x => x.WeekDay).Column("week_day");
 
 			References(x => x.DriverWorkScheduleSet).Column("driver_work_schedule_set_id");
 

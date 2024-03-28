@@ -33,7 +33,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 		{
 			DiscriminatorValue("WeekDay");
 
-			Map(x => x.WeekDay).Column("week_day").CustomType<WeekDayNameStringType>();
+			Map(x => x.WeekDay).Column("week_day");
 		}
 	}
 }
