@@ -44,7 +44,7 @@ namespace Mango.Core.Dto
 		public string CommandId { get; set; }
 
 		[JsonPropertyName("task_id")]
-		public string TaskId { get; set; }
+		public int? TaskId { get; set; }
 
 		[JsonPropertyName("callback_initiator")]
 		public string CallbackInitiator { get; set; }
