@@ -26,12 +26,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yButton btnOpenOrder;
 
-		private global::Gtk.ScrolledWindow commentScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTextView txtViewComment;
-
-		private global::Gamma.GtkWidgets.yLabel lblComment;
-
 		private global::Gamma.GtkWidgets.yLabel lblId;
 
 		private global::Gamma.GtkWidgets.yLabel lblIdTitle;
@@ -44,8 +38,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yLabel lblOrderlIdTitle;
 
-		private global::Gamma.GtkWidgets.yLabel lblOrderRatingReasons;
-
 		private global::Gamma.GtkWidgets.yLabel lblProcessedBy;
 
 		private global::Gamma.GtkWidgets.yLabel lblProcessedByTitle;
@@ -54,9 +46,17 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yLabel lblRatingTitle;
 
+		private global::Gtk.ScrolledWindow commentScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTextView txtViewComment;
+
+		private global::Gamma.GtkWidgets.yLabel lblComment;
+
 		private global::Gtk.ScrolledWindow reasonsScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewReasons;
+
+		private global::Gamma.GtkWidgets.yLabel lblOrderRatingReasons;
 
 		protected virtual void Build()
 		{
@@ -140,7 +140,7 @@ namespace Vodovoz.Views.Orders
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.tableMain = new global::Gamma.GtkWidgets.yTable();
 			this.tableMain.Name = "tableMain";
-			this.tableMain.NRows = ((uint)(6));
+			this.tableMain.NRows = ((uint)(4));
 			this.tableMain.NColumns = ((uint)(6));
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
@@ -173,6 +173,125 @@ namespace Vodovoz.Views.Orders
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.lblId = new global::Gamma.GtkWidgets.yLabel();
+			this.lblId.Name = "lblId";
+			this.lblId.Xalign = 0F;
+			this.lblId.LabelProp = global::Mono.Unix.Catalog.GetString("@Id@");
+			this.tableMain.Add(this.lblId);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblId]));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblIdTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblIdTitle.Name = "lblIdTitle";
+			this.lblIdTitle.Xalign = 1F;
+			this.lblIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Код:");
+			this.tableMain.Add(this.lblIdTitle);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblIdTitle]));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblOnlineOrderId = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOnlineOrderId.Name = "lblOnlineOrderId";
+			this.lblOnlineOrderId.Xalign = 0F;
+			this.lblOnlineOrderId.LabelProp = global::Mono.Unix.Catalog.GetString("@OnlineOrderId@");
+			this.tableMain.Add(this.lblOnlineOrderId);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOnlineOrderId]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblOnlineOrderlIdTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOnlineOrderlIdTitle.Name = "lblOnlineOrderlIdTitle";
+			this.lblOnlineOrderlIdTitle.Xalign = 1F;
+			this.lblOnlineOrderlIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("№ онлайн заказа:");
+			this.tableMain.Add(this.lblOnlineOrderlIdTitle);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOnlineOrderlIdTitle]));
+			w13.TopAttach = ((uint)(1));
+			w13.BottomAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblOrderId = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrderId.Name = "lblOrderId";
+			this.lblOrderId.Xalign = 0F;
+			this.lblOrderId.LabelProp = global::Mono.Unix.Catalog.GetString("@OrderId@");
+			this.tableMain.Add(this.lblOrderId);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrderId]));
+			w14.TopAttach = ((uint)(2));
+			w14.BottomAttach = ((uint)(3));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblOrderlIdTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrderlIdTitle.Name = "lblOrderlIdTitle";
+			this.lblOrderlIdTitle.Xalign = 1F;
+			this.lblOrderlIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("№ заказа:");
+			this.tableMain.Add(this.lblOrderlIdTitle);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrderlIdTitle]));
+			w15.TopAttach = ((uint)(2));
+			w15.BottomAttach = ((uint)(3));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblProcessedBy = new global::Gamma.GtkWidgets.yLabel();
+			this.lblProcessedBy.Name = "lblProcessedBy";
+			this.lblProcessedBy.Xalign = 1F;
+			this.lblProcessedBy.LabelProp = global::Mono.Unix.Catalog.GetString("@Обработана@");
+			this.tableMain.Add(this.lblProcessedBy);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblProcessedBy]));
+			w16.LeftAttach = ((uint)(5));
+			w16.RightAttach = ((uint)(6));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblProcessedByTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblProcessedByTitle.Name = "lblProcessedByTitle";
+			this.lblProcessedByTitle.Xalign = 1F;
+			this.lblProcessedByTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Обработана:");
+			this.tableMain.Add(this.lblProcessedByTitle);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblProcessedByTitle]));
+			w17.LeftAttach = ((uint)(4));
+			w17.RightAttach = ((uint)(5));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblRating = new global::Gamma.GtkWidgets.yLabel();
+			this.lblRating.Name = "lblRating";
+			this.lblRating.Xalign = 0F;
+			this.lblRating.LabelProp = global::Mono.Unix.Catalog.GetString("@Rating@");
+			this.tableMain.Add(this.lblRating);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblRating]));
+			w18.TopAttach = ((uint)(3));
+			w18.BottomAttach = ((uint)(4));
+			w18.LeftAttach = ((uint)(1));
+			w18.RightAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblRatingTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblRatingTitle.Name = "lblRatingTitle";
+			this.lblRatingTitle.Xalign = 1F;
+			this.lblRatingTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Оценка:");
+			this.tableMain.Add(this.lblRatingTitle);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblRatingTitle]));
+			w19.TopAttach = ((uint)(3));
+			w19.BottomAttach = ((uint)(4));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vboxMain.Add(this.tableMain);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
+			w20.Position = 2;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.commentScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.commentScrolledWindow.Name = "commentScrolledWindow";
 			this.commentScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -181,151 +300,22 @@ namespace Vodovoz.Views.Orders
 			this.txtViewComment.CanFocus = true;
 			this.txtViewComment.Name = "txtViewComment";
 			this.commentScrolledWindow.Add(this.txtViewComment);
-			this.tableMain.Add(this.commentScrolledWindow);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.commentScrolledWindow]));
-			w11.TopAttach = ((uint)(5));
-			w11.BottomAttach = ((uint)(6));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(3));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
+			this.vboxMain.Add(this.commentScrolledWindow);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.commentScrolledWindow]));
+			w22.PackType = ((global::Gtk.PackType)(1));
+			w22.Position = 3;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.lblComment = new global::Gamma.GtkWidgets.yLabel();
 			this.lblComment.Name = "lblComment";
-			this.lblComment.Xalign = 1F;
+			this.lblComment.Xalign = 0F;
 			this.lblComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий:");
-			this.tableMain.Add(this.lblComment);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblComment]));
-			w12.TopAttach = ((uint)(5));
-			w12.BottomAttach = ((uint)(6));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblId = new global::Gamma.GtkWidgets.yLabel();
-			this.lblId.Name = "lblId";
-			this.lblId.Xalign = 0F;
-			this.lblId.LabelProp = global::Mono.Unix.Catalog.GetString("@Id@");
-			this.tableMain.Add(this.lblId);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblId]));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblIdTitle = new global::Gamma.GtkWidgets.yLabel();
-			this.lblIdTitle.Name = "lblIdTitle";
-			this.lblIdTitle.Xalign = 1F;
-			this.lblIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Код:");
-			this.tableMain.Add(this.lblIdTitle);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblIdTitle]));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOnlineOrderId = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOnlineOrderId.Name = "lblOnlineOrderId";
-			this.lblOnlineOrderId.Xalign = 0F;
-			this.lblOnlineOrderId.LabelProp = global::Mono.Unix.Catalog.GetString("@OnlineOrderId@");
-			this.tableMain.Add(this.lblOnlineOrderId);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOnlineOrderId]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOnlineOrderlIdTitle = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOnlineOrderlIdTitle.Name = "lblOnlineOrderlIdTitle";
-			this.lblOnlineOrderlIdTitle.Xalign = 1F;
-			this.lblOnlineOrderlIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("№ онлайн заказа:");
-			this.tableMain.Add(this.lblOnlineOrderlIdTitle);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOnlineOrderlIdTitle]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOrderId = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOrderId.Name = "lblOrderId";
-			this.lblOrderId.Xalign = 0F;
-			this.lblOrderId.LabelProp = global::Mono.Unix.Catalog.GetString("@OrderId@");
-			this.tableMain.Add(this.lblOrderId);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrderId]));
-			w17.TopAttach = ((uint)(2));
-			w17.BottomAttach = ((uint)(3));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOrderlIdTitle = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOrderlIdTitle.Name = "lblOrderlIdTitle";
-			this.lblOrderlIdTitle.Xalign = 1F;
-			this.lblOrderlIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("№ заказа:");
-			this.tableMain.Add(this.lblOrderlIdTitle);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrderlIdTitle]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOrderRatingReasons = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOrderRatingReasons.Name = "lblOrderRatingReasons";
-			this.lblOrderRatingReasons.Xalign = 1F;
-			this.lblOrderRatingReasons.LabelProp = global::Mono.Unix.Catalog.GetString("Причины:");
-			this.tableMain.Add(this.lblOrderRatingReasons);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrderRatingReasons]));
-			w19.TopAttach = ((uint)(4));
-			w19.BottomAttach = ((uint)(5));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblProcessedBy = new global::Gamma.GtkWidgets.yLabel();
-			this.lblProcessedBy.Name = "lblProcessedBy";
-			this.lblProcessedBy.Xalign = 1F;
-			this.lblProcessedBy.LabelProp = global::Mono.Unix.Catalog.GetString("@Обработана@");
-			this.tableMain.Add(this.lblProcessedBy);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblProcessedBy]));
-			w20.LeftAttach = ((uint)(5));
-			w20.RightAttach = ((uint)(6));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblProcessedByTitle = new global::Gamma.GtkWidgets.yLabel();
-			this.lblProcessedByTitle.Name = "lblProcessedByTitle";
-			this.lblProcessedByTitle.Xalign = 1F;
-			this.lblProcessedByTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Обработана:");
-			this.tableMain.Add(this.lblProcessedByTitle);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblProcessedByTitle]));
-			w21.LeftAttach = ((uint)(4));
-			w21.RightAttach = ((uint)(5));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblRating = new global::Gamma.GtkWidgets.yLabel();
-			this.lblRating.Name = "lblRating";
-			this.lblRating.Xalign = 0F;
-			this.lblRating.LabelProp = global::Mono.Unix.Catalog.GetString("@Rating@");
-			this.tableMain.Add(this.lblRating);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblRating]));
-			w22.TopAttach = ((uint)(3));
-			w22.BottomAttach = ((uint)(4));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblRatingTitle = new global::Gamma.GtkWidgets.yLabel();
-			this.lblRatingTitle.Name = "lblRatingTitle";
-			this.lblRatingTitle.Xalign = 1F;
-			this.lblRatingTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Оценка:");
-			this.tableMain.Add(this.lblRatingTitle);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblRatingTitle]));
-			w23.TopAttach = ((uint)(3));
-			w23.BottomAttach = ((uint)(4));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
+			this.vboxMain.Add(this.lblComment);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.lblComment]));
+			w23.PackType = ((global::Gtk.PackType)(1));
+			w23.Position = 4;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.reasonsScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.reasonsScrolledWindow.Name = "reasonsScrolledWindow";
 			this.reasonsScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -334,17 +324,19 @@ namespace Vodovoz.Views.Orders
 			this.treeViewReasons.CanFocus = true;
 			this.treeViewReasons.Name = "treeViewReasons";
 			this.reasonsScrolledWindow.Add(this.treeViewReasons);
-			this.tableMain.Add(this.reasonsScrolledWindow);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableMain[this.reasonsScrolledWindow]));
-			w25.TopAttach = ((uint)(4));
-			w25.BottomAttach = ((uint)(5));
-			w25.LeftAttach = ((uint)(1));
-			w25.RightAttach = ((uint)(3));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vboxMain.Add(this.tableMain);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
-			w26.Position = 2;
+			this.vboxMain.Add(this.reasonsScrolledWindow);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.reasonsScrolledWindow]));
+			w25.PackType = ((global::Gtk.PackType)(1));
+			w25.Position = 5;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.lblOrderRatingReasons = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrderRatingReasons.Name = "lblOrderRatingReasons";
+			this.lblOrderRatingReasons.Xalign = 0F;
+			this.lblOrderRatingReasons.LabelProp = global::Mono.Unix.Catalog.GetString("Причины:");
+			this.vboxMain.Add(this.lblOrderRatingReasons);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.lblOrderRatingReasons]));
+			w26.PackType = ((global::Gtk.PackType)(1));
+			w26.Position = 6;
 			w26.Expand = false;
 			w26.Fill = false;
 			this.Add(this.vboxMain);
