@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -4389,8 +4389,9 @@ namespace Vodovoz
 		private void SetDeliveryDatePickerSensetive()
 		{
 			pickerDeliveryDate.Sensitive =
-				Order.OrderStatus == OrderStatus.NewOrder
-				&& (_canEditDeliveryDateAfterOrderConfirmation || Order.Id == 0)
+				((Order.OrderStatus == OrderStatus.WaitForPayment && !Order.SelfDelivery)
+				|| (Order.OrderStatus == OrderStatus.NewOrder && Order.Id == 0)
+				|| (Order.OrderStatus == OrderStatus.NewOrder && Order.Id != 0 && _canEditDeliveryDateAfterOrderConfirmation))
 				&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 		}
 
