@@ -10,13 +10,20 @@ namespace Vodovoz.Application.Pacs
 	public class CallModel : PropertyChangedBase
 	{
 		private readonly IEnumerable<OperatorModel> _operators;
+		private Call _call;
 
 		public CallModel(IEnumerable<OperatorModel> operators)
 		{
 			_operators = operators ?? throw new ArgumentNullException(nameof(operators));
 		}
 
-		public Call Call { get; private set; }
+		public Call Call
+		{
+			get => _call;
+			set => SetField(ref _call, value);
+		}
+
+		public IList<SubCall> OperatorSubCalls { get; private set; }
 
 		public OperatorModel Operator { get; set; }
 		public DateTime Started => Call.StartTime ?? Call.CreationTime;
@@ -33,17 +40,20 @@ namespace Vodovoz.Application.Pacs
 			}
 		}
 
-		public IEnumerable<string> GetAppearedExtensions()
+		public bool IsIncomingCall => GetAppearedExtensions().Any();
+
+		private IList<SubCall> GetAppearedExtensions()
 		{
 			return Call.SubCalls
 				.Where(x => x.TakenFromCallId == Call.CallId)
 				.Where(x => !x.ToExtension.IsNullOrWhiteSpace())
-				.Select(x => x.ToExtension);
+				.ToList();
 		}
 
 		public void UpdateCall(Call call)
 		{
 			Call = call;
+			OperatorSubCalls = GetAppearedExtensions();
 		}
 	}
 }

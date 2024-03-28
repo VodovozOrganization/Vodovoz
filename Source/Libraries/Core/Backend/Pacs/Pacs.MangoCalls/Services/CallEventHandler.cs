@@ -57,21 +57,50 @@ namespace Pacs.MangoCalls.Services
 
 		private void UpdateCall(MangoCallEvent callEvent)
 		{
-			var isMainCall = callEvent.From.TakenFromCallId.IsNullOrWhiteSpace();
-			if(!isMainCall)
+			var hasTakenFromCallId = callEvent.From.TakenFromCallId.IsNullOrWhiteSpace();
+			if(!hasTakenFromCallId)
 			{
-				return;
+				_call.CallId = callEvent.CallId;
+			}
+			else if(_call.CallId.IsNullOrWhiteSpace())
+			{
+				_call.CallId = callEvent.From.TakenFromCallId;
 			}
 
 			_call.StartTime = callEvent.Timestamp.ParseTimestamp();
-			_call.CallId = callEvent.CallId;
-			_call.FromExtension = callEvent.From.Extension;
-			_call.FromNumber = callEvent.From.Number;
-			_call.ToExtension = callEvent.To.Extension;
-			_call.ToNumber = callEvent.To.Number;
-			_call.ToLineNumber = callEvent.To.LineNumber;
 
-			_call.CallDirection = DetectDirection(callEvent);
+			// заполняем только один раз если location == Abonent
+			// иначе перезаписываем то что есть
+			if(callEvent.Location == MangoCallLocation.Abonent)
+			{
+				var allNotSet = _call.FromExtension.IsNullOrWhiteSpace()
+					&& _call.FromNumber.IsNullOrWhiteSpace()
+					&& _call.ToExtension.IsNullOrWhiteSpace()
+					&& _call.ToNumber.IsNullOrWhiteSpace()
+					&& _call.ToLineNumber.IsNullOrWhiteSpace();
+
+				if(allNotSet)
+				{
+					_call.FromExtension = callEvent.From.Extension;
+					_call.FromNumber = callEvent.From.Number;
+					_call.ToExtension = callEvent.To.Extension;
+					_call.ToNumber = callEvent.To.Number;
+					_call.ToLineNumber = callEvent.To.LineNumber;
+				}
+			}
+			else
+			{
+				_call.FromExtension = callEvent.From.Extension;
+				_call.FromNumber = callEvent.From.Number;
+				_call.ToExtension = callEvent.To.Extension;
+				_call.ToNumber = callEvent.To.Number;
+				_call.ToLineNumber = callEvent.To.LineNumber;
+			}
+
+			if(_call.CallDirection == null)
+			{
+				_call.CallDirection = DetectDirection(callEvent);
+			}
 		}
 
 		private async Task UpdateSubCall(MangoCallEvent callEvent)
@@ -204,10 +233,15 @@ namespace Pacs.MangoCalls.Services
 
 		private CallDirection? DetectDirection(MangoCallEvent callEvent)
 		{
-			if(!callEvent.From.TakenFromCallId.IsNullOrWhiteSpace())
+			if(callEvent.Location != MangoCallLocation.Abonent)
+			{
+				return CallDirection.Incoming;
+			}
+
+			/*if(!callEvent.From.TakenFromCallId.IsNullOrWhiteSpace())
 			{
 				return null;
-			}
+			}*/
 
 			var fromAbonent = !callEvent.From.Extension.IsNullOrWhiteSpace();
 			var toAbonent = !callEvent.To.Extension.IsNullOrWhiteSpace();
@@ -316,17 +350,31 @@ namespace Pacs.MangoCalls.Services
 
 		private void UpdateCallSummary(MangoSummaryEvent summaryEvent)
 		{
+			_call.Status = CallStatus.Disconnected;
+
+			// Время начала звонка это время самого первого события в статусе Appeared,
+			// с которого началась вся цепочка звонков
 			_call.StartTime = summaryEvent.CreateTime.ParseTimestamp();
+
+			// Время окончания звонка это время самого последнего события в статусе Disconnected,
+			// на котором закончилась вся цепочка звонков
 			_call.EndTime = summaryEvent.EndTime.ParseTimestamp();
-			_call.FromExtension = summaryEvent.From.Extension;
-			_call.FromNumber = summaryEvent.From.Number;
-			_call.ToExtension = summaryEvent.To.Extension;
-			_call.ToNumber = summaryEvent.To.Number;
-			_call.ToLineNumber = summaryEvent.To.LineNumber;
-			_call.CallDirection = ConvertDirection(summaryEvent.CallDirection);
+
+			// Поля ниже относятся к текущему звонку из всей цепочки звонков
+			// Т.е. это не тот кто инициировал цепочку звонков, а тот на ком в данный момент находится звонок
+			// Для текущей логики работы СКУД эта информация является ошибочной, поэтому ее не берем
+			//_call.FromExtension = summaryEvent.From.Extension;
+			//_call.FromNumber = summaryEvent.From.Number;
+			//_call.ToExtension = summaryEvent.To.Extension;
+			//_call.ToNumber = summaryEvent.To.Number;
+			//_call.ToLineNumber = summaryEvent.To.LineNumber;
+			//_call.CallDirection = ConvertDirection(summaryEvent.CallDirection);
+
+			// Поля ниже могут относится как к текущему звонку так и к первоначальному
+			// необходимо уточнить если будут возникать подозрения
+			// На текущий момент все события говорят о том, что эти поля относятся к первоначальному звонку
 			_call.EntryResult = ConvertEntryResult(summaryEvent.EntryResult);
 			_call.DisconnectReason = summaryEvent.DisconnectReason;
-			_call.Status = CallStatus.Disconnected;
 		}
 
 		private CallDirection ConvertDirection(MangoCallDirection callDirection)

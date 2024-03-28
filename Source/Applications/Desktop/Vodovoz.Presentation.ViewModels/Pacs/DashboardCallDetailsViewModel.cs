@@ -1,4 +1,5 @@
-﻿using QS.ViewModels;
+﻿using QS.Dialog;
+using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,22 +10,37 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class DashboardCallDetailsViewModel : WidgetViewModelBase
 	{
+		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly CallModel _model;
 
 		private IEnumerable<SubCall> _callDetails;
 		private string _detailsInfo;
 
-		public DashboardCallDetailsViewModel(CallModel model)
+		public DashboardCallDetailsViewModel(IGuiDispatcher guiDispatcher, CallModel model)
 		{
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_model = model ?? throw new ArgumentNullException(nameof(model));
 			DetailsInfo = "Детализация звонка";
 
+			GetDetails();
 			_model.PropertyChanged += OnModelChanged;
 		}
 
 		private void OnModelChanged(object sender, PropertyChangedEventArgs e)
 		{
-			CallDetails = _model.Call.SubCalls;
+			switch(e.PropertyName)
+			{
+				case nameof(CallModel.Call):
+					_guiDispatcher.RunInGuiTread(() => GetDetails());
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void GetDetails()
+		{
+			CallDetails = _model.OperatorSubCalls;
 		}
 
 		public virtual string DetailsInfo

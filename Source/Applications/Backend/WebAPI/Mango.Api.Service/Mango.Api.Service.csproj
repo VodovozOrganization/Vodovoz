@@ -30,7 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\MangoClient\Mango.Api.csproj" />
+	  <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Api\Mango.Api.csproj" />
 	</ItemGroup>
 
 </Project>

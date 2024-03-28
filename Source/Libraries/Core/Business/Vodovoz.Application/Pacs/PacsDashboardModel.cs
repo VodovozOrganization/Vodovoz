@@ -11,6 +11,8 @@ using System.Threading;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Services;
+using Core.Infrastructure;
+using System.Threading.Tasks;
 
 namespace Vodovoz.Application.Pacs
 {
@@ -22,6 +24,7 @@ namespace Vodovoz.Application.Pacs
 	{
 		private readonly Dictionary<int, OperatorModel> _operatorStatesDic;
 		private readonly Dictionary<string, CallModel> _callsDic;
+		private readonly Dictionary<string, MissedCallModel> _missedCallsDic;
 		private readonly IDisposable _operatorSubscription;
 		private readonly IDisposable _callSubscription;
 		private readonly IDisposable _settingsSubscription;
@@ -32,6 +35,9 @@ namespace Vodovoz.Application.Pacs
 		private readonly ConcurrentQueue<PacsCallEvent> _callEventsQueue = new ConcurrentQueue<PacsCallEvent>();
 		private Timer _operatorStatesWorker;
 		private Timer _callsWorker;
+		private bool _callWorkerInProgress;
+		private System.Timers.Timer _callsTimer;
+		private CancellationTokenSource _cts;
 
 		private IPacsDomainSettings _settings;
 
@@ -63,10 +69,13 @@ namespace Vodovoz.Application.Pacs
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
 			_operatorStatesDic = new Dictionary<int, OperatorModel>();
 			_callsDic = new Dictionary<string, CallModel>();
+			_missedCallsDic = new Dictionary<string, MissedCallModel>();
 			OperatorsOnBreak = new ObservableCollection<OperatorModel>();
 			Operators = new ObservableCollection<OperatorModel>();
 			Calls = new ObservableCollection<CallModel>();
 			MissedCalls = new ObservableCollection<MissedCallModel>();
+
+			_cts = new CancellationTokenSource();
 
 			_settings = _adminClient.GetSettings().Result;
 			_settingsSubscription = settingsPublisher.Subscribe(this);
@@ -181,9 +190,16 @@ namespace Vodovoz.Application.Pacs
 				return;
 			}
 
+			if(_missedCallsDic.ContainsKey(model.Call.EntryId))
+			{
+				return;
+			}
+
 			var missedCallModel = new MissedCallModel(model, _operatorStatesDic.Values);
+
 			lock(MissedCalls)
 			{
+				_missedCallsDic.Add(model.Call.EntryId, missedCallModel);
 				MissedCalls.Insert(0, missedCallModel);
 			}
 		}
@@ -214,14 +230,25 @@ namespace Vodovoz.Application.Pacs
 		{
 			lock(_callsDic)
 			{
-				if(!_callsDic.TryGetValue(call.CallId, out var model))
+				if(_callsDic.TryGetValue(call.EntryId, out var model))
 				{
-					model = new CallModel(_operatorStatesDic.Values);
-					_callsDic.Add(call.CallId, model);
-					Calls.Insert(0, model);
+					model.UpdateCall(call);
+					CheckCallMissed(model);
+					return;
 				}
 
+				model = new CallModel(_operatorStatesDic.Values);
 				model.UpdateCall(call);
+				if(!model.IsIncomingCall)
+				{
+					return;
+				}
+
+				_callsDic.Add(call.EntryId, model);
+				lock(Calls)
+				{
+					Calls.Insert(0, model);
+				}
 				CheckCallMissed(model);
 			}
 		}
@@ -260,12 +287,15 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
+			_cts.Cancel();
+
 			_operatorSubscription?.Dispose();
 			_callSubscription?.Dispose();
 			_settingsSubscription?.Dispose();
 
 			_operatorStatesWorker?.Dispose();
 			_callsWorker?.Dispose();
+			_callsTimer?.Dispose();
 		}
 	}
 }
