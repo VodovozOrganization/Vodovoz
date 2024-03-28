@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
@@ -21,7 +22,7 @@ namespace Vodovoz.Domain.Orders
 		private Source _source;
 		private OrderRatingStatus _orderRatingStatus;
 		private string _comment;
-		private Employee _employee;
+		private Employee _processedByEmployee;
 		private int _rating;
 		private IList<OrderRatingReason> _orderRatingReasons = new List<OrderRatingReason>();
 		
@@ -63,10 +64,10 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		[Display(Name = "Кто обработал оценку")]
-		public virtual Employee Employee
+		public virtual Employee ProcessedByEmployee
 		{
-			get => _employee;
-			set => SetField(ref _employee, value);
+			get => _processedByEmployee;
+			set => SetField(ref _processedByEmployee, value);
 		}
 		
 		[Display(Name = "Комментарий")]
@@ -88,6 +89,20 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _orderRatingReasons;
 			set => SetField(ref _orderRatingReasons, value);
+		}
+
+		public virtual void Process()
+		{
+			OrderRatingStatus = OrderRatingStatus.Processed;
+			
+			//TODO добавить результаты обработки
+		}
+
+		public override string ToString()
+		{
+			var appellativeAttribute = typeof(OrderRating).GetCustomAttribute<AppellativeAttribute>(true);
+			
+			return Id > 0 ? $"{appellativeAttribute.Nominative} №{Id}" : $"Новая {appellativeAttribute.Nominative}";
 		}
 	}
 }

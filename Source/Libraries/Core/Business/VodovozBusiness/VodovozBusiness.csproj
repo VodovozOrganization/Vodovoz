@@ -65,6 +65,8 @@
     <Compile Include="Domain\Orders\RequestForCallStatus.cs" />
     <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
+    <Compile Include="NHibernateProjections\Orders\OrderRatingProjections.cs" />
+    <Compile Include="NHibernateProjections\Orders\OrderRatingReasonProjections.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />

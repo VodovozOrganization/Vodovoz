@@ -546,6 +546,7 @@
     <Compile Include="Dialogs\Mango\Talks\InternalTalkViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\OrderRatingReasonViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrderRatingViewModel.cs" />
     <Compile Include="ViewModels\Orders\RequestForCallViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
@@ -656,6 +657,7 @@
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Orders\OrdersRatingsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />

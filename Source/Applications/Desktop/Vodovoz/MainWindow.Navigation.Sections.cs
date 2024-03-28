@@ -28,6 +28,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Logistic;
 
 public partial class MainWindow
@@ -181,7 +182,9 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+		//NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
+		//NavigationManager.OpenViewModel<OrdersRatingReasonsJournalViewModel>(null);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)

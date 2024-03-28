@@ -11,10 +11,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Core.Domain.Clients.Source? _orderRatingSource;
-		private int _onlineOrderId;
-		private int _orderId;
-		private string _orderRatingName;
-		private int _orderRatingValue;
+		private int? _orderRatingId;
+		private int? _onlineOrderId;
+		private int? _orderId;
+		private string _orderRatingReason;
+		private int? _orderRatingValue;
 		private ComparisonSings _ratingCriterion = ComparisonSings.LessOrEqual;
 
 		public OrderRatingStatus? OrderRatingStatus
@@ -40,26 +41,32 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			get => _orderRatingSource;
 			set => UpdateFilterField(ref _orderRatingSource, value);
 		}
+		
+		public int? OrderRatingId
+		{
+			get => _orderRatingId;
+			set => _orderRatingId = value;
+		}
 
-		public int OnlineOrderId
+		public int? OnlineOrderId
 		{
 			get => _onlineOrderId;
 			set => _onlineOrderId = value;
 		}
 		
-		public int OrderId
+		public int? OrderId
 		{
 			get => _orderId;
 			set => _orderId = value;
 		}
 
-		public string OrderRatingName
+		public string OrderRatingReason
 		{
-			get => _orderRatingName;
-			set => _orderRatingName = value;
+			get => _orderRatingReason;
+			set => _orderRatingReason = value;
 		}
 		
-		public int OrderRatingValue
+		public int? OrderRatingValue
 		{
 			get => _orderRatingValue;
 			set => _orderRatingValue = value;

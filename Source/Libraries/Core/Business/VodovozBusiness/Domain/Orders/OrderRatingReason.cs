@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "Причине оценки заказа",
 		PrepositionalPlural = "Причинах оценок заказов"
 	)]
-	public class OrderRatingReason : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderRatingReason : PropertyChangedBase, INamedDomainObject, IValidatableObject
 	{
 		private const int _nameMaxLength = 150;
 		private string _name;
@@ -106,9 +106,12 @@ namespace Vodovoz.Domain.Orders
 
 		public override string ToString()
 		{
-			var appellativeAttribute = typeof(OrderRatingReason).GetCustomAttribute<AppellativeAttribute>(true);
+			var entityName =
+				typeof(OrderRatingReason)
+					.GetCustomAttribute<AppellativeAttribute>(true)
+					.Nominative;
 			
-			return Id > 0 ? $"{appellativeAttribute.Nominative} №{Id}" : $"Новая {appellativeAttribute.Nominative}";
+			return Id > 0 ? $"{entityName} №{Id}" : $"Новая {entityName.ToLower()}";
 		}
 	}
 }

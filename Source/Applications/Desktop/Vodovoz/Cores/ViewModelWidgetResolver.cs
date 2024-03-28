@@ -17,6 +17,7 @@ using IJournalFilter = QS.RepresentationModel.IJournalFilter;
 
 namespace Vodovoz.Core
 {
+	//TODO доработать класс, чтобы охватывались все вьюхи/вью модели
 	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver, IGtkViewResolver
 	{
 		private readonly Dictionary<Type, Type> _viewModelWidgets = new Dictionary<Type, Type>();
@@ -236,6 +237,27 @@ namespace Vodovoz.Core
 				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
 			}
 			_viewModelWidgets.Add(viewModelType, widgetType);
+
+			return this;
+		}
+		
+		public virtual ViewModelWidgetResolver RegisterViewModelForView(Type viewModelType, Type viewType)
+		{
+			if(!typeof(ViewModelBase).IsAssignableFrom(viewModelType))
+			{
+				throw new ArgumentException($"Тип {viewModelType.Name} не является подтипом {typeof(ViewModelBase).Name}");
+			}
+
+			if(!typeof(Widget).IsAssignableFrom(viewType))
+			{
+				throw new ArgumentException($"Тип {viewType.Name} не является подтипом {typeof(Widget).Name}");
+			}
+
+			if(_viewModelWidgets.ContainsKey(viewModelType))
+			{
+				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
+			}
+			_viewModelWidgets.Add(viewModelType, viewType);
 
 			return this;
 		}

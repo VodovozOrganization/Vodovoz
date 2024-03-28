@@ -10,12 +10,16 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -24,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	{
 		private readonly OrdersRatingsJournalFilterViewModel _filterViewModel;
 		private readonly ICommonServices _commonServices;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly int _autoRefreshInterval = 30;
 		private Timer _autoRefreshTimer;
 		private bool _autoRefreshEnabled;
@@ -33,19 +38,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			Action<OrdersRatingsJournalFilterViewModel> filterParams
+			IFileDialogService fileDialogService,
+			Action<OrdersRatingsJournalFilterViewModel> filterParams = null
 			) : base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			
-			var dataLoader = new ThreadDataLoader<OnlineOrdersJournalNode>(unitOfWorkFactory);
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
+			var dataLoader = new ThreadDataLoader<OrdersRatingsJournalNode>(unitOfWorkFactory);
 			dataLoader.AddQuery(RatingsQuery);
 			DataLoader = dataLoader;
-
-			Title = "Журнал онлайн заказов";
+			SearchEnabled = false;
 			
-			UpdateOnChanges(typeof(OnlineOrder));
+			Title = "Журнал оценок заказов";
+			
+			UpdateOnChanges(typeof(OrderRating));
 			ConfigureFilter(filterParams);
 			CreateNodeActions();
 			CreatePopupActions();
@@ -61,31 +69,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			}
 		}
 		
-		public IQueryOver<OrderRating> RatingsQuery(IUnitOfWork uow)
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateExportAction();
+			CreateDefaultEditAction();
+			CreateStartAutoRefresh();
+			CreateStopAutoRefresh();
+		}
+		
+		private IQueryOver<OrderRating> RatingsQuery(IUnitOfWork uow)
 		{
 			OrderRating ratingAlias = null;
 			OrderRatingReason orderRatingReasonAlias = null;
 			Order orderAlias = null;
 			OnlineOrder onlineOrderAlias = null;
-			Employee employeeAlias = null;
+			Employee processedByEmployeeAlias = null;
 			OrdersRatingsJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver(() => ratingAlias)
 				.Left.JoinAlias(r => r.OnlineOrder, () => onlineOrderAlias)
 				.Left.JoinAlias(r => r.Order, () => orderAlias)
 				.Left.JoinAlias(r => r.OrderRatingReasons, () => orderRatingReasonAlias)
-				.Left.JoinAlias(r => r.Employee, () => employeeAlias);
+				.Left.JoinAlias(r => r.ProcessedByEmployee, () => processedByEmployeeAlias);
 			
-			var employeeProjection = Projections.SqlFunction(
+			var processedByEmployeeProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
 				NHibernateUtil.String,
-				Projections.Property(() => employeeAlias.LastName),
-				Projections.Property(() => employeeAlias.Name),
-				Projections.Property(() => employeeAlias.Patronymic)
+				Projections.Property(() => processedByEmployeeAlias.LastName),
+				Projections.Property(() => processedByEmployeeAlias.Name),
+				Projections.Property(() => processedByEmployeeAlias.Patronymic)
 			);
 
 			#region Фильтрация
 
+			if(_filterViewModel.OrderRatingId.HasValue)
+			{
+				query.Where(r => r.Id == _filterViewModel.OrderRatingId);
+			}
+			
 			if(_filterViewModel.OrderRatingStatus.HasValue)
 			{
 				query.Where(o => o.OrderRatingStatus == _filterViewModel.OrderRatingStatus);
@@ -94,6 +116,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			if(_filterViewModel.OrderRatingSource.HasValue)
 			{
 				query.Where(o => o.Source == _filterViewModel.OrderRatingSource.Value);
+			}
+			
+			if(_filterViewModel.OnlineOrderId.HasValue)
+			{
+				query.Where(() => onlineOrderAlias.Id == _filterViewModel.OnlineOrderId);
+			}
+			
+			if(_filterViewModel.OrderId.HasValue)
+			{
+				query.Where(() => orderAlias.Id == _filterViewModel.OrderId);
 			}
 
 			var startDate = _filterViewModel.StartDate;
@@ -108,10 +140,36 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			{
 				query.Where(r => r.Created <= endDate.Value);
 			}
-			
-			if(_filterViewModel.OrderRatingStatus.HasValue)
+
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.OrderRatingReason))
 			{
-				query.Where(o => o.OrderRatingStatus == _filterViewModel.OrderRatingStatus);
+				query.Where(
+					Restrictions.Like(
+						Projections.Property(() => orderRatingReasonAlias.Name),
+						_filterViewModel.OrderRatingReason,
+						MatchMode.Anywhere));
+			}
+			
+			if(_filterViewModel.OrderRatingValue.HasValue)
+			{
+				switch(_filterViewModel.RatingCriterion)
+				{
+					case ComparisonSings.Equally:
+						query.Where(r => r.Rating == _filterViewModel.OrderRatingValue);
+						break;
+					case ComparisonSings.Less:
+						query.Where(r => r.Rating < _filterViewModel.OrderRatingValue);
+						break;
+					case ComparisonSings.LessOrEqual:
+						query.Where(r => r.Rating <= _filterViewModel.OrderRatingValue);
+						break;
+					case ComparisonSings.More:
+						query.Where(r => r.Rating > _filterViewModel.OrderRatingValue);
+						break;
+					case ComparisonSings.MoreOrEqual:
+						query.Where(r => r.Rating >= _filterViewModel.OrderRatingValue);
+						break;
+				}
 			}
 
 			#endregion
@@ -120,7 +178,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectGroup(r => r.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => onlineOrderAlias.Id).WithAlias(() => resultAlias.OnlineOrderId)
-					.Select(employeeProjection).WithAlias(() => resultAlias.Employee)
+					.Select(processedByEmployeeProjection).WithAlias(() => resultAlias.ProcessedByEmployee)
+					.Select(OrderRatingProjections.GetOrderRatingReasons()).WithAlias(() => resultAlias.OrderRatingReasons)
 					.Select(r => r.Created).WithAlias(() => resultAlias.OrderRatingCreated)
 					.Select(r => r.OrderRatingStatus).WithAlias(() => resultAlias.OrderRatingStatus)
 					.Select(r => r.Source).WithAlias(() => resultAlias.OrderRatingSource)
@@ -132,19 +191,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			return query;
 		}
-		
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			CreateExportAction();
-			CreateDefaultEditAction();
-			CreateStartAutoRefresh();
-			CreateStopAutoRefresh();
-		}
 
 		private void CreateExportAction()
 		{
-			//Реализовать экспорт журнала в эксель
+			var journalAction = new JournalAction(
+				"Экспорт",
+				objects => true,
+				objects => true,
+				objects =>
+				{
+					var rows = RatingsQuery(UoW).List<OrdersRatingsJournalNode>();
+
+					if(!rows.Any())
+					{
+						return;
+					}
+					
+					var report = new OrdersRatingsJournalReport(_fileDialogService);
+					report.Export(rows);
+				}
+			);
+			
+			NodeActionsList.Add(journalAction);
 		}
 
 		private void CreateDefaultEditAction()
@@ -153,7 +221,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var editAction = new JournalAction("Изменить",
 				selected =>
 				{
-					var selectedNodes = selected.OfType<OnlineOrdersJournalNode>();
+					var selectedNodes = selected.OfType<OrdersRatingsJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
 						return false;
@@ -164,7 +232,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				selected => true,
 				selected =>
 				{
-					var selectedNodes = selected.OfType<OnlineOrdersJournalNode>();
+					var selectedNodes = selected.OfType<OrdersRatingsJournalNode>();
 					
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
@@ -173,16 +241,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 					var selectedNode = selectedNodes.First();
 
-					if(selectedNode.EntityType == typeof(OnlineOrder))
-					{
-						NavigationManager.OpenViewModel<OnlineOrderViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
-					}
-					else if(selectedNode.EntityType == typeof(RequestForCall))
-					{
-						NavigationManager.OpenViewModel<RequestForCallViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
-					}
+					NavigationManager.OpenViewModel<OrderRatingViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 			
@@ -233,6 +293,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		{
 			if(_filterViewModel is null) return;
 			filterParams?.Invoke(_filterViewModel);
+			_filterViewModel.IsShow = true;
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			JournalFilter = _filterViewModel;
 		}

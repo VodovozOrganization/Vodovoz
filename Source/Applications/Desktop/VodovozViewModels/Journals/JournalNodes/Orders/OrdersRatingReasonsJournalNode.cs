@@ -7,5 +7,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public override string Title => Name;
 		public string Name { get; set; }
 		public bool IsArchive { get; set; }
+		public string AvailableForRatings { get; set; }
 	}
 }

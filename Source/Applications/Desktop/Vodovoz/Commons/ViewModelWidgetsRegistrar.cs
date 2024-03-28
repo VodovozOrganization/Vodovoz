@@ -14,9 +14,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Commons
 {
+	//TODO доработать класс, чтобы нормально резолвились все вьюхи
 	public sealed class ViewModelWidgetsRegistrar
 	{
 		private readonly ILogger<ViewModelWidgetsRegistrar> _logger;
@@ -33,6 +35,33 @@ namespace Vodovoz.Commons
 				?? throw new ArgumentNullException(nameof(viewModelWidgetResolver));
 
 			_viewModelsTypesList = GetViewModels();
+		}
+		
+		public void RegisterViews()
+		{
+			ViewModelWidgetResolver.Instance = _viewModelWidgetResolver;
+			DialogHelper.FilterWidgetResolver = _viewModelWidgetResolver;
+			
+			_viewModelWidgetResolver.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
+				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>();
+
+			typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes()
+				.Where(x => x.BaseType != null
+							&& x.BaseType.IsGenericType
+							&& (x.BaseType.GetGenericTypeDefinition() == typeof(TabViewBase<>)
+								|| x.BaseType.GetGenericTypeDefinition() == typeof(DialogViewBase<>)
+								|| x.BaseType.GetGenericTypeDefinition() == typeof(WidgetViewBase<>)
+								|| x.BaseType.GetGenericTypeDefinition() == typeof(FilterViewBase<>)
+								//|| x.BaseType.GetGenericTypeDefinition() == typeof(EntityTabViewBase<,>)
+								|| (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
+									&& (typeof(ViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())
+									|| typeof(ReportParametersViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())))))
+				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
+				.ForEach(keyValue =>
+				{
+					_viewModelWidgetResolver.RegisterViewModelForView(keyValue.Value, keyValue.Key);
+					_logger.LogInformation("Зарегистрирована {ViewModel} для {View}", keyValue.Value, keyValue.Key);
+				});
 		}
 
 		public void RegisterateWidgets()
@@ -62,7 +91,7 @@ namespace Vodovoz.Commons
 		{
 			DialogHelper.FilterWidgetResolver = _viewModelWidgetResolver;
 
-			typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes()
+			var dict = typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes()
 				.Where(x => x.BaseType != null
 					&& x.BaseType.IsGenericType
 					&& (x.BaseType.GetGenericTypeDefinition() == typeof(DialogViewBase<>)
@@ -72,8 +101,10 @@ namespace Vodovoz.Commons
 					 || (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
 						&& (typeof(WidgetViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())
 						|| typeof(ReportParametersViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())))))
-				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
-				.ForEach(keyValue =>
+				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First());
+				
+				
+				dict.ForEach(keyValue =>
 				{
 					var viewModelsForCurrentView = _viewModelsTypesList.Where(type => keyValue.Value.IsAssignableFrom(type)).ToList();
 
