@@ -1955,9 +1955,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool HasPermissionsForAlternativePrice => Author?.Subdivision?.Id != null && _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 
-		public virtual bool IsCoolerAddedToOrder => OrderItems
-			.Where(x => x.Nomenclature.Kind != null)
-			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Nomenclature.Kind.Id))
+		public virtual bool IsSmallBottlesAddedToOrder =>
+			OrderItems.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol500ml).Sum(x => x.Count) > 10
+			|| OrderItems.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol1500ml).Sum(x => x.Count) > 4
+			|| OrderItems.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count) > 2;
+
+		public virtual bool IsCoolerAddedToOrder => 
+			OrderItems.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature)
+			.Concat(OrderEquipments.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature))
+			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
 		#endregion
