@@ -506,6 +506,7 @@ CASE cm.car_type_of_use
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
+	WHEN 'Loader' THEN 'Погрузчик'
 END as model_info,
 cm.name as car_model_name,
 c.reg_number as car_reg_number,
@@ -537,6 +538,7 @@ CASE cm2.car_type_of_use
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
+	WHEN 'Loader' THEN 'Погрузчик'
 END as model_info,
 cm2.name as car_model_name,
 c2.reg_number as car_reg_number,
