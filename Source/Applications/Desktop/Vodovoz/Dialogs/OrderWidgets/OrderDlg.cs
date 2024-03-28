@@ -4390,7 +4390,7 @@ namespace Vodovoz
 		{
 			pickerDeliveryDate.Sensitive =
 				(Order.OrderStatus == OrderStatus.NewOrder || Order.OrderStatus == OrderStatus.WaitForPayment)
-				&& (_canEditDeliveryDateAfterOrderConfirmation || Order.Id == 0)
+				&& (Order.Id == 0 || !isEditOrderClicked || (isEditOrderClicked && _canEditDeliveryDateAfterOrderConfirmation))
 				&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 		}
 
