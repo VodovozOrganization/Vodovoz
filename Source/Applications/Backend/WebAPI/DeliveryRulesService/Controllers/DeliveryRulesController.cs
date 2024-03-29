@@ -30,7 +30,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
-		private readonly DistrictCache _districtCache;
+		private readonly DistrictCacheService _districtCacheService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly DeliverySchedule _fastDeliverySchedule;
 
@@ -41,7 +41,7 @@ namespace DeliveryRulesService.Controllers
 			INomenclatureRepository nomenclatureRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
-			DistrictCache districtCache,
+			DistrictCacheService districtCacheService,
 			IGeneralSettings generalSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -52,8 +52,9 @@ namespace DeliveryRulesService.Controllers
 				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
-			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
+			_districtCacheService = districtCacheService ?? throw new ArgumentNullException(nameof(districtCacheService));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+
 			using(var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{
 				_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesSettings.FastDeliveryScheduleId);
@@ -99,7 +100,7 @@ namespace DeliveryRulesService.Controllers
 				{
 					_logger.LogError(e, ServiceConstants.ErrorGetDistrictByCoordinates);
 					_logger.LogInformation(ServiceConstants.GetDistrictFromCache);
-					district = _districtCache.Districts
+					district = _districtCacheService.Districts.Values
 						.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 				}
 
@@ -169,7 +170,7 @@ namespace DeliveryRulesService.Controllers
 			{
 				_logger.LogError(e, ServiceConstants.ErrorGetDistrictByCoordinates);
 				_logger.LogInformation(ServiceConstants.GetDistrictFromCache);
-				district = _districtCache.Districts
+				district = _districtCacheService.Districts.Values
 					.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 			}
 
@@ -322,7 +323,7 @@ namespace DeliveryRulesService.Controllers
 				{
 					_logger.LogError(e, ServiceConstants.ErrorGetDistrictByCoordinates);
 					_logger.LogInformation(ServiceConstants.GetDistrictFromCache);
-					district = _districtCache.Districts
+					district = _districtCacheService.Districts.Values
 						.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 				}
 

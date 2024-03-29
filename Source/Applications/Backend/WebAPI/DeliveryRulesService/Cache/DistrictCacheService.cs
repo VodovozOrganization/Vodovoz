@@ -66,7 +66,7 @@ namespace DeliveryRulesService.Cache
 					(from district in unitOfWork.Session.Query<District>()
 					 where district.DistrictsSet.Id == currentActiveVersionId
 					 select district)
-					.ToList();
+					.ToArray();
 
 				var activeDistrictIds = activeDistricts
 					.Select(d => d.Id)
@@ -77,7 +77,7 @@ namespace DeliveryRulesService.Cache
 					(from districtRule in unitOfWork.Session.Query<DistrictRuleItemBase>()
 					 where activeDistrictIds.Contains(districtRule.District.Id)
 					 select districtRule)
-					.ToList();
+					.ToArray();
 
 				var districtRuleItemsPriceRuleIds = districtRuleItems
 					.Select(dr => dr.DeliveryPriceRule.Id)
@@ -86,12 +86,18 @@ namespace DeliveryRulesService.Cache
 
 				var priceRules =
 					(from priceRule in unitOfWork.Session.Query<DeliveryPriceRule>()
-					 where districtRuleItemsPriceRuleIds.Contains(priceRule.Id)
-					 select priceRule);
+					 select priceRule)
+					 .ToArray();
 
-				_logger.LogInformation("Найдены следующие активные районы: {@Districts}", activeDistricts.Select(ad => ad.Id));
-				_logger.LogInformation("Найдены следующие правила доставки: {@DistrictRuleIrems}", districtRuleItems.Select(dri => dri.Id));
-				_logger.LogInformation("Найдены следующие правила цен доставки: {@DeliveryPriceRules}", priceRules.Select(pr => pr.Id));
+				var geoGroups =
+					(from geoGroup in unitOfWork.Session.Query<GeoGroup>()
+					 select geoGroup)
+					 .ToArray();
+
+				var tariffZones =
+					(from tariffZone in unitOfWork.Session.Query<TariffZone>()
+					select tariffZone)
+					 .ToArray();
 
 				var deliveryScheduleRestrictions =
 					(from deliveryScheduleRestriction in unitOfWork.Session.Query<DeliveryScheduleRestriction>()
@@ -99,7 +105,14 @@ namespace DeliveryRulesService.Cache
 					 select deliveryScheduleRestriction)
 					 .ToList();
 
-				_logger.LogInformation("Найдены следующие графики доставки: {@DeliveryScheduleRestrictions}", deliveryScheduleRestrictions);
+				_logger.LogInformation("Найдены следующие географические группы: {@GeoGroups}", geoGroups);
+				_logger.LogInformation("Найдены следующие тарифные зоны: {@TarifZones}", tariffZones);
+				_logger.LogInformation("Найдены следующие правила цен доставки: {@DeliveryPriceRules}", priceRules);
+
+				_logger.LogInformation("Найдены следующие активные районы: {@Districts}", activeDistricts.Select(ad => ad.Id));
+				_logger.LogInformation("Найдены следующие правила доставки: {@DistrictRuleIrems}", districtRuleItems.Select(dri => dri.Id));
+
+				_logger.LogInformation("Найдены следующие графики доставки: {@DeliveryScheduleRestrictions}", deliveryScheduleRestrictions.Select(dri => dri.Id));
 
 				if(currentActiveVersionId != _currentActiveDistrictSetVersionId)
 				{
