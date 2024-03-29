@@ -41,7 +41,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private string _billAdditionalInfo;
 		private string _carLoadDocumentInfoString;
-
+		private bool _isFastDelivery19LBottlesLimitActive;
+		private int _fastDelivery19LBottlesLimitCount;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettingsSettings,
@@ -81,6 +82,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_isOrderWaitUntilActive = _generalSettingsSettings.GetIsOrderWaitUntilActive;
 			CanEditOrderWaitUntilSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditOrderWaitUntil);
 			SaveOrderWaitUntilActiveCommand = new DelegateCommand(SaveIsEditOrderWaitUntilActive, () => CanEditOrderWaitUntilSetting);
+
+			_isFastDelivery19LBottlesLimitActive = _generalSettingsSettings.IsFastDelivery19LBottlesLimitActive;
+			_fastDelivery19LBottlesLimitCount = _generalSettingsSettings.FastDelivery19LBottlesLimitCount;
+			CanEditFastDelivery19LBottlesLimitSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditFastDelivery19LBottlesLimit);
+			SaveFastDelivery19LBottlesLimitActiveCommand = new DelegateCommand(SaveIsFastDelivery19LBottlesLimitActive, () => CanEditFastDelivery19LBottlesLimitSetting);
 
 			_billAdditionalInfo = _generalSettingsSettings.GetBillAdditionalInfo;
 			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.Documents.CanEditBillAdditionalInfo);
@@ -279,6 +285,33 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion
+
+		#region FastDelivery19LBottlesLimit
+
+		public bool IsFastDelivery19LBottlesLimitActive
+		{
+			get => _isFastDelivery19LBottlesLimitActive;
+			set => SetField(ref _isFastDelivery19LBottlesLimitActive, value);
+		}
+
+		public DelegateCommand SaveFastDelivery19LBottlesLimitActiveCommand { get; }
+		public bool CanEditFastDelivery19LBottlesLimitSetting { get; }
+
+		private void SaveIsFastDelivery19LBottlesLimitActive()
+		{
+			_generalSettingsSettings.UpdateIsFastDelivery19LBottlesLimitActive(IsFastDelivery19LBottlesLimitActive);
+			_generalSettingsSettings.UpdateFastDelivery19LBottlesLimitCount(FastDelivery19LBottlesLimitCount);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		public int FastDelivery19LBottlesLimitCount
+		{
+			get => _fastDelivery19LBottlesLimitCount;
+			set => SetField(ref _fastDelivery19LBottlesLimitCount, value);
+		}
+
+		#endregion
+
 
 		#region BillAdditionalInfo
 
