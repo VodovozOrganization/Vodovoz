@@ -703,6 +703,13 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref minBottles19L, value);
 		}
 
+		private int _maxBottles19L = 1000;
+		public virtual int MaxBottles19L
+		{
+			get => _maxBottles19L;
+			set => SetField(ref _maxBottles19L, value);
+		}
+
 		private string canTake;
 		public virtual string CanTake
 		{
@@ -1626,6 +1633,7 @@ namespace Vodovoz.ViewModels.Logistic
 				DeliveryToTime = DeliveryToTime,
 				ShowCompleted = ShowCompleted,
 				MinBottles19L = MinBottles19L,
+				MaxBottles19L = MaxBottles19L,
 				FastDeliveryEnabled = OrderAddressTypes.Any(x => x.IsFastDelivery && x.Selected),
 				OrderAddressTypes = OrderAddressTypes
 					.Where(x => !x.IsFastDelivery && x.Selected)
