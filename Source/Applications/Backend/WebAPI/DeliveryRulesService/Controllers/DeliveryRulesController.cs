@@ -61,8 +61,7 @@ namespace DeliveryRulesService.Controllers
 			}
 		}
 
-		[HttpGet]
-		[Route("GetRulesByDistrict")]
+		[HttpGet("GetRulesByDistrict")]
 		public DeliveryRulesDTO GetRulesByDistrict([FromQuery] decimal latitude, [FromQuery] decimal longitude)
 		{
 			try
@@ -79,6 +78,110 @@ namespace DeliveryRulesService.Controllers
 					Message = ServiceConstants.InternalErrorFromGetDeliveryRule
 				};
 				_logger.LogError(ex, errorResult.Message);
+				return errorResult;
+			}
+		}
+
+
+		[HttpPost("GetRulesByDistrictAndNomenclatures")]
+		public async Task<DeliveryRulesDTO> GetRulesByDistrictAndNomenclatures([FromBody] DeliveryRulesRequest request)
+		{
+			var deliveryInfo = GetRulesByDistrict(request.Latitude, request.Longitude);
+
+			if(deliveryInfo.StatusEnum != DeliveryRulesResponseStatus.Ok)
+			{
+				return await ValueTask.FromResult(deliveryInfo);
+			}
+			
+			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			{
+				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+
+				var allowed =
+					!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday
+					&& fastDeliveryAllowed;
+
+				if(allowed)
+				{
+					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
+					todayInfo.ScheduleRestrictions.Insert(0, _fastDeliverySchedule.Name);
+				}
+			}
+			return await ValueTask.FromResult(deliveryInfo);
+		}
+		
+		[HttpPost("GetExtendedRulesByDistrictAndNomenclatures")]
+		public async Task<ExtendedDeliveryRulesDto> GetExtendedRulesByDistrictAndNomenclatures([FromBody] DeliveryRulesRequest request)
+		{
+			var deliveryInfo = GetExtendedRulesByDistrict(request.Latitude, request.Longitude);
+			
+			if (deliveryInfo.StatusEnum != 0)
+			{
+				return await ValueTask.FromResult(deliveryInfo);
+			}
+			
+			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			{
+				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+				
+				if(!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
+				{
+					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
+					todayInfo.ScheduleRestrictions.Insert(0, new ExtendedScheduleRestrictionDto
+					{
+						Id = _fastDeliverySchedule.Id,
+						ScheduleRestriction = _fastDeliverySchedule.Name
+					});
+					
+					var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
+					deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
+				}
+			}
+			return await ValueTask.FromResult(deliveryInfo);
+		}
+
+		[HttpGet("GetDeliveryInfo")]
+		public DeliveryInfoDTO GetDeliveryInfo([FromQuery] decimal latitude, [FromQuery] decimal longitude)
+		{
+			try
+			{
+				var deliveryInfo = ExecuteGetDeliveryInfo(latitude, longitude);
+				return deliveryInfo;
+			}
+			catch(Exception ex)
+			{
+				var errorResult = new DeliveryInfoDTO
+				{
+					StatusEnum = DeliveryRulesResponseStatus.Error,
+					WeekDayDeliveryInfos = null,
+					GeoGroup = null,
+					Message = ServiceConstants.InternalErrorFromGetDeliveryRule
+				};
+				_logger.LogError(ex, errorResult.Message);
+				return errorResult;
+			}
+		}
+
+		[HttpGet("ServiceStatus")]
+		public bool ServiceStatus()
+		{
+			var response = GetDeliveryInfo(59.886134m, 30.394007m);
+			var response2 = GetRulesByDistrict(59.886134m, 30.394007m);
+			return response.StatusEnum != DeliveryRulesResponseStatus.Error && response2.StatusEnum != DeliveryRulesResponseStatus.Error;
+		}
+
+		private ExtendedDeliveryRulesDto GetExtendedRulesByDistrict(decimal latitude, decimal longitude)
+		{
+			try
+			{
+				return ExecuteGetExtendedRulesByDistrict(latitude, longitude);
+			}
+			catch (Exception ex)
+			{
+				var errorResult = new ExtendedDeliveryRulesDto();
+				errorResult.SetErrorState();
+				_logger.LogError(ex, errorResult.Message);
+
 				return errorResult;
 			}
 		}
@@ -228,88 +331,6 @@ namespace DeliveryRulesService.Controllers
 			return result;
 		}
 
-		[HttpPost]
-		[Route("GetRulesByDistrictAndNomenclatures")]
-		public async Task<DeliveryRulesDTO> GetRulesByDistrictAndNomenclatures([FromBody] DeliveryRulesRequest request)
-		{
-			var deliveryInfo = GetRulesByDistrict(request.Latitude, request.Longitude);
-
-			if(deliveryInfo.StatusEnum != DeliveryRulesResponseStatus.Ok)
-			{
-				return await ValueTask.FromResult(deliveryInfo);
-			}
-
-			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
-			{
-				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
-
-				var allowed =
-					!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday
-					&& fastDeliveryAllowed;
-
-				if(allowed)
-				{
-					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
-					todayInfo.ScheduleRestrictions.Insert(0, _fastDeliverySchedule.Name);
-				}
-			}
-			return await ValueTask.FromResult(deliveryInfo);
-		}
-
-		[HttpPost]
-		[Route("GetExtendedRulesByDistrictAndNomenclatures")]
-		public async Task<ExtendedDeliveryRulesDto> GetExtendedRulesByDistrictAndNomenclatures([FromBody] DeliveryRulesRequest request)
-		{
-			var deliveryInfo = GetExtendedRulesByDistrict(request.Latitude, request.Longitude);
-
-			if(deliveryInfo.StatusEnum != 0)
-			{
-				return await ValueTask.FromResult(deliveryInfo);
-			}
-
-			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
-			{
-				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
-
-				if(!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
-				{
-					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
-					todayInfo.ScheduleRestrictions.Insert(0, new ExtendedScheduleRestrictionDto
-					{
-						Id = _fastDeliverySchedule.Id,
-						ScheduleRestriction = _fastDeliverySchedule.Name
-					});
-
-					var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
-					deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
-				}
-			}
-			return await ValueTask.FromResult(deliveryInfo);
-		}
-
-		[HttpGet]
-		[Route("GetDeliveryInfo")]
-		public DeliveryInfoDTO GetDeliveryInfo([FromQuery] decimal latitude, [FromQuery] decimal longitude)
-		{
-			try
-			{
-				var deliveryInfo = ExecuteGetDeliveryInfo(latitude, longitude);
-				return deliveryInfo;
-			}
-			catch(Exception ex)
-			{
-				var errorResult = new DeliveryInfoDTO
-				{
-					StatusEnum = DeliveryRulesResponseStatus.Error,
-					WeekDayDeliveryInfos = null,
-					GeoGroup = null,
-					Message = ServiceConstants.InternalErrorFromGetDeliveryRule
-				};
-				_logger.LogError(ex, errorResult.Message);
-				return errorResult;
-			}
-		}
-
 		private DeliveryInfoDTO ExecuteGetDeliveryInfo(decimal latitude, decimal longitude)
 		{
 			_logger.LogInformation(ServiceConstants.RequestToGetDeliveryRules());
@@ -347,30 +368,6 @@ namespace DeliveryRulesService.Controllers
 					GeoGroup = null,
 					Message = message
 				};
-			}
-		}
-
-		[HttpGet]
-		[Route("ServiceStatus")]
-		public bool ServiceStatus()
-		{
-			var response = GetDeliveryInfo(59.886134m, 30.394007m);
-			var response2 = GetRulesByDistrict(59.886134m, 30.394007m);
-			return response.StatusEnum != DeliveryRulesResponseStatus.Error && response2.StatusEnum != DeliveryRulesResponseStatus.Error;
-		}
-
-		private ExtendedDeliveryRulesDto GetExtendedRulesByDistrict(decimal latitude, decimal longitude)
-		{
-			try
-			{
-				return ExecuteGetExtendedRulesByDistrict(latitude, longitude);
-			}
-			catch(Exception ex)
-			{
-				var errorResult = new ExtendedDeliveryRulesDto();
-				errorResult.SetErrorState();
-				_logger.LogError(ex, errorResult.Message);
-				return errorResult;
 			}
 		}
 
