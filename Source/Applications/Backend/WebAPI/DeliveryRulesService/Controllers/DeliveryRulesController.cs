@@ -140,11 +140,13 @@ namespace DeliveryRulesService.Controllers
 
 					response.StatusEnum = DeliveryRulesResponseStatus.Ok;
 					response.Message = "";
+
 					return response;
 				}
 
 				var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 				_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
+
 				return new DeliveryRulesDTO
 				{
 					StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
@@ -213,6 +215,7 @@ namespace DeliveryRulesService.Controllers
 
 				response.StatusEnum = DeliveryRulesResponseStatus.Ok;
 				response.Message = "";
+
 				return response;
 			}
 

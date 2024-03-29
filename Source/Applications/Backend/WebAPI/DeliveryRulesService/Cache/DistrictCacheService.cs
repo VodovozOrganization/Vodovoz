@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DeliveryRulesService.Options;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
@@ -14,13 +16,20 @@ namespace DeliveryRulesService.Cache
 	public class DistrictCacheService
 	{
 		private readonly ILogger<DistrictCacheService> _logger;
+		private readonly IOptionsMonitor<DistrictCacheServiceSettings> _optionsMonitor;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private int _currentActiveDistrictSetVersionId = 0;
+		private static bool _isCachingInProcess = false;
 
-		public DistrictCacheService(ILogger<DistrictCacheService> logger, IUnitOfWorkFactory unitOfWorkFactory)
+		public DistrictCacheService(
+			ILogger<DistrictCacheService> logger,
+			IOptionsMonitor<DistrictCacheServiceSettings> optionsMonitor,
+			IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
+			_optionsMonitor = optionsMonitor
+				?? throw new ArgumentNullException(nameof(optionsMonitor));
 			_unitOfWorkFactory = unitOfWorkFactory
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
@@ -46,9 +55,16 @@ namespace DeliveryRulesService.Cache
 
 		private void RunUpdate()
 		{
+			if(_isCachingInProcess)
+			{
+				return;
+			}
+
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot();
 
 			unitOfWork.Session.DefaultReadOnly = true;
+
+			var currentOptions = _optionsMonitor.CurrentValue;
 
 			try
 			{
@@ -101,14 +117,41 @@ namespace DeliveryRulesService.Cache
 					 select deliveryScheduleRestriction)
 					 .ToList();
 
-				_logger.LogInformation("Найдены следующие географические группы: {@GeoGroups}", geoGroups.Select(x => (x.Id, x.Name)));
-				_logger.LogInformation("Найдены следующие тарифные зоны: {@TarifZones}", tariffZones.Select(x => (x.Id, x.Name)));
-				_logger.LogInformation("Найдены следующие правила цен доставки: {@DeliveryPriceRules}", priceRules.Select(x => (x.Id, x.Title)));
+				if(currentOptions.PreloadLoggingLevel != PreloadLoggingLevel.None)
+				{
+					_logger.LogInformation(
+						"Найдены следующие географические группы: {@GeoGroups}",
+						geoGroups.Select(x => (x.Id, x.Name)));
 
-				_logger.LogInformation("Найдены следующие активные районы: {@Districts}", activeDistricts.Select(x => (x.Id, x.DistrictName, x.DistrictBorder)));
-				_logger.LogInformation("Найдены следующие правила доставки: {@DistrictRuleIrems}", districtRuleItems.Select(x => (x.Id, x.Price, x.DeliveryPriceRule.Id, x.DeliveryPriceRule.Title)));
+					_logger.LogInformation(
+						"Найдены следующие тарифные зоны: {@TarifZones}",
+						tariffZones.Select(x => (x.Id, x.Name)));
 
-				_logger.LogInformation("Найдены следующие графики доставки: {@DeliveryScheduleRestrictions}", deliveryScheduleRestrictions.Select(x => (x.Id, x.WeekDay, x.District.Id, x.District.DistrictName)));
+					_logger.LogInformation(
+						"Найдены следующие правила цен доставки: {@DeliveryPriceRules}",
+						priceRules.Select(x => (x.Id, x.Title)));
+
+					if(currentOptions.PreloadLoggingLevel == PreloadLoggingLevel.Simple)
+					{
+						_logger.LogInformation(
+							"Найдены следующие активные районы: {@Districts}",
+							activeDistricts.Select(x => (x.Id, x.DistrictName)));
+					}
+					else if(currentOptions.PreloadLoggingLevel == PreloadLoggingLevel.Detailed)
+					{
+						_logger.LogInformation(
+							"Найдены следующие активные районы: {@Districts}",
+							activeDistricts.Select(x => (x.Id, x.DistrictName, x.DistrictBorder)));
+					}
+
+					_logger.LogInformation(
+						"Найдены следующие правила доставки: {@DistrictRuleIrems}",
+						districtRuleItems.Select(x => (x.Id, x.Price, x.DeliveryPriceRule.Id, x.DeliveryPriceRule.Title)));
+
+					_logger.LogInformation(
+						"Найдены следующие графики доставки: {@DeliveryScheduleRestrictions}",
+						deliveryScheduleRestrictions.Select(x => (x.Id, x.WeekDay, x.District.Id, x.District.DistrictName)));
+				}
 
 				if(currentActiveVersionId != _currentActiveDistrictSetVersionId)
 				{
