@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Data.Interfaces.Logistics.Cars;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Settings.Employee;
 
@@ -15,7 +16,8 @@ namespace EventsApi.Library.Models
 			ICompletedDriverWarehouseEventProxyRepository completedDriverWarehouseEventProxyRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IDriverWarehouseEventQrDataHandler driverWarehouseEventQrDataHandler,
-			IDriverWarehouseEventSettings driverWarehouseEventSettings)
+			IDriverWarehouseEventSettings driverWarehouseEventSettings,
+			ICarIdRepository carIdRepository)
 			: base(
 				logger,
 				unitOfWork,
@@ -23,7 +25,8 @@ namespace EventsApi.Library.Models
 				employeeWithLoginRepository,
 				driverWarehouseEventQrDataHandler,
 				driverWarehouseEventSettings,
-				EmployeeType.WarehouseEmployee)
+				EmployeeType.WarehouseEmployee,
+				carIdRepository)
 		{
 			
 		}
