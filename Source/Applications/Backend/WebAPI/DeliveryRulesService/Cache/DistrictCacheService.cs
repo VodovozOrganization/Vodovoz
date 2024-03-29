@@ -1,14 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using NHibernate;
 using QS.DomainModel.UoW;
 using System;
-using System.Linq;
 using System.Collections.Concurrent;
+using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using NHibernate.Linq;
-using System.Diagnostics;
-using DocumentFormat.OpenXml.Drawing.ChartDrawing;
 
 namespace DeliveryRulesService.Cache
 {
@@ -105,14 +101,14 @@ namespace DeliveryRulesService.Cache
 					 select deliveryScheduleRestriction)
 					 .ToList();
 
-				_logger.LogInformation("Найдены следующие географические группы: {@GeoGroups}", geoGroups);
-				_logger.LogInformation("Найдены следующие тарифные зоны: {@TarifZones}", tariffZones);
-				_logger.LogInformation("Найдены следующие правила цен доставки: {@DeliveryPriceRules}", priceRules);
+				_logger.LogInformation("Найдены следующие географические группы: {@GeoGroups}", geoGroups.Select(x => (x.Id, x.Name)));
+				_logger.LogInformation("Найдены следующие тарифные зоны: {@TarifZones}", tariffZones.Select(x => (x.Id, x.Name)));
+				_logger.LogInformation("Найдены следующие правила цен доставки: {@DeliveryPriceRules}", priceRules.Select(x => (x.Id, x.Title)));
 
-				_logger.LogInformation("Найдены следующие активные районы: {@Districts}", activeDistricts.Select(ad => ad.Id));
-				_logger.LogInformation("Найдены следующие правила доставки: {@DistrictRuleIrems}", districtRuleItems.Select(dri => dri.Id));
+				_logger.LogInformation("Найдены следующие активные районы: {@Districts}", activeDistricts.Select(x => (x.Id, x.DistrictName, x.DistrictBorder)));
+				_logger.LogInformation("Найдены следующие правила доставки: {@DistrictRuleIrems}", districtRuleItems.Select(x => (x.Id, x.Price, x.DeliveryPriceRule.Id, x.DeliveryPriceRule.Title)));
 
-				_logger.LogInformation("Найдены следующие графики доставки: {@DeliveryScheduleRestrictions}", deliveryScheduleRestrictions.Select(dri => dri.Id));
+				_logger.LogInformation("Найдены следующие графики доставки: {@DeliveryScheduleRestrictions}", deliveryScheduleRestrictions.Select(x => (x.Id, x.WeekDay, x.District.Id, x.District.DistrictName)));
 
 				if(currentActiveVersionId != _currentActiveDistrictSetVersionId)
 				{
