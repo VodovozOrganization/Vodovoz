@@ -60,6 +60,8 @@ namespace DeliveryRulesService.Cache
 				return;
 			}
 
+			_isCachingInProcess = true;
+
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot();
 
 			unitOfWork.Session.DefaultReadOnly = true;
@@ -178,6 +180,10 @@ namespace DeliveryRulesService.Cache
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка обновления кэша районов: {ExceptionMessage}", ex.Message);
+			}
+			finally
+			{
+				_isCachingInProcess = false;
 			}
 		}
 	}
