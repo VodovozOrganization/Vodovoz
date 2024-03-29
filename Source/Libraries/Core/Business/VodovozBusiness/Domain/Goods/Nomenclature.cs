@@ -1358,7 +1358,8 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.PromotionalProducts,
 				NomenclatureCategory.Overalls,
 				NomenclatureCategory.HouseholdInventory,
-				NomenclatureCategory.Tools
+				NomenclatureCategory.Tools,
+				NomenclatureCategory.CarParts
 			};
 		}
 
