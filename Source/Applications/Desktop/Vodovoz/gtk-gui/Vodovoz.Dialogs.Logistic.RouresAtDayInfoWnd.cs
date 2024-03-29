@@ -10,6 +10,14 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gamma.GtkWidgets.yTreeView treeMarkers;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelLogisticsRequrementsMarkersInfo;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewLogisticsRequrementsMarkers;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOrderInfoMarkersInfo;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewOrderInfoMarkers;
+
 		private global::Gtk.Label labelOrdersInfo;
 
 		private global::Gtk.Button btnOk;
@@ -45,13 +53,47 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.treeMarkers]));
 			w2.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.ylabelLogisticsRequrementsMarkersInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelLogisticsRequrementsMarkersInfo.Name = "ylabelLogisticsRequrementsMarkersInfo";
+			this.ylabelLogisticsRequrementsMarkersInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Маркеры требований к логистике");
+			this.ylabelLogisticsRequrementsMarkersInfo.UseMarkup = true;
+			this.vbox2.Add(this.ylabelLogisticsRequrementsMarkersInfo);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ylabelLogisticsRequrementsMarkersInfo]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.ytreeviewLogisticsRequrementsMarkers = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewLogisticsRequrementsMarkers.CanFocus = true;
+			this.ytreeviewLogisticsRequrementsMarkers.Name = "ytreeviewLogisticsRequrementsMarkers";
+			this.vbox2.Add(this.ytreeviewLogisticsRequrementsMarkers);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytreeviewLogisticsRequrementsMarkers]));
+			w4.Position = 3;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.ylabelOrderInfoMarkersInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOrderInfoMarkersInfo.Name = "ylabelOrderInfoMarkersInfo";
+			this.ylabelOrderInfoMarkersInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Маркеры информации о заказе");
+			this.ylabelOrderInfoMarkersInfo.UseMarkup = true;
+			this.vbox2.Add(this.ylabelOrderInfoMarkersInfo);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ylabelOrderInfoMarkersInfo]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.ytreeviewOrderInfoMarkers = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewOrderInfoMarkers.CanFocus = true;
+			this.ytreeviewOrderInfoMarkers.Name = "ytreeviewOrderInfoMarkers";
+			this.vbox2.Add(this.ytreeviewOrderInfoMarkers);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytreeviewOrderInfoMarkers]));
+			w6.Position = 5;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.labelOrdersInfo = new global::Gtk.Label();
 			this.labelOrdersInfo.Name = "labelOrdersInfo";
 			this.labelOrdersInfo.Xalign = 0F;
 			this.labelOrdersInfo.Selectable = true;
 			this.vbox2.Add(this.labelOrdersInfo);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.labelOrdersInfo]));
-			w3.Position = 2;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.labelOrdersInfo]));
+			w7.Position = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.btnOk = new global::Gtk.Button();
 			this.btnOk.CanFocus = true;
@@ -59,17 +101,17 @@ namespace Vodovoz.Dialogs.Logistic
 			this.btnOk.UseUnderline = true;
 			this.btnOk.Label = global::Mono.Unix.Catalog.GetString("Закрыть");
 			this.vbox2.Add(this.btnOk);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnOk]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnOk]));
+			w8.Position = 7;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.DefaultWidth = 400;
-			this.DefaultHeight = 300;
+			this.DefaultHeight = 385;
 			this.Show();
 			this.btnOk.Clicked += new global::System.EventHandler(this.OnBtnOkClicked);
 		}
