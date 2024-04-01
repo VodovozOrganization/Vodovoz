@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
 			}
 
+			UseSlider = true;
 			TabName = "Журнал автомобилей";
 
 			UpdateOnChanges(
