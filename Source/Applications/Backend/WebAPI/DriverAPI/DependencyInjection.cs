@@ -3,7 +3,9 @@ using DriverAPI.Services;
 using DriverAPI.Workers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Services.Interactive;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
@@ -12,6 +14,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -40,6 +43,10 @@ namespace DriverAPI
 
 				// Сервисы
 				.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>()
+				//добавляем сервисы, т.к. в методе Order.SendUpdToEmailOnFinishIfNeeded() есть их вызов
+				.AddScoped<IInteractiveQuestion, ConsoleInteractiveQuestion>()
+				.AddScoped<IInteractiveMessage, ConsoleInteractiveMessage>()
+				.AddScoped<IInteractiveService, ConsoleInteractiveService>()
 
 				// Репозитории водовоза
 				.AddScoped<ITrackRepository, TrackRepository>()
@@ -51,6 +58,7 @@ namespace DriverAPI
 				.AddScoped<IEmployeeRepository, EmployeeRepository>()
 				.AddScoped<IFastPaymentRepository, FastPaymentRepository>()
 				.AddScoped<ICarRepository, CarRepository>()
+				.AddScoped<ISubdivisionRepository, SubdivisionRepository>()
 
 				.AddDriverApiLibrary(configuration)
 
