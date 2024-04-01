@@ -4,7 +4,7 @@ namespace Pacs.Server.Breaks
 {
 	public interface IBreakAvailabilityNotifier
 	{
-		void NotifyGlobalBreakAvailability(GlobalBreakAvailability breakAvailability);
+		void NotifyGlobalBreakAvailability(GlobalBreakAvailabilityEvent breakAvailability);
 		void NotifyOperatorsOnBreak(OperatorsOnBreakEvent operatorsOnBreak);
 	}
 }

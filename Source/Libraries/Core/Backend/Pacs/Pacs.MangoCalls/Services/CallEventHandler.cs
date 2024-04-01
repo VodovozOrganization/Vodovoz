@@ -57,7 +57,7 @@ namespace Pacs.MangoCalls.Services
 
 		private void UpdateCall(MangoCallEvent callEvent)
 		{
-			var hasTakenFromCallId = callEvent.From.TakenFromCallId.IsNullOrWhiteSpace();
+			var hasTakenFromCallId = !callEvent.From.TakenFromCallId.IsNullOrWhiteSpace();
 			if(!hasTakenFromCallId)
 			{
 				_call.CallId = callEvent.CallId;
@@ -122,6 +122,7 @@ namespace Pacs.MangoCalls.Services
 			{
 				subCall.TakenFromCallId = _call.CallId;
 			}
+
 			//Найти callId основного звонка, но как?
 			var isFisrtCallLayer = callEvent.From.TakenFromCallId == _call.CallId;
 
@@ -221,14 +222,7 @@ namespace Pacs.MangoCalls.Services
 				TaskId = callEvent.TaskId,
 				CallbackInitiator = callEvent.CallbackInitiator
 			};
-			try
-			{
-				await _uow.SaveAsync(domainCallEvent);
-			}
-			catch(Exception ex)
-			{
-				throw;
-			}
+			await _uow.SaveAsync(domainCallEvent);
 		}
 
 		private CallDirection? DetectDirection(MangoCallEvent callEvent)
