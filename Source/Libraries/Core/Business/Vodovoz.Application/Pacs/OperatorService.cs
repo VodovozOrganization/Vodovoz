@@ -21,7 +21,7 @@ using Timer = System.Timers.Timer;
 namespace Vodovoz.Application.Pacs
 {
 	public class OperatorService : PropertyChangedBase, 
-		IObserver<GlobalBreakAvailability>,
+		IObserver<GlobalBreakAvailabilityEvent>,
 		IObserver<SettingsEvent>,
 		IObserver<OperatorsOnBreakEvent>,
 		IDisposable
@@ -36,7 +36,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
 		private readonly IOperatorStateAgent _operatorStateAgent;
 		private readonly IPacsRepository _pacsRepository;
-		private readonly IObservable<GlobalBreakAvailability> _globalBreakPublisher;
+		private readonly IObservable<GlobalBreakAvailabilityEvent> _globalBreakPublisher;
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
 		private readonly IObservable<OperatorsOnBreakEvent> _operatorsOnBreakPublisher;
 		private readonly IPacsEmployeeProvider _pacsEmployeeProvider;
@@ -46,7 +46,7 @@ namespace Vodovoz.Application.Pacs
 		private bool _isConnecting;
 		private bool _breakInProgress;
 		private OperatorBreakAvailability _breakAvailability;
-		private GlobalBreakAvailability _globalBreakAvailability;
+		private GlobalBreakAvailabilityEvent _globalBreakAvailability;
 		private IPacsDomainSettings _settings;
 		private IEnumerable<OperatorState> _operatorsonBreak;
 		private PacsState _pacsState;
@@ -69,7 +69,7 @@ namespace Vodovoz.Application.Pacs
 			IMangoManager mangoManager,
 			IOperatorStateAgent operatorStateAgent,
 			IPacsRepository pacsRepository,
-			IObservable<GlobalBreakAvailability> globalBreakPublisher,
+			IObservable<GlobalBreakAvailabilityEvent> globalBreakPublisher,
 			OperatorSettingsConsumer operatorSettingsConsumer,
 			IObservable<OperatorsOnBreakEvent> operatorsOnBreakPublisher,
 			IPacsEmployeeProvider pacsEmployeeProvider,
@@ -89,7 +89,7 @@ namespace Vodovoz.Application.Pacs
 			_operatorKeepAliveController = operatorKeepAliveController ?? throw new ArgumentNullException(nameof(operatorKeepAliveController));
 
 			_breakAvailability = new OperatorBreakAvailability();
-			_globalBreakAvailability = new GlobalBreakAvailability();
+			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
 			_delayedBreakUpdateTimer.Elapsed += (s, e) => UpdateBreakInfo();
@@ -289,7 +289,7 @@ namespace Vodovoz.Application.Pacs
 				UpdateShortBreak();
 			}
 		}
-		public GlobalBreakAvailability GlobalBreakAvailability
+		public GlobalBreakAvailabilityEvent GlobalBreakAvailability
 		{
 			get => _globalBreakAvailability;
 			private set
@@ -765,17 +765,17 @@ namespace Vodovoz.Application.Pacs
 
 		#region IObserver<GlobalBreakAvailability>
 
-		void IObserver<GlobalBreakAvailability>.OnCompleted()
+		void IObserver<GlobalBreakAvailabilityEvent>.OnCompleted()
 		{
 			_breakAvailabilitySubscription.Dispose();
 		}
 
-		void IObserver<GlobalBreakAvailability>.OnError(Exception error)
+		void IObserver<GlobalBreakAvailabilityEvent>.OnError(Exception error)
 		{
 			_logger.LogError(error, "");
 		}
 
-		void IObserver<GlobalBreakAvailability>.OnNext(GlobalBreakAvailability value)
+		void IObserver<GlobalBreakAvailabilityEvent>.OnNext(GlobalBreakAvailabilityEvent value)
 		{
 			GlobalBreakAvailability = value;
 		}

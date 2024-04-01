@@ -37,7 +37,7 @@ namespace Pacs.Operators.Client.Consumers.Definitions
 				rmq.Durable = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<GlobalBreakAvailability>();
+				rmq.Bind<GlobalBreakAvailabilityEvent>();
 			}
 		}
 	}

@@ -21,7 +21,7 @@ namespace Pacs.Operators.Client
 				.AddSingleton<IObservable<PacsCallEvent>>(ctx => ctx.GetService<PacsCallEventConsumer>())
 
 				.AddSingleton<GlobalBreakAvailabilityConsumer>()
-				.AddSingleton<IObservable<GlobalBreakAvailability>>(ctx => ctx.GetService<GlobalBreakAvailabilityConsumer>())
+				.AddSingleton<IObservable<GlobalBreakAvailabilityEvent>>(ctx => ctx.GetService<GlobalBreakAvailabilityConsumer>())
 
 				.AddSingleton<OperatorsOnBreakConsumer>()
 				.AddSingleton<IObservable<OperatorsOnBreakEvent>>(ctx => ctx.GetService<OperatorsOnBreakConsumer>())

@@ -18,7 +18,7 @@ namespace Pacs.Server
 		}
 
 		[HttpGet("get")]
-		public async Task<GlobalBreakAvailability> Get()
+		public async Task<GlobalBreakAvailabilityEvent> Get()
 		{
 			return await Task.FromResult(_globalBreakController.BreakAvailability);
 		}
