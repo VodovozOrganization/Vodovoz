@@ -711,6 +711,10 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.ExcludeFromAutoCalls, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckHideDeliveryPointInBill.Binding
+				.AddBinding(Entity, e => e.HideDeliveryPointForBill, w => w.Active)
+				.InitializeFromSource();
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{

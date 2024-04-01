@@ -163,6 +163,7 @@ namespace Vodovoz.Domain.Client
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private Counterparty _refferer;
+		private bool _hideDeliveryPointForBill;
 
 		#region Свойства
 
@@ -1060,6 +1061,14 @@ namespace Vodovoz.Domain.Client
 			get => _refferer;
 			set => SetField(ref _refferer, value);
 		}
+
+		[Display(Name = "Скрывать ТД в счетах")]
+		public virtual bool HideDeliveryPointForBill
+		{
+			get => _hideDeliveryPointForBill;
+			set => SetField(ref _hideDeliveryPointForBill, value);
+		}
+
 
 		#endregion Свойства
 

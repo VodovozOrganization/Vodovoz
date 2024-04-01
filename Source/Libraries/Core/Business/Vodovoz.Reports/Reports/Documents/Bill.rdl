@@ -1999,6 +1999,9 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hide_delivery_point}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2016,6 +2019,9 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
+                      <Visibility >
+                        <Hidden>={?hide_delivery_point}</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2536,7 +2542,7 @@ Iif(
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -2579,6 +2585,13 @@ Iif(
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_delivery_point">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
