@@ -39,7 +39,7 @@ namespace Vodovoz.Domain.Sale
 		private IList<DistrictCopyItem> _districtCopyItems = new List<DistrictCopyItem>();
 
 		private GenericObservableList<WeekDayDistrictRuleItem> _todayDistrictRuleItems;
-		private GenericObservableList<WeekDayDistrictRuleItem> _observableMondayDistrictRuleItems;
+		private GenericObservableList<WeekDayDistrictRuleItem> _mondayDistrictRuleItems;
 		private GenericObservableList<WeekDayDistrictRuleItem> _tuesdayDistrictRuleItems;
 		private GenericObservableList<WeekDayDistrictRuleItem> _wednesdayDistrictRuleItems;
 		private GenericObservableList<WeekDayDistrictRuleItem> _thursdayDistrictRuleItems;
@@ -222,18 +222,18 @@ namespace Vodovoz.Domain.Sale
 		{
 			get
 			{
-				if(_observableMondayDistrictRuleItems is null)
+				if(_mondayDistrictRuleItems is null)
 				{
-					_observableMondayDistrictRuleItems = new GenericObservableList<WeekDayDistrictRuleItem>(AllDistrictRuleItems
+					_mondayDistrictRuleItems = new GenericObservableList<WeekDayDistrictRuleItem>(AllDistrictRuleItems
 						.Where(drib => drib is WeekDayDistrictRuleItem wddri && wddri.WeekDay == WeekDayName.Monday)
 						.Cast<WeekDayDistrictRuleItem>()
 						.ToList());
 
-					_observableMondayDistrictRuleItems.ElementAdded += OnObservableDistrictRuleItemsElementAdded;
-					_observableMondayDistrictRuleItems.ElementRemoved += OnObservableDistrictRuleItemsElementRemoved;
+					_mondayDistrictRuleItems.ElementAdded += OnObservableDistrictRuleItemsElementAdded;
+					_mondayDistrictRuleItems.ElementRemoved += OnObservableDistrictRuleItemsElementRemoved;
 				}
 
-				return _observableMondayDistrictRuleItems;
+				return _mondayDistrictRuleItems;
 			}
 		}
 
