@@ -103,6 +103,11 @@ namespace Vodovoz.EntityRepositories
 
 		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order currentOrder, IDeliveryScheduleSettings deliveryScheduleSettings, bool isForBill = false)
 		{
+			if(currentOrder.PaymentType != PaymentType.Cashless)
+			{
+				return false;
+			}
+			
 			var result = (
 				from order in uow.GetAll<Order>()
 				from address in uow.GetAll<RouteListItem>().Where(a => a.Order.Id == order.Id).DefaultIfEmpty()
