@@ -1,4 +1,4 @@
-using DeliveryRulesService.Cache;
+﻿using DeliveryRulesService.Cache;
 using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -440,7 +440,7 @@ namespace DeliveryRulesService.Controllers
 				MinOrder = $"{rule.DeliveryPriceRule.OrderMinSumEShopGoods}",
 				Price = $"{rule.Price:N0}"
 			})
-				.ToList();
+			.ToList();
 		}
 
 		private IList<DeliverySchedule> GetScheduleRestrictions(
