@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Sale
 
 		private GenericObservableList<CommonDistrictRuleItem> _commonDistrictRuleItems;
 
-		private IList<DistrictRuleItemBase> _allDistrictRuleItems;
+		private IList<DistrictRuleItemBase> _allDistrictRuleItems = new List<DistrictRuleItemBase>();
 		private GenericObservableList<DistrictRuleItemBase> _observableAllDistrictRuleItems;
 
 		#endregion Fields
