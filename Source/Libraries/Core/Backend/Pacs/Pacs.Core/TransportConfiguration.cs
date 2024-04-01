@@ -37,8 +37,8 @@ namespace Pacs.Core
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<GlobalBreakAvailability>(x => x.SetEntityName("pacs.event.global_break_availability.publish"));
-			cfg.Publish<GlobalBreakAvailability>(x =>
+			cfg.Message<GlobalBreakAvailabilityEvent>(x => x.SetEntityName("pacs.event.global_break_availability.publish"));
+			cfg.Publish<GlobalBreakAvailabilityEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
