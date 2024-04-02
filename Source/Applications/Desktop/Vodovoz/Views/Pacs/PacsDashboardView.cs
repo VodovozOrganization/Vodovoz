@@ -1,6 +1,9 @@
 ﻿using DocumentFormat.OpenXml.Drawing;
 using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using GLib;
 using Gtk;
+using QS.Journal.GtkUI;
 using QS.ViewModels;
 using QS.Views.GtkUI;
 using System.ComponentModel;
@@ -13,6 +16,7 @@ namespace Vodovoz.Views.Pacs
 	public partial class PacsDashboardView : WidgetViewBase<PacsDashboardViewModel>
 	{
 		private Widget _detailsWidget;
+		private Menu _treeViewCallsPopup;
 
 		public PacsDashboardView()
 		{
@@ -92,6 +96,8 @@ namespace Vodovoz.Views.Pacs
 					.AddReadOnlyTextRenderer(x => x.Result)
 				.AddColumn("")
 				.Finish();
+			treeViewAllCalls.ButtonReleaseEvent += TreeViewAllCalls_ButtonReleaseEvent;
+
 			treeViewAllCalls.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Calls, w => w.ItemsDataSource)
 				.InitializeFromSource();
@@ -101,6 +107,37 @@ namespace Vodovoz.Views.Pacs
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
 			hboxHeader.Visible = false;
+		}
+
+		private void TreeViewAllCalls_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			if(_treeViewCallsPopup == null)
+			{
+				_treeViewCallsPopup = new Menu();
+				var copyPhoneItem = new MenuItem("Скопировать телефон");
+				copyPhoneItem.ButtonPressEvent += CopyPhoneFromCall;
+				_treeViewCallsPopup.Add(copyPhoneItem);
+				_treeViewCallsPopup.ShowAll();
+			}
+
+			_treeViewCallsPopup.Popup();
+		}
+
+		private void CopyPhoneFromCall(object o, ButtonPressEventArgs args)
+		{
+			var selectedItem = treeViewAllCalls.GetSelectedObject<DashboardCallViewModel>();
+			if(selectedItem == null)
+			{
+				return;
+			}
+
+			var clipBoard = treeViewAllCalls.GetClipboard(Gdk.Selection.Clipboard);
+			clipBoard.Text = selectedItem.Phone;
 		}
 
 		private void Vadjustment_Changed(object sender, System.EventArgs e)
