@@ -9,6 +9,7 @@ using Gamma.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;

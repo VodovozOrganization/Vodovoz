@@ -51,8 +51,9 @@ namespace Vodovoz.Controllers
 					{
 						ApiBase = _driverApiSettings.ApiBase,
 						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedUri = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedUri = _driverApiSettings.NotifyOfWaitingTimeChangedURI
+						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI,
+						NotifyOfCashRequestForDriverIsGivenForTakeUri = _driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri
 					};
 					_driverApiHelper = new DriverAPIHelper(new LoggerFactory().CreateLogger<DriverAPIHelper>(), driverApiConfig);
 				}

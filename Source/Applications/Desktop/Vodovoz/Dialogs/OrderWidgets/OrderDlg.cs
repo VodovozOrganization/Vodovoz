@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -166,8 +166,6 @@ namespace Vodovoz
 		private IFastDeliveryValidator _fastDeliveryValidator;
 
 		private static readonly IDeliveryRulesSettings _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
-
-		private static readonly IDriverApiSettings _driverApiSettings = ScopeProvider.Scope.Resolve<IDriverApiSettings>();
 
 		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
 
