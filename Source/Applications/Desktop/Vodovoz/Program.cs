@@ -148,6 +148,9 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Domain.Sms;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 
 namespace Vodovoz
 {
@@ -303,8 +306,6 @@ namespace Vodovoz
 
 					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
 						.SingleInstance();
-
-
 					
 					builder.RegisterType<PacsEmployeeProvider>()
 						.As<IPacsEmployeeProvider>()
@@ -314,6 +315,7 @@ namespace Vodovoz
 
 					builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
+					builder.RegisterType<SmsNotifier>().As<ISmsNotifier>();
 
 					#region Adapters & Factories
 
@@ -476,7 +478,6 @@ namespace Vodovoz
 					builder.RegisterType<CashierCommentsReport>().AsSelf();
 					builder.RegisterType<OnecCommentsReport>().AsSelf();
 					builder.RegisterType<DriversWageBalanceReport>().AsSelf();
-					builder.RegisterType<DeliveriesLateReport>().AsSelf();
 					builder.RegisterType<QualityReport>().AsSelf();
 					builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
 					builder.RegisterType<RoutesListRegisterReport>().AsSelf();					
@@ -724,7 +725,7 @@ namespace Vodovoz
 						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
-						.AddBusiness()
+						.AddBusiness(hostingContext.Configuration)
 						.AddCoreDataRepositories()
 
 						//Messages
@@ -741,6 +742,8 @@ namespace Vodovoz
 						.AddScoped<MessageEndpointConnector>()
 						.AddScoped<PacsEndpointsConnector>()
 
+						.AddTransient(typeof(ViewModelEEVMBuilder<>))
+						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
 						.AddTransient<EntityModelFactory>()
 						
 						.AddPacsOperatorClient()

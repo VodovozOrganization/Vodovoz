@@ -352,7 +352,8 @@ namespace TaxcomEdoApi.Services
 
 				var orderDocumentTypes = new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
 				var printableRdlDocument = edoContainer.Order.OrderDocuments
-					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)
+						&& x.Order.Id == edoContainer.Order.Id) as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 				var fileName = $"Счёт №{edoContainer.Order.Id} от {edoContainer.Order.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillDocument(edoContainer.Order, billAttachment, fileName, organization);

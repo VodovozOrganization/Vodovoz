@@ -25,12 +25,13 @@ using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
-	public class OrderRepository : IOrderRepository
+	public partial class OrderRepository : IOrderRepository
 	{
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
@@ -632,6 +633,24 @@ namespace Vodovoz.EntityRepositories.Orders
 			};
 		}
 
+		public OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList()
+		{
+			return new OrderStatus[] {
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.UnloadingOnStock
+			};
+		}
+
+		public OrderStatus[] GetStatusesForFreeBalanceOperations()
+		{
+			return new OrderStatus[] {
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+			};
+		}
+
 		public OrderStatus[] GetStatusesForActualCount(VodovozOrder order)
 		{
 			if(order.SelfDelivery)
@@ -694,6 +713,20 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.NotDelivered,
 				OrderStatus.DeliveryCanceled,
 				OrderStatus.Canceled
+			};
+		}
+
+		public static OrderStatus[] GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion()
+		{
+			return new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
 			};
 		}
 
@@ -943,9 +976,9 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
-				() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
 			query.Where(() => orderAlias.DeliveryDate >= startDate
 					|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd && orderAlias.DeliveryDate >= manualResendUpdStartDate));
@@ -1492,6 +1525,99 @@ namespace Vodovoz.EntityRepositories.Orders
 				.ToList();
 
 			return result;
+		}
+
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderWithAllocation resultAlias = null;
+
+			var allocated = QueryOver.Of<PaymentItem>()
+				.Where(pi => pi.Order.Id == orderAlias.Id && pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
+				.SelectList(list => list
+					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
+
+			return query.List<OrderWithAllocation>();
+		}
+
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> exceptOrderIds)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderWithAllocation resultAlias = null;
+
+			var allocated = QueryOver.Of<PaymentItem>()
+				.Where(pi => pi.Order.Id == orderAlias.Id && pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
+				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
+					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
+				.And(o => o.Client.Id == counterpartyId)
+				.And(o => o.PaymentType == PaymentType.Cashless)
+				.SelectList(list => list
+					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+					.Select(() => true).WithAlias(() => resultAlias.IsMissingFromDocument)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
+
+			return query.List<OrderWithAllocation>();
+		}
+
+		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
+		{
+			var referredCounterpartiesCount =
+			(
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.Referrer.Id == referrerId
+
+				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
+										  where orders.Client.Id == counterparty.Id
+										  && GetOnClosingOrderStatuses().Contains(orders.OrderStatus)
+										  select orders.Id
+
+				where finishedReferOrders.Any()
+				select counterparty.Id
+			)
+			.Count();
+
+			return referredCounterpartiesCount;
+		}
+
+		public int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId)
+		{
+			var alreadyReceivedBottlesByReferPromotion =
+			(
+				from orderItems in uow.Session.Query<OrderItem>()
+				where orderItems.Order.Client.Id == order.Client.Id
+				&& orderItems.Order.Id != order.Id
+				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
+				select (orderItems.ActualCount ?? orderItems.Count)
+			)
+			.Sum(x => (int?)x);
+
+			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
 
 		public class NotFullyPaidOrderNode

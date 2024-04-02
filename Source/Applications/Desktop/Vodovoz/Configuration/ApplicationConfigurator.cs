@@ -166,7 +166,6 @@ namespace Vodovoz.Configuration
                     .DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name)
                     .SearchColumn("Отчество", x => x.Patronymic).End(),
                 OrmObjectMapping<Order>.Create().Dialog<OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
-                OrmObjectMapping<UndeliveredOrder>.Create().Dialog<UndeliveredOrderDlg>(),
                 OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
                     .SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()

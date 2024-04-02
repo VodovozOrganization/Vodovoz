@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,6 +59,24 @@
     <Compile Include="Domain\Orders\OnlineOrderStatusUpdatedNotification.cs" />
     <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
+    <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
+    <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
+    <Compile Include="Errors\Email\Email.cs" />
+    <Compile Include="Domain\Employees\FineTypes.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\CounterpartyInnName.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
+    <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
+    <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Options\PushNotificationSettings.cs" />
+    <Compile Include="NotificationRecievers\ICashRequestForDriverIsGivenForTakeNotificationReciever.cs" />
+    <Compile Include="Permissions\Bookkeepping.cs" />
+    <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDiscussionComment.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDiscussionStatus.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDiscussion.cs" />
+    <Compile Include="Domain\Sms\ISmsNotifier.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
@@ -89,6 +107,7 @@
     <Compile Include="Domain\Client\DebtType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
     <Compile Include="Domain\Client\EntranceType.cs" />
+    <Compile Include="Domain\Client\ExternalCreatingDeliveryPoint.cs" />
     <Compile Include="Domain\Client\ISupplierPriceNode.cs" />
     <Compile Include="Domain\Client\OrderStatusForSendingUpd.cs" />
     <Compile Include="Domain\Client\PersonType.cs" />
@@ -557,6 +576,7 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\DeliveryPointForSendNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\DocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyAssignNotificationRepository.cs" />
@@ -678,16 +698,14 @@
     <Compile Include="EntityRepositories\Store\SelfDeliveryAddressDto.cs" />
     <Compile Include="EntityRepositories\TrueMark\ITrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\TrueMark\TrueMarkRepository.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
-    <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Common\Repository.cs" />
     <Compile Include="Errors\Edo\Edo.cs" />
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Goods\Nomenclature.cs" />
@@ -1004,6 +1022,7 @@
     <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
+    <Compile Include="Tools\Comparers\StringOrNullAfterComparer.cs" />
     <Compile Include="Tools\Exceptions\DeliveryPointDistrictNotFoundException.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
@@ -1012,7 +1031,11 @@
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
+    <Compile Include="Tools\Logistic\DeliveryPriceNode.cs" />
+    <Compile Include="Tools\Logistic\DeliveryPriceRow.cs" />
+    <Compile Include="Tools\Logistic\DeliveryRuleRow.cs" />
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
+    <Compile Include="Tools\Logistic\IDeliveryPriceCalculator.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
@@ -1044,7 +1067,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrder.cs" />
     <Compile Include="Domain\Orders\Documents\InvoiceContractDoc.cs" />
     <Compile Include="Domain\Orders\Documents\EquipmentReturnDocument.cs" />
-    <Compile Include="Domain\Orders\UndeliveredOrderComment.cs" />
     <Compile Include="Domain\Client\ClientCameFrom.cs" />
     <Compile Include="Tools\CommerceML\Export.cs" />
     <Compile Include="Tools\IXmlConvertable.cs" />

@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
-using System.Data;
 using System.Linq;
-using QS.DomainModel.Tracking;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain;
@@ -13,13 +11,16 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Factories;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Models.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
+using Vodovoz.Models.Orders;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
@@ -43,6 +44,11 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly FastDeliveryHandler _fastDeliveryHandler;
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IEmployeeSettings _employeeSettings;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IOrderSettings _orderSettings;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrderDiscountsController _orderDiscountsController;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -58,8 +64,12 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			FastDeliveryHandler fastDeliveryHandler,
 			IPromotionalSetRepository promotionalSetRepository,
-			IEmployeeSettings employeeSettings
-			)
+			IEmployeeSettings employeeSettings,
+			INomenclatureRepository nomenclatureRepository,
+			IGenericRepository<DiscountReason> discountReasonRepository,
+			IOrderSettings orderSettings,
+			IOrderRepository orderRepository,
+			IOrderDiscountsController orderDiscountsController)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -79,7 +89,12 @@ namespace Vodovoz.Application.Orders.Services
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
+			
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -415,6 +430,44 @@ namespace Vodovoz.Application.Orders.Services
 			order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
 			
 			return Result.Success();
+		}
+
+		public void CheckAndAddBottlesToReferrerByReferFriendPromo(
+			IUnitOfWork uow,
+			Order order,
+			bool canChangeDiscountValue)
+		{
+			if(order.OrderItems.Any(o => o.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId))
+			{
+				return;
+			}
+
+			var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(uow, order.Client.Id);
+			var alreadyReceived = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(uow, order, _orderSettings.ReferFriendDiscountReasonId);
+
+			var bottlesToAdd = referredCounterparties - alreadyReceived;
+
+			if(bottlesToAdd < 1)
+			{
+				return;
+			}
+
+			var nomenclature = _nomenclatureRepository.GetWaterSemiozerie(uow);
+
+			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
+
+			var beforeAddItemsCount = order.OrderItems.Count();
+			order.AddWaterForSale(nomenclature, bottlesToAdd);		
+			var afterAddItemsCount = order.OrderItems.Count();
+
+			if(afterAddItemsCount == beforeAddItemsCount)
+			{
+				return;
+			}
+
+			var orderItem = order.OrderItems.Last();
+
+			_orderDiscountsController.SetDiscountFromDiscountReasonForOrderItem(referFriendDiscountReason, orderItem, canChangeDiscountValue, out string message);
 		}
 	}
 }

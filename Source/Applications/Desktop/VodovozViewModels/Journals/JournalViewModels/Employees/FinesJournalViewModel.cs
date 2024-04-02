@@ -5,19 +5,21 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.DB;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using QS.Utilities;
 using System;
 using System.Linq;
-using QS.Project.Services;
+using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -25,6 +27,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 	{
 		private readonly FineFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly CompositeAlgebraicSearchViewModel _compositeAlgebraicSearchViewModel;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
@@ -34,6 +37,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
+			CompositeAlgebraicSearchViewModel compositeAlgebraicSearchViewModel,
 			Action<FineFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
@@ -47,9 +51,16 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_compositeAlgebraicSearchViewModel = compositeAlgebraicSearchViewModel ?? throw new ArgumentNullException(nameof(compositeAlgebraicSearchViewModel));
+			
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+
+			Search = _compositeAlgebraicSearchViewModel;
+			Search.OnSearch += OnFiltered;
+
 			JournalFilter = filterViewModel;
 			_filterViewModel = filterViewModel;
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			filterViewModel.JournalViewModel = this;
 
 			filterViewModel.OnFiltered += OnFiltered;
@@ -83,6 +94,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			get => $"Сумма отфильтрованных штрафов:{GetTotalSumInfo()}. {base.FooterInfo}";
 			set { }
 		}
+
+		private new ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+			=> _compositeAlgebraicSearchViewModel.GetSearchCriterion(aliasPropertiesExpr);
 
 		protected override IQueryOver<Fine> ItemsQuery(IUnitOfWork unitOfWork)
 		{
@@ -141,19 +155,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
-			var employeeProjection = CustomProjections.Concat_WS(
-				" ",
-				() => finedEmployeeAlias.LastName,
-				() => finedEmployeeAlias.Name,
-				() => finedEmployeeAlias.Patronymic
-			);
-
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
 				() => fineAlias.TotalMoney,
 				() => fineAlias.FineReasonString,
-				() => employeeProjection
-			));
+				() => EmployeeProjections.FinedEmployeeFioProjection));
 
 			return query
 				.SelectList(list => list

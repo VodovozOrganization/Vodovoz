@@ -1263,11 +1263,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 
+			OrderStatus? newStatus = null;
+
 			if(validationContext.Items.ContainsKey("NewStatus")) {
-				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
+				newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
 
-					var key = new OrderStateKey(this, newStatus);
+					var key = new OrderStateKey(this, newStatus.Value);
 					var messages = new List<string>();
 					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
 						foreach(var msg in messages) {
@@ -1629,7 +1631,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(OPComment) });
 			}
 
-			if(!SelfDelivery && CallBeforeArrivalMinutes == null && (IsDoNotMakeCallBeforeArrival is null || IsDoNotMakeCallBeforeArrival == false))
+			if(!SelfDelivery && !IsFastDelivery && CallBeforeArrivalMinutes == null && (IsDoNotMakeCallBeforeArrival is null || IsDoNotMakeCallBeforeArrival == false))
 			{
 				yield return new ValidationResult($"В заказе не заполнено поле \"Отзвон за\"",
 					new[] { nameof(CallBeforeArrivalMinutes) });
@@ -1678,6 +1680,28 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult($"Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
 							new[] { nameof(DeliveryPoint) });
 					}
+				}
+			}
+
+			#endregion
+
+			#region Проверка кол-ва бутылей по акции Приведи друга
+
+			// Отменять заказ с акцией можно
+			if((newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
+				&& OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
+				&& referPromoBottlesInOrderCount > 0)
+			{
+				var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(UoW, Client.Id);
+				var alreadyReceivedBottles = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(UoW, this, _orderSettings.ReferFriendDiscountReasonId);
+				var maxReferPromoBottles = referredCounterparties - alreadyReceivedBottles;
+
+				if(referPromoBottlesInOrderCount > maxReferPromoBottles)
+				{
+					yield return new ValidationResult($"Для данного КА по акции приведи друга заработано {referredCounterparties} бесплатных бутылей\n" +
+						$"Ранее отвезено данному КА {alreadyReceivedBottles} бесплатных бутылей\n" +
+						$"В заказе можно указать не более {maxReferPromoBottles} бесплатных бутылей",
+						new[] { nameof(OrderItem) });
 				}
 			}
 
@@ -3112,7 +3136,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 			var routeList = routeListItem?.RouteList;
@@ -3177,11 +3201,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleSettings);
+					OnChangeStatusToShipped();
 					break;
 				case OrderStatus.Closed:
-					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleSettings);
-					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3205,16 +3227,48 @@ namespace Vodovoz.Domain.Orders
 			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
 
 			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
-			if(undeliveries.Any()) {
+			if(undeliveries.Any())
+			{
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
 					initialStatus.GetEnumTitle(),
 					newStatus.GetEnumTitle()
 				);
-				foreach(var u in undeliveries) {
-					u.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+				foreach(var u in undeliveries)
+				{
+					u.AddAutoCommentToOkkDiscussion(UoW, text);
 				}
 			}
+		}
+
+		private void OnChangeStatusToShipped() => SendUpdToEmailOnFinishIfNeeded();
+
+		private void SendUpdToEmailOnFinishIfNeeded()
+		{
+			var emailSendUpdResult = _emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _deliveryScheduleSettings);
+
+			if(emailSendUpdResult.IsSuccess)
+			{
+				return;
+			}
+
+			var errorStrings = emailSendUpdResult.Errors.Select(x => x.Message);
+			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Не удалось отправить УПД по email для заказа № {Id}:\n" +
+				$"{string.Join("\n", errorStrings)}");
+		}
+
+		private void SendBillForClosingDocumentOnFinishIfNeeded()
+		{
+			var emailSendBillResult = _emailService.SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
+			
+			if(emailSendBillResult.IsSuccess)
+			{
+				return;
+			}
+
+			var errorStrings = emailSendBillResult.Errors.Select(x => x.Message);
+			ServicesConfig.InteractiveService.ShowMessage (ImportanceLevel.Warning, $"Не удалось отправить счёт по email для заказа № {Id}:\n" +
+				$"{string.Join("\n", errorStrings)}");
 		}
 
 		public virtual void UpdateOrderPaymentStatus(decimal canceledSum)
@@ -3250,6 +3304,9 @@ namespace Vodovoz.Domain.Orders
 				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
+
+			SendUpdToEmailOnFinishIfNeeded();
+			SendBillForClosingDocumentOnFinishIfNeeded();
 		}
 
 		/// <summary>
@@ -5042,6 +5099,25 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		#endregion
+
+		#region Правила доставки
+		public virtual IList<int> GetAvailableDeliveryScheduleIds()
+		{
+			var availableDeliverySchedules = new List<int>();
+
+			if(DeliveryPoint?.District != null)
+			{
+				availableDeliverySchedules = DeliveryPoint
+					.District
+					.GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(DeliveryDate)
+					.OrderBy(s => s.DeliverySchedule.DeliveryTime)
+					.Select(r => r.DeliverySchedule.Id)
+					.ToList();
+			}
+
+			return availableDeliverySchedules;
+		}
 		#endregion
 	}
 }

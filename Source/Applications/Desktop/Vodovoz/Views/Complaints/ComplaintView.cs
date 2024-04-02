@@ -197,6 +197,11 @@ namespace Vodovoz.Views.Complaints
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
+			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
+			{
+				handsetPhone.SetPhone(ViewModel.Entity.Phone);
+			}
+
 			ViewModel.Entity.PropertyChanged += (o, e) =>
 			{
 				if(e.PropertyName == nameof(ViewModel.Entity.Phone))
@@ -377,7 +382,7 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			}
 			else
 			{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -6,16 +6,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.NotificationRecievers
 {
-	public class DriverAPIHelper :
+	public class DriverAPIHelper : 
 		ISmsPaymentStatusNotificationReciever,
 		IFastDeliveryOrderAddedNotificationReciever,
 		IWaitingTimeChangedNotificationReciever,
+		ICashRequestForDriverIsGivenForTakeNotificationReciever,
 		IDisposable
 	{
 		private readonly ILogger _logger;
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
 		private string _notifyOfWaitingTimeChangedUri;
+		private string _notifyOfCashRequestForDriverIsGivenForTakeUri;
 		private HttpClient _apiClient;
 
 		public DriverAPIHelper(
@@ -34,8 +36,9 @@ namespace Vodovoz.NotificationRecievers
 			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			_notifyOfSmsPaymentStatusChangedUri = configuration.NotifyOfSmsPaymentStatusChangedURI;
-			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedUri;
-			_notifyOfWaitingTimeChangedUri = configuration.NotifyOfWaitingTimeChangedUri;
+			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedURI;
+			_notifyOfWaitingTimeChangedUri = configuration.NotifyOfWaitingTimeChangedURI;
+			_notifyOfCashRequestForDriverIsGivenForTakeUri = configuration.NotifyOfCashRequestForDriverIsGivenForTakeUri;
 		}
 
 		public async Task NotifyOfSmsPaymentStatusChanged(int orderId)
@@ -72,21 +75,26 @@ namespace Vodovoz.NotificationRecievers
 
 		public async Task NotifyOfWaitingTimeChanged(int orderId)
 		{
-			try
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedUri, orderId))
 			{
-				using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedUri, orderId))
+				if(response.IsSuccessStatusCode)
 				{
-					if(response.IsSuccessStatusCode)
-					{
-						return;
-					}
-
-					throw new DriverAPIHelperException(response.ReasonPhrase);
+					return;
 				}
+
+				throw new DriverAPIHelperException(response.ReasonPhrase);
 			}
-			catch(Exception e)
+		}
+
+		public async Task NotifyOfCashRequestForDriverIsGivenForTake(int cashRequestId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfCashRequestForDriverIsGivenForTakeUri, cashRequestId))
 			{
-				_logger.LogError(e, $"Не удалось уведомить водителя изменении времени ожидания заказа {orderId}");
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+				throw new DriverAPIHelperException(response.ReasonPhrase);
 			}
 		}
 
@@ -106,7 +114,8 @@ namespace Vodovoz.NotificationRecievers
 	{
 		public Uri ApiBase { get; set; }
 		public string NotifyOfSmsPaymentStatusChangedURI { get; set; }
-		public string NotifyOfFastDeliveryOrderAddedUri { get; set; }
-		public string NotifyOfWaitingTimeChangedUri { get; set; }
+		public string NotifyOfFastDeliveryOrderAddedURI { get; set; }
+		public string NotifyOfWaitingTimeChangedURI { get; set; }
+		public string NotifyOfCashRequestForDriverIsGivenForTakeUri { get; set; }
 	}
 }

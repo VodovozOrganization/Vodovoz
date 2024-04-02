@@ -686,7 +686,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void SetActualCount(decimal newValue)
+		public virtual void SetActualCount(decimal? newValue)
 		{
 			ActualCount = newValue;
 

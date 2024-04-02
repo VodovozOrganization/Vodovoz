@@ -1,11 +1,9 @@
 ﻿using DriverAPI.Data;
 using DriverAPI.HealthChecks;
-using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Middleware;
 using DriverAPI.Options;
-using DriverAPI.Services;
-using DriverAPI.Workers;
+using FirebaseAdmin;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,32 +18,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NLog.Web;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.DB;
-using QS.Project.Services;
 using QS.Services;
 using System;
-using System.Net.Http.Headers;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Complaints;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Models.TrueMark;
-using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
-using VodovozHealthCheck;
-using QS.Project.Domain;
-using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi.BuildVersion;
+using VodovozHealthCheck;
 
 namespace DriverAPI
 {
@@ -105,7 +87,7 @@ namespace DriverAPI
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 
-			RegisterDependencies(ref services);
+			services.AddDriverApi(Configuration);
 
 			// Аутентификация
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -160,7 +142,7 @@ namespace DriverAPI
 			
 			services.AddApiVersioning(config =>
 			{
-				config.DefaultApiVersion = new ApiVersion(4, 0);
+				config.DefaultApiVersion = new ApiVersion(5, 0);
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
 				config.ApiVersionReader = new UrlSegmentApiVersionReader();
@@ -182,16 +164,6 @@ namespace DriverAPI
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
 
-			services.AddHttpClient<IFCMAPIHelper, FCMAPIHelper>(c =>
-			{
-				var apiConfiguration = Configuration.GetSection("FCMAPI");
-
-				c.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
-				c.DefaultRequestHeaders.Accept.Clear();
-				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
-			});
-
 			services.ConfigureHealthCheckService<DriverApiHealthCheck>();
 
 			services.AddHttpClient();
@@ -200,6 +172,7 @@ namespace DriverAPI
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<FirebaseApp>();
 			app.ApplicationServices.GetService<IUserService>();
 			app.UseRequestResponseLogging();
 
@@ -245,42 +218,6 @@ namespace DriverAPI
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
-		}
-
-		private void RegisterDependencies(ref IServiceCollection services)
-		{
-			services.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
-			// Сервисы для контроллеров
-
-			// ErrorReporter
-			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
-			services.AddScoped<TrueMarkWaterCodeParser>();
-			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
-
-			// Сервисы
-			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
-
-			// Workers
-			services.AddHostedService<WakeUpNotificationSenderService>();
-
-			// Репозитории водовоза
-			services.AddScoped<ITrackRepository, TrackRepository>();
-			services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
-			services.AddScoped<IRouteListRepository, RouteListRepository>();
-			services.AddScoped<IStockRepository, StockRepository>();
-			services.AddScoped<IRouteListItemRepository, RouteListItemRepository>();
-			services.AddScoped<IOrderRepository, OrderRepository>();
-			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
-			services.AddScoped<ICarRepository, CarRepository>();
-
-			services.AddDriverApiLibrary();
-
-			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-			services.AddScoped<ICallTaskWorker, CallTaskWorker>();
-			services.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance());
-			services.AddScoped<ICallTaskRepository, CallTaskRepository>();
 		}
 	}
 }

@@ -8,6 +8,7 @@ namespace Vodovoz.Application.Orders.Services
 	{
 		int PaidDeliveryNomenclatureId { get; }
 
+		void CheckAndAddBottlesToReferrerByReferFriendPromo(IUnitOfWork uow, Order order, bool canChangeDiscountValue);
 		int CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs);
 		Order CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
 		decimal GetOrderPrice(RoboatsOrderArgs roboatsOrderArgs);

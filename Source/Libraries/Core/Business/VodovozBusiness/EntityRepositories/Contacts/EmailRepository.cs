@@ -101,28 +101,35 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleSettings deliveryScheduleSettings)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order currentOrder, IDeliveryScheduleSettings deliveryScheduleSettings, bool isForBill = false)
 		{
-				var result = (from address in uow.GetAll<RouteListItem>()
-					where address.Order.Id == order.Id
-						&& 
-						(							
-								address.Order.IsFastDelivery 
-								|| (
-										address.Status != RouteListItemStatus.Transfered
-										&& address.AddressTransferType != null
-										&& address.AddressTransferType == AddressTransferType.FromFreeBalance
-									)						   
+			if(currentOrder.PaymentType != PaymentType.Cashless)
+			{
+				return false;
+			}
+			
+			var result = (
+				from order in uow.GetAll<Order>()
+				from address in uow.GetAll<RouteListItem>().Where(a => a.Order.Id == order.Id).DefaultIfEmpty()
+				where
+					order.Id == currentOrder.Id
+					&& (
+						order.IsFastDelivery
 						|| (
-								(!address.Order.Client.NeedSendBillByEdo || address.Order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
-								&& address.Order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-								&& order.OrderStatus == OrderStatus.Closed
+								address.Status != RouteListItemStatus.Transfered							
+								&& address.AddressTransferType == AddressTransferType.FromFreeBalance
 							)
-						)						
-						select address.Id)
-					.Any();
+						|| (
+								(
+									(isForBill && !order.Client.NeedSendBillByEdo) || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
+								)
+								&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
+							)
+						)
+				select order.Id)
+			.Any();
 
-				return result;
+			return result;
 		}
 
 		public bool CanSendByTimeout(string address, int orderId, OrderDocumentType type)

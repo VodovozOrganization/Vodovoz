@@ -497,11 +497,11 @@ namespace Vodovoz.Views.Logistic
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList(), "Нет")
 					.Editing(ViewModel.CanEditDistrict)
-				.AddColumn("Мин. бутылей")
+				.AddColumn("Мин. бутылей для бесплатной доставки")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x =>
 						x.ObservableCommonDistrictRuleItems.Any()
-							? x.ObservableCommonDistrictRuleItems.Min(c => c.DeliveryPriceRule.Water19LCount).ToString()
+							? x.ObservableCommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount).ToString()
 							: "-")
 					.XAlign(0.5f)
 				.AddColumn("")

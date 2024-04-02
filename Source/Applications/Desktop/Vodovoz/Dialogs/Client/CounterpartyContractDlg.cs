@@ -4,6 +4,7 @@ using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
@@ -123,7 +124,7 @@ namespace Vodovoz
 			}
 
 			var validator = ServicesConfig.ValidationService;
-			if(!validator.Validate(Entity))
+			if(!validator.Validate(Entity, new ValidationContext(Entity)))
 			{
 				return false;
 			}
