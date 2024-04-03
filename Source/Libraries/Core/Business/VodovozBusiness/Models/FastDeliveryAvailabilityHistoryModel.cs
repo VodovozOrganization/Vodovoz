@@ -1,7 +1,6 @@
-﻿using QS.DomainModel.UoW;
+﻿using NLog;
+using QS.DomainModel.UoW;
 using System;
-using System.Linq;
-using NLog;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Settings.Delivery;
 
