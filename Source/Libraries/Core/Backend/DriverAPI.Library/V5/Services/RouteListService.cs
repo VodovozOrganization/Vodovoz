@@ -1,26 +1,39 @@
 ﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V5.Converters;
+using Mango.Client.DTO.Common;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors;
+using Vodovoz.Errors.Employees;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Library.V5.Services
 {
 	internal class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
-		private readonly Vodovoz.Services.Logistics.IRouteListService _routeListService;
+		private readonly IDomainRouteListService _domainRouteListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly RouteListConverter _routeListConverter;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IGenericRepository<Employee> _employeeGenericRepository;
+		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -28,24 +41,27 @@ namespace DriverAPI.Library.V5.Services
 			IRouteListItemRepository routeListItemRepository,
 			RouteListConverter routeListConverter,
 			IEmployeeRepository employeeRepository,
+			IGenericRepository<Employee> employeeGenericRepository,
+			IGenericRepository<RouteListItem> routeListAddressesRepository,
+			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
 			IUnitOfWork unitOfWork,
-			Vodovoz.Services.Logistics.IRouteListService routeListService)
+			IDomainRouteListService domainRouteListService,
+			IGenericRepository<Order> orderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListConverter = routeListConverter ?? throw new ArgumentNullException(nameof(routeListConverter));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
+			_routeListAddressesRepository = routeListAddressesRepository ?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
+			_routeListAddressTransferItemRepository = routeListAddressTransferItemRepository ?? throw new ArgumentNullException(nameof(routeListAddressTransferItemRepository));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		/// <summary>
-		/// Получение информации о маошрутном листе в требуемом формате
-		/// </summary>
-		/// <param name="routeListId">Идентификатор МЛ</param>
-		/// <returns>APIRouteList</returns>
-		public RouteListDto Get(int routeListId)
+		public RouteListDto GetRouteList(int routeListId)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
@@ -54,18 +70,13 @@ namespace DriverAPI.Library.V5.Services
 
 			if(!routeList.SpecialConditionsAccepted)
 			{
-				spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+				spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
 			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
 		}
 
-		/// <summary>
-		/// Получение информации о маршрутных листах в требуемом формате
-		/// </summary>
-		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
-		/// <returns>IEnumerable APIRouteList</returns>
-		public IEnumerable<RouteListDto> Get(int[] routeListsIds)
+		public IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds)
 		{
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
@@ -78,7 +89,7 @@ namespace DriverAPI.Library.V5.Services
 
 					if(!routeList.SpecialConditionsAccepted)
 					{
-						spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
+						spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
 					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
@@ -92,11 +103,6 @@ namespace DriverAPI.Library.V5.Services
 			return routeLists;
 		}
 
-		/// <summary>
-		/// Получение списка идентификаторов МЛ для водителя по его Email адресу
-		/// </summary>
-		/// <param name="login">Android - login</param>
-		/// <returns>Список идентификаторов</returns>
 		public Result<IEnumerable<int>> GetRouteListsIdsForDriverByAndroidLogin(string login)
 		{
 			var driver = _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login);
@@ -242,6 +248,263 @@ namespace DriverAPI.Library.V5.Services
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId);
 
 			return routeList?.Driver?.Id == driverId;
+		}
+
+		public Result<RouteListAddressIncomingTransferDto> GetIncomingTransferInfo(int routeListAddressId)
+		{
+			var address = _routeListAddressesRepository.Get(
+				_unitOfWork,
+				address => address.Id == routeListAddressId)
+				.FirstOrDefault();
+
+			var sourceResult = FindTransferSource(address);
+
+			if(sourceResult.IsFailure)
+			{
+				return Result.Failure<RouteListAddressIncomingTransferDto>(sourceResult.Errors);
+			}
+
+			var transferItemsResult = GetTransferItems(address.Order.Id);
+
+			if(transferItemsResult.IsFailure)
+			{
+				return Result.Failure<RouteListAddressIncomingTransferDto>(transferItemsResult.Errors);
+			}
+
+			return new RouteListAddressIncomingTransferDto
+			{
+				RouteListAddressTransferInfo = new RouteListAddressIncomingTransferInfo
+				{
+					RouteListAddressId = address.Id,
+					OrderId = address.Order.Id,
+					TransferringDriverId = sourceResult.Value.RouteList.Driver.Id,
+					TransferringDriverTitle = sourceResult.Value.RouteList.Driver.ShortName,
+					RecievingDriverId = address.RouteList.Driver.Id,
+					RecievingDriverTitle = address.RouteList.Driver.ShortName,
+					AcceptanceStatus = address.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
+					TransferStatus = address.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
+				},
+				TransferItems = transferItemsResult.Value
+			};
+		}
+
+		public Result<RouteListAddressOutgoingTransferDto> GetOutgoingTransferInfo(int routeListAddressId)
+		{
+			var address = _routeListAddressesRepository.Get(
+				_unitOfWork,
+				address => address.Id == routeListAddressId)
+				.FirstOrDefault();
+
+			var targetAddress = FindTransferTarget(address);
+
+			var transferItemsResult = GetTransferItems(address.Order.Id);
+
+			if(transferItemsResult.IsFailure)
+			{
+				return Result.Failure<RouteListAddressOutgoingTransferDto>(transferItemsResult.Errors);
+			}
+
+			return new RouteListAddressOutgoingTransferDto
+			{
+				RouteListAddressTransferInfo = new RouteListAddressOutgoingTransferInfo
+				{
+					RouteListAddressId = address.Id,
+					OrderId = address.Order.Id,
+					TransferringDriverId = address.RouteList.Driver.Id,
+					TransferringDriverTitle = address.RouteList.Driver.ShortName,
+					RecievingDriverId = targetAddress.RouteList.Driver.Id,
+					RecievingDriverTitle = targetAddress.RouteList.Driver.ShortName,
+					AcceptanceStatus = targetAddress.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
+					TransferStatus = targetAddress.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
+				},
+				TransferItems = transferItemsResult.Value
+			};
+		}
+
+		public Result<DriverTransfersInfoResponse> GetDriverDriverTransfers(int driverId)
+		{
+			var currentDriver = _employeeGenericRepository
+				.Get(_unitOfWork, driver => driver.Id == driverId)
+				.FirstOrDefault();
+
+			if(currentDriver is null)
+			{
+				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.Driver.NotFound);
+			}
+
+			return new DriverTransfersInfoResponse
+			{
+				IncomingTransfers = GetIncomingTransfers(currentDriver),
+				OutgoingTransfers = GetOutgoingTransfers(currentDriver)
+			};
+		}
+
+		private IEnumerable<RouteListAddressOutgoingTransferInfo> GetOutgoingTransfers(Employee driver)
+		{
+			var result = new List<RouteListAddressOutgoingTransferInfo>();
+
+			var outgoingAddresses = _routeListAddressesRepository.Get(
+				_unitOfWork,
+				address => address.RouteList.Driver.Id == driver.Id
+					&& address.Status == RouteListItemStatus.Transfered
+					&& address.AddressTransferType == AddressTransferType.FromHandToHand
+					&& address.Order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.OnTheWay
+					&& (!address.WasTransfered || address.RecievedTransferAt != null));
+
+			foreach (var address in outgoingAddresses)
+			{
+				var targetAddress = FindTransferTarget(address);
+
+				if(targetAddress.Id == address.Id)
+				{
+					continue;
+				}
+
+				result.Add(new RouteListAddressOutgoingTransferInfo
+				{
+					RouteListAddressId = address.Id,
+					OrderId = address.Order.Id,
+					TransferringDriverId = driver.Id,
+					TransferringDriverTitle = driver.ShortName,
+					RecievingDriverId = targetAddress.RouteList.Driver.Id,
+					RecievingDriverTitle = targetAddress.RouteList.Driver.ShortName,
+					AcceptanceStatus = targetAddress.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
+					TransferStatus = targetAddress.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
+				});
+			}
+
+			return result;
+		}
+
+		private IEnumerable<RouteListAddressIncomingTransferInfo> GetIncomingTransfers(Employee driver)
+		{
+			var result = new List<RouteListAddressIncomingTransferInfo>();
+
+			var statusesTransferInWork = new RouteListItemStatus[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Transfered };
+
+			var incomingAddresses = _routeListAddressesRepository.Get(
+				_unitOfWork,
+				address => address.RouteList.Driver.Id == driver.Id
+					&& statusesTransferInWork.Contains(address.Status)
+					&& address.AddressTransferType == AddressTransferType.FromHandToHand
+					&& address.WasTransfered
+					&& (address.Status != RouteListItemStatus.Transfered || address.RecievedTransferAt != null));
+
+			foreach(var address in incomingAddresses)
+			{
+				var sourceResult = FindTransferSource(address);
+
+				if(sourceResult.IsSuccess)
+				{
+					result.Add(new RouteListAddressIncomingTransferInfo
+					{
+						RouteListAddressId = address.Id,
+						OrderId = address.Order.Id,
+						TransferringDriverId = sourceResult.Value.RouteList.Driver.Id,
+						TransferringDriverTitle = sourceResult.Value.RouteList.Driver.ShortName,
+						RecievingDriverId = driver.Id,
+						RecievingDriverTitle = driver.ShortName,
+						AcceptanceStatus = address.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
+						TransferStatus = address.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
+					});
+				}
+				else
+				{
+					_logger.LogError("Не удалось найти источник переноса для адреса маршрутного листа {RouteListItemId}", address.Id);
+				}
+			}
+		
+			return result;
+		}
+
+		private RouteListItem FindTransferTarget(RouteListItem routeListAddress)
+		{
+			var nextAddress = routeListAddress.TransferedTo;
+
+			if(nextAddress == null)
+			{
+				return routeListAddress;
+			}
+
+			var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
+				_unitOfWork,
+				atdi => (atdi.OldAddress.Id == routeListAddress.Id && atdi.NewAddress.Id == nextAddress.Id)
+					 || (atdi.OldAddress.Id == nextAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)).Count();
+
+			if(transferDocumentsCount % 2 == 0)
+			{
+				return routeListAddress;
+			}
+
+			if((nextAddress.Status != RouteListItemStatus.Transfered && !nextAddress.WasTransfered) || nextAddress.RecievedTransferAt != null)
+			{
+				return nextAddress;
+			}
+
+			return FindTransferTarget(nextAddress);
+		}
+
+		private Result<RouteListItem> FindTransferSource(RouteListItem routeListAddress)
+		{
+			var previousAddresses = _routeListAddressesRepository.Get(
+				_unitOfWork,
+				address => address.TransferedTo.Id == routeListAddress.Id);
+
+			foreach(var previousAddress in previousAddresses)
+			{
+				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
+				{
+					return previousAddress;
+				}
+
+				var hasPreviousAddresses = _routeListAddressesRepository.Get(
+					_unitOfWork,
+					address => address.TransferedTo.Id == routeListAddress.Id)
+					.Any();
+
+				if(!hasPreviousAddresses)
+				{
+					continue;
+				}
+
+				return FindTransferSource(previousAddress);
+			}
+
+			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+		}
+
+		private Result<IEnumerable<TransferItemDto>> GetTransferItems(int orderId)
+		{
+			var order = _orderRepository.Get(_unitOfWork, o => o.Id == orderId).FirstOrDefault();
+
+			if(order is null)
+			{
+				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			var result = new List<TransferItemDto>();
+
+			foreach(var item in order.OrderItems)
+			{
+				result.Add(new TransferItemDto
+				{
+					NomenclatureTitle = item.Nomenclature.Name,
+					Amount = item.ActualCount ?? item.Count
+				});
+			}
+
+			var equipmentsToClient = order.OrderEquipments.Where(oe => oe.Direction == Direction.Deliver);
+
+			foreach(var item in equipmentsToClient)
+			{
+				result.Add(new TransferItemDto
+				{
+					NomenclatureTitle = item.Nomenclature.Name,
+					Amount = item.ActualCount ?? item.Count
+				});
+			}
+
+			return result;
 		}
 	}
 }

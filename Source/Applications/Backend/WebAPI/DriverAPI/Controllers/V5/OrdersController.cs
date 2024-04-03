@@ -107,6 +107,9 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns></returns>
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		//[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
 		public IActionResult GetTransferingOrder(int orderId)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
@@ -145,6 +148,8 @@ namespace DriverAPI.Controllers.V5
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns></returns>
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
 		public IActionResult GetRecievingOrder(int orderId)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",

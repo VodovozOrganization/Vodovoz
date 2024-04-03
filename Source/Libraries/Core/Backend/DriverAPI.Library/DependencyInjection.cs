@@ -18,6 +18,8 @@ using DriverAPI.Library.V4.Models;
 using DriverAPI.Library.V5.Services;
 using Vodovoz.FirebaseCloudMessaging;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.NotificationRecievers;
 
 namespace DriverAPI.Library
 {
@@ -60,14 +62,18 @@ namespace DriverAPI.Library
 				.AddDriverEventsDependencies()
 				.AddFirebaseCloudMessaging(configuration);
 
-			services.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
+			services
+				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+				.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
 				.AddScoped<IEmailRepository, EmailRepository>()
+				.AddScoped<IEmployeeRepository, EmployeeRepository>()
 				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
 				.AddScoped<IPaymentItemsRepository, PaymentItemsRepository>()
 				.AddScoped<IOrderRepository, OrderRepository>()
 				.AddScoped<IPaymentsRepository, PaymentsRepository>()
 				.AddScoped<IUndeliveredOrdersRepository, UndeliveredOrdersRepository>()
-				.AddScoped<ICashRepository, CashRepository>();
+				.AddScoped<ICashRepository, CashRepository>()
+				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 
 			return services;
 		}
