@@ -361,7 +361,10 @@ namespace Vodovoz.Views.Logistic
 
 			ViewModel.PropertyChanged += (sender, args) =>
 			{
-				Gtk.Application.Invoke(ViewModelPropertyChangedHandler);
+				Gtk.Application.Invoke((s, e) =>
+				{
+					ViewModelPropertyChangedHandler(sender, args);
+				});
 			};
 		}
 
