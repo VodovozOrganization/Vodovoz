@@ -14,7 +14,7 @@ using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
 
-namespace MonitoringArchivingWorker
+namespace DatabaseServiceWorker
 {
 	public class Program
 	{

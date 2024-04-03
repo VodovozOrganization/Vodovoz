@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Vodovoz.Models;
 using Vodovoz.Settings.Delivery;
 
-namespace MonitoringArchivingWorker
+namespace DatabaseServiceWorker
 {
 	public class ClearFastDeliveryAvailabilityHistoryWorker : BackgroundService
 	{
