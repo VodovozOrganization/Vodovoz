@@ -41,7 +41,7 @@ namespace CustomerOrdersApi.Controllers
 					onlineOrderInfoDto.CounterpartyErpId,
 					onlineOrderInfoDto.Signature);
 				
-				/*if(!_customerOrdersService.ValidateSignature(onlineOrderInfoDto, out var generatedSignature))
+				if(!_customerOrdersService.ValidateSignature(onlineOrderInfoDto, out var generatedSignature))
 				{
 					const string invalidSignature = "Неккоректная подпись онлайн заказа";
 					_logger.LogWarning(
@@ -51,7 +51,7 @@ namespace CustomerOrdersApi.Controllers
 						generatedSignature
 						);
 					return ValidationProblem(invalidSignature);
-				}*/
+				}
 
 				_logger.LogInformation("Подпись валидна, отправляем в очередь");
 				await _publishEndpoint.Publish(onlineOrderInfoDto);

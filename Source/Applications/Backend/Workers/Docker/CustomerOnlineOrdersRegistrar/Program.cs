@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOrdersApi.Library;
 using MassTransit;
@@ -47,7 +47,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-						.AddBusiness()
+						.AddBusiness(hostContext.Configuration)
 						.AddCustomerOrdersApiLibrary()
 						.AddApplicationOrderServices()
 						.AddStaticScopeForEntity()
