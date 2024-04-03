@@ -32,7 +32,9 @@ namespace DatabaseServiceWorker
 		{
 			while(!stoppingToken.IsCancellationRequested)
 			{
-				_logger.LogInformation("Воркер очистки истории проверок доставки за час запущен в: {time}", DateTimeOffset.Now);
+				_logger.LogInformation(
+					"Воркер ClearFastDeliveryAvailabilityHistoryWorker запущен в: {time}",
+					DateTimeOffset.Now);
 
 				if(_workInProgress)
 				{
@@ -47,16 +49,21 @@ namespace DatabaseServiceWorker
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, $"Ошибка при выполнении очистки истории проверок доставки за час {DateTime.Today:dd-MM-yyyy}");
+					_logger.LogError(
+						e,
+						"Ошибка при выполнении очистки истории проверок доставки за час {TodayDate}",
+						DateTime.Today.ToString("dd-MM-yyyy"));
 				}
 				finally
 				{
 					_workInProgress = false;
 				}
 				
-				_logger.LogInformation($"Воркер очистки истории проверок доставки за час ожидает {_delayInMinutes}мин перед следующим запуском");
+				_logger.LogInformation(
+					"Воркер ClearFastDeliveryAvailabilityHistoryWorker ожидает {DelayInMinutes}мин перед следующим запуском",
+					_delayInMinutes);
 				
-				await Task.Delay(1000 * 60 * _delayInMinutes, stoppingToken);
+				await Task.Delay(TimeSpan.FromMinutes(_delayInMinutes), stoppingToken);
 			}
 		}
 
