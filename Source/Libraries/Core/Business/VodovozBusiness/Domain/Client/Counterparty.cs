@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -1616,6 +1616,11 @@ namespace Vodovoz.Domain.Client
 			if(CameFrom != null && Referrer == null && CameFrom.Id == counterpartySettings.ReferFriendPromotionCameFromId)
 			{
 				yield return new ValidationResult("Не выбран клиент, который привёл друга");
+			}
+
+			if(Referrer?.Id == Id)
+			{
+				yield return new ValidationResult("Клиент не мог привести сам себя");
 			}
 
 		}

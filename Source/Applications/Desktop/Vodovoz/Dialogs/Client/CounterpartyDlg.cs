@@ -434,6 +434,11 @@ namespace Vodovoz
 			{
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
 			}
+
+			if(e.PropertyName == nameof(Entity.CameFrom) && Entity.CameFrom?.Id != _counterpartySettings.ReferFriendPromotionCameFromId)
+			{
+				Entity.Referrer = null;
+			}
 		}
 
 		private void ConfigureTabInfo()
@@ -511,8 +516,7 @@ namespace Vodovoz
 
 			yhboxReferrer.Binding.AddSource(Entity)
 				.AddFuncBinding(e => 
-						(e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId)
-						|| _canEditClientRefer,
+						(e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId),
 					w => w.Visible)
 				.AddFuncBinding(e =>
 						(e.Id == 0 && CanEdit)
