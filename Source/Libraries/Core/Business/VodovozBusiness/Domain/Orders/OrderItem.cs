@@ -469,7 +469,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal TotalCountInOrder =>
 			Nomenclature.IsWater19L
-			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true)
+			? Order.GetTotalWater19LCount(true, true)
 			: Count;
 
 		#region IOrderItemWageCalculationSource implementation
@@ -535,7 +535,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Nomenclature != null)
 			{
-				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count;
+				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(true, true) : Count;
 				var canApplyAlternativePrice = Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
 
 				if(Nomenclature.DependsOnNomenclature == null)
@@ -700,10 +700,6 @@ namespace Vodovoz.Domain.Orders
 			//Если цена не отличается от той которая должна быть по прайсам в 
 			//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
 			IsUserPrice = (price != GetPriceByTotalCount() && price != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
-			if(IsUserPrice)
-			{
-				IsUserPrice = (price != GetPriceByTotalCount() && price != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
-			}
 
 			price = decimal.Round(price, 2);
 

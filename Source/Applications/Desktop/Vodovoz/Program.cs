@@ -146,6 +146,7 @@ using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Sms;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz
 {
@@ -264,6 +265,8 @@ namespace Vodovoz
 					// Классы водовоза
 
 					builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
+
+					builder.RegisterType<OrderStateKey>().AsSelf();
 
 					builder.RegisterType<RouteListDailyNumberProvider>()
 						.As<IRouteListDailyNumberProvider>();
