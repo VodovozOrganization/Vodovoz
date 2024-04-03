@@ -10,6 +10,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Models;
+using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
 
 namespace MonitoringArchivingWorker
@@ -31,6 +33,8 @@ namespace MonitoringArchivingWorker
 					builder.RegisterType<ArchivedHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<CachedDistanceRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<DataArchiver>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<FastDeliveryAvailabilityHistoryModel>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<FastDeliveryAvailabilityHistorySettings>().AsImplementedInterfaces().SingleInstance();
 				})
 				.ConfigureServices((hostContext, services) =>
 				{
@@ -56,9 +60,10 @@ namespace MonitoringArchivingWorker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
+						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
 						;
 
-						Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
 	}
 }
