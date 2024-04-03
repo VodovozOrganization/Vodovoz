@@ -77,7 +77,21 @@ namespace DriverAPI.Library.V5.Services
 		/// Получение переносов адрресов маршрутного листа для водителя
 		/// </summary>
 		/// <param name="driverId"></param>
-		/// <returns></returns>
+		/// <returns>идентификатор сотрудника-водителя</returns>
 		Result<DriverTransfersInfoResponse> GetDriverDriverTransfers(int driverId);
+
+		/// <summary>
+		/// Получение информации о входящем переносе
+		/// </summary>
+		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>
+		/// <returns></returns>
+		Result<RouteListAddressIncomingTransferDto> GetIncomingTransferInfo(int routeListAddressId);
+
+		/// <summary>
+		/// Получение информации о исходящем переносе
+		/// </summary>
+		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>
+		/// <returns></returns>
+		Result<RouteListAddressOutgoingTransferDto> GetOutgoingTransferInfo(int routeListAddressId);
 	}
 }
