@@ -246,7 +246,7 @@ namespace Vodovoz
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
-		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
+		private INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
 		private bool _isNeedSendBillToEmail;
@@ -577,9 +577,9 @@ namespace Vodovoz
 
 			_previousDeliveryDate = Entity.DeliveryDate;
 
-			_nomenclatureFixedPriceProvider =
+			_nomenclatureFixedPriceController =
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
-			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
+			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);

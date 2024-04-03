@@ -287,11 +287,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _onlineRentPackages, value);
 		}
 
-		public virtual void CalculateSum()
-		{
-			OnlineOrderSum = OnlineOrderItems.Sum(x => x.Sum) + OnlineRentPackages.Sum(x => x.Sum);
-		}
-
 		public virtual void SetOrderPerformed(Order order, Employee employee = null)
 		{
 			if(employee != null)

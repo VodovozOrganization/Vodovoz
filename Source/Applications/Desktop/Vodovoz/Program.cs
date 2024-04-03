@@ -326,7 +326,7 @@ namespace Vodovoz
 
 					builder.RegisterAssemblyTypes(
 							Assembly.GetExecutingAssembly(),
-							Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
+							//Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
 							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
 						.Where(t => t.Name.EndsWith("Factory")
 							&& t.GetInterfaces()
@@ -357,7 +357,6 @@ namespace Vodovoz
 							.First());*/
 
 					builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
-					builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
 					builder.RegisterType<StringHandler>().As<IStringHandler>();
 
 					#endregion

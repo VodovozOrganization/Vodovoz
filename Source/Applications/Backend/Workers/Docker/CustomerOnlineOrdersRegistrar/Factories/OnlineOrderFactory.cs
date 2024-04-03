@@ -36,13 +36,13 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				OnlineOrderStatus = OnlineOrderStatus.New,
 				OnlineOrderPaymentStatus = orderInfoDto.OnlineOrderPaymentStatus,
 				OnlinePaymentSource = orderInfoDto.OnlinePaymentSource,
-				OnlinePayment = orderInfoDto.OnlinePayment
+				OnlinePayment = orderInfoDto.OnlinePayment,
+				OnlineOrderSum = orderInfoDto.OrderSum
 			};
 
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
 			AddOrderItems(uow, onlineOrder, orderInfoDto.OnlineOrderItems);
 			AddRentPackages(uow, onlineOrder, orderInfoDto.OnlineRentPackages);
-			onlineOrder.CalculateSum();
 			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;

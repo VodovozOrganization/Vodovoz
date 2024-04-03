@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
@@ -23,8 +24,10 @@ namespace Vodovoz
 			.RegisterClassesByInterfaces("Repository")
 			.RegisterClassesByInterfaces("Service")
 			.RegisterClassesByInterfaces("Handler")
+			.RegisterClassesByInterfaces("Factory")
 			
 			.ConfigureBusinessOptions(configuration)
+			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
 			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
@@ -35,6 +38,7 @@ namespace Vodovoz
 			.AddScoped<FastDeliveryHandler>()
 			.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 			.AddScoped<ICallTaskWorker, CallTaskWorker>()
+			.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
 			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 			.AddDriverApiHelper()
 		;

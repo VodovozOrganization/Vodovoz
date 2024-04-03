@@ -39,7 +39,8 @@ namespace CustomerOrdersApi
 				})
 				
 				.AddMessageTransportSettings()
-				.AddMassTransit(busConf => busConf.ConfigureRabbitMq());
+				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddCustomerOrdersApiLibrary();
 
 				/*configurator.ReceiveEndpoint("online-orders", x =>
 				{

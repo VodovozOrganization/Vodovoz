@@ -8,14 +8,13 @@ using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain
 {
-	public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
+	public class NomenclatureFixedPriceController : INomenclatureFixedPriceController 
 	{
 		private readonly INomenclatureFixedPriceFactory _nomenclatureFixedPriceFactory;
 
-		public NomenclatureFixedPriceController(
-			INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory) 
+		public NomenclatureFixedPriceController(INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory) 
 		{
-			this._nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
+			_nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
 				throw new ArgumentNullException(nameof(nomenclatureFixedPriceFactory));
 		}
 
@@ -96,14 +95,14 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice)
 		{
 			if (deliveryPoint.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
 				deliveryPoint.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
 			}
 		}
 		
-		public void DeleteFixedPrice(Counterparty counterparty, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		public void DeleteFixedPrice(Counterparty counterparty, NomenclatureFixedPrice nomenclatureFixedPrice)
 		{
 			if (counterparty.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
 				counterparty.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);

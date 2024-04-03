@@ -412,7 +412,7 @@
     <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
-    <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
+    <Compile Include="Domain\INomenclatureFixedPriceController.cs" />
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
     <Compile Include="Domain\InstanceMailingConfiguration.cs" />
