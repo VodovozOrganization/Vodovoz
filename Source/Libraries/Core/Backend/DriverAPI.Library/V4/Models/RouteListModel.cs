@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V4;
+using DriverApi.Contracts.V4;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V4.Converters;
 using Microsoft.Extensions.Logging;
@@ -193,11 +193,6 @@ namespace DriverAPI.Library.V4.Models
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId);
 
 			return routeList?.Driver?.Id == driverId;
-		}
-
-		public string GetPreActualDriverPushNotificationsTokenByOrderId(int orderId)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }
