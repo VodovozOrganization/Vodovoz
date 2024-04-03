@@ -79,7 +79,5 @@ namespace DriverAPI.Library.V5.Services
 		/// <param name="driverId"></param>
 		/// <returns></returns>
 		Result<DriverTransfersInfoResponse> GetDriverDriverTransfers(int driverId);
-		Result<RouteListAddressIncomingTransferDto> GetIncomingTransferInfo(int routeListAddressId);
-		Result<RouteListAddressOutgoingTransferDto> GetOutgoingTransferInfo(int routeListAddressId);
 	}
 }

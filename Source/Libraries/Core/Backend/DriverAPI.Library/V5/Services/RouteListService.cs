@@ -2,14 +2,12 @@
 using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V5.Converters;
-using Mango.Client.DTO.Common;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -17,7 +15,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors;
-using Vodovoz.Errors.Employees;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Library.V5.Services
@@ -33,7 +30,6 @@ namespace DriverAPI.Library.V5.Services
 		private readonly IGenericRepository<Employee> _employeeGenericRepository;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
-		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -43,7 +39,6 @@ namespace DriverAPI.Library.V5.Services
 			IEmployeeRepository employeeRepository,
 			IGenericRepository<Employee> employeeGenericRepository,
 			IGenericRepository<RouteListItem> routeListAddressesRepository,
-			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
 			IUnitOfWork unitOfWork,
 			IDomainRouteListService domainRouteListService,
 			IGenericRepository<Order> orderRepository)
@@ -55,7 +50,6 @@ namespace DriverAPI.Library.V5.Services
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
 			_routeListAddressesRepository = routeListAddressesRepository ?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
-			_routeListAddressTransferItemRepository = routeListAddressTransferItemRepository ?? throw new ArgumentNullException(nameof(routeListAddressTransferItemRepository));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -257,7 +251,7 @@ namespace DriverAPI.Library.V5.Services
 				address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
-			var sourceResult = FindTransferSource(address);
+			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
 
 			if(sourceResult.IsFailure)
 			{
@@ -295,7 +289,7 @@ namespace DriverAPI.Library.V5.Services
 				address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
-			var targetAddress = FindTransferTarget(address);
+			var targetAddress = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
 
 			var transferItemsResult = GetTransferItems(address.Order.Id);
 
@@ -353,7 +347,7 @@ namespace DriverAPI.Library.V5.Services
 
 			foreach (var address in outgoingAddresses)
 			{
-				var targetAddress = FindTransferTarget(address);
+				var targetAddress = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
 
 				if(targetAddress.Id == address.Id)
 				{
@@ -392,7 +386,7 @@ namespace DriverAPI.Library.V5.Services
 
 			foreach(var address in incomingAddresses)
 			{
-				var sourceResult = FindTransferSource(address);
+				var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
 
 				if(sourceResult.IsSuccess)
 				{
@@ -415,62 +409,6 @@ namespace DriverAPI.Library.V5.Services
 			}
 		
 			return result;
-		}
-
-		private RouteListItem FindTransferTarget(RouteListItem routeListAddress)
-		{
-			var nextAddress = routeListAddress.TransferedTo;
-
-			if(nextAddress == null)
-			{
-				return routeListAddress;
-			}
-
-			var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
-				_unitOfWork,
-				atdi => (atdi.OldAddress.Id == routeListAddress.Id && atdi.NewAddress.Id == nextAddress.Id)
-					 || (atdi.OldAddress.Id == nextAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)).Count();
-
-			if(transferDocumentsCount % 2 == 0)
-			{
-				return routeListAddress;
-			}
-
-			if((nextAddress.Status != RouteListItemStatus.Transfered && !nextAddress.WasTransfered) || nextAddress.RecievedTransferAt != null)
-			{
-				return nextAddress;
-			}
-
-			return FindTransferTarget(nextAddress);
-		}
-
-		private Result<RouteListItem> FindTransferSource(RouteListItem routeListAddress)
-		{
-			var previousAddresses = _routeListAddressesRepository.Get(
-				_unitOfWork,
-				address => address.TransferedTo.Id == routeListAddress.Id);
-
-			foreach(var previousAddress in previousAddresses)
-			{
-				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
-				{
-					return previousAddress;
-				}
-
-				var hasPreviousAddresses = _routeListAddressesRepository.Get(
-					_unitOfWork,
-					address => address.TransferedTo.Id == routeListAddress.Id)
-					.Any();
-
-				if(!hasPreviousAddresses)
-				{
-					continue;
-				}
-
-				return FindTransferSource(previousAddress);
-			}
-
-			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 		}
 
 		private Result<IEnumerable<TransferItemDto>> GetTransferItems(int orderId)

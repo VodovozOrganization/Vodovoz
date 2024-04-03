@@ -55,6 +55,8 @@ namespace Vodovoz.Application.Logistics
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 		private readonly IRouteListTransferhandByHandReciever _routeListTransferhandByHandReciever;
+		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
+		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -77,7 +79,9 @@ namespace Vodovoz.Application.Logistics
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
 			RouteGeometryCalculator routeGeometryCalculator,
-			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever)
+			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever,
+			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
+			IGenericRepository<RouteListItem> routeListAddressesRepository)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -107,7 +111,7 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_deliveryRulesSettings = deliveryRulesSettings
 				?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
-			_deliveryRepository = deliveryRepository 
+			_deliveryRepository = deliveryRepository
 				?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository
 				?? throw new ArgumentNullException(nameof(trackRepository));
@@ -121,6 +125,10 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListTransferhandByHandReciever));
 			_productGroupRepository = productGroupRepository
 				?? throw new ArgumentNullException(nameof(productGroupRepository));
+			_routeListAddressTransferItemRepository = routeListAddressTransferItemRepository
+				?? throw new ArgumentNullException(nameof(routeListAddressTransferItemRepository));
+			_routeListAddressesRepository = routeListAddressesRepository
+				?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
 		}
 
 		public bool TrySendEnRoute(
@@ -1066,6 +1074,62 @@ namespace Vodovoz.Application.Logistics
 			RecalculateRouteList(unitOfWork, routeList);
 
 			return Result.Success();
+		}
+
+		public RouteListItem FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
+		{
+			var nextAddress = routeListAddress.TransferedTo;
+
+			if(nextAddress == null)
+			{
+				return routeListAddress;
+			}
+
+			var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
+				unitOfWork,
+				atdi => (atdi.OldAddress.Id == routeListAddress.Id && atdi.NewAddress.Id == nextAddress.Id)
+					 || (atdi.OldAddress.Id == nextAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)).Count();
+
+			if(transferDocumentsCount % 2 == 0)
+			{
+				return routeListAddress;
+			}
+
+			if((nextAddress.Status != RouteListItemStatus.Transfered && !nextAddress.WasTransfered) || nextAddress.RecievedTransferAt != null)
+			{
+				return nextAddress;
+			}
+
+			return FindTransferTarget(unitOfWork,nextAddress);
+		}
+
+		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
+		{
+			var previousAddresses = _routeListAddressesRepository.Get(
+				unitOfWork,
+				address => address.TransferedTo.Id == routeListAddress.Id);
+
+			foreach(var previousAddress in previousAddresses)
+			{
+				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
+				{
+					return previousAddress;
+				}
+
+				var hasPreviousAddresses = _routeListAddressesRepository.Get(
+					unitOfWork,
+					address => address.TransferedTo.Id == routeListAddress.Id)
+					.Any();
+
+				if(!hasPreviousAddresses)
+				{
+					continue;
+				}
+
+				return FindTransferSource(unitOfWork, previousAddress);
+			}
+
+			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 		}
 	}
 }
