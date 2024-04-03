@@ -29,7 +29,6 @@ namespace DriverAPI.Controllers.V5
 		private readonly IEmployeeService _employeeService;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IOrderService _orderService;
-		private readonly IRouteListService _routeListService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
 
@@ -40,7 +39,6 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="employeeService"></param>
 		/// <param name="userManager"></param>
 		/// <param name="orderService"></param>
-		/// <param name="routeListService"></param>
 		/// <param name="driverMobileAppActionRecordService"></param>
 		/// <param name="actionTimeHelper"></param>
 		/// <exception cref="ArgumentNullException"></exception>
@@ -49,7 +47,6 @@ namespace DriverAPI.Controllers.V5
 			IEmployeeService employeeService,
 			UserManager<IdentityUser> userManager,
 			IOrderService orderService,
-			IRouteListService routeListService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
 			IActionTimeHelper actionTimeHelper) : base(logger)
 		{
@@ -57,7 +54,6 @@ namespace DriverAPI.Controllers.V5
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_driverMobileAppActionRecordService = driverMobileAppActionRecordService ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
@@ -77,87 +73,6 @@ namespace DriverAPI.Controllers.V5
 
 			return MapResult(
 				_orderService.GetOrder(orderId),
-				result =>
-				{
-					if(result.IsSuccess)
-					{
-						return StatusCodes.Status200OK;
-					}
-
-					var firstError = result.Errors.First();
-
-					if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
-					{
-						return StatusCodes.Status403Forbidden;
-					}
-
-					if(firstError == Vodovoz.Errors.Orders.Order.NotFound
-						|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
-						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
-					{
-						return StatusCodes.Status404NotFound;
-					}
-
-					return StatusCodes.Status500InternalServerError;
-				});
-		}
-
-		/// <summary>
-		/// Получение передаваемого заказа
-		/// </summary>
-		/// <param name="orderId">Номер заказа</param>
-		/// <returns></returns>
-		[HttpGet]
-		[Produces(MediaTypeNames.Application.Json)]
-		//[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
-		public IActionResult GetTransferingOrder(int orderId)
-		{
-			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
-				orderId,
-				Request.Headers[HeaderNames.Authorization]);
-
-			return MapResult(
-				_orderService.GetTransferingOrder(orderId),
-				result =>
-				{
-					if(result.IsSuccess)
-					{
-						return StatusCodes.Status200OK;
-					}
-
-					var firstError = result.Errors.First();
-
-					if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
-					{
-						return StatusCodes.Status403Forbidden;
-					}
-
-					if(firstError == Vodovoz.Errors.Orders.Order.NotFound
-						|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
-						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
-					{
-						return StatusCodes.Status404NotFound;
-					}
-
-					return StatusCodes.Status500InternalServerError;
-				});
-		}
-
-		/// <summary>
-		/// Получение принимаемого заказа
-		/// </summary>
-		/// <param name="orderId">Номер заказа</param>
-		/// <returns></returns>
-		[HttpGet]
-		[Produces(MediaTypeNames.Application.Json)]
-		public IActionResult GetRecievingOrder(int orderId)
-		{
-			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
-				orderId,
-				Request.Headers[HeaderNames.Authorization]);
-
-			return MapResult(
-				_orderService.GetRecievingOrder(orderId),
 				result =>
 				{
 					if(result.IsSuccess)

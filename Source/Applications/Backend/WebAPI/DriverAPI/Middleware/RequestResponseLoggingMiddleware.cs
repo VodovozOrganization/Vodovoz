@@ -87,43 +87,36 @@ namespace DriverAPI.Middleware
 
 		private async Task LogResponse(HttpContext context, Stopwatch watcher)
 		{
-			try
-			{
-				var originalBodyStream = context.Response.Body;
+			var originalBodyStream = context.Response.Body;
 
-				await using var responseBody = _recyclableMemoryStreamManager.GetStream();
-				context.Response.Body = responseBody;
+			await using var responseBody = _recyclableMemoryStreamManager.GetStream();
+			context.Response.Body = responseBody;
 
-				await _next(context);
+			await _next(context);
 
-				context.Response.Body.Seek(0, SeekOrigin.Begin);
-				var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
-				context.Response.Body.Seek(0, SeekOrigin.Begin);
+			context.Response.Body.Seek(0, SeekOrigin.Begin);
+			var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
+			context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-				watcher.Stop();
+			watcher.Stop();
 
-				_logger.LogInformation("Http Response Information: " +
-									   "Schema: {RequestScheme} " +
-									   "Code: {Code}" +
-									   "Host: {RequestHost} " +
-									   "Path: {RequestPath} " +
-									   "QueryString: {RequestQueryString} " +
-									   "Response Body: {RequestBody} | " +
-									   "Elapsed: {RequestTotalMilliseconds}ms",
-									   context.Request.Scheme,
-									   context.Response.StatusCode,
-									   context.Request.Host,
-									   context.Request.Path,
-									   context.Request.QueryString,
-									   text,
-									   watcher.Elapsed.TotalMilliseconds);
+			_logger.LogInformation("Http Response Information: " +
+								   "Schema: {RequestScheme} " +
+								   "Code: {Code}" +
+								   "Host: {RequestHost} " +
+								   "Path: {RequestPath} " +
+								   "QueryString: {RequestQueryString} " +
+								   "Response Body: {RequestBody} | " +
+								   "Elapsed: {RequestTotalMilliseconds}ms",
+								   context.Request.Scheme,
+								   context.Response.StatusCode,
+								   context.Request.Host,
+								   context.Request.Path,
+								   context.Request.QueryString,
+								   text,
+								   watcher.Elapsed.TotalMilliseconds);
 
-				await responseBody.CopyToAsync(originalBodyStream);
-			}
-			catch (Exception ex)
-			{
-
-			}
+			await responseBody.CopyToAsync(originalBodyStream);
 		}
 	}
 }

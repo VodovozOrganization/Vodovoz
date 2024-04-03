@@ -23,7 +23,5 @@ namespace DriverAPI.Library.V5.Services
 		Result<OrderAdditionalInfoDto> GetAdditionalInfo(Order order);
 		Result UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount);
 		Result CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
-		Result GetTransferingOrder(int orderId);
-		Result GetRecievingOrder(int orderId);
 	}
 }
