@@ -146,35 +146,6 @@ namespace Vodovoz.EntityRepositories.Employees
 				.SingleOrDefault<string>();
 		}
 
-
-		public string GetPreviousRouteListEmployeePushTokenByOrderId(IUnitOfWork uow, int orderId, ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
-		{
-			Vodovoz.Domain.Orders.Order vodovozOrderAlias = null;
-			RouteListItem lastRouteListAddressAlias = null;
-			RouteListItem previousRouteListAddressAlias = null;
-			RouteList routeListAlias = null;
-			Employee employeeAlias = null;
-			ExternalApplicationUser externalApplicationUserAlias = null;
-
-			return uow.Session.QueryOver<RouteListItem>(() => lastRouteListAddressAlias)
-				.Inner.JoinAlias(() => lastRouteListAddressAlias.Order, () => vodovozOrderAlias)
-				.Inner.JoinAlias(
-					() => previousRouteListAddressAlias.TransferedTo,
-					() => previousRouteListAddressAlias)
-				.Inner.JoinAlias(() => previousRouteListAddressAlias.RouteList, () => routeListAlias)
-				.Inner.JoinAlias(() => routeListAlias.Driver, () => employeeAlias)
-				.Inner.JoinAlias(
-					() => employeeAlias.ExternalApplicationsUsers,
-					() => externalApplicationUserAlias,
-					u => u.ExternalApplicationType == externalApplicationType)
-				.Where(() => vodovozOrderAlias.Id == orderId)
-				.And(() => lastRouteListAddressAlias.Id == previousRouteListAddressAlias.TransferedTo.Id)
-				.And(() => lastRouteListAddressAlias.TransferedTo == null)
-				.And(() => lastRouteListAddressAlias.Status != RouteListItemStatus.Transfered)
-				.Select(Projections.Property(() => externalApplicationUserAlias.Token))
-				.SingleOrDefault<string>();
-		}
-
 		public EmployeeRegistration EmployeeRegistrationDuplicateExists(IUnitOfWorkFactory uowFactory, EmployeeRegistration registration)
 		{
 			using(var uow = uowFactory.CreateWithoutRoot())

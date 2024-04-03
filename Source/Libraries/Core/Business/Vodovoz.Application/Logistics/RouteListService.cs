@@ -1109,6 +1109,11 @@ namespace Vodovoz.Application.Logistics
 				unitOfWork,
 				address => address.TransferedTo.Id == routeListAddress.Id);
 
+			if(!previousAddresses.Any())
+			{
+				return routeListAddress;
+			}
+
 			foreach(var previousAddress in previousAddresses)
 			{
 				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
@@ -1116,12 +1121,12 @@ namespace Vodovoz.Application.Logistics
 					return previousAddress;
 				}
 
-				var hasPreviousAddresses = _routeListAddressesRepository.Get(
+				var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
 					unitOfWork,
-					address => address.TransferedTo.Id == routeListAddress.Id)
-					.Any();
+					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == previousAddress.Id)
+						 || (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == previousAddress.Id)).Count();
 
-				if(!hasPreviousAddresses)
+				if(transferDocumentsCount % 2 == 0)
 				{
 					continue;
 				}

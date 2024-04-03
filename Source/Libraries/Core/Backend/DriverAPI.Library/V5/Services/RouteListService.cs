@@ -189,11 +189,6 @@ namespace DriverAPI.Library.V5.Services
 			return _employeeRepository.GetEmployeePushTokenByOrderId(_unitOfWork, orderId);
 		}
 
-		public string GetPreActualDriverPushNotificationsTokenByOrderId(int orderId)
-		{
-			return _employeeRepository.GetPreviousRouteListEmployeePushTokenByOrderId(_unitOfWork, orderId);
-		}
-
 		public Result RollbackRouteListAddressStatusEnRoute(int routeListAddressId, int driverId)
 		{
 			if(routeListAddressId <= 0)

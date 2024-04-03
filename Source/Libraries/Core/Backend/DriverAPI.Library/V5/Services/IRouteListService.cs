@@ -67,13 +67,6 @@ namespace DriverAPI.Library.V5.Services
 		Result RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId);
 
 		/// <summary>
-		/// Получение токена Firebase предыдущего водителя
-		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
-		/// <returns>Токен <see cref="string"/></returns>
-		string GetPreActualDriverPushNotificationsTokenByOrderId(int orderId);
-
-		/// <summary>
 		/// Получение переносов адрресов маршрутного листа для водителя
 		/// </summary>
 		/// <param name="driverId"></param>

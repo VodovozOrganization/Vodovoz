@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V4;
+﻿using DriverApi.Contracts.V4;
 using DriverAPI.Library.V4.Models;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -183,25 +183,6 @@ namespace DriverAPI.Controllers.V4
 				_logger.LogInformation("Отправка PUSH-сообщения об изменении времени ожидания заказа ({OrderId})", orderId);
 				await _firebaseCloudMessagingService.SendMessage(token, "Уведомление об изменении времени ожидания заказа", $"Время ожидания заказа {orderId} изменено");
 			}
-		}
-
-		/// <summary>
-		/// Оповещение о переносе адреса МЛ с передачей товаров по номеру заказа
-		/// </summary>
-		/// <param name="orderId">Номер заказа</param>
-		/// <returns></returns>
-		[AllowAnonymous]
-		[ApiExplorerSettings(IgnoreApi = true)]
-		public async Task NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
-		{
-			var targetDriverFirebaseToken =
-				_aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-
-			var sourceDriverFirebaseToken =
-				_aPIRouteListData.GetPreActualDriverPushNotificationsTokenByOrderId(orderId);
-
-			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
-			await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
 		}
 
 		/// <summary>
