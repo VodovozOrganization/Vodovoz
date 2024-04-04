@@ -37,37 +37,34 @@ namespace DatabaseServiceWorker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			while(!stoppingToken.IsCancellationRequested)
+			if(_workInProgress)
 			{
-				if(_workInProgress)
-				{
-					return;
-				}
-
-				_workInProgress = true;
-
-				try
-				{
-					ClearFastDeliveryAvailabilityHistory();
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(
-						e,
-						"Ошибка при выполнении очистки истории проверок доставки за час {TodayDate}",
-						DateTime.Today.ToString("dd-MM-yyyy"));
-				}
-				finally
-				{
-					_workInProgress = false;
-				}
-
-				_logger.LogInformation(
-					"Воркер ClearFastDeliveryAvailabilityHistoryWorker ожидает '{DelayInMinutes}' перед следующим запуском",
-					Interval);
-
-				await Task.CompletedTask;
+				return;
 			}
+
+			_workInProgress = true;
+
+			try
+			{
+				ClearFastDeliveryAvailabilityHistory();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при выполнении очистки истории проверок доставки за час {TodayDate}",
+					DateTime.Today.ToString("dd-MM-yyyy"));
+			}
+			finally
+			{
+				_workInProgress = false;
+			}
+
+			_logger.LogInformation(
+				"Воркер ClearFastDeliveryAvailabilityHistoryWorker ожидает '{DelayInMinutes}' перед следующим запуском",
+				Interval);
+
+			await Task.CompletedTask;
 		}
 
 		protected override void OnStartService()
