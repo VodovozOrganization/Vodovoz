@@ -45,6 +45,9 @@
 		logistics_requirements_nationality,
 		logistics_requirements_pass,
 		logistics_requirements_largus,
-		logistics_requirements_many
+		logistics_requirements_many,
+		order_info_small_bottles,
+		order_info_cooler,
+		order_info_many
 	}
 }
