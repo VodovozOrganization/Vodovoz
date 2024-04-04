@@ -22,6 +22,8 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yLabel labelWorkshift;
 
+		private global::Gamma.GtkWidgets.yCheckButton packsEnabled;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -122,9 +124,25 @@ namespace Vodovoz.Views.Pacs
 			w9.BottomAttach = ((uint)(3));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableFields.Gtk.Table+TableChild
+			this.packsEnabled = new global::Gamma.GtkWidgets.yCheckButton();
+			this.packsEnabled.CanFocus = true;
+			this.packsEnabled.Name = "packsEnabled";
+			this.packsEnabled.Label = global::Mono.Unix.Catalog.GetString("packsEnabledLabelPropTextToReplace");
+			this.packsEnabled.DrawIndicator = true;
+			this.packsEnabled.UseUnderline = true;
+			this.tableFields.Add(this.packsEnabled);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableFields[this.packsEnabled]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxDialog.Add(this.tableFields);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableFields]));
-			w10.Position = 0;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableFields]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{
