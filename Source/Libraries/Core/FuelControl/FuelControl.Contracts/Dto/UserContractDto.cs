@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Данные договора
 	/// </summary>
-	public class UserContract
+	public class UserContractDto
 	{
 		/// <summary>
 		/// ID договора

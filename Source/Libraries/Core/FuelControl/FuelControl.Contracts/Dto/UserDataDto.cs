@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Данные пользователя
 	/// </summary>
-	public class UserData
+	public class UserDataDto
 	{
 		/// <summary>
 		/// ID клиента
@@ -41,7 +41,7 @@ namespace FuelControl.Contracts.Dto
 		/// Данные договоров доступных пользователю
 		/// </summary>
 		[JsonPropertyName("contracts")]
-		public UserContract[] UserContracts { get; set; }
+		public UserContractDto[] UserContracts { get; set; }
 
 		/// <summary>
 		/// ID роли пользователя
@@ -89,7 +89,7 @@ namespace FuelControl.Contracts.Dto
 		/// Доступ в ЛК/МП/API
 		/// </summary>
 		[JsonPropertyName("access")]
-		public UserAccess UserAccess { get; set; }
+		public UserAccessDto UserAccess { get; set; }
 
 		/// <summary>
 		/// Email

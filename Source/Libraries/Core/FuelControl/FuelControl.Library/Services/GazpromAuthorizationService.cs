@@ -16,7 +16,6 @@ namespace FuelControl.Library.Services
 		{
 			var sessionId = string.Empty;
 
-			// Base address is optional but helps in managing relative URIs
 			var baseAddress = new Uri(authorizationRequest.BaseAddress);
 
 			using(var httpClient = new HttpClient { BaseAddress = baseAddress })

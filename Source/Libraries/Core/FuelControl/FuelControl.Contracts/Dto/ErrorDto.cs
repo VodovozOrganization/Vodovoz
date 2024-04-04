@@ -1,11 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace FuelControl.Contracts.Dto
 {
 	/// <summary>
 	/// Ошибка при выполнении запроса к серверу
 	/// </summary>
-	public class RequestError
+	public class ErrorDto
 	{
 		/// <summary>
 		/// Тип ошибки
@@ -17,6 +19,6 @@ namespace FuelControl.Contracts.Dto
 		/// Описание ошибки для пользователя
 		/// </summary>
 		[JsonPropertyName("message")]
-		public string[] Message { get; set; }
+		public IEnumerable<string> Messages { get; set; }
 	}
 }

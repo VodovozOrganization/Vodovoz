@@ -6,24 +6,12 @@ namespace FuelControl.Contracts.Responses
 	/// <summary>
 	/// Ответ сервера на запрос авторизации
 	/// </summary>
-	public class AuthorizationResponse
+	public class AuthorizationResponse : ResponseBase
 	{
-		/// <summary>
-		/// Статус выполнения запроса
-		/// </summary>
-		[JsonPropertyName("status")]
-		public RequestStatus RequestStatus { get; set; }
-
 		/// <summary>
 		/// Данные пользователя
 		/// </summary>
 		[JsonPropertyName("data")]
-		public UserData UserData { get; set; }
-
-		/// <summary>
-		/// Время ответа
-		/// </summary>
-		[JsonPropertyName("timestamp")]
-		public int? Timestamp { get; set; }
+		public UserDataDto UserData { get; set; }
 	}
 }

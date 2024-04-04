@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Доступы пользователя
 	/// </summary>
-	public class UserAccess
+	public class UserAccessDto
 	{
 		/// <summary>
 		/// Доступ ЛК

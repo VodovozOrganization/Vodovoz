@@ -1,11 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace FuelControl.Contracts.Dto
 {
 	/// <summary>
 	/// Статус выполнения запроса, содержит код и сведения об ошибках
 	/// </summary>
-	public class RequestStatus
+	public class StatusDto
 	{
 		/// <summary>
 		/// Код ошибки, обязателен при любом результате выполнения запроса (200=успех)
@@ -17,6 +19,6 @@ namespace FuelControl.Contracts.Dto
 		/// Массив ошибок, если ошибок не было, то параметр отсутствует
 		/// </summary>
 		[JsonPropertyName("errors")]
-		public RequestError[] RequestErrors { get; set; }
+		public IEnumerable<ErrorDto> Errors { get; set; }
 	}
 }

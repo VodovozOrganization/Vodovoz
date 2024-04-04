@@ -2,5 +2,14 @@
 {
 	public class GazpromFuelTransactionsDataService
 	{
+		public void GetPreviousDayFuelTransactions()
+		{
+
+		}
+
+		public void GetPreviousMonthFuelTransactions()
+		{
+
+		}
 	}
 }
