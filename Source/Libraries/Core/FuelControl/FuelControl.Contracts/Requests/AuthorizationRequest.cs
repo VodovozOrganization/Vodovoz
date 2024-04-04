@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FuelControl.Contracts.Requests
 {
@@ -10,13 +11,19 @@ namespace FuelControl.Contracts.Requests
 		/// <summary>
 		/// Логин пользователя
 		/// </summary>
-		[JsonPropertyName("login")]
+		[Required]
 		public string Login { get; set; }
 
 		/// <summary>
-		/// Пароль пользователя, захешированный функцией SHA-512 по стандарту SHS - FIPS 180-4, результат хеширования в нижнем регистре
+		/// Пароль пользователя
 		/// </summary>
-		[JsonPropertyName("password")]
+		[Required]
 		public string Password { get; set; }
+
+		/// <summary>
+		/// Ключ API пользователя
+		/// </summary>
+		[Required]
+		public string ApiKey { get; set; }
 	}
 }
