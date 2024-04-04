@@ -1982,7 +1982,7 @@ Iif(
             <TableRow>
               <Height>24.5pt</Height>
               <Visibility>
-                <Hidden>=Fields!delivery_address.IsMissing</Hidden>
+                <Hidden>=Fields!delivery_address.IsMissing OR {?hide_delivery_point}</Hidden>
               </Visibility>
               <TableCells>
                 <TableCell>
@@ -1999,9 +1999,6 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <Visibility >
-                        <Hidden>={?hide_delivery_point}</Hidden>
-                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2019,9 +2016,6 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <Visibility >
-                        <Hidden>={?hide_delivery_point}</Hidden>
-                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2542,7 +2536,7 @@ Iif(
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
