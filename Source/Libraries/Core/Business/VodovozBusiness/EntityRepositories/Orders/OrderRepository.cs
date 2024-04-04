@@ -1496,7 +1496,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var orderList = ordersQuery.ToList();
 			var result = orderList
-				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L)
+				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L
+				&& x.Total19LBottlesToDeliver <= orderOnDayFilters.MaxBottles19L)
 				.Distinct()
 				.Select(o => new OrderOnDayNode
 				{
@@ -1675,6 +1676,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public TimeSpan DeliveryFromTime { get; set; }
 		public TimeSpan DeliveryToTime { get; set; }
 		public int MinBottles19L { get; set; }
+		public int MaxBottles19L { get; set; }
 	}
 
 	public enum DeliveryScheduleFilterType
