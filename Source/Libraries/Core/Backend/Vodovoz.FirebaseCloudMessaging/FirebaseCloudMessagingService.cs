@@ -124,6 +124,11 @@ namespace Vodovoz.FirebaseCloudMessaging
 
 				return Result.Success();
 			}
+			catch(FirebaseMessagingException firebaseMessagingException) when (firebaseMessagingException.MessagingErrorCode == MessagingErrorCode.Unregistered)
+			{
+				_logger.LogError(firebaseMessagingException, "Ошибка отправки PUSH-сообщения, токен {Token} не зарегистрирован", recipientToken);
+				return Result.Failure(FirebaseCloudMessagingServiceErrors.Unregistered);
+			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при отправки PUSH-сообщения: {ExceptionMessage}", ex.Message);
