@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
@@ -55,7 +57,21 @@ namespace DriverAPI.Workers
 					try
 					{
 						_logger.LogInformation("Попытка отправки WakeUp-сообщения для водителя {DriverId} с токеном {FirebaseToken}", clientId, clientToken);
-						await firebaseCloudMessagingService.SendWakeUpMessage(clientToken);
+
+						var sendingResult = await firebaseCloudMessagingService.SendWakeUpMessage(clientToken);
+
+						if(sendingResult.IsFailure && sendingResult.Errors.Contains(Vodovoz.FirebaseCloudMessaging.FirebaseCloudMessagingServiceErrors.Unregistered))
+						{
+							_wakeUpDriverClientService.UnSubscribe(clientToken);
+							_logger.LogWarning("Токен получателя не зарегистрирован, водитель {DriverId} отписан от PUSH-уведомлений", clientId);
+							continue;
+						}
+
+						if(sendingResult.IsFailure)
+						{
+							_logger.LogWarning("Произошли следующие ошибки при отправке сообщений: {Errors}", string.Join(", ", sendingResult.Errors.Select(e => e.Message)));
+							continue;
+						}
 					}
 					catch(Exception e)
 					{

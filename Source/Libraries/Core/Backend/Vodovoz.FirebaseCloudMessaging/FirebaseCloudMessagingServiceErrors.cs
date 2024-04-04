@@ -9,5 +9,11 @@ namespace Vodovoz.FirebaseCloudMessaging
 				typeof(FirebaseCloudMessagingServiceErrors),
 				nameof(SendingError),
 				"Ошибка отправки PUSH-сообщения");
+
+		public static Error Unregistered =>
+			new Error(
+				typeof(FirebaseCloudMessagingServiceErrors),
+				nameof(Unregistered),
+				"Токен не зарегистрирован");
 	}
 }
