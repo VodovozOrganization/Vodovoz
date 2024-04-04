@@ -12,7 +12,7 @@ namespace FuelControl.Contracts.Dto
 		/// ID транзакции
 		/// </summary>
 		[JsonPropertyName("id")]
-		public long Id { get; set; }
+		public string Id { get; set; }
 
 		/// <summary>
 		/// Дата время транзакции

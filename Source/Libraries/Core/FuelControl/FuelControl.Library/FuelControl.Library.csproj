@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\FuelControl.Contracts\FuelControl.Contracts.csproj" />
   </ItemGroup>
 
