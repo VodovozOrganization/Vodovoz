@@ -57,6 +57,7 @@ namespace Vodovoz.Application.Logistics
 		private readonly IRouteListTransferhandByHandReciever _routeListTransferhandByHandReciever;
 		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -81,7 +82,8 @@ namespace Vodovoz.Application.Logistics
 			RouteGeometryCalculator routeGeometryCalculator,
 			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever,
 			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
-			IGenericRepository<RouteListItem> routeListAddressesRepository)
+			IGenericRepository<RouteListItem> routeListAddressesRepository,
+			IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -129,6 +131,8 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListAddressTransferItemRepository));
 			_routeListAddressesRepository = routeListAddressesRepository
 				?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
+			_unitOfWorkFactory = unitOfWorkFactory
+				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public bool TrySendEnRoute(
@@ -1135,6 +1139,21 @@ namespace Vodovoz.Application.Logistics
 			}
 
 			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+		}
+
+		public void ConfirmRouteListAddressTransferRecieved(int routeListAddressId, DateTime actionTime)
+		{
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Подтверждение приема переноса адреса маршрутного листа"))
+			{
+				var routeListAddress = _routeListAddressesRepository.Get(
+					unitOfWork,
+					address => address.Id == routeListAddressId)
+					.FirstOrDefault();
+
+				routeListAddress.RecievedTransferAt = actionTime;
+
+				unitOfWork.Commit();
+			}
 		}
 	}
 }

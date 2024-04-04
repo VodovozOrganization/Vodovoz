@@ -74,6 +74,7 @@ namespace Vodovoz
 				.AddScoped<ISmsPaymentStatusNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
-				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>();
+				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>()
+				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 	}
 }

@@ -332,5 +332,32 @@ namespace DriverAPI.Controllers.V5
 
 			return MapResult(_apiRouteListService.GetOutgoingTransferInfo(routeListAddressId), errorStatusCode: StatusCodes.Status400BadRequest);
 		}
+
+		/// <summary>
+		/// Запрос на подтверждение приема переноса маршрутного листа
+		/// </summary>
+		/// <param name="confirmRouteListAddressTransferRecievedRequest"></param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public IActionResult ConfirmRouteListAddressTransferRecieved(ConfirmRouteListAddressTransferRecievedRequest confirmRouteListAddressTransferRecievedRequest)
+		{
+			_routeListService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTime.ToLocalTime());
+			return NoContent();
+		}
+
+		/// <summary>
+		/// Запрос на подтверждение передачи переноса маршрутного листа
+		/// </summary>
+		/// <param name="confirmRouteListAddressTransferTransferedRequest"></param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public IActionResult ConfirmRouteListAddressTransferTransfered(ConfirmRouteListAddressTransferTransferedRequest confirmRouteListAddressTransferTransferedRequest)
+		{
+			return NoContent();
+		}
 	}
 }
