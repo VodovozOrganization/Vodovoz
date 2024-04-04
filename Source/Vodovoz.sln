@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailStatusUpdateWorker", "
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "emailing-docker-compose", "Applications\Backend\Workers\Docker\EmailWorkers\EmailWorkersCompose\emailing-docker-compose.dcproj", "{4D11DDE4-7A8F-41C3-9AB9-DE9B14BA6A9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitoringArchivingWorker", "Applications\Backend\Workers\Docker\MonitoringArchivingWorker\MonitoringArchivingWorker.csproj", "{F2A04004-B807-4EDD-8D6F-33DD0C9140BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseServiceWorker", "Applications\Backend\Workers\Docker\DatabaseServiceWorker\DatabaseServiceWorker.csproj", "{F2A04004-B807-4EDD-8D6F-33DD0C9140BD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PayPageAPI", "Applications\Frontend\PayPageAPI\PayPageAPI.csproj", "{80E88A9D-F574-4796-9784-611E9C505B35}"
 EndProject

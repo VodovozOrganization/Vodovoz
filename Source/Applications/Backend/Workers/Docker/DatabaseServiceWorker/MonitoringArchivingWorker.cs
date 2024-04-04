@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Tools;
 
-namespace MonitoringArchivingWorker
+namespace DatabaseServiceWorker
 {
 	public class MonitoringArchivingWorker : BackgroundService
 	{
