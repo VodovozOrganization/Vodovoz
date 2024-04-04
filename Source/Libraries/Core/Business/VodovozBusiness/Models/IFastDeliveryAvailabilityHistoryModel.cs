@@ -8,6 +8,5 @@ namespace Vodovoz.Models
 	{
 		void SaveFastDeliveryAvailabilityHistory(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory);
 		void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings, TimeSpan? queryTimeoutTimeSpan = null);
-
 	}
 }
