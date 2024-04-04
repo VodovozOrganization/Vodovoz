@@ -32,12 +32,19 @@ namespace Vodovoz.Models
 			}
 		}
 
-		public void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings)
+		public void ClearFastDeliveryAvailabilityHistory(
+			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings,
+			TimeSpan? queryTimeoutTimeSpan = null)
 		{
 			if(fastDeliveryAvailabilityHistorySettings.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
 			{
 				return;
 			}
+
+			var queryTimeout =
+				queryTimeoutTimeSpan != null && queryTimeoutTimeSpan > TimeSpan.Zero
+				? (int)queryTimeoutTimeSpan.Value.TotalSeconds
+				: 600;
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("ClearFastDeliveryAvailabilityHistory"))
 			{
@@ -53,12 +60,12 @@ namespace Vodovoz.Models
 					{
 						deletedReferencedItems = uow.Session
 							.CreateSQLQuery(GetFastDeliveryAvailabilityHistoryItemsDeletionQuery(dateBefore))
-							.SetTimeout(600)
+							.SetTimeout(queryTimeout)
 							.ExecuteUpdate();
 
 						deletedFastDeliveryAvailabilityHistoryRows = uow.Session
 							.CreateSQLQuery(GetFastDeliveryAvailabilityHistoryDeletionQuery(dateBefore))
-							.SetTimeout(600)
+							.SetTimeout(queryTimeout)
 							.ExecuteUpdate();
 
 						transaction.Commit();

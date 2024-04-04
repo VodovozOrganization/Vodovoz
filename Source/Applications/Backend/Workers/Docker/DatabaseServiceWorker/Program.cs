@@ -61,6 +61,7 @@ namespace DatabaseServiceWorker
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
+						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
