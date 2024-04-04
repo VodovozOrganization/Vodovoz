@@ -38,6 +38,8 @@ namespace Vodovoz.Models
 		{
 			if(fastDeliveryAvailabilityHistorySettings.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
 			{
+				_logger.Debug("Удаление записей истории проверки доступности экспресс-доставки не требуется");
+
 				return;
 			}
 
@@ -48,7 +50,6 @@ namespace Vodovoz.Models
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("ClearFastDeliveryAvailabilityHistory"))
 			{
-
 				try
 				{
 					var dateBefore = DateTime.Now.Date.AddDays(-fastDeliveryAvailabilityHistorySettings.FastDeliveryHistoryStorageDays);
@@ -71,8 +72,9 @@ namespace Vodovoz.Models
 						transaction.Commit();
 					}
 
-					_logger.Debug($"Удалено {deletedFastDeliveryAvailabilityHistoryRows} записей проверки доступности экспресс-доставки " +
-						$"и {deletedReferencedItems} связанных записей");
+					_logger.Debug("Удалено {deletedFastDeliveryAvailabilityHistoryRows} записей проверки доступности экспресс-доставки и {deletedReferencedItems} связанных записей",
+						deletedFastDeliveryAvailabilityHistoryRows,
+						deletedReferencedItems);
 				}
 				catch(Exception e)
 				{
