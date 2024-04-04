@@ -72,7 +72,7 @@ namespace Vodovoz.Models
 						transaction.Commit();
 					}
 
-					_logger.Debug("Удалено {deletedFastDeliveryAvailabilityHistoryRows} записей проверки доступности экспресс-доставки и {deletedReferencedItems} связанных записей",
+					_logger.Debug("Удалено {DeletedFastDeliveryAvailabilityHistoryRows} записей проверки доступности экспресс-доставки и {DeletedReferencedItems} связанных записей",
 						deletedFastDeliveryAvailabilityHistoryRows,
 						deletedReferencedItems);
 				}

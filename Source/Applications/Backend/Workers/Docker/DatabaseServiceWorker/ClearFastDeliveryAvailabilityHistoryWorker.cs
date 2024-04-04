@@ -70,7 +70,7 @@ namespace DatabaseServiceWorker
 		protected override void OnStartService()
 		{
 			_logger.LogInformation(
-				"Воркер ClearFastDeliveryAvailabilityHistoryWorker запущен в: {time}",
+				"Воркер ClearFastDeliveryAvailabilityHistoryWorker запущен в: {StartTime}",
 				DateTimeOffset.Now);
 
 			base.OnStartService();
@@ -79,7 +79,7 @@ namespace DatabaseServiceWorker
 		protected override void OnStopService()
 		{
 			_logger.LogInformation(
-				"Воркер ClearFastDeliveryAvailabilityHistoryWorker завершил работу в: {time}",
+				"Воркер ClearFastDeliveryAvailabilityHistoryWorker завершил работу в: {StopTime}",
 				DateTimeOffset.Now);
 
 			base.OnStopService();
