@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using FuelControl.Library.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,6 +36,7 @@ namespace DatabaseServiceWorker
 					builder.RegisterType<DataArchiver>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<FastDeliveryAvailabilityHistoryModel>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<FastDeliveryAvailabilityHistorySettings>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<GazpromAuthorizationService>().AsImplementedInterfaces().SingleInstance();
 				})
 				.ConfigureServices((hostContext, services) =>
 				{
@@ -61,7 +63,9 @@ namespace DatabaseServiceWorker
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
+						.AddHostedService<FuelTransactionsControlWorker>()
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
+						.ConfigureFuelTransactionsControlWorker(hostContext)
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

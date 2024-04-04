@@ -1,35 +1,37 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+﻿using System;
 
-namespace FuelControl.Contracts.Requests
+namespace DatabaseServiceWorker.Options
 {
-	/// <summary>
-	/// Запрос авторизации
-	/// </summary>
-	public class AuthorizationRequest
+	public class FuelTransactionsControlOptions
 	{
+		/// <summary>
+		/// Интервал запуска работы воркера
+		/// </summary>
+		public TimeSpan ScanInterval { get; set; }
+
 		/// <summary>
 		/// Логин пользователя
 		/// </summary>
-		[Required]
 		public string Login { get; set; }
 
 		/// <summary>
 		/// Пароль пользователя
 		/// </summary>
-		[Required]
 		public string Password { get; set; }
 
 		/// <summary>
 		/// Ключ API пользователя
 		/// </summary>
-		[Required]
 		public string ApiKey { get; set; }
+
+		/// <summary>
+		/// Id контракта организации на которую оформлены карты
+		/// </summary>
+		public string OrganizationContractId { get; set; }
 
 		/// <summary>
 		/// Адрес API сервера
 		/// </summary>
-		[Required]
 		public string BaseAddress { get; set; }
 	}
 }
