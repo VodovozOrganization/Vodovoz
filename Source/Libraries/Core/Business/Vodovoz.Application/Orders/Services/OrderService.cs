@@ -385,7 +385,7 @@ namespace Vodovoz.Application.Orders.Services
 			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
 
 			var beforeAddItemsCount = order.OrderItems.Count();
-			order.AddWaterForSale(nomenclature, bottlesToAdd);		
+			order.AddNomenclature(nomenclature, bottlesToAdd);		
 			var afterAddItemsCount = order.OrderItems.Count();
 
 			if(afterAddItemsCount == beforeAddItemsCount)

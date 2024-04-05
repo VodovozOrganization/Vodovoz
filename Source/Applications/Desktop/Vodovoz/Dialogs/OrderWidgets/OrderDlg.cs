@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -2061,6 +2061,8 @@ namespace Vodovoz
 							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
 					}
 				}
+
+				Order?.RecalculateItemsPrice();
 			});
 		}
 

@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -331,7 +331,13 @@ namespace Vodovoz.Domain.Orders
 			}
 			else
 			{
-				CalculateAndSetDiscount(IsDiscountInMoney ? DiscountMoney : Discount);
+				var discount = Discount == 0 && DiscountReason != null 
+					? DiscountReason.Value					
+					: IsDiscountInMoney
+						? DiscountMoney
+						: Discount;
+
+				CalculateAndSetDiscount(discount);
 			}
 		}
 
