@@ -1587,8 +1587,6 @@ namespace Vodovoz
 					Entity.PayerSpecialKPP = null;
 				}
 
-				Entity.UoW = UoW;
-
 				_phonesViewModel.RemoveEmpty();
 				emailsView.ViewModel.RemoveEmpty();
 
@@ -2263,6 +2261,11 @@ namespace Vodovoz
 			}
 
 			if(!_commonServices.InteractiveService.Question("Перед продолжением нужно будет сохранить контрагента.\nПродолжить?"))
+			{
+				return;
+			}
+
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 			{
 				return;
 			}
