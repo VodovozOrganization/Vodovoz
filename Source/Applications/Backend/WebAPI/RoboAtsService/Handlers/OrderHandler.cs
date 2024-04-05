@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
+using RoboatsService.Requests;
+using RoboAtsService.Contracts.Requests;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,7 +17,7 @@ using Vodovoz.Models.Orders;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Services.Orders;
 
-namespace RoboatsService.Requests
+namespace RoboatsService.Handlers
 {
 	public partial class OrderHandler : GetRequestHandlerBase
 	{
@@ -305,7 +307,7 @@ namespace RoboatsService.Requests
 						return ErrorMessage;
 				}
 			}
-			
+
 
 			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn))
 			{
@@ -482,7 +484,7 @@ namespace RoboatsService.Requests
 					return Enumerable.Empty<RoboatsWaterInfo>();
 				}
 
-				var roboatsWater =  waters.FirstOrDefault(x => x.Id == waterTypeId);
+				var roboatsWater = waters.FirstOrDefault(x => x.Id == waterTypeId);
 				if(roboatsWater == null)
 				{
 					return Enumerable.Empty<RoboatsWaterInfo>();

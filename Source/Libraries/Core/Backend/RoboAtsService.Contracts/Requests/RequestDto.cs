@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace RoboatsService.Requests
+namespace RoboAtsService.Contracts.Requests
 {
+	/// <summary>
+	/// Запрос к старым эндпоинтам
+	/// </summary>
 	public class RequestDto
 	{
 		/// <summary>
