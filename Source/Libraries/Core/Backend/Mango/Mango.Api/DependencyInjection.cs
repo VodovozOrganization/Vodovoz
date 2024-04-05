@@ -13,7 +13,6 @@ namespace Mango.Api
 			services.AddControllers();
 
 			services
-				.AddScoped<IMangoSettings, ConfigurationMangoSettings>()
 				.AddScoped<ISignGenerator, SignGenerator>()
 				.AddScoped<IDefaultSignGenerator, DefaultSignGenerator>()
 				.AddScoped<SignValidator>()
