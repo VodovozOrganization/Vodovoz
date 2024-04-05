@@ -8,6 +8,7 @@ namespace Pacs.Server
 {
 	[ApiController]
 	[Route("pacs/global-break-availability")]
+	[Authorize]
 	public class GlobalBreakAvailabilityController
 	{
 		private readonly GlobalBreakController _globalBreakController;
