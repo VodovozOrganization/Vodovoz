@@ -72,6 +72,7 @@ namespace Pacs.Operators.Service
 			app.UseRouting();
 
 			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

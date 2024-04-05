@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Pacs.Admin.Server;
 using QS.DomainModel.UoW;
 using System;
@@ -9,6 +10,7 @@ namespace Mango.Api.Controllers
 {
 	[ApiController]
 	[Route("pacs/settings")]
+	[Authorize]
 	public class SettingsController : ControllerBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
