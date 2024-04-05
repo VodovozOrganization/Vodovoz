@@ -1,11 +1,11 @@
-﻿using MessageTransport;
+﻿using ApiAuthentication;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using NLog.Web;
 using Pacs.Operators.Server;
 using QS.HistoryLog;
@@ -14,7 +14,6 @@ using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
-using static K4os.Compression.LZ4.Engine.Pubternal;
 
 namespace Pacs.Operators.Service
 {
@@ -52,6 +51,8 @@ namespace Pacs.Operators.Service
 
 				.AddSingleton<IMessageTransportSettings>(transportSettings)
 				.AddPacsOperatorServer()
+
+				.AddApiKeyAuthentication()
 				;
 
 			services.AddStaticHistoryTracker();
@@ -69,6 +70,8 @@ namespace Pacs.Operators.Service
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+
+			app.UseAuthentication();
 
 			app.UseEndpoints(endpoints =>
 			{
