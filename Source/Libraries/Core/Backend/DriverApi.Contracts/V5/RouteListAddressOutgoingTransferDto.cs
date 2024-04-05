@@ -16,5 +16,10 @@ namespace DriverApi.Contracts.V5
 		/// Список товаров
 		/// </summary>
 		public IEnumerable<TransferItemDto> TransferItems { get; set; }
+
+		/// <summary>
+		/// Тип оплаты
+		/// </summary>
+		public PaymentDtoType PaymentType { get; set; }
 	}
 }

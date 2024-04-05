@@ -30,6 +30,8 @@ namespace DriverAPI.Library.V5.Services
 		private readonly IGenericRepository<Employee> _employeeGenericRepository;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly PaymentTypeConverter _paymentTypeConverter;
+		private readonly IFastPaymentService _fastPaymentService;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -41,7 +43,9 @@ namespace DriverAPI.Library.V5.Services
 			IGenericRepository<RouteListItem> routeListAddressesRepository,
 			IUnitOfWork unitOfWork,
 			IDomainRouteListService domainRouteListService,
-			IGenericRepository<Order> orderRepository)
+			IGenericRepository<Order> orderRepository,
+			PaymentTypeConverter paymentTypeConverter,
+			IFastPaymentService fastPaymentService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -53,6 +57,8 @@ namespace DriverAPI.Library.V5.Services
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
+			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 		}
 
 		public RouteListDto GetRouteList(int routeListId)
@@ -260,6 +266,9 @@ namespace DriverAPI.Library.V5.Services
 				return Result.Failure<RouteListAddressIncomingTransferDto>(transferItemsResult.Errors);
 			}
 
+			var paid = _fastPaymentService
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+
 			return new RouteListAddressIncomingTransferDto
 			{
 				RouteListAddressTransferInfo = new RouteListAddressIncomingTransferInfo
@@ -273,6 +282,7 @@ namespace DriverAPI.Library.V5.Services
 					AcceptanceStatus = address.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
 					TransferStatus = address.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
 				},
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(address.Order.PaymentType, paid, address.Order.PaymentByTerminalSource),
 				TransferItems = transferItemsResult.Value
 			};
 		}
@@ -293,6 +303,9 @@ namespace DriverAPI.Library.V5.Services
 				return Result.Failure<RouteListAddressOutgoingTransferDto>(transferItemsResult.Errors);
 			}
 
+			var paid = _fastPaymentService
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+
 			return new RouteListAddressOutgoingTransferDto
 			{
 				RouteListAddressTransferInfo = new RouteListAddressOutgoingTransferInfo
@@ -306,6 +319,7 @@ namespace DriverAPI.Library.V5.Services
 					AcceptanceStatus = targetAddress.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
 					TransferStatus = targetAddress.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
 				},
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(address.Order.PaymentType, paid, address.Order.PaymentByTerminalSource),
 				TransferItems = transferItemsResult.Value
 			};
 		}
