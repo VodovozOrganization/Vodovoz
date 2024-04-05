@@ -1982,7 +1982,7 @@ Iif(
             <TableRow>
               <Height>24.5pt</Height>
               <Visibility>
-                <Hidden>=Fields!delivery_address.IsMissing</Hidden>
+                <Hidden>=Fields!delivery_address.IsMissing OR {?hide_delivery_point}</Hidden>
               </Visibility>
               <TableCells>
                 <TableCell>
@@ -2579,6 +2579,13 @@ Iif(
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_delivery_point">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
