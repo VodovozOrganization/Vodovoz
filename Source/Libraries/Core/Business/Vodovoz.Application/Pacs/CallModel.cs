@@ -54,6 +54,13 @@ namespace Vodovoz.Application.Pacs
 		{
 			Call = call;
 			OperatorSubCalls = GetAppearedExtensions();
+			Operator = _operators
+				.Where(x => x.CurrentState.State.IsNotIn(
+					OperatorStateType.New, 
+					OperatorStateType.Connected, 
+					OperatorStateType.Disconnected))
+				.Where(x => !x.CurrentState.PhoneNumber.IsNullOrWhiteSpace())
+				.FirstOrDefault(x => x.CurrentState.PhoneNumber == Call.ToExtension);
 		}
 	}
 }
