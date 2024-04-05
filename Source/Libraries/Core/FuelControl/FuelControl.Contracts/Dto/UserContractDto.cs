@@ -23,7 +23,7 @@ namespace FuelControl.Contracts.Dto
 		/// Возможность выпуска МПК
 		/// </summary>
 		[JsonPropertyName("mpc")]
-		public bool? IsUserCanReleaseMpc { get; set; }
+		public bool IsUserCanReleaseMpc { get; set; }
 
 		/// <summary>
 		/// ID шаблона ВК
@@ -35,12 +35,12 @@ namespace FuelControl.Contracts.Dto
 		/// Количество топливных карт на договоре
 		/// </summary>
 		[JsonPropertyName("cards_count")]
-		public int? CardsCount { get; set; }
+		public int CardsCount { get; set; }
 
 		/// <summary>
 		/// Единая цена
 		/// </summary>
 		[JsonPropertyName("one_price")]
-		public bool? IsOnePrice { get; set; }
+		public bool IsOnePrice { get; set; }
 	}
 }

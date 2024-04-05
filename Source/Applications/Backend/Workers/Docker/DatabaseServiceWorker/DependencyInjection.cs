@@ -1,4 +1,6 @@
 ﻿using DatabaseServiceWorker.Options;
+using FuelControl.Library.Converters;
+using FuelControl.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -8,6 +10,12 @@ namespace DatabaseServiceWorker
 	{
 		public static IServiceCollection ConfigureClearFastDeliveryAvailabilityHistoryWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<ClearFastDeliveryAvailabilityHistoryOptions>(context.Configuration.GetSection(nameof(ClearFastDeliveryAvailabilityHistoryOptions)));
+
+		public static IServiceCollection AddFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
+			.ConfigureFuelTransactionsControlWorker(context)
+			.AddSingleton<IFuelManagmentAuthorizationService, GazpromAuthorizationService>()
+			.AddSingleton<TransactionConverter>()
+			.AddSingleton<IFuelTransactionsDataService, GazpromFuelTransactionsDataService>();
 
 		public static IServiceCollection ConfigureFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<FuelTransactionsControlOptions>(context.Configuration.GetSection(nameof(FuelTransactionsControlOptions)));

@@ -13,12 +13,12 @@ namespace FuelControl.Contracts.Dto
 		/// Тип ошибки
 		/// </summary>
 		[JsonPropertyName("type")]
-		public string Type { get; set; }
+		public string ErrorType { get; set; }
 
 		/// <summary>
 		/// Описание ошибки для пользователя
 		/// </summary>
 		[JsonPropertyName("message")]
-		public IEnumerable<string> Messages { get; set; }
+		public string Message { get; set; }
 	}
 }

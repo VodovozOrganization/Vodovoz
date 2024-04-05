@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace FuelControl.Contracts.Dto
 {
@@ -41,7 +42,7 @@ namespace FuelControl.Contracts.Dto
 		/// Данные договоров доступных пользователю
 		/// </summary>
 		[JsonPropertyName("contracts")]
-		public UserContractDto[] UserContracts { get; set; }
+		public IEnumerable<UserContractDto> UserContracts { get; set; }
 
 		/// <summary>
 		/// ID роли пользователя
@@ -59,7 +60,7 @@ namespace FuelControl.Contracts.Dto
 		/// Режим чтения
 		/// </summary>
 		[JsonPropertyName("read_only")]
-		public bool? IsReadOnly { get; set; }
+		public bool IsReadOnly { get; set; }
 
 		/// <summary>
 		/// Имя пользователя

@@ -4,8 +4,12 @@ using FuelControl.Library.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure;
 
 namespace DatabaseServiceWorker
@@ -18,31 +22,46 @@ namespace DatabaseServiceWorker
 		private readonly IOptions<FuelTransactionsControlOptions> _options;
 		private readonly ILogger<FuelTransactionsControlWorker> _logger;
 		private readonly IFuelManagmentAuthorizationService _authorizationService;
+		private readonly IFuelTransactionsDataService _fuelTransactionsDataService;
 
 		public FuelTransactionsControlWorker(
 			IOptions<FuelTransactionsControlOptions> options,
 			ILogger<FuelTransactionsControlWorker> logger,
-			IFuelManagmentAuthorizationService authorizationService)
+			IFuelManagmentAuthorizationService authorizationService,
+			IFuelTransactionsDataService fuelTransactionsDataService)
 		{
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+			_fuelTransactionsDataService = fuelTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelTransactionsDataService));
 
 			Interval = _options.Value.ScanInterval;
 		}
 
 		protected override TimeSpan Interval { get; }
 
+		private bool isAuthorized =>
+			!string.IsNullOrWhiteSpace(_sessionId)
+			&& _authorizationDate.HasValue
+			&& DateTime.Now > _authorizationDate.Value.AddDays(_options.Value.SessionLifetimeInDays);
+
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			if(string.IsNullOrWhiteSpace(_sessionId)
-				|| !_authorizationDate.HasValue
-				|| _authorizationDate.Value < DateTime.Today.AddDays(-30))
+			try
 			{
-				await Login();
+				if(!isAuthorized)
+				{
+					_logger.LogDebug("Для запроса транзакций топлива необходимо авторизоваться");
+
+					await Login();
+				}
+
+				var transactions = GetFuelTransactionsForPreviousDay();
 			}
+			catch (Exception ex)
+			{
 
-
+			}
 		}
 
 		private async Task Login()
@@ -52,11 +71,8 @@ namespace DatabaseServiceWorker
 
 			var sessionId = await _authorizationService.Login(CreateAuthorizationRequestObject());
 
-			if(!string.IsNullOrEmpty(sessionId))
-			{
-				_sessionId = sessionId;
-				_authorizationDate = DateTime.Today;
-			}
+			_sessionId = sessionId;
+			_authorizationDate = DateTime.Today;
 		}
 
 		private AuthorizationRequest CreateAuthorizationRequestObject()
@@ -68,6 +84,11 @@ namespace DatabaseServiceWorker
 				ApiKey = _options.Value.ApiKey,
 				BaseAddress = _options.Value.BaseAddress
 			};
+		}
+
+		private IEnumerable<FuelTransaction> GetFuelTransactionsForPreviousDay()
+		{
+			return _fuelTransactionsDataService.GetFuelTransactionsForPreviousDay();
 		}
 	}
 }

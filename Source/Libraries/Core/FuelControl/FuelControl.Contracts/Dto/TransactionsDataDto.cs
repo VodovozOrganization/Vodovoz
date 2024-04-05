@@ -12,7 +12,7 @@ namespace FuelControl.Contracts.Dto
 		/// Количество транзакций
 		/// </summary>
 		[JsonPropertyName("total_count")]
-		public int? TransactionsCount { get; set; }
+		public int TransactionsCount { get; set; }
 
 		/// <summary>
 		/// Транзакции выдачи топлива

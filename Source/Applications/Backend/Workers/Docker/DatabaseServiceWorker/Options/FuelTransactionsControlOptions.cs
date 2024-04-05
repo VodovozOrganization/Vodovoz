@@ -10,6 +10,11 @@ namespace DatabaseServiceWorker.Options
 		public TimeSpan ScanInterval { get; set; }
 
 		/// <summary>
+		/// Время жизни сессии после авторизации
+		/// </summary>
+		public int SessionLifetimeInDays { get; set; }
+
+		/// <summary>
 		/// Логин пользователя
 		/// </summary>
 		public string Login { get; set; }

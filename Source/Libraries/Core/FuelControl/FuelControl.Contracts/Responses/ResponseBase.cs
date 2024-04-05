@@ -15,6 +15,6 @@ namespace FuelControl.Contracts.Responses
 		/// Время ответа
 		/// </summary>
 		[JsonPropertyName("timestamp")]
-		public int? Timestamp { get; set; }
+		public int Timestamp { get; set; }
 	}
 }

@@ -13,7 +13,7 @@ namespace FuelControl.Contracts.Dto
 		/// Код ошибки, обязателен при любом результате выполнения запроса (200=успех)
 		/// </summary>
 		[JsonPropertyName("code")]
-		public int? StatusCode { get; set; }
+		public int StatusCode { get; set; }
 
 		/// <summary>
 		/// Массив ошибок, если ошибок не было, то параметр отсутствует
