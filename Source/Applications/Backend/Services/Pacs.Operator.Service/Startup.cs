@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using NLog.Web;
 using Pacs.Operators.Server;
 using QS.HistoryLog;
 using QS.Project.Core;
@@ -11,6 +14,7 @@ using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
+using static K4os.Compression.LZ4.Engine.Pubternal;
 
 namespace Pacs.Operators.Service
 {
@@ -30,6 +34,12 @@ namespace Pacs.Operators.Service
 			Configuration.Bind("MessageTransport", transportSettings);
 
 			services
+				.AddLogging(logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				})
 				.AddMappingAssemblies(
 					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
 				)
