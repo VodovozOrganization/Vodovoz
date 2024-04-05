@@ -1,6 +1,6 @@
 ﻿namespace Mango.Core.Settings
 {
-	public interface IMangoSettings
+	public interface IMangoConfigurationSettings
 	{
 		string VpbxApiKey { get; }
 		string VpbxApiSalt { get; }
