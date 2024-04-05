@@ -1,6 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Mango.CallsPublishing;
 using Mango.Client;
+using Mango.Core.Settings;
 using Mango.Service.Consumers.Definitions;
 using Mango.Service.HostedServices;
 using Mango.Service.Services;
@@ -76,6 +77,8 @@ namespace Mango.Service
 					services.AddHostedService(provider => provider.GetService<NotificationHostedService>());
 
 					services.AddSingleton<ICallerService, CallerService>();
+
+					services.AddScoped<IMangoConfigurationSettings, ConfigurationMangoSettings>();
 
 					services.AddMessageTransportSettings();
 

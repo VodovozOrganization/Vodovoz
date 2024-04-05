@@ -24,7 +24,7 @@ namespace Mango.Service.HostedServices
 		private readonly PhonebookHostedService _phonebookService;
 		private readonly IMangoUserSettngs _mangoUserSettngs;
 		private readonly IConfiguration _configuration;
-		private readonly IMangoSettings _mangoSettings;
+		private readonly IMangoConfigurationSettings _mangoSettings;
 		private readonly ICallerService _callerService;
 
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
@@ -34,7 +34,7 @@ namespace Mango.Service.HostedServices
 			PhonebookHostedService phonebookService,
 			IMangoUserSettngs mangoUserSettngs,
 			IConfiguration configuration,
-			IMangoSettings mangoSettings,
+			IMangoConfigurationSettings mangoSettings,
 			ICallerService callerService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

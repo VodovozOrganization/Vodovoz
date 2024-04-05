@@ -7,9 +7,9 @@ namespace Mango.Api.Validators
 	public class KeyValidator
 	{
 		private readonly ILogger<KeyValidator> _logger;
-		private readonly IMangoSettings _mangoSettings;
+		private readonly IMangoConfigurationSettings _mangoSettings;
 
-		public KeyValidator(ILogger<KeyValidator> logger, IMangoSettings mangoSettings)
+		public KeyValidator(ILogger<KeyValidator> logger, IMangoConfigurationSettings mangoSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));

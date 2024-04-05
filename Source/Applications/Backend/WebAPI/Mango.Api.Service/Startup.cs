@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using MessageTransport;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using Mango.Core.Settings;
 
 namespace Mango.Api.Service
 {
@@ -35,6 +36,7 @@ namespace Mango.Api.Service
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mango.Api.Service", Version = "v1" });
 			});
 
+			services.AddScoped<IMangoConfigurationSettings, ConfigurationMangoSettings>();
 			services.AddMessageTransportSettings();
 			services.AddMangoApi();
 		}

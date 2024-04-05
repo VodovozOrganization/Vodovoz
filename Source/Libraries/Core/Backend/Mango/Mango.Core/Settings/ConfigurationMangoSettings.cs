@@ -3,7 +3,7 @@ using System;
 
 namespace Mango.Core.Settings
 {
-	public class ConfigurationMangoSettings : IMangoSettings
+	public class ConfigurationMangoSettings : IMangoConfigurationSettings
 	{
 		private const string _sectionName = "Mango";
 		private const string _keySettingName = "VpbxApiKey";
