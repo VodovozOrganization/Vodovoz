@@ -20,6 +20,7 @@ using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Settings.Database;
@@ -72,7 +73,8 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddApplication();
-			services.AddBusiness(Configuration);
+			services.AddBusiness(Configuration)
+				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
