@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RoboatsService.Handlers;
 using RoboatsService.Monitoring;
-using RoboatsService.Requests;
+using RoboAtsService.Contracts.Requests;
+using RoboAtsService.Contracts.Responses;
 using System;
 using System.Diagnostics;
+using System.Linq;
+using Vodovoz.Application.Contacts;
 using Vodovoz.Domain.Roboats;
+using Vodovoz.EntityRepositories.Roboats;
 
 namespace RoboatsService.Controllers
 {
@@ -19,12 +25,21 @@ namespace RoboatsService.Controllers
 
 		private readonly RequestHandlerFactory _handlerFactory;
 		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
+		private readonly IRoboatsRepository _roboatsRepository;
+		private readonly IPhoneService _phoneService;
 
-		public RoboatsController(ILogger<RoboatsController> logger, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator roboatsCallRegistrator)
+		public RoboatsController(
+			ILogger<RoboatsController> logger,
+			RequestHandlerFactory handlerFactory,
+			RoboatsCallRegistrator roboatsCallRegistrator,
+			IRoboatsRepository roboatsRepository,
+			IPhoneService phoneService)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_handlerFactory = handlerFactory ?? throw new System.ArgumentNullException(nameof(handlerFactory));
-			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new System.ArgumentNullException(nameof(roboatsCallRegistrator));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
+			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
+			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_phoneService = phoneService ?? throw new ArgumentNullException(nameof(phoneService));
 		}
 
 		[HttpGet]
@@ -86,6 +101,52 @@ namespace RoboatsService.Controllers
 			var query = HttpContext.Request.GetEncodedPathAndQuery();
 			_logger.LogInformation($"Request: {query} | Response: {result} | Request time: {stopWatch.Elapsed.Seconds}.{stopWatch.Elapsed.Milliseconds} sec.");
 			return result;
+		}
+
+		[HttpGet(nameof(GetCounterpartyHasOrdersForDeliveryToday))]
+		public IActionResult GetCounterpartyHasOrdersForDeliveryToday(string counterPartyPhone)
+		{
+			try
+			{
+				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterPartyPhone).FirstOrDefault();
+				return Ok(_roboatsRepository.CounterpartyHasTodayDeliveryOrders(counterpartyId));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка {ExceptionMessage}", ex.Message);
+				return Problem("Ошибка выполнения запроса");
+			}
+		}
+
+		[HttpGet(nameof(GetCourierPhones))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCourierPhonesResponse))]
+		public IActionResult GetCourierPhones(int orderId)
+		{
+			try
+			{
+				var phone = string.Empty;
+
+				_phoneService
+					.GetCourierPhoneNumberForOrder(orderId)
+					.Match(
+						phoneNumber => phone = phoneNumber,
+						errors => _logger.LogWarning("Телефон курьера не найден: {@Errors}", errors.Select(e => e.Message)));
+
+				var dispatcherPhone = _phoneService
+					.GetCourierDispatcherPhone();
+
+				return Ok(new GetCourierPhonesResponse
+				{
+					CourierPhone = phone,
+					CourierDispatcher = dispatcherPhone,
+					CallTimeout = 60
+				});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка {ExceptionMessage}", ex.Message);
+				return Problem("Ошибка выполнения запроса");
+			}
 		}
 	}
 }

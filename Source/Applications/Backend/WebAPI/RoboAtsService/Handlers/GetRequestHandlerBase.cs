@@ -1,4 +1,6 @@
-﻿namespace RoboatsService.Requests
+﻿using RoboAtsService.Contracts.Requests;
+
+namespace RoboatsService.Handlers
 {
 	public abstract class GetRequestHandlerBase : RequestHandlerBase
 	{

@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
+using RoboAtsService.Contracts.Requests;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 
-namespace RoboatsService.Requests
+namespace RoboatsService.Handlers
 {
 	/// <summary>
 	/// Обработчик запросов получения данных об адресе
@@ -178,7 +179,7 @@ namespace RoboatsService.Requests
 			if(string.IsNullOrWhiteSpace(result))
 			{
 				//решили не писать в мониторинг roboats т.к. есть адреса без корпусов
-				return "NO DATA"; 
+				return "NO DATA";
 			}
 
 			return result;
