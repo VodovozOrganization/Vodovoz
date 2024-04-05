@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
 using Pacs.Server.Operators;
@@ -9,6 +10,7 @@ namespace Pacs.Operators.Server
 {
 	[ApiController]
 	[Route("pacs/operator")]
+	[Authorize]
 	public class OperatorController : ControllerBase
 	{
 		private readonly ILogger<OperatorController> _logger;

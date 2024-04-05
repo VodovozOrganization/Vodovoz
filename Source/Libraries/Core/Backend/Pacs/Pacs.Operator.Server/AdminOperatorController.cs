@@ -9,6 +9,7 @@ namespace Pacs.Operators.Server
 {
 	[ApiController]
 	[Route("pacs/admin/operator")]
+	[Authorize]
 	public class AdminOperatorController
 	{
 		private readonly ILogger<OperatorController> _logger;
