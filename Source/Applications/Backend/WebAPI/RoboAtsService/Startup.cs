@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +20,7 @@ using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Settings.Database;
@@ -74,7 +75,8 @@ namespace RoboatsService
 
 			services.AddApplication();
 			services.AddBusiness(Configuration)
-				.AddInfrastructure();
+				.AddInfrastructure()
+				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)

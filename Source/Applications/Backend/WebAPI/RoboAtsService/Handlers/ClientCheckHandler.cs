@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboatsService.Monitoring;
+using RoboAtsService.Contracts.Requests;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Settings.Roboats;
 
-namespace RoboatsService.Requests
+namespace RoboatsService.Handlers
 {
 	/// <summary>
 	/// Обработчик запроса проверки наличия клиента
@@ -54,7 +55,7 @@ namespace RoboatsService.Requests
 			var counterpartyCount = counterpartyIds.Count();
 			if(counterpartyCount > 1)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck, 
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
 					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
@@ -63,7 +64,7 @@ namespace RoboatsService.Requests
 			if(counterpartyCount == 1)
 			{
 				counterpartyId = counterpartyIds.First();
-			}	
+			}
 
 			switch(RequestDto.RequestSubType)
 			{
@@ -113,14 +114,14 @@ namespace RoboatsService.Requests
 		{
 			if(!counterpartyId.HasValue)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientName, 
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientName,
 					$"Не найден контрагент.");
 				return "NO DATA";
 			}
 			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value, ClientPhone);
 			if(nameId == 0)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNameNotFound, RoboatsCallOperation.GetClientName, 
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNameNotFound, RoboatsCallOperation.GetClientName,
 					$"У контрагента {counterpartyId.Value} не найдено имя.");
 				return "NO DATA";
 			}

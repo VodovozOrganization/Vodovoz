@@ -537,5 +537,18 @@ namespace Vodovoz.Infrastructure.Persistance.Roboats
 				return uow.GetAll<TodayIntervalOffer>().ToList();
 			}
 		}
+
+		public bool CounterpartyHasTodayDeliveryOrders(int counterpartyId)
+		{
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot())
+			{
+				return
+					(from order in unitOfWork.Session.Query<Order>()
+					 where order.Client.Id == counterpartyId
+					  && order.DeliveryDate.Value.Date == DateTime.Today
+					 select order.Id)
+					.Any();
+			}
+		}
 	}
 }
