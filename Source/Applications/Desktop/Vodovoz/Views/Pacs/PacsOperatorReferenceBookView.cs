@@ -22,6 +22,10 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.WorkShiftEntry, w => w.ViewModel)
 				.InitializeFromSource();
 
+			pacsEnabled.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PacsEnabled, w => w.Active)
+				.InitializeFromSource();
+
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
