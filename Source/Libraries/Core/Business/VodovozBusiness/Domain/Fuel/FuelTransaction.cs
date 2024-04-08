@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Fuel
 		private string _salePointId;
 		private string _productId;
 		private string _productCategoryId;
-		private int _productItemsCount;
+		private int _itemsCount;
 		private decimal _pricePerItem;
 		private decimal _totalSum;
 		private string _cardNumber;
@@ -54,10 +54,10 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref _productCategoryId, value);
 		}
 
-		public virtual int ProductItemsCount
+		public virtual int ItemsCount
 		{
-			get => _productItemsCount;
-			set => SetField(ref _productItemsCount, value);
+			get => _itemsCount;
+			set => SetField(ref _itemsCount, value);
 		}
 
 		public virtual decimal PricePerItem

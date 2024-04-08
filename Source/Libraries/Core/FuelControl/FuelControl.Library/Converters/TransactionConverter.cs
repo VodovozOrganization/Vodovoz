@@ -15,7 +15,7 @@ namespace FuelControl.Library.Converters
 				SalePointId = transactionDto.SalePointId,
 				ProductId = transactionDto.ProductId,
 				ProductCategoryId = transactionDto.ProductCategoryId,
-				ProductItemsCount = transactionDto.Quantity,
+				ItemsCount = transactionDto.Quantity,
 				PricePerItem = transactionDto.Price,
 				TotalSum = transactionDto.Sum,
 				CardNumber = transactionDto.CardNumber

@@ -2,7 +2,6 @@
 using FuelControl.Contracts.Responses;
 using FuelControl.Library.Services.Exceptions;
 using Microsoft.Extensions.Logging;
-using Renci.SshNet.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +61,7 @@ namespace FuelControl.Library.Services
 
 					return sessionId;
 				}
-				catch (Exception ex)
+				catch(Exception ex)
 				{
 					throw ex;
 				}
