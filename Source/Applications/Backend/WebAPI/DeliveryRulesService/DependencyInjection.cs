@@ -10,6 +10,8 @@ using System.Reflection;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Models;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
@@ -60,6 +62,9 @@ namespace DeliveryRulesService
 				.AddScoped<IUserService, UserService>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<IDeliveryRepository, DeliveryRepository>()
+				.AddScoped<INomenclatureRepository, NomenclatureRepository>()
+				.AddScoped<IFastDeliveryAvailabilityHistoryModel, FastDeliveryAvailabilityHistoryModel>()
+
 				.AddHostedServices();
 
 			return services;

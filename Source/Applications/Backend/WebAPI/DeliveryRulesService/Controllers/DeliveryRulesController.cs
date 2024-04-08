@@ -29,7 +29,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
-		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
+		private readonly IFastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCacheService _districtCacheService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly DeliverySchedule _fastDeliverySchedule;
@@ -40,7 +40,7 @@ namespace DeliveryRulesService.Controllers
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
+			IFastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCacheService districtCacheService,
 			IGeneralSettings generalSettings)
 		{
