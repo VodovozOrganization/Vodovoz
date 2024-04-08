@@ -2259,6 +2259,8 @@ namespace Vodovoz
 				{
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
+				
+				PrepareSendBillInformation();
 
 				if(_isNeedSendBillToEmail)
 				{
