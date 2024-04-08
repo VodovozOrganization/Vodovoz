@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Breaks;
 using System;
@@ -18,13 +19,15 @@ namespace Pacs.Server
 			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
 		}
 
-		[HttpGet("get")]
+		[HttpGet]
+		[Route("get")]
 		public async Task<GlobalBreakAvailabilityEvent> Get()
 		{
 			return await Task.FromResult(_globalBreakController.BreakAvailability);
 		}
 
-		[HttpGet("get-operators-on-break")]
+		[HttpGet]
+		[Route("get-operators-on-break")]
 		public async Task<OperatorsOnBreakEvent> GetOperatorsOnBreak()
 		{
 			return await Task.FromResult(_globalBreakController.GetOperatorsOnBreak());
