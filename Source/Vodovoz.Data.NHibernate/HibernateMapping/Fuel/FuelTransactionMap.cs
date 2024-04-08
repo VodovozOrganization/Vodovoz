@@ -17,7 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Map(x => x.SalePointId).Column("sale_point_id");
 			Map(x => x.ProductId).Column("product_id");
 			Map(x => x.ProductCategoryId).Column("product_category_id");
-			Map(x => x.ItemsCount).Column("items_count");
+			Map(x => x.Quantity).Column("quantity");
 			Map(x => x.PricePerItem).Column("price_per_item");
 			Map(x => x.TotalSum).Column("total_sum");
 			Map(x => x.CardNumber).Column("card_number");

@@ -3,6 +3,7 @@ using FuelControl.Library.Converters;
 using FuelControl.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vodovoz.EntityRepositories.Fuel;
 
 namespace DatabaseServiceWorker
 {
@@ -15,7 +16,8 @@ namespace DatabaseServiceWorker
 			.ConfigureFuelTransactionsControlWorker(context)
 			.AddSingleton<IFuelManagmentAuthorizationService, GazpromAuthorizationService>()
 			.AddSingleton<TransactionConverter>()
-			.AddSingleton<IFuelTransactionsDataService, GazpromFuelTransactionsDataService>();
+			.AddSingleton<IFuelTransactionsDataService, GazpromFuelTransactionsDataService>()
+			.AddSingleton<IFuelRepository, FuelRepository>();
 
 		public static IServiceCollection ConfigureFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<FuelTransactionsControlOptions>(context.Configuration.GetSection(nameof(FuelTransactionsControlOptions)));

@@ -12,7 +12,7 @@ namespace FuelControl.Contracts.Dto
 		/// ID транзакции
 		/// </summary>
 		[JsonPropertyName("id")]
-		public string Id { get; set; }
+		public long Id { get; set; }
 
 		/// <summary>
 		/// Дата время транзакции
@@ -66,7 +66,7 @@ namespace FuelControl.Contracts.Dto
 		/// ID чека
 		/// </summary>
 		[JsonPropertyName("check_id")]
-		public string CheckId { get; set; }
+		public long CheckId { get; set; }
 
 		/// <summary>
 		/// ID прямой транзакции
@@ -90,7 +90,7 @@ namespace FuelControl.Contracts.Dto
 		/// Количество единиц товара
 		/// </summary>
 		[JsonPropertyName("qty")]
-		public int Quantity { get; set; }
+		public decimal Quantity { get; set; }
 
 		/// <summary>
 		/// Цена со скидкой клиента
@@ -126,7 +126,7 @@ namespace FuelControl.Contracts.Dto
 		/// Курс пересчёта
 		/// </summary>
 		[JsonPropertyName("exchange_rate")]
-		public string ExchangeRate { get; set; }
+		public long ExchangeRate { get; set; }
 
 		/// <summary>
 		/// Номер карты

@@ -17,6 +17,7 @@ namespace FuelControl.Contracts.Dto
 		/// <summary>
 		/// Транзакции выдачи топлива
 		/// </summary>
+		[JsonPropertyName("result")]
 		public IEnumerable<TransactionDto> Transactions { get; set; }
 	}
 }

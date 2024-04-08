@@ -5,20 +5,20 @@ namespace Vodovoz.Domain.Fuel
 {
 	public class FuelTransaction : PropertyChangedBase, IDomainObject
 	{
-		private string _transactionId;
+		private long _transactionId;
 		private DateTime _transactionDate;
 		private string _cardId;
 		private string _salePointId;
 		private string _productId;
 		private string _productCategoryId;
-		private int _itemsCount;
+		private decimal _quantity;
 		private decimal _pricePerItem;
 		private decimal _totalSum;
 		private string _cardNumber;
 
 		public virtual int Id { get; set; }
 
-		public virtual string TransactionId
+		public virtual long TransactionId
 		{
 			get => _transactionId;
 			set => SetField(ref _transactionId, value);
@@ -54,10 +54,10 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref _productCategoryId, value);
 		}
 
-		public virtual int ItemsCount
+		public virtual decimal Quantity
 		{
-			get => _itemsCount;
-			set => SetField(ref _itemsCount, value);
+			get => _quantity;
+			set => SetField(ref _quantity, value);
 		}
 
 		public virtual decimal PricePerItem
