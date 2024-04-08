@@ -313,8 +313,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Application", "Libr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushNotificationsWorker", "Applications\Backend\Workers\Docker\PushNotificationsWorker\PushNotificationsWorker.csproj", "{BBC814D4-88D4-45A3-AEA5-106ECD097410}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirebaseCloudMessaging.Client", "Libraries\Core\Backend\Firebase.Client\FirebaseCloudMessaging.Client.csproj", "{61FC160E-69A8-4738-B333-106D5E3449DE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.Api", "Libraries\Core\Backend\Mango\Mango.Api\Mango.Api.csproj", "{43013747-9858-420E-8118-BC48AA3A2930}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.Core", "Libraries\Core\Backend\Mango\Mango.Core\Mango.Core.csproj", "{D888208C-C8EA-498D-B516-7F89337D7D92}"
@@ -393,7 +391,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.FirebaseCloudMessag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.Api.Service", "Applications\Backend\WebAPI\Mango.Api.Service\Mango.Api.Service.csproj", "{891B1F1F-9785-48A0-89A8-2E57D2D0C558}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiAuthentication", "Libraries\Core\Backend\Infrastructure\ApiAuthentication\ApiAuthentication.csproj", "{CBA1E088-9EDF-42D4-8C46-9E7BAABD9FEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiAuthentication", "Libraries\Core\Backend\Infrastructure\ApiAuthentication\ApiAuthentication.csproj", "{CBA1E088-9EDF-42D4-8C46-9E7BAABD9FEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
