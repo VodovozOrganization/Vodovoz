@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -175,7 +175,7 @@ namespace Vodovoz.Tools.Orders
 		{
 			var water = Order.OrderItems.Where(
 				x => x.PromoSet == null
-				&& x.DiscountReason?.Id != _orderSettings.ReferFriendDiscountReasonId
+				&& x.DiscountReason?.IsPresent != true
 				&& x.Nomenclature != null
 				&& x.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();

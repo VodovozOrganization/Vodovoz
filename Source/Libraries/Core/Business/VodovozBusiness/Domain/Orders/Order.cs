@@ -2316,7 +2316,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false, bool doNotCountReferFriendDiscount = false)
+		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false, bool doNotCountPresentsDiscount = false)
 		{
 			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
 
@@ -2325,9 +2325,9 @@ namespace Vodovoz.Domain.Orders
 				water19L = water19L.Where(x => x.PromoSet == null);
 			}
 
-			if(doNotCountReferFriendDiscount)
+			if(doNotCountPresentsDiscount)
 			{
-				water19L = water19L.Where(x => x.DiscountReason?.Id != _orderSettings.ReferFriendDiscountReasonId);
+				water19L = water19L.Where(x => x.DiscountReason?.IsPresent != true);
 			}
 			return (int)water19L.Sum(x => x.Count);
 		}
@@ -2473,7 +2473,7 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
-			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount(doNotCountReferFriendDiscount: true) + bottlesCount);
+			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount(doNotCountPresentsDiscount: true) + bottlesCount);
 			if (fixedPrice != null && promoSet == null) {
 				return fixedPrice.Price;
 			}
@@ -4796,7 +4796,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
-				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(doNotCountReferFriendDiscount: true), useAlternativePrice);
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(doNotCountPresentsDiscount: true), useAlternativePrice);
 			} else {
 				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count, useAlternativePrice);
 			}
