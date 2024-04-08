@@ -710,7 +710,7 @@ namespace Vodovoz.Application.Pacs
 				}
 
 				//инициализация со скуд
-				var hasPhone = uint.TryParse(OperatorState.PhoneNumber, out var phone);
+				var hasPhone = uint.TryParse(OperatorState?.PhoneNumber, out var phone);
 				if(!hasPhone)
 				{
 					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState.PhoneNumber);
