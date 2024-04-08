@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QS.Project.DB;
+using System;
 using Vodovoz.Settings.Pacs;
 
 namespace Vodovoz.Settings.Database.Pacs
@@ -6,26 +7,35 @@ namespace Vodovoz.Settings.Database.Pacs
 	public class PacsSettings : IPacsSettings
 	{
 		private readonly ISettingsController _settingsController;
+		private readonly IDataBaseInfo _dataBaseInfo;
 
-		public PacsSettings(ISettingsController settingsController)
+		public PacsSettings(ISettingsController settingsController, IDataBaseInfo dataBaseInfo)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
+			_dataBaseInfo = dataBaseInfo ?? throw new ArgumentNullException(nameof(dataBaseInfo));
 		}
 
-		public TimeSpan OperatorInactivityTimeout => TimeSpan.FromMinutes(_settingsController.GetIntValue("Pacs.OperatorInactivityTimeout.Minutes"));
+		public TimeSpan OperatorInactivityTimeout => TimeSpan.FromMinutes(_settingsController.GetIntValue($"Pacs.{mode}.OperatorInactivityTimeout.Minutes"));
 
-		public TimeSpan OperatorKeepAliveInterval => TimeSpan.FromMinutes(_settingsController.GetIntValue("Pacs.OperatorKeepAliveInterval.Minutes"));
+		public TimeSpan OperatorKeepAliveInterval => TimeSpan.FromMinutes(_settingsController.GetIntValue($"Pacs.{mode}.OperatorKeepAliveInterval.Minutes"));
 
-		public TimeSpan CallEventsSeqCacheTimeout => TimeSpan.FromMinutes(_settingsController.GetIntValue("Pacs.CallEventsSeqCacheTimeout.Minutes"));
+		public string AdministratorApiUrl => _settingsController.GetStringValue($"Pacs.{mode}.AdministratorApiUrl");
 
-		public TimeSpan CallEventsSeqCacheCleanInterval => TimeSpan.FromMinutes(_settingsController.GetIntValue("Pacs.CallEventsSeqCacheCleanInterval.Minutes"));
+		public string AdministratorApiKey => _settingsController.GetStringValue($"Pacs.{mode}.AdministratorApiKey");
 
-		public string AdministratorApiUrl => _settingsController.GetStringValue("Pacs.AdministratorApiUrl");
+		public string OperatorApiUrl => _settingsController.GetStringValue($"Pacs.{mode}.OperatorApiUrl");
 
-		public string AdministratorApiKey => _settingsController.GetStringValue("Pacs.AdministratorApiKey");
+		public string OperatorApiKey => _settingsController.GetStringValue($"Pacs.{mode}.OperatorApiKey");
 
-		public string OperatorApiUrl => _settingsController.GetStringValue("Pacs.OperatorApiUrl");
+		private string mode => TestMode ? "Test" : "Work";
 
-		public string OperatorApiKey => _settingsController.GetStringValue("Pacs.OperatorApiKey");
+		public bool TestMode
+		{
+			get
+			{
+				var testDatabase = _settingsController.GetStringValue("Pacs.Test.Database");
+				return testDatabase == _dataBaseInfo.Name;
+			}
+		}
 	}
 }
