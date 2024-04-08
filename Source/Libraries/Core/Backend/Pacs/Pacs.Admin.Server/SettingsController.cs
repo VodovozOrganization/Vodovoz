@@ -22,7 +22,8 @@ namespace Mango.Api.Controllers
 			_notifier = notifier ?? throw new ArgumentNullException(nameof(notifier));
 		}
 
-		[HttpPost("set")]
+		[HttpPost]
+		[Route("set")]
 		public async Task Set([FromBody] SettingsRequest settingsRequest)
 		{
 			var settings = new DomainSettings
@@ -45,7 +46,8 @@ namespace Mango.Api.Controllers
 			await _notifier.SettingsChanged(settings);
 		}
 
-		[HttpGet("get")]
+		[HttpGet]
+		[Route("get")]
 		public async Task<DomainSettings> Get()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
