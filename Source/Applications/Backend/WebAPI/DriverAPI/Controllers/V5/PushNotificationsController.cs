@@ -323,6 +323,7 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="unitOfWork"></param>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns></returns>
+		[HttpPost]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
