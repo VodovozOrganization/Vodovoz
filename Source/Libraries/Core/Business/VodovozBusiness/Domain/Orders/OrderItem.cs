@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -524,11 +524,11 @@ namespace Vodovoz.Domain.Orders
 
 			if(fixedPrice != null && CopiedFromUndelivery == null)
 			{
+				IsFixedPrice = true;
 				if(Price != fixedPrice.Price)
 				{
 					SetPrice(fixedPrice.Price);
-				}
-				IsFixedPrice = true;
+				}				
 				return;
 			}
 
