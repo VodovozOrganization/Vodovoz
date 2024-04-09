@@ -147,6 +147,7 @@ using Vodovoz.Domain.Sms;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Tools.Orders;
+using MassTransit;
 
 namespace Vodovoz
 {
@@ -291,16 +292,16 @@ namespace Vodovoz
 						.InstancePerLifetimeScope();
 
 					builder.RegisterModule<CashReceiptClientChannelModule>();
-					
+
 					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
 					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
 					builder.RegisterType<OperatorClient>().As<IOperatorClient>();
 					builder.RegisterType<AdminClient>().AsSelf();
-					
+
 					builder.RegisterType<PacsDashboardModel>()
 						.AsSelf()
 						.As<IObserver<OperatorState>>()
-						.As<IObserver<Pacs.Core.Messages.Events.CallEvent>>();
+						.As<IObserver<Pacs.Core.Messages.Events.PacsCallEvent>>();
 
 					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
 						.SingleInstance();
@@ -409,7 +410,7 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
-					
+
 					builder.RegisterAssemblyTypes(
 						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),
 						Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder))
@@ -476,7 +477,7 @@ namespace Vodovoz
 					builder.RegisterType<DriversWageBalanceReport>().AsSelf();
 					builder.RegisterType<QualityReport>().AsSelf();
 					builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
-					builder.RegisterType<RoutesListRegisterReport>().AsSelf();					
+					builder.RegisterType<RoutesListRegisterReport>().AsSelf();
 					builder.RegisterType<OrdersByDistrictReport>().AsSelf();
 					builder.RegisterType<CompanyTrucksReport>().AsSelf();
 					builder.RegisterType<LastOrderByDeliveryPointReport>().AsSelf();
@@ -671,13 +672,13 @@ namespace Vodovoz
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
 							typeof(QS.Report.Domain.UserPrintSettings).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly,
-							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly
 						)
-						.AddDatabaseConfigurationExposer(config => {
+						.AddDatabaseConfigurationExposer(config =>
+						{
 							config.DataBaseIntegration(
-								dbi => {
+								dbi =>
+								{
 									dbi.BatchSize = 100;
 									dbi.Timeout = 120;
 								}
@@ -685,6 +686,7 @@ namespace Vodovoz
 
 							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
 						})
+						.AddCoreDataNHibernate()
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
 						.AddDatabaseInfo()
@@ -741,7 +743,7 @@ namespace Vodovoz
 						.AddTransient(typeof(ViewModelEEVMBuilder<>))
 						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
 						.AddTransient<EntityModelFactory>()
-						
+
 						.AddPacsOperatorClient()
 						;
 
@@ -757,18 +759,19 @@ namespace Vodovoz
 						(busCfg) =>
 						{
 							//Оператор
-							busCfg.AddConsumer<OperatorStateConsumer>(typeof(OperatorStateConsumerDefinition));
-							busCfg.AddConsumer<OperatorsOnBreakConsumer>(typeof(OperatorsOnBreakConsumerDefinition));
-							busCfg.AddConsumer<OperatorSettingsConsumer>(typeof(OperatorSettingsConsumerDefinition));
+							busCfg.AddConsumer<OperatorStateConsumer, OperatorStateConsumerDefinition>();
+							busCfg.AddConsumer<OperatorsOnBreakConsumer, OperatorsOnBreakConsumerDefinition>();
+							busCfg.AddConsumer<OperatorSettingsConsumer, OperatorSettingsConsumerDefinition>();
+
 							//Админ
-							busCfg.AddConsumer<OperatorStateAdminConsumer>(typeof(OperatorStateAdminConsumerDefinition));
-							busCfg.AddConsumer<SettingsConsumer>(typeof(SettingsConsumerDefinition));
-							busCfg.AddConsumer<PacsCallEventConsumer>(typeof(PacsCallEventConsumerDefinition));
-							
+							busCfg.AddConsumer<OperatorStateAdminConsumer, OperatorStateAdminConsumerDefinition>();
+							busCfg.AddConsumer<SettingsConsumer, SettingsConsumerDefinition>();
+							busCfg.AddConsumer<PacsCallEventConsumer, PacsCallEventConsumerDefinition>();
 						}
 						//Exclude необходим для отложенного запуска конечной точки, или отмены запуска по условию
 						//При этом добавление определения потребителя в конфигурации обязательно
-						,(filter) => {
+						, (filter) =>
+						{
 							filter.Exclude<SettingsConsumer>();
 							filter.Exclude<OperatorSettingsConsumer>();
 							filter.Exclude<OperatorStateAdminConsumer>();

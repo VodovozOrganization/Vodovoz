@@ -1,5 +1,4 @@
 ﻿using Mango.Core.Dto;
-using Mango.Service.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +26,7 @@ namespace Mango.Service.Calling
 
 		public TimeSpan LiveTime => DateTime.Now - created;
 
-		public bool IsActive => Events.Values.All(e => e.CallState.ParseCallState() != CallState.Disconnected);
+		public bool IsActive => Events.Values.All(e => (int)e.CallState != (int)CallState.Disconnected);
 
 		public string EventsToText()
 		{
