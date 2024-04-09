@@ -1259,6 +1259,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			var deliveryRepository = validationContext.GetRequiredService<IDeliveryRepository>();
+			var orderStateKey = validationContext.GetRequiredService<OrderStateKey>();
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1267,11 +1268,12 @@ namespace Vodovoz.Domain.Orders
 
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				newStatus = (OrderStatus)validationContext.Items["NewStatus"];
-				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
+				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null)
+				{
+					orderStateKey.InitializeFields(this, newStatus.Value);
 
-					var key = new OrderStateKey(this, newStatus.Value);
 					var messages = new List<string>();
-					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
+					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(orderStateKey, ref messages)) {
 						foreach(var msg in messages) {
 							yield return new ValidationResult(msg);
 						}
@@ -2059,7 +2061,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var curCount = orderItem.Nomenclature.IsWater19L ? GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : orderItem.Count;
+			var curCount = orderItem.Nomenclature.IsWater19L ? GetTotalWater19LCount(true, true) : orderItem.Count;
 			var isAlternativePriceCopiedFromUndelivery = orderItem.CopiedFromUndelivery != null && orderItem.IsAlternativePrice;
 			var canApplyAlternativePrice = isAlternativePriceCopiedFromUndelivery
 			                               || (HasPermissionsForAlternativePrice
@@ -2314,11 +2316,19 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false)
+		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false, bool doNotCountPresentsDiscount = false)
 		{
 			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
+
 			if(doNotCountWaterFromPromoSets)
+			{
 				water19L = water19L.Where(x => x.PromoSet == null);
+			}
+
+			if(doNotCountPresentsDiscount)
+			{
+				water19L = water19L.Where(x => x.DiscountReason?.IsPresent != true);
+			}
 			return (int)water19L.Sum(x => x.Count);
 		}
 
@@ -2463,12 +2473,12 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
-			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount() + bottlesCount);
+			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount(doNotCountPresentsDiscount: true) + bottlesCount);
 			if (fixedPrice != null && promoSet == null) {
 				return fixedPrice.Price;
 			}
 
-			var count = promoSet == null ? GetTotalWater19LCount(true) : bottlesCount;
+			var count = promoSet == null ? GetTotalWater19LCount(true, true) : bottlesCount;
 
 			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
 				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
@@ -4786,7 +4796,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
-				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(), useAlternativePrice);
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(doNotCountPresentsDiscount: true), useAlternativePrice);
 			} else {
 				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count, useAlternativePrice);
 			}

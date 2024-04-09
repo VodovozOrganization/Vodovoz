@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.Orders
 		private string _name;
 		private bool _isArchive;
 		private bool _isPremiumDiscount;
+		private bool _isPresent;
 		private DiscountUnits _valueType;
 		private decimal _value;
 		private IList<DiscountReasonNomenclatureCategory> _nomenclatureCategories = new List<DiscountReasonNomenclatureCategory>();
@@ -65,7 +66,14 @@ namespace Vodovoz.Domain.Orders
 			get => _isPremiumDiscount;
 			set => SetField(ref _isPremiumDiscount, value);
 		}
-		
+
+		[Display(Name = "Подарок?")]
+		public virtual bool IsPresent
+		{
+			get => _isPresent;
+			set => SetField(ref _isPresent, value);
+		}
+
 		public virtual IList<DiscountReasonNomenclatureCategory> NomenclatureCategories
 		{
 			get => _nomenclatureCategories;
