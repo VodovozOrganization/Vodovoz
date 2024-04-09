@@ -33,15 +33,6 @@ namespace Pacs.Operators.Service
 			Configuration.Bind("MessageTransport", transportSettings);
 
 			services
-				.AddLogging(logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
-				})
-				.AddMappingAssemblies(
-					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
-				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()

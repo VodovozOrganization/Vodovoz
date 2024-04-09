@@ -672,7 +672,6 @@ namespace Vodovoz
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
 							typeof(QS.Report.Domain.UserPrintSettings).Assembly,
-							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly
 						)
 						.AddDatabaseConfigurationExposer(config =>
@@ -687,6 +686,7 @@ namespace Vodovoz
 
 							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
 						})
+						.AddCoreDataNHibernate()
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
 						.AddDatabaseInfo()

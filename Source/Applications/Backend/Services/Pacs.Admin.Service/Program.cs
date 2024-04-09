@@ -1,6 +1,8 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace Pacs.Admin.Service
 {
@@ -13,6 +15,10 @@ namespace Pacs.Admin.Service
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLogWeb();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureWebHostDefaults(webBuilder =>
 				{

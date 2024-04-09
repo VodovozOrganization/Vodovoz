@@ -36,18 +36,14 @@ namespace Mango.Service
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLogWeb();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
 					var configuration = hostContext.Configuration;
-					services.AddLogging(
-						logging =>
-						{
-							logging.ClearProviders();
-							logging.AddNLogWeb();
-							logging.AddConfiguration(configuration.GetSection("NLog"));
-						});
-					
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddNotTrackedUoW();
