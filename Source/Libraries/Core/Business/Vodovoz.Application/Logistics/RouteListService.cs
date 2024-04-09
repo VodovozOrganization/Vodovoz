@@ -54,7 +54,6 @@ namespace Vodovoz.Application.Logistics
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
-		private readonly IRouteListTransferhandByHandReciever _routeListTransferhandByHandReciever;
 		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -80,7 +79,6 @@ namespace Vodovoz.Application.Logistics
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
 			RouteGeometryCalculator routeGeometryCalculator,
-			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever,
 			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
 			IGenericRepository<RouteListItem> routeListAddressesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory)
@@ -123,8 +121,6 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeGeometryCalculator = routeGeometryCalculator
 				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
-			_routeListTransferhandByHandReciever = routeListTransferhandByHandReciever
-				?? throw new ArgumentNullException(nameof(routeListTransferhandByHandReciever));
 			_productGroupRepository = productGroupRepository
 				?? throw new ArgumentNullException(nameof(productGroupRepository));
 			_routeListAddressTransferItemRepository = routeListAddressTransferItemRepository
@@ -786,14 +782,8 @@ namespace Vodovoz.Application.Logistics
 			unitOfWork.Save(sourceRouteList);
 			unitOfWork.Save(targetRouteList);
 
-			if(addressTransferType == AddressTransferType.FromHandToHand)
-			{
-				_routeListTransferhandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(address.Order.Id).GetAwaiter().GetResult();
-			}
-
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}
-
 
 		private void FlushSessionWithoutCommit(IUnitOfWork uow)
 		{

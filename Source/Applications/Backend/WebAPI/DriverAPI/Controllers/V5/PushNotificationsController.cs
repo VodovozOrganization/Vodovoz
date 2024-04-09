@@ -327,7 +327,7 @@ namespace DriverAPI.Controllers.V5
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, int orderId)
+		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
 		{
 			var targetDriverFirebaseToken =
 				_apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
