@@ -61,6 +61,7 @@ namespace DatabaseServiceWorker
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
+						.AddHostedService<PowerBIExportWorker>()
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
 						;
 
