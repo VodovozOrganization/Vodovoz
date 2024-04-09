@@ -26,15 +26,6 @@ namespace Pacs.Admin.Service
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
-				.AddLogging(logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
-				})
-				.AddMappingAssemblies(
-					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
-				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()

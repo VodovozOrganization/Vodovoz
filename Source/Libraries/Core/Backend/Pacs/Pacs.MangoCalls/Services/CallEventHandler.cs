@@ -105,13 +105,6 @@ namespace Pacs.MangoCalls.Services
 
 		private async Task UpdateSubCall(MangoCallEvent callEvent)
 		{
-			// Определение того что звонок является подзвонком на оператора
-			/*var isSubCallToOperator = !callEvent.To.Extension.IsNullOrWhiteSpace();
-			if(!isSubCallToOperator)
-			{
-				return;
-			}*/
-
 			var subCall = LoadOrCreateSubCall(callEvent);
 
 			// Возможны ивенты в которых дозвон одному из операторов является первым и основным ивентом звонка
@@ -123,7 +116,6 @@ namespace Pacs.MangoCalls.Services
 				subCall.TakenFromCallId = _call.CallId;
 			}
 
-			//Найти callId основного звонка, но как?
 			var isFisrtCallLayer = callEvent.From.TakenFromCallId == _call.CallId;
 
 			if(subCall.LastSeq < (int)callEvent.Seq)
@@ -231,11 +223,6 @@ namespace Pacs.MangoCalls.Services
 			{
 				return CallDirection.Incoming;
 			}
-
-			/*if(!callEvent.From.TakenFromCallId.IsNullOrWhiteSpace())
-			{
-				return null;
-			}*/
 
 			var fromAbonent = !callEvent.From.Extension.IsNullOrWhiteSpace();
 			var toAbonent = !callEvent.To.Extension.IsNullOrWhiteSpace();

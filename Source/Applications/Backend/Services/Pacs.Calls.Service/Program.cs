@@ -1,14 +1,12 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Pacs.MangoCalls;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Settings.Database;
 
 namespace Pacs.Calls.Service
 {
@@ -22,19 +20,14 @@ namespace Pacs.Calls.Service
 		public static IHostBuilder CreateHostBuilder(string[] args)
 		{
 			return Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
-						.AddLogging(logging =>
-						{
-							logging.ClearProviders();
-							logging.AddNLog();
-							logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
-						})
-						.AddMappingAssemblies(
-							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
-						)
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
