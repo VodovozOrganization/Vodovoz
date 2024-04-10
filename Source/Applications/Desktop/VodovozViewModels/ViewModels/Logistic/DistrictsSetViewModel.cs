@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.Logistic
 			? SelectedDistrict.GetScheduleRestrictionCollectionByWeekDayName(SelectedWeekDayName.Value)
 			: null;
 
-		public GenericObservableList<CommonDistrictRuleItem> CommonDistrictRuleItems => SelectedDistrict.ObservableCommonDistrictRuleItems;
+		public GenericObservableList<CommonDistrictRuleItem> CommonDistrictRuleItems => SelectedDistrict.CommonDistrictRuleItems;
 
 		public GenericObservableList<WeekDayDistrictRuleItem> WeekDayDistrictRuleItems => SelectedWeekDayName.HasValue && SelectedDistrict != null
 			? SelectedDistrict.GetWeekDayRuleItemCollectionByWeekDayName(SelectedWeekDayName.Value)
