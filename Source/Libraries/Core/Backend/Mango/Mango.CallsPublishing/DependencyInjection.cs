@@ -1,5 +1,4 @@
-﻿using Mango.Core.Handlers;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Authentication;
 using Vodovoz.Settings.Pacs;
@@ -10,8 +9,6 @@ namespace Mango.CallsPublishing
 	{
 		public static IServiceCollection AddCallsPublishing(this IServiceCollection services)
 		{
-			services.AddScoped<ICallEventHandler, PublisherCallEventHandler>();
-
 			services.AddMassTransit(busCfg =>
 			{
 				busCfg.UsingRabbitMq((context, rabbitCfg) =>
@@ -29,7 +26,7 @@ namespace Mango.CallsPublishing
 						}
 					);
 
-					rabbitCfg.AddMangoProducerTopology(context);
+					rabbitCfg.AddMangoTopology(context);
 					rabbitCfg.ConfigureEndpoints(context);
 				});
 			});

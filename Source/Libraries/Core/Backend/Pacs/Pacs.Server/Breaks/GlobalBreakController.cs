@@ -15,13 +15,13 @@ namespace Pacs.Server.Breaks
 		private List<OperatorState> _onBreak = new List<OperatorState>();
 
 		internal event EventHandler<SettingsChangedEventArgs> SettingsChanged;
-		public GlobalBreakAvailability BreakAvailability { get; private set; }
+		public GlobalBreakAvailabilityEvent BreakAvailability { get; private set; }
 
 		public GlobalBreakController(IPacsRepository pacsRepository, IBreakAvailabilityNotifier breakAvailabilityNotifier)
 		{
 			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
 			_breakAvailabilityNotifier = breakAvailabilityNotifier ?? throw new ArgumentNullException(nameof(breakAvailabilityNotifier));
-			BreakAvailability = new GlobalBreakAvailability();
+			BreakAvailability = new GlobalBreakAvailabilityEvent();
 			_actualSettings = _pacsRepository.GetPacsDomainSettings();
 			UpdateBreakAvailability();
 		}
@@ -53,7 +53,7 @@ namespace Pacs.Server.Breaks
 			var longBreakAvailable = ValidateLongBreakMaxOperatorsRestriction(operatorsOnBreak, currentSettings);
 			var shortBreakAvailable = ValidateShortBreakMaxOperatorsRestriction(operatorsOnBreak, currentSettings);
 
-			var globalBreakAvailable = new GlobalBreakAvailability();
+			var globalBreakAvailable = new GlobalBreakAvailabilityEvent();
 			if(!longBreakAvailable)
 			{
 				globalBreakAvailable.LongBreakAvailable = false;

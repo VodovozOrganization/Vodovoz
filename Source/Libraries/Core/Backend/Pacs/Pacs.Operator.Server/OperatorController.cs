@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
 using Pacs.Server.Operators;
 using System;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
 
 namespace Pacs.Operators.Server
 {
 	[ApiController]
 	[Route("pacs/operator")]
+	[Authorize]
 	public class OperatorController : ControllerBase
 	{
 		private readonly ILogger<OperatorController> _logger;
@@ -20,7 +22,8 @@ namespace Pacs.Operators.Server
 			_controllerProvider = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));
 		}
 
-		[HttpPost("connect")]
+		[HttpPost]
+		[Route("connect")]
 		public async Task<OperatorResult> Connect([FromBody] Connect command)
 		{
 			_logger.LogTrace("Подключение оператора {OperatorId}", command.OperatorId);
@@ -29,7 +32,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("disconnect")]
+		[HttpPost]
+		[Route("disconnect")]
 		public async Task<OperatorResult> Disconnect([FromBody] Disconnect command)
 		{
 			_logger.LogTrace("Отключение оператора {OperatorId}", command.OperatorId);
@@ -39,7 +43,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("keep_alive")]
+		[HttpPost]
+		[Route("keep_alive")]
 		public async Task KeepAlive([FromBody] KeepAlive command)
 		{
 			_logger.LogTrace("Поддержание подключения оператора {OperatorId}", command.OperatorId);
@@ -47,7 +52,8 @@ namespace Pacs.Operators.Server
 			await controller.KeepAlive();
 		}
 
-		[HttpPost("startworkshift")]
+		[HttpPost]
+		[Route("startworkshift")]
 		public async Task<OperatorResult> StartWorkShift([FromBody] StartWorkShift command)
 		{
 			_logger.LogTrace("Начало смены оператора {OperatorId}", command.OperatorId);
@@ -57,7 +63,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("endworkshift")]
+		[HttpPost]
+		[Route("endworkshift")]
 		public async Task<OperatorResult> EndWorkShift([FromBody] EndWorkShift command)
 		{
 			_logger.LogTrace("Завершение смены оператора {OperatorId}", command.OperatorId);
@@ -67,7 +74,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("changephone")]
+		[HttpPost]
+		[Route("changephone")]
 		public async Task<OperatorResult> ChangePhone([FromBody] ChangePhone command)
 		{
 			_logger.LogTrace("Смена телефона оператора {OperatorId} на  {Phone}", command.OperatorId, command.PhoneNumber);
@@ -77,7 +85,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("startbreak")]
+		[HttpPost]
+		[Route("startbreak")]
 		public async Task<OperatorResult> StartBreak([FromBody] StartBreak command)
 		{
 			_logger.LogTrace("Начало {BreakType} перерыва оператора {OperatorId}", command.BreakType, command.OperatorId);
@@ -87,7 +96,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("endbreak")]
+		[HttpPost]
+		[Route("endbreak")]
 		public async Task<OperatorResult> EndBreak([FromBody] EndBreak command)
 		{
 			_logger.LogTrace("Завершение перерыва оператора {OperatorId}", command.OperatorId);

@@ -2,11 +2,12 @@
 using MassTransit;
 using Pacs.MangoCalls.Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pacs.MangoCalls.Consumers
 {
-	public class MangoCallEventConsumer : IConsumer<MangoCallEvent>
+	public class MangoCallEventConsumer : IConsumer<Batch<MangoCallEvent>>
 	{
 		private readonly ICallEventRegistrar _callEventRegistrar;
 
@@ -15,11 +16,10 @@ namespace Pacs.MangoCalls.Consumers
 			_callEventRegistrar = callEventRegistrar ?? throw new ArgumentNullException(nameof(callEventRegistrar));
 		}
 
-		public async Task Consume(ConsumeContext<MangoCallEvent> context)
+		public async Task Consume(ConsumeContext<Batch<MangoCallEvent>> context)
 		{
-			var callEvent = context.Message;
-			await _callEventRegistrar.RegisterCallEvent(callEvent);
-			return;
+			var messages = context.Message.Select(x => x.Message);
+			await _callEventRegistrar.RegisterCallEvents(messages);
 		}
 	}
 }
