@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace FuelControl.Contracts.Requests
 {
@@ -25,11 +24,5 @@ namespace FuelControl.Contracts.Requests
 		/// </summary>
 		[Required]
 		public string ApiKey { get; set; }
-
-		/// <summary>
-		/// Адрес API сервера
-		/// </summary>
-		[Required]
-		public string BaseAddress { get; set; }
 	}
 }

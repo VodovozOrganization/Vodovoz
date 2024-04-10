@@ -17,11 +17,14 @@ namespace Vodovoz.Settings.Database.Fuel
 		public string ApiBaseAddress =>
 			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(ApiBaseAddress)}");
 
-		public string ApiSessionLifetimeDays =>
-			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(ApiSessionLifetimeDays)}");
+		public TimeSpan ApiSessionLifetime =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}{nameof(ApiSessionLifetime)}");
 
 		public TimeSpan ApiRequesTimeout =>
-			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}{nameof(ApiSessionLifetimeDays)}");
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}{nameof(ApiRequesTimeout)}");
+
+		public int TransactionsPerQueryLimit =>
+			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(TransactionsPerQueryLimit)}");
 
 		public string OrganizationContractId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(OrganizationContractId)}");

@@ -7,58 +7,24 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;
+using Vodovoz.Settings.Fuel;
 
 namespace FuelControl.Library.Services
 {
 	public class GazpromFuelTransactionsDataService : IFuelTransactionsDataService
 	{
 		private readonly TransactionConverter _transactionConverter;
+		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromFuelTransactionsDataService(TransactionConverter transactionConverter)
+		public GazpromFuelTransactionsDataService(TransactionConverter transactionConverter, IFuelControlSettings fuelControlSettings)
 		{
 			_transactionConverter = transactionConverter ?? throw new System.ArgumentNullException(nameof(transactionConverter));
-		}
-
-		public async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPreviousDay(
-			string sessionId,
-			string baseAddressString,
-			string apiKey,
-			string contractId)
-		{
-			var date = DateTime.Today.AddDays(-1);
-
-			return await GetFuelTransactionsForPeriod(sessionId, baseAddressString, apiKey, contractId, date, date);
-		}
-
-		public async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPreviousMonth(
-			string sessionId,
-			string baseAddressString,
-			string apiKey,
-			string contractId)
-		{
-			var previousMonth = DateTime.Today.AddMonths(-1);
-
-			var startDate = new DateTime(previousMonth.Year, previousMonth.Month, 1);
-			var endDate = startDate.AddMonths(1).AddDays(-1);
-
-			return await GetFuelTransactionsForPeriod(sessionId, baseAddressString, apiKey, contractId, startDate, endDate);
-		}
-
-		public async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForDate(
-			string sessionId,
-			string baseAddressString,
-			string apiKey,
-			string contractId,
-			DateTime date)
-		{
-			return new List<FuelTransaction>();
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
 		public async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPeriod(
 			string sessionId,
-			string baseAddressString,
 			string apiKey,
-			string contractId,
 			DateTime startDate,
 			DateTime endDate)
 		{
@@ -74,14 +40,14 @@ namespace FuelControl.Library.Services
 
 			try
 			{
-				var baseAddress = new Uri(baseAddressString);
+				var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
 				var transactionList = new List<FuelTransaction>();
 
 				using(var httpClient = new HttpClient { BaseAddress = baseAddress })
 				{
 					httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
 					httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
-					httpClient.DefaultRequestHeaders.Add("contract_id", contractId);
+					httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
 					var response = await httpClient.GetAsync($"vip/v2/transactions?date_from={formatedStartDate}&date_to={formatedEndDate}");
 					var responseString = await response.Content.ReadAsStringAsync();

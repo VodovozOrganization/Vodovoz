@@ -6,24 +6,28 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Fuel;
 
 namespace DatabaseServiceWorker
 {
 	public class FuelTransactionsControlWorker : TimerBackgroundServiceBase
 	{
 		private string _sessionId;
-		private DateTime? _authorizationDate;
+		private DateTime? _sessionExpirationDate;
+
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<FuelTransactionsControlOptions> _options;
 		private readonly ILogger<FuelTransactionsControlWorker> _logger;
 		private readonly IFuelManagmentAuthorizationService _authorizationService;
 		private readonly IFuelTransactionsDataService _fuelTransactionsDataService;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly IFuelControlSettings _fuelControlSettings;
 
 		public FuelTransactionsControlWorker(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -31,7 +35,8 @@ namespace DatabaseServiceWorker
 			ILogger<FuelTransactionsControlWorker> logger,
 			IFuelManagmentAuthorizationService authorizationService,
 			IFuelTransactionsDataService fuelTransactionsDataService,
-			IFuelRepository fuelRepository)
+			IFuelRepository fuelRepository,
+			IFuelControlSettings fuelControlSettings)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -39,17 +44,21 @@ namespace DatabaseServiceWorker
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			_fuelTransactionsDataService = fuelTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelTransactionsDataService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-
-			Interval = _options.Value.ScanInterval;
-			_authorizationDate = DateTime.Today;
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		protected override TimeSpan Interval { get; }
+		protected override TimeSpan Interval
+		{
+			get
+			{
+				return _options.Value.ScanInterval;
+			}
+		}
 
 		private bool IsAuthorized =>
 			!string.IsNullOrWhiteSpace(_sessionId)
-			&& _authorizationDate.HasValue
-			&& DateTime.Now < _authorizationDate.Value.AddDays(_options.Value.SessionLifetimeInDays);
+			&& _sessionExpirationDate.HasValue
+			&& DateTime.Now < _sessionExpirationDate.Value;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
@@ -57,20 +66,31 @@ namespace DatabaseServiceWorker
 
 			if(!IsYesterdayTransactionsAreSaved(uow))
 			{
-				await GetAndSaveFuelTransactionsForPreviousDay(uow);
+				await GetAndSaveFuelTransactionsByDay(uow);
 			}
 
 		}
 
-		private async Task GetAndSaveFuelTransactionsForPreviousDay(IUnitOfWork uow)
+		private async Task GetAndSaveFuelTransactionsByDay(IUnitOfWork uow)
 		{
 			try
 			{
 				await Login();
 
-				var transactions = await GetFuelTransactionsForPreviousDay();
+				var transactionsCount = 0;
 
-				await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+				var pageLimit = _fuelControlSettings.TransactionsPerQueryLimit;
+				var pageOffset = 0;
+
+				do
+				{
+					var transactions = await GetFuelTransactionsByDay(pageLimit, pageOffset);
+					transactionsCount = transactions.Count();
+					pageOffset++;
+
+					await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+				}
+				while(transactionsCount == pageLimit);
 			}
 			catch(Exception ex)
 			{
@@ -84,9 +104,21 @@ namespace DatabaseServiceWorker
 			{
 				await Login();
 
-				var transactions = await GetFuelTransactionsForPreviousMonth();
+				var transactionsCount = 0;
 
-				await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+				var pageLimit = _fuelControlSettings.TransactionsPerQueryLimit;
+				var pageOffset = 0;
+
+				do
+				{
+					var transactions = await GetFuelTransactionsByDayMonth(pageLimit, pageOffset);
+					transactionsCount = transactions.Count();
+					pageOffset++;
+
+					await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+				}
+				while(transactionsCount == pageLimit);
+
 			}
 			catch(Exception ex)
 			{
@@ -107,12 +139,12 @@ namespace DatabaseServiceWorker
 			_logger.LogDebug("Для запроса транзакций топлива необходимо авторизоваться");
 
 			_sessionId = null;
-			_authorizationDate = null;
+			_sessionExpirationDate = null;
 
 			var sessionId = await _authorizationService.Login(CreateAuthorizationRequestObject());
 
 			_sessionId = sessionId;
-			_authorizationDate = DateTime.Today;
+			_sessionExpirationDate = DateTime.Today.AddMinutes(_fuelControlSettings.ApiSessionLifetime.TotalMinutes);
 		}
 
 		private AuthorizationRequest CreateAuthorizationRequestObject()
@@ -121,27 +153,47 @@ namespace DatabaseServiceWorker
 			{
 				Login = _options.Value.Login,
 				Password = _options.Value.Password,
-				ApiKey = _options.Value.ApiKey,
-				BaseAddress = _options.Value.BaseAddress
+				ApiKey = _options.Value.ApiKey
 			};
 		}
 
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPreviousDay()
+		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDay(int pageLimit, int pageOffset)
 		{
-			return await _fuelTransactionsDataService.GetFuelTransactionsForPreviousDay(
-				_sessionId,
-				_options.Value.BaseAddress,
-				_options.Value.ApiKey,
-				_options.Value.OrganizationContractId);
+			var startDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate.Date;
+			var endDate = DateTime.Today.AddDays(-1);
+
+			if(startDate >= endDate)
+			{
+				return Enumerable.Empty<FuelTransaction>();
+			}
+
+			return await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
 		}
 
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPreviousMonth()
+		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDayMonth(int pageLimit, int pageOffset)
 		{
-			return await _fuelTransactionsDataService.GetFuelTransactionsForPreviousMonth(
+			var dayMonthAgo = DateTime.Today.AddMonths(-1);
+
+			var monthStartDate = new DateTime(dayMonthAgo.Year, dayMonthAgo.Month, 1);
+			var monthEndDate = monthStartDate.AddMonths(1).AddDays(-1);
+
+			if(monthEndDate >= _fuelControlSettings.FuelTransactionsPerMonthLastUpdateDate.Date)
+			{
+				return Enumerable.Empty<FuelTransaction>();
+			}
+
+			return await GetFuelTransactions(monthStartDate, monthEndDate, pageLimit, pageOffset);
+		}
+
+		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactions(DateTime startDate, DateTime endDate, int pageLimit, int pageOffset)
+		{
+			return await _fuelTransactionsDataService.GetFuelTransactionsForPeriod(
 				_sessionId,
-				_options.Value.BaseAddress,
 				_options.Value.ApiKey,
-				_options.Value.OrganizationContractId);
+				startDate,
+				endDate,
+				pageLimit,
+				pageOffset);
 		}
 	}
 }

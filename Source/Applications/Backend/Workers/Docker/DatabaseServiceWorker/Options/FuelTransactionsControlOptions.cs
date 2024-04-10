@@ -10,11 +10,6 @@ namespace DatabaseServiceWorker.Options
 		public TimeSpan ScanInterval { get; set; }
 
 		/// <summary>
-		/// Время жизни сессии после авторизации
-		/// </summary>
-		public int SessionLifetimeInDays { get; set; }
-
-		/// <summary>
 		/// Логин пользователя
 		/// </summary>
 		public string Login { get; set; }
@@ -28,15 +23,5 @@ namespace DatabaseServiceWorker.Options
 		/// Ключ API пользователя
 		/// </summary>
 		public string ApiKey { get; set; }
-
-		/// <summary>
-		/// Id контракта организации на которую оформлены карты
-		/// </summary>
-		public string OrganizationContractId { get; set; }
-
-		/// <summary>
-		/// Адрес API сервера
-		/// </summary>
-		public string BaseAddress { get; set; }
 	}
 }

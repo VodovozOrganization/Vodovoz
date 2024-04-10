@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Vodovoz.Settings.Fuel;
 
 namespace FuelControl.Library.Services
 {
@@ -16,16 +17,18 @@ namespace FuelControl.Library.Services
 		private const string _authorizationEndpointAddress = "vip/v1/authUser";
 
 		private readonly ILogger<GazpromAuthorizationService> _logger;
+		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromAuthorizationService(ILogger<GazpromAuthorizationService> logger)
+		public GazpromAuthorizationService(ILogger<GazpromAuthorizationService> logger, IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
 		public async Task<string> Login(AuthorizationRequest authorizationRequest)
 		{
 
-			var baseAddress = CreateBaseAddressUri(authorizationRequest);
+			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
 			var httpContent = CreateHttpContent(authorizationRequest);
 
 			_logger.LogDebug("Выполняется запрос авторизации пользователя {UserLogin} с паролем {UserPassword} ключ API {ApiKey}",
@@ -48,7 +51,7 @@ namespace FuelControl.Library.Services
 						var errorMessage =
 							responseData.Status.Errors != null && responseData.Status.Errors.Count() > 0
 							? string.Join("; ", responseData.Status.Errors.Select(e => e.Message).ToArray())
-							: string.Empty;
+							: "Неизвестная ошибка";
 
 						throw new FuelControlAuthorizationException($"Ошибка выполнения запроса авторизации: {errorMessage}");
 					}
@@ -68,18 +71,13 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		private Uri CreateBaseAddressUri(AuthorizationRequest authorizationRequest)
-		{
-			return new Uri(authorizationRequest.BaseAddress);
-		}
-
 		private HttpContent CreateHttpContent(AuthorizationRequest authorizationRequest)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("login", authorizationRequest.Login),
-					new KeyValuePair<string, string>("password", authorizationRequest.Password)
-				};
+			{
+				new KeyValuePair<string, string>("login", authorizationRequest.Login),
+				new KeyValuePair<string, string>("password", authorizationRequest.Password)
+			};
 
 			var content = new FormUrlEncodedContent(requestData);
 			content.Headers.Add("api_key", authorizationRequest.ApiKey);
