@@ -65,14 +65,22 @@ namespace DatabaseServiceWorker
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сохранение транзакций топлива");
 
-			if(!IsYesterdayTransactionsAreSaved(uow))
-			{
-				await GetAndSaveFuelTransactionsByDay(uow);
-			}
+			await DailyFuelTransactionsUpdate(uow);
 
+			await MonthlyFuelTransactionsUpdate(uow);
 		}
 
-		private async Task GetAndSaveFuelTransactionsByDay(IUnitOfWork uow)
+		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow)
+		{
+			await GetAndSaveFuelTransactions(uow, GetFuelTransactionsByDays);
+		}
+
+		private async Task MonthlyFuelTransactionsUpdate(IUnitOfWork uow)
+		{
+			await GetAndSaveFuelTransactions(uow, GetFuelTransactionsByMonths);
+		}
+
+		private async Task GetAndSaveFuelTransactions(IUnitOfWork uow, Func<int, int, Task<IEnumerable<FuelTransaction>>> transctionsFunc)
 		{
 			try
 			{
@@ -85,34 +93,7 @@ namespace DatabaseServiceWorker
 
 				do
 				{
-					var transactions = await GetFuelTransactionsByDay(pageLimit, pageOffset);
-					transactionsCount = transactions.Count();
-					pageOffset++;
-
-					await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
-				}
-				while(transactionsCount == pageLimit);
-			}
-			catch(Exception ex)
-			{
-
-			}
-		}
-
-		private async Task GetAndSaveFuelTransactionsByMonth(IUnitOfWork uow)
-		{
-			try
-			{
-				await Login();
-
-				var transactionsCount = 0;
-
-				var pageLimit = _fuelControlSettings.TransactionsPerQueryLimit;
-				var pageOffset = 0;
-
-				do
-				{
-					var transactions = await GetFuelTransactionsByDayMonth(pageLimit, pageOffset);
+					var transactions = await transctionsFunc.Invoke(pageLimit, pageOffset);
 					transactionsCount = transactions.Count();
 					pageOffset++;
 
@@ -126,9 +107,6 @@ namespace DatabaseServiceWorker
 
 			}
 		}
-
-		private bool IsYesterdayTransactionsAreSaved(IUnitOfWork uow) =>
-			_fuelRepository.GetSavedFuelTransactionsMaxDate(uow) < DateTime.Today.AddDays(-1);
 
 		private async Task Login()
 		{
@@ -158,9 +136,9 @@ namespace DatabaseServiceWorker
 			};
 		}
 
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDay(int pageLimit, int pageOffset)
+		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDays(int pageLimit, int pageOffset)
 		{
-			var startDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate.Date;
+			var startDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate.Date.AddDays(1);
 			var endDate = DateTime.Today.AddDays(-1);
 
 			if(startDate >= endDate)
@@ -171,14 +149,14 @@ namespace DatabaseServiceWorker
 			return await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
 		}
 
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDayMonth(int pageLimit, int pageOffset)
+		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByMonths(int pageLimit, int pageOffset)
 		{
 			var transactionsByMonthLastUpdateDate = _fuelControlSettings.FuelTransactionsPerMonthLastUpdateDate;
 
-			var startDate = GeneralUtils.GetMonthStartDateByDate(transactionsByMonthLastUpdateDate);
+			var startDate = GeneralUtils.GetMonthStartDateByDate(transactionsByMonthLastUpdateDate.AddMonths(1));
 			var endDate = GeneralUtils.GetPreviousMonthEndDate();
 
-			if(transactionsByMonthLastUpdateDate >= endDate)
+			if(startDate >= endDate)
 			{
 				return Enumerable.Empty<FuelTransaction>();
 			}
