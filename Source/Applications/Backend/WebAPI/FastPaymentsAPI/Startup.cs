@@ -33,6 +33,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using VodovozHealthCheck;
 using VodovozInfrastructure.Cryptography;
+using Vodovoz.Tools.Orders;
 
 namespace FastPaymentsAPI
 {
@@ -109,7 +110,8 @@ namespace FastPaymentsAPI
 			services.AddScoped<SiteNotifier>();
 			services.AddScoped<MobileAppNotifier>();
 			services.AddScoped<NotificationModel>();
-			
+			services.AddScoped<OrderStateKey>();
+
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();
