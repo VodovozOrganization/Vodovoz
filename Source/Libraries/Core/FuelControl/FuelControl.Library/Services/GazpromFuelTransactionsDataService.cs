@@ -26,7 +26,9 @@ namespace FuelControl.Library.Services
 			string sessionId,
 			string apiKey,
 			DateTime startDate,
-			DateTime endDate)
+			DateTime endDate,
+			int pageLimit = 500,
+			int pageOffset = 0)
 		{
 			var formatedStartDate = startDate.ToString("yyyy-MM-dd");
 			var formatedEndDate = endDate.ToString("yyyy-MM-dd");
@@ -49,7 +51,9 @@ namespace FuelControl.Library.Services
 					httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
 					httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
-					var response = await httpClient.GetAsync($"vip/v2/transactions?date_from={formatedStartDate}&date_to={formatedEndDate}");
+					var response = await httpClient.GetAsync(
+						  $"vip/v2/transactions?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}");
+
 					var responseString = await response.Content.ReadAsStringAsync();
 
 					var responseData = JsonSerializer.Deserialize<TransactionsResponse>(responseString);

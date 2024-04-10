@@ -44,5 +44,35 @@ namespace VodovozInfrastructure.Utils
 
 			return $"{dayOfWeek}";
 		}
+
+		public static DateTime GetMonthStartDateByDate(DateTime date)
+		{
+			var monthStartDate = new DateTime(date.Year, date.Month, 1);
+
+			return monthStartDate;
+		}
+
+		public static DateTime GetMonthEndDateByDate(DateTime date)
+		{
+			var monthStartDate = GetMonthStartDateByDate(date);
+			var monthEndDate = monthStartDate.AddMonths(1).AddDays(-1);
+
+			return monthEndDate;
+		}
+
+		public static DateTime GetPreviousMonthStartDate()
+		{
+			var dayMonthAgo = DateTime.Today.AddMonths(-1);
+
+			return GetMonthStartDateByDate(dayMonthAgo);
+		}
+
+		public static DateTime GetPreviousMonthEndDate()
+		{
+			var dayMonthAgo = DateTime.Today.AddMonths(-1);
+			var monthEndDate = GetMonthEndDateByDate(dayMonthAgo);
+
+			return monthEndDate;
+		}
 	}
 }

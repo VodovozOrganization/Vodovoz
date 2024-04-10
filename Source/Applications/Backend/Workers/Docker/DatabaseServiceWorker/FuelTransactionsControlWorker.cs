@@ -13,6 +13,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Fuel;
+using VodovozInfrastructure.Utils;
 
 namespace DatabaseServiceWorker
 {
@@ -98,7 +99,7 @@ namespace DatabaseServiceWorker
 			}
 		}
 
-		private async Task GetAndSaveFuelTransactionsForPreviousMonth(IUnitOfWork uow)
+		private async Task GetAndSaveFuelTransactionsByMonth(IUnitOfWork uow)
 		{
 			try
 			{
@@ -172,17 +173,17 @@ namespace DatabaseServiceWorker
 
 		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDayMonth(int pageLimit, int pageOffset)
 		{
-			var dayMonthAgo = DateTime.Today.AddMonths(-1);
+			var transactionsByMonthLastUpdateDate = _fuelControlSettings.FuelTransactionsPerMonthLastUpdateDate;
 
-			var monthStartDate = new DateTime(dayMonthAgo.Year, dayMonthAgo.Month, 1);
-			var monthEndDate = monthStartDate.AddMonths(1).AddDays(-1);
+			var startDate = GeneralUtils.GetMonthStartDateByDate(transactionsByMonthLastUpdateDate);
+			var endDate = GeneralUtils.GetPreviousMonthEndDate();
 
-			if(monthEndDate >= _fuelControlSettings.FuelTransactionsPerMonthLastUpdateDate.Date)
+			if(transactionsByMonthLastUpdateDate >= endDate)
 			{
 				return Enumerable.Empty<FuelTransaction>();
 			}
 
-			return await GetFuelTransactions(monthStartDate, monthEndDate, pageLimit, pageOffset);
+			return await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
 		}
 
 		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactions(DateTime startDate, DateTime endDate, int pageLimit, int pageOffset)

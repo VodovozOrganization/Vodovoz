@@ -8,9 +8,6 @@ namespace FuelControl.Library.Services
 {
 	public interface IFuelTransactionsDataService
 	{
-		Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPreviousDay(string sessionId, string baseAddressString, string apiKey, string contractId);
-		Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPreviousMonth(string sessionId, string baseAddressString, string apiKey, string contractId);
-		Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForDate(string sessionId, string baseAddressString, string apiKey, string contractId, DateTime date);
-		Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPeriod(string sessionId, string baseAddressString, string apiKey, string contractId, DateTime startDate, DateTime endDate);
+		Task<IEnumerable<FuelTransaction>> GetFuelTransactionsForPeriod(string sessionId, string apiKey, DateTime startDate, DateTime endDate, int pageLimit, int pageOffset);
 	}
 }
