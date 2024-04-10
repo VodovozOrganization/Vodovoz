@@ -387,47 +387,41 @@
       <Query >
         <DataSourceName>DS</DataSourceName>
         <CommandText>SELECT
-	missed_calls.call_id,
-	missed_calls.from_number,
-	missed_calls.appeared_time,
-	missed_calls.disconnected_time,
-	TIMESTAMPDIFF(SECOND, missed_calls.appeared_time, missed_calls.disconnected_time) as waiting,
+	pc.entry_id as call_id,
+	pc.from_number,
+	pc.start_time as appeared_time,
+	pc.end_time as disconnected_time,
+	TIMESTAMPDIFF(SECOND, pc.start_time, pc.end_time) as waiting_exact,
+	(SELECT (IF(waiting_exact &lt; 0, 0, waiting_exact))) AS waiting,
 	pos.operator_id,
 	e.last_name,
 	e.name,
 	e.patronymic,
 	TIMESTAMPDIFF(
 		SECOND, 
-		IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time), 
-		IF(pos.operator_id IS NULL, NULL, (IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)))
+		IF(pos.started &gt;= pc.start_time, pos.started, pc.start_time), 
+		IF(pos.operator_id IS NULL, NULL, (IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= pc.end_time, pc.end_time, pos.ended), pc.end_time)))
 	) as time_to_reaction
-FROM
-	(SELECT 
-		pce2.*, 
-		MAX(IF(pce2.call_state = 'Appeared', pce2.event_time, null)) as appeared_time, 
-		MAX(IF(pce2.call_state = 'Disconnected', pce2.event_time, null)) as disconnected_time
-	FROM pacs_call_events pce2 
-	WHERE pce2.call_id NOT IN (
-			SELECT pce.call_id  FROM pacs_call_events pce
-			WHERE pce.event_time &gt;= @date_from
-				AND pce.event_time &lt;= @date_to
-				AND pce.call_state in ('Connected', 'OnHold')
-			GROUP BY pce.call_id
-		)
-		AND pce2.event_time &gt;= @date_from
-		AND pce2.event_time &lt;= @date_to
-	GROUP BY pce2.call_id) AS missed_calls
-	LEFT JOIN pacs_operator_states pos ON
-		pos.state = 'WaitingForCall'
-		AND pos.started &lt; missed_calls.disconnected_time
-		AND (pos.ended IS NULL OR pos.ended &gt; missed_calls.appeared_time)
-		#время на реакцию
-		AND TIMESTAMPDIFF(
-				SECOND, 
-				IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time), 
-				IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)
-			) &gt;= SEC_TO_TIME(3)
-	LEFT JOIN employees e ON e.id = pos.operator_id
+FROM pacs_calls pc
+INNER JOIN pacs_sub_calls psc ON psc.entry_id = pc.entry_id 
+LEFT JOIN pacs_operator_states pos ON
+	pos.state = 'WaitingForCall'
+	AND pos.started &lt; pc.end_time
+	AND (pos.ended IS NULL OR pos.ended &gt; pc.start_time)
+	#время на реакцию
+	AND TIMESTAMPDIFF(
+		SECOND, 
+		IF(pos.started &gt;= pc.start_time, pos.started, pc.start_time), 
+		IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= pc.end_time, pc.end_time , pos.ended), pc.end_time)
+	) &gt;= SEC_TO_TIME(3)
+LEFT JOIN employees e ON e.id = pos.operator_id
+WHERE 
+	pc.entry_result = 'Missed'
+	AND pc.call_direction = 'Incoming'
+	AND pc.start_time &gt;= @date_from
+	AND pc.end_time  &lt;= @date_to
+	AND psc.to_extension IS NOT NULL
+GROUP BY pc.entry_id, pos.operator_id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date_from">

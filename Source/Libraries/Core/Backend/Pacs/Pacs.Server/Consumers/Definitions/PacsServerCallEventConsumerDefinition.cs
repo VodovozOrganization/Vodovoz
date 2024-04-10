@@ -11,9 +11,7 @@ namespace Pacs.Server.Consumers.Definitions
 		{
 			Endpoint(x =>
 			{
-				var key = SimpleKeyGenerator.GenerateKey(16);
 				x.Name = $"pacs.event.call.consumer-server";
-				x.InstanceId = $"-{key}";
 			});
 		}
 
@@ -28,7 +26,7 @@ namespace Pacs.Server.Consumers.Definitions
 				rmq.Durable = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<CallEvent>();
+				rmq.Bind<PacsCallEvent>();
 			}
 		}
 	}

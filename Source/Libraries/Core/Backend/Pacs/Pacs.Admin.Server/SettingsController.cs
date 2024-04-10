@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Pacs.Admin.Server;
 using QS.DomainModel.UoW;
 using System;
@@ -9,6 +10,7 @@ namespace Mango.Api.Controllers
 {
 	[ApiController]
 	[Route("pacs/settings")]
+	[Authorize]
 	public class SettingsController : ControllerBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -20,7 +22,8 @@ namespace Mango.Api.Controllers
 			_notifier = notifier ?? throw new ArgumentNullException(nameof(notifier));
 		}
 
-		[HttpPost("set")]
+		[HttpPost]
+		[Route("set")]
 		public async Task Set([FromBody] SettingsRequest settingsRequest)
 		{
 			var settings = new DomainSettings
@@ -43,7 +46,8 @@ namespace Mango.Api.Controllers
 			await _notifier.SettingsChanged(settings);
 		}
 
-		[HttpGet("get")]
+		[HttpGet]
+		[Route("get")]
 		public async Task<DomainSettings> Get()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())

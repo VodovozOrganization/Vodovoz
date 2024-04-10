@@ -53,8 +53,7 @@ namespace DatabaseServiceWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(EmployeeWithLoginMap).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddCore()
