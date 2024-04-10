@@ -613,10 +613,10 @@ namespace Vodovoz.Views.Client
 				return;
 			}
 
-			if(ViewModel.Entity.ManualCoordinates
+			if(ViewModel.Entity.CoordinatesExist
 				&& updatedEntrance
 				&& !MessageDialogHelper.RunQuestionDialog(
-					"В точке доставке установлены координаты пользователем\n" +
+					"В точке доставке установлены координаты\n" +
 						"Вы уверены, что хотите обновить координаты, т.к. адрес может быть не найден и они слетят?"))
 			{
 				ViewModel.ResetAddressChanges();

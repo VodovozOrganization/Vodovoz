@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Mango.CallsPublishing\Mango.CallsPublishing.csproj" />
+	  <ProjectReference Include="..\Mango.Core\Mango.Core.csproj" />
+	</ItemGroup>
+
+</Project>

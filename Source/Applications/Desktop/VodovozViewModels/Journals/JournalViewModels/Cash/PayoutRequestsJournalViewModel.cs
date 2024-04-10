@@ -458,9 +458,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			var cashConfig = RegisterEntity(GetCashRequestQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
+					() => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate())?.ViewModel,
 					//функция диалога открытия документа
-					(node) => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id))?.ViewModel,
 					//функция идентификации документа
 					node => node.EntityType == typeof(CashRequest),
 					"Заявка на выдачу наличных Д/С",

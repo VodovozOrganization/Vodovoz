@@ -495,34 +495,41 @@ namespace Vodovoz
 
 		protected override bool BeforeSave()
 		{
-			IsCanClose = false;
-			UoWGeneric.Save();
-
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-
-			UoW.Save(Entity.RouteListProfitability);
-			UoW.Commit();
-
-			var changedList = Items
-				.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
-				.ToList();
-
-			IsCanClose = true;
-
-			if(changedList.Count == 0)
+			try
 			{
-				return true;
+				IsCanClose = false;
+				
+				UoWGeneric.Save();
+
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+
+				UoW.Save(Entity.RouteListProfitability);
+				UoW.Commit();
+
+				var changedList = Items
+					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+					.ToList();
+
+				if(changedList.Count == 0)
+				{
+					return true;
+				}
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+
+				if(currentEmployee == null)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Info,
+						"Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				}
+
+				Entity.CalculateWages(_wageParameterService);
 			}
-
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-
-			if(currentEmployee == null)
+			finally
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Info, "Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				IsCanClose = true;
 			}
-
-			Entity.CalculateWages(_wageParameterService);
-
+			
 			return base.BeforeSave();
 		}
 

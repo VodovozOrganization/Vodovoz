@@ -1,10 +1,11 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Services;
 using QS.Utilities;
 using System;
 using System.Collections.Generic;
@@ -1339,7 +1340,8 @@ namespace Vodovoz.Domain.Client
 			var bottlesRepository = validationContext.GetRequiredService<IBottlesRepository>();
 			var depositRepository = validationContext.GetRequiredService<IDepositRepository>();
 			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
-			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();			
+			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
+			var commonServices = validationContext.GetRequiredService<ICommonServices>();
 
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver))
 			{
@@ -1468,9 +1470,10 @@ namespace Vodovoz.Domain.Client
 				}
 			}
 
-			if(Id == 0 && CameFrom == null)
+			if(CameFrom == null
+				&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanEditClientRefer)))
 			{
-				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
+				yield return new ValidationResult("Необходимо заполнить поле \"Откуда клиент\"");
 			}
 
 			if(CounterpartyType == CounterpartyType.Dealer && string.IsNullOrEmpty(OGRN))
@@ -1616,6 +1619,11 @@ namespace Vodovoz.Domain.Client
 			if(CameFrom != null && Referrer == null && CameFrom.Id == counterpartySettings.ReferFriendPromotionCameFromId)
 			{
 				yield return new ValidationResult("Не выбран клиент, который привёл друга");
+			}
+
+			if(Referrer?.Id == Id)
+			{
+				yield return new ValidationResult("Клиент не мог привести сам себя");
 			}
 
 		}

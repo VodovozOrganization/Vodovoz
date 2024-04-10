@@ -82,6 +82,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			TabName = IsNewEntity ? "Создание новой заявки на выдачу ДС" : $"{Entity.Title}";
 
 			UserRoles = GetUserRoles(CurrentUser.Id);
+
+			if(!UserRoles.Any())
+			{
+				Dispose();
+				throw new AbortCreatingPageException("Нет прав для открытия диалога", "Невозможно открыть");
+			}
+			
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
 
@@ -528,11 +535,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(CheckRole("role_security_service_cash_request", userId))
 			{
 				roles.Add(PayoutRequestUserRole.SecurityService);
-			}
-
-			if(roles.Count == 0)
-			{
-				throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
 			}
 
 			return roles;

@@ -11,18 +11,20 @@ using System.Threading;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Services;
-using CallEventEntity = Vodovoz.Core.Domain.Pacs.CallEvent;
+using Core.Infrastructure;
+using System.Threading.Tasks;
 
 namespace Vodovoz.Application.Pacs
 {
 	public class PacsDashboardModel : PropertyChangedBase, 
 		IObserver<OperatorState>, 
-		IObserver<CallEventEntity>, 
+		IObserver<PacsCallEvent>, 
 		IObserver<SettingsEvent>,
 		IDisposable
 	{
 		private readonly Dictionary<int, OperatorModel> _operatorStatesDic;
 		private readonly Dictionary<string, CallModel> _callsDic;
+		private readonly Dictionary<string, MissedCallModel> _missedCallsDic;
 		private readonly IDisposable _operatorSubscription;
 		private readonly IDisposable _callSubscription;
 		private readonly IDisposable _settingsSubscription;
@@ -30,9 +32,12 @@ namespace Vodovoz.Application.Pacs
 		private readonly IPacsRepository _repository;
 		private readonly AdminClient _adminClient;
 		private readonly ConcurrentQueue<OperatorState> _operatorStatesQueue = new ConcurrentQueue<OperatorState>();
-		private readonly ConcurrentQueue<CallEventEntity> _callEventsQueue = new ConcurrentQueue<CallEventEntity>();
+		private readonly ConcurrentQueue<PacsCallEvent> _callEventsQueue = new ConcurrentQueue<PacsCallEvent>();
 		private Timer _operatorStatesWorker;
 		private Timer _callsWorker;
+		private bool _callWorkerInProgress;
+		private System.Timers.Timer _callsTimer;
+		private CancellationTokenSource _cts;
 
 		private IPacsDomainSettings _settings;
 
@@ -47,7 +52,7 @@ namespace Vodovoz.Application.Pacs
 			OperatorStateAdminConsumer operatorStateAdminConsumer,
 			IObservable<SettingsEvent> settingsPublisher,
 			AdminClient adminClient,
-			IObservable<CallEventEntity> callPublisher)
+			IObservable<PacsCallEvent> callPublisher)
 		{
 			if(operatorStateAdminConsumer is null)
 			{
@@ -64,10 +69,13 @@ namespace Vodovoz.Application.Pacs
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
 			_operatorStatesDic = new Dictionary<int, OperatorModel>();
 			_callsDic = new Dictionary<string, CallModel>();
+			_missedCallsDic = new Dictionary<string, MissedCallModel>();
 			OperatorsOnBreak = new ObservableCollection<OperatorModel>();
 			Operators = new ObservableCollection<OperatorModel>();
 			Calls = new ObservableCollection<CallModel>();
 			MissedCalls = new ObservableCollection<MissedCallModel>();
+
+			_cts = new CancellationTokenSource();
 
 			_settings = _adminClient.GetSettings().Result;
 			_settingsSubscription = settingsPublisher.Subscribe(this);
@@ -103,7 +111,7 @@ namespace Vodovoz.Application.Pacs
 			{
 				while(_callEventsQueue.TryDequeue(out var callEvent))
 				{
-					AddCallState(callEvent);
+					UpdateCall(callEvent.Call);
 				}
 			}, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
 		}
@@ -122,7 +130,7 @@ namespace Vodovoz.Application.Pacs
 			var activeCallsEvents = _repository.GetCalls(from);
 			foreach(var callEvent in activeCallsEvents)
 			{
-				AddCallState(callEvent);
+				UpdateCall(callEvent);
 			}
 		}
 
@@ -161,26 +169,37 @@ namespace Vodovoz.Application.Pacs
 
 		#region IObserver<CallEvent>
 
-		void IObserver<CallEventEntity>.OnCompleted()
+		void IObserver<PacsCallEvent>.OnCompleted()
 		{
 			_callSubscription?.Dispose();
 		}
 
-		void IObserver<CallEventEntity>.OnError(Exception error)
+		void IObserver<PacsCallEvent>.OnError(Exception error)
 		{
 		}
 
-		void IObserver<CallEventEntity>.OnNext(CallEventEntity value)
+		void IObserver<PacsCallEvent>.OnNext(PacsCallEvent value)
 		{
 			_callEventsQueue.Enqueue(value);
 		}
 
-		private void OnCallMissed(object sender, EventArgs e)
+		private void CheckCallMissed(CallModel model)
 		{
-			var model = (CallModel)sender;
+			if(model.Call.EntryResult != CallEntryResult.Missed)
+			{
+				return;
+			}
+
+			if(_missedCallsDic.ContainsKey(model.Call.EntryId))
+			{
+				return;
+			}
+
 			var missedCallModel = new MissedCallModel(model, _operatorStatesDic.Values);
+
 			lock(MissedCalls)
 			{
+				_missedCallsDic.Add(model.Call.EntryId, missedCallModel);
 				MissedCalls.Insert(0, missedCallModel);
 			}
 		}
@@ -207,21 +226,30 @@ namespace Vodovoz.Application.Pacs
 			}
 		}
 
-		private void AddCallState(CallEventEntity callEvent)
+		private void UpdateCall(Call call)
 		{
 			lock(_callsDic)
 			{
-				if(_callsDic.TryGetValue(callEvent.CallId, out var model))
+				if(_callsDic.TryGetValue(call.EntryId, out var model))
 				{
-					model.AddEvent(callEvent);
+					model.UpdateCall(call);
+					CheckCallMissed(model);
 					return;
 				}
 
 				model = new CallModel(_operatorStatesDic.Values);
-				model.CallMissed += OnCallMissed;
-				model.AddEvent(callEvent);
-				_callsDic.Add(callEvent.CallId, model);
-				Calls.Insert(0, model);
+				model.UpdateCall(call);
+				if(!model.IsIncomingCall)
+				{
+					return;
+				}
+
+				_callsDic.Add(call.EntryId, model);
+				lock(Calls)
+				{
+					Calls.Insert(0, model);
+				}
+				CheckCallMissed(model);
 			}
 		}
 
@@ -259,12 +287,15 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
+			_cts.Cancel();
+
 			_operatorSubscription?.Dispose();
 			_callSubscription?.Dispose();
 			_settingsSubscription?.Dispose();
 
 			_operatorStatesWorker?.Dispose();
 			_callsWorker?.Dispose();
+			_callsTimer?.Dispose();
 		}
 	}
 }

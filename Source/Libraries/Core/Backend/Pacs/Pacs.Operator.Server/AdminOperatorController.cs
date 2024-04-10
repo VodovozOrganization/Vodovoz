@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
 using Pacs.Server.Operators;
@@ -9,6 +10,7 @@ namespace Pacs.Operators.Server
 {
 	[ApiController]
 	[Route("pacs/admin/operator")]
+	[Authorize]
 	public class AdminOperatorController
 	{
 		private readonly ILogger<OperatorController> _logger;
@@ -20,7 +22,8 @@ namespace Pacs.Operators.Server
 			_controllerProvider = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));
 		}
 
-		[HttpPost("startbreak")]
+		[HttpPost]
+		[Route("startbreak")]
 		public async Task<OperatorResult> StartBreak([FromBody] AdminStartBreak command)
 		{
 			_logger.LogTrace("Начало {BreakType} перерыва оператора {OperatorId} вызванное командой администратора {AdminId}", 
@@ -31,7 +34,8 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
-		[HttpPost("endbreak")]
+		[HttpPost]
+		[Route("endbreak")]
 		public async Task<OperatorResult> EndBreak([FromBody] AdminEndBreak command)
 		{
 			_logger.LogTrace("Завершение перерыва оператора {OperatorId} вызванное командой администратора {AdminId}",
