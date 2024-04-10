@@ -38,7 +38,7 @@ namespace Vodovoz.Presentation.ViewModels.Reports.PACS
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
 			{ "date_from", DateFrom.ToString("yyyy-MM-dd HH:mm:ss") },
-			{ "date_to", DateTo.ToString("yyyy-MM-dd HH:mm:ss") }
+			{ "date_to", DateTo.Date.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm:ss") }
 		};
 
 		public string Info => "Отчет представляет звонки на которые не ответили операторы. " +

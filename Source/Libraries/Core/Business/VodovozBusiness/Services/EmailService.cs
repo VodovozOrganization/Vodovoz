@@ -19,6 +19,12 @@ namespace Vodovoz.Services
 {
 	public class EmailService : IEmailService
 	{
+		private readonly OrderStateKey _orderStateKey;
+
+		public EmailService(OrderStateKey orderStateKey)
+		{
+			_orderStateKey = orderStateKey ?? throw new ArgumentNullException(nameof(orderStateKey));
+		}
 		public bool NeedSendBillToEmail(IUnitOfWork uow, Order order, IOrderRepository orderRepository, IEmailRepository emailRepository)
 		{
 			var notSendedByEdo = orderRepository.GetEdoContainersByOrderId(uow, order.Id).Count(x => x.Type == Type.Bill) == 0;
@@ -38,11 +44,11 @@ namespace Vodovoz.Services
 		public OrderDocumentType[] GetRequirementDocTypes(Order order)
 		{
 			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств,
-			//по которым будет происходить подбор правила для создания набора документов
-			var key = new OrderStateKey(order);
+			//по которым будет происходить подбор правила для создания набора документов			
+			_orderStateKey.InitializeFields(order);
 
 			//обращение к хранилищу правил для получения массива типов документов по ключу
-			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
+			return OrderDocumentRulesRepository.GetSetOfDocumets(_orderStateKey);
 		}
 
 		public Result SendUpdToEmailOnFinishIfNeeded(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleSettings)

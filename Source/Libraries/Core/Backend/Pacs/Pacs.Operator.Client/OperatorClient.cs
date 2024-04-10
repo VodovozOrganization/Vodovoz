@@ -290,7 +290,7 @@ namespace Pacs.Operators.Client
 			}
 		}
 
-		public async Task<GlobalBreakAvailability> GetGlobalBreakAvailability()
+		public async Task<GlobalBreakAvailabilityEvent> GetGlobalBreakAvailability()
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/pacs/global-break-availability/get";
@@ -301,7 +301,7 @@ namespace Pacs.Operators.Client
 			{
 				var response = await _httpClient.GetAsync(uri);
 				var responseContent = await response.Content.ReadAsStringAsync();
-				var result = JsonSerializer.Deserialize<GlobalBreakAvailability>(responseContent, _jsonSerializerOptions);
+				var result = JsonSerializer.Deserialize<GlobalBreakAvailabilityEvent>(responseContent, _jsonSerializerOptions);
 				return result;
 			}
 			catch(Exception ex)

@@ -1,6 +1,8 @@
 ﻿using Pacs.Server;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
 
 namespace Vodovoz.Core.Data.Repositories
@@ -10,12 +12,13 @@ namespace Vodovoz.Core.Data.Repositories
 		bool PacsEnabledFor(int employeeId);
 		IEnumerable<OperatorState> GetOperators(DateTime from);
 		IEnumerable<OperatorState> GetOnlineOperators();
-		IEnumerable<CallEvent> GetCalls(DateTime from);
-		IEnumerable<CallEvent> GetActiveCalls();
+		IEnumerable<Call> GetCalls(DateTime from);
+		IEnumerable<Call> GetActiveCalls();
 		IEnumerable<string> GetAvailablePhones();
 		DomainSettings GetPacsDomainSettings();
 
 		IEnumerable<OperatorState> GetOperatorsOnBreak(DateTime date);
 		IEnumerable<OperatorState> GetOperatorBreakStates(int operatorId, DateTime date);
+		Task<Call> GetCallByEntryAsync(IUnitOfWork uow, string entryId);
 	}
 }

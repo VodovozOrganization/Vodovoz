@@ -44,6 +44,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
+		private readonly OrderStateKey _orderStateKey;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -60,7 +61,8 @@ namespace Vodovoz.Application.Orders.Services
 			IGenericRepository<DiscountReason> discountReasonRepository,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
-			IOrderDiscountsController orderDiscountsController)
+			IOrderDiscountsController orderDiscountsController,
+			OrderStateKey orderStateKey)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -81,6 +83,7 @@ namespace Vodovoz.Application.Orders.Services
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
+			_orderStateKey = orderStateKey ?? throw new ArgumentNullException(nameof(orderStateKey));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -119,10 +122,10 @@ namespace Vodovoz.Application.Orders.Services
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 
-			var orderKey = new OrderStateKey(order);
+			_orderStateKey.InitializeFields(order);
 
 			var price =
-				district?.GetDeliveryPrice(orderKey, order.ObservableOrderItems
+				district?.GetDeliveryPrice(_orderStateKey, order.ObservableOrderItems
 					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
 				?? 0m;
 
@@ -382,7 +385,7 @@ namespace Vodovoz.Application.Orders.Services
 			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
 
 			var beforeAddItemsCount = order.OrderItems.Count();
-			order.AddWaterForSale(nomenclature, bottlesToAdd);		
+			order.AddNomenclature(nomenclature, bottlesToAdd);		
 			var afterAddItemsCount = order.OrderItems.Count();
 
 			if(afterAddItemsCount == beforeAddItemsCount)

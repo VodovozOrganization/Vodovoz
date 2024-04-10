@@ -63,9 +63,8 @@ public partial class MainWindow : Gtk.Window
 		Build();
 
 		_interativeService = ServicesConfig.CommonServices.InteractiveService;
-		_messageBusControl = _autofacScope.Resolve<IBusControl>();
 		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
-		transportInitializer.Initialize(_messageBusControl);
+		transportInitializer.Initialize();
 
 		var pacsEndpointConnector = _autofacScope.Resolve<PacsEndpointsConnector>();
 		pacsEndpointConnector.ConnectPacsEndpoints();
