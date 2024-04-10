@@ -13,7 +13,7 @@ namespace Pacs.Server.Breaks
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public void NotifyGlobalBreakAvailability(GlobalBreakAvailability breakAvailability)
+		public void NotifyGlobalBreakAvailability(GlobalBreakAvailabilityEvent breakAvailability)
 		{
 			_messageBus.Publish(breakAvailability);
 		}

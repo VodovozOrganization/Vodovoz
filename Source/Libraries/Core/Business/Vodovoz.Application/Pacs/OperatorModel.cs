@@ -123,12 +123,12 @@ namespace Vodovoz.Application.Pacs
 
 		public string GetConnectedCallNumber()
 		{
-			//После реализации загрузки звонков из базы надо поменять на вычисление звонка по CurrentState.CallId
-			if(ConnectedCall?.CurrentState == null)
+			if(ConnectedCall == null)
 			{
 				return "";
 			}
-			return ConnectedCall.CurrentState.FromNumber;
+
+			return ConnectedCall.Call.FromNumber;
 		}
 	}
 }

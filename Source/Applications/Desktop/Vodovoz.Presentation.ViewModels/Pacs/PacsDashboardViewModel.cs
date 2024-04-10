@@ -2,8 +2,10 @@
 using QS.ViewModels;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.Pacs;
@@ -173,7 +175,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				case NotifyCollectionChangedAction.Add:
 					var newItem = (CallModel)e.NewItems[0];
 					var newItemVM = _pacsDashboardViewModelFactory.CreateCallViewModel(newItem);
-					_invocationQueue.Add(() => Calls.Insert(e.NewStartingIndex, newItemVM));
+					_invocationQueue.Add(() =>
+					{
+						if(Calls.Any(x => x.Model.Call.EntryId == newItemVM.Model.Call.EntryId))
+						{
+							return;
+						}
+						Calls.Insert(e.NewStartingIndex, newItemVM);
+					}
+					);
 					break;
 				case NotifyCollectionChangedAction.Remove:
 					_invocationQueue.Add(() => Calls.RemoveAt(e.OldStartingIndex));
