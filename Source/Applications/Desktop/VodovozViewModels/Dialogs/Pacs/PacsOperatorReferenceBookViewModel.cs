@@ -25,6 +25,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private readonly IValidator _validator;
 		private readonly ILifetimeScope _scope;
 		private Employee _operator;
+		private bool _pacsEnabled;
 
 		public PacsOperatorReferenceBookViewModel(
 			IEntityIdentifier entityId,
@@ -58,6 +59,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				.Subscribe(x => Entity.Id = Operator.Id)
 				.DisposeWith(Subscriptions);
 
+			this.WhenAnyValue(x => x.Entity.PacsEnabled)
+				.Subscribe(x => PacsEnabled = x)
+				.DisposeWith(Subscriptions);
+			this.WhenAnyValue(x => x.PacsEnabled)
+				.Subscribe(x => Entity.PacsEnabled = x)
+				.DisposeWith(Subscriptions);
+
 			OperatorEntry = new CommonEEVMBuilderFactory<PacsOperatorReferenceBookViewModel>(this, this, Model.UoW, navigator, _scope)
 				.ForProperty(x => x.Operator)
 				.UseViewModelDialog<EmployeeViewModel>()
@@ -85,6 +93,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			get => _operator;
 			set => this.RaiseAndSetIfChanged(ref _operator, value);
+		}
+
+		public bool PacsEnabled
+		{
+			get => _pacsEnabled;
+			set => this.RaiseAndSetIfChanged(ref _pacsEnabled, value);
 		}
 
 		public override void Save()

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -2061,6 +2061,8 @@ namespace Vodovoz
 							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
 					}
 				}
+
+				Order?.RecalculateItemsPrice();
 			});
 		}
 
@@ -4208,7 +4210,7 @@ namespace Vodovoz
 
 					if(oItem?.CopiedFromUndelivery == null)
 					{
-						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
+						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(true, true) : oItem.Count;
 						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
 												   && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
 												   && oItem.GetWaterFixedPrice() == null;

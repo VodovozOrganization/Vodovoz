@@ -111,6 +111,8 @@ namespace Vodovoz
 
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
+		private readonly bool _canEditClientRefer =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Counterparty.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -379,10 +381,10 @@ namespace Vodovoz
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
-			ConfigureCounterpartyEntityEntry();
+			ConfigureClientReferEntityEntry();
 		}
 
-		private void ConfigureCounterpartyEntityEntry()
+		private void ConfigureClientReferEntityEntry()
 		{
 			var builder = new LegacyEEVMBuilderFactory<Counterparty>(
 				this,
@@ -392,11 +394,11 @@ namespace Vodovoz
 				_lifetimeScope);
 
 
-			entityentryCounterparty.ViewModel = builder.ForProperty(x => x.Referrer)
+			entityentryClientRefer.ViewModel = builder.ForProperty(x => x.Referrer)
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
-			entityentryCounterparty.ViewModel.DisposeViewModel = false;
+			entityentryClientRefer.ViewModel.DisposeViewModel = false;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -431,6 +433,11 @@ namespace Vodovoz
 			if(e.PropertyName == nameof(Entity.IsLiquidating))
 			{
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+			}
+
+			if(e.PropertyName == nameof(Entity.CameFrom) && Entity.CameFrom?.Id != _counterpartySettings.ReferFriendPromotionCameFromId)
+			{
+				Entity.Referrer = null;
 			}
 		}
 
@@ -505,16 +512,21 @@ namespace Vodovoz
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 
-			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
+			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0 || _canEditClientRefer;
 
 			yhboxReferrer.Binding.AddSource(Entity)
-				.AddFuncBinding(e => e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId, w => w.Visible)
-				.AddFuncBinding(e => e.Id == 0 && CanEdit, w => w.Sensitive)
+				.AddFuncBinding(e => 
+						(e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId),
+					w => w.Visible)
+				.AddFuncBinding(e =>
+						(e.Id == 0 && CanEdit)
+						|| _canEditClientRefer,
+					w => w.Sensitive)
 				.InitializeFromSource();
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
-			ySpecCmbCameFrom.Sensitive = Entity.Id == 0 && CanEdit;
+			ySpecCmbCameFrom.Sensitive = (Entity.Id == 0 && CanEdit) || _canEditClientRefer;
 			ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
 				UoW,
 				Entity.CameFrom == null || !Entity.CameFrom.IsArchive
