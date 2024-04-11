@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using QS.DomainModel.UoW;
+using QS.Report;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.RDL.Elements;
-using Vodovoz.Settings.Employee;
+using Vodovoz.ViewModels.Infrastructure;
 
 namespace Vodovoz.Additions
 {
@@ -29,6 +31,47 @@ namespace Vodovoz.Additions
 			_customReportFactory = customReportFactory ?? throw new ArgumentNullException(nameof(customReportFactory));
 			_driverWarehouseEventRepository =
 				driverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(driverWarehouseEventRepository));
+		}
+
+		/// <summary>
+		/// Работает только для погрузочного и разгрузочного талонов
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="documentId">номер документа</param>
+		/// <param name="documentTitle">название документа</param>
+		/// <param name="eventQrDocumentType">тип документа</param>
+		/// <param name="eventNamePosition">расположение Qr кода</param>
+		/// <returns></returns>
+		public ReportInfo AddQrEventForPrintingDocument(
+			IUnitOfWork uow,
+			int documentId,
+			string documentTitle,
+			EventQrDocumentType eventQrDocumentType,
+			EventNamePosition eventNamePosition = EventNamePosition.Bottom)
+		{
+			string rdlPath = null;
+			
+			switch(eventQrDocumentType)
+			{
+				case EventQrDocumentType.CarLoadDocument:
+					rdlPath = CarLoadDocument.DocumentRdlPath;
+					break;
+				case EventQrDocumentType.CarUnloadDocument:
+					rdlPath = CarUnloadDocument.DocumentRdlPath;
+					break;
+				default:
+					throw new InvalidOperationException("Неизвестный тип документа");
+			}
+			
+			AddQrEventForDocument(uow, documentId, eventQrDocumentType, ref rdlPath, eventNamePosition);
+			
+			return new ReportInfo
+			{
+				Title = documentTitle,
+				Path = rdlPath,
+				Parameters = new Dictionary<string, object> { { "id", documentId } },
+				PrintType = ReportInfo.PrintingType.MultiplePrinters
+			};
 		}
 		
 		public bool AddQrEventForDocument(

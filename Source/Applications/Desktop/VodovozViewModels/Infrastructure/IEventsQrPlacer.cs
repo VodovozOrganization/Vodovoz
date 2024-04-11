@@ -1,11 +1,19 @@
 ﻿using QS.DomainModel.UoW;
+using QS.Report;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 
-namespace Vodovoz.Additions
+namespace Vodovoz.ViewModels.Infrastructure
 {
 	public interface IEventsQrPlacer
 	{
+		ReportInfo AddQrEventForPrintingDocument(
+			IUnitOfWork uow,
+			int documentId,
+			string documentTitle,
+			EventQrDocumentType eventQrDocumentType,
+			EventNamePosition eventNamePosition = EventNamePosition.Bottom);
+		
 		bool AddQrEventForDocument(
 			IUnitOfWork uow,
 			int documentId,
