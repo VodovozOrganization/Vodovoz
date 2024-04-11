@@ -413,7 +413,6 @@
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\EventsQrPlacer.cs" />
-    <Compile Include="Additions\IEventsQrPlacer.cs" />
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />

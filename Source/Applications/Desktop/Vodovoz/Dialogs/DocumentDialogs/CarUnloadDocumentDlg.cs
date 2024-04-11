@@ -32,6 +32,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Store;
@@ -584,18 +585,9 @@ namespace Vodovoz
 			{
 				Save();
 			}
-
-			var rdlPath = "Reports/Store/CarUnloadDoc.rdl";
-			_eventsQrPlacer.AddQrEventForDocument(UoW, Entity.Id, EventQrDocumentType.CarUnloadDocument, ref rdlPath);
-
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = Entity.Title,
-				Path = rdlPath,
-				Parameters = new Dictionary<string, object>
-					{
-						{ "id",  Entity.Id }
-					}
-			};
+			
+			var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
+				UoW, Entity.Id, Entity.Title, EventQrDocumentType.CarUnloadDocument);
 
 			TabParent.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),

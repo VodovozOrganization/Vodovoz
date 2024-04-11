@@ -148,6 +148,7 @@ using QS.ViewModels.Control.EEVM;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Tools.Orders;
 using MassTransit;
+using Vodovoz.ViewModels.Infrastructure;
 
 namespace Vodovoz
 {

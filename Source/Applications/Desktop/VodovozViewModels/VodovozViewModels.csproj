@@ -133,6 +133,7 @@
     <Compile Include="Factories\UndeliveryDiscussionsViewModelFactory.cs" />
     <Compile Include="Factories\UndeliveredOrderViewModelFactory.cs" />
     <Compile Include="FuelDocuments\FuelDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\IEventsQrPlacer.cs" />
     <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
     <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
