@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -7,9 +8,11 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
@@ -28,6 +31,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 		private readonly FineFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly CompositeAlgebraicSearchViewModel _compositeAlgebraicSearchViewModel;
+		private readonly IFileDialogService _fileDialogService;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
@@ -37,7 +41,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
-			CompositeAlgebraicSearchViewModel compositeAlgebraicSearchViewModel,
+			CompositeAlgebraicSearchViewModel compositeAlgebraicSearchViewModel,		
+			IFileDialogService fileDialogService,
 			Action<FineFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
@@ -52,7 +57,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			}
 
 			_compositeAlgebraicSearchViewModel = compositeAlgebraicSearchViewModel ?? throw new ArgumentNullException(nameof(compositeAlgebraicSearchViewModel));
-			
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 
@@ -192,6 +197,70 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
 				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			base.CreateNodeActions();
+			CreateXLExportAction();
+		}
+
+		private void CreateXLExportAction()
+		{
+			var xlExportAction = new JournalAction("Экспорт в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					var journalNodes = ItemsQuery(UoW).List<FineJournalNode>();
+
+					var rows = from row in journalNodes
+							   select new
+							   {
+								   row.Id,
+								   row.Date,
+								   row.FinedEmployeesNames,
+								   row.FineSum,
+								   row.FineReason,
+								   row.AuthorName,
+								   row.FinedEmployeesSubdivisions
+							   };
+
+					using(var wb = new XLWorkbook())
+					{
+						var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
+						var ws = wb.Worksheets.Add(sheetName);
+						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Автор штрафа", "Подразделения сотрудников" };
+						var index = 1;
+
+						foreach(var name in columnNames)
+						{
+							ws.Cell(1, index).Value = name;
+							index++;
+						}
+
+						ws.Cell(2, 1).InsertData(rows);
+						ws.Columns().AdjustToContents();
+
+						var extension = ".xlsx";
+						var dialogSettings = new DialogSettings
+						{
+							Title = "Сохранить",
+							FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
+						};
+
+						dialogSettings.FileFilters.Add(new DialogFileFilter("XLSX File (*.xlsx)", $"*{extension}"));
+						var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+						if(result.Successful)
+						{
+							wb.SaveAs(result.Path);
+						}						
+					}
+				}
+			);
+
+			NodeActionsList.Add(xlExportAction);
 		}
 	}
 }
