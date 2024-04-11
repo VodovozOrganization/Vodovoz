@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
+using DatabaseServiceWorker.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
@@ -15,11 +17,20 @@ namespace DatabaseServiceWorker
 		private bool _workInProgress;
 		private readonly ILogger<PowerBIExportWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOptions<PowerBiExportOptions> _options;
+		private readonly string _exportPath;
 
-		public PowerBIExportWorker(ILogger<PowerBIExportWorker> logger, IUnitOfWorkFactory unitOfWorkFactory)
+		public PowerBIExportWorker(
+			ILogger<PowerBIExportWorker> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOptions<PowerBiExportOptions> options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_options = options ?? throw new ArgumentNullException(nameof(options));
+
+			Interval = _options.Value.Interval;
+			_exportPath = _options.Value.ExportPath;
 		}
 
 		protected override void OnStartService()
@@ -42,7 +53,7 @@ namespace DatabaseServiceWorker
 			base.OnStopService();
 		}
 
-		protected override TimeSpan Interval => new TimeSpan(0, 1, 0);
+		protected override TimeSpan Interval { get; }
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
@@ -55,7 +66,10 @@ namespace DatabaseServiceWorker
 
 			try
 			{
-				ExportToExcel(DateTime.Today);
+				if(IsNeedExportToday())
+				{
+					ExportToExcel(DateTime.Today);
+				}
 			}
 			catch(Exception e)
 			{
@@ -70,10 +84,20 @@ namespace DatabaseServiceWorker
 			}
 
 			_logger.LogInformation(
-				"Воркер {WorkerName} ожидает '{DelayInMinutes}' перед следующим запуском", nameof(PowerBIExportWorker),
-				Interval);
+				"Воркер {WorkerName} ожидает '{DelayInMinutes}' перед следующим запуском", nameof(PowerBIExportWorker), Interval);
 
 			await Task.CompletedTask;
+		}
+
+		private bool IsNeedExportToday()
+		{
+			using(var excelWorkbook = new XLWorkbook(_exportPath))
+			{
+				var lastRow = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
+				DateTime lastDateTime;
+				excelWorkbook.Worksheet(1).Row(lastRow).Cell(1).TryGetValue<DateTime>(out lastDateTime);
+				return lastDateTime.Date < DateTime.Now.Date;
+			}
 		}
 
 		private void ExportToExcel(DateTime date)
@@ -84,12 +108,12 @@ namespace DatabaseServiceWorker
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Запрос для PowerBI"))
 			{
-				revenueDay = GetRevenue(uow, date);
+				revenueDay = GetRevenues(uow, date);
 				delivered = GetDelivered(uow, date);
 				undelivered = GetUndelivered(uow, date);
-			}			
+			}
 
-			using(var excelWorkbook = new XLWorkbook(@"d:\_Work\4830\test.xlsx"))
+			using(var excelWorkbook = new XLWorkbook(_exportPath))
 			{
 				AddToGeneralSheet(excelWorkbook.Worksheet(1), date, revenueDay, delivered);
 				AddToUndeliveriesSheet(excelWorkbook.Worksheet(2), date, undelivered);
@@ -106,7 +130,7 @@ namespace DatabaseServiceWorker
 			{
 				var row = sheet.Row(n);
 				row.Cell(1).SetValue(date);
-				row.Cell(2).SetValue(undelivered[n- sheetLastRowNumber].Responsible);
+				row.Cell(2).SetValue(undelivered[n - sheetLastRowNumber].Responsible);
 				row.Cell(3).SetValue(undelivered[n - sheetLastRowNumber].Quantity);
 				row.Cell(4).SetValue(undelivered[n - sheetLastRowNumber].Quantity19);
 			}
@@ -195,7 +219,7 @@ namespace DatabaseServiceWorker
 			return deliveredQuery.UniqueResult<DeliveredDto>();
 		}
 
-		private decimal GetRevenue(IUnitOfWork uow, DateTime date)
+		private decimal GetRevenues(IUnitOfWork uow, DateTime date)
 		{
 
 			var revenueSql = "SELECT SUM(TRUNCATE(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money, 2)) AS revenueDay FROM order_items" +
