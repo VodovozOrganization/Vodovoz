@@ -18,6 +18,7 @@ using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz
 {
@@ -46,6 +47,7 @@ namespace Vodovoz
 			.AddScoped<IDeliveryRepository, DeliveryRepository>()
 			.AddScoped<IEmailService, EmailService>()
 			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
+			.AddScoped<OrderStateKey>()
 			.AddDriverApiHelper();
 
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
