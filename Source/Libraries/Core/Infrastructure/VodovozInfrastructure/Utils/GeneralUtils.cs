@@ -45,21 +45,50 @@ namespace VodovozInfrastructure.Utils
 			return $"{dayOfWeek}";
 		}
 
-		public static DateTime GetMonthStartDateByDate(DateTime date)
+		/// <summary>
+		/// Возвращает дату первого дня текущего месяца
+		/// </summary>
+		/// <returns></returns>
+		public static DateTime GetCurrentMonthStartDate()
 		{
-			var monthStartDate = new DateTime(date.Year, date.Month, 1);
-
-			return monthStartDate;
+			return GetMonthStartDateByDate(DateTime.Today);
 		}
 
-		public static DateTime GetMonthEndDateByDate(DateTime date)
+		/// <summary>
+		/// Возвращает дату последнего дня текущего месяца
+		/// </summary>
+		/// <returns></returns>
+		public static DateTime GetCurrentMonthEndDate()
 		{
-			var monthStartDate = GetMonthStartDateByDate(date);
-			var monthEndDate = monthStartDate.AddMonths(1).AddDays(-1);
-
-			return monthEndDate;
+			return GetMonthEndDateByDate(DateTime.Today);
 		}
 
+		/// <summary>
+		/// Возвращает дату первого дня месяца, следующего за текущим
+		/// </summary>
+		/// <returns></returns>
+		public static DateTime GetNextMonthStartDate()
+		{
+			var dayAfterMonth = DateTime.Today.AddMonths(1);
+
+			return GetMonthStartDateByDate(dayAfterMonth);
+		}
+
+		/// <summary>
+		/// Возвращает дату последнего дня месяца, следующего за текущим
+		/// </summary>
+		/// <returns></returns>
+		public static DateTime GetNextMonthEndDate()
+		{
+			var dayAfterMonth = DateTime.Today.AddMonths(1);
+
+			return GetMonthEndDateByDate(dayAfterMonth);
+		}
+
+		/// <summary>
+		/// Возвращает дату первого дня месяца, который был до текущего
+		/// </summary>
+		/// <returns></returns>
 		public static DateTime GetPreviousMonthStartDate()
 		{
 			var dayMonthAgo = DateTime.Today.AddMonths(-1);
@@ -67,10 +96,38 @@ namespace VodovozInfrastructure.Utils
 			return GetMonthStartDateByDate(dayMonthAgo);
 		}
 
+		/// <summary>
+		/// Возвращает дату последнего дня месяца, который был до текущего
+		/// </summary>
+		/// <returns></returns>
 		public static DateTime GetPreviousMonthEndDate()
 		{
 			var dayMonthAgo = DateTime.Today.AddMonths(-1);
-			var monthEndDate = GetMonthEndDateByDate(dayMonthAgo);
+
+			return GetMonthEndDateByDate(dayMonthAgo);
+		}
+
+		/// <summary>
+		/// Возвращает дату первого дня месяца в который входит указанная дата
+		/// </summary>
+		/// <param name="date">Дата</param>
+		/// <returns></returns>
+		public static DateTime GetMonthStartDateByDate(DateTime date)
+		{
+			var monthStartDate = new DateTime(date.Year, date.Month, 1);
+
+			return monthStartDate;
+		}
+
+		/// <summary>
+		/// Возвращает дату последнего дня месяца в который входит указанная дата
+		/// </summary>
+		/// <param name="date">Дата</param>
+		/// <returns></returns>
+		public static DateTime GetMonthEndDateByDate(DateTime date)
+		{
+			var monthStartDate = GetMonthStartDateByDate(date);
+			var monthEndDate = monthStartDate.AddMonths(1).AddDays(-1);
 
 			return monthEndDate;
 		}
