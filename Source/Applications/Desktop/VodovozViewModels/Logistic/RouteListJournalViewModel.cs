@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DateTimeHelpers;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -48,6 +49,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.ViewModels.Infrastructure;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -55,6 +57,7 @@ namespace Vodovoz.ViewModels.Logistic
 		<RouteList, ITdiTab, RouteListJournalNode, RouteListJournalFilterViewModel>
 	{
 		private readonly IRouteListService _routeListService;
+		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -94,6 +97,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IUserSettingsService userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
+			IEventsQrPlacer eventsQrPlacer,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -110,6 +114,7 @@ namespace Vodovoz.ViewModels.Logistic
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -785,15 +790,9 @@ namespace Vodovoz.ViewModels.Logistic
 						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 							"Водителю необходимо получить терминал на кассе");
 					}
-
-					var reportInfo = new ReportInfo
-					{
-						Title = carLoadDocument.Title,
-						Identifier = "Store.CarLoadDocument",
-						Parameters = new Dictionary<string, object> { { "id", carLoadDocument.Id } },
-						PrintType = ReportInfo.PrintingType.MultiplePrinters
-					};
-
+					
+					var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
+						UoW, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
 					_reportPrinter.Print(reportInfo);
 				}
 				else
