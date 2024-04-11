@@ -62,8 +62,6 @@ namespace DriverAPI
 
 				.AddDriverApiLibrary(configuration)
 
-				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
 				.AddScoped<ICallTaskRepository, CallTaskRepository>()
