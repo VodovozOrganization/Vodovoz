@@ -104,12 +104,17 @@ namespace RoboatsService.Controllers
 		}
 
 		[HttpGet(nameof(GetContactPhoneHasOrdersForDeliveryToday))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetContactPhoneHasOrdersForDeliveryTodayResponse))]
 		public IActionResult GetContactPhoneHasOrdersForDeliveryToday(string counterpartyPhone)
 		{
 			try
 			{
 				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterpartyPhone).FirstOrDefault();
-				return Ok(_roboatsRepository.CounterpartyHasTodayDeliveryOrders(counterpartyId));
+				return Ok(
+					new GetContactPhoneHasOrdersForDeliveryTodayResponse
+					{
+						Status = _roboatsRepository.CounterpartyHasTodayDeliveryOrders(counterpartyId)
+					});
 			}
 			catch(Exception ex)
 			{
