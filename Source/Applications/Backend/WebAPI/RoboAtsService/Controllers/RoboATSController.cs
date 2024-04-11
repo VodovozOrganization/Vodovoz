@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -103,12 +103,12 @@ namespace RoboatsService.Controllers
 			return result;
 		}
 
-		[HttpGet(nameof(GetCounterpartyHasOrdersForDeliveryToday))]
-		public IActionResult GetCounterpartyHasOrdersForDeliveryToday(string counterPartyPhone)
+		[HttpGet(nameof(GetContactPhoneHasOrdersForDeliveryToday))]
+		public IActionResult GetContactPhoneHasOrdersForDeliveryToday(string counterpartyPhone)
 		{
 			try
 			{
-				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterPartyPhone).FirstOrDefault();
+				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterpartyPhone).FirstOrDefault();
 				return Ok(_roboatsRepository.CounterpartyHasTodayDeliveryOrders(counterpartyId));
 			}
 			catch(Exception ex)
@@ -118,16 +118,16 @@ namespace RoboatsService.Controllers
 			}
 		}
 
-		[HttpGet(nameof(GetCourierPhones))]
+		[HttpGet(nameof(GetCourierPhonesByTodayOrderContactPhone))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCourierPhonesResponse))]
-		public IActionResult GetCourierPhones(int orderId)
+		public IActionResult GetCourierPhonesByTodayOrderContactPhone(string counterpartyPhone)
 		{
 			try
 			{
 				var phone = string.Empty;
 
 				_phoneService
-					.GetCourierPhoneNumberForOrder(orderId)
+					.GetCourierPhonesByTodayOrderContactPhone(counterpartyPhone)
 					.Match(
 						phoneNumber => phone = phoneNumber,
 						errors => _logger.LogWarning("Телефон курьера не найден: {@Errors}", errors.Select(e => e.Message)));

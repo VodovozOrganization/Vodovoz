@@ -1,8 +1,10 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Contacts;
@@ -12,7 +14,9 @@ namespace Vodovoz.Application.Contacts
 	internal class PhoneService : IPhoneService
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IGenericRepository<Phone> _phoneRepository;
 		private readonly IGenericRepository<RouteList> _routeListRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly IPhoneSettings _phoneSettings;
 
@@ -20,7 +24,9 @@ namespace Vodovoz.Application.Contacts
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<Employee> employeeRepository,
 			IPhoneSettings phoneSettings,
-			IGenericRepository<RouteList> routeListRepository)
+			IGenericRepository<RouteList> routeListRepository,
+			IGenericRepository<Phone> phoneRepository,
+			IGenericRepository<Order> orderRepository)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -30,6 +36,10 @@ namespace Vodovoz.Application.Contacts
 				?? throw new ArgumentNullException(nameof(phoneSettings));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
+			_phoneRepository = phoneRepository
+				?? throw new ArgumentNullException(nameof(phoneRepository));
+			_orderRepository = orderRepository
+				?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		public string GetCourierDispatcherPhone()
@@ -37,10 +47,36 @@ namespace Vodovoz.Application.Contacts
 			return _phoneSettings.CourierDispatcherPhone;
 		}
 
-		public Result<string> GetCourierPhoneNumberForOrder(int orderId)
+		public Result<string> GetCourierPhonesByTodayOrderContactPhone(string counterpartyPhoneNumber)
 		{
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
 			{
+				var counterpartyPhoneId = _phoneRepository
+					.GetValue(unitOfWork,
+						p => p.Id,
+						p => p.DigitsNumber == counterpartyPhoneNumber
+							&& (p.Counterparty != null
+								|| p.DeliveryPoint != null))
+					.FirstOrDefault();
+
+				if(counterpartyPhoneId == 0)
+				{
+					return Result.Failure<string>(Errors.Contacts.Phone.NotFound);
+				}
+
+				var orderId = _orderRepository
+					.GetValue(
+						unitOfWork,
+						o => o.Id,
+						o => o.ContactPhone.Id == counterpartyPhoneId
+							&& o.OrderStatus == OrderStatus.OnTheWay)
+					.FirstOrDefault();
+
+				if(orderId == 0)
+				{
+					return Result.Failure<string>(Errors.Orders.Order.NotFound);
+				}
+
 				var routeList = _routeListRepository
 					.Get(
 						unitOfWork,
