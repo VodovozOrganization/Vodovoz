@@ -5,6 +5,6 @@ namespace Vodovoz.Application.Contacts
 	public interface IPhoneService
 	{
 		string GetCourierDispatcherPhone();
-		Result<string> GetCourierPhoneNumberForOrder(int orderId);
+		Result<string> GetCourierPhonesByTodayOrderContactPhone(string counterpartyPhoneNumber);
 	}
 }
