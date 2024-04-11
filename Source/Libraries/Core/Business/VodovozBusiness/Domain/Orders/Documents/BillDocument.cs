@@ -27,7 +27,8 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "hide_signature", HideSignature },
 					{ "special", false },
 					{ "special_contract_number", SpecialContractNumber},
-					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
+					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT },
+					{ "hide_delivery_point", Order.Client.HideDeliveryPointForBill }
 				}
 			};
 		}

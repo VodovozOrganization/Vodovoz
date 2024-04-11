@@ -267,8 +267,6 @@ namespace Vodovoz
 
 					builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
 
-					builder.RegisterType<OrderStateKey>().AsSelf();
-
 					builder.RegisterType<RouteListDailyNumberProvider>()
 						.As<IRouteListDailyNumberProvider>();
 					builder.RegisterType<TrueMarkCodesPool>()
