@@ -27,7 +27,6 @@ namespace FuelControl.Library.Services
 
 		public async Task<string> Login(AuthorizationRequest authorizationRequest)
 		{
-
 			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
 			var httpContent = CreateHttpContent(authorizationRequest);
 
