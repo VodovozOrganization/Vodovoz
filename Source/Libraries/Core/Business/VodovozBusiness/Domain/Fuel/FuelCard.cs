@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -53,6 +54,8 @@ namespace Vodovoz.Domain.Fuel
 			get => _isArchived;
 			set => SetField(ref _isArchived, value);
 		}
+
+		public virtual string Title => $"Топливная карта №{CardNumber}";
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
