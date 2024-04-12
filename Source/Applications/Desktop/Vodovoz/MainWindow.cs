@@ -341,8 +341,18 @@ public partial class MainWindow : Gtk.Window
 
 		OpenWikiCommand = new DelegateCommand(OpenWiki);
 		ybuttonWiki.BindCommand(OpenWikiCommand);
+
+		this.KeyPressEvent += OnKeyPressed;
 	}
-	
+
+	private void OnKeyPressed(object o, Gtk.KeyPressEventArgs args)
+	{
+		if(args.Event.Key == Gdk.Key.F1)
+		{
+			OpenWikiCommand.Execute();
+		}
+	}
+
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }
 
