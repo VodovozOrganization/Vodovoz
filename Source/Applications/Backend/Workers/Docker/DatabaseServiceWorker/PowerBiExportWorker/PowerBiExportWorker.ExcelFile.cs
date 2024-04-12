@@ -40,25 +40,15 @@ namespace DatabaseServiceWorker
 			var lastRow = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
 			DateTime lastDateTime;
 			excelWorkbook.Worksheet(1).Row(lastRow).Cell(1).TryGetValue(out lastDateTime);
-			return lastDateTime.Date < DateTime.Now.Date;
-		}
-		private void ClearSheetsData(XLWorkbook excelWorkbook)
-		{
-			var lastRowNumber1 = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
-			excelWorkbook.Worksheet(1).Range($"A2:F{lastRowNumber1}").Clear();
-			var lastRowNumber2 = excelWorkbook.Worksheet(2).LastRowUsed().RowNumber();
-			excelWorkbook.Worksheet(2).Range($"A2:D{lastRowNumber2}").Clear();
+			var yesterday = DateTime.Now.Date.AddDays(-1);
+			return lastDateTime.Date < yesterday;
 		}
 
 		private void ReadDataFromDbAndExportToExcel(IUnitOfWork uow, XLWorkbook excelWorkbook, DateTime date)
 		{
-			decimal revenueDay;
-			DeliveredDto delivered;
-			IList<UndeliveredDto> undelivered;
-
-			revenueDay = GetRevenues(uow, date);
-			delivered = GetDelivered(uow, date);
-			undelivered = GetUndelivered(uow, date);
+			var revenueDay = GetRevenues(uow, date);
+			var delivered = GetDelivered(uow, date);
+			var undelivered = GetUndelivered(uow, date);
 
 			AddToGeneralSheet(excelWorkbook.Worksheet(1), date, revenueDay, delivered);
 			AddToUndeliveriesSheet(excelWorkbook.Worksheet(2), date, undelivered);
@@ -77,6 +67,14 @@ namespace DatabaseServiceWorker
 			writeStream.Write(memStream.ToArray());
 
 			writeStream.Dispose();
+		}
+
+		private void ClearSheetsData(XLWorkbook excelWorkbook)
+		{
+			var lastRowNumber1 = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
+			excelWorkbook.Worksheet(1).Range($"A2:F{lastRowNumber1}").Clear();
+			var lastRowNumber2 = excelWorkbook.Worksheet(2).LastRowUsed().RowNumber();
+			excelWorkbook.Worksheet(2).Range($"A2:D{lastRowNumber2}").Clear();
 		}
 	}
 }
