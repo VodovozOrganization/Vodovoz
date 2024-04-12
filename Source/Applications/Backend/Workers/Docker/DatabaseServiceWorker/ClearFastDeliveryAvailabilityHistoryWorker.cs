@@ -18,6 +18,7 @@ namespace DatabaseServiceWorker
 		private readonly IFastDeliveryAvailabilityHistorySettings _fastDeliveryAvailabilityHistorySettings;
 
 		private bool _workInProgress;
+		private DateTime? _lastClearDate;
 
 		public ClearFastDeliveryAvailabilityHistoryWorker(
 			IOptions<ClearFastDeliveryAvailabilityHistoryOptions> options,
@@ -46,10 +47,22 @@ namespace DatabaseServiceWorker
 
 			try
 			{
+				if(_lastClearDate.HasValue && _lastClearDate >= DateTime.Today)
+				{
+					_logger.LogInformation("Удаление записей истории проверки доступности экспресс-доставки не требуется LastClearDate = '{LastClearDate}' NowDate = '{NowDate}'",
+					_lastClearDate,
+					DateTime.Now.Date);
+
+					return;
+				}
+
 				ClearFastDeliveryAvailabilityHistory();
+				_lastClearDate = DateTime.Today;
 			}
 			catch(Exception e)
 			{
+				_lastClearDate = null;
+
 				_logger.LogError(
 					e,
 					"Ошибка при выполнении очистки истории проверок доставки за час {TodayDate}",
