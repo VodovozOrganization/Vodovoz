@@ -97,6 +97,8 @@ namespace DatabaseServiceWorker
 			{
 				if(IsNeedExportToday(excelWorkbook))
 				{
+					ClearSheetsData(excelWorkbook);
+
 					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PowerBiExportWorker)))
 					{
 						for(DateTime date = _options.Value.StartDate; date < DateTime.Now.Date; date = date.AddDays(1))
@@ -104,10 +106,11 @@ namespace DatabaseServiceWorker
 							ReadDataFromDbAndExportToExcel(uow, excelWorkbook, date);
 						}
 					}
+
+					excelWorkbook.Save();
+					WriteExcelStreamToFile(file, memStream);
 				}
 			}
-
-			WriteExcelStreamToFile(file, memStream);
 
 			memStream.Dispose();
 		}

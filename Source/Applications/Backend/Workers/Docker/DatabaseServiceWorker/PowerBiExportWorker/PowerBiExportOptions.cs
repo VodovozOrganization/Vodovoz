@@ -7,26 +7,26 @@ namespace DatabaseServiceWorker
 		/// <summary>
 		/// Интервал генерации отчёта
 		/// </summary>
-		internal TimeSpan Interval { get; set; }
+		public TimeSpan Interval { get; set; }
 
 		/// <summary>
 		/// Путь для экспорта отчёта
 		/// </summary>
-		internal string ExportPath { get; set; }
+		public string ExportPath { get; set; }
 
 		/// <summary>
 		/// Начальная дата выборки для отчётов
 		/// </summary>
-		internal DateTime StartDate { get; set; }
+		public DateTime StartDate { get; set; }
 
 		/// <summary>
 		/// Логин для доступа к сетевой папке
 		/// </summary>
-		internal string Login { get; set; }
+		public string Login { get; set; }
 
 		/// <summary>
 		/// Пароль для доступа к сетевой папке
 		/// </summary>
-		internal string Password { get; set; }
+		public string Password { get; set; }
 	}
 }

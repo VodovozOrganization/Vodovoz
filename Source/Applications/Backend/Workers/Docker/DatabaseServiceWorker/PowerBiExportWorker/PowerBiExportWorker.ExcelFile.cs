@@ -42,6 +42,13 @@ namespace DatabaseServiceWorker
 			excelWorkbook.Worksheet(1).Row(lastRow).Cell(1).TryGetValue(out lastDateTime);
 			return lastDateTime.Date < DateTime.Now.Date;
 		}
+		private void ClearSheetsData(XLWorkbook excelWorkbook)
+		{
+			var lastRowNumber1 = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
+			excelWorkbook.Worksheet(1).Range($"A2:F{lastRowNumber1}").Clear();
+			var lastRowNumber2 = excelWorkbook.Worksheet(2).LastRowUsed().RowNumber();
+			excelWorkbook.Worksheet(2).Range($"A2:D{lastRowNumber2}").Clear();
+		}
 
 		private void ReadDataFromDbAndExportToExcel(IUnitOfWork uow, XLWorkbook excelWorkbook, DateTime date)
 		{
@@ -55,8 +62,6 @@ namespace DatabaseServiceWorker
 
 			AddToGeneralSheet(excelWorkbook.Worksheet(1), date, revenueDay, delivered);
 			AddToUndeliveriesSheet(excelWorkbook.Worksheet(2), date, undelivered);
-
-			excelWorkbook.Save();
 		}
 
 		private void WriteExcelStreamToFile(SmbFile file, MemoryStream memStream)
