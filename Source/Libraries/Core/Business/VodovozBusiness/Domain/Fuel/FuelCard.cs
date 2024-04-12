@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,6 +10,11 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Fuel
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "топливные карты",
+		Nominative = "топливная карта")]
+	[EntityPermission]
+	[HistoryTrace]
 	public class FuelCard : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private const int _cardNumberLength = 16;
