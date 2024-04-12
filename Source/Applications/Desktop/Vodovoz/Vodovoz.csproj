@@ -2048,12 +2048,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
     <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
+    <Compile Include="Views\Fuel\FuelCardView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Fuel.FuelCardView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ViewWidgets\GtkUI\" />
+    <Folder Include="Views\Fuel\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
