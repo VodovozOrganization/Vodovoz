@@ -50,10 +50,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		{
 			var query = uow.Session.QueryOver<FuelCard>();
 
-			if(_filterViewModel?.IsExcludeArchived == true)
-			{
-				query.Where(f => !f.IsArchived);
-			}
+			query.Where(f => _filterViewModel.IsShowArchived || !f.IsArchived);
 
 			query.Where(GetSearchCriterion<FuelCard>(
 				x => x.Id,
