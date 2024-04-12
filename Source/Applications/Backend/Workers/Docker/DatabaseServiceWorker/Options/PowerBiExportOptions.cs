@@ -13,5 +13,10 @@ namespace DatabaseServiceWorker.Options
 		/// Путь для экспорта отчёта
 		/// </summary>
 		public string ExportPath { get; set; }
+
+		/// <summary>
+		/// Начальная дата выборки для отчётов
+		/// </summary>
+		public DateTime StardDate { get; set; }
 	}
 }

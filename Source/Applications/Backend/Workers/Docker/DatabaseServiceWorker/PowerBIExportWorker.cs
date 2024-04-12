@@ -18,7 +18,6 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<PowerBIExportWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<PowerBiExportOptions> _options;
-		private readonly string _exportPath;
 
 		public PowerBIExportWorker(
 			ILogger<PowerBIExportWorker> logger,
@@ -29,8 +28,7 @@ namespace DatabaseServiceWorker
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 
-			Interval = _options.Value.Interval;
-			_exportPath = _options.Value.ExportPath;
+			Interval = _options.Value.Interval;			
 		}
 
 		protected override void OnStartService()
@@ -68,7 +66,10 @@ namespace DatabaseServiceWorker
 			{
 				if(IsNeedExportToday())
 				{
-					ExportToExcel(DateTime.Today);
+					for(DateTime date = _options.Value.StardDate; date < DateTime.Now.Date; date = date.AddDays(1))
+					{					
+						ExportToExcel(date);
+					}
 				}
 			}
 			catch(Exception e)
@@ -91,7 +92,7 @@ namespace DatabaseServiceWorker
 
 		private bool IsNeedExportToday()
 		{
-			using(var excelWorkbook = new XLWorkbook(_exportPath))
+			using(var excelWorkbook = new XLWorkbook(_options.Value.ExportPath))
 			{
 				var lastRow = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
 				DateTime lastDateTime;
@@ -112,13 +113,13 @@ namespace DatabaseServiceWorker
 				delivered = GetDelivered(uow, date);
 				undelivered = GetUndelivered(uow, date);
 			}
-
-			using(var excelWorkbook = new XLWorkbook(_exportPath))
+			
+			using(var excelWorkbook = new XLWorkbook(_options.Value.ExportPath))
 			{
 				AddToGeneralSheet(excelWorkbook.Worksheet(1), date, revenueDay, delivered);
 				AddToUndeliveriesSheet(excelWorkbook.Worksheet(2), date, undelivered);
 
-				excelWorkbook.Save();
+				excelWorkbook.Save();				
 			}
 		}
 
@@ -130,7 +131,7 @@ namespace DatabaseServiceWorker
 			{
 				var row = sheet.Row(n);
 				row.Cell(1).SetValue(date);
-				row.Cell(2).SetValue(undelivered[n - sheetLastRowNumber].Responsible);
+				row.Cell(2).SetValue(undelivered[n- sheetLastRowNumber].Responsible);
 				row.Cell(3).SetValue(undelivered[n - sheetLastRowNumber].Quantity);
 				row.Cell(4).SetValue(undelivered[n - sheetLastRowNumber].Quantity19);
 			}
