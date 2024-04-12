@@ -21,6 +21,7 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -1965,9 +1966,11 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(GeographicGroups) });
 			}
 
-			var onlineOrders = Addresses.GroupBy(x => x.Order.OnlineOrder)
-			  .Where(g => g.Key != null && g.Count() > 1)
-			  .Select(o => o.Key);
+			var onlineOrders = Addresses
+				.Where(x => x.Status != RouteListItemStatus.Transfered && x.Order.PaymentType != PaymentType.Terminal)
+				.GroupBy(x => x.Order.OnlineOrder)
+				.Where(g => g.Key != null && g.Count() > 1)
+				.Select(o => o.Key);
 
 			if(onlineOrders.Any())
 			{
