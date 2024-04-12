@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -8,10 +7,12 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Converters;
 using Taxcom.Client.Api.Entity;
 using Taxcom.Client.Api.Entity.DocFlow;
+using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.HealthChecks;
 using Vodovoz.Domain.Client;
@@ -42,10 +43,11 @@ namespace TaxcomEdoApi.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
-		private readonly IConfigurationSection _apiSection;
-		private readonly EdoUpdFactory _edoUpdFactory;
-		private readonly EdoBillFactory _edoBillFactory;
-		private readonly EdoContainerMainDocumentIdParser _edoContainerMainDocumentIdParser;
+		private readonly TaxcomEdoApiOptions _apiOptions;
+		private readonly WarrantOptions _warrantOptions;
+		private readonly IEdoUpdFactory _edoUpdFactory;
+		private readonly IEdoBillFactory _edoBillFactory;
+		private readonly IEdoContainerMainDocumentIdParser _edoContainerMainDocumentIdParser;
 		private readonly X509Certificate2 _certificate;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly TaxcomEdoApiHealthCheck _taxcomEdoApiHealthCheck;
@@ -60,16 +62,16 @@ namespace TaxcomEdoApi.Services
 		public DocumentFlowService(
 			ILogger<DocumentFlowService> logger,
 			TaxcomApi taxcomApi,
-			IConfiguration configuration,
+			IOptions<TaxcomEdoApiOptions> apiOptions,
+			IOptions<WarrantOptions> warrantOptions,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISettingsController settingController,
 			IOrderRepository orderRepository,
-			IGenericRepository<EdoContainer> edoContainersRepository,
 			IOrganizationRepository organizationRepository,
 			IOrganizationSettings organizationSettings,
-			EdoUpdFactory edoUpdFactory,
-			EdoBillFactory edoBillFactory,
-			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
+			IEdoUpdFactory edoUpdFactory,
+			IEdoBillFactory edoBillFactory,
+			IEdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
 			PrintableDocumentSaver printableDocumentSaver,
 			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck,
@@ -90,7 +92,8 @@ namespace TaxcomEdoApi.Services
 			_printableDocumentSaver = printableDocumentSaver;
 			_taxcomEdoApiHealthCheck = taxcomEdoApiHealthCheck ?? throw new ArgumentNullException(nameof(taxcomEdoApiHealthCheck));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
-			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
+			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
+			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -128,7 +131,7 @@ namespace TaxcomEdoApi.Services
 		{
 			try
 			{
-				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
+				var edoAccountId = _apiOptions.EdxClientId;
 				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
 
 				if(organization is null)
@@ -146,7 +149,7 @@ namespace TaxcomEdoApi.Services
 										|| o.OrderStatus != OrderStatus.OnTheWay)
 						.Where(o => o.OrderDocuments.Any(
 							x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)).ToList();
-
+				
 				_logger.LogInformation("Всего заказов для формирования УПД и отправки: {FilteredOrdersCount}", filteredOrders.Count);
 				foreach(var order in filteredOrders)
 				{
@@ -171,14 +174,23 @@ namespace TaxcomEdoApi.Services
 
 						container.Documents.Add(upd);
 						upd.AddCertificateForSign(_certificate.Thumbprint);
-
-						var containerRawData = container.ExportToZip();
+						
+						//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
+						//чтобы отправка шла без прикрепления доверки
+						if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
+						{
+							container.SetWarrantParameters(
+								_warrantOptions.WarrantNumber,
+								organization.INN,
+								_warrantOptions.StartDate,
+								_warrantOptions.EndDate);
+						}
 
 						var edoContainer = new EdoContainer
 						{
 							Type = Type.Upd,
 							Created = DateTime.Now,
-							Container = containerRawData,
+							Container = new byte[64],
 							Order = order,
 							Counterparty = order.Client,
 							MainDocumentId = $"{upd.FileIdentifier}.xml",
@@ -223,7 +235,7 @@ namespace TaxcomEdoApi.Services
 			try
 			{				
 				var startDate = DateTime.Today.AddDays(-3);
-				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
+				var edoAccountId = _apiOptions.EdxClientId;
 				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
 
 				if(organization is null)
