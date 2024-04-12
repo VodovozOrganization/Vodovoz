@@ -1,12 +1,36 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Fuel.FuelCards;
 namespace Vodovoz.Views.Fuel
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FuelCardView : Gtk.Bin
+	public partial class FuelCardView : TabViewBase<FuelCardViewModel>
 	{
-		public FuelCardView()
+		public FuelCardView(FuelCardViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			yentryCardNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.CardNumber, w => w.Text)
+				.InitializeFromSource();
+
+			yentryCardId.IsEditable = false;
+			yentryCardId.Binding
+				.AddBinding(ViewModel.Entity, e => e.CardId, w => w.Text)
+				.InitializeFromSource();
+
+			ycheckbuttonIsArchived.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchived, w => w.Active)
+				.InitializeFromSource();
+
+			ytextviewComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			ybuttonSave.Clicked += (s, e) => ViewModel.SaveCommand.Execute();
+			ybuttonCancel.Clicked += (s, e) => ViewModel.CancelCommand.Execute();
 		}
 	}
 }
