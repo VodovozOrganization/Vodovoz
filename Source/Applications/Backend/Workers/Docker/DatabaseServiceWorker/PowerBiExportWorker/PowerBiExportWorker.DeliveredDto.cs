@@ -1,8 +1,8 @@
 ﻿namespace DatabaseServiceWorker
 {
-	internal partial class PowerBIExportWorker
+	internal partial class PowerBiExportWorker
 	{
-		private class DeliveredDto
+		internal sealed class DeliveredDto
 		{
 			internal long ShipmentDayPlan { get; set; }
 			internal long ShipmentDayFact { get; set; }

@@ -1,8 +1,8 @@
 ﻿namespace DatabaseServiceWorker
 {
-	internal partial class PowerBIExportWorker
+	internal partial class PowerBiExportWorker
 	{
-		private class UndeliveredDto
+		internal sealed class UndeliveredDto
 		{
 			internal string Responsible { get; set; }
 			internal long Quantity { get; set; }
