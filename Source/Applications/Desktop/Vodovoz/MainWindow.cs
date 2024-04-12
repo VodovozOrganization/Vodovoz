@@ -2,6 +2,7 @@
 using MassTransit;
 using NLog;
 using Pacs.Core;
+using QS.Commands;
 using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Services;
@@ -14,6 +15,7 @@ using QSBanks;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Vodovoz;
@@ -334,6 +336,9 @@ public partial class MainWindow : Gtk.Window
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
 
 		InitializeThemesMenuItem();
+
+		OpenWikiCommand = new DelegateCommand(OpenWiki);
+		ybuttonWiki.BindCommand(OpenWikiCommand);
 	}
 	
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
@@ -353,6 +358,13 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	public DelegateCommand OpenWikiCommand { get; }
+
+	private void OpenWiki()
+	{
+		Process.Start(new ProcessStartInfo("https://www.example.com") { UseShellExecute = true });
+	}
 
 	protected override void OnDestroyed()
 	{

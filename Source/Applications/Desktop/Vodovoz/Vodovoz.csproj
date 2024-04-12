@@ -2047,12 +2047,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
     <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
+    <Compile Include="AboutView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
+    <Compile Include="AboutAuthorsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewWidgets\GtkUI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2666,6 +2669,9 @@
     <EmbeddedResource Include="icons\map\points\custom\order_info_cooler.png" />
     <EmbeddedResource Include="icons\map\points\custom\order_info_many.png" />
     <EmbeddedResource Include="icons\map\points\custom\order_info_small_bottles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\buttons\wiki.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
