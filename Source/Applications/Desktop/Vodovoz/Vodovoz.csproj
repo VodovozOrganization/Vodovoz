@@ -2050,6 +2050,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
     <Compile Include="Views\Fuel\FuelCardView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Fuel.FuelCardView.cs" />
+    <Compile Include="Filters\GtkViews\FuelCardJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FuelCardJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
