@@ -28,6 +28,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Tabs;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Mango;
@@ -44,6 +45,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IInteractiveService _interativeService;
 	private readonly IPasswordValidator _passwordValidator;
 	private readonly IApplicationConfigurator _applicationConfigurator;
+	private readonly IWikiSettings _wikiSettings;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
@@ -57,11 +59,11 @@ public partial class MainWindow : Gtk.Window
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
-	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
+	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator, IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
-		
+		_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
 		Build();
 
 		_interativeService = ServicesConfig.CommonServices.InteractiveService;
@@ -363,7 +365,7 @@ public partial class MainWindow : Gtk.Window
 
 	private void OpenWiki()
 	{
-		Process.Start(new ProcessStartInfo("https://www.example.com") { UseShellExecute = true });
+		Process.Start(new ProcessStartInfo(_wikiSettings.Url) { UseShellExecute = true });
 	}
 
 	protected override void OnDestroyed()

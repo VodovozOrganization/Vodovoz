@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels
 {
@@ -18,9 +19,15 @@ namespace Vodovoz.ViewModels
 		public AboutViewModel(
 			INavigationManager navigationManager,
 			IApplicationInfo applicationInfo,
+			IWikiSettings wikiSettings,
 			IProductService productService = null)
 			: base(navigationManager)
 		{
+			if(wikiSettings is null)
+			{
+				throw new ArgumentNullException(nameof(wikiSettings));
+			}
+
 			WindowPosition = QS.Dialog.WindowGravity.None;
 			Resizable = false;
 
@@ -78,7 +85,7 @@ namespace Vodovoz.ViewModels
 				.Reverse()
 				.ToArray();
 
-			WikiWebsite = "http://xwiki.vod.qsolution.ru";
+			WikiWebsite = wikiSettings.Url;
 
 			Website = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyAppWebsiteAttribute>()?.Link;
 
