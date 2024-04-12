@@ -1,12 +1,21 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System;
+using Vodovoz.ViewModels.Fuel.FuelCards;
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FuelCardJournalFilterView : Gtk.Bin
+	public partial class FuelCardJournalFilterView : FilterViewBase<FuelCardJournalFilterViewModel>
 	{
-		public FuelCardJournalFilterView()
+		public FuelCardJournalFilterView(FuelCardJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			ycheckbuttonIsShowArchived.Binding
+				.AddBinding(ViewModel, vm => vm.IsShowArchived, w => w.Active)
+				.InitializeFromSource();
 		}
 	}
 }

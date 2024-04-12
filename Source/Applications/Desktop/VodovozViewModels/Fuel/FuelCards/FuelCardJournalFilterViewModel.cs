@@ -4,12 +4,12 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 {
 	public class FuelCardJournalFilterViewModel : FilterViewModelBase<FuelCardJournalFilterViewModel>
 	{
-		private bool _isExcludeArchived;
+		private bool _isShowArchived;
 
-		public bool IsExcludeArchived
+		public bool IsShowArchived
 		{
-			get => _isExcludeArchived;
-			set => UpdateFilterField(ref _isExcludeArchived, value);
+			get => _isShowArchived;
+			set => UpdateFilterField(ref _isShowArchived, value);
 		}
 	}
 }
