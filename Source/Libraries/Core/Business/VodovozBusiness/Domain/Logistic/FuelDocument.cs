@@ -292,7 +292,7 @@ namespace Vodovoz.Domain.Logistic
 			Fuel = rl.Car.FuelType;
 			LiterCost = rl.Car.FuelType.Cost;
 			RouteList = rl;
-			FuelCardNumber = rl.Car.FuelCardNumber;
+			FuelCardNumber = rl.Car.FuelCard?.CardNumber;
 		}
 
 		#region IValidatableObject implementation

@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic.Cars
@@ -38,6 +39,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _docSeries;
 		private Employee _driver;
 		private string _fuelCardNumber;
+		private FuelCard _fuelCard;
 		private double _fuelConsumption;
 		private FuelType _fuelType;
 		private IList<GeoGroup> _geographicGroups = new List<GeoGroup>();
@@ -257,11 +259,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
-		[Display(Name = "Номер топливной карты")]
-		public virtual string FuelCardNumber
+		[Display(Name = "Топливная карта")]
+		public virtual FuelCard FuelCard
 		{
-			get => _fuelCardNumber;
-			set => SetField(ref _fuelCardNumber, value);
+			get => _fuelCard;
+			set => SetField(ref _fuelCard, value);
 		}
 
 		[Display(Name = "Порядковый номер автомобиля")]

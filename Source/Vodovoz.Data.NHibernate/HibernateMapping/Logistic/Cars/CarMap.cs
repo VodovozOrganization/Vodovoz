@@ -29,7 +29,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.DocNumber).Column("doc_number");
 			Map(x => x.DocIssuedOrg).Column("doc_issued_org");
 			Map(x => x.DocIssuedDate).Column("doc_issued_date");
-			Map(x => x.FuelCardNumber).Column("fuel_card_number");
 			Map(x => x.DocPTSNumber).Column("doc_pts_num");
 			Map(x => x.DocPTSSeries).Column("doc_pts_series");
 			Map(x => x.OrderNumber).Column("car_order_number");
@@ -39,6 +38,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.CarModel).Column("model_id");
+			References(x => x.FuelCard).Column("fuel_card_id");
 
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
