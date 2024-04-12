@@ -40,6 +40,8 @@
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
         <PackageReference Include="Polly" Version="7.2.3" />
         <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
+		<PackageReference Include="MassTransit" Version="8.0.12" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
     </ItemGroup>
 
     <ItemGroup>
@@ -47,7 +49,6 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.CallsPublishing\Mango.CallsPublishing.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Core\Mango.Core.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\MangoClient\Mango.Api.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj" />

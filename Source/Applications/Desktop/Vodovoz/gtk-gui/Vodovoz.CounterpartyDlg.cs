@@ -242,7 +242,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label26;
 
-		private global::QS.Views.Control.EntityEntry entityentryCounterparty;
+		private global::QS.Views.Control.EntityEntry entityentryClientRefer;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelClassificationMain;
 
@@ -1842,11 +1842,11 @@ namespace Vodovoz
 			w115.Expand = false;
 			w115.Fill = false;
 			// Container child yhboxReferrer.Gtk.Box+BoxChild
-			this.entityentryCounterparty = new global::QS.Views.Control.EntityEntry();
-			this.entityentryCounterparty.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryCounterparty.Name = "entityentryCounterparty";
-			this.yhboxReferrer.Add(this.entityentryCounterparty);
-			global::Gtk.Box.BoxChild w116 = ((global::Gtk.Box.BoxChild)(this.yhboxReferrer[this.entityentryCounterparty]));
+			this.entityentryClientRefer = new global::QS.Views.Control.EntityEntry();
+			this.entityentryClientRefer.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryClientRefer.Name = "entityentryClientRefer";
+			this.yhboxReferrer.Add(this.entityentryClientRefer);
+			global::Gtk.Box.BoxChild w116 = ((global::Gtk.Box.BoxChild)(this.yhboxReferrer[this.entityentryClientRefer]));
 			w116.Position = 1;
 			this.table1.Add(this.yhboxReferrer);
 			global::Gtk.Table.TableChild w117 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxReferrer]));

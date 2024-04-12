@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,32 +9,22 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
 	public class OrderStateKey
 	{
+		private readonly IOrderSettings _orderSettings;
+
 		[Display(Name = "Заказ, для которого определяются параметры")]
 		public Order Order { get; set; }
 
-		public OrderStateKey() { }
-
-		public OrderStateKey(Order order)
+		public OrderStateKey(IOrderSettings orderSettings)
 		{
-			Order = order;
-			OrderStatus = Order.OrderStatus;
-			InitializeFields();
-		}
-
-		/// <summary>
-		/// Создает ключ для определенного требуемого статуса
-		/// </summary>
-		public OrderStateKey(Order order, OrderStatus requiredStatus)
-		{
-			Order = order;
-			OrderStatus = requiredStatus;
-			InitializeFields();
+			_orderSettings = orderSettings ?? throw new System.ArgumentNullException(nameof(orderSettings));
 		}
 
 		#region для проверки документов
@@ -106,8 +97,11 @@ namespace Vodovoz.Tools.Orders
 
 		public IEnumerable<OrderEquipment> OnlyEquipments => Order.OrderEquipments.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.equipment);
 
-		void InitializeFields()
+		public void InitializeFields(Order order, OrderStatus? requiredStatus = null)
 		{
+			Order = order;
+			OrderStatus = requiredStatus ?? Order.OrderStatus;
+
 			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			//для документов
 			DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
@@ -140,8 +134,19 @@ namespace Vodovoz.Tools.Orders
 			CalculateAllWaterCount();
 		}
 
+		private void ResetCounts()
+		{
+			DisposableWater19LCount = default;
+			NotDisposableWater19LCount = default;
+			DisposableWater6LCount = default;
+			DisposableWater1500mlCount = default;
+			DisposableWater600mlCount = default;
+			DisposableWater500mlCount = default;
+		}
+
 		private void CalculateAllWaterCount()
 		{
+			ResetCounts();
 			CalculatePromoSetWaterCount();
 			CalculateNotPromoSetWaterCount();
 		}
@@ -169,9 +174,10 @@ namespace Vodovoz.Tools.Orders
 		private void CalculateNotPromoSetWaterCount()
 		{
 			var water = Order.OrderItems.Where(
-				x => x.PromoSet == null &&
-				x.Nomenclature != null &&
-				x.Nomenclature.Category == NomenclatureCategory.water)
+				x => x.PromoSet == null
+				&& x.DiscountReason?.IsPresent != true
+				&& x.Nomenclature != null
+				&& x.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();
 
 			foreach(var item in water)

@@ -11,7 +11,7 @@ namespace Pacs.Operators.Client
 		int? OperatorId { get; }
 
 		event EventHandler<OperatorStateEvent> StateChanged;
-		Task<GlobalBreakAvailability> GetGlobalBreakAvailability();
+		Task<GlobalBreakAvailabilityEvent> GetGlobalBreakAvailability();
 		Task<OperatorsOnBreakEvent> GetOperatorsOnBreak();
 
 		Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default);

@@ -1,8 +1,9 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -18,6 +19,7 @@ using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz
 {
@@ -46,7 +48,10 @@ namespace Vodovoz
 			.AddScoped<IDeliveryRepository, DeliveryRepository>()
 			.AddScoped<IEmailService, EmailService>()
 			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
-			.AddDriverApiHelper();
+			.AddScoped<OrderStateKey>()
+			.AddDriverApiHelper()
+			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+			;
 
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
 			.Configure<PushNotificationSettings>(pushNotificationOptions =>

@@ -17,34 +17,34 @@ namespace Mango.Core.Dto
 		public uint Seq { get; set; }
 
 		[JsonPropertyName("call_state")]
-		public string CallState { get; set; }
+		public MangoCallState CallState { get; set; }
 
 		[JsonPropertyName("location")]
-		public string Location { get; set; }
+		public MangoCallLocation Location { get; set; }
 
 		[JsonPropertyName("from")]
-		public FromCaller From { get; set; }
+		public CallFrom From { get; set; }
 
 		[JsonPropertyName("to")]
-		public ToCaller To { get; set; }
+		public CallTo To { get; set; }
 
 		[JsonPropertyName("disconnect_reason")]
-		public int DisconnectReason { get; set; }
+		public int? DisconnectReason { get; set; }
 
 		[JsonPropertyName("dct")]
 		public Dct Dct { get; set; }
 
+		[JsonPropertyName("transfer")]
+		public MangoCallTransferType? Transfer { get; set; }
+
 		[JsonPropertyName("sip_call_id")]
 		public string SipCallId { get; set; }
-
-		[JsonPropertyName("transfer")]
-		public Transfer Transfer { get; set; }
 
 		[JsonPropertyName("command_id")]
 		public string CommandId { get; set; }
 
 		[JsonPropertyName("task_id")]
-		public string TaskId { get; set; }
+		public int? TaskId { get; set; }
 
 		[JsonPropertyName("callback_initiator")]
 		public string CallbackInitiator { get; set; }

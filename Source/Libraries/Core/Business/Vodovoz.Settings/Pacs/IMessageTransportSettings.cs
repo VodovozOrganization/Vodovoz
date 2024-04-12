@@ -11,5 +11,6 @@ namespace Vodovoz.Settings.Pacs
 		string Password { get; }
 		bool UseSSL { get; }
 		List<MessageTTLSetting> MessagesTimeToLive { get; }
+		bool TestMode { get; }
 	}
 }
