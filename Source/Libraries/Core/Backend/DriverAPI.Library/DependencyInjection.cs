@@ -20,6 +20,7 @@ using Vodovoz.FirebaseCloudMessaging;
 using Microsoft.Extensions.Configuration;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NotificationRecievers;
+using Vodovoz.Core.Domain.Common;
 
 namespace DriverAPI.Library
 {
