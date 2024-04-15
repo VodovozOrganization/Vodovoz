@@ -1,20 +1,21 @@
 ﻿using QS.Views.Dialog;
+using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Pacs;
 namespace Vodovoz.Views.Pacs
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class PacsOperatorReferenceBookView : DialogViewBase<PacsOperatorReferenceBookViewModel>
 	{
 		public PacsOperatorReferenceBookView(PacsOperatorReferenceBookViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
 			entityentryEmployee.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanChangeOperator, w => w.Sensitive)
+				.AddBinding(vm => vm.CanChangeEmployee, w => w.Sensitive)
 				.AddBinding(vm => vm.OperatorEntry, w => w.ViewModel)
 				.InitializeFromSource();
 

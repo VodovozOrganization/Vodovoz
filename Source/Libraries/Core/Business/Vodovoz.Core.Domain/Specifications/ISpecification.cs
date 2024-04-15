@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Specifications
+﻿namespace Vodovoz.Core.Domain.Specifications
 {
 	public interface ISpecification<in T>
 	{

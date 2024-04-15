@@ -4,6 +4,8 @@ using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using ReactiveUI;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Vodovoz.Core.Application.Entity;
@@ -33,12 +35,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			IEmployeeService employeeService,
 			IValidator validator,
 			ILifetimeScope scope,
-			INavigationManager navigator
-		) : base(entityId, entityModelFactory, navigator)
+			INavigationManager navigator)
+			: base(entityId, entityModelFactory, navigator)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+
 			Title = "Оператор";
 
 			this.WhenAnyValue(x => x.Entity.Id)
@@ -46,17 +49,17 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					if(x == 0)
 					{
-						Operator = null;
+						Employee = null;
 					}
 					else
 					{
-						Operator = _employeeService.GetEmployee(Model.UoW, x);
+						Employee = _employeeService.GetEmployee(Model.UoW, x);
 					}
 				})
 				.DisposeWith(Subscriptions);
-			this.WhenAnyValue(x => x.Operator)
+			this.WhenAnyValue(x => x.Employee)
 				.Where(x => x != null)
-				.Subscribe(x => Entity.Id = Operator.Id)
+				.Subscribe(x => Entity.Id = Employee.Id)
 				.DisposeWith(Subscriptions);
 
 			this.WhenAnyValue(x => x.Entity.PacsEnabled)
@@ -67,15 +70,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				.DisposeWith(Subscriptions);
 
 			OperatorEntry = new CommonEEVMBuilderFactory<PacsOperatorReferenceBookViewModel>(this, this, Model.UoW, navigator, _scope)
-				.ForProperty(x => x.Operator)
+				.ForProperty(x => x.Employee)
 				.UseViewModelDialog<EmployeeViewModel>()
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
 					filter =>
 					{
 						filter.RestrictCategory = EmployeeCategory.office;
 						filter.Status = EmployeeStatus.IsWorking;
-					}
-				).Finish();
+					})
+				.Finish();
 
 			WorkShiftEntry = new CommonEEVMBuilderFactory<Operator>(this, Entity, Model.UoW, navigator, _scope)
 				.ForProperty(x => x.WorkShift)
@@ -84,12 +87,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				.Finish();
 		}
 
-		public bool CanChangeOperator => Model.IsNewEntity;
+		public bool CanChangeEmployee => Model.IsNewEntity;
 
 		public IEntityEntryViewModel OperatorEntry { get; }
 		public IEntityEntryViewModel WorkShiftEntry { get; }
 
-		public Employee Operator
+		public Employee Employee
 		{
 			get => _operator;
 			set => this.RaiseAndSetIfChanged(ref _operator, value);
@@ -103,7 +106,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public override void Save()
 		{
-			if(!_validator.Validate(Entity))
+			if(!_validator.Validate(Entity, new ValidationContext(Entity)))
 			{
 				return;
 			}
