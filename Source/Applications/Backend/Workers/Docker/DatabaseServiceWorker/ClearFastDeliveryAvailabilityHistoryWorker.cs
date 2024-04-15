@@ -49,9 +49,9 @@ namespace DatabaseServiceWorker
 			{
 				if(_lastClearDate.HasValue && _lastClearDate >= DateTime.Today)
 				{
-					_logger.LogInformation("Удаление записей истории проверки доступности экспресс-доставки не требуется LastClearDate = '{LastClearDate}' NowDate = '{NowDate}'",
-					_lastClearDate,
-					DateTime.Now.Date);
+					_logger.LogInformation("Удаление записей истории проверки доступности экспресс-доставки не требуется. Дата последней очистки: '{LastClearDate}'. Дата сейчас: '{NowDate}'",
+					_lastClearDate.HasValue ? _lastClearDate.Value.ToString("yyyy-MM-dd") : "Не выполнялось",
+					DateTime.Now.ToString("yyyy-MM-dd"));
 
 					return;
 				}
