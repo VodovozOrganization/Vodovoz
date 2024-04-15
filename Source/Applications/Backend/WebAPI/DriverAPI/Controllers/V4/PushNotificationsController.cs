@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using QS.DomainModel.UoW;
 using System;
+using System.Net.Mime;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
