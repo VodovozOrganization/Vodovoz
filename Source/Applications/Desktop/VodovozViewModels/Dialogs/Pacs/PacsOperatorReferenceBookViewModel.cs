@@ -59,10 +59,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				.DisposeWith(Subscriptions);
 			this.WhenAnyValue(x => x.Employee)
 				.Where(x => x != null)
-				.Subscribe(x =>
-				{
-					Entity.Id = Employee.Id;
-				})
+				.Subscribe(x => Entity.Id = Employee.Id)
 				.DisposeWith(Subscriptions);
 
 			this.WhenAnyValue(x => x.Entity.PacsEnabled)
