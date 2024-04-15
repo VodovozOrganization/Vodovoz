@@ -48,19 +48,22 @@ namespace Vodovoz.Core.Domain.Pacs
 
 			var operatorRepository = validationContext.GetService<IGenericRepository<Operator>>();
 
-			if(operatorRepository.GetValue(unitOfWorkFactory.CreateWithoutRoot("Валидация"), o => o.Id, o => o.Id == Id).Any())
+			using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Валидация"))
 			{
-				yield return new ValidationResult("Оператор уже существует", new[] { nameof(Id) });
-			}
+				if(operatorRepository.GetValue(unitOfWork, o => o.Id, o => o.Id == Id).Any())
+				{
+					yield return new ValidationResult("Оператор уже существует", new[] { nameof(Id) });
+				}
 
-			if(Id == 0)
-			{
-				yield return new ValidationResult("Необходимо выбрать оператора", new[] { nameof(Operator) });
-			}
+				if(Id == 0)
+				{
+					yield return new ValidationResult("Необходимо выбрать оператора", new[] { nameof(Operator) });
+				}
 
-			if(WorkShift == null)
-			{
-				yield return new ValidationResult("Необходимо выбрать смену", new[] { nameof(WorkShift) });
+				if(WorkShift == null)
+				{
+					yield return new ValidationResult("Необходимо выбрать смену", new[] { nameof(WorkShift) });
+				}
 			}
 		}
 	}
