@@ -6,7 +6,7 @@ using Vodovoz.Domain.Organizations;
 
 namespace TaxcomEdoApi.Converters
 {
-	public class ParticipantDocFlowConverter
+	public class ParticipantDocFlowConverter : IParticipantDocFlowConverter
 	{
 		private const string _russiaCode = "643";  //Россия
 		
