@@ -13,7 +13,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 
 			Map(x => x.CardId).Column("card_id");
 			Map(x => x.CardNumber).Column("card_number");
-			Map(x => x.Comment).Column("comment");
 			Map(x => x.IsArchived).Column("is_archived");
 		}
 	}

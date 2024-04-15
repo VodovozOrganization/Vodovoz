@@ -1,4 +1,4 @@
-﻿using QS.Banks.Domain;
+using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
+using Vodovoz.ViewModels.Fuel.FuelCards;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -1056,6 +1057,16 @@ public partial class MainWindow
 	protected void OnActionRegradingOfGoodsReasonsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Топливные карты
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelCardsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FuelCardJournalViewModel>(null);
 	}
 
 	#region События нахождения на складе водителей

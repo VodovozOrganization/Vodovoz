@@ -1,4 +1,4 @@
-﻿using QS.Views.GtkUI;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Fuel.FuelCards;
 namespace Vodovoz.Views.Fuel
 {
@@ -23,10 +23,6 @@ namespace Vodovoz.Views.Fuel
 
 			ycheckbuttonIsArchived.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchived, w => w.Active)
-				.InitializeFromSource();
-
-			ytextviewComment.Binding
-				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			ybuttonSave.Clicked += (s, e) => ViewModel.SaveCommand.Execute();

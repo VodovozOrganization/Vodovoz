@@ -272,14 +272,14 @@ namespace Vodovoz.EntityRepositories.Fuel
 			await uow.CommitAsync();
 		}
 
-		public DateTime GetSavedFuelTransactionsMaxDate(IUnitOfWork uow)
+		public IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId)
 		{
-			var transactionsMaxDate =
-				(from t in uow.Session.Query<FuelTransaction>()
-				 select t.TransactionDate)
-				.Max().Date;
+			return uow.Session.Query<FuelCard>().Where(c => c.CardId == cardId);
+		}
 
-			return transactionsMaxDate;
+		public IEnumerable<FuelCard> GetFuelCardsByCardNumber(IUnitOfWork uow, string cardNumber)
+		{
+			return uow.Session.Query<FuelCard>().Where(c => c.CardNumber == cardNumber);
 		}
 	}
 }

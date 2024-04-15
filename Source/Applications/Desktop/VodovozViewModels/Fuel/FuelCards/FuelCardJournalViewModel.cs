@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
-			Action<FuelCardJournalFilterViewModel> filterConfig)
+			Action<FuelCardJournalFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
@@ -50,12 +50,14 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		{
 			var query = uow.Session.QueryOver<FuelCard>();
 
-			query.Where(f => _filterViewModel.IsShowArchived || !f.IsArchived);
+			if(!_filterViewModel.IsShowArchived)
+			{
+				query.Where(f => !f.IsArchived);
+			}
 
 			query.Where(GetSearchCriterion<FuelCard>(
 				x => x.Id,
-				x => x.CardNumber,
-				x => x.Comment
+				x => x.CardNumber
 			));
 
 			return query;

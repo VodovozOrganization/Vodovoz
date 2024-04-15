@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Fuel;
 
 namespace Vodovoz.Domain.Fuel
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "топливные карты",
-		Nominative = "топливная карта")]
+		Nominative = "топливная карта",
+		Genitive = "топливной карты")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class FuelCard : PropertyChangedBase, IDomainObject, IValidatableObject
@@ -22,7 +24,6 @@ namespace Vodovoz.Domain.Fuel
 
 		private string _cardId;
 		private string _cardNumber;
-		private string _comment;
 		private bool _isArchived;
 
 		public virtual int Id { get; set; }
@@ -41,13 +42,6 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref _cardNumber, value);
 		}
 
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set => SetField(ref _comment, value);
-		}
-
 		[Display(Name = "Архивная")]
 		public virtual bool IsArchived
 		{
@@ -55,7 +49,7 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref _isArchived, value);
 		}
 
-		public virtual string Title => $"Топливная карта №{CardNumber}";
+		public virtual string Title => $"{CardNumber}";
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -82,7 +76,7 @@ namespace Vodovoz.Domain.Fuel
 						new[] { nameof(CardNumber) });
 				}
 
-				if(CardNumber.All(char.IsDigit))
+				if(!CardNumber.All(char.IsDigit))
 				{
 					yield return new ValidationResult(
 						$"Номер карты должен состоять только из цифр",
@@ -90,18 +84,15 @@ namespace Vodovoz.Domain.Fuel
 				}
 			}
 
-			if(Comment?.Length > 500)
-			{
-				yield return new ValidationResult(
-					$"Длина комментария не должна превышать 500 символов",
-					new[] { nameof(Comment) });
-			}
-
 			if(!string.IsNullOrWhiteSpace(CardId) && !string.IsNullOrWhiteSpace(CardNumber))
 			{
-				using(var uow = validationContext.GetService<IUnitOfWork>())
+				var unitOfWorkFactory = validationContext.GetService<IUnitOfWorkFactory>();
+				var fuelRepository = validationContext.GetService<IFuelRepository>();
+
+				using(var uow = unitOfWorkFactory.CreateWithoutRoot("Валидация при сохранении топливной карты"))
 				{
-					var isCardIdDuplicate = uow.Session.Query<FuelCard>().Any(c => c.CardId == CardId);
+					var isCardIdDuplicate =
+						fuelRepository.GetFuelCardsByCardId(uow, CardId).Any(c => c.Id != Id);
 
 					if(isCardIdDuplicate)
 					{
@@ -110,7 +101,8 @@ namespace Vodovoz.Domain.Fuel
 							new[] { nameof(CardId) });
 					}
 
-					var isCardNumberDuplicate = uow.Session.Query<FuelCard>().Any(c => c.CardNumber == CardNumber);
+					var isCardNumberDuplicate = 
+						fuelRepository.GetFuelCardsByCardNumber(uow, CardNumber).Any(c => c.Id != Id);
 
 					if(isCardNumberDuplicate)
 					{
@@ -130,7 +122,7 @@ namespace Vodovoz.Domain.Fuel
 								new[] { nameof(CardNumber) });
 						}
 					}
-				}
+				}				
 			}
 		}
 	}
