@@ -60,7 +60,9 @@ namespace DatabaseServiceWorker
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
+						.AddHostedService<PowerBiExportWorker>()
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
+						.ConfigurePowerBiExportWorker(hostContext)
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

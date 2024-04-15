@@ -8,5 +8,8 @@ namespace DatabaseServiceWorker
 	{
 		public static IServiceCollection ConfigureClearFastDeliveryAvailabilityHistoryWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<ClearFastDeliveryAvailabilityHistoryOptions>(context.Configuration.GetSection(nameof(ClearFastDeliveryAvailabilityHistoryOptions)));
+
+		public static IServiceCollection ConfigurePowerBiExportWorker(this IServiceCollection services, HostBuilderContext context) =>
+			services.Configure<PowerBiExportOptions>(context.Configuration.GetSection(nameof(PowerBiExportOptions)));
 	}
 }
