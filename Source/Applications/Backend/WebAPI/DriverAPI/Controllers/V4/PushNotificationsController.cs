@@ -13,8 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash;
-using Vodovoz.EntityRepositories;
 
 namespace DriverAPI.Controllers.V4
 {

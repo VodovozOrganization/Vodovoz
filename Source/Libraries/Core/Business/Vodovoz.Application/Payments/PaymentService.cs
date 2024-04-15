@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;

@@ -10,9 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Settings.Delivery;
 

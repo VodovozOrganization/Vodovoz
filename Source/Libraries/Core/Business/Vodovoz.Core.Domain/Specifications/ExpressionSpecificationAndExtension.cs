@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Vodovoz.Specifications
+namespace Vodovoz.Core.Domain.Specifications
 {
 	public static class ExpressionSpecificationAndExtension
 	{
