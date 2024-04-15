@@ -3,9 +3,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Vodovoz.Specifications;
+using Vodovoz.Core.Domain.Specifications;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.Core.Domain.Common
 {
 	public interface IGenericRepository<TEntity> where TEntity : class, IDomainObject
 	{
