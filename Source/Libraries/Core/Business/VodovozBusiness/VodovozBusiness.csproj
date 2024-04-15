@@ -70,6 +70,7 @@
     <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Errors\Logistics\DistrictSet.cs" />
     <Compile Include="NotificationRecievers\DriverApiHelperConfiguration.cs" />
     <Compile Include="NotificationRecievers\DriverAPIHelperException.cs" />
     <Compile Include="NotificationRecievers\IRouteListTransferhandByHandReciever.cs" />

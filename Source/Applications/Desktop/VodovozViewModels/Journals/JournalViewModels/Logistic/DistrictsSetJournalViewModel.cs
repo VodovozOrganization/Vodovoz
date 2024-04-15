@@ -1,6 +1,8 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
+using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -17,6 +19,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.ViewModelBased;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Journals.JournalViewModels
@@ -31,6 +35,9 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly bool _canUpdate;
 		private readonly bool _canCreate;
 		private readonly bool _canActivateDistrictsSet;
+
+		private int? _diffSourceDistrictSetVersionId = null;
+		private int? _diffTargetDistrictSetVersionId = null;
 
 		public DistrictsSetJournalViewModel(
 			DistrictsSetJournalFilterViewModel filterViewModel,
@@ -71,14 +78,33 @@ namespace Vodovoz.Journals.JournalViewModels
 			UpdateOnChanges(typeof(DistrictsSet));
 			SetIsStoppedOnlineDeliveriesToday();
 			CreatePopupActions();
+
+			GenerateDiffReportCommand = new DelegateCommand(GenerateDiffReport, () => CanGenerateDiffReport);
+		}
+
+		private bool IsStoppedOnlineDeliveriesToday { get; set; }
+		public DelegateCommand GenerateDiffReportCommand { get; }
+
+		public bool CanGenerateDiffReport => DiffSourceDistrictSetVersionId != null && DiffTargetDistrictSetVersionId != null;
+
+		[PropertyChangedAlso(nameof(CanGenerateDiffReport))]
+		public int? DiffSourceDistrictSetVersionId
+		{
+			get => _diffSourceDistrictSetVersionId;
+			set => SetField(ref _diffSourceDistrictSetVersionId, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanGenerateDiffReport))]
+		public int? DiffTargetDistrictSetVersionId
+		{
+			get => _diffTargetDistrictSetVersionId;
+			set => SetField(ref _diffTargetDistrictSetVersionId, value);
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
 		}
-
-		private bool IsStoppedOnlineDeliveriesToday { get; set; }
 
 		protected override IQueryOver<DistrictsSet> ItemsQuery(IUnitOfWork unitOfWork)
 		{
@@ -333,5 +359,21 @@ namespace Vodovoz.Journals.JournalViewModels
 		}
 
 		#endregion PopupActions
+
+		private void GenerateDiffReport()
+		{
+			var reportResult = DistrictsSetDiffReport.Generate(UoW, DiffSourceDistrictSetVersionId, DiffTargetDistrictSetVersionId);
+
+			DistrictsSetDiffReport report;
+
+			reportResult.Match(
+				r => report = r,
+				errors => _interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					string.Join("\n", errors.Select(e => e.Message)),
+					"Ошибка при формировании отчета"));
+
+
+		}
 	}
 }

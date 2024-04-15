@@ -199,6 +199,9 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineTemplateJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.DistrictDiffRow.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.DistrictRow.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RegradingOfGoodsReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.RouteColumnJournalNode.cs" />
