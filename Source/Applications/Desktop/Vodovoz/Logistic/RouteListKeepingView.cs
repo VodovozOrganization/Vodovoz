@@ -309,7 +309,7 @@ namespace Vodovoz.Logistic
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
 				.AddColumn("Время передачи")
-					.AddDateRenderer(node => node.RecievedTransferAt)
+					.AddTextRenderer(node => node.RecievedTransferAt == null ? "": node.RecievedTransferAt.Value.ToString("dd.MM.yyyy hh:mm:ss"))
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
