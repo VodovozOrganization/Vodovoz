@@ -1,5 +1,4 @@
-﻿using DatabaseServiceWorker.Options;
-using FuelControl.Contracts.Requests;
+using DatabaseServiceWorker.Options;
 using FuelControl.Library.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -72,15 +71,67 @@ namespace DatabaseServiceWorker
 
 		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow)
 		{
-			await GetAndSaveFuelTransactions(uow, GetFuelTransactionsByDays);
+			_logger.LogInformation("Начинается обновление транзакций топлива за предыдущие дни...");
+
+			var transactionsPerDayLastUpdateDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate;
+
+			var startDate = transactionsPerDayLastUpdateDate.AddDays(1);
+
+			if(startDate < GeneralUtils.GetCurrentMonthStartDate())
+			{
+				startDate = GeneralUtils.GetCurrentMonthStartDate();
+			}
+
+			var endDate = DateTime.Today.AddDays(-1);
+
+			if(startDate > endDate)
+			{
+				_logger.LogInformation("Обновление не требуется. Данные по транзакциям до {TransactionsLastUpdateDate} уже сохранены",
+					transactionsPerDayLastUpdateDate.ToString("yyyy-MM-dd"));
+
+				return;
+			}
+
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate);
+
+			if(isTransactionsUpdated)
+			{
+				_fuelControlSettings.SetFuelTransactionsPerDayLastUpdateDate(DateTime.Today.ToShortDateString());
+			}
 		}
 
 		private async Task MonthlyFuelTransactionsUpdate(IUnitOfWork uow)
 		{
-			await GetAndSaveFuelTransactions(uow, GetFuelTransactionsByMonths);
+			_logger.LogInformation("Начинается обновление транзакций топлива за предыдущий месяц...");
+
+			var transactionsByMonthLastUpdateDate = _fuelControlSettings.FuelTransactionsPerMonthLastUpdateDate;
+
+			var startDate = GeneralUtils.GetMonthStartDateByDate(transactionsByMonthLastUpdateDate.AddDays(1));
+
+			if(startDate < GeneralUtils.GetPreviousMonthStartDate())
+			{
+				_logger.LogInformation("Обновление не требуется. Данные по транзакциям до {TransactionsLastUpdateDate} уже сохранены",
+					transactionsByMonthLastUpdateDate.ToString("yyyy-MM-dd"));
+
+				startDate = GeneralUtils.GetPreviousMonthStartDate();
+			}
+
+			var endDate = GeneralUtils.GetPreviousMonthEndDate();
+
+			if(startDate >= endDate)
+			{
+				return;
+			}
+
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate);
+
+			if(isTransactionsUpdated)
+			{
+				_fuelControlSettings.SetFuelTransactionsPerDayLastUpdateDate(GeneralUtils.GetPreviousMonthEndDate().ToShortDateString());
+			}
 		}
 
-		private async Task GetAndSaveFuelTransactions(IUnitOfWork uow, Func<int, int, Task<IEnumerable<FuelTransaction>>> transctionsFunc)
+		private async Task<bool> GetAndSaveFuelTransactions(IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{
 			try
 			{
@@ -93,18 +144,28 @@ namespace DatabaseServiceWorker
 
 				do
 				{
-					var transactions = await transctionsFunc.Invoke(pageLimit, pageOffset);
+					var transactions = await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
 					transactionsCount = transactions.Count();
-					pageOffset++;
+					pageOffset += pageLimit;
 
-					await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+					if(transactionsCount > 0)
+					{
+						var savedTransactionsCount = await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+
+						_logger.LogInformation("Сохранено в базе данных {SavedTransactionsCount} транзакций",
+							savedTransactionsCount);
+					}
 				}
 				while(transactionsCount == pageLimit);
 
+				return true;
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError("При выполнении операции обновления транзакций возникла ошибка: {ErrorMessage}",
+					ex.Message);
 
+				return false;
 			}
 		}
 
@@ -120,48 +181,13 @@ namespace DatabaseServiceWorker
 			_sessionId = null;
 			_sessionExpirationDate = null;
 
-			var sessionId = await _authorizationService.Login(CreateAuthorizationRequestObject());
+			var sessionId = await _authorizationService.Login(
+				_options.Value.Login,
+				_options.Value.Password,
+				_options.Value.ApiKey);
 
 			_sessionId = sessionId;
 			_sessionExpirationDate = DateTime.Today.AddMinutes(_fuelControlSettings.ApiSessionLifetime.TotalMinutes);
-		}
-
-		private AuthorizationRequest CreateAuthorizationRequestObject()
-		{
-			return new AuthorizationRequest
-			{
-				Login = _options.Value.Login,
-				Password = _options.Value.Password,
-				ApiKey = _options.Value.ApiKey
-			};
-		}
-
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByDays(int pageLimit, int pageOffset)
-		{
-			var startDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate.Date.AddDays(1);
-			var endDate = DateTime.Today.AddDays(-1);
-
-			if(startDate >= endDate)
-			{
-				return Enumerable.Empty<FuelTransaction>();
-			}
-
-			return await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
-		}
-
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactionsByMonths(int pageLimit, int pageOffset)
-		{
-			var transactionsByMonthLastUpdateDate = _fuelControlSettings.FuelTransactionsPerMonthLastUpdateDate;
-
-			var startDate = GeneralUtils.GetMonthStartDateByDate(transactionsByMonthLastUpdateDate.AddMonths(1));
-			var endDate = GeneralUtils.GetPreviousMonthEndDate();
-
-			if(startDate >= endDate)
-			{
-				return Enumerable.Empty<FuelTransaction>();
-			}
-
-			return await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
 		}
 
 		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactions(DateTime startDate, DateTime endDate, int pageLimit, int pageOffset)

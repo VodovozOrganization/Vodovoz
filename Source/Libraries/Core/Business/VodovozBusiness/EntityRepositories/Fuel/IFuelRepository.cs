@@ -18,7 +18,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 		decimal GetFuelBalance(IUnitOfWork uow, Employee driver, Car car, DateTime? before = null, params int[] excludeOperationsIds);
 		decimal GetFuelBalanceForSubdivision(IUnitOfWork uow, Subdivision subdivision, FuelType fuelType);
 		FuelType GetDefaultFuel(IUnitOfWork uow);
-		Task SaveFuelTransactionsIfNeedAsync(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions);
+		Task<int> SaveFuelTransactionsIfNeedAsync(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions);
 		IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId);
 		IEnumerable<FuelCard> GetFuelCardsByCardNumber(IUnitOfWork uow, string cardNumber);
 	}

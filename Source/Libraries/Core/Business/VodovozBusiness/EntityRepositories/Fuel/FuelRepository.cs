@@ -2,11 +2,13 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -250,7 +252,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 				.SingleOrDefault();
 		}
 
-		public async Task SaveFuelTransactionsIfNeedAsync(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions)
+		public async Task<int> SaveFuelTransactionsIfNeedAsync(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions)
 		{
 			var transactionsDates = fuelTransactions.Select(t => t.TransactionDate.Date).Distinct().ToList();
 
@@ -264,12 +266,17 @@ namespace Vodovoz.EntityRepositories.Fuel
 			var newTransactions = fuelTransactions
 				.Where(t => !existingTransactions.Contains(t.TransactionId));
 
-			foreach(var transaction in newTransactions)
+			if(newTransactions.Count() > 0)
 			{
-				await uow.SaveAsync(transaction);
+				foreach(var transaction in newTransactions)
+				{
+					await uow.SaveAsync(transaction);
+				}
+
+				await uow.CommitAsync();
 			}
 
-			await uow.CommitAsync();
+			return newTransactions.Count();
 		}
 
 		public IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId)

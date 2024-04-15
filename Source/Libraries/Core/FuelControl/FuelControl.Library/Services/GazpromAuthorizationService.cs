@@ -1,5 +1,4 @@
-﻿using FuelControl.Contracts.Requests;
-using FuelControl.Contracts.Responses;
+﻿using FuelControl.Contracts.Responses;
 using FuelControl.Library.Services.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,61 +24,69 @@ namespace FuelControl.Library.Services
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		public async Task<string> Login(AuthorizationRequest authorizationRequest)
+		public async Task<string> Login(string login, string password, string apiKey)
 		{
+			if(string.IsNullOrWhiteSpace(login))
+			{
+				throw new ArgumentException($"'{nameof(login)}' cannot be null or whitespace.", nameof(login));
+			}
+
+			if(string.IsNullOrWhiteSpace(password))
+			{
+				throw new ArgumentException($"'{nameof(password)}' cannot be null or whitespace.", nameof(password));
+			}
+
+			if(string.IsNullOrWhiteSpace(apiKey))
+			{
+				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
+			}
+
 			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateHttpContent(authorizationRequest);
+			var httpContent = CreateHttpContent(login, password, apiKey);
 
 			_logger.LogDebug("Выполняется запрос авторизации пользователя {UserLogin} с паролем {UserPassword} ключ API {ApiKey}",
-				authorizationRequest.Login,
-				authorizationRequest.Password,
-				authorizationRequest.ApiKey);
+				login,
+				password,
+				apiKey);
 
 			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
 			{
-				try
+				var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<AuthorizationResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
 				{
-					var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent);
+					var errorMessages =
+						$"На запрос авторизации вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => e.Message))}";
 
-					var responseString = await response.Content.ReadAsStringAsync();
+					_logger.LogError(errorMessages);
 
-					var responseData = JsonSerializer.Deserialize<AuthorizationResponse>(responseString);
-
-					if(!response.IsSuccessStatusCode)
-					{
-						var errorMessage =
-							responseData.Status.Errors != null && responseData.Status.Errors.Count() > 0
-							? string.Join("; ", responseData.Status.Errors.Select(e => e.Message).ToArray())
-							: "Неизвестная ошибка";
-
-						throw new FuelControlAuthorizationException($"Ошибка выполнения запроса авторизации: {errorMessage}");
-					}
-
-					var sessionId = responseData.UserData.SessionId;
-
-					_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
-					sessionId,
-					DateTime.Now.ToString("yyyy - MM - dd HH: mm:ss"));
-
-					return sessionId;
+					throw new FuelControlException(errorMessages);
 				}
-				catch(Exception ex)
-				{
-					throw ex;
-				}
+
+				var sessionId = responseData.UserData.SessionId;
+
+				_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
+				sessionId,
+				DateTime.Now.ToString("yyyy - MM - dd HH: mm:ss"));
+
+				return sessionId;
 			}
 		}
 
-		private HttpContent CreateHttpContent(AuthorizationRequest authorizationRequest)
+		private HttpContent CreateHttpContent(string login, string password, string apiKey)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
-				new KeyValuePair<string, string>("login", authorizationRequest.Login),
-				new KeyValuePair<string, string>("password", authorizationRequest.Password)
+				new KeyValuePair<string, string>("login", login),
+				new KeyValuePair<string, string>("password", password)
 			};
 
 			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", authorizationRequest.ApiKey);
+			content.Headers.Add("api_key", apiKey);
 			content.Headers.Add("date_time", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
 			return content;

@@ -1,5 +1,4 @@
-﻿using FuelControl.Contracts.Requests;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;

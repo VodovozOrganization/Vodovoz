@@ -1,10 +1,9 @@
-﻿using FuelControl.Contracts.Requests;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace FuelControl.Library.Services
 {
 	public interface IFuelManagmentAuthorizationService
 	{
-		Task<string> Login(AuthorizationRequest authorizationRequest);
+		Task<string> Login(string login, string password, string apiKey);
 	}
 }

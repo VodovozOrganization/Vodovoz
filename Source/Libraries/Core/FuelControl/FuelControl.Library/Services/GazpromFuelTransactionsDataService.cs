@@ -1,5 +1,7 @@
 ﻿using FuelControl.Contracts.Responses;
 using FuelControl.Library.Converters;
+using FuelControl.Library.Services.Exceptions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +15,18 @@ namespace FuelControl.Library.Services
 {
 	public class GazpromFuelTransactionsDataService : IFuelTransactionsDataService
 	{
+		private const string _transactionsEndpointAddress = "vip/v2/transactions";
+
+		private readonly ILogger<GazpromFuelTransactionsDataService> _logger;
 		private readonly TransactionConverter _transactionConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromFuelTransactionsDataService(TransactionConverter transactionConverter, IFuelControlSettings fuelControlSettings)
+		public GazpromFuelTransactionsDataService(
+			ILogger<GazpromFuelTransactionsDataService> logger,
+			TransactionConverter transactionConverter,
+			IFuelControlSettings fuelControlSettings)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_transactionConverter = transactionConverter ?? throw new System.ArgumentNullException(nameof(transactionConverter));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
@@ -30,6 +39,23 @@ namespace FuelControl.Library.Services
 			int pageLimit = 500,
 			int pageOffset = 0)
 		{
+			if(string.IsNullOrWhiteSpace(sessionId))
+			{
+				throw new ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
+			}
+
+			if(apiKey is null)
+			{
+				throw new ArgumentNullException(nameof(apiKey));
+			}
+
+			_logger.LogDebug(
+				"Запрос на получение данных по тразакциям за период от {StartDate} по {EndDate}. 'PageLimit'={PageLimit}, 'PageOffset'={PageOffset}",
+				startDate,
+				endDate,
+				pageLimit,
+				pageOffset);
+
 			var formatedStartDate = startDate.ToString("yyyy-MM-dd");
 			var formatedEndDate = endDate.ToString("yyyy-MM-dd");
 
@@ -37,38 +63,59 @@ namespace FuelControl.Library.Services
 			{
 				var message = $"Дата конца периода {formatedEndDate} не должна быть меньше даты начала периода {formatedStartDate}";
 
+				_logger.LogError(message);
+
 				throw new ArgumentException(message, nameof(endDate));
 			}
 
-			try
+			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+
+			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
 			{
-				var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-				var transactionList = new List<FuelTransaction>();
+				httpClient.Timeout = TimeSpan.FromSeconds(_fuelControlSettings.ApiRequesTimeout.TotalSeconds);
+				httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
+				httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
+				httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
-				using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+				var response = await httpClient.GetAsync(
+					  $"{_transactionsEndpointAddress}?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}");
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<TransactionsResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
 				{
-					httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
-					httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
-					httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
+					var errorMessages =
+						$"На запрос получения транзакций вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => e.Message))}";
 
-					var response = await httpClient.GetAsync(
-						  $"vip/v2/transactions?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}");
+					_logger.LogError(errorMessages);
 
-					var responseString = await response.Content.ReadAsStringAsync();
-
-					var responseData = JsonSerializer.Deserialize<TransactionsResponse>(responseString);
-
-					transactionList = responseData.TransactionsData.Transactions
-						.Select(t => _transactionConverter.ConvertToDomainFuelTransaction(t))
-						.ToList();
+					throw new FuelControlException(errorMessages);
 				}
 
-				return transactionList;
+				_logger.LogDebug("Количество полученных транзакций: {TransactionsCount}",
+					responseData.TransactionsData.Transactions?.Count());
+
+				var transactions = ConvertResponseDataToTransactions(responseData);
+
+				return transactions;
 			}
-			catch(Exception ex)
+		}
+
+		private IEnumerable<FuelTransaction> ConvertResponseDataToTransactions(TransactionsResponse responseData)
+		{
+			var transactionDtos = responseData?.TransactionsData?.Transactions;
+
+			if(transactionDtos == null)
 			{
-				throw ex;
+				return Enumerable.Empty<FuelTransaction>();
 			}
+
+			var transactions = transactionDtos
+					.Select(t => _transactionConverter.ConvertToDomainFuelTransaction(t));
+
+			return transactions;
 		}
 	}
 }
