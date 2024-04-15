@@ -358,8 +358,8 @@ namespace DriverAPI.Controllers.V5
 
 				var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
 					unitOfWork,
-					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == previousAddress.Id)
-						 || (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == previousAddress.Id)).Count();
+					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == targetAddress.Id)
+						 || (atdi.NewAddress.Id == previousAddress.Id && atdi.OldAddress.Id == targetAddress.Id)).Count();
 
 				if(transferDocumentsCount % 2 == 0)
 				{

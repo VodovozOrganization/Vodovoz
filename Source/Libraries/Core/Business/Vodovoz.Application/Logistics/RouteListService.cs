@@ -1117,8 +1117,8 @@ namespace Vodovoz.Application.Logistics
 
 				var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
 					unitOfWork,
-					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == previousAddress.Id)
-						 || (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == previousAddress.Id)).Count();
+					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)
+						 || (atdi.NewAddress.Id == previousAddress.Id && atdi.OldAddress.Id == routeListAddress.Id)).Count();
 
 				if(transferDocumentsCount % 2 == 0)
 				{
@@ -1142,6 +1142,7 @@ namespace Vodovoz.Application.Logistics
 
 				routeListAddress.RecievedTransferAt = actionTime;
 
+				unitOfWork.Save(routeListAddress);
 				unitOfWork.Commit();
 			}
 		}

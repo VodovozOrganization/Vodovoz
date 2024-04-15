@@ -350,7 +350,6 @@ namespace DriverAPI.Library.V5.Services
 				_unitOfWork,
 				address => address.RouteList.Driver.Id == driver.Id
 					&& address.Status == RouteListItemStatus.Transfered
-					&& address.AddressTransferType == AddressTransferType.FromHandToHand
 					&& address.Order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.OnTheWay
 					&& (!address.WasTransfered || address.RecievedTransferAt != null));
 
@@ -358,7 +357,8 @@ namespace DriverAPI.Library.V5.Services
 			{
 				var targetAddress = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
 
-				if(targetAddress.Id == address.Id)
+				if(targetAddress.Id == address.Id
+					|| targetAddress.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
 					continue;
 				}
