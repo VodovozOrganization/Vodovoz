@@ -1,5 +1,5 @@
-﻿using FuelControl.Contracts.Converters;
-using FuelControl.Contracts.Responses;
+﻿using FuelControl.Contracts.Responses;
+using FuelControl.Library.Converters;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;

@@ -1,7 +1,7 @@
 ﻿using FuelControl.Contracts.Dto;
 using Vodovoz.Domain.Fuel;
 
-namespace FuelControl.Contracts.Converters
+namespace FuelControl.Library.Converters
 {
 	public interface IFuelCardConverter
 	{

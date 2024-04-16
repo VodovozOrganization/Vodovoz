@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
@@ -15,7 +15,9 @@ using Vodovoz.NotificationRecievers;
 using Vodovoz.Options;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Delivery;
+using Vodovoz.Settings.Database.Fuel;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;

@@ -962,6 +962,10 @@
       <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
       <Name>EdoService.Library</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
+      <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
+      <Name>FuelControl.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
