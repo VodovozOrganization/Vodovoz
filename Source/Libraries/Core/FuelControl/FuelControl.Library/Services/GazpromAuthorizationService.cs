@@ -1,5 +1,6 @@
 ﻿using FuelControl.Contracts.Responses;
 using FuelControl.Library.Services.Exceptions;
+using FuelControl.Library.Utils;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace FuelControl.Library.Services
 {
 	public class GazpromAuthorizationService : IFuelManagmentAuthorizationService
 	{
+		private const string _requestDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
+		private const string _logsDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
 		private const string _authorizationEndpointAddress = "vip/v1/authUser";
 
 		private readonly ILogger<GazpromAuthorizationService> _logger;
@@ -42,7 +45,7 @@ namespace FuelControl.Library.Services
 			}
 
 			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateHttpContent(login, password, apiKey);
+			var httpContent = CreateAuthorizationHttpContent(login, password, apiKey);
 
 			_logger.LogDebug("Выполняется запрос авторизации пользователя {UserLogin} с паролем {UserPassword} ключ API {ApiKey}",
 				login,
@@ -71,23 +74,25 @@ namespace FuelControl.Library.Services
 
 				_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
 				sessionId,
-				DateTime.Now.ToString("yyyy - MM - dd HH: mm:ss"));
+				DateTime.Now.ToString(_logsDateTimeFormatString));
 
 				return sessionId;
 			}
 		}
 
-		private HttpContent CreateHttpContent(string login, string password, string apiKey)
+		private HttpContent CreateAuthorizationHttpContent(string login, string password, string apiKey)
 		{
+			var hashedPassword = HashCompute.GetSha512HashString(password);
+
 			var requestData = new List<KeyValuePair<string, string>>
 			{
 				new KeyValuePair<string, string>("login", login),
-				new KeyValuePair<string, string>("password", password)
+				new KeyValuePair<string, string>("password", hashedPassword)
 			};
 
 			var content = new FormUrlEncodedContent(requestData);
 			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("date_time", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
 			return content;
 		}

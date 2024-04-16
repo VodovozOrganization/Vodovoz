@@ -15,7 +15,7 @@ namespace FuelControl.Library.Services
 {
 	public class GazpromFuelTransactionsDataService : IFuelTransactionsDataService
 	{
-		private const string _dateTimeFormatString = "yyyy-MM-dd";
+		private const string _requestDateTimeFormatString = "yyyy-MM-dd";
 		private const string _transactionsEndpointAddress = "vip/v2/transactions";
 
 		private readonly ILogger<GazpromFuelTransactionsDataService> _logger;
@@ -57,8 +57,8 @@ namespace FuelControl.Library.Services
 				pageLimit,
 				pageOffset);
 
-			var formatedStartDate = startDate.ToString(_dateTimeFormatString);
-			var formatedEndDate = endDate.ToString(_dateTimeFormatString);
+			var formatedStartDate = startDate.ToString(_requestDateTimeFormatString);
+			var formatedEndDate = endDate.ToString(_requestDateTimeFormatString);
 
 			if(endDate.Date < startDate.Date)
 			{
