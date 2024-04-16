@@ -433,7 +433,7 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
 			() =>  new ReportViewDlg(report));
-		report.Configure(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
+		report.ConfigureWarehouseEntry(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
 	}
 
 	/// <summary>

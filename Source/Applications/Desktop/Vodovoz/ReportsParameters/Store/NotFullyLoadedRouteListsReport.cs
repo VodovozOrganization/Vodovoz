@@ -32,7 +32,7 @@ namespace Vodovoz.ReportsParameters.Store
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 		}
 
-		public void Configure()
+		public void ConfigureWarehouseEntry()
 		{
 			var builder = new LegacyEEVMBuilderFactory<NotFullyLoadedRouteListsReport>(
 				DialogHelper.FindParentTab(this), this, UoW, _navigationManager, _lifetimeScope);
@@ -55,8 +55,6 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private IEntityEntryViewModel WarehouseEntryViewModel { get; set; }
 		private Warehouse Warehouse { get; set; }
-
-
 
 		protected void OnButtonRunClicked(object sender, EventArgs e)
 		{
