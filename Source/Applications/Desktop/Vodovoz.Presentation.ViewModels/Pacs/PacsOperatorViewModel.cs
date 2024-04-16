@@ -116,6 +116,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
 		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
 		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
+		public bool CanEndWorkShift => _operatorService.CanEndWorkShift;
 
 		public virtual string BreakInfo
 		{
@@ -169,6 +170,9 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 						OnPropertyChanged(nameof(CanStartShortBreak));
 						OnPropertyChanged(nameof(CanEndBreak));
 						break;
+					case nameof(OperatorService.CanEndWorkShift):
+						OnPropertyChanged(nameof(CanEndWorkShift));
+						break;
 					default:
 						break;
 				}
@@ -180,8 +184,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			StartWorkShiftCommand = new DelegateCommand(() => StartWorkShift().Wait(), () => CanStartWorkShift);
 			StartWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanStartWorkShift);
 
-			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => _operatorService.CanEndWorkShift);
-			EndWorkShiftCommand.CanExecuteChangedWith(_operatorService, x => x.CanEndWorkShift);
+			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => CanEndWorkShift);
+			EndWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanEndWorkShift);
 
 			CancelEndWorkShiftReasonCommand = new DelegateCommand(() => ClearEndWorkShiftReason());
 
