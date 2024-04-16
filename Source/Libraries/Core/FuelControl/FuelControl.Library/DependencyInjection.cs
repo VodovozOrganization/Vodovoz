@@ -10,7 +10,6 @@ namespace FuelControl.Library
 		public static IServiceCollection AddFuelControl(this IServiceCollection services, HostBuilderContext context) => services
 			.AddScoped<IFuelManagmentAuthorizationService, GazpromAuthorizationService>()
 			.AddScoped<IFuelCardsGeneralInfoService, GazpromFuelCardsGeneralInfoService>()
-			.AddScoped<ITransactionConverter, TransactionConverter>()
 			.AddScoped<IFuelCardConverter, FuelCardConverter>();
 	}
 }
