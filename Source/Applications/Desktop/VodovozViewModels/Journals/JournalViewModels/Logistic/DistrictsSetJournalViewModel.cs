@@ -331,16 +331,12 @@ namespace Vodovoz.Journals.JournalViewModels
 					selectedItems =>
 					{
 						_diffTargetDistrictSetVersionId = selectedItems.Cast<DistrictsSetJournalNode>().First().Id;
-					}));
 
-			PopupActionsList.Add(
-				new JournalAction(
-					"Выгрузить отчет",
-					selectedItems => true,
-					selectedItems => true,
-					selectedItems =>
-					{
-						GenerateDiffReportCommand.Execute();
+						if(_interactiveService.Question("Создать отчет?\n" +
+							$" Изменения версии {_diffSourceDistrictSetVersionId} и {_diffTargetDistrictSetVersionId}"))
+						{
+							GenerateDiffReportCommand.Execute();
+						}
 					}));
 		}
 

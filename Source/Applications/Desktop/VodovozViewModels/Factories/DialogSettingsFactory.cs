@@ -13,7 +13,7 @@ namespace Vodovoz.ViewModels.Factories
 		{
 			var reportName = closedXmlReport.GetType().GetAttribute<AppellativeAttribute>().Nominative;
 
-			var exportDate = DateTime.Now.ToString("yyyy-MM-dd-HH-mm");
+			var exportDate = DateTime.Now.ToString("yyyy-MM-dd HH-mm");
 
 			var reportFileExtension = ".xlsx";
 
