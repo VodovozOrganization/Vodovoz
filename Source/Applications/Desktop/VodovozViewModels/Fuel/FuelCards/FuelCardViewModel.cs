@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FuelControl.Library.Services;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -15,10 +16,12 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 	public class FuelCardViewModel : EntityTabViewModelBase<FuelCard>
 	{
 		private readonly ILogger<FuelCardViewModel> _logger;
+		private readonly IFuelCardsGeneralInfoService _fuelCardsGeneralInfoService;
 
 		public FuelCardViewModel(
 			ILogger<FuelCardViewModel> logger,
 			IFuelRepository fuelRepository,
+			IFuelCardsGeneralInfoService fuelCardsGeneralInfoService,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -36,7 +39,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
+			_fuelCardsGeneralInfoService = fuelCardsGeneralInfoService ?? throw new ArgumentNullException(nameof(fuelCardsGeneralInfoService));
 			TabName = 
 				UoWGeneric.IsNew
 				? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}"
@@ -44,12 +47,21 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 			SaveCommand = new DelegateCommand(() => Save(true));
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
+			GetCardIdCommand = new DelegateCommand(() => GetCardId(), () => CanGetCardId);
 
 			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWorkFactory), unitOfWorkFactory);
 			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
 		}
 
+		public bool CanGetCardId => true;
+
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
+		public DelegateCommand GetCardIdCommand { get; }
+
+		private string GetCardId()
+		{
+			return string.Empty;
+		}
 	}
 }

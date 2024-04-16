@@ -1,4 +1,4 @@
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Fuel.FuelCards;
 namespace Vodovoz.Views.Fuel
 {
@@ -16,7 +16,6 @@ namespace Vodovoz.Views.Fuel
 				.AddBinding(ViewModel.Entity, e => e.CardNumber, w => w.Text)
 				.InitializeFromSource();
 
-			yentryCardId.IsEditable = false;
 			yentryCardId.Binding
 				.AddBinding(ViewModel.Entity, e => e.CardId, w => w.Text)
 				.InitializeFromSource();
@@ -25,8 +24,13 @@ namespace Vodovoz.Views.Fuel
 				.AddBinding(ViewModel.Entity, e => e.IsArchived, w => w.Active)
 				.InitializeFromSource();
 
-			ybuttonSave.Clicked += (s, e) => ViewModel.SaveCommand.Execute();
-			ybuttonCancel.Clicked += (s, e) => ViewModel.CancelCommand.Execute();
+			ybuttonGetCardId.Binding
+				.AddBinding(ViewModel, vm => vm.CanGetCardId, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSave.BindCommand(ViewModel.SaveCommand);
+			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
+			ybuttonGetCardId.BindCommand(ViewModel.GetCardIdCommand);
 		}
 	}
 }
