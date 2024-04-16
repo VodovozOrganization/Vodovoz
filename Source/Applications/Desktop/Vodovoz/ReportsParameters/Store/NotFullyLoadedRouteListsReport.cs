@@ -20,22 +20,28 @@ namespace Vodovoz.ReportsParameters.Store
 	{
 		private Warehouse _warehouse;
 		private ILifetimeScope _lifetimeScope;
+		private readonly INavigationManager _navigationManager;
 
 		public NotFullyLoadedRouteListsReport(ILifetimeScope lifetimeScope, INavigationManager navigationManager)
 		{
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-			_lifetimeScope = lifetimeScope;
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
+			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
+		}
+
+		public void Configure()
+		{
 			var builder = new LegacyEEVMBuilderFactory<NotFullyLoadedRouteListsReport>(
-				DialogHelper.FindParentTab(this), this, UoW, navigationManager, lifetimeScope);
+				DialogHelper.FindParentTab(this), this, UoW, _navigationManager, _lifetimeScope);
 			WarehouseEntryViewModel = builder.ForProperty(x => x.Warehouse)
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
 			warehouseEntry.ViewModel = WarehouseEntryViewModel;
-			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 		}
 
 		#region IParametersWidget implementation
@@ -47,7 +53,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 		#endregion
 
-		private IEntityEntryViewModel WarehouseEntryViewModel { get; }
+		private IEntityEntryViewModel WarehouseEntryViewModel { get; set; }
 		private Warehouse Warehouse { get; set; }
 
 

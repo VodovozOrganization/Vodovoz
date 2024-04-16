@@ -429,10 +429,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
 	{
+		var report = new NotFullyLoadedRouteListsReport(_autofacScope.BeginLifetimeScope(), NavigationManager);
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport(
-				_autofacScope.BeginLifetimeScope(), NavigationManager)));
+			ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
+			() =>  new ReportViewDlg(report));
+		report.Configure(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
 	}
 
 	/// <summary>
