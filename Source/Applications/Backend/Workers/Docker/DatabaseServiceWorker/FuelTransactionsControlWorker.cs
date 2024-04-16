@@ -1,4 +1,4 @@
-using DatabaseServiceWorker.Options;
+﻿using DatabaseServiceWorker.Options;
 using FuelControl.Library.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,8 +18,11 @@ namespace DatabaseServiceWorker
 {
 	public class FuelTransactionsControlWorker : TimerBackgroundServiceBase
 	{
+		private const string _dateTimeFormatString = "dd.MM.yyyy";
+
 		private string _sessionId;
 		private DateTime? _sessionExpirationDate;
+		private bool _isWorkInProgress;
 
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<FuelTransactionsControlOptions> _options;
@@ -62,11 +65,20 @@ namespace DatabaseServiceWorker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
+			if(_isWorkInProgress)
+			{
+				return;
+			}
+
+			_isWorkInProgress = true;
+
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сохранение транзакций топлива");
 
 			await DailyFuelTransactionsUpdate(uow);
 
 			await MonthlyFuelTransactionsUpdate(uow);
+
+			_isWorkInProgress = false;
 		}
 
 		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow)
@@ -86,8 +98,8 @@ namespace DatabaseServiceWorker
 
 			if(startDate > endDate)
 			{
-				_logger.LogInformation("Обновление не требуется. Данные по транзакциям до {TransactionsLastUpdateDate} уже сохранены",
-					transactionsPerDayLastUpdateDate.ToString("yyyy-MM-dd"));
+				_logger.LogInformation("Обновление не требуется. Данные по транзакциям по {TransactionsLastUpdateDate} уже сохранены",
+					transactionsPerDayLastUpdateDate.ToString(_dateTimeFormatString));
 
 				return;
 			}
@@ -96,7 +108,7 @@ namespace DatabaseServiceWorker
 
 			if(isTransactionsUpdated)
 			{
-				_fuelControlSettings.SetFuelTransactionsPerDayLastUpdateDate(DateTime.Today.ToShortDateString());
+				_fuelControlSettings.SetFuelTransactionsPerDayLastUpdateDate(endDate.ToString(_dateTimeFormatString));
 			}
 		}
 
@@ -110,9 +122,6 @@ namespace DatabaseServiceWorker
 
 			if(startDate < GeneralUtils.GetPreviousMonthStartDate())
 			{
-				_logger.LogInformation("Обновление не требуется. Данные по транзакциям до {TransactionsLastUpdateDate} уже сохранены",
-					transactionsByMonthLastUpdateDate.ToString("yyyy-MM-dd"));
-
 				startDate = GeneralUtils.GetPreviousMonthStartDate();
 			}
 
@@ -120,6 +129,9 @@ namespace DatabaseServiceWorker
 
 			if(startDate >= endDate)
 			{
+				_logger.LogInformation("Обновление не требуется. Данные по транзакциям по {TransactionsLastUpdateDate} уже сохранены",
+					transactionsByMonthLastUpdateDate.ToString(_dateTimeFormatString));
+
 				return;
 			}
 
@@ -127,7 +139,7 @@ namespace DatabaseServiceWorker
 
 			if(isTransactionsUpdated)
 			{
-				_fuelControlSettings.SetFuelTransactionsPerDayLastUpdateDate(GeneralUtils.GetPreviousMonthEndDate().ToShortDateString());
+				_fuelControlSettings.SetFuelTransactionsPerMonthLastUpdateDate(endDate.ToString(_dateTimeFormatString));
 			}
 		}
 
