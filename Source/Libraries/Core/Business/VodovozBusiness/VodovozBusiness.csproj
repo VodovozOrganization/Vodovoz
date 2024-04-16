@@ -63,7 +63,9 @@
     <Compile Include="Domain\Orders\RequestForCall.cs" />
     <Compile Include="Domain\Orders\RequestForCallClosedReason.cs" />
     <Compile Include="Domain\Orders\RequestForCallStatus.cs" />
+    <Compile Include="EntityRepositories\Orders\IOnlineOrderRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\OnlineOrderRepository.cs" />
     <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderRatingProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderRatingReasonProjections.cs" />

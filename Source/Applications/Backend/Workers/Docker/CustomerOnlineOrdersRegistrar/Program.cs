@@ -48,7 +48,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness()
-						.AddCustomerOrdersApiLibrary()
+						.AddDependenciesGroup()
 						.AddApplicationOrderServices()
 						.AddStaticScopeForEntity()
 						//.AddStaticHistoryTracker()

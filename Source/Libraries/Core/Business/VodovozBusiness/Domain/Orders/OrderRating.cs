@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Clients;
@@ -28,18 +29,18 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual int Id { get; set; }
 		
-		[Display(Name = "Онлайн заказ")]
-		public virtual OnlineOrder OnlineOrder
-		{
-			get => _onlineOrder;
-			set => SetField(ref _onlineOrder, value);
-		}
-		
 		[Display(Name = "Заказ")]
 		public virtual Order Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);
+		}
+		
+		[Display(Name = "Онлайн заказ")]
+		public virtual OnlineOrder OnlineOrder
+		{
+			get => _onlineOrder;
+			set => SetField(ref _onlineOrder, value);
 		}
 		
 		[Display(Name = "Дата создания")]
@@ -103,6 +104,57 @@ namespace Vodovoz.Domain.Orders
 			var appellativeAttribute = typeof(OrderRating).GetCustomAttribute<AppellativeAttribute>(true);
 			
 			return Id > 0 ? $"{appellativeAttribute.Nominative} №{Id}" : $"Новая {appellativeAttribute.Nominative}";
+		}
+
+		public static OrderRating Create(
+			Source source,
+			int rating,
+			string comment,
+			int? onlineOrderId,
+			int? orderId,
+			IEnumerable<int> orderRatingReasonsIds,
+			int negativeRating)
+		{
+			var orderRating = new OrderRating
+			{
+				Source = source,
+				Rating = rating,
+				Created = DateTime.Now,
+				Comment = comment,
+			};
+
+			if(onlineOrderId.HasValue)
+			{
+				orderRating.OnlineOrder = new OnlineOrder
+				{
+					Id = onlineOrderId.Value
+				};
+			}
+			
+			if(orderId.HasValue)
+			{
+				orderRating.Order = new Order
+				{
+					Id = orderId.Value
+				};
+			}
+
+			orderRating.OrderRatingStatus = orderRating.Rating > negativeRating
+				? OrderRatingStatus.Positive
+				: OrderRatingStatus.New;
+
+			if(orderRatingReasonsIds != null && orderRatingReasonsIds.Any())
+			{
+				foreach(var orderRatingReasonId in orderRatingReasonsIds)
+				{
+					orderRating.OrderRatingReasons.Add(new OrderRatingReason
+					{
+						Id = orderRatingReasonId
+					});
+				}
+			}
+
+			return orderRating;
 		}
 	}
 }

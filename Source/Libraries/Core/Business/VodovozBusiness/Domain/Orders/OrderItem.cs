@@ -279,7 +279,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ManualChangingDiscount
 		{
-			get => IsDiscountInMoney ? DiscountMoney : Discount;
+			get => GetDiscount;
 			protected set
 			{
 				CalculateAndSetDiscount(value);
@@ -464,6 +464,8 @@ namespace Vodovoz.Domain.Orders
 				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
+
+		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
 
 		public virtual bool RentVisible => OrderItemRentSubType == OrderItemRentSubType.RentServiceItem;
 

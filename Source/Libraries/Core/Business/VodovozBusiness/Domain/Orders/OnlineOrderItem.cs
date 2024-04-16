@@ -81,6 +81,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsDiscountInMoneyFromPromoSet { get; set; }
 
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
+		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,

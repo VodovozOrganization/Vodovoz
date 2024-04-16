@@ -17,8 +17,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Rating).Column("rating");
 			Map(x => x.Comment).Column("comment");
 
-			References(x => x.Order).Column("order_id");
 			References(x => x.OnlineOrder).Column("online_order_id");
+			References(x => x.Order).Column("order_id");
 			References(x => x.ProcessedByEmployee).Column("processed_by_employee_id");
 
 			HasManyToMany(x => x.OrderRatingReasons)

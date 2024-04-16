@@ -9,7 +9,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using QS.Project.Core;
 using QS.Services;
+using Vodovoz;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Data.NHibernate;
 
 namespace CustomerOrdersApi
 {
@@ -38,8 +43,27 @@ namespace CustomerOrdersApi
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				})
 				
-				.AddMessageTransportSettings()
-				.AddMassTransit(busConf => busConf.ConfigureRabbitMq());
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddBusiness()
+				.AddConfig(Configuration)
+				.AddDependenciesGroup()
+				.AddStaticScopeForEntity()
+					
+				//.AddMessageTransportSettings()
+				//.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddMemoryCache();
 
 				/*configurator.ReceiveEndpoint("online-orders", x =>
 				{

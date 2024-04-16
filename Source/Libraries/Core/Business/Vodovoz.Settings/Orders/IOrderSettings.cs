@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Orders
+﻿using System;
+
+namespace Vodovoz.Settings.Orders
 {
 	public interface IOrderSettings
 	{
@@ -21,6 +23,7 @@
 		int GetDiscountReasonStockBottle10PercentsId { get; }
 		int GetDiscountReasonStockBottle20PercentsId { get; }
 		int GetClientsSecondOrderDiscountReasonId { get; }
-
+		int GetOrderRatingForMandatoryProcessing { get; }
+		DateTime GetDateAvailabilityRatingOrder { get; }
 	}
 }
