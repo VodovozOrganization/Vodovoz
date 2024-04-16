@@ -30,10 +30,10 @@ namespace Vodovoz.Settings.Database.Fuel
 			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(OrganizationContractId)}");
 
 		public DateTime FuelTransactionsPerDayLastUpdateDate =>
-			_settingsController.GetValue<DateTime>($"{_parametersPrefix}{nameof(FuelTransactionsPerDayLastUpdateDate)}");
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}{nameof(FuelTransactionsPerDayLastUpdateDate)}");
 
 		public DateTime FuelTransactionsPerMonthLastUpdateDate =>
-			_settingsController.GetValue<DateTime>($"{_parametersPrefix}{nameof(FuelTransactionsPerMonthLastUpdateDate)}");
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}{nameof(FuelTransactionsPerMonthLastUpdateDate)}");
 
 		public void SetFuelTransactionsPerDayLastUpdateDate(string value)
 		{
