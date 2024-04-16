@@ -19,7 +19,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
 using QS.Project.Dialogs;
-using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -44,6 +43,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -270,6 +270,7 @@ namespace Vodovoz
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
 		private bool _isStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -340,7 +341,18 @@ namespace Vodovoz
 
 		public Order Order => Entity;
 
-		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+		public List<StoredEmail> GetEmails()
+		{
+			if(Entity.Id != 0)
+			{
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Получение списка email для заказа {Entity.Id}"))
+				{
+					return _emailRepository.GetAllEmailsForOrder(uow, Entity.Id);
+				}
+			}
+
+			return null;
+		}
 
 		private CallTaskWorker callTaskWorker;
 
@@ -385,6 +397,10 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+			}
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
@@ -3748,27 +3764,11 @@ namespace Vodovoz
 		/// </summary>
 		void OpenUndelivery()
 		{
-			var undelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, Entity.Id).FirstOrDefault();
-
-			if(undelivery == null)
-			{
-				var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
-				TabParent.AddSlaveTab(this, dlg);
-				dlg.DlgSaved += OnUndeliveryDlgSaved;
-			}
-			else
-			{
-				var undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(undelivery.Id)).ViewModel;
-				undeliveryViewModel.EntitySaved += OnUndeliveryViewModelEntitySaved;
-			}			
+			_undeliveryViewModel = NavigationManager.OpenViewModelOnTdi <UndeliveryViewModel, IUnitOfWork,/* UndeliveredOrder*/int>(this, UoW, Entity.Id/*UoW, UoW.GetById<UndeliveredOrder>(node.Id) */).ViewModel;
+			_undeliveryViewModel.Saved += OnUndeliveryViewModelSaved;
 		}
 
-		private void OnUndeliveryDlgSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
-		{
-			OnUndeliverySaved(e);
-		}
-
-		private void OnUndeliveryViewModelEntitySaved(object sender, EntitySavedEventArgs e)
+		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
 			OnUndeliverySaved();
 		}
@@ -3791,7 +3791,7 @@ namespace Vodovoz
 
 			UpdateUIState();
 
-			if(Save() && (e == null || e.NeedClose))
+			if(Save() && (e != null && e.NeedClose))
 			{
 				OnCloseTab(false);
 			}

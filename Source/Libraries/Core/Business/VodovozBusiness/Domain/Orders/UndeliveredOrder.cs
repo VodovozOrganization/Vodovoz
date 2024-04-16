@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
@@ -393,7 +394,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Строка</returns>
 		public virtual string GetOldOrderInfo(IOrderRepository orderRepository)
 		{
-			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
+			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author?.ShortName));
 			if(oldOrder != null) {
 				info.AppendLine(string.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
 				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));
@@ -537,6 +538,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
+
 			if(OldOrder == null)
 				yield return new ValidationResult(
 					"Необходимо выбрать недовезённый заказ",
@@ -587,6 +590,19 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Не указан сотрудник, зарегистрировавший недовоз.",
 					new[] { nameof(EmployeeRegistrator) });
 			}
+
+			#region Статусы для отмены
+
+			var isOrderStatusForbiddenForCancellation = !orderRepository.GetStatusesForOrderCancelationWithCancellation().Contains(OldOrder.OrderStatus);
+			var isSelfDeliveryOnLoadingOrder = NewOrder != null && NewOrder.SelfDelivery && OldOrder.OrderStatus == OrderStatus.OnLoading;
+
+			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder)
+			{
+				yield return new ValidationResult("В текущий момент заказ нельзя отменить.",
+					new[] { nameof(OrderStatus) });
+			}
+
+			#endregion
 		}
 
 		#endregion

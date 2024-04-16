@@ -38,24 +38,6 @@ namespace Vodovoz.Logistic
 		{
 			CopyIdCommand = new DelegateCommand(CopyEntityId);
 
-			ViewModel.UndeliveryOpenDlgAction = (order, unitOfWork, newStatus) =>
-			{
-				var result = new UndeliveryOnOrderCloseDlg(order, unitOfWork);
-
-				result.DlgSaved += (s, ea) =>
-				{
-					var address = ViewModel.Items
-						.Where(x => x.RouteListItem.Order.Id == order.Id)
-						.FirstOrDefault();
-
-					address.UpdateStatus(newStatus, ViewModel.CallTaskWorker);
-					ViewModel.UoW.Save(address.RouteListItem);
-					ViewModel.UoW.Commit();
-				};
-
-				return result;
-			};
-
 			Build();
 			Initialize();
 		}

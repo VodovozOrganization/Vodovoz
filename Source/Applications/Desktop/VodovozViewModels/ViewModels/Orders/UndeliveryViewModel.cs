@@ -1,18 +1,21 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Domain;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Application.Orders;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
@@ -21,20 +24,22 @@ using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class UndeliveryViewModel : EntityTabViewModelBase<UndeliveredOrder>, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
+	public class UndeliveryViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
 	{
-
-		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ISmsNotifier _smsNotifier;
+		private ValidationContext _validationContext;
+		private bool _addedCommentToOldUndelivery;
+		private bool _forceSave;
+		private bool _isExternalUoW;
 
 		public UndeliveryViewModel(
-			IEntityUoWBuilder uowBuilder,
-			IUnitOfWorkFactory uowFactory,
+
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IEmployeeRepository employeeRepository,
@@ -47,10 +52,14 @@ namespace Vodovoz.ViewModels.Orders
 			ILifetimeScope scope,
 			IUndeliveredOrderViewModelFactory undeliveredOrderViewModelFactory,
 			IUndeliveryDiscussionsViewModelFactory undeliveryDiscussionsViewModelFactory,
+			IValidationContextFactory validationContextFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWork externalUoW = null,
+			int oldOrderId = 0,
 			bool isForSalesDepartment = false)
-			: base(uowBuilder, uowFactory, commonServices, navigationManager)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
@@ -58,38 +67,74 @@ namespace Vodovoz.ViewModels.Orders
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_smsNotifier = smsNotifier ?? throw new ArgumentNullException(nameof(smsNotifier));
 
+			if(externalUoW != null)
+			{
+				UoW = externalUoW;
+
+				_isExternalUoW = true;
+			}
+			else
+			{
+				UoW = unitOfWorkFactory.CreateWithoutRoot();
+			}
+
+			var undelivery = undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, oldOrderId).FirstOrDefault();
+
+			Entity = undelivery ?? new UndeliveredOrder();
+
+			_currentUser = (employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository))).GetEmployeeForCurrentUser(UoW);
+
+			if(Entity.Id == 0)
+			{
+				TabName = "Новый недовоз";
+
+				FillNewUndelivery();
+
+				if(oldOrderId > 0)
+				{
+					Entity.OldOrder = UoW.GetById<Order>(oldOrderId);
+				}
+			}
+			else
+			{
+				TabName = Entity.Title;
+			}
+
 			UndeliveredOrderViewModel = (undeliveredOrderViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveredOrderViewModelFactory)))
 				.CreateUndeliveredOrderViewModel(Entity, scope, this, UoW);
 
 			UndeliveryDiscussionsViewModel = (undeliveryDiscussionsViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveryDiscussionsViewModelFactory)))
 				.CreateUndeliveryDiscussionsViewModel(Entity, this, scope, UoW);
 
-			if(UoW.IsNew)
+			CanEdit = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder)).CanUpdate;
+
+			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
+			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
+
+			if(isForSalesDepartment)
 			{
-				FillNewUndelivery();
-				TabName = "Новый недовоз";
-			}
-			else
-			{
-				TabName = UndeliveredOrder.Title;
+				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
+				Entity.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
 
-			Configure(isForSalesDepartment);
+			UndeliveredOrderViewModel.UndelivedOrderSaved += OnEntitySaved;
+
+			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
+			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
 		}
 
 		private void FillNewUndelivery()
 		{
-			UndeliveredOrder.Author = UndeliveredOrder.EmployeeRegistrator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.UoW = UoW;
+			Entity.Author = Entity.EmployeeRegistrator = _currentUser;
 
-			if(UndeliveredOrder.Author == null)
+			if(Entity.Author == null)
 			{
 				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать недовозы, так как некого указывать в качестве автора документа.");
 			}
 
-			TabName = "Новый недовоз";
-			UndeliveredOrder.TimeOfCreation = DateTime.Now;
-
-			UndeliveredOrder.CreateOkkDiscussion(UoW);
+			Entity.TimeOfCreation = DateTime.Now;
+			Entity.CreateOkkDiscussion(UoW);
 		}
 
 		private void OnObservableUndeliveryDiscussionsListContentChanged(object sender, EventArgs e)
@@ -107,7 +152,14 @@ namespace Vodovoz.ViewModels.Orders
 			Entity.UpdateUndeliveryStatus();
 		}
 
-		private bool IsSaved() => Save(false);
+		private bool OnEntitySaved()
+		{
+			_forceSave = true;
+			var result = Save(false);
+			_forceSave = false;
+
+			return result;
+		}
 
 		/// <summary>
 		/// Проверка на возможность создания нового недовоза
@@ -117,54 +169,42 @@ namespace Vodovoz.ViewModels.Orders
 		/// нового (но не добавленного) недовоза.</returns>
 		private bool CanCreateUndelivery()
 		{
-			if(UndeliveredOrder.Id > 0)
+			if(Entity.Id > 0)
 			{
 				return true;
 			}
 
-			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, UndeliveredOrder.OldOrder).FirstOrDefault();
-			
+			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, Entity.OldOrder).FirstOrDefault();
+
 			if(otherUndelivery == null)
 			{
 				return true;
 			}
 
-			otherUndelivery.AddAutoCommentToOkkDiscussion(UoW, UndeliveredOrder.GetUndeliveryInfo(_orderRepository));
-			
+			otherUndelivery.AddAutoCommentToOkkDiscussion(UoW, Entity.GetUndeliveryInfo(_orderRepository));
+
+			_addedCommentToOldUndelivery = true;
+
 			return false;
 		}
 
 		private void ProcessSmsNotification()
-		{			
-			_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
+		{
+			_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity);
 		}
 
-		public void Configure(bool isForSalesDepartment = false)
+		public override bool Save(bool needClose)
 		{
-			if(isForSalesDepartment)
-			{
-				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
-				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
-			}
+			var validator = _commonServices.ValidationService;
 
-			UndeliveredOrderViewModel.IsSaved += IsSaved;
-
-			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
-			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
-		}
-
-		public override bool Save(bool needClose = true)
-		{
-			var validator = CommonServices.ValidationService;
-
-			if(!validator.Validate(UndeliveredOrder))
+			if(!validator.Validate(Entity, _validationContext))
 			{
 				return false;
 			}
 
-			if(UndeliveredOrder.Id == 0)
+			if(Entity.Id == 0)
 			{
-				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker);
+				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker);
 			}
 
 			UndeliveredOrderViewModel.BeforeSaveCommand.Execute();
@@ -172,20 +212,39 @@ namespace Vodovoz.ViewModels.Orders
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
 			if(!CanCreateUndelivery())
 			{
-				UoW.Save(UndeliveredOrder.OldOrder);
+				if(_forceSave)
+				{
+					UoW.Save(Entity);
+				}
+
+				UoW.Save(Entity.OldOrder);
 				UoW.Commit();
+
+				if(_addedCommentToOldUndelivery)
+				{
+					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, needClose));
+				}
+
 				Close(false, CloseSource.Self);
+
 				return false;
 			}
 
-			UoW.Save(UndeliveredOrder);
+			UoW.Save(Entity);
 
-			if(UndeliveredOrder.NewOrder != null
-			   && UndeliveredOrder.OrderTransferType == TransferType.AutoTransferNotApproved
-			   && UndeliveredOrder.NewOrder.OrderStatus != OrderStatus.Canceled)
+			if(!_isExternalUoW)
+			{
+				UoW.Commit();
+			}
+
+			if(Entity.NewOrder != null
+			   && Entity.OrderTransferType == TransferType.AutoTransferNotApproved
+			   && Entity.NewOrder.OrderStatus != OrderStatus.Canceled)
 			{
 				ProcessSmsNotification();
 			}
+
+			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, needClose));
 
 			if(needClose)
 			{
@@ -197,25 +256,38 @@ namespace Vodovoz.ViewModels.Orders
 
 		public void OnTabAdded()
 		{
-			UndeliveredOrderViewModel.OldOrderSelectCommand.Execute();
+			if(Entity.OldOrder == null)
+			{
+				UndeliveredOrderViewModel.OldOrderSelectCommand.Execute();
+			}
 		}
+
+		public UndeliveredOrder Entity { get; private set; }
+
+		private Employee _currentUser;
 
 		public UndeliveryDiscussionsViewModel UndeliveryDiscussionsViewModel { get; }
 
 		public UndeliveredOrderViewModel UndeliveredOrderViewModel { get; }
 
-		public UndeliveredOrder UndeliveredOrder => Entity;
-
 		public bool AskSaveOnClose => CanEdit;
 
-		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEdit { get; }
+
+		public event EventHandler<UndeliveryOnOrderCloseEventArgs> Saved;
 
 		public override void Dispose()
 		{
-			UndeliveredOrderViewModel.IsSaved -= IsSaved;
+			UndeliveredOrderViewModel.UndelivedOrderSaved -= OnEntitySaved;
+			Entity.ObservableUndeliveryDiscussions.ElementChanged -= OnObservableUndeliveryDiscussionsElementChanged;
+			Entity.ObservableUndeliveryDiscussions.ListContentChanged -= OnObservableUndeliveryDiscussionsListContentChanged;
+			UndeliveredOrderViewModel.UndelivedOrderSaved -= OnEntitySaved;
 			UndeliveredOrderViewModel.Dispose();
-			UoW?.Dispose();
-			base.Dispose();
+
+			if(!_isExternalUoW)
+			{
+				base.Dispose();
+			}
 		}
 	}
 }

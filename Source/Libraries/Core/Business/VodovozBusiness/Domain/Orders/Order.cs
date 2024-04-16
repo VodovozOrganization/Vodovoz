@@ -3114,7 +3114,7 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
 		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
-			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
+			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(uow, this);
 			var routeList = routeListItem?.RouteList;
 			switch(OrderStatus)
 			{

@@ -19,6 +19,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
@@ -63,7 +65,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(tdinavigation, manager)
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ICallTaskWorker callTaskWorker
+			) : base(tdinavigation, manager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
@@ -80,7 +84,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 			_deliveryPointJournalFactory =
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
@@ -89,7 +93,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
 						client, _lifetimeScope, _unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderSettings,
-						_employeeJournalFactory, _counterpartyJournalFactory, _deliveryRulesSettings, _nomenclatureSettings);
+						_employeeJournalFactory, _counterpartyJournalFactory, _deliveryRulesSettings, _nomenclatureSettings, _callTaskWorker);
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -145,7 +149,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryRulesSettings,
-						_nomenclatureSettings);
+						_nomenclatureSettings,
+						_callTaskWorker);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -172,7 +177,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 					new CounterpartyOrderViewModel(
 						client, _lifetimeScope, _unitOfWorkFactory, _tdiNavigation, _routedListRepository, MangoManager,
 						_orderSettings, _employeeJournalFactory, _counterpartyJournalFactory,
-						_deliveryRulesSettings, _nomenclatureSettings);
+						_deliveryRulesSettings, _nomenclatureSettings, _callTaskWorker);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;

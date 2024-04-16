@@ -104,9 +104,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var undeliveredrdersConfig = RegisterEntity<UndeliveredOrder>(GetUndeliveredOrdersQuery, GetItemsCount)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа					
-					() => NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder, bool>(this, EntityUoWBuilder.ForCreate(), isFosSalesDepartment).ViewModel,
+					() => NavigationManager.OpenViewModel<UndeliveryViewModel, bool>(this, isFosSalesDepartment).ViewModel,
 					//функция диалога открытия документа					
-					(UndeliveredOrderJournalNode node) => NavigationManager.OpenViewModel<UndeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(UndeliveredOrderJournalNode node) => NavigationManager.OpenViewModel<UndeliveryViewModel, int>(this, node.OldOrderId).ViewModel,
 					//функция идентификации документа 
 					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"
