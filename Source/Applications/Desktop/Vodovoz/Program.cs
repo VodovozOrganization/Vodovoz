@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -742,6 +742,7 @@ namespace Vodovoz
 						.AddTransient<EntityModelFactory>()
 
 						.AddPacsOperatorClient()
+						.AddWaterDeliveryDesktop()
 						;
 
 					services.AddStaticHistoryTracker();

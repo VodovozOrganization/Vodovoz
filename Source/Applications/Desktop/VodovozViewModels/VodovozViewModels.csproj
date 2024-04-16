@@ -89,6 +89,7 @@
     <Compile Include="Counterparties\TagJournalViewModel.cs" />
     <Compile Include="Counterparties\TagJournalViewModel.TagJournalNode.cs" />
     <Compile Include="Counterparties\TagViewModel.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparties\CloseSupplyToCounterpartyViewModel.cs" />
@@ -121,6 +122,9 @@
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
     <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
+    <Compile Include="Extensions\ClosedXmlReportExtensions.cs" />
+    <Compile Include="Factories\DialogSettingsFactory.cs" />
+    <Compile Include="Factories\IDialogSettingsFactory.cs" />
     <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
@@ -252,6 +256,7 @@
     <Compile Include="ReportsParameters\RevisionReportViewModel.cs" />
     <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
+    <Compile Include="Reports\IClosedXmlReport.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />

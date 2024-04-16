@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using ClosedXML.Report;
+using NHibernate;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -8,7 +9,9 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
+using RestSharp.Extensions;
 using System;
 using System.Linq;
 using System.Text;
@@ -19,7 +22,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.ViewModelBased;
+using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 
@@ -27,8 +31,10 @@ namespace Vodovoz.Journals.JournalViewModels
 {
 	public sealed class DistrictsSetJournalViewModel : EntityJournalViewModelBase<DistrictsSet, DistrictsSetViewModel, DistrictsSetJournalNode>
 	{
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IUserService _userService;
+		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly bool _сanChangeOnlineDeliveriesToday;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -48,14 +54,24 @@ namespace Vodovoz.Journals.JournalViewModels
 			IUserService userService,
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
-			ICurrentPermissionService currentPermissionService)
-			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IDialogSettingsFactory dialogSettingsFactory,
+			IFileDialogService fileDialogService)
+			: base(
+				  unitOfWorkFactory,
+				  interactiveService,
+				  navigationManager,
+				  deleteEntityService,
+				  currentPermissionService)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_deliveryRulesSettings =
 				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
 			_canActivateDistrictsSet = CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
 			_canCreate = permissionResult.CanCreate;
@@ -296,6 +312,36 @@ namespace Vodovoz.Journals.JournalViewModels
 					}
 				)
 			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Выбрать для сравнения",
+					selectedItems => true,
+					selectedItems => true,
+					selectedItems =>
+					{
+						_diffSourceDistrictSetVersionId = selectedItems.Cast<DistrictsSetJournalNode>().First().Id;
+					}));
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Сравнить с выбранной версией",
+					selectedItems => _diffSourceDistrictSetVersionId != null,
+					selectedItems => true,
+					selectedItems =>
+					{
+						_diffTargetDistrictSetVersionId = selectedItems.Cast<DistrictsSetJournalNode>().First().Id;
+					}));
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Выгрузить отчет",
+					selectedItems => true,
+					selectedItems => true,
+					selectedItems =>
+					{
+						GenerateDiffReportCommand.Execute();
+					}));
 		}
 
 		private void CreateCloseNodeAction()
@@ -364,7 +410,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			var reportResult = DistrictsSetDiffReport.Generate(UoW, DiffSourceDistrictSetVersionId, DiffTargetDistrictSetVersionId);
 
-			DistrictsSetDiffReport report;
+			DistrictsSetDiffReport report = null;
 
 			reportResult.Match(
 				r => report = r,
@@ -373,7 +419,19 @@ namespace Vodovoz.Journals.JournalViewModels
 					string.Join("\n", errors.Select(e => e.Message)),
 					"Ошибка при формировании отчета"));
 
+			if(report is null)
+			{
+				return;
+			}
 
+			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(report);
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(saveDialogResult.Successful)
+			{
+				report.Export(saveDialogResult.Path);
+			}
 		}
 	}
 }

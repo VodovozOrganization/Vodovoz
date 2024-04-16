@@ -1,15 +1,20 @@
 ﻿using NHibernate.Linq;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Errors;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
-	public partial class DistrictsSetDiffReport
+	[Appellative(Nominative = "Отчет об изменениях версий районов")]
+	public partial class DistrictsSetDiffReport : IClosedXmlReport
 	{
+		public string TemplatePath { get; } = @".\Reports\Logistic\DistrictsSetDiffReport.xlsx";
+
 		private DistrictsSetDiffReport(
 			IEnumerable<DistrictDiffRow> districtChanged,
 			IEnumerable<DistrictRow> districtAdded,
@@ -24,18 +29,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		public IEnumerable<DistrictRow> DistrictAdded { get; set; }
 		public IEnumerable<DistrictRow> DistrictRemoved { get; set; }
 
+
 		public static Result<DistrictsSetDiffReport> Generate(IUnitOfWork unitOfWork, int? diffSourceDistrictSetVersionId, int? diffTargetDistrictSetVersionId)
 		{
 			var sourceDistrictSet =
 				(from districtSet in unitOfWork.Session.Query<DistrictsSet>()
 				 where districtSet.Id == diffSourceDistrictSetVersionId.Value
 				 select districtSet)
-				.FetchMany(ds => ds.Districts)
-				.ThenFetchMany(d => d.AllDeliveryScheduleRestrictions)
-				.FetchMany(ds => ds.Districts)
-				.ThenFetchMany(d => d.AllDistrictRuleItems)
-				.FetchMany(ds => ds.Districts)
-				.ThenFetch(d => d.TariffZone)
+				//.FetchMany(ds => ds.Districts)
+				//.ThenFetchMany(d => d.AllDeliveryScheduleRestrictions)
+				//.FetchMany(ds => ds.Districts)
+				//.ThenFetchMany(d => d.AllDistrictRuleItems)
+				//.FetchMany(ds => ds.Districts)
+				//.ThenFetch(d => d.TariffZone)
 				.FirstOrDefault();
 
 			if(sourceDistrictSet is null)
@@ -47,12 +53,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				(from districtSet in unitOfWork.Session.Query<DistrictsSet>()
 				 where districtSet.Id == diffTargetDistrictSetVersionId.Value
 				 select districtSet)
-				.FetchMany(ds => ds.Districts)
-				.ThenFetchMany(d => d.AllDeliveryScheduleRestrictions)
-				.FetchMany(ds => ds.Districts)
-				.ThenFetchMany(d => d.AllDistrictRuleItems)
-				.FetchMany(ds => ds.Districts)
-				.ThenFetch(d => d.TariffZone)
+				//.FetchMany(ds => ds.Districts)
+				//.ThenFetchMany(d => d.AllDeliveryScheduleRestrictions)
+				//.FetchMany(ds => ds.Districts)
+				//.ThenFetchMany(d => d.AllDistrictRuleItems)
+				//.FetchMany(ds => ds.Districts)
+				//.ThenFetch(d => d.TariffZone)
 				.FirstOrDefault();
 
 			if(targetDistrictSet is null)
