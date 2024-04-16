@@ -1,6 +1,5 @@
 ﻿using FuelControl.Contracts.Responses;
 using FuelControl.Library.Services.Exceptions;
-using FuelControl.Library.Utils;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Vodovoz.Settings.Fuel;
+using VodovozInfrastructure.Cryptography;
 
 namespace FuelControl.Library.Services
 {

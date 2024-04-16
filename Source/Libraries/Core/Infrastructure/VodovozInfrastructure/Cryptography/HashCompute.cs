@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace FuelControl.Library.Utils
+namespace VodovozInfrastructure.Cryptography
 {
 	public static class HashCompute
 	{
