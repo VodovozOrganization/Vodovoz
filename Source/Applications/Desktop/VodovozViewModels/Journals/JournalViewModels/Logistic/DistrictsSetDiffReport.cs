@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Security.Cryptography;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Errors;
@@ -30,6 +31,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		public IEnumerable<DistrictRow> DistrictAdded { get; set; }
 		public IEnumerable<DistrictRow> DistrictRemoved { get; set; }
 
+		private static string ConvertRestrictionsToString(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions) =>
+			string.Join("\n",
+					deliveryScheduleRestrictions
+						.OrderBy(x => x.AcceptBefore == null)
+						.ThenBy(x => x.DeliverySchedule.Name)
+						.Select(FormatDeliveryShift))
+				.Trim('\n');
+
+		private static string FormatDeliveryShift(DeliveryScheduleRestriction deliveryScheduleRestriction)
+		{
+			if(string.IsNullOrWhiteSpace(deliveryScheduleRestriction.AcceptBeforeTitle))
+			{
+				return deliveryScheduleRestriction.DeliverySchedule.Name;
+			}
+
+			return $"Прием до: {deliveryScheduleRestriction.AcceptBeforeTitle}: {deliveryScheduleRestriction.DeliverySchedule.Name}";
+		}
 
 		public static Result<DistrictsSetDiffReport> Generate(IUnitOfWork unitOfWork, int? diffSourceDistrictSetVersionId, int? diffTargetDistrictSetVersionId)
 		{
@@ -62,17 +80,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var districtsAdded = new List<DistrictRow>();
 			var districtsRemoved = new List<DistrictRow>();
 
-			Func<DeliveryScheduleRestriction, string> deliveryShiftFormatter =
-				dsr =>
-				{
-					if(string.IsNullOrWhiteSpace(dsr.AcceptBeforeTitle))
-					{
-						return dsr.DeliverySchedule.Name;
-					}
-
-					return $"Прием до: {dsr.AcceptBeforeTitle} : {dsr.DeliverySchedule.Name}";
-				};
-
 			foreach(var district in newDistricts)
 			{
 				if(oldDistricts.Contains(district.CopyOf))
@@ -90,85 +97,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						DelikveryRulesGeneralOld = string.Join("\n", district.CopyOf.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
 						DelikveryRulesGeneralNew = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
 
-						DeliveryShiftsTodayOld = string.Join(
-							  "\n",
-							  district.CopyOf.TodayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsTodayOld = ConvertRestrictionsToString(district.CopyOf.TodayDeliveryScheduleRestrictions),
+						DeliveryShiftsTodayNew = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsTodayNew = string.Join(
-							  "\n",
-							  district.TodayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsMondayOld = ConvertRestrictionsToString(district.CopyOf.MondayDeliveryScheduleRestrictions),
+						DeliveryShiftsMondayNew = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsMondayOld = string.Join(
-							   "\n",
-							   district.CopyOf.MondayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsTuesdayOld = ConvertRestrictionsToString(district.CopyOf.TuesdayDeliveryScheduleRestrictions),
+						DeliveryShiftsTuesdayNew = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsMondayNew = string.Join(
-							   "\n",
-							   district.MondayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsWednesdayOld = ConvertRestrictionsToString(district.CopyOf.WednesdayDeliveryScheduleRestrictions),
+						DeliveryShiftsWednesdayNew = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsTuesdayOld = string.Join(
-							"\n",
-							district.CopyOf.TuesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsThursdayOld = ConvertRestrictionsToString(district.CopyOf.ThursdayDeliveryScheduleRestrictions),
+						DeliveryShiftsThursdayNew = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsTuesdayNew = string.Join(
-								"\n",
-								district.TuesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsFridayOld = ConvertRestrictionsToString(district.CopyOf.FridayDeliveryScheduleRestrictions),
+						DeliveryShiftsFridayNew = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsWednesdayOld = string.Join(
-								"\n",
-								district.CopyOf.WednesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsSaturdayOld = ConvertRestrictionsToString(district.CopyOf.SaturdayDeliveryScheduleRestrictions),
+						DeliveryShiftsSaturdayNew = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsWednesdayNew = string.Join(
-								"\n",
-								district.WednesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsThursdayOld = string.Join(
-								"\n",
-								district.CopyOf.ThursdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsThursdayNew = string.Join(
-								"\n",
-								district.ThursdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsFridayOld = string.Join(
-								"\n",
-								district.CopyOf.FridayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsFridayNew = string.Join(
-								"\n",
-								district.FridayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsSaturdayOld = string.Join(
-								"\n",
-								district.CopyOf.SaturdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsSaturdayNew = string.Join(
-								"\n",
-								district.SaturdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsSundayOld = string.Join(
-								"\n",
-								district.CopyOf.SundayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsSundayNew = string.Join(
-								"\n",
-								district.SundayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsSundayOld = ConvertRestrictionsToString(district.CopyOf.SundayDeliveryScheduleRestrictions),
+						DeliveryShiftsSundayNew = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
 
 						RegionChanged = district.DistrictBorder != district.CopyOf.DistrictBorder,
 
@@ -242,45 +193,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 						DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
 
-						DeliveryShiftsToday = string.Join(
-								"\n",
-								district.TodayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsMonday = string.Join(
-								"\n",
-								district.MondayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsTuesday = string.Join(
-								"\n",
-								district.TuesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsWednesday = string.Join(
-								"\n",
-								district.WednesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsThursday = string.Join(
-								"\n",
-								district.ThursdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsFriday = string.Join(
-								"\n",
-								district.FridayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsSaturday = string.Join(
-								"\n",
-								district.SaturdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
-
-						DeliveryShiftsSunday = string.Join(
-								"\n",
-								district.SundayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter))
-							.Trim('\n'),
+						DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
+						DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
+						DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
+						DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
+						DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
+						DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
+						DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
+						DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
 
 						DeliveryRulesSpecial = string.Join(
 								"\n",
@@ -326,37 +246,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 						DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
 
-						DeliveryShiftsToday = string.Join(
-							"\n",
-							district.TodayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsMonday = string.Join(
-							"\n",
-							district.MondayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsTuesday = string.Join(
-							"\n",
-							district.TuesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsWednesday = string.Join(
-							"\n",
-							district.WednesdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsThursday = string.Join(
-							"\n",
-							district.ThursdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsFriday = string.Join(
-							"\n",
-							district.FridayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsSaturday = string.Join(
-							"\n",
-							district.SaturdayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
-
-						DeliveryShiftsSunday = string.Join(
-							"\n",
-							district.SundayDeliveryScheduleRestrictions.Select(deliveryShiftFormatter)),
+						DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
+						DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
+						DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
+						DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
+						DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
+						DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
+						DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
+						DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
 
 						DeliveryRulesSpecial = string.Join(
 								"\n",
