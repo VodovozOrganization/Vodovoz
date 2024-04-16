@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace FuelControl.Library.Services.Exceptions
+namespace FuelControl.Library.Exceptions
 {
 	public class FuelControlException : Exception
 	{

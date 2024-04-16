@@ -1,6 +1,6 @@
-﻿using FuelControl.Contracts.Responses;
-using FuelControl.Library.Converters;
-using FuelControl.Library.Services.Exceptions;
+﻿using FuelControl.Contracts.Converters;
+using FuelControl.Contracts.Responses;
+using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -19,12 +19,12 @@ namespace FuelControl.Library.Services
 		private const string _transactionsEndpointAddress = "vip/v2/transactions";
 
 		private readonly ILogger<GazpromFuelTransactionsDataService> _logger;
-		private readonly TransactionConverter _transactionConverter;
+		private readonly ITransactionConverter _transactionConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
 		public GazpromFuelTransactionsDataService(
 			ILogger<GazpromFuelTransactionsDataService> logger,
-			TransactionConverter transactionConverter,
+			ITransactionConverter transactionConverter,
 			IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -88,7 +88,7 @@ namespace FuelControl.Library.Services
 				if(responseData.Status.Errors?.Count() > 0)
 				{
 					var errorMessages =
-						$"На запрос получения транзакций вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => e.Message))}";
+						$"На запрос получения транзакций вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
 					_logger.LogError(errorMessages);
 

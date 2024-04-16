@@ -1,5 +1,5 @@
 ﻿using FuelControl.Contracts.Responses;
-using FuelControl.Library.Services.Exceptions;
+using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -63,7 +63,7 @@ namespace FuelControl.Library.Services
 				if(responseData.Status.Errors?.Count() > 0)
 				{
 					var errorMessages =
-						$"На запрос авторизации вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => e.Message))}";
+						$"На запрос авторизации вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
 					_logger.LogError(errorMessages);
 

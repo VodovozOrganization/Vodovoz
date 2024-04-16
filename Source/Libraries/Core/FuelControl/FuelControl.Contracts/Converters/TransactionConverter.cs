@@ -1,9 +1,9 @@
 ﻿using FuelControl.Contracts.Dto;
 using Vodovoz.Domain.Fuel;
 
-namespace FuelControl.Library.Converters
+namespace FuelControl.Contracts.Converters
 {
-	public class TransactionConverter
+	public class TransactionConverter : ITransactionConverter
 	{
 		public FuelTransaction ConvertToDomainFuelTransaction(TransactionDto transactionDto)
 		{
