@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
 using QS.Report.ViewModels;
+using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
@@ -430,7 +431,8 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport()));
+			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport(
+				_autofacScope.BeginLifetimeScope(), NavigationManager)));
 	}
 
 	/// <summary>
