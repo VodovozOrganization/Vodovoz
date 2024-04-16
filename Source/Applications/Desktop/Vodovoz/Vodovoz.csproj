@@ -2449,6 +2449,10 @@
       <Project>{eb928475-6d2b-4fef-a314-d75bccef3ad0}</Project>
       <Name>EdoService.Library</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
+      <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
+      <Name>FuelControl.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>

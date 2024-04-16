@@ -148,6 +148,7 @@ using QS.ViewModels.Control.EEVM;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Tools.Orders;
 using MassTransit;
+using FuelControl.Library;
 
 namespace Vodovoz
 {
@@ -722,6 +723,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddFuelControl(hostingContext)
 
 
 						//Messages
