@@ -1184,5 +1184,10 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<UndeliveryDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	protected void OnOrdersRatingReasonsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrdersRatingReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Заказы
 }

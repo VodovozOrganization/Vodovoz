@@ -59,7 +59,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
-		
+
 		Build();
 
 		_interativeService = ServicesConfig.CommonServices.InteractiveService;
@@ -87,24 +87,24 @@ public partial class MainWindow : Gtk.Window
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsSettings.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
 
-		if (reorderTabs)
+		if(reorderTabs)
 		{
 			ReorderTabs.Activate();
 		}
 
-		if (highlightWColor)
+		if(highlightWColor)
 		{
 			HighlightTabsWithColor.Activate();
 		}
 
-		if (keepTabColor)
+		if(keepTabColor)
 		{
 			KeepTabColor.Activate();
 		}
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-		if (isWindows)
+		if(isWindows)
 		{
 			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 		}
@@ -166,7 +166,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
 
 		//Читаем настройки пользователя
-		switch (CurrentUserSettings.Settings.ToolbarStyle)
+		switch(CurrentUserSettings.Settings.ToolbarStyle)
 		{
 			case ToolbarStyle.Both:
 				ActionToolBarBoth.Activate();
@@ -179,7 +179,7 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		switch (CurrentUserSettings.Settings.ToolBarIconsSize)
+		switch(CurrentUserSettings.Settings.ToolBarIconsSize)
 		{
 			case IconsSize.ExtraSmall:
 				ActionIconsExtraSmall.Activate();
@@ -201,7 +201,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
-		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
@@ -217,7 +217,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление об отправленных перемещениях для подразделения
 
-		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			var employeeService = _autofacScope.Resolve<IEmployeeService>();
 
@@ -246,7 +246,7 @@ public partial class MainWindow : Gtk.Window
 
 		_complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
-		if (!_hideComplaintsNotifications)
+		if(!_hideComplaintsNotifications)
 		{
 			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
@@ -269,7 +269,7 @@ public partial class MainWindow : Gtk.Window
 
 		bool userIsSalesRepresentative;
 
-		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
@@ -326,7 +326,7 @@ public partial class MainWindow : Gtk.Window
 
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 
-		ActionClassificationCalculation.Sensitive = 
+		ActionClassificationCalculation.Sensitive =
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
 
 		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
@@ -335,7 +335,7 @@ public partial class MainWindow : Gtk.Window
 
 		InitializeThemesMenuItem();
 	}
-	
+
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }
 

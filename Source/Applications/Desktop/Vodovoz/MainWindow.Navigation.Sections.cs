@@ -182,9 +182,12 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		//NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)
+	{
 		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
-		//NavigationManager.OpenViewModel<OrdersRatingReasonsJournalViewModel>(null);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
