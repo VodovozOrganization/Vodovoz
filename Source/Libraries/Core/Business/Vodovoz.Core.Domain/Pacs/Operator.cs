@@ -50,7 +50,10 @@ namespace Vodovoz.Core.Domain.Pacs
 
 			using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Валидация"))
 			{
-				if(operatorRepository.GetValue(unitOfWork, o => o.Id, o => o.Id == Id).Any())
+				if(validationContext.Items.TryGetValue("isNew", out var isNew)
+					&& isNew is bool isNewValue
+					&& isNewValue
+					&& operatorRepository.GetValue(unitOfWork, o => o.Id, o => o.Id == Id).Any())
 				{
 					yield return new ValidationResult("Оператор уже существует", new[] { nameof(Id) });
 				}
