@@ -11,8 +11,8 @@
 			public string TariffZoneNameOld { get; set; }
 			public string TariffZoneNameNew { get; set; }
 
-			public int MinimalBottlesCountOld { get; set; }
-			public int MinimalBottlesCountNew { get; set; }
+			public int? MinimalBottlesCountOld { get; set; }
+			public int? MinimalBottlesCountNew { get; set; }
 
 			public string DelikveryRulesGeneralOld { get; set; }
 			public string DelikveryRulesGeneralNew { get; set; }
