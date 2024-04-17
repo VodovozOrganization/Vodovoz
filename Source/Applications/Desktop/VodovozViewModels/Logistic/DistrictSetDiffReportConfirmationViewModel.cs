@@ -94,6 +94,7 @@ namespace Vodovoz.ViewModels.Logistic
 				if(saveDialogResult.Successful)
 				{
 					report.Export(saveDialogResult.Path);
+					CloseCommand.Execute();
 				}
 			}
 		}

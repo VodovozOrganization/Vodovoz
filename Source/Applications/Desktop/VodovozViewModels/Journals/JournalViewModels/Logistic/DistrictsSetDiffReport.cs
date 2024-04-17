@@ -79,7 +79,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var districtsAdded = new List<DistrictRow>();
 			var districtsRemoved = new List<DistrictRow>();
 
-			foreach(var district in newDistricts)
+			var onlyDifferentDistricts = newDistricts
+				.Where(d =>
+					oldDistricts.Contains(d.CopyOf)
+					&& (
+						d.TariffZone.Id != d.CopyOf.TariffZone.Id
+						|| d.MinBottles != d.CopyOf.MinBottles
+						|| d.DistrictName != d.CopyOf.DistrictName
+						|| !d.AllDistrictRuleItems.All(dri => d.CopyOf.AllDistrictRuleItems.Select(x => x.Id).Contains(dri.Id))
+						|| !d.CopyOf.AllDistrictRuleItems.All(dri => d.AllDistrictRuleItems.Select(x => x.Id).Contains(dri.Id)))
+						|| !d.AllDeliveryScheduleRestrictions.All(dsr => d.CopyOf.AllDeliveryScheduleRestrictions
+							.Select(x => (x.AcceptBefore, x.WeekDay, x.DeliverySchedule.From, x.DeliverySchedule.To))
+							.Contains((dsr.AcceptBefore, dsr.WeekDay, dsr.DeliverySchedule.From, dsr.DeliverySchedule.To)))
+						|| !d.CopyOf.AllDeliveryScheduleRestrictions.All(dsr => d.AllDeliveryScheduleRestrictions
+							.Select(x => (x.AcceptBefore, x.WeekDay, x.DeliverySchedule.From, x.DeliverySchedule.To))
+							.Contains((dsr.AcceptBefore, dsr.WeekDay, dsr.DeliverySchedule.From, dsr.DeliverySchedule.To))));
+
+			foreach(var district in onlyDifferentDistricts)
 			{
 				if(oldDistricts.Contains(district.CopyOf))
 				{
@@ -180,109 +196,110 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					});
 					continue;
 				}
-
-				if(district.CopyOf is null)
-				{
-					districtsAdded.Add(new DistrictRow
-					{
-						Id = district.Id,
-						Name = district.DistrictName,
-						TariffZoneName = district.TariffZone.Name,
-						MinimalBottlesCount = district.MinBottles,
-
-						DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
-
-						DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
-						DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
-						DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
-						DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
-						DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
-						DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
-						DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
-						DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
-
-						DeliveryRulesSpecial = string.Join(
-								"\n",
-								district.TodayDistrictRuleItems.Any()
-									? "ДД: " + string.Join("\n", district.TodayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.MondayDistrictRuleItems.Any()
-									? "ПН: " + string.Join("\n", district.MondayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.TuesdayDistrictRuleItems.Any()
-									? "ВТ: " + string.Join("\n", district.TuesdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.WednesdayDistrictRuleItems.Any()
-									? "СР: " + string.Join("\n", district.WednesdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.ThursdayDistrictRuleItems.Any()
-									? "ЧТ: " + string.Join("\n", district.ThursdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.FridayDistrictRuleItems.Any()
-									? "ПТ: " + string.Join("\n", district.FridayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.SaturdayDistrictRuleItems.Any()
-									? "СБ: " + string.Join("\n", district.SaturdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.SundayDistrictRuleItems.Any()
-									? "ВС: " + string.Join("\n", district.SundayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "")
-							.Trim('\n'),
-					});
-				}
 			}
 
-			foreach(var district in oldDistricts)
+			var addedDistrictsOnly = newDistricts.Where(d => d.CopyOf is null);
+
+			foreach(var district in addedDistrictsOnly)
 			{
-				if(!newDistricts.Select(nd => nd.CopyOf).Contains(district))
+				districtsAdded.Add(new DistrictRow
 				{
-					districtsRemoved.Add(new DistrictRow
-					{
-						Id = district.Id,
-						Name = district.DistrictName,
-						TariffZoneName = district.TariffZone.Name,
-						MinimalBottlesCount = district.MinBottles,
+					Id = district.Id,
+					Name = district.DistrictName,
+					TariffZoneName = district.TariffZone.Name,
+					MinimalBottlesCount = district.MinBottles,
 
-						DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
+					DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
 
-						DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
-						DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
-						DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
-						DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
-						DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
-						DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
-						DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
-						DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
+					DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
+					DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
+					DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
+					DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
+					DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
 
-						DeliveryRulesSpecial = string.Join(
-								"\n",
-								district.TodayDistrictRuleItems.Any()
-									? "ДД: " + string.Join("\n", district.TodayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.MondayDistrictRuleItems.Any()
-									? "ПН: " + string.Join("\n", district.MondayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.TuesdayDistrictRuleItems.Any()
-									? "ВТ: " + string.Join("\n", district.TuesdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.WednesdayDistrictRuleItems.Any()
-									? "СР: " + string.Join("\n", district.WednesdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.ThursdayDistrictRuleItems.Any()
-									? "ЧТ: " + string.Join("\n", district.ThursdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.FridayDistrictRuleItems.Any()
-									? "ПТ: " + string.Join("\n", district.FridayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.SaturdayDistrictRuleItems.Any()
-									? "СБ: " + string.Join("\n", district.SaturdayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "",
-								district.SundayDistrictRuleItems.Any()
-									? "ВС: " + string.Join("\n", district.SundayDistrictRuleItems.Select(cdri => cdri.Title))
-									: "")
-							.Trim('\n'),
-					});
-				}
+					DeliveryRulesSpecial = string.Join(
+							"\n",
+							district.TodayDistrictRuleItems.Any()
+								? "ДД: " + string.Join("\n", district.TodayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.MondayDistrictRuleItems.Any()
+								? "ПН: " + string.Join("\n", district.MondayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.TuesdayDistrictRuleItems.Any()
+								? "ВТ: " + string.Join("\n", district.TuesdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.WednesdayDistrictRuleItems.Any()
+								? "СР: " + string.Join("\n", district.WednesdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.ThursdayDistrictRuleItems.Any()
+								? "ЧТ: " + string.Join("\n", district.ThursdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.FridayDistrictRuleItems.Any()
+								? "ПТ: " + string.Join("\n", district.FridayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.SaturdayDistrictRuleItems.Any()
+								? "СБ: " + string.Join("\n", district.SaturdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.SundayDistrictRuleItems.Any()
+								? "ВС: " + string.Join("\n", district.SundayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "")
+						.Trim('\n'),
+				});
+			}
+
+			var removedDistrictsOnly = oldDistricts.Where(d => !newDistricts.Select(nd => nd.CopyOf).Contains(d));
+
+			foreach(var district in removedDistrictsOnly)
+			{
+				districtsRemoved.Add(new DistrictRow
+				{
+					Id = district.Id,
+					Name = district.DistrictName,
+					TariffZoneName = district.TariffZone.Name,
+					MinimalBottlesCount = district.MinBottles,
+
+					DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
+
+					DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
+					DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
+					DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
+					DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
+					DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
+
+					DeliveryRulesSpecial = string.Join(
+							"\n",
+							district.TodayDistrictRuleItems.Any()
+								? "ДД: " + string.Join("\n", district.TodayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.MondayDistrictRuleItems.Any()
+								? "ПН: " + string.Join("\n", district.MondayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.TuesdayDistrictRuleItems.Any()
+								? "ВТ: " + string.Join("\n", district.TuesdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.WednesdayDistrictRuleItems.Any()
+								? "СР: " + string.Join("\n", district.WednesdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.ThursdayDistrictRuleItems.Any()
+								? "ЧТ: " + string.Join("\n", district.ThursdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.FridayDistrictRuleItems.Any()
+								? "ПТ: " + string.Join("\n", district.FridayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.SaturdayDistrictRuleItems.Any()
+								? "СБ: " + string.Join("\n", district.SaturdayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "",
+							district.SundayDistrictRuleItems.Any()
+								? "ВС: " + string.Join("\n", district.SundayDistrictRuleItems.Select(cdri => cdri.Title))
+								: "")
+						.Trim('\n'),
+				});
 			}
 
 			return new DistrictsSetDiffReport(districtsChanged, districtsAdded, districtsRemoved);
