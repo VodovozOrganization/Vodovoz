@@ -1,4 +1,4 @@
-using DatabaseServiceWorker.Options;
+﻿using DatabaseServiceWorker.Options;
 using FuelControl.Library.Converters;
 using FuelControl.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,9 +19,9 @@ namespace DatabaseServiceWorker
 
 		public static IServiceCollection AddFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.ConfigureFuelTransactionsControlWorker(context)
-			.AddSingleton<IFuelManagmentAuthorizationService, GazpromAuthorizationService>()
+			.AddSingleton<IFuelControlAuthorizationService, GazpromAuthorizationService>()
 			.AddSingleton<ITransactionConverter, TransactionConverter>()
-			.AddSingleton<IFuelTransactionsDataService, GazpromFuelTransactionsDataService>()
+			.AddSingleton<IFuelControlTransactionsDataService, GazpromTransactionsDataService>()
 			.AddSingleton<IFuelRepository, FuelRepository>()
 			.AddSingleton<IFuelControlSettings, FuelControlSettings>();
 

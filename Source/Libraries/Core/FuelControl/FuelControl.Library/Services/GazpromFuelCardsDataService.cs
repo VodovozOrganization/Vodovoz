@@ -7,23 +7,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Settings.Fuel;
 
 namespace FuelControl.Library.Services
 {
-	public class GazpromFuelCardsGeneralInfoService : IFuelCardsGeneralInfoService
+	public class GazpromFuelCardsDataService : IFuelControlFuelCardsDataService
 	{
 		private const string _requestDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
 		private const string _cardsEndpointAddress = "vip/v2/cards";
 
-		private readonly ILogger<GazpromFuelCardsGeneralInfoService> _logger;
+		private readonly ILogger<GazpromFuelCardsDataService> _logger;
 		private readonly IFuelCardConverter _fuelCardConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromFuelCardsGeneralInfoService(
-			ILogger<GazpromFuelCardsGeneralInfoService> logger,
+		public GazpromFuelCardsDataService(
+			ILogger<GazpromFuelCardsDataService> logger,
 			IFuelCardConverter fuelCardConverter,
 			IFuelControlSettings fuelControlSettings)
 		{
@@ -35,6 +36,7 @@ namespace FuelControl.Library.Services
 		public async Task<IEnumerable<FuelCard>> GetFuelCards(
 			string sessionId,
 			string apiKey,
+			CancellationToken cancellationToken,
 			int pageLimit = 500,
 			int pageOffset = 0)
 		{
@@ -64,7 +66,8 @@ namespace FuelControl.Library.Services
 				httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
 				var response = await httpClient.GetAsync(
-					  $"{_cardsEndpointAddress}");
+					  $"{_cardsEndpointAddress}",
+					  cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 

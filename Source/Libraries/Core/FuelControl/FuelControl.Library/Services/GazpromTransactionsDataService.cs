@@ -7,23 +7,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Settings.Fuel;
 
 namespace FuelControl.Library.Services
 {
-	public class GazpromFuelTransactionsDataService : IFuelTransactionsDataService
+	public class GazpromTransactionsDataService : IFuelControlTransactionsDataService
 	{
 		private const string _requestDateTimeFormatString = "yyyy-MM-dd";
 		private const string _transactionsEndpointAddress = "vip/v2/transactions";
 
-		private readonly ILogger<GazpromFuelTransactionsDataService> _logger;
+		private readonly ILogger<GazpromTransactionsDataService> _logger;
 		private readonly ITransactionConverter _transactionConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromFuelTransactionsDataService(
-			ILogger<GazpromFuelTransactionsDataService> logger,
+		public GazpromTransactionsDataService(
+			ILogger<GazpromTransactionsDataService> logger,
 			ITransactionConverter transactionConverter,
 			IFuelControlSettings fuelControlSettings)
 		{
@@ -37,6 +38,7 @@ namespace FuelControl.Library.Services
 			string apiKey,
 			DateTime startDate,
 			DateTime endDate,
+			CancellationToken cancellationToken,
 			int pageLimit = 500,
 			int pageOffset = 0)
 		{
@@ -79,7 +81,8 @@ namespace FuelControl.Library.Services
 				httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
 				var response = await httpClient.GetAsync(
-					  $"{_transactionsEndpointAddress}?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}");
+					  $"{_transactionsEndpointAddress}?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}",
+					  cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -9,7 +10,9 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -24,17 +27,20 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 	{
 		private readonly ILogger<FuelCardViewModel> _logger;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly IFuelManagmentAuthorizationService _fuelManagmentAuthorizationService;
-		private readonly IFuelCardsGeneralInfoService _fuelCardsGeneralInfoService;
+		private readonly IFuelControlAuthorizationService _fuelControlAuthorizationService;
+		private readonly IFuelControlFuelCardsDataService _fuelCardsDataService;
 		private readonly IUserSettingsService _userSettingsService;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
+		private CancellationTokenSource _cancellationTokenSource;
+		private bool _isCardIdObtainingProcessInWork;
+
 		public FuelCardViewModel(
 			ILogger<FuelCardViewModel> logger,
 			IFuelRepository fuelRepository,
-			IFuelManagmentAuthorizationService fuelManagmentAuthorizationService,
-			IFuelCardsGeneralInfoService fuelCardsGeneralInfoService,
+			IFuelControlAuthorizationService fuelControlAuthorizationService,
+			IFuelControlFuelCardsDataService fuelCardsDataService,
 			IUserSettingsService userSettingsService,
 			IGuiDispatcher guiDispatcher,
 			IFuelControlSettings fuelControlSettings,
@@ -51,8 +57,8 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_fuelManagmentAuthorizationService = fuelManagmentAuthorizationService ?? throw new ArgumentNullException(nameof(fuelManagmentAuthorizationService));
-			_fuelCardsGeneralInfoService = fuelCardsGeneralInfoService ?? throw new ArgumentNullException(nameof(fuelCardsGeneralInfoService));
+			_fuelControlAuthorizationService = fuelControlAuthorizationService ?? throw new ArgumentNullException(nameof(fuelControlAuthorizationService));
+			_fuelCardsDataService = fuelCardsDataService ?? throw new ArgumentNullException(nameof(fuelCardsDataService));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
@@ -63,15 +69,28 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 			SaveCommand = new DelegateCommand(() => Save(true));
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
-			GetCardIdCommand = new DelegateCommand(async () => await SetCardId(), () => Entity.IsCardNumberValid);
+			GetCardIdCommand = new DelegateCommand(async () => await SetCardId(), () => IsCanSetCardId);
 
 			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWorkFactory), unitOfWorkFactory);
 			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 		public DelegateCommand GetCardIdCommand { get; }
+
+		[PropertyChangedAlso(nameof(IsCanSetCardId))]
+		public bool IsCardIdObtainingProcessInWork
+		{
+			get => _isCardIdObtainingProcessInWork;
+			set => SetField(ref _isCardIdObtainingProcessInWork, value);
+		}
+
+		public bool IsCanSetCardId =>
+			Entity.IsCardNumberValid
+			&& !IsCardIdObtainingProcessInWork;
 
 		private async Task SetCardId()
 		{
@@ -84,6 +103,15 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 				return;
 			}
 
+			if(IsCardIdObtainingProcessInWork)
+			{
+				ShowMessageInGuiThread(
+					ImportanceLevel.Error,
+					"Получение значения Id карты уже запущено. Необходимо дождаться окончания процесса.");
+
+				return;
+			}
+
 			var cardId = await GetCardId();
 
 			Entity.CardId = cardId;
@@ -91,11 +119,19 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 		private async Task<string> GetCardId()
 		{
+			if(_cancellationTokenSource != null)
+			{
+				throw new InvalidOperationException("Получение значения Id карты уже запущено.");
+			}
+
+			IsCardIdObtainingProcessInWork = true;
+			_cancellationTokenSource = new CancellationTokenSource();
+
 			try
 			{
-				var sessionId = await GetSessionId();
+				var sessionId = await GetSessionId(_cancellationTokenSource.Token);
 
-				var fuelCards = await GetAllCardsFromFuelControlService(sessionId);
+				var fuelCards = await GetAllCardsFromFuelControlService(sessionId, _cancellationTokenSource.Token);
 
 				var card = fuelCards.Where(c => c.CardNumber == Entity.CardNumber).FirstOrDefault();
 
@@ -114,11 +150,18 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 				_logger.LogError(ex.Message);
 				ShowMessageInGuiThread(ImportanceLevel.Error, ex.Message);
 			}
+			finally
+			{
+				_cancellationTokenSource.Dispose();
+				_cancellationTokenSource = null;
+
+				IsCardIdObtainingProcessInWork = false;
+			}
 
 			return string.Empty;
 		}
 
-		private async Task<string> GetSessionId()
+		private async Task<string> GetSessionId(CancellationToken cancellationToken)
 		{
 			var userSettings = _userSettingsService.Settings;
 
@@ -134,10 +177,11 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 			_logger.LogDebug("Необходима авторизация в сервисе API управления топливными картами");
 
-			var sessionId = await _fuelManagmentAuthorizationService.Login(
+			var sessionId = await _fuelControlAuthorizationService.Login(
 					userSettings.FuelControlApiLogin,
 					userSettings.FuelControlApiPassword,
-					userSettings.FuelControlApiKey);
+					userSettings.FuelControlApiKey,
+					cancellationToken);
 
 			using(var uow = UnitOfWorkFactory.CreateForRoot<UserSettings>(userSettings.Id))
 			{
@@ -150,11 +194,11 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			return sessionId;
 		}
 
-		private async Task<IEnumerable<FuelCard>> GetAllCardsFromFuelControlService(string sessionId)
+		private async Task<IEnumerable<FuelCard>> GetAllCardsFromFuelControlService(string sessionId, CancellationToken cancellationToken)
 		{
 			var cards = new List<FuelCard>();
 
-			var cardsSetCount = 0;
+			var cardsInResponseCount = 0;
 			var pageLimit = _fuelControlSettings.TransactionsPerQueryLimit;
 			var pageOffset = 0;
 
@@ -162,17 +206,21 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 			do
 			{
-				var cardsSet = await _fuelCardsGeneralInfoService.GetFuelCards(
-				sessionId,
-				_userSettingsService.Settings.FuelControlApiKey);
+				var cardsSet = await _fuelCardsDataService.GetFuelCards(
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken,
+					pageLimit,
+					pageOffset
+					);
 
-				cardsSetCount = cardsSet.Count();
+				cardsInResponseCount = cardsSet.Count();
 
 				cards.AddRange(cardsSet);
 
 				pageOffset += pageLimit;
 			}
-			while(cardsSetCount == pageLimit);
+			while(cardsInResponseCount == pageLimit);
 
 			_logger.LogDebug("Получены данные по {CardsCount} картам",
 				cards.Count);
@@ -186,6 +234,22 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			{
 				CommonServices.InteractiveService.ShowMessage(level, message);
 			});
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.CardNumber))
+			{
+				OnPropertyChanged(nameof(IsCanSetCardId));
+			}
+		}
+
+		public override void Dispose()
+		{
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = null;
+
+			base.Dispose();
 		}
 	}
 }

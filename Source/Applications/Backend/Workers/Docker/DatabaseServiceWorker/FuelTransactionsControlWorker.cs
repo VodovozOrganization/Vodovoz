@@ -27,8 +27,8 @@ namespace DatabaseServiceWorker
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<FuelTransactionsControlOptions> _options;
 		private readonly ILogger<FuelTransactionsControlWorker> _logger;
-		private readonly IFuelManagmentAuthorizationService _authorizationService;
-		private readonly IFuelTransactionsDataService _fuelTransactionsDataService;
+		private readonly IFuelControlAuthorizationService _authorizationService;
+		private readonly IFuelControlTransactionsDataService _fuelControlTransactionsDataService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
@@ -36,8 +36,8 @@ namespace DatabaseServiceWorker
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptions<FuelTransactionsControlOptions> options,
 			ILogger<FuelTransactionsControlWorker> logger,
-			IFuelManagmentAuthorizationService authorizationService,
-			IFuelTransactionsDataService fuelTransactionsDataService,
+			IFuelControlAuthorizationService authorizationService,
+			IFuelControlTransactionsDataService fuelControlTransactionsDataService,
 			IFuelRepository fuelRepository,
 			IFuelControlSettings fuelControlSettings)
 		{
@@ -45,7 +45,7 @@ namespace DatabaseServiceWorker
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-			_fuelTransactionsDataService = fuelTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelTransactionsDataService));
+			_fuelControlTransactionsDataService = fuelControlTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelControlTransactionsDataService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
@@ -74,14 +74,14 @@ namespace DatabaseServiceWorker
 
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сохранение транзакций топлива");
 
-			await DailyFuelTransactionsUpdate(uow);
+			await DailyFuelTransactionsUpdate(uow, stoppingToken);
 
-			await MonthlyFuelTransactionsUpdate(uow);
+			await MonthlyFuelTransactionsUpdate(uow, stoppingToken);
 
 			_isWorkInProgress = false;
 		}
 
-		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow)
+		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Начинается обновление транзакций топлива за предыдущие дни...");
 
@@ -104,7 +104,7 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
-			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate);
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, cancellationToken);
 
 			if(isTransactionsUpdated)
 			{
@@ -112,7 +112,7 @@ namespace DatabaseServiceWorker
 			}
 		}
 
-		private async Task MonthlyFuelTransactionsUpdate(IUnitOfWork uow)
+		private async Task MonthlyFuelTransactionsUpdate(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Начинается обновление транзакций топлива за предыдущий месяц...");
 
@@ -135,7 +135,7 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
-			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate);
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, cancellationToken);
 
 			if(isTransactionsUpdated)
 			{
@@ -143,20 +143,23 @@ namespace DatabaseServiceWorker
 			}
 		}
 
-		private async Task<bool> GetAndSaveFuelTransactions(IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		private async Task<bool> GetAndSaveFuelTransactions(
+			IUnitOfWork uow,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
 		{
 			try
 			{
-				await Login();
+				await Login(cancellationToken);
 
 				var transactionsCount = 0;
-
 				var pageLimit = _fuelControlSettings.TransactionsPerQueryLimit;
 				var pageOffset = 0;
 
 				do
 				{
-					var transactions = await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset);
+					var transactions = await GetFuelTransactions(startDate, endDate, pageLimit, pageOffset, cancellationToken);
 					transactionsCount = transactions.Count();
 					pageOffset += pageLimit;
 
@@ -181,7 +184,7 @@ namespace DatabaseServiceWorker
 			}
 		}
 
-		private async Task Login()
+		private async Task Login(CancellationToken cancellationToken)
 		{
 			if(IsAuthorized)
 			{
@@ -196,19 +199,26 @@ namespace DatabaseServiceWorker
 			var sessionId = await _authorizationService.Login(
 				_options.Value.Login,
 				_options.Value.Password,
-				_options.Value.ApiKey);
+				_options.Value.ApiKey,
+				cancellationToken);
 
 			_sessionId = sessionId;
 			_sessionExpirationDate = DateTime.Today.AddMinutes(_fuelControlSettings.ApiSessionLifetime.TotalMinutes);
 		}
 
-		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactions(DateTime startDate, DateTime endDate, int pageLimit, int pageOffset)
+		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactions(
+			DateTime startDate,
+			DateTime endDate,
+			int pageLimit,
+			int pageOffset,
+			CancellationToken cancellationToken)
 		{
-			return await _fuelTransactionsDataService.GetFuelTransactionsForPeriod(
+			return await _fuelControlTransactionsDataService.GetFuelTransactionsForPeriod(
 				_sessionId,
 				_options.Value.ApiKey,
 				startDate,
 				endDate,
+				cancellationToken,
 				pageLimit,
 				pageOffset);
 		}

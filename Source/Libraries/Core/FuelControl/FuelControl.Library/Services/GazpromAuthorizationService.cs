@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Settings.Fuel;
 using VodovozInfrastructure.Cryptography;
 
 namespace FuelControl.Library.Services
 {
-	public class GazpromAuthorizationService : IFuelManagmentAuthorizationService
+	public class GazpromAuthorizationService : IFuelControlAuthorizationService
 	{
 		private const string _requestDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
 		private const string _logsDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
@@ -27,7 +28,7 @@ namespace FuelControl.Library.Services
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		public async Task<string> Login(string login, string password, string apiKey)
+		public async Task<string> Login(string login, string password, string apiKey, CancellationToken cancellationToken)
 		{
 			if(string.IsNullOrWhiteSpace(login))
 			{
@@ -54,7 +55,7 @@ namespace FuelControl.Library.Services
 
 			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
 			{
-				var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent);
+				var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
