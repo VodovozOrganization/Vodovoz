@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,8 +60,10 @@ namespace DatabaseServiceWorker
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
+						.AddHostedService<PowerBiExportWorker>()
 						.AddHostedService<FuelTransactionsControlWorker>()
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
+						.ConfigurePowerBiExportWorker(hostContext)
 						.AddFuelTransactionsControlWorker(hostContext)
 						;
 

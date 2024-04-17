@@ -36,13 +36,6 @@ namespace Vodovoz.Models
 			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings,
 			TimeSpan? queryTimeoutTimeSpan = null)
 		{
-			if(fastDeliveryAvailabilityHistorySettings.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
-			{
-				_logger.Debug("Удаление записей истории проверки доступности экспресс-доставки не требуется");
-
-				return;
-			}
-
 			var queryTimeout =
 				queryTimeoutTimeSpan != null && queryTimeoutTimeSpan > TimeSpan.Zero
 				? (int)queryTimeoutTimeSpan.Value.TotalSeconds
@@ -81,8 +74,6 @@ namespace Vodovoz.Models
 					_logger.Error(e, "Не удалось очистить журнал истории проверки экспресс-доставки.");
 				}
 			}
-
-			fastDeliveryAvailabilityHistorySettings.UpdateFastDeliveryHistoryClearDate(DateTime.Now.Date.ToString());
 		}
 
 		private string GetFastDeliveryAvailabilityHistoryItemsDeletionQuery(DateTime dateBefore)

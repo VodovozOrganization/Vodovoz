@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -46,6 +46,7 @@ using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -301,6 +302,7 @@ namespace Vodovoz
 						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
 						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
 						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI,
+						NotifyOfOrderWithGoodsTransferingIsTransferedUri = _driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri,
 						NotifyOfCashRequestForDriverIsGivenForTakeUri = _driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri
 					};
 					_driverApiHelper = new DriverAPIHelper(driverApiConfig);

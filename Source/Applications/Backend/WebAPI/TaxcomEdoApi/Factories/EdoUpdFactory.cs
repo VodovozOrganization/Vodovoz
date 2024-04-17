@@ -10,14 +10,14 @@ using Vodovoz.Domain.Orders;
 
 namespace TaxcomEdoApi.Factories
 {
-	public class EdoUpdFactory
+	public class EdoUpdFactory : IEdoUpdFactory
 	{
-		private readonly ParticipantDocFlowConverter _participantDocFlowConverter;
-		private readonly UpdProductConverter _updProductConverter;
+		private readonly IParticipantDocFlowConverter _participantDocFlowConverter;
+		private readonly IUpdProductConverter _updProductConverter;
 
 		public EdoUpdFactory(
-			ParticipantDocFlowConverter participantDocFlowConverter,
-			UpdProductConverter updProductConverter)
+			IParticipantDocFlowConverter participantDocFlowConverter,
+			IUpdProductConverter updProductConverter)
 		{
 			_participantDocFlowConverter =
 				participantDocFlowConverter ?? throw new ArgumentNullException(nameof(participantDocFlowConverter));

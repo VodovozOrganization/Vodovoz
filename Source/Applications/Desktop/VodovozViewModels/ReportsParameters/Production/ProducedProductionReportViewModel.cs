@@ -9,9 +9,9 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.CommonEnums;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 

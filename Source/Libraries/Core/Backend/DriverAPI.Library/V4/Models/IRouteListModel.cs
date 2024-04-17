@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V4;
+using DriverApi.Contracts.V4;
 using System;
 using System.Collections.Generic;
 

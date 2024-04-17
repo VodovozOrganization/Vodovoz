@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -413,7 +413,6 @@
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\EventsQrPlacer.cs" />
-    <Compile Include="Additions\IEventsQrPlacer.cs" />
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
@@ -2049,6 +2048,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
     <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
+    <Compile Include="AboutView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
+    <Compile Include="AboutAuthorsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
     <Compile Include="Views\Fuel\FuelCardView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Fuel.FuelCardView.cs" />
     <Compile Include="Filters\GtkViews\FuelCardJournalFilterView.cs" />
@@ -2675,6 +2678,9 @@
     <EmbeddedResource Include="icons\map\points\custom\order_info_cooler.png" />
     <EmbeddedResource Include="icons\map\points\custom\order_info_many.png" />
     <EmbeddedResource Include="icons\map\points\custom\order_info_small_bottles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\buttons\wiki.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

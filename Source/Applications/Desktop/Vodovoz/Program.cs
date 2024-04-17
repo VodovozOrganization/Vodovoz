@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -148,6 +148,7 @@ using QS.ViewModels.Control.EEVM;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Tools.Orders;
 using MassTransit;
+using Vodovoz.ViewModels.Infrastructure;
 using FuelControl.Library;
 
 namespace Vodovoz
@@ -407,8 +408,6 @@ namespace Vodovoz
 					#endregion
 
 					#region Репозитории
-
-					builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
 
 					builder.RegisterAssemblyTypes(
 						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),

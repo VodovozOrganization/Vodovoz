@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Vodovoz.EntityRepositories;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Extensions;
 using Vodovoz.Tools;
 

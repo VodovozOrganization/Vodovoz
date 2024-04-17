@@ -2,7 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -50,7 +52,9 @@ namespace Vodovoz
 			.AddScoped<IEmailService, EmailService>()
 			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
 			.AddScoped<OrderStateKey>()
-			.AddDriverApiHelper();
+			.AddDriverApiHelper()
+			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+			;
 
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
 			.Configure<PushNotificationSettings>(pushNotificationOptions =>
@@ -66,12 +70,14 @@ namespace Vodovoz
 						NotifyOfCashRequestForDriverIsGivenForTakeUri = databaseSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri,
 						NotifyOfFastDeliveryOrderAddedURI = databaseSettings.NotifyOfFastDeliveryOrderAddedUri,
 						NotifyOfSmsPaymentStatusChangedURI = databaseSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfWaitingTimeChangedURI = databaseSettings.NotifyOfWaitingTimeChangedURI
+						NotifyOfWaitingTimeChangedURI = databaseSettings.NotifyOfWaitingTimeChangedURI,
+						NotifyOfOrderWithGoodsTransferingIsTransferedUri = databaseSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri,
 					};
 				})
 				.AddScoped<ISmsPaymentStatusNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
-				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>();
+				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>()
+				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 	}
 }
