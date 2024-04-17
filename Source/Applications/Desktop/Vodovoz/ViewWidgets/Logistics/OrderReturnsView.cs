@@ -533,8 +533,15 @@ namespace Vodovoz
 		private void OpenOrCreateUndelivery(RouteListItemStatus routeListItemStatusToChange)
 		{
 			_routeListItemStatusToChange = routeListItemStatusToChange;
-			_undeliveryViewModel = _tdiNavigationManager.OpenViewModelOnTdi<UndeliveryViewModel, IUnitOfWork, int>(this, UoW, _routeListItem.Order.Id).ViewModel;
-			_undeliveryViewModel.Saved += OnUndeliveryViewModelSaved;
+			_undeliveryViewModel = _tdiNavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
+				this,			
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.Saved += OnUndeliveryViewModelSaved;
+					vm.Initialize(UoW, _routeListItem.Order.Id);					
+				}
+				).ViewModel;
 		}
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)

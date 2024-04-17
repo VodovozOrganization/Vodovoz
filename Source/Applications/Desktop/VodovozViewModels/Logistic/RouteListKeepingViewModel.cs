@@ -428,8 +428,15 @@ namespace Vodovoz
 				if(_routeListItemStatusToChange == RouteListItemStatus.Canceled
 					|| _routeListItemStatusToChange == RouteListItemStatus.Overdue)
 				{					
-					_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel, IUnitOfWork, int>(this, rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id).ViewModel;
-					_undeliveryViewModel.Saved += OnUndeliveryViewModelSaved;
+					_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.Saved += OnUndeliveryViewModelSaved;
+							vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+						}
+						).ViewModel;
 
 					return;
 				}

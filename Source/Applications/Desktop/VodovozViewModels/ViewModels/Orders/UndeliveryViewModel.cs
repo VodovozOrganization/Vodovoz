@@ -27,12 +27,18 @@ namespace Vodovoz.ViewModels.Orders
 	public class UndeliveryViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ISmsNotifier _smsNotifier;
+		private readonly ILifetimeScope _scope;
+		private readonly IUndeliveredOrderViewModelFactory _undeliveredOrderViewModelFactory;
+		private readonly IUndeliveryDiscussionsViewModelFactory _undeliveryDiscussionsViewModelFactory;
+		private readonly IValidationContextFactory _validationContextFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
@@ -53,36 +59,43 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveredOrderViewModelFactory undeliveredOrderViewModelFactory,
 			IUndeliveryDiscussionsViewModelFactory undeliveryDiscussionsViewModelFactory,
 			IValidationContextFactory validationContextFactory,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IUnitOfWork externalUoW = null,
-			int oldOrderId = 0,
-			bool isForSalesDepartment = false)
+			IUnitOfWorkFactory unitOfWorkFactory
+			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_smsNotifier = smsNotifier ?? throw new ArgumentNullException(nameof(smsNotifier));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_undeliveredOrderViewModelFactory = undeliveredOrderViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveredOrderViewModelFactory));
+			_undeliveryDiscussionsViewModelFactory = undeliveryDiscussionsViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveryDiscussionsViewModelFactory));
+			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+		}
 
-			if(externalUoW != null)
+		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false)
+		{
+			if(extrenalUoW != null)
 			{
-				UoW = externalUoW;
+				UoW = extrenalUoW;
 
 				_isExternalUoW = true;
 			}
 			else
 			{
-				UoW = unitOfWorkFactory.CreateWithoutRoot();
+				UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			}
 
-			var undelivery = undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, oldOrderId).FirstOrDefault();
+			_currentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			Entity = undelivery ?? new UndeliveredOrder();
+			var undelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, oldOrderId).FirstOrDefault();
 
-			_currentUser = (employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository))).GetEmployeeForCurrentUser(UoW);
+			Entity = undelivery ?? new UndeliveredOrder();			
 
 			if(Entity.Id == 0)
 			{
@@ -100,24 +113,21 @@ namespace Vodovoz.ViewModels.Orders
 				TabName = Entity.Title;
 			}
 
-			UndeliveredOrderViewModel = (undeliveredOrderViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveredOrderViewModelFactory)))
-				.CreateUndeliveredOrderViewModel(Entity, scope, this, UoW);
+			UndeliveredOrderViewModel = _undeliveredOrderViewModelFactory.CreateUndeliveredOrderViewModel(Entity, _scope, this, UoW);
 
-			UndeliveryDiscussionsViewModel = (undeliveryDiscussionsViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveryDiscussionsViewModelFactory)))
-				.CreateUndeliveryDiscussionsViewModel(Entity, this, scope, UoW);
+			UndeliveredOrderViewModel.UndelivedOrderSaved += OnEntitySaved;
 
-			CanEdit = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder)).CanUpdate;
+			UndeliveryDiscussionsViewModel = _undeliveryDiscussionsViewModelFactory.CreateUndeliveryDiscussionsViewModel(Entity, this, _scope, UoW);
 
-			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
-			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
+			CanEdit = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder)).CanUpdate;
+
+			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
 
 			if(isForSalesDepartment)
 			{
 				var salesDepartmentId = _subdivisionSettings.GetSalesSubdivisionId();
 				Entity.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
-
-			UndeliveredOrderViewModel.UndelivedOrderSaved += OnEntitySaved;
 
 			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
 			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
@@ -126,7 +136,7 @@ namespace Vodovoz.ViewModels.Orders
 		private void FillNewUndelivery()
 		{
 			Entity.UoW = UoW;
-			Entity.Author = Entity.EmployeeRegistrator = _currentUser;
+			Entity.Author = Entity.EmployeeRegistrator = _currentUser ?? throw new ArgumentNullException(nameof(_currentUser));
 
 			if(Entity.Author == null)
 			{
@@ -222,7 +232,7 @@ namespace Vodovoz.ViewModels.Orders
 
 				if(_addedCommentToOldUndelivery)
 				{
-					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, needClose));
+					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW));
 				}
 
 				Close(false, CloseSource.Self);
@@ -244,7 +254,7 @@ namespace Vodovoz.ViewModels.Orders
 				ProcessSmsNotification();
 			}
 
-			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, needClose));
+			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW));
 
 			if(needClose)
 			{
@@ -266,13 +276,13 @@ namespace Vodovoz.ViewModels.Orders
 
 		private Employee _currentUser;
 
-		public UndeliveryDiscussionsViewModel UndeliveryDiscussionsViewModel { get; }
+		public UndeliveryDiscussionsViewModel UndeliveryDiscussionsViewModel { get; private set; }
 
-		public UndeliveredOrderViewModel UndeliveredOrderViewModel { get; }
+		public UndeliveredOrderViewModel UndeliveredOrderViewModel { get; private set; }
 
 		public bool AskSaveOnClose => CanEdit;
 
-		public bool CanEdit { get; }
+		public bool CanEdit { get; private set; }
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> Saved;
 

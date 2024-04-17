@@ -278,8 +278,15 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					return;
 				}
 
-				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel, IUnitOfWork, int>(null, UoW, order.Id).ViewModel;
-				_undeliveryViewModel.Saved += OnUndeliveryViewModelEntitySaved;
+				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel>(
+					null,
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.Saved += OnUndeliveryViewModelSaved;
+						vm.Initialize(UoW, order.Id);
+					}
+				).ViewModel;
 			}
 			else
 			{
@@ -289,7 +296,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 		}
 
-		private void OnUndeliveryViewModelEntitySaved(object sender, EventArgs e)
+		private void OnUndeliveryViewModelSaved(object sender, EventArgs e)
 		{
 			SelectedOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker);
 
@@ -336,7 +343,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		{
 			if(_undeliveryViewModel != null)
 			{
-				_undeliveryViewModel.TabClosed -= OnUndeliveryViewModelEntitySaved;
+				_undeliveryViewModel.TabClosed -= OnUndeliveryViewModelSaved;
 			}
 
 			NotifyConfiguration.Instance.UnsubscribeAll(this);

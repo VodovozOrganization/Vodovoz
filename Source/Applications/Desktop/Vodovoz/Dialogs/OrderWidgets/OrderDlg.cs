@@ -3862,8 +3862,15 @@ namespace Vodovoz
 		/// </summary>
 		private void OpenUndelivery()
 		{
-			_undeliveryViewModel = NavigationManager.OpenViewModelOnTdi <UndeliveryViewModel, IUnitOfWork,/* UndeliveredOrder*/int>(this, UoW, Entity.Id).ViewModel;
-			_undeliveryViewModel.Saved += OnUndeliveryViewModelSaved;
+			_undeliveryViewModel = NavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
+				this,				
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.Saved += OnUndeliveryViewModelSaved;
+					vm.Initialize(UoW, Entity.Id);
+				}
+			).ViewModel;
 		}
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
