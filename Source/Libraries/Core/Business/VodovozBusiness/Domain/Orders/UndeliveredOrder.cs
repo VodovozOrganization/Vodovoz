@@ -394,7 +394,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Строка</returns>
 		public virtual string GetOldOrderInfo(IOrderRepository orderRepository)
 		{
-			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author?.ShortName));
+			StringBuilder info = new StringBuilder("\n").AppendLine($"<b>Автор недовоза:</b> {Author?.ShortName}");
 			if(oldOrder != null) {
 				info.AppendLine(string.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
 				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));

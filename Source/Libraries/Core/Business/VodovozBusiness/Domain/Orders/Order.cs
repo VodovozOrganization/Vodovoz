@@ -3253,11 +3253,7 @@ namespace Vodovoz.Domain.Orders
 				var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 				if(undeliveries.Any())
 				{
-					var text = string.Format(
-						"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
-						initialStatus.GetEnumTitle(),
-						newStatus.GetEnumTitle()
-					);
+					var text = $"сменил(а) статус заказа\nс \"{initialStatus.GetEnumTitle()}\" на \"{newStatus.GetEnumTitle()}\"";
 					foreach(var u in undeliveries)
 					{
 						u.AddAutoCommentToOkkDiscussion(UoW, text);
