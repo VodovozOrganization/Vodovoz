@@ -66,8 +66,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IOrderRepository orderRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ICallTaskWorker callTaskWorker
-			) : base(tdinavigation, manager)
+			ICallTaskWorker callTaskWorker)
+			: base(tdinavigation, manager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));

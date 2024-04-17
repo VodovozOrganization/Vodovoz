@@ -1,15 +1,23 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Vodovoz.NotificationRecievers
 {
-	public class DriverAPIHelper : ISmsPaymentStatusNotificationReciever, IFastDeliveryOrderAddedNotificationReciever, IWaitingTimeChangedNotificationReciever, IDisposable
+	public class DriverAPIHelper : 
+		ISmsPaymentStatusNotificationReciever,
+		IFastDeliveryOrderAddedNotificationReciever,
+		IWaitingTimeChangedNotificationReciever,
+		ICashRequestForDriverIsGivenForTakeNotificationReciever,
+		IRouteListTransferhandByHandReciever,
+		IDisposable
 	{
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
-		private string _notifyOfWaitingTimeChangedURI;
+		private string _notifyOfWaitingTimeChangedUri;
+		private string _notifyOfOrderWithGoodsTransferingIsTransferedUri;
+		private string _notifyOfCashRequestForDriverIsGivenForTakeUri;
 		private HttpClient _apiClient;
 
 		public DriverAPIHelper(DriverApiHelperConfiguration configuration)
@@ -26,7 +34,9 @@ namespace Vodovoz.NotificationRecievers
 
 			_notifyOfSmsPaymentStatusChangedUri = configuration.NotifyOfSmsPaymentStatusChangedURI;
 			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedURI;
-			_notifyOfWaitingTimeChangedURI = configuration.NotifyOfWaitingTimeChangedURI;
+			_notifyOfWaitingTimeChangedUri = configuration.NotifyOfWaitingTimeChangedURI;
+			_notifyOfOrderWithGoodsTransferingIsTransferedUri = configuration.NotifyOfOrderWithGoodsTransferingIsTransferedUri;
+			_notifyOfCashRequestForDriverIsGivenForTakeUri = configuration.NotifyOfCashRequestForDriverIsGivenForTakeUri;
 		}
 
 		public async Task NotifyOfSmsPaymentStatusChanged(int orderId)
@@ -55,7 +65,19 @@ namespace Vodovoz.NotificationRecievers
 
 		public async Task NotifyOfWaitingTimeChanged(int orderId)
 		{
-			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedURI, orderId))
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedUri, orderId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+				throw new DriverAPIHelperException(response.ReasonPhrase);
+			}
+		}
+
+		public async Task NotifyOfCashRequestForDriverIsGivenForTake(int cashRequestId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfCashRequestForDriverIsGivenForTakeUri, cashRequestId))
 			{
 				if(response.IsSuccessStatusCode)
 				{
@@ -69,19 +91,17 @@ namespace Vodovoz.NotificationRecievers
 		{
 			_apiClient?.Dispose();
 		}
-	}
 
-	public class DriverAPIHelperException : Exception
-	{
-		public DriverAPIHelperException(string message) : base(message)
-		{ }
-	}
-
-	public class DriverApiHelperConfiguration
-	{
-		public Uri ApiBase { get; set; }
-		public string NotifyOfSmsPaymentStatusChangedURI { get; set; }
-		public string NotifyOfFastDeliveryOrderAddedURI { get; set; }
-		public string NotifyOfWaitingTimeChangedURI { get; set; }
+		public async Task NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+				throw new DriverAPIHelperException(response.ReasonPhrase);
+			}
+		}
 	}
 }

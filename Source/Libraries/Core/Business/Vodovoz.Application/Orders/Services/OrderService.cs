@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -14,11 +15,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
-using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 
@@ -36,6 +39,12 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly IFastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IOrderSettings _orderSettings;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrderDiscountsController _orderDiscountsController;
+		private readonly OrderStateKey _orderStateKey;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -47,7 +56,13 @@ namespace Vodovoz.Application.Orders.Services
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
 			IFastPaymentSender fastPaymentSender,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			INomenclatureRepository nomenclatureRepository,
+			IGenericRepository<DiscountReason> discountReasonRepository,
+			IOrderSettings orderSettings,
+			IOrderRepository orderRepository,
+			IOrderDiscountsController orderDiscountsController,
+			OrderStateKey orderStateKey)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -63,7 +78,12 @@ namespace Vodovoz.Application.Orders.Services
 			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
+			_orderStateKey = orderStateKey ?? throw new ArgumentNullException(nameof(orderStateKey));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -102,10 +122,10 @@ namespace Vodovoz.Application.Orders.Services
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 
-			var orderKey = new OrderStateKey(order);
+			_orderStateKey.InitializeFields(order);
 
 			var price =
-				district?.GetDeliveryPrice(orderKey, order.ObservableOrderItems
+				district?.GetDeliveryPrice(_orderStateKey, order.ObservableOrderItems
 					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
 				?? 0m;
 
@@ -338,6 +358,44 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			return order;
+		}
+
+		public void CheckAndAddBottlesToReferrerByReferFriendPromo(
+			IUnitOfWork uow,
+			Order order,
+			bool canChangeDiscountValue)
+		{
+			if(order.OrderItems.Any(o => o.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId))
+			{
+				return;
+			}
+
+			var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(uow, order.Client.Id);
+			var alreadyReceived = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(uow, order, _orderSettings.ReferFriendDiscountReasonId);
+
+			var bottlesToAdd = referredCounterparties - alreadyReceived;
+
+			if(bottlesToAdd < 1)
+			{
+				return;
+			}
+
+			var nomenclature = _nomenclatureRepository.GetWaterSemiozerie(uow);
+
+			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
+
+			var beforeAddItemsCount = order.OrderItems.Count();
+			order.AddNomenclature(nomenclature, bottlesToAdd);		
+			var afterAddItemsCount = order.OrderItems.Count();
+
+			if(afterAddItemsCount == beforeAddItemsCount)
+			{
+				return;
+			}
+
+			var orderItem = order.OrderItems.Last();
+
+			_orderDiscountsController.SetDiscountFromDiscountReasonForOrderItem(referFriendDiscountReason, orderItem, canChangeDiscountValue, out string message);
 		}
 	}
 }

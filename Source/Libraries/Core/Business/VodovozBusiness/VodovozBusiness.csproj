@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,6 +59,7 @@
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
+    <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
@@ -66,6 +67,12 @@
     <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="NotificationRecievers\DriverApiHelperConfiguration.cs" />
+    <Compile Include="NotificationRecievers\DriverAPIHelperException.cs" />
+    <Compile Include="NotificationRecievers\IRouteListTransferhandByHandReciever.cs" />
+    <Compile Include="Models\IFastDeliveryAvailabilityHistoryModel.cs" />
+    <Compile Include="Options\PushNotificationSettings.cs" />
+    <Compile Include="NotificationRecievers\ICashRequestForDriverIsGivenForTakeNotificationReciever.cs" />
     <Compile Include="Permissions\Bookkeepping.cs" />
     <Compile Include="Permissions\Bookkeepping.Work1S.cs" />
     <Compile Include="Domain\Orders\UndeliveryDiscussionComment.cs" />
@@ -101,6 +108,7 @@
     <Compile Include="Domain\Client\DebtType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
     <Compile Include="Domain\Client\EntranceType.cs" />
+    <Compile Include="Domain\Client\ExternalCreatingDeliveryPoint.cs" />
     <Compile Include="Domain\Client\ISupplierPriceNode.cs" />
     <Compile Include="Domain\Client\OrderStatusForSendingUpd.cs" />
     <Compile Include="Domain\Client\PersonType.cs" />
@@ -564,6 +572,7 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\DeliveryPointForSendNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\DocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyAssignNotificationRepository.cs" />
@@ -600,7 +609,6 @@
     <Compile Include="EntityRepositories\Goods\NomenclaturePricesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\ArchivedHistoryChangesRepository.cs" />
-    <Compile Include="EntityRepositories\IGenericRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
@@ -995,12 +1003,6 @@
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
-    <Compile Include="Specifications\DynamicExpressionSpecification.cs" />
-    <Compile Include="Specifications\ExpressionSpecification.cs" />
-    <Compile Include="Specifications\ExpressionSpecificationAndExtension.cs" />
-    <Compile Include="Specifications\ExpressionSpecificationNotExtension.cs" />
-    <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
-    <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
     <Compile Include="Tools\Comparers\StringOrNullAfterComparer.cs" />
     <Compile Include="Tools\Exceptions\DeliveryPointDistrictNotFoundException.cs" />
@@ -1075,6 +1077,7 @@
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
     <Compile Include="Tools\Orders\EdoContainerMainDocumentIdParser.cs" />
     <Compile Include="Tools\Orders\FastDeliveryHistoryConverter.cs" />
+    <Compile Include="Tools\Orders\IEdoContainerMainDocumentIdParser.cs" />
     <Compile Include="Tools\Orders\OrderStateKey.cs" />
     <Compile Include="Tools\Orders\OrderRules.cs" />
     <Compile Include="Domain\Sale\DeliveryPriceRule.cs" />

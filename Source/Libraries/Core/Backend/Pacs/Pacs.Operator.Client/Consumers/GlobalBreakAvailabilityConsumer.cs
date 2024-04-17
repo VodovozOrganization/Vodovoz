@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Pacs.Operators.Client.Consumers
 {
-	public class GlobalBreakAvailabilityConsumer : IConsumer<GlobalBreakAvailability>, IObservable<GlobalBreakAvailability>, IDisposable
+	public class GlobalBreakAvailabilityConsumer : IConsumer<GlobalBreakAvailabilityEvent>, IObservable<GlobalBreakAvailabilityEvent>, IDisposable
 	{
-		private List<IObserver<GlobalBreakAvailability>> _observers;
+		private List<IObserver<GlobalBreakAvailabilityEvent>> _observers;
 
 		public GlobalBreakAvailabilityConsumer()
 		{
-			_observers = new List<IObserver<GlobalBreakAvailability>>();
+			_observers = new List<IObserver<GlobalBreakAvailabilityEvent>>();
 		}
 
-		public async Task Consume(ConsumeContext<GlobalBreakAvailability> context)
+		public async Task Consume(ConsumeContext<GlobalBreakAvailabilityEvent> context)
 		{
 			foreach(var observer in _observers)
 			{
@@ -26,17 +26,17 @@ namespace Pacs.Operators.Client.Consumers
 			await Task.CompletedTask;
 		}
 
-		public IDisposable Subscribe(IObserver<GlobalBreakAvailability> observer)
+		public IDisposable Subscribe(IObserver<GlobalBreakAvailabilityEvent> observer)
 		{
 			return new Unsubscriber(_observers, observer);
 		}
 
 		private class Unsubscriber : IDisposable
 		{
-			private readonly List<IObserver<GlobalBreakAvailability>> _observers;
-			private readonly IObserver<GlobalBreakAvailability> _observer;
+			private readonly List<IObserver<GlobalBreakAvailabilityEvent>> _observers;
+			private readonly IObserver<GlobalBreakAvailabilityEvent> _observer;
 
-			public Unsubscriber(List<IObserver<GlobalBreakAvailability>> observers, IObserver<GlobalBreakAvailability> observer)
+			public Unsubscriber(List<IObserver<GlobalBreakAvailabilityEvent>> observers, IObserver<GlobalBreakAvailabilityEvent> observer)
 			{
 				_observers = observers;
 				_observer = observer;

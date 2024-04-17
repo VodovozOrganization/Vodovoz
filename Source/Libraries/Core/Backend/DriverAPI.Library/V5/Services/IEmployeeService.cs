@@ -9,5 +9,7 @@ namespace DriverAPI.Library.V5.Services
 		void EnablePushNotifications(ExternalApplicationUser driverAppUser, string token);
 		IEnumerable<Employee> GetAllPushNotifiableEmployees();
 		Employee GetByAPILogin(string login);
+		ExternalApplicationUser GetDriverExternalApplicationUserByFirebaseToken(string recipientToken);
+		string GetDriverPushTokenById(int notifyableEmployeeId);
 	}
 }

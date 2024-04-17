@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
@@ -68,6 +67,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			Map(x => x.RoboatsExclude).Column("roboats_exclude");
+			Map(x => x.ExcludeFromAutoCalls).Column("exclude_from_auto_calls");
 			Map(x => x.ReasonForLeaving).Column("reason_for_leaving");
 			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status");
 			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
@@ -85,6 +85,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.NeedSendBillByEdo).Column("need_send_bill_by_edo");
 			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
 			Map(x => x.CloseDeliveryDebtType).Column("close_delivery_debt_type");
+			Map(x => x.HideDeliveryPointForBill).Column("hide_delivery_point_for_bill");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
@@ -101,6 +102,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
 			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
 			References(x => x.OurOrganizationAccountForBills).Column("our_organization_account_for_bills");
+			References(x => x.Referrer).Column("referrer_id");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
@@ -125,14 +127,16 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
 				.KeyColumn("counterparty_id");
 
-			HasManyToMany(x => x.Tags).Table("counterparty_tags")
-									  .ParentKeyColumn("counterparty_id")
-									  .ChildKeyColumn("tag_id")
-									  .LazyLoad();
-			HasManyToMany(x => x.SalesChannels).Table("sales_channel_to_counterparty")
-						  .ParentKeyColumn("counterparty_id")
-						  .ChildKeyColumn("sales_channel_id")
-						  .LazyLoad();
+			HasManyToMany(x => x.Tags)
+				.Table("counterparty_tags")
+				.ParentKeyColumn("counterparty_id")
+				.ChildKeyColumn("tag_id")
+				.LazyLoad();
+			HasManyToMany(x => x.SalesChannels)
+				.Table("sales_channel_to_counterparty")
+				.ParentKeyColumn("counterparty_id")
+				.ChildKeyColumn("sales_channel_id")
+				.LazyLoad();
 		}
 	}
 }

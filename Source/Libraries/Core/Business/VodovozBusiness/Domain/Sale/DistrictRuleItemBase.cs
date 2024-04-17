@@ -1,34 +1,38 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Sale
 {
-    public abstract class DistrictRuleItemBase : PropertyChangedBase, IDomainObject, ICloneable
-    {
-        public virtual int Id { get; set; }
+	public abstract class DistrictRuleItemBase : PropertyChangedBase, IDomainObject, ICloneable
+	{
+		private District _district;
+		private DeliveryPriceRule _deliveryPriceRule;
+		private decimal _price;
 
-        District district;
-        [Display(Name = "Район доставки")]
-        public virtual District District {
-            get => district;
-            set => SetField(ref district, value, () => District);
-        }
+		public virtual int Id { get; set; }
 
-        DeliveryPriceRule deliveryPriceRule;
-        [Display(Name = "Правило цены доставки")]
-        public virtual DeliveryPriceRule DeliveryPriceRule {
-            get => deliveryPriceRule;
-            set => SetField(ref deliveryPriceRule, value, () => DeliveryPriceRule);
-        }
+		[Display(Name = "Район доставки")]
+		public virtual District District
+		{
+			get => _district;
+			set => SetField(ref _district, value);
+		}
 
-        Decimal price;
-        [Display(Name = "Цена доставки")]
-        public virtual Decimal Price {
-            get => price;
-            set => SetField(ref price, value, () => Price);
-        }
+		[Display(Name = "Правило цены доставки")]
+		public virtual DeliveryPriceRule DeliveryPriceRule
+		{
+			get => _deliveryPriceRule;
+			set => SetField(ref _deliveryPriceRule, value);
+		}
 
-        public abstract object Clone();
-    }
+		[Display(Name = "Цена доставки")]
+		public virtual decimal Price
+		{
+			get => _price;
+			set => SetField(ref _price, value);
+		}
+
+		public abstract object Clone();
+	}
 }

@@ -235,7 +235,7 @@ Group By
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -297,7 +297,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1499,7 +1499,7 @@ WHERE
             <Source>Database</Source>
             <Value>=First( {image} , "Stamp" )</Value>
             <Sizing>FitProportional</Sizing>
-            <ZIndex>0</ZIndex>
+            <ZIndex>1</ZIndex>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>

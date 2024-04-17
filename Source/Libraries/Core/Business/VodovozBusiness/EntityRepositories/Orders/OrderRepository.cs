@@ -25,6 +25,7 @@ using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -712,6 +713,20 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.NotDelivered,
 				OrderStatus.DeliveryCanceled,
 				OrderStatus.Canceled
+			};
+		}
+
+		public static OrderStatus[] GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion()
+		{
+			return new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
 			};
 		}
 
@@ -1481,7 +1496,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var orderList = ordersQuery.ToList();
 			var result = orderList
-				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L)
+				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L
+				&& x.Total19LBottlesToDeliver <= orderOnDayFilters.MaxBottles19L)
 				.Distinct()
 				.Select(o => new OrderOnDayNode
 				{
@@ -1498,14 +1514,18 @@ namespace Vodovoz.EntityRepositories.Orders
 					DeliverySchedule = o.DeliverySchedule,
 					Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
 					Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
+					Total1500mlBottlesToDeliver = o.Total1500mlBottlesToDeliver,
 					Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
+					Total500mlBottlesToDeliver = o.Total500mlBottlesToDeliver,
 					BottlesReturn = o.BottlesReturn,
 					OrderComment = o.Comment,
 					DeliveryPointComment = o.DeliveryPoint.Comment,
 					CommentManager = o.CommentManager,
 					ODZComment = o.ODZComment,
 					OPComment = o.OPComment,
-					DriverMobileAppComment = o.DriverMobileAppComment
+					DriverMobileAppComment = o.DriverMobileAppComment,
+					IsCoolerAddedToOrder = o.IsCoolerAddedToOrder,
+					IsSmallBottlesAddedToOrder = o.IsSmallBottlesAddedToOrder
 				})
 				.ToList();
 
@@ -1569,6 +1589,42 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
+		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
+		{
+			var referredCounterpartiesCount =
+			(
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.Referrer.Id == referrerId
+
+				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
+										  where orders.Client.Id == counterparty.Id
+										  && GetOnClosingOrderStatuses().Contains(orders.OrderStatus)
+										  select orders.Id
+
+				where finishedReferOrders.Any()
+				select counterparty.Id
+			)
+			.Count();
+
+			return referredCounterpartiesCount;
+		}
+
+		public int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId)
+		{
+			var alreadyReceivedBottlesByReferPromotion =
+			(
+				from orderItems in uow.Session.Query<OrderItem>()
+				where orderItems.Order.Client.Id == order.Client.Id
+				&& orderItems.Order.Id != order.Id
+				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
+				select (orderItems.ActualCount ?? orderItems.Count)
+			)
+			.Sum(x => (int?)x);
+
+			return alreadyReceivedBottlesByReferPromotion ?? 0;
+		}
+
 		public class NotFullyPaidOrderNode
 		{
 			public int Id { get; set; }
@@ -1593,7 +1649,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			public DeliverySchedule DeliverySchedule { get; set; }
 			public int Total19LBottlesToDeliver { get; set; }
 			public int Total6LBottlesToDeliver { get; set; }
+			public int Total1500mlBottlesToDeliver { get; set; }
 			public int Total600mlBottlesToDeliver { get; set; }
+			public int Total500mlBottlesToDeliver { get; set; }
 			public int? BottlesReturn { get; set; }
 			public string OrderComment { get; set; }
 			public string DeliveryPointComment { get; set; }
@@ -1601,6 +1659,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			public string ODZComment { get; set; }
 			public string OPComment { get; set; }
 			public string DriverMobileAppComment { get; set; }
+			public bool IsCoolerAddedToOrder { get; set; }
+			public bool IsSmallBottlesAddedToOrder { get; set; }
 		}
 	}
 
@@ -1616,6 +1676,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public TimeSpan DeliveryFromTime { get; set; }
 		public TimeSpan DeliveryToTime { get; set; }
 		public int MinBottles19L { get; set; }
+		public int MaxBottles19L { get; set; }
 	}
 
 	public enum DeliveryScheduleFilterType

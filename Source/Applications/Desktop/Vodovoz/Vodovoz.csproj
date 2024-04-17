@@ -407,12 +407,12 @@
     <EmbeddedResource Include="icons\pacs\short-break-default.png" />
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
     <EmbeddedResource Include="icons\toolbar\1s_default.png" />
+    <EmbeddedResource Include="icons\common\Сalendar.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\EventsQrPlacer.cs" />
-    <Compile Include="Additions\IEventsQrPlacer.cs" />
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
@@ -2039,6 +2039,16 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDiscussionView.cs" />
     <Compile Include="Views\Orders\UndeliveryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryView.cs" />
+    <Compile Include="ViewWidgets\GtkUI\EntitySelection.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.EntitySelection.cs" />
+    <Compile Include="Views\EntityButtonsSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
+    <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
+    <Compile Include="AboutView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
+    <Compile Include="AboutAuthorsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2652,6 +2662,14 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\1s_work.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\map\points\custom\order_info_cooler.png" />
+    <EmbeddedResource Include="icons\map\points\custom\order_info_many.png" />
+    <EmbeddedResource Include="icons\map\points\custom\order_info_small_bottles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\buttons\wiki.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

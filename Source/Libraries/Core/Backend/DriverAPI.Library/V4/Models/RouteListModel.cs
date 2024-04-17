@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V4;
+using DriverApi.Contracts.V4;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V4.Converters;
 using Microsoft.Extensions.Logging;

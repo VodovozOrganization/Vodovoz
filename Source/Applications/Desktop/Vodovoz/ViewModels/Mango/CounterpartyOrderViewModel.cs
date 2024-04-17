@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -278,7 +278,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					return;
 				}
 
-				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel, IUnitOfWork,int>(null, UoW, order.Id).ViewModel;
+				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel, IUnitOfWork, int>(null, UoW, order.Id).ViewModel;
 				_undeliveryViewModel.Saved += OnUndeliveryViewModelEntitySaved;
 			}
 			else

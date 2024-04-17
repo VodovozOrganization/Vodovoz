@@ -3,7 +3,9 @@ using DriverAPI.Services;
 using DriverAPI.Workers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Services.Interactive;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
@@ -12,14 +14,24 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI
 {
+	/// <summary>
+	/// Конфигурация контейнера зависимостей
+	/// </summary>
 	public static class DependencyInjection
 	{
+		/// <summary>
+		/// Основная конфигурация DriverApi
+		/// </summary>
+		/// <param name="services"></param>
+		/// <param name="configuration"></param>
+		/// <returns></returns>
 		public static IServiceCollection AddDriverApi(this IServiceCollection services, IConfiguration configuration) =>
 			services.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				// Сервисы для контроллеров
@@ -31,9 +43,10 @@ namespace DriverAPI
 
 				// Сервисы
 				.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>()
-
-				// Workers
-				.AddHostedService<WakeUpNotificationSenderService>()
+				//добавляем сервисы, т.к. в методе Order.SendUpdToEmailOnFinishIfNeeded() есть их вызов
+				.AddScoped<IInteractiveQuestion, ConsoleInteractiveQuestion>()
+				.AddScoped<IInteractiveMessage, ConsoleInteractiveMessage>()
+				.AddScoped<IInteractiveService, ConsoleInteractiveService>()
 
 				// Репозитории водовоза
 				.AddScoped<ITrackRepository, TrackRepository>()
@@ -45,13 +58,21 @@ namespace DriverAPI
 				.AddScoped<IEmployeeRepository, EmployeeRepository>()
 				.AddScoped<IFastPaymentRepository, FastPaymentRepository>()
 				.AddScoped<ICarRepository, CarRepository>()
+				.AddScoped<ISubdivisionRepository, SubdivisionRepository>()
 
 				.AddDriverApiLibrary(configuration)
 
-				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddScoped<ICallTaskRepository, CallTaskRepository>();
+				.AddScoped<ICallTaskRepository, CallTaskRepository>()
+				.AddDriverApiHostedServices();
+
+		/// <summary>
+		/// Добавление сервисок работающих в фоновом режиме
+		/// </summary>
+		/// <param name="services"></param>
+		/// <returns></returns>
+		public static IServiceCollection AddDriverApiHostedServices(this IServiceCollection services) =>
+			services.AddHostedService<WakeUpNotificationSenderService>();
 	}
 }

@@ -18,7 +18,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
@@ -65,9 +64,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(FastDeliveryNomenclatureDistributionHistory),
 				typeof(FastDeliveryOrderItemHistory)
 				);
-
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
-			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistorySettings);
 
 			_timer = new Timer(_interval);
 			_timer.Elapsed += TimerOnElapsed;

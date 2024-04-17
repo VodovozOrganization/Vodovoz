@@ -1,9 +1,9 @@
-﻿using DriverAPI.Library.V4.Models;
-using DriverAPI.Library.V5.Services;
+﻿using DriverAPI.Library.V5.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Services
@@ -11,21 +11,16 @@ namespace DriverAPI.Services
 	internal sealed class WakeUpDriverClientService : IWakeUpDriverClientService
 	{
 		private readonly ILogger<WakeUpDriverClientService> _logger;
-
+		private readonly IEmployeeService _employeeService;
 		private ConcurrentDictionary<int, string> _clients = new();
 
 		public WakeUpDriverClientService(
 			ILogger<WakeUpDriverClientService> logger,
-			IEmployeeModel employeeModel)
+			IEmployeeService employeeService)
 		{
-			if(employeeModel is null)
-			{
-				throw new ArgumentNullException(nameof(employeeModel));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-			var drivers = employeeModel.GetAllPushNotifiableEmployees();
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			var drivers = _employeeService.GetAllPushNotifiableEmployees();
 
 			foreach(var driver in drivers)
 			{
@@ -121,6 +116,15 @@ namespace DriverAPI.Services
 					driver.Id,
 					userApp.Token);
 			}
+		}
+
+		public void UnSubscribe(string recipientToken)
+		{
+			var recipientToRemove = _clients.FirstOrDefault(keyValuePair => keyValuePair.Value == recipientToken);
+			_clients.TryRemove(recipientToRemove);
+
+			var driver = _employeeService.GetDriverExternalApplicationUserByFirebaseToken(recipientToken);
+			_employeeService.DisablePushNotifications(driver);
 		}
 	}
 }

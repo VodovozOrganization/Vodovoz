@@ -5,8 +5,9 @@ namespace Vodovoz.Application.FirebaseCloudMessaging
 {
 	public interface IFirebaseCloudMessagingService
 	{
-		Task<Result> SendFastDeliveryAddressCanceledMessage(string pushNotificationClientToken, int orderId);
+		Task<Result> SendFastDeliveryAddressCanceledMessage(string recipientToken, int orderId);
+		Task<Result> SendFastDeliveryAddressTransferedMessage(string recipientToken, int orderId);
 		Task<Result> SendMessage(string recipientToken, string title, string body);
-		Task<Result> SendWakeUpMessage(string pushNotificationClientToken);
+		Task<Result> SendWakeUpMessage(string recipientToken);
 	}
 }

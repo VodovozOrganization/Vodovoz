@@ -1,8 +1,6 @@
-﻿using Autofac;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gdk;
 using Gtk;
-using NHibernate.Util;
 using QS.Commands;
 using QS.Tdi;
 using QS.Views.GtkUI;
@@ -14,9 +12,11 @@ using System.Reflection;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
+using Label = Gtk.Label;
 
 namespace Vodovoz.Logistic
 {
@@ -290,6 +290,8 @@ namespace Vodovoz.Logistic
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
+				.AddColumn("Время передачи")
+					.AddTextRenderer(node => node.RecievedTransferAt == null ? "": node.RecievedTransferAt.Value.ToString("dd.MM.yyyy hh:mm:ss"))
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
@@ -382,7 +384,25 @@ namespace Vodovoz.Logistic
 					HasChanges = false
 				};
 				dlg.SetDlgToReadOnly();
+				dlg.EntitySaved += OrderSaved;
 				Tab.TabParent.AddSlaveTab(Tab, dlg);
+			}
+		}
+
+		private void OrderSaved(object sender, EntitySavedEventArgs e)
+		{
+			if(!(sender is OrderDlg dlg))
+			{
+				return;
+			}
+			
+			dlg.EntitySaved -= OrderSaved;
+			var address =
+				ViewModel.Entity.Addresses.FirstOrDefault(x => x.Order.Id == e.GetEntity<Order>().Id);
+
+			if(address != null)
+			{
+				ViewModel.UoW.Session.Refresh(address.Order);
 			}
 		}
 

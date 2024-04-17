@@ -62,8 +62,7 @@ namespace RoboatsService
 				typeof(QS.HistoryLog.HistoryMain).Assembly,
 				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 				typeof(QS.Attachments.Domain.Attachment).Assembly,
-				typeof(EmployeeWithLoginMap).Assembly,
-				typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				typeof(EmployeeWithLoginMap).Assembly
 			);
 			services.AddDatabaseConnection();
 			services.AddCore();
@@ -73,7 +72,7 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddApplication();
-			services.AddBusiness();
+			services.AddBusiness(Configuration);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)

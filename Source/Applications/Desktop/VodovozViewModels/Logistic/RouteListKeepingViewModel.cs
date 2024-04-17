@@ -63,6 +63,7 @@ namespace Vodovoz
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
+		private UndeliveryViewModel _undeliveryViewModel;
 
 		public RouteListKeepingViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -427,8 +428,8 @@ namespace Vodovoz
 				if(_routeListItemStatusToChange == RouteListItemStatus.Canceled
 					|| _routeListItemStatusToChange == RouteListItemStatus.Overdue)
 				{					
-					var undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel, IUnitOfWork, int>(this, rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id).ViewModel;
-					undeliveryViewModel.Saved += OnUndeliveryViewModelSaved;
+					_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel, IUnitOfWork, int>(this, rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id).ViewModel;
+					_undeliveryViewModel.Saved += OnUndeliveryViewModelSaved;
 
 					return;
 				}
@@ -500,34 +501,41 @@ namespace Vodovoz
 
 		protected override bool BeforeSave()
 		{
-			IsCanClose = false;
-			UoWGeneric.Save();
-
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-
-			UoW.Save(Entity.RouteListProfitability);
-			UoW.Commit();
-
-			var changedList = Items
-				.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
-				.ToList();
-
-			IsCanClose = true;
-
-			if(changedList.Count == 0)
+			try
 			{
-				return true;
+				IsCanClose = false;
+				
+				UoWGeneric.Save();
+
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+
+				UoW.Save(Entity.RouteListProfitability);
+				UoW.Commit();
+
+				var changedList = Items
+					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+					.ToList();
+
+				if(changedList.Count == 0)
+				{
+					return true;
+				}
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+
+				if(currentEmployee == null)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Info,
+						"Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				}
+
+				Entity.CalculateWages(_wageParameterService);
 			}
-
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-
-			if(currentEmployee == null)
+			finally
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Info, "Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				IsCanClose = true;
 			}
-
-			Entity.CalculateWages(_wageParameterService);
-
+			
 			return base.BeforeSave();
 		}
 
@@ -610,6 +618,10 @@ namespace Vodovoz
 
 		public override void Dispose()
 		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+			}
 			Entity.ObservableAddresses.ElementAdded -= OnObservableAddressesElementAdded;
 			Entity.ObservableAddresses.ElementRemoved -= OnObservableAddressesElementRemoved;
 			Entity.ObservableAddresses.ElementChanged -= OnObservableAddressesElementChanged;
