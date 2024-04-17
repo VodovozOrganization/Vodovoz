@@ -183,15 +183,20 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 					userSettings.FuelControlApiKey,
 					cancellationToken);
 
-			using(var uow = UnitOfWorkFactory.CreateForRoot<UserSettings>(userSettings.Id))
+			await SaveFuelControlApiSessionData(sessionId);
+
+			return sessionId;
+		}
+
+		private async Task SaveFuelControlApiSessionData(string sessionId)
+		{
+			using(var uow = UnitOfWorkFactory.CreateForRoot<UserSettings>(_userSettingsService.Settings.Id))
 			{
 				uow.Root.FuelControlApiSessionId = sessionId;
 				uow.Root.FuelControlApiSessionExpirationDate = DateTime.Today.AddDays(_fuelControlSettings.ApiSessionLifetime.TotalDays);
 
 				await uow.SaveAsync();
 			}
-
-			return sessionId;
 		}
 
 		private async Task<IEnumerable<FuelCard>> GetAllCardsFromFuelControlService(string sessionId, CancellationToken cancellationToken)
