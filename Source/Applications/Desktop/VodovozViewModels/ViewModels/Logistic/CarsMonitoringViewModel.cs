@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -89,6 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private IList<District> _cachedFastDeliveryDistricts;
 		private IList<GeoGroup> _geogroups;
 		private GeoGroup _selectedGeoGroup;
+		private bool _hideTrucks;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -282,6 +283,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		public bool HideTrucks
+		{
+			get => _hideTrucks;
+			set
+			{
+				SetField(ref _hideTrucks, value);
+				RefreshWorkingDriversCommand?.Execute();
+			}
+		}
+
 		public DateTime HistoryDate
 		{
 			get => _historyDate;
@@ -451,6 +462,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RouteListItem routeListItemAlias = null;
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 			Track trackAlias = null;
 
 			Domain.Orders.Order orderAlias = null;
@@ -527,6 +539,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(ShowFastDeliveryOnly)
 			{
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+			}
+
+			if(HideTrucks)
+			{
+				query.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Where(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck);
 			}
 
 			var dateForRouteListMaxFastDeliveryOrders = ShowHistory ? HistoryDateTime : DateTime.Now;
