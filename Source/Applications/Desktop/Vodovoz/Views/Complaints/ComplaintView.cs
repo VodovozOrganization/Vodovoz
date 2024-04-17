@@ -94,7 +94,7 @@ namespace Vodovoz.Views.Complaints
 				.InitializeFromSource();
 
 			entryOrder.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanChangeOrder, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
 			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();

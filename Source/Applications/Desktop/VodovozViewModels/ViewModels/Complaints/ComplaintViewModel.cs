@@ -407,7 +407,8 @@ namespace Vodovoz.ViewModels.Complaints
 			nameof(CanSelectDeliveryPoint),
 			nameof(CanAddGuilty),
 			nameof(CanClose),
-			nameof(CanChangeDetalization))]
+			nameof(CanChangeDetalization),
+			nameof(CanChangeOrder))]
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		public bool CanAddGuilty => CanEdit && _canAddGuiltyInComplaintsPermissionResult;
@@ -419,6 +420,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddFine => CanEdit;
 
 		public bool CanAttachFine => CanEdit;
+		public bool CanChangeOrder => CanEdit && Entity.OrderRating is null;
+		public bool CanChangeOrderRating => false;
 
 		public bool CanAddArrangementComment => !string.IsNullOrWhiteSpace(NewArrangementCommentText);
 		public bool CanAddResultComment => !string.IsNullOrWhiteSpace(NewResultCommentText);
@@ -635,6 +638,10 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.ComplaintKind,
 				() => CanChangeDetalization);
+			
+			SetPropertyChangeRelation(
+				e => e.OrderRating,
+				() => CanChangeOrder);
 		}
 
 		private void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)

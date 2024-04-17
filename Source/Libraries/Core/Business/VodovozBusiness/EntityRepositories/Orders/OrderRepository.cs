@@ -1318,6 +1318,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				let orderPaymentStatus = order.OnlineOrder.HasValue
 					? OnlineOrderPaymentStatus.Paid
 					: OnlineOrderPaymentStatus.UnPaid
+					
+				let deliveryScheduleString = order.IsFastDelivery ? DeliverySchedule.FastDelivery : deliverySchedule.DeliveryTime
 
 				select new OrderDto
 				{
@@ -1329,7 +1331,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					CreationDate = order.CreateDate.Value,
 					OrderSum = order.OrderSum,
 					DeliveryAddress = address,
-					DeliverySchedule = deliverySchedule.DeliveryTime,
+					DeliverySchedule = deliveryScheduleString,
 					RatingValue = orderRating.Rating,
 					IsRatingAvailable = ratingAvailable
 				};

@@ -19,6 +19,11 @@ namespace Vodovoz.Core.Data.Orders
 		public int? OnlineOrderId { get; set; }
 		
 		/// <summary>
+		/// Самовывоз
+		/// </summary>
+		public bool IsSelfDelivery { get; set; }
+		
+		/// <summary>
 		/// Статус заказа
 		/// </summary>
 		public ExternalOrderStatus OrderStatus { get; set; }
@@ -26,7 +31,7 @@ namespace Vodovoz.Core.Data.Orders
 		/// <summary>
 		/// Статус оплаты онлайн заказа
 		/// </summary>
-		public OnlineOrderPaymentStatus OrderPaymentStatus { get; set; }
+		public OnlineOrderPaymentStatus? OrderPaymentStatus { get; set; }
 		
 		/// <summary>
 		/// Дата доставки/забора заказа(самовывоз)
@@ -62,5 +67,10 @@ namespace Vodovoz.Core.Data.Orders
 		/// Доступна оценка заказа
 		/// </summary>
 		public bool IsRatingAvailable { get; set; }
+		
+		/// <summary>
+		/// Нужна ли оплата заказа
+		/// </summary>
+		public bool IsNeedPayment { get; set; }
 	}
 }

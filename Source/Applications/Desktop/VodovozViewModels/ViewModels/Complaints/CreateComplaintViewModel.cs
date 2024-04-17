@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -208,7 +209,9 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		//так как диалог только для создания рекламации
+		[PropertyChangedAlso(nameof(CanChangeOrder))]
 		public bool CanEdit => PermissionResult.CanCreate;
+		public bool CanChangeOrder => CanEdit && Entity.OrderRating is null;
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
@@ -281,6 +284,11 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.Counterparty,
 				() => CanSelectDeliveryPoint
+			);
+			
+			SetPropertyChangeRelation(
+				e => e.OrderRating,
+				() => CanChangeOrder
 			);
 		}
 

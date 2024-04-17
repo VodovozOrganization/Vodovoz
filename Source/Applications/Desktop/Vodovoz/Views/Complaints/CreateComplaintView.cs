@@ -40,7 +40,7 @@ namespace Vodovoz.Views.Complaints
 
 			entryOrder.SetEntitySelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanChangeOrder, w => w.Sensitive).InitializeFromSource();
 			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
 			
 			if(ViewModel.UserHasOnlyAccessToWarehouseAndComplaints)

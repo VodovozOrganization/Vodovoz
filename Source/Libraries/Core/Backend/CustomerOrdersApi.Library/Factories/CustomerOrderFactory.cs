@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Factories
@@ -63,7 +64,9 @@ namespace CustomerOrdersApi.Library.Factories
 			if(!order.SelfDelivery)
 			{
 				orderInfo.DeliveryAddress = order.DeliveryPoint?.ShortAddress;
-				orderInfo.DeliverySchedule = order.DeliverySchedule?.DeliveryTime;
+				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: order.DeliverySchedule?.DeliveryTime;
 			}
 
 			return orderInfo;
@@ -86,7 +89,9 @@ namespace CustomerOrdersApi.Library.Factories
 			if(!onlineOrder.IsSelfDelivery)
 			{
 				orderInfo.DeliveryAddress = onlineOrder.DeliveryPoint?.ShortAddress;
-				orderInfo.DeliverySchedule = onlineOrder.DeliverySchedule?.DeliveryTime;
+				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: onlineOrder.DeliverySchedule?.DeliveryTime;
 			}
 
 			return orderInfo;

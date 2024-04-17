@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -19,14 +20,23 @@ namespace Vodovoz.EntityRepositories.Orders
 				from onlineOrderRating in orderRatings.DefaultIfEmpty()
 				where onlineOrder.Counterparty.Id == counterpartyId
 					&& onlineOrder.Order == null
+				
 				let address = onlineOrder.DeliveryPoint != null ? onlineOrder.DeliveryPoint.ShortAddress : null
-				let deliverySchedule = onlineOrder.DeliverySchedule != null ? onlineOrder.DeliverySchedule.DeliveryTime : null
+				
+				let deliverySchedule =
+					onlineOrder.DeliverySchedule != null && onlineOrder.IsFastDelivery
+						? DeliverySchedule.FastDelivery
+						: onlineOrder.DeliverySchedule != null 
+							? onlineOrder.DeliverySchedule.DeliveryTime
+							: null
+				
 				let orderStatus =
 					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.OrderPerformed
 						? ExternalOrderStatus.OrderPerformed
 						: onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
 							? ExternalOrderStatus.Canceled
 							: ExternalOrderStatus.OrderProcessing
+							
 				let ratingAvailable =
 					onlineOrder.Created >= ratingAvailableFrom
 					&& onlineOrderRating == null

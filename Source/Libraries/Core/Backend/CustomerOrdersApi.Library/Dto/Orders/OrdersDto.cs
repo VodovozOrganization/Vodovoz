@@ -11,6 +11,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Количество страниц с заказами
 		/// </summary>
 		public int OrdersCount { get; set; }
+		
 		/// <summary>
 		/// Заказы
 		/// </summary>

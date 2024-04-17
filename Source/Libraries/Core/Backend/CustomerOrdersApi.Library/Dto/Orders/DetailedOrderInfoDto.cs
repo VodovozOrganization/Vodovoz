@@ -12,10 +12,6 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 	public class DetailedOrderInfoDto : OrderDto
 	{
 		/// <summary>
-		/// Самовывоз
-		/// </summary>
-		public bool IsSelfDelivery { get; set; }
-		/// <summary>
 		/// Быстрая доставка
 		/// </summary>
 		public bool IsFastDelivery { get; set; }
