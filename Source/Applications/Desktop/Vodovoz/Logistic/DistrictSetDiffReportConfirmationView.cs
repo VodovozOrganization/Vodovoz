@@ -1,12 +1,32 @@
-﻿using System;
+﻿using QS.Views.Dialog;
+using System.ComponentModel;
+using Vodovoz.ViewModels.Logistic;
+
 namespace Vodovoz.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DistrictSetDiffReportConfirmationView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class DistrictSetDiffReportConfirmationView : DialogViewBase<DistrictSetDiffReportConfirmationViewModel>
 	{
-		public DistrictSetDiffReportConfirmationView()
+		public DistrictSetDiffReportConfirmationView(DistrictSetDiffReportConfirmationViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
+			Build();
+
+			Initialize();
+		}
+
+		private void Initialize()
+		{
+			yentrySourceVersionName.Binding
+				.AddBinding(ViewModel, vm => vm.SourceDistrictSetName, w => w.Text)
+				.InitializeFromSource();
+
+			yentryTargetVersionName.Binding
+				.AddBinding(ViewModel, vm => vm.TargetDistrictSetName, w => w.Text)
+				.InitializeFromSource();
+
+			ybuttonYes.BindCommand(ViewModel.GenerateDiffReportCommand);
+			ybuttonNo.BindCommand(ViewModel.CloseCommand);
 		}
 	}
 }
