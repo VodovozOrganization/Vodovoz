@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -167,8 +167,6 @@ namespace Vodovoz.Domain.Client
 		private bool _hideDeliveryPointForBill;
 
 		#region Свойства
-
-		public virtual IUnitOfWork UoW { get; set; }
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts
@@ -1351,6 +1349,7 @@ namespace Vodovoz.Domain.Client
 			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
 			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
 			var commonServices = validationContext.GetRequiredService<ICommonServices>();
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver))
 			{
@@ -1363,265 +1362,274 @@ namespace Vodovoz.Domain.Client
 					$"Длина строки \"Грузополучатель\" не должна превышать {_cargoReceiverLimitSymbols} символов");
 			}
 
-			if(CheckForINNDuplicate(counterpartyRepository, UoW))
+			using(var uow = uowFactory.CreateWithoutRoot())
 			{
-				yield return new ValidationResult(
-					"Контрагент с данным ИНН уже существует.",
-					new[] { this.GetPropertyName(o => o.INN) });
-			}
-
-			if(UseSpecialDocFields && PayerSpecialKPP != null && PayerSpecialKPP.Length != 9)
-			{
-				yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
-					new[] { this.GetPropertyName(o => o.KPP) });
-			}
-
-			if(PersonType == PersonType.legal)
-			{
-				if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
-				{
-					yield return new ValidationResult("Не заполнена Форма собственности.",
-						new[] { nameof(TypeOfOwnership) });
-				}
-
-				if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
-				{
-					yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
-						new[] { this.GetPropertyName(o => o.KPP) });
-				}
-
-				if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
-				{
-					yield return new ValidationResult("Длина ИНН должна равнятся 10-ти.",
-						new[] { this.GetPropertyName(o => o.INN) });
-				}
-
-				if(INN.Length != 12 && INN.Length != 0 && TypeOfOwnership == "ИП")
-				{
-					yield return new ValidationResult("Длина ИНН для ИП должна равнятся 12-ти.",
-						new[] { this.GetPropertyName(o => o.INN) });
-				}
-
-				if(string.IsNullOrWhiteSpace(KPP) && TypeOfOwnership != "ИП")
-				{
-					yield return new ValidationResult("Для организации необходимо заполнить КПП.",
-						new[] { this.GetPropertyName(o => o.KPP) });
-				}
-
-				if(string.IsNullOrWhiteSpace(INN))
-				{
-					yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
-						new[] { this.GetPropertyName(o => o.INN) });
-				}
-
-				if(KPP != null && !Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
-				{
-					yield return new ValidationResult("КПП может содержать только цифры.",
-						new[] { this.GetPropertyName(o => o.KPP) });
-				}
-
-				if(!Regex.IsMatch(INN, "^[0-9]*$"))
-				{
-					yield return new ValidationResult("ИНН может содержать только цифры.",
-						new[] { this.GetPropertyName(o => o.INN) });
-				}
-			}
-
-			if(IsDeliveriesClosed && string.IsNullOrWhiteSpace(CloseDeliveryComment))
-			{
-				yield return new ValidationResult("Необходимо заполнить комментарий по закрытию поставок",
-					new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
-			}
-
-			if(IsArchive)
-			{
-				var unclosedContracts = CounterpartyContracts.Where(c => !c.IsArchive)
-					.Select(c => c.Id.ToString()).ToList();
-
-				if(unclosedContracts.Count > 0)
+				if(CheckForINNDuplicate(counterpartyRepository, uow))
 				{
 					yield return new ValidationResult(
-						string.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}", string.Join(", ", unclosedContracts)),
-						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
+						"Контрагент с данным ИНН уже существует.",
+						new[] { nameof(INN) });
 				}
 
-				var balance = moneyRepository.GetCounterpartyDebt(UoW, this);
-
-				if(balance != 0)
+				if(UseSpecialDocFields && PayerSpecialKPP != null && PayerSpecialKPP.Length != 9)
 				{
-					yield return new ValidationResult(
-						string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
+					yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
+						new[] { nameof(KPP) });
 				}
 
-				var activeOrders = orderRepository.GetCurrentOrders(UoW, this);
-
-				if(activeOrders.Count > 0)
+				if(PersonType == PersonType.legal)
 				{
-					yield return new ValidationResult(
-						string.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", string.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
-						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
-				}
-
-				var deposit = depositRepository.GetDepositsAtCounterparty(UoW, this, null);
-
-				if(deposit != 0)
-				{
-					yield return new ValidationResult(
-						string.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
-				}
-
-				var bottles = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, this);
-				
-				if(bottles != 0)
-				{
-					yield return new ValidationResult(
-						string.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
-				}
-			}
-
-			if(CameFrom == null
-				&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanEditClientRefer)))
-			{
-				yield return new ValidationResult("Необходимо заполнить поле \"Откуда клиент\"");
-			}
-
-			if(CounterpartyType == CounterpartyType.Dealer && string.IsNullOrEmpty(OGRN))
-			{
-				yield return new ValidationResult("Для дилеров необходимо заполнить поле \"ОГРН\"");
-			}
-
-			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
-			{
-				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
-			}
-
-			var everyAddedMinCountValueCount = NomenclatureFixedPrices
-				.GroupBy(p => new { p.Nomenclature, p.MinCount })
-				.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
-
-			foreach(var p in everyAddedMinCountValueCount)
-			{
-				if(p.Count > 1)
-				{
-					yield return new ValidationResult(
-							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
-							new[] { this.GetPropertyName(o => o.NomenclatureFixedPrices) });
-				}
-			}
-
-			foreach(var fixedPrice in NomenclatureFixedPrices)
-			{
-				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
-				foreach(var fixedPriceValidationResult in fixedPriceValidationResults)
-				{
-					yield return fixedPriceValidationResult;
-				}
-			}
-
-			if(Id == 0 && UseSpecialDocFields)
-			{
-				if(!string.IsNullOrWhiteSpace(SpecialContractName)
-					&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || !SpecialContractDate.HasValue))
-				{
-					yield return new ValidationResult("Помимо специального названия договора надо заполнить его номер и дату");
-				}
-
-				if(!string.IsNullOrWhiteSpace(SpecialContractNumber)
-					&& (string.IsNullOrWhiteSpace(SpecialContractName) || !SpecialContractDate.HasValue))
-				{
-					yield return new ValidationResult("Помимо специального номера договора надо заполнить его название и дату");
-				}
-
-				if(SpecialContractDate.HasValue
-					&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || string.IsNullOrWhiteSpace(SpecialContractName)))
-				{
-					yield return new ValidationResult("Помимо специальной даты договора надо заполнить его название и номер");
-				}
-			}
-
-			if(UseSpecialDocFields)
-			{
-				if(!string.IsNullOrWhiteSpace(SpecialContractName) && SpecialContractName.Length > _specialContractNameLimit)
-				{
-					yield return new ValidationResult(
-						$"Длина наименования особого договора превышена на {SpecialContractName.Length - _specialContractNameLimit}");
-				}
-			}
-
-			if(TechnicalProcessingDelay > 0 && Files.Count == 0)
-			{
-				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
-			}
-
-			var phonesValidationStringBuilder = new StringBuilder();
-			var phoneNumberDuplicatesIsChecked = new List<string>();
-
-			var phonesDuplicates = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, Phones.ToList(), Id);
-
-			foreach(var phone in phonesDuplicates)
-			{
-				phonesValidationStringBuilder.AppendLine($"Телефон {phone.Key} уже указан у контрагентов:");
-
-				foreach(var message in phone.Value)
-				{
-					phonesValidationStringBuilder.AppendLine($"\t{message}");
-				}
-			}
-
-			foreach(var phone in Phones)
-			{
-				if(phone.RoboAtsCounterpartyName == null)
-				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано имя контрагента.");
-				}
-
-				if(phone.RoboAtsCounterpartyPatronymic == null)
-				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
-				}
-
-				if(!phone.IsValidPhoneNumber)
-				{
-					phonesValidationStringBuilder.AppendLine($"Номер {phone.Number} имеет неправильный формат.");
-				}
-
-				#region Проверка дубликатов номера телефона
-
-				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
-				{
-					if(Phones.Where(p => p.Number == phone.Number).Count() > 1)
+					if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
 					{
-						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
+						yield return new ValidationResult("Не заполнена Форма собственности.",
+							new[] { nameof(TypeOfOwnership) });
 					}
 
-					phoneNumberDuplicatesIsChecked.Add(phone.Number);
+					if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
+					{
+						yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
+							new[] { nameof(KPP) });
+					}
+
+					if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
+					{
+						yield return new ValidationResult("Длина ИНН должна равнятся 10-ти.",
+							new[] { nameof(INN) });
+					}
+
+					if(INN.Length != 12 && INN.Length != 0 && TypeOfOwnership == "ИП")
+					{
+						yield return new ValidationResult("Длина ИНН для ИП должна равнятся 12-ти.",
+							new[] { nameof(INN) });
+					}
+
+					if(string.IsNullOrWhiteSpace(KPP) && TypeOfOwnership != "ИП")
+					{
+						yield return new ValidationResult("Для организации необходимо заполнить КПП.",
+							new[] { nameof(KPP) });
+					}
+
+					if(string.IsNullOrWhiteSpace(INN))
+					{
+						yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
+							new[] { nameof(INN) });
+					}
+
+					if(KPP != null && !Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
+					{
+						yield return new ValidationResult("КПП может содержать только цифры.",
+							new[] { nameof(KPP) });
+					}
+
+					if(!Regex.IsMatch(INN, "^[0-9]*$"))
+					{
+						yield return new ValidationResult("ИНН может содержать только цифры.",
+							new[] { nameof(INN) });
+					}
 				}
 
-				#endregion
-			}
-
-			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
-
-			if(!string.IsNullOrEmpty(phonesValidationMessage))
-			{
-				yield return new ValidationResult(phonesValidationMessage);
-			}
-
-			if(ReasonForLeaving == ReasonForLeaving.Resale && string.IsNullOrWhiteSpace(INN))
-			{
-				yield return new ValidationResult("Для перепродажи должен быть заполнен ИНН");
-			}
-
-			if(IsNotSendDocumentsByEdo && IsPaperlessWorkflow)
-			{
-				yield return new ValidationResult("При выборе \"Не отправлять документы по EDO\" должен быть отключен \"Отказ от печатных документов\"");
-			}
-
-			foreach(var email in Emails)
-			{
-				if(!email.IsValidEmail)
+				if(IsDeliveriesClosed && string.IsNullOrWhiteSpace(CloseDeliveryComment))
 				{
-					yield return new ValidationResult($"Адрес электронной почты {email.Address} имеет неправильный формат.");
+					yield return new ValidationResult("Необходимо заполнить комментарий по закрытию поставок",
+						new[] { nameof(CloseDeliveryComment) });
+				}
+
+				if(IsArchive)
+				{
+					var unclosedContracts = CounterpartyContracts.Where(c => !c.IsArchive)
+						.Select(c => c.Id.ToString()).ToList();
+
+					if(unclosedContracts.Count > 0)
+					{
+						yield return new ValidationResult(
+							string.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}",
+								string.Join(", ", unclosedContracts)),
+							new[] { nameof(CounterpartyContracts) });
+					}
+
+					var balance = moneyRepository.GetCounterpartyDebt(uow, this);
+
+					if(balance != 0)
+					{
+						yield return new ValidationResult(
+							string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}",
+								CurrencyWorks.GetShortCurrencyString(balance)));
+					}
+
+					var activeOrders = orderRepository.GetCurrentOrders(uow, this);
+
+					if(activeOrders.Count > 0)
+					{
+						yield return new ValidationResult(
+							string.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}",
+								string.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
+							new[] { nameof(CounterpartyContracts) });
+					}
+
+					var deposit = depositRepository.GetDepositsAtCounterparty(uow, this, null);
+
+					if(deposit != 0)
+					{
+						yield return new ValidationResult(
+							$"Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {CurrencyWorks.GetShortCurrencyString(deposit)}");
+					}
+
+					var bottles = bottlesRepository.GetBottlesDebtAtCounterparty(uow, this);
+
+					if(bottles != 0)
+					{
+						yield return new ValidationResult(
+							$"Вы не можете сдать контрагента в архив так как он не вернул {bottles} бутылей");
+					}
+				}
+
+				if(CameFrom == null
+					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanEditClientRefer)))
+				{
+					yield return new ValidationResult("Необходимо заполнить поле \"Откуда клиент\"");
+				}
+
+				if(CounterpartyType == CounterpartyType.Dealer && string.IsNullOrEmpty(OGRN))
+				{
+					yield return new ValidationResult("Для дилеров необходимо заполнить поле \"ОГРН\"");
+				}
+
+				if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
+				{
+					yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
+				}
+
+				var everyAddedMinCountValueCount = NomenclatureFixedPrices
+					.GroupBy(p => new { p.Nomenclature, p.MinCount })
+					.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
+
+				foreach(var p in everyAddedMinCountValueCount)
+				{
+					if(p.Count > 1)
+					{
+						yield return new ValidationResult(
+							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
+							new[] { nameof(NomenclatureFixedPrices) });
+					}
+				}
+
+				foreach(var fixedPrice in NomenclatureFixedPrices)
+				{
+					var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+					foreach(var fixedPriceValidationResult in fixedPriceValidationResults)
+					{
+						yield return fixedPriceValidationResult;
+					}
+				}
+
+				if(Id == 0 && UseSpecialDocFields)
+				{
+					if(!string.IsNullOrWhiteSpace(SpecialContractName)
+						&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || !SpecialContractDate.HasValue))
+					{
+						yield return new ValidationResult("Помимо специального названия договора надо заполнить его номер и дату");
+					}
+
+					if(!string.IsNullOrWhiteSpace(SpecialContractNumber)
+						&& (string.IsNullOrWhiteSpace(SpecialContractName) || !SpecialContractDate.HasValue))
+					{
+						yield return new ValidationResult("Помимо специального номера договора надо заполнить его название и дату");
+					}
+
+					if(SpecialContractDate.HasValue
+						&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || string.IsNullOrWhiteSpace(SpecialContractName)))
+					{
+						yield return new ValidationResult("Помимо специальной даты договора надо заполнить его название и номер");
+					}
+				}
+
+				if(UseSpecialDocFields)
+				{
+					if(!string.IsNullOrWhiteSpace(SpecialContractName) && SpecialContractName.Length > _specialContractNameLimit)
+					{
+						yield return new ValidationResult(
+							$"Длина наименования особого договора превышена на {SpecialContractName.Length - _specialContractNameLimit}");
+					}
+				}
+
+				if(TechnicalProcessingDelay > 0 && Files.Count == 0)
+				{
+					yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
+				}
+
+				var phonesValidationStringBuilder = new StringBuilder();
+				var phoneNumberDuplicatesIsChecked = new List<string>();
+
+				var phonesDuplicates =
+					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.ToList(), Id);
+
+				foreach(var phone in phonesDuplicates)
+				{
+					phonesValidationStringBuilder.AppendLine($"Телефон {phone.Key} уже указан у контрагентов:");
+
+					foreach(var message in phone.Value)
+					{
+						phonesValidationStringBuilder.AppendLine($"\t{message}");
+					}
+				}
+
+				foreach(var phone in Phones)
+				{
+					if(phone.RoboAtsCounterpartyName == null)
+					{
+						phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано имя контрагента.");
+					}
+
+					if(phone.RoboAtsCounterpartyPatronymic == null)
+					{
+						phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
+					}
+
+					if(!phone.IsValidPhoneNumber)
+					{
+						phonesValidationStringBuilder.AppendLine($"Номер {phone.Number} имеет неправильный формат.");
+					}
+
+					#region Проверка дубликатов номера телефона
+
+					if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
+					{
+						if(Phones.Where(p => p.Number == phone.Number).Count() > 1)
+						{
+							phonesValidationStringBuilder.AppendLine(
+								$"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
+						}
+
+						phoneNumberDuplicatesIsChecked.Add(phone.Number);
+					}
+
+					#endregion
+				}
+
+				var phonesValidationMessage = phonesValidationStringBuilder.ToString();
+
+				if(!string.IsNullOrEmpty(phonesValidationMessage))
+				{
+					yield return new ValidationResult(phonesValidationMessage);
+				}
+
+				if(ReasonForLeaving == ReasonForLeaving.Resale && string.IsNullOrWhiteSpace(INN))
+				{
+					yield return new ValidationResult("Для перепродажи должен быть заполнен ИНН");
+				}
+
+				if(IsNotSendDocumentsByEdo && IsPaperlessWorkflow)
+				{
+					yield return new ValidationResult(
+						"При выборе \"Не отправлять документы по EDO\" должен быть отключен \"Отказ от печатных документов\"");
+				}
+
+				foreach(var email in Emails)
+				{
+					if(!email.IsValidEmail)
+					{
+						yield return new ValidationResult($"Адрес электронной почты {email.Address} имеет неправильный формат.");
+					}
 				}
 			}
 
@@ -1634,7 +1642,6 @@ namespace Vodovoz.Domain.Client
 			{
 				yield return new ValidationResult("Клиент не мог привести сам себя");
 			}
-
 		}
 
 		#endregion
