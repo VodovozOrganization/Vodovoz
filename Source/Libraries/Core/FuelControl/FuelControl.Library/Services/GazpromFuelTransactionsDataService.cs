@@ -88,7 +88,7 @@ namespace FuelControl.Library.Services
 				if(responseData.Status.Errors?.Count() > 0)
 				{
 					var errorMessages =
-						$"На запрос получения транзакций вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+						$"На запрос получения транзакций сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
 					_logger.LogError(errorMessages);
 

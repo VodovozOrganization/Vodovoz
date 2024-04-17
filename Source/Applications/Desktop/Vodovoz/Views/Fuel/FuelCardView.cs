@@ -25,7 +25,7 @@ namespace Vodovoz.Views.Fuel
 				.InitializeFromSource();
 
 			ybuttonGetCardId.Binding
-				.AddBinding(ViewModel, vm => vm.CanGetCardId, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.IsCardNumberValid, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);

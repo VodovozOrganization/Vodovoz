@@ -73,7 +73,7 @@ namespace FuelControl.Library.Services
 				if(responseData.Status.Errors?.Count() > 0)
 				{
 					var errorMessages =
-						$"На запрос получения списка карт вернулся ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+						$"На запрос получения списка карт сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
 					_logger.LogError(errorMessages);
 

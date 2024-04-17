@@ -36,6 +36,7 @@ namespace Vodovoz.Domain.Fuel
 		}
 
 		[Display(Name = "Номер топливной карты")]
+		[PropertyChangedAlso(nameof(IsCardNumberValid))]
 		public virtual string CardNumber
 		{
 			get => _cardNumber;
@@ -51,6 +52,10 @@ namespace Vodovoz.Domain.Fuel
 
 		public virtual string Title => $"{CardNumber}";
 
+		public virtual bool IsCardNumberValid =>
+			CardNumber?.Length == 16
+			&& CardNumber.All(char.IsDigit);
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(CardId))
@@ -60,28 +65,11 @@ namespace Vodovoz.Domain.Fuel
 					new[] { nameof(CardId) });
 			}
 
-			if(string.IsNullOrWhiteSpace(CardNumber))
+			if(!IsCardNumberValid)
 			{
 				yield return new ValidationResult(
-					"Номер карты должен быть обязательно заполнен",
+					$"Номер карты должен содержать {_cardNumberLength} цифр",
 					new[] { nameof(CardNumber) });
-			}
-
-			if(!string.IsNullOrWhiteSpace(CardNumber))
-			{
-				if(CardNumber.Length != _cardNumberLength)
-				{
-					yield return new ValidationResult(
-						$"Номер карты должен содержать {_cardNumberLength} символов",
-						new[] { nameof(CardNumber) });
-				}
-
-				if(!CardNumber.All(char.IsDigit))
-				{
-					yield return new ValidationResult(
-						$"Номер карты должен состоять только из цифр",
-						new[] { nameof(CardNumber) });
-				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(CardId) && !string.IsNullOrWhiteSpace(CardNumber))
