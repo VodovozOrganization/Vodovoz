@@ -207,19 +207,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				switch(_filterViewModel.SortType)
 				{
 					case PaymentJournalSortType.Status:
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Status).Asc;
+						paymentQuery.OrderBy(() => paymentAlias.Status).Asc();
 						break;
 					case PaymentJournalSortType.Date:
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc;
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc;
+						paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc();
+						paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc();
 						break;
 					case PaymentJournalSortType.PaymentNum:
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc;
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc;
+						paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc();
+						paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc();
 						break;
 					case PaymentJournalSortType.TotalSum:
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Total).Desc;
-						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc;
+						paymentQuery.OrderBy(() => paymentAlias.Total).Desc();
+						paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc();
 						break;
 				}
 			}
