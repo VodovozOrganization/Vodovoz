@@ -23,6 +23,7 @@ using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Fuel.FuelCards;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -110,6 +111,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
 
+			FuelCardViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+				.ForProperty(x => x.FuelCard)
+				.UseViewModelJournalAndAutocompleter<FuelCardJournalViewModel, FuelCardJournalFilterViewModel>(filter =>
+				{
+					filter.IsShowArchived = false;
+				})
+				.UseViewModelDialog<FuelCardViewModel>()
+				.Finish();
+
 			Entity.PropertyChanged += (sender, args) =>
 			{
 				if(args.PropertyName == nameof(Entity.Driver) && Entity.Driver != null)
@@ -147,6 +157,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEntityEntryViewModel CarModelViewModel { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
 		public IEntityEntryViewModel FuelTypeViewModel { get; }
+		public IEntityEntryViewModel FuelCardViewModel { get; }
 
 		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
