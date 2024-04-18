@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Fuel
 {
@@ -8,6 +9,7 @@ namespace Vodovoz.Domain.Fuel
 	{
 		public virtual int Id { get; set; }
 		public virtual DateTime RequestDateTime { get; set; }
+		public virtual User Author { get; set; }
 		public virtual FuelApiRequestFunction RequestFunction { get; set; }
 		public virtual FuelApiResponseResult ResponseResult { get; set; }
 		public virtual string ErrorResponseMessage { get; set; }
