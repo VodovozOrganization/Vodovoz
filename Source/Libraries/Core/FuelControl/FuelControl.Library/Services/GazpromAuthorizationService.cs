@@ -28,7 +28,7 @@ namespace FuelControl.Library.Services
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		public async Task<string> Login(string login, string password, string apiKey, CancellationToken cancellationToken)
+		public async Task<(string SessionId, DateTime SessionExpirationDate)> Login(string login, string password, string apiKey, CancellationToken cancellationToken)
 		{
 			if(string.IsNullOrWhiteSpace(login))
 			{
@@ -72,12 +72,14 @@ namespace FuelControl.Library.Services
 				}
 
 				var sessionId = responseData.UserData.SessionId;
+				var sessionExpirationDate = DateTimeOffset.FromUnixTimeSeconds(responseData.Timestamp).Date
+					.AddDays(_fuelControlSettings.ApiSessionLifetime.TotalDays);
 
 				_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
 				sessionId,
 				DateTime.Now.ToString(_logsDateTimeFormatString));
 
-				return sessionId;
+				return (sessionId, sessionExpirationDate);
 			}
 		}
 

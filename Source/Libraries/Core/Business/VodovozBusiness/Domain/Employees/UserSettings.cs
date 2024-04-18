@@ -272,12 +272,14 @@ namespace Vodovoz.Domain.Employees
 		public virtual bool IsNeedToLoginFuelControlApi =>
 			string.IsNullOrWhiteSpace(FuelControlApiSessionId)
 			|| !FuelControlApiSessionExpirationDate.HasValue
-			|| FuelControlApiSessionExpirationDate < DateTime.Today;
+			|| FuelControlApiSessionExpirationDate <= DateTime.Today;
 
 		private void ResetFuelControlAPiSessionData()
 		{
-			FuelControlApiSessionId = null;
+			FuelControlApiSessionId = string.Empty;
 			FuelControlApiSessionExpirationDate = null;
+
+			OnPropertyChanged(nameof(IsUserHasAuthDataForFuelControlApi));
 		}
 
 		#endregion

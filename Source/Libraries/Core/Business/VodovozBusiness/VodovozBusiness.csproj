@@ -1001,6 +1001,7 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
+    <Compile Include="Services\Fuel\IFuelApiService.cs" />
     <Compile Include="Services\IUserSettingsService.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />

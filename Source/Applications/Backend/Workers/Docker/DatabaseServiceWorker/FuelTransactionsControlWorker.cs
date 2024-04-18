@@ -61,7 +61,7 @@ namespace DatabaseServiceWorker
 		private bool IsAuthorized =>
 			!string.IsNullOrWhiteSpace(_sessionId)
 			&& _sessionExpirationDate.HasValue
-			&& DateTime.Now < _sessionExpirationDate.Value;
+			&& DateTime.Today < _sessionExpirationDate.Value;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
@@ -196,14 +196,14 @@ namespace DatabaseServiceWorker
 			_sessionId = null;
 			_sessionExpirationDate = null;
 
-			var sessionId = await _authorizationService.Login(
+			var session = await _authorizationService.Login(
 				_options.Value.Login,
 				_options.Value.Password,
 				_options.Value.ApiKey,
 				cancellationToken);
 
-			_sessionId = sessionId;
-			_sessionExpirationDate = DateTime.Today.AddMinutes(_fuelControlSettings.ApiSessionLifetime.TotalMinutes);
+			_sessionId = session.SessionId;
+			_sessionExpirationDate = session.SessionExpirationDate;
 		}
 
 		private async Task<IEnumerable<FuelTransaction>> GetFuelTransactions(
