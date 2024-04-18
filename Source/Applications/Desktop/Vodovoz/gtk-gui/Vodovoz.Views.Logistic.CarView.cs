@@ -753,7 +753,7 @@ namespace Vodovoz.Views.Logistic
 			this.labelFuelCard = new global::Gtk.Label();
 			this.labelFuelCard.Name = "labelFuelCard";
 			this.labelFuelCard.Xalign = 1F;
-			this.labelFuelCard.LabelProp = global::Mono.Unix.Catalog.GetString("Номер ТК:");
+			this.labelFuelCard.LabelProp = global::Mono.Unix.Catalog.GetString("Топливная карта:");
 			this.tableCarData.Add(this.labelFuelCard);
 			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.labelFuelCard]));
 			w49.TopAttach = ((uint)(1));
