@@ -8,7 +8,7 @@ namespace Vodovoz.Services.Fuel
 {
 	public interface IFuelApiService
 	{
-		Task<(string SessionId, DateTime SessionExpirationDate)> Login(CancellationToken cancellationToken);
+		Task<(string SessionId, DateTime SessionExpirationDate)> Login(string login, string password, string apiKey, CancellationToken cancellationToken);
 		Task<IEnumerable<FuelCard>> GetFuelCardsData(CancellationToken cancellationToken);
 	}
 }

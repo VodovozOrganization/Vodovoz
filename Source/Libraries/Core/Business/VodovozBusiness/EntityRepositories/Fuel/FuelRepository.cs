@@ -2,13 +2,11 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -287,6 +285,17 @@ namespace Vodovoz.EntityRepositories.Fuel
 		public IEnumerable<FuelCard> GetFuelCardsByCardNumber(IUnitOfWork uow, string cardNumber)
 		{
 			return uow.Session.Query<FuelCard>().Where(c => c.CardNumber == cardNumber);
+		}
+
+		public async Task SaveFuelApiRequest(IUnitOfWork uow, FuelApiRequest request)
+		{
+			if(request is null)
+			{
+				throw new ArgumentNullException(nameof(request));
+			}
+
+			await uow.SaveAsync(request);
+			await uow.CommitAsync();
 		}
 	}
 }

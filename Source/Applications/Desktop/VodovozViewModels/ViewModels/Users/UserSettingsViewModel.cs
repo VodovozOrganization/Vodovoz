@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Users
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
 		private readonly IFuelApiService _fuelApiService;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private ILifetimeScope _lifetimeScope;
 		private DelegateCommand _updateFixedPricesCommand;
 		private bool _sortingSettingsUpdated;
@@ -58,7 +59,8 @@ namespace Vodovoz.ViewModels.Users
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclaturePricesRepository nomenclatureFixedPriceRepository,
-			IFuelApiService fuelApiService)
+			IFuelApiService fuelApiService,
+			IGuiDispatcher guiDispatcher)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -73,6 +75,7 @@ namespace Vodovoz.ViewModels.Users
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			InteractiveService = commonServices.InteractiveService;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
@@ -276,20 +279,35 @@ namespace Vodovoz.ViewModels.Users
 
 			try
 			{
-				var session = await _fuelApiService.Login(_cancellationTokenSource.Token);
+				var session = await _fuelApiService.Login(
+					Entity.FuelControlApiLogin,
+					Entity.FuelControlApiPassword,
+					Entity.FuelControlApiKey,
+					_cancellationTokenSource.Token);
 
 				Entity.FuelControlApiSessionId = session.SessionId;
 				Entity.FuelControlApiSessionExpirationDate = session.SessionExpirationDate;
+
+				ShowMessageInGuiThread(ImportanceLevel.Info,
+					"Новое значение Id сессии получено. Старый Id больше не действует.\nЧтобы новое значение было сохранено обязательно нажмите на кнопку \"Сохранить\"");
 			}
 			catch(Exception ex)
 			{
-				InteractiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+				ShowMessageInGuiThread(ImportanceLevel.Error, ex.Message);
 			}
 			finally
 			{
 				_cancellationTokenSource?.Dispose();
 				_cancellationTokenSource = null;
 			}
+		}
+
+		private void ShowMessageInGuiThread(ImportanceLevel level, string message)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				CommonServices.InteractiveService.ShowMessage(level, message);
+			});
 		}
 
 		public override void Dispose()

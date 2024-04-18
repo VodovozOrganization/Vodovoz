@@ -21,5 +21,6 @@ namespace Vodovoz.EntityRepositories.Fuel
 		Task<int> SaveFuelTransactionsIfNeedAsync(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions);
 		IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId);
 		IEnumerable<FuelCard> GetFuelCardsByCardNumber(IUnitOfWork uow, string cardNumber);
+		Task SaveFuelApiRequest(IUnitOfWork uow, FuelApiRequest request);
 	}
 }
