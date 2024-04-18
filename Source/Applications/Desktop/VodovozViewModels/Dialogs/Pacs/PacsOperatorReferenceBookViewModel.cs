@@ -4,6 +4,7 @@ using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using ReactiveUI;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -28,6 +29,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private readonly ILifetimeScope _scope;
 		private Employee _operator;
 		private bool _pacsEnabled;
+		private bool _isNew;
 
 		public PacsOperatorReferenceBookViewModel(
 			IEntityIdentifier entityId,
@@ -43,6 +45,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			Title = "Оператор";
+
+			_isNew = entityId.IsNewEntity;
 
 			this.WhenAnyValue(x => x.Entity.Id)
 				.Subscribe(x =>
@@ -106,7 +110,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public override void Save()
 		{
-			if(!_validator.Validate(Entity, new ValidationContext(Entity)))
+			if(!_validator.Validate(
+				Entity,
+				new ValidationContext(
+					Entity,
+					new Dictionary<object, object>
+					{
+						{ "isNew", _isNew }
+					})))
 			{
 				return;
 			}

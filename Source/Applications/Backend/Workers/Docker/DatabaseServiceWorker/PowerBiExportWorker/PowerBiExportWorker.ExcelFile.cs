@@ -40,8 +40,9 @@ namespace DatabaseServiceWorker
 			var lastRow = excelWorkbook.Worksheet(1).LastRowUsed().RowNumber();
 			DateTime lastDateTime;
 			excelWorkbook.Worksheet(1).Row(lastRow).Cell(1).TryGetValue(out lastDateTime);
-			var yesterday = DateTime.Now.Date.AddDays(-1);
-			return lastDateTime.Date < yesterday;
+			var yesterdayDate = DateTime.Now.Date.AddDays(-1);
+			var nowHour = DateTime.Now.Hour;
+			return lastDateTime.Date < yesterdayDate && nowHour > 1; // не раньше 1 часа ночи
 		}
 
 		private void ReadDataFromDbAndExportToExcel(IUnitOfWork uow, XLWorkbook excelWorkbook, DateTime date)
