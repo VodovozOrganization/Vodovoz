@@ -17,6 +17,7 @@ using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
@@ -84,6 +85,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
 			CanEditFuelCardNumber =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+			CanViewFuelCard =
+				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
 
 			CarModelViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
 				.ForProperty(x => x.CarModel)
@@ -111,14 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
 
-			FuelCardViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-				.ForProperty(x => x.FuelCard)
-				.UseViewModelJournalAndAutocompleter<FuelCardJournalViewModel, FuelCardJournalFilterViewModel>(filter =>
-				{
-					filter.IsShowArchived = false;
-				})
-				.UseViewModelDialog<FuelCardViewModel>()
-				.Finish();
+			FuelCardViewModel = GetFuelCardViewModel();
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
@@ -153,6 +149,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }
+		public bool CanViewFuelCard {  get; }
 
 		public IEntityEntryViewModel CarModelViewModel { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
@@ -393,6 +390,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#endregion Add GeoGroup
+
+		private IEntityEntryViewModel GetFuelCardViewModel()
+		{
+			var viewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+				.ForProperty(x => x.FuelCard)
+				.UseViewModelJournalAndAutocompleter<FuelCardJournalViewModel, FuelCardJournalFilterViewModel>(filter =>
+				{
+					filter.IsShowArchived = false;
+				})
+				.UseViewModelDialog<FuelCardViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = CanEditFuelCardNumber;
+			viewModel.CanViewEntity = CanViewFuelCard;
+
+			return viewModel;
+		}
 
 		public override void Dispose()
 		{
