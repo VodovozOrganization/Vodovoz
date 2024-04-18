@@ -592,6 +592,7 @@ namespace Vodovoz.Application.Pacs
 			{
 				var operatorState = await _client.ChangeNumber(phone);
 				SetState(operatorState);
+				UpdateMango();
 			}
 			catch(Exception ex)
 			{
@@ -718,10 +719,10 @@ namespace Vodovoz.Application.Pacs
 
 				if(_operatorStateAgent.OnWorkshift)
 				{
+					MangoPhone = OperatorState.PhoneNumber;
 					if(_mangoManager.CanConnect && hasPhone)
 					{
 						_mangoManager.Connect(phone);
-						MangoPhone = OperatorState.PhoneNumber;
 						CanOpenMango = true;
 					}
 				}
