@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
+using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
@@ -202,6 +203,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					paymentQuery = paymentQuery.OrderBy(Projections.SubQuery(unAllocatedSum)).Desc;
 				}
+
+				switch(_filterViewModel.SortType)
+				{
+					case PaymentJournalSortType.Status:
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Status).Asc;
+						break;
+					case PaymentJournalSortType.Date:
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc;
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc;
+						break;
+					case PaymentJournalSortType.PaymentNum:
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc;
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc;
+						break;
+					case PaymentJournalSortType.TotalSum:
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Total).Desc;
+						paymentQuery = paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc;
+						break;
+				}
 			}
 
 			#endregion filter
@@ -228,11 +248,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					.Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
 					.Select(() => paymentAlias.IsManuallyCreated).WithAlias(() => resultAlias.IsManualCreated)
 					.SelectSubQuery(unAllocatedSum).WithAlias(() => resultAlias.UnAllocatedSum))
-				.OrderBy(() => paymentAlias.Status).Asc
-				.OrderBy(() => paymentAlias.CounterpartyName).Asc
-				.OrderBy(() => paymentAlias.Total).Asc
 				.TransformUsing(Transformers.AliasToBean<PaymentJournalNode>());
-			
+
 			return resultQuery;
 		}
 
