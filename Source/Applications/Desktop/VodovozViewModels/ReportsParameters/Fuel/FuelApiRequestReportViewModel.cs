@@ -16,7 +16,7 @@ using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 {
-	public class FuelApiRequestReportViewModel : ReportParametersViewModelBase
+	public class FuelApiRequestReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -124,6 +124,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 				.Finish();
 
 			return viewModel;
+		}
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
 		}
 	}
 }
