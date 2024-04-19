@@ -1,11 +1,17 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report.ViewModels;
 using QS.Services;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Journals;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Fuel
@@ -17,28 +23,47 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 		private User _user;
 
 		private readonly IInteractiveService _interactiveService;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly RdlViewerViewModel _rdlViewerViewModel;
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public FuelApiRequestReportViewModel(
+			RdlViewerViewModel rdlViewerViewModel,
 			ICommonServices commonServices,
-			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope) : base(rdlViewerViewModel)
 		{
 			if(commonServices is null)
 			{
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
-			_interactiveService = commonServices.InteractiveService;
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Title = "Отчет по запросам к API Газпром-нефть";
 			Identifier = "Cash.MovementsPaymentControlReport";
 
+			_interactiveService = commonServices.InteractiveService;
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
+
 			CreateReportCommand = new DelegateCommand(CreateReport, () => CanCreateReport);
+			UserViewModel = GetUserViewModel();
 
 			StartDate = GeneralUtils.GetCurrentMonthStartDate();
 			EndDate = DateTime.Today;
 		}
 
 		public DelegateCommand CreateReportCommand { get; }
+		public IEntityEntryViewModel UserViewModel { get; }
 
 		[PropertyChangedAlso(nameof(CanCreateReport))]
 		public DateTime? StartDate
@@ -83,10 +108,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Error,
-					"Для формирования отчета необходимо указать период");
+				"Для формирования отчета необходимо указать период");
 			}
 
 			LoadReport();
+		}
+
+		private IEntityEntryViewModel GetUserViewModel()
+		{
+			var viewModel = new CommonEEVMBuilderFactory<FuelApiRequestReportViewModel>(_rdlViewerViewModel, this, _unitOfWork, _navigationManager, _lifetimeScope)
+				.ForProperty(x => x.User)
+				.UseViewModelJournalAndAutocompleter<SelectUserJournalViewModel, UsersJournalFilterViewModel>(filter =>
+				{
+				})
+				.Finish();
+
+			return viewModel;
 		}
 	}
 }
