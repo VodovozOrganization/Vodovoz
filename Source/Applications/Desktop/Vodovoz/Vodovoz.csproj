@@ -2056,11 +2056,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Fuel.FuelCardView.cs" />
     <Compile Include="Filters\GtkViews\FuelCardJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FuelCardJournalFilterView.cs" />
+    <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Fuel.FuelApiRequestReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="ReportsParameters\Fuel\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
