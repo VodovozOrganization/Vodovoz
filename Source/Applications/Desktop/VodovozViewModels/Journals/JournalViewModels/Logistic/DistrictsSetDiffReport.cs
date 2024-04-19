@@ -59,8 +59,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSet.NotFound(diffTargetDistrictSetVersionId.Value));
 			}
 
-			var oldDistricts = sourceDistrictSet.Districts;
-			var newDistricts = targetDistrictSet.Districts;
+			var oldDistricts = sourceDistrictSet.Districts.ToDictionary(x => x.DistrictName, x => x);
+			var newDistricts = targetDistrictSet.Districts.ToDictionary(x => x.DistrictName, x => x);
 
 			var districtsChanged = new List<DistrictDiffRow>();
 			var districtsAdded = new List<DistrictRow>();
@@ -68,175 +68,170 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			var onlyDifferentDistricts = newDistricts
 				.Where(d =>
-					oldDistricts.Contains(d.CopyOf)
+					oldDistricts.ContainsKey(d.Key)
 					&& (
-						d.TariffZone.Id != d.CopyOf.TariffZone.Id
-						|| d.MinBottles != d.CopyOf.MinBottles
-						|| AllDistrictRuleItemsChanged(d)
-						|| !d.AllDeliveryScheduleRestrictions.All(dsr => d.CopyOf.AllDeliveryScheduleRestrictions
+						d.Value.TariffZone.Id != oldDistricts[d.Key].TariffZone.Id
+						|| d.Value.MinBottles != oldDistricts[d.Key].MinBottles
+						|| AllDistrictRuleItemsChanged(d.Value.AllDistrictRuleItems, oldDistricts[d.Key].AllDistrictRuleItems)
+						|| !d.Value.AllDeliveryScheduleRestrictions.All(dsr => oldDistricts[d.Key].AllDeliveryScheduleRestrictions
 							.Select(x => (x.AcceptBefore, x.WeekDay, x.DeliverySchedule.From, x.DeliverySchedule.To))
 							.Contains((dsr.AcceptBefore, dsr.WeekDay, dsr.DeliverySchedule.From, dsr.DeliverySchedule.To)))
-						|| !d.CopyOf.AllDeliveryScheduleRestrictions.All(dsr => d.AllDeliveryScheduleRestrictions
+						|| !oldDistricts[d.Key].AllDeliveryScheduleRestrictions.All(dsr => d.Value.AllDeliveryScheduleRestrictions
 							.Select(x => (x.AcceptBefore, x.WeekDay, x.DeliverySchedule.From, x.DeliverySchedule.To))
 							.Contains((dsr.AcceptBefore, dsr.WeekDay, dsr.DeliverySchedule.From, dsr.DeliverySchedule.To)))));
 
-			foreach(var district in onlyDifferentDistricts)
+			foreach(var districtPair in onlyDifferentDistricts)
 			{
-				if(oldDistricts.Contains(district.CopyOf))
+				var tarifZoneChanged = oldDistricts[districtPair.Key].TariffZone.Name != districtPair.Value.TariffZone.Name;
+
+				var minimalBottlesCountChanged = oldDistricts[districtPair.Key].MinBottles != districtPair.Value.MinBottles;
+
+				var delikveryRulesGeneralChanged = CommonDistrictRuleItemsChanged(districtPair.Value.CommonDistrictRuleItems, oldDistricts[districtPair.Key].CommonDistrictRuleItems);
+
+				districtsChanged.Add(new DistrictDiffRow
 				{
-					var tarifZoneChanged = district.CopyOf.TariffZone.Name != district.TariffZone.Name;
+					Id = districtPair.Value.Id,
+					Name = districtPair.Value.DistrictName,
 
-					var minimalBottlesCountChanged = district.CopyOf.MinBottles != district.MinBottles;
+					TariffZoneNameOld = tarifZoneChanged
+						? oldDistricts[districtPair.Key].TariffZone.Name
+						: "",
 
-					var delikveryRulesGeneralChanged = CommonDistrictRuleItemsChanged(district);
+					TariffZoneNameNew = tarifZoneChanged
+						? districtPair.Value.TariffZone.Name
+						: "",
 
-					districtsChanged.Add(new DistrictDiffRow
-					{
-						Id = district.Id,
+					MinimalBottlesCountOld = minimalBottlesCountChanged
+						? (int?)oldDistricts[districtPair.Key].MinBottles
+						: null,
 
-						Name = district.DistrictName,
+					MinimalBottlesCountNew = minimalBottlesCountChanged
+						? (int?)districtPair.Value.MinBottles
+						: null,
 
-						TariffZoneNameOld = tarifZoneChanged
-							? district.CopyOf.TariffZone.Name
-							: "",
+					DelikveryRulesGeneralOld = 
+						delikveryRulesGeneralChanged
+						? ConvertDiffDeliveryRulesGeneralOld(oldDistricts[districtPair.Key].CommonDistrictRuleItems, districtPair.Value.CommonDistrictRuleItems)
+						: "",
 
-						TariffZoneNameNew = tarifZoneChanged
-							? district.TariffZone.Name
-							: "",
+					DelikveryRulesGeneralNew = 
+						delikveryRulesGeneralChanged
+						? ConvertDiffDeliveryRulesGeneralNew(oldDistricts[districtPair.Key].CommonDistrictRuleItems, districtPair.Value.CommonDistrictRuleItems)
+						: "",
 
-						MinimalBottlesCountOld = minimalBottlesCountChanged
-							? (int?)district.CopyOf.MinBottles
-							: null,
+					DeliveryShiftsTodayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].TodayDeliveryScheduleRestrictions, districtPair.Value.TodayDeliveryScheduleRestrictions),
+					DeliveryShiftsTodayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].TodayDeliveryScheduleRestrictions, districtPair.Value.TodayDeliveryScheduleRestrictions),
 
-						MinimalBottlesCountNew = minimalBottlesCountChanged
-							? (int?)district.MinBottles
-							: null,
+					DeliveryShiftsMondayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].MondayDeliveryScheduleRestrictions, districtPair.Value.MondayDeliveryScheduleRestrictions),
+					DeliveryShiftsMondayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].MondayDeliveryScheduleRestrictions, districtPair.Value.MondayDeliveryScheduleRestrictions),
 
-						DelikveryRulesGeneralOld = 
-							delikveryRulesGeneralChanged
-							? ConvertDiffDeliveryRulesGeneralOld(district.CopyOf.CommonDistrictRuleItems, district.CommonDistrictRuleItems)
-							: "",
+					DeliveryShiftsTuesdayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].TuesdayDeliveryScheduleRestrictions, districtPair.Value.TuesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsTuesdayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].TuesdayDeliveryScheduleRestrictions, districtPair.Value.TuesdayDeliveryScheduleRestrictions),
 
-						DelikveryRulesGeneralNew = 
-							delikveryRulesGeneralChanged
-							? ConvertDiffDeliveryRulesGeneralNew(district.CopyOf.CommonDistrictRuleItems, district.CommonDistrictRuleItems)
-							: "",
+					DeliveryShiftsWednesdayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].WednesdayDeliveryScheduleRestrictions, districtPair.Value.WednesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsWednesdayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].WednesdayDeliveryScheduleRestrictions, districtPair.Value.WednesdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsTodayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.TodayDeliveryScheduleRestrictions, district.TodayDeliveryScheduleRestrictions),
-						DeliveryShiftsTodayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.TodayDeliveryScheduleRestrictions, district.TodayDeliveryScheduleRestrictions),
+					DeliveryShiftsThursdayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].ThursdayDeliveryScheduleRestrictions, districtPair.Value.ThursdayDeliveryScheduleRestrictions),
+					DeliveryShiftsThursdayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].ThursdayDeliveryScheduleRestrictions, districtPair.Value.ThursdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsMondayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.MondayDeliveryScheduleRestrictions, district.MondayDeliveryScheduleRestrictions),
-						DeliveryShiftsMondayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.MondayDeliveryScheduleRestrictions, district.MondayDeliveryScheduleRestrictions),
+					DeliveryShiftsFridayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].FridayDeliveryScheduleRestrictions, districtPair.Value.FridayDeliveryScheduleRestrictions),
+					DeliveryShiftsFridayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].FridayDeliveryScheduleRestrictions, districtPair.Value.FridayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsTuesdayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.TuesdayDeliveryScheduleRestrictions, district.TuesdayDeliveryScheduleRestrictions),
-						DeliveryShiftsTuesdayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.TuesdayDeliveryScheduleRestrictions, district.TuesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSaturdayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].SaturdayDeliveryScheduleRestrictions, districtPair.Value.SaturdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSaturdayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].SaturdayDeliveryScheduleRestrictions, districtPair.Value.SaturdayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsWednesdayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.WednesdayDeliveryScheduleRestrictions, district.WednesdayDeliveryScheduleRestrictions),
-						DeliveryShiftsWednesdayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.WednesdayDeliveryScheduleRestrictions, district.WednesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSundayOld = ConvertDiffRestrictionsOldToString(oldDistricts[districtPair.Key].SundayDeliveryScheduleRestrictions, districtPair.Value.SundayDeliveryScheduleRestrictions),
+					DeliveryShiftsSundayNew = ConvertDiffRestrictionsNewToString(oldDistricts[districtPair.Key].SundayDeliveryScheduleRestrictions, districtPair.Value.SundayDeliveryScheduleRestrictions),
 
-						DeliveryShiftsThursdayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.ThursdayDeliveryScheduleRestrictions, district.ThursdayDeliveryScheduleRestrictions),
-						DeliveryShiftsThursdayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.ThursdayDeliveryScheduleRestrictions, district.ThursdayDeliveryScheduleRestrictions),
+					RegionChanged = districtPair.Value.DistrictBorder != oldDistricts[districtPair.Key].DistrictBorder,
 
-						DeliveryShiftsFridayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.FridayDeliveryScheduleRestrictions, district.FridayDeliveryScheduleRestrictions),
-						DeliveryShiftsFridayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.FridayDeliveryScheduleRestrictions, district.FridayDeliveryScheduleRestrictions),
+					DeliveryRulesSpecialOld = ConvertDiffDeliveryRulesSpecialOld(
+						oldDistricts[districtPair.Key].TodayDistrictRuleItems,
+						districtPair.Value.TodayDistrictRuleItems,
+						oldDistricts[districtPair.Key].MondayDistrictRuleItems,
+						districtPair.Value.MondayDistrictRuleItems,
+						oldDistricts[districtPair.Key].TuesdayDistrictRuleItems,
+						districtPair.Value.TuesdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].WednesdayDistrictRuleItems,
+						districtPair.Value.WednesdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].ThursdayDistrictRuleItems,
+						districtPair.Value.ThursdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].FridayDistrictRuleItems,
+						districtPair.Value.FridayDistrictRuleItems,
+						oldDistricts[districtPair.Key].SaturdayDistrictRuleItems,
+						districtPair.Value.SaturdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].SundayDistrictRuleItems,
+						districtPair.Value.SundayDistrictRuleItems),
 
-						DeliveryShiftsSaturdayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.SaturdayDeliveryScheduleRestrictions, district.SaturdayDeliveryScheduleRestrictions),
-						DeliveryShiftsSaturdayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.SaturdayDeliveryScheduleRestrictions, district.SaturdayDeliveryScheduleRestrictions),
-
-						DeliveryShiftsSundayOld = ConvertDiffRestrictionsOldToString(district.CopyOf.SundayDeliveryScheduleRestrictions, district.SundayDeliveryScheduleRestrictions),
-						DeliveryShiftsSundayNew = ConvertDiffRestrictionsNewToString(district.CopyOf.SundayDeliveryScheduleRestrictions, district.SundayDeliveryScheduleRestrictions),
-
-						RegionChanged = district.DistrictBorder != district.CopyOf.DistrictBorder,
-
-						DeliveryRulesSpecialOld = ConvertDiffDeliveryRulesSpecialOld(
-							district.CopyOf.TodayDistrictRuleItems,
-							district.TodayDistrictRuleItems,
-							district.CopyOf.MondayDistrictRuleItems,
-							district.MondayDistrictRuleItems,
-							district.CopyOf.TuesdayDistrictRuleItems,
-							district.TuesdayDistrictRuleItems,
-							district.CopyOf.WednesdayDistrictRuleItems,
-							district.WednesdayDistrictRuleItems,
-							district.CopyOf.ThursdayDistrictRuleItems,
-							district.ThursdayDistrictRuleItems,
-							district.CopyOf.FridayDistrictRuleItems,
-							district.FridayDistrictRuleItems,
-							district.CopyOf.SaturdayDistrictRuleItems,
-							district.SaturdayDistrictRuleItems,
-							district.CopyOf.SundayDistrictRuleItems,
-							district.SundayDistrictRuleItems),
-
-						DeliveryRulesSpecialNew = ConvertDiffDeliveryRulesSpecialNew(
-							district.CopyOf.TodayDistrictRuleItems,
-							district.TodayDistrictRuleItems,
-							district.CopyOf.MondayDistrictRuleItems,
-							district.MondayDistrictRuleItems,
-							district.CopyOf.TuesdayDistrictRuleItems,
-							district.TuesdayDistrictRuleItems,
-							district.CopyOf.WednesdayDistrictRuleItems,
-							district.WednesdayDistrictRuleItems,
-							district.CopyOf.ThursdayDistrictRuleItems,
-							district.ThursdayDistrictRuleItems,
-							district.CopyOf.FridayDistrictRuleItems,
-							district.FridayDistrictRuleItems,
-							district.CopyOf.SaturdayDistrictRuleItems,
-							district.SaturdayDistrictRuleItems,
-							district.CopyOf.SundayDistrictRuleItems,
-							district.SundayDistrictRuleItems),
-					});
-					continue;
-				}
+					DeliveryRulesSpecialNew = ConvertDiffDeliveryRulesSpecialNew(
+						oldDistricts[districtPair.Key].TodayDistrictRuleItems,
+						districtPair.Value.TodayDistrictRuleItems,
+						oldDistricts[districtPair.Key].MondayDistrictRuleItems,
+						districtPair.Value.MondayDistrictRuleItems,
+						oldDistricts[districtPair.Key].TuesdayDistrictRuleItems,
+						districtPair.Value.TuesdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].WednesdayDistrictRuleItems,
+						districtPair.Value.WednesdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].ThursdayDistrictRuleItems,
+						districtPair.Value.ThursdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].FridayDistrictRuleItems,
+						districtPair.Value.FridayDistrictRuleItems,
+						oldDistricts[districtPair.Key].SaturdayDistrictRuleItems,
+						districtPair.Value.SaturdayDistrictRuleItems,
+						oldDistricts[districtPair.Key].SundayDistrictRuleItems,
+						districtPair.Value.SundayDistrictRuleItems),
+				});
 			}
 
-			var addedDistrictsOnly = newDistricts.Where(d => d.CopyOf is null);
+			var addedDistrictsOnly = newDistricts.Where(d => !oldDistricts.ContainsKey(d.Key));
 
 			foreach(var district in addedDistrictsOnly)
 			{
 				districtsAdded.Add(new DistrictRow
 				{
-					Id = district.Id,
-					Name = district.DistrictName,
-					TariffZoneName = district.TariffZone.Name,
-					MinimalBottlesCount = district.MinBottles,
+					Id = district.Value.Id,
+					Name = district.Value.DistrictName,
+					TariffZoneName = district.Value.TariffZone.Name,
+					MinimalBottlesCount = district.Value.MinBottles,
 
-					DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
+					DelikveryRulesGeneral = string.Join("\n", district.Value.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
 
-					DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
-					DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
-					DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
-					DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
-					DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
-					DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
-					DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
-					DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
+					DeliveryShiftsToday = ConvertRestrictionsToString(district.Value.TodayDeliveryScheduleRestrictions),
+					DeliveryShiftsMonday = ConvertRestrictionsToString(district.Value.MondayDeliveryScheduleRestrictions),
+					DeliveryShiftsTuesday = ConvertRestrictionsToString(district.Value.TuesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsWednesday = ConvertRestrictionsToString(district.Value.WednesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsThursday = ConvertRestrictionsToString(district.Value.ThursdayDeliveryScheduleRestrictions),
+					DeliveryShiftsFriday = ConvertRestrictionsToString(district.Value.FridayDeliveryScheduleRestrictions),
+					DeliveryShiftsSaturday = ConvertRestrictionsToString(district.Value.SaturdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSunday = ConvertRestrictionsToString(district.Value.SundayDeliveryScheduleRestrictions),
 
-					DeliveryRulesSpecial = ConvertDeliveryRulesSpecialToString(district),
+					DeliveryRulesSpecial = ConvertDeliveryRulesSpecialToString(district.Value),
 				});
 			}
 
-			var removedDistrictsOnly = oldDistricts.Where(d => !newDistricts.Select(nd => nd.CopyOf).Contains(d));
+			var removedDistrictsOnly = oldDistricts.Where(d => !newDistricts.ContainsKey(d.Key));
 
 			foreach(var district in removedDistrictsOnly)
 			{
 				districtsRemoved.Add(new DistrictRow
 				{
-					Id = district.Id,
-					Name = district.DistrictName,
-					TariffZoneName = district.TariffZone.Name,
-					MinimalBottlesCount = district.MinBottles,
+					Id = district.Value.Id,
+					Name = district.Value.DistrictName,
+					TariffZoneName = district.Value.TariffZone.Name,
+					MinimalBottlesCount = district.Value.MinBottles,
 
-					DelikveryRulesGeneral = string.Join("\n", district.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
+					DelikveryRulesGeneral = string.Join("\n", district.Value.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
 
-					DeliveryShiftsToday = ConvertRestrictionsToString(district.TodayDeliveryScheduleRestrictions),
-					DeliveryShiftsMonday = ConvertRestrictionsToString(district.MondayDeliveryScheduleRestrictions),
-					DeliveryShiftsTuesday = ConvertRestrictionsToString(district.TuesdayDeliveryScheduleRestrictions),
-					DeliveryShiftsWednesday = ConvertRestrictionsToString(district.WednesdayDeliveryScheduleRestrictions),
-					DeliveryShiftsThursday = ConvertRestrictionsToString(district.ThursdayDeliveryScheduleRestrictions),
-					DeliveryShiftsFriday = ConvertRestrictionsToString(district.FridayDeliveryScheduleRestrictions),
-					DeliveryShiftsSaturday = ConvertRestrictionsToString(district.SaturdayDeliveryScheduleRestrictions),
-					DeliveryShiftsSunday = ConvertRestrictionsToString(district.SundayDeliveryScheduleRestrictions),
+					DeliveryShiftsToday = ConvertRestrictionsToString(district.Value.TodayDeliveryScheduleRestrictions),
+					DeliveryShiftsMonday = ConvertRestrictionsToString(district.Value.MondayDeliveryScheduleRestrictions),
+					DeliveryShiftsTuesday = ConvertRestrictionsToString(district.Value.TuesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsWednesday = ConvertRestrictionsToString(district.Value.WednesdayDeliveryScheduleRestrictions),
+					DeliveryShiftsThursday = ConvertRestrictionsToString(district.Value.ThursdayDeliveryScheduleRestrictions),
+					DeliveryShiftsFriday = ConvertRestrictionsToString(district.Value.FridayDeliveryScheduleRestrictions),
+					DeliveryShiftsSaturday = ConvertRestrictionsToString(district.Value.SaturdayDeliveryScheduleRestrictions),
+					DeliveryShiftsSunday = ConvertRestrictionsToString(district.Value.SundayDeliveryScheduleRestrictions),
 
-					DeliveryRulesSpecial = ConvertDeliveryRulesSpecialToString(district),
+					DeliveryRulesSpecial = ConvertDeliveryRulesSpecialToString(district.Value),
 				});
 			}
 
@@ -386,7 +381,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private static string WeekDayToVeryShort(WeekDayName weekDayName) =>
 			weekDayName.GetEnumDisplayName(true) + ": ";
 
-		private static string ConvertDiffRestrictionsNewToString(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsOld, IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsNew)
+		private static string ConvertDiffRestrictionsNewToString(
+			IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsOld,
+			IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsNew)
 		{
 			if(deliveryScheduleRestrictionsOld
 					.All(dsro => deliveryScheduleRestrictionsNew
@@ -418,7 +415,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Trim('\n');
 		}
 
-		private static string ConvertDiffRestrictionsOldToString(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsOld, IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsNew)
+		private static string ConvertDiffRestrictionsOldToString(
+			IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsOld,
+			IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsNew)
 		{
 			if(deliveryScheduleRestrictionsOld
 				.All(dsro => deliveryScheduleRestrictionsNew
@@ -525,20 +524,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			return $"Прием до: {deliveryScheduleRestriction.AcceptBeforeTitle}: {deliveryScheduleRestriction.DeliverySchedule.Name}";
 		}
 
-		private static bool AllDistrictRuleItemsChanged(District district) =>
-			!district.AllDistrictRuleItems.All(dri => district.CopyOf.AllDistrictRuleItems
-				.Select(x => (x.Price, x.DeliveryPriceRule.Id))
-				.Contains((dri.Price, dri.DeliveryPriceRule.Id)))
-			|| !district.CopyOf.AllDistrictRuleItems.All(dri => district.AllDistrictRuleItems
-				.Select(x => (x.Price, x.DeliveryPriceRule.Id))
-				.Contains((dri.Price, dri.DeliveryPriceRule.Id)));
+		private static bool AllDistrictRuleItemsChanged(
+			IEnumerable<DistrictRuleItemBase> oldDistrictRuleItems,
+			IEnumerable<DistrictRuleItemBase> newDistrictRuleItems) =>
+				!oldDistrictRuleItems.All(dri => newDistrictRuleItems
+					.Select(x => (x.Price, x.DeliveryPriceRule.Id))
+					.Contains((dri.Price, dri.DeliveryPriceRule.Id)))
+				|| !newDistrictRuleItems.All(dri => oldDistrictRuleItems
+					.Select(x => (x.Price, x.DeliveryPriceRule.Id))
+					.Contains((dri.Price, dri.DeliveryPriceRule.Id)));
 
-		private static bool CommonDistrictRuleItemsChanged(District district) =>
-			!district.CommonDistrictRuleItems.All(dri => district.CopyOf.CommonDistrictRuleItems
-				.Select(x => (x.Price, x.DeliveryPriceRule.Id))
-				.Contains((dri.Price, dri.DeliveryPriceRule.Id)))
-			|| !district.CopyOf.CommonDistrictRuleItems.All(dri => district.CommonDistrictRuleItems
-				.Select(x => (x.Price, x.DeliveryPriceRule.Id))
-				.Contains((dri.Price, dri.DeliveryPriceRule.Id)));
+		private static bool CommonDistrictRuleItemsChanged(
+			IEnumerable<CommonDistrictRuleItem> oldDistrictRuleItems,
+			IEnumerable<DistrictRuleItemBase> newDistrictRuleItems) =>
+				oldDistrictRuleItems.All(dri => newDistrictRuleItems
+					.Select(x => (x.Price, x.DeliveryPriceRule.Id))
+					.Contains((dri.Price, dri.DeliveryPriceRule.Id)))
+				|| !newDistrictRuleItems.All(dri => oldDistrictRuleItems
+					.Select(x => (x.Price, x.DeliveryPriceRule.Id))
+					.Contains((dri.Price, dri.DeliveryPriceRule.Id)));
 	}
 }
