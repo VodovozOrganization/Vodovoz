@@ -248,13 +248,15 @@ namespace Pacs.Server.Operators
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				_logger.LogInformation("Сохраняются состояния: {OperatorStateId}, {PreviousOperatorStateId}", OperatorState.Id, _previuosState.Id);
 				await uow.SaveAsync(OperatorState);
+				_logger.LogInformation("Сохранилось состояние: {OperatorStateId}", OperatorState.Id);
 				await uow.SaveAsync(Session);
 				if(_previuosState.State != OperatorStateType.New)
 				{
 					await uow.SaveAsync(_previuosState);
 				}
-
+				_logger.LogInformation("Сохранилось прошлое состояние: {PreviousOperatorStateId}", _previuosState.Id);
 				await uow.CommitAsync();
 			}
 		}
