@@ -83,6 +83,7 @@ namespace Vodovoz.Logistic
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.WidthRequest = 500;
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
@@ -99,6 +100,7 @@ namespace Vodovoz.Logistic
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
+			w7.Padding = ((uint)(10));
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ybuttonYes = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonYes.CanFocus = true;
@@ -114,6 +116,7 @@ namespace Vodovoz.Logistic
 			w9.Position = 1;
 			w9.Expand = false;
 			w9.Fill = false;
+			w9.Padding = ((uint)(10));
 			this.vbox1.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w10.Position = 5;
