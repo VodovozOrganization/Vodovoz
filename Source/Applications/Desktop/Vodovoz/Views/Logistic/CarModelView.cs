@@ -72,7 +72,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeCarFuelVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedCarFuelVersion, w => w.SelectedRow).InitializeFromSource();
 
 			yspnBtnTechInspectInterval.Binding
-				.AddBinding(ViewModel.Entity, e => e.TeсhInspectInterval, w => w.ValueAsUint)	
+				.AddBinding(ViewModel.Entity, e => e.TeсhInspectInterval, w => w.ValueAsInt)	
 				.InitializeFromSource();
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewFuelVersion, w => w.Sensitive).InitializeFromSource();

@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private decimal _maxVolume;
 		private IList<CarFuelVersion> _carFuelVersions = new List<CarFuelVersion>();
 		private GenericObservableList<CarFuelVersion> _observableCarFuelVersions;
-		private uint _teсhInspectInterval;
+		private int _teсhInspectInterval;
 
 		public virtual int Id { get; set; }
 
@@ -69,7 +69,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		[Display(Name = "Интервал техосмотра")]
-		public virtual uint TeсhInspectInterval
+		public virtual int TeсhInspectInterval
 		{
 			get => _teсhInspectInterval;
 			set => _teсhInspectInterval = value;

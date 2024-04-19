@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
 		private CarEvent _originalCarEvent;
-		private uint _odometerReading;
+		private int _odometerReading;
 
 		#region Свойства
 
@@ -139,7 +139,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Показание одометра")]
-		public virtual uint OdometerReading
+		public virtual int OdometerReading
 		{
 			get => _odometerReading;
 			set => SetField(ref _odometerReading, value);
