@@ -9,6 +9,7 @@ using System.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Errors;
+using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Reports;
 using District = Vodovoz.Domain.Sale.District;
 
@@ -17,6 +18,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	[Appellative(Nominative = "Отчет об изменениях версий районов")]
 	public partial class DistrictsSetDiffReport : IClosedXmlReport
 	{
+		private const string _stringIndent = "    ";
 		public string TemplatePath { get; } = @".\Reports\Logistic\DistrictsSetDiffReport.xlsx";
 
 		private DistrictsSetDiffReport(
@@ -257,7 +259,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				}
 				else
 				{
-					stringBuilder.AppendLine("\t" + ruleItem.Title);
+					stringBuilder.AppendLine(_stringIndent + ruleItem.Title);
 				}
 			}
 			return stringBuilder.ToString();
@@ -279,7 +281,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				}
 				else
 				{
-					stringBuilder.AppendLine("\t" + ruleItem.Title);
+					stringBuilder.AppendLine(_stringIndent + ruleItem.Title);
 				}
 			}
 			return stringBuilder.ToString();
@@ -370,7 +372,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			{
 				if(!weekdayDistrictRuleItemsNew.Select(x => (x.Price, x.DeliveryPriceRule.Id)).Contains((weekDayDistrictRuleItemOld.Price, weekDayDistrictRuleItemOld.DeliveryPriceRule.Id)))
 				{
-					stringBuilder.AppendLine("\t" + weekDayDistrictRuleItemOld.Title);
+					stringBuilder.AppendLine(_stringIndent + weekDayDistrictRuleItemOld.Title);
 				}
 				else
 				{
@@ -381,30 +383,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			return stringBuilder.ToString();
 		}
 
-		private static string WeekDayToVeryShort(WeekDayName weekDayName)
-		{
-			switch(weekDayName)
-			{
-				case WeekDayName.Today:
-					return "ДД: ";
-				case WeekDayName.Monday:
-					return "ПН: ";
-				case WeekDayName.Tuesday:
-					return "ВТ: ";
-				case WeekDayName.Wednesday:
-					return "СР: ";
-				case WeekDayName.Thursday:
-					return "ЧТ: ";
-				case WeekDayName.Friday:
-					return "ПТ: ";
-				case WeekDayName.Saturday:
-					return "СБ: ";
-				case WeekDayName.Sunday:
-					return "ВС: ";
-				default:
-					return "";
-			}
-		}
+		private static string WeekDayToVeryShort(WeekDayName weekDayName) =>
+			weekDayName.GetEnumDisplayName(true) + ": ";
 
 		private static string ConvertDiffRestrictionsNewToString(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsOld, IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictionsNew)
 		{
@@ -433,7 +413,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 							{
 								return formattedDeliveryShift;
 							}
-							return "\t" + formattedDeliveryShift;
+							return _stringIndent + formattedDeliveryShift;
 						}))
 				.Trim('\n');
 		}
@@ -465,7 +445,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 							{
 								return formattedDeliveryShift;
 							}
-							return "\t" + formattedDeliveryShift;
+							return _stringIndent + formattedDeliveryShift;
 						}))
 				.Trim('\n');
 		}
