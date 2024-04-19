@@ -104,7 +104,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 		}
 
 		public IEnumerable<DriverComplaintReason> GetDriverComplaintPopularReasons(IUnitOfWork unitOfWork)
-        {
+		{
 			DriverComplaintReason driverComplaintReasonAlias = null;
 
 			var query = unitOfWork.Session.QueryOver<DriverComplaintReason>()
@@ -113,14 +113,23 @@ namespace Vodovoz.EntityRepositories.Complaints
 			return query.List();
 		}
 
-        public DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId)
-        {
+		public DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId)
+		{
 			return unitOfWork.GetById<DriverComplaintReason>(driverComplaintReasonId);
 		}
 
-        public ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId)
-        {
+		public ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId)
+		{
 			return unitOfWork.GetById<ComplaintSource>(complaintSourceId);
+		}
+
+		public int GetOrderRatingComplaint(IUnitOfWork unitOfWork, int orderRatingId)
+		{
+			var query = from complaint in unitOfWork.Session.Query<Complaint>()
+				where complaint.OrderRating.Id == orderRatingId
+				select complaint.Id;
+
+			return query.FirstOrDefault();
 		}
 	}
 }

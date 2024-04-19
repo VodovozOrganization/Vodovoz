@@ -91,13 +91,16 @@ namespace Vodovoz.Views.Complaints
 			entryOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
 			entryOrder.Binding
 				.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject)
-				.InitializeFromSource();
-
-			entryOrder.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeOrder, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
 			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
+
+			if(ViewModel.Entity.OrderRating != null)
+			{
+				entryOrder.IsEditable = false;
+			}
+
 			labelOrder.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
@@ -196,6 +199,7 @@ namespace Vodovoz.Views.Complaints
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
 
 			ViewModel.Entity.PropertyChanged += (o, e) =>
 			{

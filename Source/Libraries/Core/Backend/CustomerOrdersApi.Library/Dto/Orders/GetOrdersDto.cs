@@ -1,4 +1,6 @@
-﻿using Vodovoz.Core.Domain.Clients;
+﻿using System;
+using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.Dto.Orders
 {
@@ -31,5 +33,25 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Количество заказов для отображения на странице
 		/// </summary>
 		public int OrdersCountOnPage { get; set; }
+		
+		/// <summary>
+		/// Статус заказа(фильтр)
+		/// </summary>
+		public ExternalOrderStatus? OrderStatus { get; set; }
+		
+		/// <summary>
+		/// Начальная дата доставки(фильтр)
+		/// </summary>
+		public DateTime? StartDateTime { get; set; }
+		
+		/// <summary>
+		/// Окончательная дата доставки(фильтр)
+		/// </summary>
+		public DateTime? EndDateTime { get; set; }
+		
+		/// <summary>
+		/// Массив Id точек доставки(фильтр)
+		/// </summary>
+		public int[] DeliveryPointsIds { get; set; }
 	}
 }

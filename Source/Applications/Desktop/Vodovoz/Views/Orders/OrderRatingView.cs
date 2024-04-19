@@ -26,7 +26,11 @@ namespace Vodovoz.Views.Orders
 			
 			btnOpenOnlineOrder.BindCommand(ViewModel.OpenOnlineOrderCommand);
 			btnProcess.BindCommand(ViewModel.ProcessCommand);
+			
 			btnCreateComplaint.BindCommand(ViewModel.CreateComplaintCommand);
+			btnCreateComplaint.Binding
+				.AddBinding(ViewModel, vm => vm.CreateOrOpenComplaint, w => w.Label)
+				.InitializeFromSource();
 			
 			lblIdTitle.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowId, w => w.Visible)
@@ -60,10 +64,10 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			ConfigureTreeReasons();
-			
+
+			txtViewComment.Editable = false;
 			txtViewComment.Binding
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
-				.AddBinding(ViewModel, e => e.CanEdit, w => w.Editable)
 				.InitializeFromSource();
 			
 			lblProcessedByTitle.Binding

@@ -1288,6 +1288,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				from deliverySchedule in schedules.DefaultIfEmpty()
 				where order.Client.Id == counterpartyId
 				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
+				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
 				let orderStatus =
 					order.OrderStatus == OrderStatus.Canceled
 					|| order.OrderStatus == OrderStatus.DeliveryCanceled
@@ -1326,14 +1327,16 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderId = order.Id,
 					OnlineOrderId = onlineOrder.Id,
 					OrderStatus = orderStatus,
-					OrderPaymentStatus = orderPaymentStatus,
+					//OrderPaymentStatus = orderPaymentStatus, на старте null
 					DeliveryDate = order.DeliveryDate.Value,
 					CreationDate = order.CreateDate.Value,
 					OrderSum = order.OrderSum,
 					DeliveryAddress = address,
 					DeliverySchedule = deliveryScheduleString,
 					RatingValue = orderRating.Rating,
-					IsRatingAvailable = ratingAvailable
+					IsRatingAvailable = ratingAvailable,
+					IsNeedPayment = false,
+					DeliveryPointId = deliveryPointId
 				};
 
 			return orders;

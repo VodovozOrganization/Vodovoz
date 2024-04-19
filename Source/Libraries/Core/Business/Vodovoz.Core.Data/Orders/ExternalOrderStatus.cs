@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Vodovoz.Core.Data.Orders
 {
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum ExternalOrderStatus
 	{
 		[Display(Name = "Заказ оформляется")]

@@ -61,7 +61,7 @@ namespace CustomerOrdersApi.Library.Services
 				new OrderSignatureParams
 				{
 					OrderId = onlineOrderInfoDto.ExternalOrderId.ToString(),
-					OrderSumInKopecks = (int)onlineOrderInfoDto.OrderSum * 100,
+					OrderSumInKopecks = (int)(onlineOrderInfoDto.OrderSum * 100),
 					ShopId = (int)onlineOrderInfoDto.Source,
 					Sign = sourceSign
 				},

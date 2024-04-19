@@ -50,12 +50,14 @@ namespace Vodovoz.EntityRepositories.Orders
 					DeliveryDate = onlineOrder.DeliveryDate,
 					CreationDate = onlineOrder.Created,
 					OrderStatus = orderStatus,
-					OrderPaymentStatus = onlineOrder.OnlineOrderPaymentStatus,
+					//OrderPaymentStatus = onlineOrder.OnlineOrderPaymentStatus, на старте null
 					DeliveryAddress = address,
 					OrderSum = onlineOrder.OnlineOrderSum,
 					DeliverySchedule = deliverySchedule,
 					RatingValue = onlineOrderRating.Rating,
-					IsRatingAvailable = ratingAvailable
+					IsRatingAvailable = ratingAvailable,
+					IsNeedPayment = false,
+					DeliveryPointId = onlineOrder.DeliveryPointId
 				};
 
 			return onlineOrders;

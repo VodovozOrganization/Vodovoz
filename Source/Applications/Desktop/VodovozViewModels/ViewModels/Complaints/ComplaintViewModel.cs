@@ -38,9 +38,11 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -132,20 +134,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 			CreateCommands();
 
-			var driverEntryViewModel =
-					new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope)
-					.ForProperty(x => x.Driver)
-					.UseViewModelDialog<EmployeeViewModel>()
-					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-						filter =>
-						{
-							filter.RestrictCategory = EmployeeCategory.driver;
-						}
-					)
-					.Finish();
-
-			ComplaintDriverEntryViewModel = driverEntryViewModel;
-
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
@@ -154,21 +142,6 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
-
-			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
-
-			ComplaintDetalizationEntryViewModel = complaintDetalizationEntryViewModelBuilder
-				.ForProperty(x => x.ComplaintDetalization)
-				.UseViewModelDialog<ComplaintDetalizationViewModel>()
-				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
-					filter =>
-					{
-						filter.RestrictComplaintObject = Entity.ComplaintKind?.ComplaintObject;
-						filter.RestrictComplaintKind = Entity.ComplaintKind;
-						filter.HideArchieve = true;
-					}
-				)
-				.Finish();
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 
@@ -188,11 +161,12 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
+			InitializeEntryViewModels();
 		}
 
-		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; }
-
-		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; }
+		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; private set; }
+		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; private set; }
+		public IEntityEntryViewModel OrderRatingEntryViewModel { get; private set; }
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -699,6 +673,45 @@ namespace Vodovoz.ViewModels.Complaints
 				Entity.ActualCompletionDate = newStatus == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
 			}
 			OnPropertyChanged(nameof(Status));
+		}
+		
+		private void InitializeEntryViewModels()
+		{
+			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
+			
+			ComplaintDriverEntryViewModel =
+				builder
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictCategory = EmployeeCategory.driver;
+						}
+					)
+					.Finish();
+			
+			ComplaintDetalizationEntryViewModel =
+				builder
+					.ForProperty(x => x.ComplaintDetalization)
+					.UseViewModelDialog<ComplaintDetalizationViewModel>()
+					.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictComplaintObject = Entity.ComplaintKind?.ComplaintObject;
+							filter.RestrictComplaintKind = Entity.ComplaintKind;
+							filter.HideArchieve = true;
+						}
+					)
+					.Finish();
+			
+			OrderRatingEntryViewModel =
+				builder
+					.ForProperty(x => x.OrderRating)
+					.UseViewModelDialog<OrderRatingViewModel>()
+					.UseViewModelJournalAndAutocompleter<OrdersRatingsJournalViewModel>()
+					.Finish();
+			OrderRatingEntryViewModel.IsEditable = false;
 		}
 
 		public override void Close(bool askSave, CloseSource source)

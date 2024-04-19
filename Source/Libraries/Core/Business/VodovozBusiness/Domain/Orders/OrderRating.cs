@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Reflection;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
@@ -92,18 +91,25 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _orderRatingReasons, value);
 		}
 
-		public virtual void Process()
+		public virtual void Process(Employee employee)
 		{
 			OrderRatingStatus = OrderRatingStatus.Processed;
-			
-			//TODO добавить результаты обработки
+			ProcessedByEmployee = employee;
 		}
 
 		public override string ToString()
 		{
-			var appellativeAttribute = typeof(OrderRating).GetCustomAttribute<AppellativeAttribute>(true);
+			if(Id > 0)
+			{
+				if(Order != null)
+				{
+					return $"Оценка №{Id} заказа {Order.Id}";
+				}
+				
+				return $"Оценка №{Id} онлайн заказа {OnlineOrder.Id}";
+			}
 			
-			return Id > 0 ? $"{appellativeAttribute.Nominative} №{Id}" : $"Новая {appellativeAttribute.Nominative}";
+			return "Новя оценка";
 		}
 
 		public static OrderRating Create(

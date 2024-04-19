@@ -36,7 +36,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
-		private ILifetimeScope _lifetimeScope;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
@@ -45,8 +44,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routedListRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
@@ -83,27 +80,21 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public CounterpartyOrderViewModel(
 			Counterparty client,
-			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
 			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderSettings orderSettings,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
 			int count = 5)
 		{
 			Client = client;
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			tdiNavigation = tdinavigation;
 			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
@@ -296,20 +287,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public void CreateComplaint(Order order)
 		{
-			if (order != null)
+			if(order != null)
 			{
-				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
-
-				var parameters = new Dictionary<string, object> {
-					{"order", order},
-					{"uowBuilder", EntityUoWBuilder.ForCreate()},
-					{"unitOfWorkFactory", _unitOfWorkFactory},
-					{"employeeSelectorFactory", employeeSelectorFactory},
-					{"counterpartySelectorFactory", counterpartySelectorFactory},
-					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
-				};
-				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
+				var viewModel = tdiNavigation.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder, string>(
+					null, EntityUoWBuilder.ForCreate(), "+7" + MangoManager.CurrentCall.Phone.Number).ViewModel;
+				viewModel.SetOrder(order.Id);
 			}
 		}
 		#endregion
@@ -318,7 +300,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			RefreshOrders = null;
-			_lifetimeScope = null;
 			UoW?.Dispose();
 		}
 	}

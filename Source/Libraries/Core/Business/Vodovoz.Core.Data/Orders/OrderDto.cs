@@ -72,5 +72,10 @@ namespace Vodovoz.Core.Data.Orders
 		/// Нужна ли оплата заказа
 		/// </summary>
 		public bool IsNeedPayment { get; set; }
+		
+		/// <summary>
+		/// Id точки доставки
+		/// </summary>
+		public int? DeliveryPointId { get; set; }
 	}
 }

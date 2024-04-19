@@ -9,8 +9,11 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.Factories;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
@@ -20,8 +23,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	{
 		private readonly IPermissionResult _permissionResult;
 		private readonly ICommonServices _commonServices;
+		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly ValidationContext _validationContext;
+		private readonly Employee _currentEmployee;
+		private int _complaintId;
 		
 		public OrderRatingViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -29,21 +35,51 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IValidationContextFactory validationContextFactory,
+			IComplaintsRepository complaintsRepository,
+			IEmployeeService employeeService,
 			IGtkTabsOpener gtkTabsOpener)
 			: base(uowBuilder, uowFactory, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_permissionResult = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(OrderRatingReason));
+			_currentEmployee = (employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
 
+			if(_currentEmployee is null)
+			{
+				Dispose();
+				throw new AbortCreatingPageException("Ваш пользователь не привязан к сотруднику. Дальнейшая работа не возможна", "Ошибка");
+			}
+			
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			Title = Entity.ToString();
 			
 			CreateCommands();
 			OrderRatingReasons = Entity.OrderRatingReasons;
+			UpdateComplaintInformation();
 		}
-		
+
+		private void UpdateComplaintInformation()
+		{
+			ComplaintId = _complaintsRepository.GetOrderRatingComplaint(UoW, Entity.Id);
+		}
+
+		private int ComplaintId
+		{
+			get => _complaintId;
+			set
+			{
+				if(SetField(ref _complaintId, value))
+				{
+					OnPropertyChanged(nameof(CreateOrOpenComplaint));
+				}
+			} 
+		}
+
+		public string CreateOrOpenComplaint => _complaintId != default ? "Открыть рекламацию" : "Создать рекламацию";
 		public string IdToString => Entity.Id.ToString();
 		public bool CanShowId => Entity.Id > 0;
 		public bool OrderIsNotNull => Entity.Order != null;
@@ -65,7 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				: "Не обработана";
 
 		public bool AskSaveOnClose => CanEdit;
-		public bool CanEdit => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
+		public bool CanEdit => _permissionResult.CanUpdate;
 		public DelegateCommand SaveAndCloseCommand { get; private set; }
 		public DelegateCommand CloseCommand { get; private set; }
 		public DelegateCommand OpenOrderCommand { get; private set; }
@@ -76,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		private bool OnlineOrderIsNotNull => Entity.OnlineOrder != null;
 		private bool IsNewOrderRatingStatus => Entity.OrderRatingStatus == OrderRatingStatus.New;
-
+		
 		private void CreateCommands()
 		{
 			CreateSaveAndCloseCommand();
@@ -118,17 +154,53 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private void CreateProcessCommand()
 		{
 			ProcessCommand = new DelegateCommand(
-				() => Entity.Process());
-			ProcessCommand.CanExecuteChangedWith(this, x => x.IsNewOrderRatingStatus);
+				() => Entity.Process(_currentEmployee));
+			ProcessCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 		}
 
 		private void CreateCreateComplaintCommand()
 		{
 			CreateComplaintCommand = new DelegateCommand(
-				() => NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(
-					this, EntityUoWBuilder.ForCreate()));
+				() =>
+				{
+					if(_complaintId == default)
+					{
+						CreateNewComplaint();
+					}
+					else
+					{
+						UpdateComplaintInformation();
+
+						if(_complaintId == default)
+						{
+							if(_commonServices.InteractiveService.Question(
+									"Не найдена созданная рекламация по данной оценке, создать новую?"))
+							{
+								CreateNewComplaint();
+							}
+						}
+						else
+						{
+							NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+								this, EntityUoWBuilder.ForOpen(_complaintId));
+						}
+					}
+				});
+			ProcessCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 		}
-		
+
+		private void CreateNewComplaint()
+		{
+			var viewModel =
+				NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(
+					this,
+					EntityUoWBuilder.ForCreate(),
+					OpenPageOptions.AsSlave,
+					vm =>
+						vm.EntitySaved += (sender, args) => ComplaintId = args.Entity.GetId()).ViewModel;
+			viewModel.SetOrderRating(Entity.Id);
+		}
+
 		protected override bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
 	}
 }

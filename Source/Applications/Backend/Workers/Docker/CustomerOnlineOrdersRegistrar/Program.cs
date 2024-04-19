@@ -1,8 +1,10 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
+using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library;
 using MassTransit;
 using MessageTransport;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QS.Project.Core;
 using Vodovoz;
@@ -25,15 +27,6 @@ namespace CustomerOnlineOrdersRegistrar
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddMessageTransportSettings()
-						.AddMassTransit(busConf =>
-						{
-							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
-							busConf.AddConsumer<OnlineOrderRegisterFaultConsumer, OnlineOrderRegisterFaultConsumerDefinition>();
-
-							busConf.ConfigureRabbitMq();
-						});
-					
 					services.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -52,6 +45,17 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddApplicationOrderServices()
 						.AddStaticScopeForEntity()
 						//.AddStaticHistoryTracker()
+						
+						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
+
+						.AddMessageTransportSettings()
+						.AddMassTransit(busConf =>
+						{
+							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
+							busConf.AddConsumer<OnlineOrderRegisterFaultConsumer, OnlineOrderRegisterFaultConsumerDefinition>();
+
+							busConf.ConfigureRabbitMq();
+						})
 						;
 				});
 	}

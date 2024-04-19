@@ -12,19 +12,19 @@ namespace CustomerOrdersApi.Controllers
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
-		//private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
-			ICustomerOrdersService customerOrdersService
-			//IPublishEndpoint publishEndpoint
+			ICustomerOrdersService customerOrdersService,
+			IPublishEndpoint publishEndpoint
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			//_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		/*[HttpPost("CreateOrder")]
+		[HttpPost("CreateOrder")]
 		public async Task<IActionResult> CreateOrderAsync(OnlineOrderInfoDto onlineOrderInfoDto)
 		{
 			var sourceName = onlineOrderInfoDto.Source.GetEnumTitle();
@@ -56,7 +56,7 @@ namespace CustomerOrdersApi.Controllers
 
 				return Problem();
 			}
-		}*/
+		}
 
 		[HttpGet("GetOrderInfo")]
 		public IActionResult GetOrderInfo([FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto)
@@ -72,10 +72,10 @@ namespace CustomerOrdersApi.Controllers
 					orderId,
 					getDetailedOrderInfoDto.Signature);
 				
-				/*if(!_customerOrdersService.ValidateOrderInfoSignature(getDetailedOrderInfoDto, out var generatedSignature))
+				if(!_customerOrdersService.ValidateOrderInfoSignature(getDetailedOrderInfoDto, out var generatedSignature))
 				{
 					return InvalidSignature(getDetailedOrderInfoDto.Signature, generatedSignature);
-				}*/
+				}
 
 				Logger.LogInformation("Подпись валидна, получаем данные");
 				var orderInfo = _customerOrdersService.GetDetailedOrderInfo(getDetailedOrderInfoDto);
@@ -106,10 +106,10 @@ namespace CustomerOrdersApi.Controllers
 					getOrdersDto.CounterpartyErpId,
 					getOrdersDto.Signature);
 				
-				/*if(!_customerOrdersService.ValidateCounterpartyOrdersSignature(getOrdersDto, out var generatedSignature))
+				if(!_customerOrdersService.ValidateCounterpartyOrdersSignature(getOrdersDto, out var generatedSignature))
 				{
 					return InvalidSignature(getOrdersDto.Signature, generatedSignature);
-				}*/
+				}
 
 				Logger.LogInformation(
 					"Подпись валидна, получаем заказы клиента {CounterpartyId} страница {Page}",
@@ -131,7 +131,7 @@ namespace CustomerOrdersApi.Controllers
 			}
 		}
 		
-		[HttpPost("UpdateOnlineOrderPaymentStatus")]
+		/*[HttpPost("UpdateOnlineOrderPaymentStatus")]
 		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
 			var sourceName = paymentStatusUpdatedDto.Source.GetEnumTitle();
@@ -144,15 +144,15 @@ namespace CustomerOrdersApi.Controllers
 					paymentStatusUpdatedDto.ExternalOrderId,
 					paymentStatusUpdatedDto.Signature);
 				
-				/*if(!_customerOrdersService.ValidateOnlineOrderPaymentStatusUpdatedSignature(
+				if(!_customerOrdersService.ValidateOnlineOrderPaymentStatusUpdatedSignature(
 					paymentStatusUpdatedDto, out var generatedSignature))
 				{
 					return InvalidSignature(orderRatingInfo.Signature, generatedSignature);
-				}*/
+				}
 
 				if(!_customerOrdersService.TryUpdateOnlineOrderPaymentStatus(paymentStatusUpdatedDto))
 				{
-					//возвращаем код не найденного закзаа
+					//возвращаем код не найденного заказа
 					//return 
 				}
 				
@@ -167,6 +167,6 @@ namespace CustomerOrdersApi.Controllers
 					sourceName);
 				return Problem();
 			}
-		}
+		}*/
 	}
 }

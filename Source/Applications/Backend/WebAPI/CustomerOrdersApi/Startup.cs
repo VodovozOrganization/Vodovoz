@@ -61,8 +61,8 @@ namespace CustomerOrdersApi
 				.AddDependenciesGroup()
 				.AddStaticScopeForEntity()
 					
-				//.AddMessageTransportSettings()
-				//.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddMessageTransportSettings()
+				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 				.AddMemoryCache();
 
 				/*configurator.ReceiveEndpoint("online-orders", x =>
