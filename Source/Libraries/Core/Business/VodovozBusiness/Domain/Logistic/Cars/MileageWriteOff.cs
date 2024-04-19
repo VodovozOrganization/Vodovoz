@@ -84,6 +84,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _comment, value);
 		}
 
+		public virtual string Title => $"{Id}";
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(DistanceKm == 0)

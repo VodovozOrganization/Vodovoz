@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 
 			Map(x => x.Name).Column("name");
 			Map(x => x.Description).Column("description");
+			Map(x => x.IsArchived).Column("is_archived");
 		}
 	}
 }

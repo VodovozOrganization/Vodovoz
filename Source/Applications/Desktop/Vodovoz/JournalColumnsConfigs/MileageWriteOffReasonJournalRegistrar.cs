@@ -1,17 +1,17 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using Vodovoz.Domain.Fuel;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Fuel.FuelCards;
+using Vodovoz.ViewModels.Logistic.MileageWriteOff;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	internal sealed class FuelCardJournalRegistrar : ColumnsConfigRegistrarBase<FuelCardJournalViewModel, FuelCard>
+	internal sealed class MileageWriteOffReasonJournalRegistrar : ColumnsConfigRegistrarBase<MileageWriteOffReasonJournalViewModel, MileageWriteOffReason>
 	{
-		public override IColumnsConfig Configure(FluentColumnsConfig<FuelCard> config) =>
+		public override IColumnsConfig Configure(FluentColumnsConfig<MileageWriteOffReason> config) =>
 			config.AddColumn("Id").AddNumericRenderer(node => node.Id)
-				.AddColumn("Номер карты").AddTextRenderer(node => node.CardNumber).WrapWidth(300).WrapMode(WrapMode.WordChar)
+				.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchived).Editing(false).XAlign(0f)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchived ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();

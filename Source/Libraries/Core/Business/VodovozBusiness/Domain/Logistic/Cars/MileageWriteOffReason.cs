@@ -18,10 +18,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		private string _name;
 		private string _description;
+		private bool _isArchived;
 
 		public virtual int Id { get; set; }
 
-		[Display(Name = "Наименование")]
+		[Display(Name = "Название")]
 		public virtual string Name
 		{
 			get => _name;
@@ -34,6 +35,15 @@ namespace Vodovoz.Domain.Logistic.Cars
 			get => _description;
 			set => SetField(ref _description, value);
 		}
+
+		[Display(Name = "Архивная")]
+		public virtual bool IsArchived
+		{
+			get => _isArchived;
+			set => SetField(ref _isArchived, value);
+		}
+
+		public virtual string Title => Name;
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

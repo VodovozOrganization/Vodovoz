@@ -50,6 +50,11 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
+			if(!CanRead)
+			{
+				AbortOpening("У вас недостаточно прав для просмотра");
+			}
+
 			TabName =
 				UoWGeneric.IsNew
 				? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}"
@@ -81,6 +86,17 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		public bool IsCanSetCardId =>
 			Entity.IsCardNumberValid
 			&& !IsCardIdObtainingProcessInWork;
+
+		#region Permissions
+
+		public bool CanCreate => PermissionResult.CanCreate;
+		public bool CanRead => PermissionResult.CanRead;
+		public bool CanUpdate => PermissionResult.CanUpdate;
+		public bool CanDelete => PermissionResult.CanDelete;
+
+		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
+
+		#endregion
 
 		private async Task SetCardId()
 		{

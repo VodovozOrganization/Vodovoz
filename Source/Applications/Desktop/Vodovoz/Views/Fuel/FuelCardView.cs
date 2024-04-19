@@ -12,6 +12,8 @@ namespace Vodovoz.Views.Fuel
 
 		private void Configure()
 		{
+			yvboxMain.Sensitive = ViewModel.CanCreateOrUpdate;
+
 			yentryCardNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.CardNumber, w => w.Text)
 				.InitializeFromSource();
