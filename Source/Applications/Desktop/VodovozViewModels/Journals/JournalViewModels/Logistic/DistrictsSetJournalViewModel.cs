@@ -328,6 +328,15 @@ namespace Vodovoz.Journals.JournalViewModels
 								.Cast<DistrictsSetJournalNode>()
 								.Where(x => x.Id == _diffTargetDistrictSetVersionId)
 								.FirstOrDefault().Name;
+
+							void OnPageClosed(object sender, EventArgs e)
+							{
+								_diffSourceDistrictSetVersionId = null;
+								_diffTargetDistrictSetVersionId = null;
+								vm.Closed -= OnPageClosed;
+							}
+
+							vm.Closed += OnPageClosed;
 						});
 					}));
 		}

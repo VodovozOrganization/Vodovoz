@@ -43,9 +43,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 			Title = "Сравнение версий районов";
 
-			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
+			CloseCommand = new DelegateCommand(CloseHandler);
 			GenerateDiffReportCommand = new DelegateCommand(GenerateDiffReport);
 		}
+
+		public event EventHandler Closed;
 
 		public int? SourceDistrictSetId { get; set; }
 		public int? TargetDistrictSetId { get; set; }
@@ -97,6 +99,12 @@ namespace Vodovoz.ViewModels.Logistic
 					CloseCommand.Execute();
 				}
 			}
+		}
+
+		private void CloseHandler()
+		{
+			Close(false, CloseSource.Cancel);
+			Closed?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }
