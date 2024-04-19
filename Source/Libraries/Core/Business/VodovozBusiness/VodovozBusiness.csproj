@@ -61,6 +61,8 @@
     <Compile Include="Domain\Fuel\FuelTransaction.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
+    <Compile Include="Domain\Logistic\Cars\MileageWriteOff.cs" />
+    <Compile Include="Domain\Logistic\Cars\MileageWriteOffReason.cs" />
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
     <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
