@@ -28,7 +28,10 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
-			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel, vm => vm.CarEventType, e => e.Subject).InitializeFromSource();
+			entityviewmodelentryCarEventType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarEventType, e => e.Subject)
+				.AddBinding(vm => vm.CanChangeCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
@@ -40,7 +43,7 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-				
+
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
@@ -62,6 +65,15 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Сумма штрафа").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.Money))
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
+
+			yspinBtnOdometerReading.Binding
+				.AddBinding(ViewModel.Entity, e => e.OdometerReading, w => w.ValueAsUint)
+				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			ylblOdometerReading.Binding
+				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
+				.InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();

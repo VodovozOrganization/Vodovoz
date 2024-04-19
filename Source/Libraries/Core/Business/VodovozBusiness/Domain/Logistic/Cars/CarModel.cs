@@ -22,6 +22,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private decimal _maxVolume;
 		private IList<CarFuelVersion> _carFuelVersions = new List<CarFuelVersion>();
 		private GenericObservableList<CarFuelVersion> _observableCarFuelVersions;
+		private uint _teсhInspectInterval;
 
 		public virtual int Id { get; set; }
 
@@ -67,6 +68,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _maxVolume, value);
 		}
 
+		[Display(Name = "Интервал техосмотра")]
+		public virtual uint TeсhInspectInterval
+		{
+			get => _teсhInspectInterval;
+			set => _teсhInspectInterval = value;
+		}
+
 		public virtual IList<CarFuelVersion> CarFuelVersions
 		{
 			get => _carFuelVersions;
@@ -92,6 +100,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(CarManufacturer == null)
 			{
 				yield return new ValidationResult("Производитель должен быть заполнен", new[] { nameof(CarManufacturer) });
+			}
+
+			if(TeсhInspectInterval == 0)
+			{
+				yield return new ValidationResult("Интервал техосмотра должен быть заполнен.", new[] { nameof(TeсhInspectInterval) });
 			}
 		}
 	}

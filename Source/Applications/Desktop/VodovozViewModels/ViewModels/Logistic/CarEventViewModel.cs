@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -19,6 +19,7 @@ using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
@@ -133,6 +134,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				Entity.CreateDate = DateTime.Now;
 			}
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			CanChangeCarEventType = !(IsTechInspectCarEventType && Entity.Id > 0);
 		}
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -277,6 +280,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			ChangeDoNotShowInOperation();
 			SetCompensationFromInsuranceByCourt();
+			OnPropertyChanged(nameof(IsTechInspectCarEventType));
 		}
 
 		public void ChangeDoNotShowInOperation()
@@ -393,5 +397,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 		}
+
+		public bool IsTechInspectCarEventType => Entity.CarEventType?.Id == _carEventSettings.TechInspectCarEventTypeId;
+
+		public bool CanChangeCarEventType { get;}
 	}
 }

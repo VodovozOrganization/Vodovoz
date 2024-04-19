@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using System.Data.Bindings.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -31,6 +33,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
 		private CarEvent _originalCarEvent;
+		private uint _odometerReading;
 
 		#region Свойства
 
@@ -135,7 +138,15 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref fines, value, () => Fines);
 		}
 
-		GenericObservableList<Fine> observableFines;
+		[Display(Name = "Показание одометра")]
+		public virtual uint OdometerReading
+		{
+			get => _odometerReading;
+			set => SetField(ref _odometerReading, value);
+		}
+
+		GenericObservableList<Fine> observableFines;		
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Fine> ObservableFines
 		{
@@ -172,6 +183,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var carEventSettings = validationContext.GetRequiredService<ICarEventSettings>();
+
 			if(CarEventType == null)
 			{
 				yield return new ValidationResult("Вид события ТС должен быть указан.",
@@ -224,6 +237,12 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"Превышена максимально допустимая длина комментария ({Comment.Length}/255).",
 					new[] { nameof(Comment) });
+			}
+
+			if(CarEventType.Id == carEventSettings.TechInspectCarEventTypeId && OdometerReading == 0 )
+			{
+				yield return new ValidationResult($"Заполните показания одометра.",
+					new[] { nameof(OdometerReading) });
 			}
 		}
 

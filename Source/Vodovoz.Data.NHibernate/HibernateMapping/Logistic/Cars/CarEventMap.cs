@@ -18,6 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.DoNotShowInOperation).Column("donot_show_in_operation");
 			Map(x => x.CompensationFromInsuranceByCourt).Column("compensation_from_insurance_by_court");
 			Map(x => x.RepairCost).Column("repair_cost");
+			Map(x => x.OdometerReading).Column("odometer_reading");
 
 			References(x => x.CarEventType).Column("car_event_type_id");
 			References(x => x.Author).Column("author_id");
