@@ -318,16 +318,16 @@ namespace Vodovoz.Journals.JournalViewModels
 
 						NavigationManager.OpenViewModel<DistrictSetDiffReportConfirmationViewModel>(this, OpenPageOptions.AsSlave, vm =>
 						{
-							vm.SourceDistrictSetId = _diffSourceDistrictSetVersionId;
-							vm.SourceDistrictSetName = Items
+							var versions = Items
 								.Cast<DistrictsSetJournalNode>()
-								.Where(x => x.Id == _diffSourceDistrictSetVersionId)
-								.FirstOrDefault().Name;
-							vm.TargetDistrictSetId = _diffTargetDistrictSetVersionId;
-							vm.TargetDistrictSetName = Items
-								.Cast<DistrictsSetJournalNode>()
-								.Where(x => x.Id == _diffTargetDistrictSetVersionId)
-								.FirstOrDefault().Name;
+								.Where(x => x.Id == _diffSourceDistrictSetVersionId
+									|| x.Id == _diffTargetDistrictSetVersionId)
+								.OrderBy(x => x.DateCreated);
+
+							vm.SourceDistrictSetId = versions.First().Id;
+							vm.SourceDistrictSetName = versions.First().Name;
+							vm.TargetDistrictSetId = versions.Last().Id;
+							vm.TargetDistrictSetName = versions.Last().Name;
 
 							void OnPageClosed(object sender, EventArgs e)
 							{
