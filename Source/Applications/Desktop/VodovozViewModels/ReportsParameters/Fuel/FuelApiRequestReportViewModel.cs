@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Title = "Отчет по запросам к API Газпром-нефть";
-			Identifier = "Cash.MovementsPaymentControlReport";
+			Identifier = "Cash.FuelApiRequestReport";
 
 			_interactiveService = commonServices.InteractiveService;
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
