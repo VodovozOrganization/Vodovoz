@@ -70,7 +70,7 @@ namespace Vodovoz
 		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
+		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
 		private List<OrderItemReturnsNode> _itemsToClient;
 

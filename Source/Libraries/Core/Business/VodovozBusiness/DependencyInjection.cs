@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
@@ -33,6 +33,7 @@ namespace Vodovoz
 			.AddScoped<FastDeliveryHandler>()
 			.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 			.AddScoped<ICallTaskWorker, CallTaskWorker>()
+			.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
 			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 		;
 

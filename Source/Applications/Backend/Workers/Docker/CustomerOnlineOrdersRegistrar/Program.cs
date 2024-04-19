@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library;
@@ -45,9 +45,9 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddApplicationOrderServices()
 						.AddStaticScopeForEntity()
 						//.AddStaticHistoryTracker()
-						
-						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
 
+						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
+						
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
