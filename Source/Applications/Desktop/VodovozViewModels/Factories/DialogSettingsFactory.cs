@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Factories
 			};
 
 			settings.FileFilters.Clear();
-			settings.FileFilters.Add(new DialogFileFilter($"Отчет Excel", reportFileExtension));
+			settings.FileFilters.Add(new DialogFileFilter($"Отчет Excel", "*" + reportFileExtension));
 
 			return settings;
 		}
