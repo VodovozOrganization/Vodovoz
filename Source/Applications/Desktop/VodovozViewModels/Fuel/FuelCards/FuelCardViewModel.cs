@@ -58,6 +58,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			SaveCommand = new DelegateCommand(() => Save(true));
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 			GetCardIdCommand = new DelegateCommand(async () => await SetCardId(), () => IsCanSetCardId);
+			ResetFuelCardIdCommand = new DelegateCommand(ResetFuelCardId);
 
 			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWorkFactory), unitOfWorkFactory);
 			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
@@ -68,6 +69,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 		public DelegateCommand GetCardIdCommand { get; }
+		public DelegateCommand ResetFuelCardIdCommand { get; }
 
 		[PropertyChangedAlso(nameof(IsCanSetCardId))]
 		public bool IsCardIdObtainingProcessInWork
@@ -161,6 +163,11 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			{
 				OnPropertyChanged(nameof(IsCanSetCardId));
 			}
+		}
+
+		private void ResetFuelCardId()
+		{
+			Entity.CardId = string.Empty;
 		}
 
 		public override void Dispose()

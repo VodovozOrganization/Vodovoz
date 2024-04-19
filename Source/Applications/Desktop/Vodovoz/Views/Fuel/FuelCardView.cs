@@ -15,6 +15,7 @@ namespace Vodovoz.Views.Fuel
 			yentryCardNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.CardNumber, w => w.Text)
 				.InitializeFromSource();
+			yentryCardNumber.Changed += (s, e) => ViewModel.ResetFuelCardIdCommand.Execute();
 
 			yentryCardId.Binding
 				.AddBinding(ViewModel.Entity, e => e.CardId, w => w.Text)

@@ -197,14 +197,10 @@ namespace Vodovoz.Domain.Employees
 			get => _fuelControlApiLogin;
 			set
 			{
-				if(_fuelControlApiLogin == value)
+				if(SetField(ref _fuelControlApiLogin, value))
 				{
-					return;
+					ResetFuelControlAPiSessionData();
 				}
-
-				SetField(ref _fuelControlApiLogin, value);
-
-				ResetFuelControlAPiSessionData();
 			}
 		}
 
@@ -216,14 +212,10 @@ namespace Vodovoz.Domain.Employees
 			get => _fuelControlApiPassword;
 			set
 			{
-				if(_fuelControlApiPassword == value)
+				if(SetField(ref _fuelControlApiPassword, value))
 				{
-					return;
+					ResetFuelControlAPiSessionData();
 				}
-
-				SetField(ref _fuelControlApiPassword, value);
-
-				ResetFuelControlAPiSessionData();
 			}
 		}
 
@@ -235,14 +227,10 @@ namespace Vodovoz.Domain.Employees
 			get => _fuelControlApiKey;
 			set
 			{
-				if(_fuelControlApiKey == value)
+				if(SetField(ref _fuelControlApiKey, value))
 				{
-					return;
+					ResetFuelControlAPiSessionData();
 				}
-
-				SetField(ref _fuelControlApiKey, value);
-
-				ResetFuelControlAPiSessionData();
 			}
 		}
 
