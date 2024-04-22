@@ -225,9 +225,13 @@
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriverNode.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriversSortOrder.cs" />
     <Compile Include="Logistic\DriversStopLists\DriverStopListRemovalViewModel.cs" />
-    <Compile Include="Logistic\MileageWriteOff\MileageWriteOffReasonJournalFilterViewModel.cs" />
-    <Compile Include="Logistic\MileageWriteOff\MileageWriteOffReasonJournalViewModel.cs" />
-    <Compile Include="Logistic\MileageWriteOff\MileageWriteOffReasonViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalFilterViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalNode.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalFilterViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffViewModel.cs" />
     <Compile Include="Logistic\RouteListCreateViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
     <Compile Include="Logistic\RouteListKeepingItemNode.cs" />

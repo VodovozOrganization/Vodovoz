@@ -2,7 +2,7 @@
 using Gtk;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Logistic.MileageWriteOff;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs

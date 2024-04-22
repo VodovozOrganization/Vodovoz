@@ -8,7 +8,7 @@ using QS.Services;
 using System;
 using Vodovoz.Domain.Logistic.Cars;
 
-namespace Vodovoz.ViewModels.Logistic.MileageWriteOff
+namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 {
 	public class MileageWriteOffReasonJournalViewModel : EntityJournalViewModelBase<MileageWriteOffReason, MileageWriteOffReasonViewModel, MileageWriteOffReason>
 	{

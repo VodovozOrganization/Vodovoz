@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -8,7 +7,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Tools;
 
-namespace Vodovoz.ViewModels.Logistic.MileageWriteOff
+namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 {
 	public class MileageWriteOffReasonViewModel : EntityTabViewModelBase<MileageWriteOffReason>
 	{
@@ -16,7 +15,8 @@ namespace Vodovoz.ViewModels.Logistic.MileageWriteOff
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+			INavigationManager navigation)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(!CanRead)
 			{

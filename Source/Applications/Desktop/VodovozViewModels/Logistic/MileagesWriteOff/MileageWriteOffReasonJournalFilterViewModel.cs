@@ -1,6 +1,6 @@
 ﻿using QS.Project.Filter;
 
-namespace Vodovoz.ViewModels.Logistic.MileageWriteOff
+namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 {
 	public class MileageWriteOffReasonJournalFilterViewModel : FilterViewModelBase<MileageWriteOffReasonJournalFilterViewModel>
 	{
