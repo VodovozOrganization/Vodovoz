@@ -537,7 +537,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private static bool CommonDistrictRuleItemsChanged(
 			IEnumerable<CommonDistrictRuleItem> oldDistrictRuleItems,
 			IEnumerable<DistrictRuleItemBase> newDistrictRuleItems) =>
-				oldDistrictRuleItems.All(dri => newDistrictRuleItems
+				!oldDistrictRuleItems.All(dri => newDistrictRuleItems
 					.Select(x => (x.Price, x.DeliveryPriceRule.Id))
 					.Contains((dri.Price, dri.DeliveryPriceRule.Id)))
 				|| !newDistrictRuleItems.All(dri => oldDistrictRuleItems
