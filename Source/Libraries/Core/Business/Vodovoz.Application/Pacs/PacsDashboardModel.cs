@@ -129,6 +129,7 @@ namespace Vodovoz.Application.Pacs
 
 		public void LoadOperatorsFromDateTime(DateTime from)
 		{
+			ClearOperatorStates();
 			var recentOperators = _repository.GetOperators(from);
 			foreach(var operatorState in recentOperators)
 			{
@@ -218,6 +219,14 @@ namespace Vodovoz.Application.Pacs
 		}
 
 		#endregion IObserver<CallEvent>
+
+		private void ClearOperatorStates()
+		{
+			lock(_operatorStatesDic)
+			{
+				_operatorStatesDic.Clear();
+			}
+		}
 
 		private void AddOperatorState(OperatorState state)
 		{
