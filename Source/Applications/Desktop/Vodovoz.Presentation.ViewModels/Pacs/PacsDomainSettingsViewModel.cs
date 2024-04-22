@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
@@ -59,6 +60,24 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
+			try
+			{
+				_originalSettings = _adminClient.GetSettings().Result;
+			}
+			catch(Exception ex)
+			{
+				if(ex is AggregateException aggregateException)
+				{
+					_logger.LogError(ex, "Произошла ошабка при обращении к серверу СКУД: {ExceptionMessage}", string.Join("\n", aggregateException.InnerExceptions.Select(e => e.Message)));
+					throw new AbortCreatingPageException(string.Join("\n", aggregateException.InnerExceptions.Select(e => e.Message)), "Сервер СКУД не доступен");
+				}
+				else
+				{
+					_logger.LogError(ex, "Произошла ошабка при обращении к серверу СКУД: {ExceptionMessage}", ex.Message);
+					throw new AbortCreatingPageException(ex.Message, "Сервер СКУД не доступен");
+				}
+			}
+
 			_employee = employeeService.GetEmployeeForCurrentUser();
 			if(_employee == null)
 			{
@@ -75,7 +94,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			CancelCommand = new DelegateCommand(Cancel, () => HasChanges);
 			CancelCommand.CanExecuteChangedWith(this, x => x.HasChanges);
 
-			_originalSettings = _adminClient.GetSettings().Result;
 			ResetSettings();
 
 			_settingsSubscription = settingsPublisher.Subscribe(this);
