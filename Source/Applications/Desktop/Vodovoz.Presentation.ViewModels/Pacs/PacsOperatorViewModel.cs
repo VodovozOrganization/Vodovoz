@@ -218,7 +218,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			try
 			{
-				if(DateTime.Now > _operatorService.OperatorState.WorkShift.GetPlannedEndTime())
+				if(DateTime.Now > _operatorService.OperatorState.WorkShift?.GetPlannedEndTime())
 				{
 					_guiDispatcher.RunInGuiTread(() =>
 					{
