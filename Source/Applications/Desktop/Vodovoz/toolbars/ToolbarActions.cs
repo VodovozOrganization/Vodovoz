@@ -61,6 +61,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.Suppliers;
@@ -145,6 +146,7 @@ public partial class MainWindow : Window
 
 	//ТрО
 	private Action ActionCarEventsJournal;
+	private Action ActionMileageWriteOffJournal;
 
 	//Отдел продаж
 	private Action ActionSalesOrdersJournal;
@@ -242,6 +244,7 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
+		ActionMileageWriteOffJournal = new Action("ActionMileageWriteOffJournal", "Списание километража без МЛ", null, "table");
 
 		//Отдел продаж
 		ActionSalesOrdersJournal = new Action("ActionSalesOrdersJournal", "Журнал заказов", null, "table");
@@ -343,6 +346,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionCar, null);
+		w1.Add(ActionMileageWriteOffJournal, null);
 
 		//Отдел продаж
 		w1.Add(ActionSalesOrdersJournal, null);
@@ -434,6 +438,7 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
+		ActionMileageWriteOffJournal.Activated += OnActionMileageWriteOffJournalActivated;
 
 		//Отдел продаж
 		ActionSalesOrdersJournal.Activated += OnActionSalesOrdersJournalActivated;
@@ -941,5 +946,12 @@ public partial class MainWindow : Window
 			   null,
 			   filter => filter.IsForSalesDepartment = true,
 			   OpenPageOptions.IgnoreHash);
+	}
+
+	void OnActionMileageWriteOffJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MileageWriteOffJournalViewModel, Action<MileageWriteOffJournalFilterViewModel>>(
+			   null,
+			   filter => filter.WriteOffDateFrom = DateTime.Today.AddMonths(-1));
 	}
 }
