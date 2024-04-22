@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
 using Gamma.Widgets;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -22,9 +25,7 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
 			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
-			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			InitializeEntryViewModels();
 
 			spLstComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
@@ -36,16 +37,6 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
-
-			entryOrder.SetEntitySelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
-			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanChangeOrder, w => w.Sensitive).InitializeFromSource();
-			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
-			
-			if(ViewModel.UserHasOnlyAccessToWarehouseAndComplaints)
-			{
-				entryCounterparty.CanEditReference = entryOrder.CanEditReference = false;
-			}
 
 			yentryPhone.Binding.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -70,6 +61,40 @@ namespace Vodovoz.Views.Complaints
 			ViewModel.Entity.PropertyChanged += OnViewModelEntityPropertyChanged;
 		}
 
+		private void InitializeEntryViewModels()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Complaint>(
+				Tab, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope);
+
+			var counterpartyEntryViewModel = 
+				builder
+					.ForProperty(x => x.Counterparty)
+					.UseTdiEntityDialog()
+					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+					.Finish();
+
+			counterpartyEntry.ViewModel = counterpartyEntryViewModel;
+			counterpartyEntry.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			var orderEntryViewModel =
+				builder
+					.ForProperty(x => x.Order)
+					.UseTdiEntityDialog()
+					.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
+						f => f.RestrictCounterparty = ViewModel.Entity.Counterparty
+					)
+					.Finish();
+
+			orderEntry.ViewModel = orderEntryViewModel;
+			orderEntry.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			orderEntry.ViewModel.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
+
+			if(ViewModel.UserHasOnlyAccessToWarehouseAndComplaints)
+			{
+				counterpartyEntryViewModel.CanViewEntity = orderEntryViewModel.CanViewEntity = false;
+			}
+		}
+
 		private void OnViewModelEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.Entity.Counterparty))
@@ -80,8 +105,6 @@ namespace Vodovoz.Views.Complaints
 
 		private void OnCounterpartyChanged()
 		{
-			entryOrder.SetEntitySelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
-
 			if(ViewModel.Entity.Counterparty != null)
 			{
 				spLstAddress.NameForSpecialStateNot = "Самовывоз";

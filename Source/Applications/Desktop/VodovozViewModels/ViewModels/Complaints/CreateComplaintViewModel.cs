@@ -41,7 +41,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ISubdivisionSettings _subdivisionSettings;
-		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private DelegateCommand _changeDeliveryPointCommand;
@@ -69,7 +68,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionSettings subdivisionSettings,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_lifetimeScope = lifetimeScope;
+			LifetimeScope = lifetimeScope;
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -77,9 +76,6 @@ namespace Vodovoz.ViewModels.Complaints
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			CounterpartyAutocompleteSelectorFactory =
-				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 
@@ -155,16 +151,11 @@ namespace Vodovoz.ViewModels.Complaints
 
 				Entity.Driver = routeList.Driver;
 			}
-
-			if(e.PropertyName == nameof(Entity.Counterparty))
-			{
-				InitializeOrderAutocompleteSelectorFactory(_orderSelectorFactory);
-			}
 		}
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
-			var orderFilter = _lifetimeScope.Resolve<OrderJournalFilterViewModel>();
+			var orderFilter = LifetimeScope.Resolve<OrderJournalFilterViewModel>();
 			
 			if(Entity.Counterparty != null)
 			{
@@ -233,7 +224,9 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
 			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
+		public ILifetimeScope LifetimeScope { get; private set; }
 		public IEntityEntryViewModel OrderRatingEntryViewModel { get; private set; }
+		//public IEntityEntryViewModel CounterpartyEntryViewModel { get; private set; }
 
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
 			get {
@@ -242,7 +235,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Entity,
 						UoW,
 						this,
-						_lifetimeScope,
+						LifetimeScope,
 						CommonServices,
 						_subdivisionRepository,
 						EmployeeJournalFactory,
@@ -301,8 +294,8 @@ namespace Vodovoz.ViewModels.Complaints
 		
 		private void InitializeEntryViewModels()
 		{
-			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _lifetimeScope);
-			
+			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, LifetimeScope);
+
 			OrderRatingEntryViewModel =
 				builder
 					.ForProperty(x => x.OrderRating)
@@ -335,7 +328,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override void Dispose()
 		{
-			_lifetimeScope = null;
+			LifetimeScope = null;
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			base.Dispose();
 		}
