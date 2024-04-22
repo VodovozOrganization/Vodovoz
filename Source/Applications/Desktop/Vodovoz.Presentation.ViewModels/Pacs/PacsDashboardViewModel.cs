@@ -14,6 +14,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class PacsDashboardViewModel : WidgetViewModelBase, IDisposable
 	{
+		private readonly TimeSpan _operatorsRecentTimespan = TimeSpan.FromHours(-1);
+
 		private readonly PacsDashboardModel _pacsDashboardModel;
 		private readonly IPacsDashboardViewModelFactory _pacsDashboardViewModelFactory;
 		private readonly IGuiDispatcher _guiDispatcher;
@@ -34,8 +36,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_pacsDashboardViewModelFactory = pacsDashboardViewModelFactory ?? throw new ArgumentNullException(nameof(pacsDashboardViewModelFactory));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
-			ShowDisconnectedOperators = false;
-
 			_cancellationTokenSource = new CancellationTokenSource();
 			_invocationQueue = new BlockingCollection<Action>();
 			OperatorsOnBreak = new GenericObservableList<DashboardOperatorOnBreakViewModel>();
@@ -43,14 +43,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			MissedCalls = new GenericObservableList<DashboardMissedCallViewModel>();
 			Calls = new GenericObservableList<DashboardCallViewModel>();
 
+			_pacsDashboardModel.OperatorsLoaded += UpdateOperatorsList;
+
+			ShowDisconnectedOperators = false;
+
 			foreach(var model in _pacsDashboardModel.OperatorsOnBreak)
 			{
 				OperatorsOnBreak.Add(_pacsDashboardViewModelFactory.CreateOperatorOnBreakViewModel(model));
-			}
-
-			foreach(var model in _pacsDashboardModel.Operators)
-			{
-				OperatorsOnWorkshift.Add(_pacsDashboardViewModelFactory.CreateOperatorViewModel(model));
 			}
 
 			foreach(var model in _pacsDashboardModel.MissedCalls)
@@ -71,11 +70,31 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_queueProcessor = Task.Run(() => ProcessQueue(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
 		}
 
+		private void UpdateOperatorsList(object sender, EventArgs e)
+		{
+			OperatorsOnWorkshift.Clear();
+			foreach(var model in _pacsDashboardModel.Operators)
+			{
+				OperatorsOnWorkshift.Add(_pacsDashboardViewModelFactory.CreateOperatorViewModel(model));
+			}
+		}
+
 		[PropertyChangedAlso(nameof(OperatorsOnWorkshiftTitle))]
 		public bool ShowDisconnectedOperators
 		{
 			get => _showDisconnectedOperators;
-			set => SetField(ref _showDisconnectedOperators, value);
+			set
+			{
+				SetField(ref _showDisconnectedOperators, value);
+				if(value)
+				{
+					_pacsDashboardModel.LoadOperatorsFromDateTime(DateTime.MinValue);
+				}
+				else
+				{
+					_pacsDashboardModel.LoadOperatorsFromDateTime(DateTime.Now.Add(_operatorsRecentTimespan));
+				}
+			}
 		}
 
 		public string OperatorsOnWorkshiftTitle => ShowDisconnectedOperators ? "Все" : "Подключенные";

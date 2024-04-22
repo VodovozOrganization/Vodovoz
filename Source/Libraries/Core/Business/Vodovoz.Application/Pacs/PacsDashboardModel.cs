@@ -12,8 +12,6 @@ using System.Threading;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Services;
-using Core.Infrastructure;
-using System.Threading.Tasks;
 
 namespace Vodovoz.Application.Pacs
 {
@@ -42,11 +40,6 @@ namespace Vodovoz.Application.Pacs
 		private CancellationTokenSource _cts;
 
 		private IPacsDomainSettings _settings;
-
-		public ObservableCollection<OperatorModel> OperatorsOnBreak { get; }
-		public ObservableCollection<OperatorModel> Operators { get; }
-		public ObservableCollection<CallModel> Calls { get; }
-		public ObservableCollection<MissedCallModel> MissedCalls { get; }
 
 		public PacsDashboardModel(
 			ILogger<PacsDashboardModel> logger,
@@ -99,12 +92,18 @@ namespace Vodovoz.Application.Pacs
 			//потом загрузка из базы
 			//сначала операторов, потом звонки
 			var recentDate = DateTime.Now.AddHours(-5);
-			LoadRecentOperators(recentDate);
+			LoadOperatorsFromDateTime(recentDate);
 			LoadRecentCalls(recentDate);
 			//потом запуск обработчиков очередей событий
 			StartOperatorStatesWorker();
 			StartCallsWorker();
 		}
+
+		public event EventHandler OperatorsLoaded;
+		public ObservableCollection<OperatorModel> OperatorsOnBreak { get; }
+		public ObservableCollection<OperatorModel> Operators { get; }
+		public ObservableCollection<CallModel> Calls { get; }
+		public ObservableCollection<MissedCallModel> MissedCalls { get; }
 
 		private void StartOperatorStatesWorker()
 		{
@@ -128,13 +127,15 @@ namespace Vodovoz.Application.Pacs
 			}, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
 		}
 
-		private void LoadRecentOperators(DateTime from)
+		public void LoadOperatorsFromDateTime(DateTime from)
 		{
 			var recentOperators = _repository.GetOperators(from);
 			foreach(var operatorState in recentOperators)
 			{
 				AddOperatorState(operatorState);
 			}
+
+			OperatorsLoaded?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void LoadRecentCalls(DateTime from)
