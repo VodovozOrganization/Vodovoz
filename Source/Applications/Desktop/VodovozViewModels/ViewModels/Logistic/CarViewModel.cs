@@ -136,11 +136,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				?.StartDate
 				.ToShortDateString();
 
-			PreviousTechInspectOdometer = lastTechInspectCarEvent.OdometerReading;
+			PreviousTechInspectOdometer = lastTechInspectCarEvent?.OdometerReading ?? 0;
 
-			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel.TeсhInspectInterval;
+			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel.TeсhInspectInterval;			
 
-			UpcomingTechInspectLeft = UpcomingTechInspectKm - PreviousTechInspectOdometer;
+			UpcomingTechInspectLeft = Entity.LeftUntilTechInspect;
 		}
 
 		public string DriverInfoText

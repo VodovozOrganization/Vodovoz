@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -12,6 +13,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -21,6 +23,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarJournalViewModel : EntityJournalViewModelBase<Car, CarViewModel, CarJournalNode>
 	{
 		private readonly CarJournalFilterViewModel _filterViewModel;
+		private readonly IGeneralSettings _generalSettings;
 
 		public CarJournalViewModel(
 			CarJournalFilterViewModel filterViewModel,
@@ -29,12 +32,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
+			IGeneralSettings generalSettings,
 			Action<CarJournalFilterViewModel> filterConfiguration = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
-
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			filterViewModel.Journal = this;
 
 			JournalFilter = filterViewModel;
@@ -79,6 +83,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						&& currentCarVersion.StartDate <= currentDateTime
 						&& (currentCarVersion.EndDate == null || currentCarVersion.EndDate >= currentDateTime))
 				.Left.JoinAlias(c => c.Driver, () => driverAlias);
+
+			#region Проверка приближающегося ТО
+
+			var isCompanyCarRestriction = Restrictions.Eq(Projections.Property(() => currentCarVersion.CarOwnType), CarOwnType.Company);
+			var isTechInspectForOurCarsUpcomingRestriction = Restrictions.Le(Projections.Property(() => carAlias.LeftUntilTechInspect), _generalSettings.UpcomingTechInspectForOurCars);
+			var isUpcomingOurCarTechInspectAndIsCompanyCarRestriction = Restrictions.Conjunction()
+				.Add(isCompanyCarRestriction)
+				.Add(isTechInspectForOurCarsUpcomingRestriction);
+
+			var isRaskatCar = Restrictions.Eq(Projections.Property(() => currentCarVersion.CarOwnType), CarOwnType.Raskat);
+			var isTechInspectForRaskatCarsUpcomingRestriction = Restrictions.Le(Projections.Property(() => carAlias.LeftUntilTechInspect), _generalSettings.UpcomingTechInspectForRaskatCars);
+			var isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction = Restrictions.Conjunction()
+				.Add(isRaskatCar)
+				.Add(isTechInspectForRaskatCarsUpcomingRestriction);
+
+			var upcomingTechInspectProjection = Projections.Conditional(
+				Restrictions.Disjunction()
+					.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+					.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction),
+				Projections.Constant(true),
+				Projections.Constant(false)
+				);
+
+			#endregion
 
 			if(_filterViewModel.Archive != null)
 			{
@@ -135,11 +163,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carModelAlias.Name).WithAlias(() => carJournalNodeAlias.ModelName)
 					.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
 					.Select(c => c.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
+					.Select(upcomingTechInspectProjection).WithAlias(() => carJournalNodeAlias.IsUpcomingTechInspect)
 					.Select(CustomProjections.Concat_WS(" ",
 						Projections.Property(() => driverAlias.LastName),
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName))
+				.OrderByAlias(() => carJournalNodeAlias.IsUpcomingTechInspect).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
