@@ -2062,6 +2062,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Fuel.FuelApiRequestReportView.cs" />
     <Compile Include="Filters\GtkViews\MileageWriteOffJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.MileageWriteOffJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\MileageWriteOffReasonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.MileageWriteOffReasonJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
