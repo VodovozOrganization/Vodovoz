@@ -825,13 +825,16 @@ namespace Vodovoz.Application.Pacs
 			{
 				return true;
 			}
+
 			var canStop = OperatorState.State.IsIn(
 				OperatorStateType.New,
 				OperatorStateType.Connected,
-				OperatorStateType.Disconnected
-			);
+				OperatorStateType.Disconnected);
+
 			return canStop;
 		}
+
+		public bool IsServerAvailable() => _operatorKeepAliveController.Ping();
 
 		public void Dispose()
 		{

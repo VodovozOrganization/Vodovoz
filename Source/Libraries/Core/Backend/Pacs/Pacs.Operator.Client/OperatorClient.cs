@@ -332,6 +332,28 @@ namespace Pacs.Operators.Client
 			}
 		}
 
+		public async Task<bool> Ping()
+		{
+			try
+			{
+				var uri = $"{_pacsSettings.OperatorApiUrl}/Ping";
+				var response = await _httpClient.GetAsync(uri);
+				if(response.IsSuccessStatusCode)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError("Ping failed {ExceptionMessage}", ex.Message);
+				return false;
+			}
+		}
+
 		private void Validate()
 		{
 			if(_operatorId == null)

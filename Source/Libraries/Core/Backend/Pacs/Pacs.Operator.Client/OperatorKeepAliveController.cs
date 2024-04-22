@@ -63,5 +63,10 @@ namespace Pacs.Operators.Client
 			_timer?.Dispose();
 			_timer = null;
 		}
+
+		public bool Ping()
+		{
+			return _operatorClient.Ping().GetAwaiter().GetResult();
+		}
 	}
 }

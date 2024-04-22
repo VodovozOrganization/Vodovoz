@@ -106,5 +106,11 @@ namespace Pacs.Operators.Server
 
 			return result;
 		}
+
+		[HttpGet]
+		public async Task<IActionResult> Ping()
+		{
+			return await Task.FromResult(Ok("Pong"));
+		}
 	}
 }

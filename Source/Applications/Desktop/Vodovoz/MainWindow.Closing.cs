@@ -1,14 +1,21 @@
-﻿using Autofac;
-using Gtk;
+﻿using Gtk;
 using QS.Dialog;
 using System;
-using Vodovoz.Application.Pacs;
 
 public partial class MainWindow
 {
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
 		var canPacsClose = _operatorService.CanStopApplication();
+
+		if(!_operatorService.IsServerAvailable()
+			&& _interativeService.Question("Сервис СКУД недоступен, вы уверены, что хотите выйти не завершая смену?\n" +
+				"Не забудьте завершить смену как только сервис станет доступен!!",
+				"Внимание!!"))
+		{
+			canPacsClose = true;
+		}
+
 		if (!canPacsClose)
 		{
 			_interativeService.ShowMessage(ImportanceLevel.Warning, "Вы не завершили смену.");
@@ -34,6 +41,15 @@ public partial class MainWindow
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
 		var canPacsClose = _operatorService.CanStopApplication();
+
+		if(!_operatorService.IsServerAvailable()
+			&& _interativeService.Question("Сервис СКУД недоступен, вы уверены, что хотите выйти не завершая смену?\n" +
+				"Не забудьте завершить смену как только сервис станет доступен!!",
+				"Внимание!!"))
+		{
+			canPacsClose = true;
+		}
+
 		if(!canPacsClose)
 		{
 			_interativeService.ShowMessage(ImportanceLevel.Warning, "Вы не завершили смену.");
