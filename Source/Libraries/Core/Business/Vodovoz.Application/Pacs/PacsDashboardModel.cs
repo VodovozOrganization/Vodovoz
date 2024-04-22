@@ -1,4 +1,5 @@
-﻿using Pacs.Admin.Client;
+﻿using Microsoft.Extensions.Logging;
+using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
 using Pacs.Core.Messages.Events;
 using QS.DomainModel.Entity;
@@ -28,6 +29,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly IDisposable _operatorSubscription;
 		private readonly IDisposable _callSubscription;
 		private readonly IDisposable _settingsSubscription;
+		private readonly ILogger<PacsDashboardModel> _logger;
 		private readonly IEmployeeService _employeeService;
 		private readonly IPacsRepository _repository;
 		private readonly AdminClient _adminClient;
@@ -47,6 +49,7 @@ namespace Vodovoz.Application.Pacs
 		public ObservableCollection<MissedCallModel> MissedCalls { get; }
 
 		public PacsDashboardModel(
+			ILogger<PacsDashboardModel> logger,
 			IEmployeeService employeeService,
 			IPacsRepository repository,
 			OperatorStateAdminConsumer operatorStateAdminConsumer,
@@ -63,7 +66,7 @@ namespace Vodovoz.Application.Pacs
 			{
 				throw new ArgumentNullException(nameof(callPublisher));
 			}
-
+			_logger = logger;
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
@@ -77,7 +80,16 @@ namespace Vodovoz.Application.Pacs
 
 			_cts = new CancellationTokenSource();
 
-			_settings = _adminClient.GetSettings().Result;
+			try
+			{
+				_settings = _adminClient.GetSettings().Result;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошабка при обращении к серверу СКУД: {ExceptionMessage}", ex.Message);
+				return;
+			}
+
 			_settingsSubscription = settingsPublisher.Subscribe(this);
 
 			//для правильной загрузки:
