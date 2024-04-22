@@ -19,6 +19,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Logistic;
+using static Vodovoz.ViewModels.Logistic.DistrictSetDiffReportConfirmationViewModel;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -329,9 +330,12 @@ namespace Vodovoz.Journals.JournalViewModels
 							vm.TargetDistrictSetId = versions.Last().Id;
 							vm.TargetDistrictSetName = versions.Last().Name;
 
-							void OnPageClosed(object sender, EventArgs e)
+							void OnPageClosed(object sender, DistrictSetDiffReportConfirmationClosedArgs e)
 							{
-								_diffSourceDistrictSetVersionId = null;
+								if(!e.Canceled)
+								{
+									_diffSourceDistrictSetVersionId = null;
+								}
 								_diffTargetDistrictSetVersionId = null;
 								vm.Closed -= OnPageClosed;
 							}

@@ -14,7 +14,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class DistrictSetDiffReportConfirmationViewModel : WindowDialogViewModelBase
+	public partial class DistrictSetDiffReportConfirmationViewModel : WindowDialogViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDialogSettingsFactory _dialogSettingsFactory;
@@ -43,11 +43,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 			Title = "Сравнение версий районов";
 
-			CloseCommand = new DelegateCommand(CloseHandler);
+			CloseCommand = new DelegateCommand<bool>(CloseHandler);
 			GenerateDiffReportCommand = new DelegateCommand(GenerateDiffReport);
 		}
 
-		public event EventHandler Closed;
+		public event EventHandler<DistrictSetDiffReportConfirmationClosedArgs> Closed;
 
 		public int? SourceDistrictSetId { get; set; }
 		public int? TargetDistrictSetId { get; set; }
@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref _targetDistrictSetName, value);
 		}
 
-		public DelegateCommand CloseCommand { get; }
+		public DelegateCommand<bool> CloseCommand { get; }
 		public DelegateCommand GenerateDiffReportCommand { get; }
 
 		private void GenerateDiffReport()
@@ -96,15 +96,15 @@ namespace Vodovoz.ViewModels.Logistic
 				if(saveDialogResult.Successful)
 				{
 					report.Export(saveDialogResult.Path);
-					CloseCommand.Execute();
+					CloseCommand.Execute(false);
 				}
 			}
 		}
 
-		private void CloseHandler()
+		private void CloseHandler(bool canceled)
 		{
 			Close(false, CloseSource.Cancel);
-			Closed?.Invoke(this, EventArgs.Empty);
+			Closed?.Invoke(this, new DistrictSetDiffReportConfirmationClosedArgs { Canceled = canceled });
 		}
 	}
 }

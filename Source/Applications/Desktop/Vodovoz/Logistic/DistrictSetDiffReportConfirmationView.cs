@@ -26,7 +26,7 @@ namespace Vodovoz.Logistic
 				.InitializeFromSource();
 
 			ybuttonYes.BindCommand(ViewModel.GenerateDiffReportCommand);
-			ybuttonNo.BindCommand(ViewModel.CloseCommand);
+			ybuttonNo.Clicked += (s, e) => ViewModel.CloseCommand.Execute(true);
 		}
 	}
 }
