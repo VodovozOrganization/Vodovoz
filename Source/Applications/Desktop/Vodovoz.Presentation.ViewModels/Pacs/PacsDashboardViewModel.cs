@@ -1,4 +1,5 @@
 ﻿using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.ViewModels;
 using System;
 using System.Collections.Concurrent;
@@ -22,6 +23,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private ViewModelBase _activatedRow;
 		private ViewModelBase _detailsViewModel;
+		private bool _showDisconnectedOperators;
 
 		public PacsDashboardViewModel(
 			PacsDashboardModel pacsDashboardModel,
@@ -31,6 +33,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_pacsDashboardModel = pacsDashboardModel ?? throw new ArgumentNullException(nameof(pacsDashboardModel));
 			_pacsDashboardViewModelFactory = pacsDashboardViewModelFactory ?? throw new ArgumentNullException(nameof(pacsDashboardViewModelFactory));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+
+			ShowDisconnectedOperators = false;
 
 			_cancellationTokenSource = new CancellationTokenSource();
 			_invocationQueue = new BlockingCollection<Action>();
@@ -66,6 +70,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			_queueProcessor = Task.Run(() => ProcessQueue(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
 		}
+
+		[PropertyChangedAlso(nameof(OperatorsOnWorkshiftTitle))]
+		public bool ShowDisconnectedOperators
+		{
+			get => _showDisconnectedOperators;
+			set => SetField(ref _showDisconnectedOperators, value);
+		}
+
+		public string OperatorsOnWorkshiftTitle => ShowDisconnectedOperators ? "Все" : "Подключенные";
 
 		public GenericObservableList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak { get; }
 		public GenericObservableList<DashboardOperatorViewModel> OperatorsOnWorkshift { get; }
