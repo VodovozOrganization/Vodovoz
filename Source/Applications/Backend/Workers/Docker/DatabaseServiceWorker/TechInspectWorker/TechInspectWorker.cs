@@ -152,22 +152,21 @@ namespace DatabaseServiceWorker
 
 					let techInspectInterval = (int?)c.CarModel.TeсhInspectInterval
 
-					let confirmedDistance =
+					let confirmedDistance = (decimal?)
 						(
 							from rl in uow.GetAll<RouteList>()
 							where rl.Car.Id == c.Id && rl.Date >= lastOdometerReadingDate
 							select rl.ConfirmedDistance
-						).Sum(x => (int?)x)
+						).Sum()
 
 					select new
 					{
 						Car = c,
 						LeftUntilTechInspect = Math.Max(0, (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0) - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0))
-
 					}
 				).ToList();
 
-			carsLeftUntilTechInspect.ForEach(x => x.Car.LeftUntilTechInspect = x.LeftUntilTechInspect);
+			carsLeftUntilTechInspect.ForEach(x => x.Car.LeftUntilTechInspect = (int)x.LeftUntilTechInspect);
 
 			transaction.Commit();
 		}
