@@ -190,7 +190,7 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 			lblContactPhone.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowContactPhone, w => w.Visible)
-				.AddBinding(ViewModel, vm => vm.CanShowContactPhone, w => w.Visible)
+				.AddBinding(ViewModel.Entity, e => e.ContactPhone, w => w.LabelProp)
 				.InitializeFromSource();
 			
 			cancellationReasonEntry.Binding

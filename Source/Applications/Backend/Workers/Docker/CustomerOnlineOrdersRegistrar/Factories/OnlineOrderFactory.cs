@@ -20,6 +20,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				Source = orderInfoDto.Source,
 				CounterpartyId = orderInfoDto.CounterpartyErpId,
 				ExternalCounterpartyId = orderInfoDto.ExternalCounterpartyId,
+				ExternalOrderId = orderInfoDto.ExternalOrderId,
 				DeliveryPointId = orderInfoDto.DeliveryPointId,
 				DeliveryDate = orderInfoDto.DeliveryDate,
 				DeliveryScheduleId = orderInfoDto.DeliveryScheduleId,
