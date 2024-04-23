@@ -401,6 +401,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					deliveryScheduleRestrictionsNew
 						.OrderBy(x => x.AcceptBefore == null)
 						.ThenBy(x => x.DeliverySchedule.From)
+						.ThenBy(x => x.DeliverySchedule.To)
 						.Select(x =>
 						{
 							var formattedDeliveryShift = FormatDeliveryShift(x);
@@ -435,6 +436,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					deliveryScheduleRestrictionsOld
 						.OrderBy(x => x.AcceptBefore == null)
 						.ThenBy(x => x.DeliverySchedule.From)
+						.ThenBy(x => x.DeliverySchedule.To)
 						.Select(x =>
 						{
 							var formattedDeliveryShift = FormatDeliveryShift(x);
@@ -511,6 +513,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					deliveryScheduleRestrictions
 						.OrderBy(x => x.AcceptBefore == null)
 						.ThenBy(x => x.DeliverySchedule.From)
+						.ThenBy(x => x.DeliverySchedule.To)
 						.Select(FormatDeliveryShift))
 				.Trim('\n');
 
