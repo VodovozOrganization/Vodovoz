@@ -60,9 +60,10 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
-		public IEntityEntryViewModel CarViewModel { get; private set; }
-		public IEntityEntryViewModel DriverViewModel { get; private set; }
-		public IEntityEntryViewModel AuthorViewModel { get; private set; }
+
+		public IEntityEntryViewModel CarEntryViewModel { get; private set; }
+		public IEntityEntryViewModel DriverEntryViewModel { get; private set; }
+		public IEntityEntryViewModel AuthorEntryViewModel { get; private set; }
 
 		public JournalViewModelBase Journal
 		{
@@ -80,7 +81,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 		private void SetCarViewModel()
 		{
-			if(CarViewModel != null)
+			if(CarEntryViewModel != null)
 			{
 				return;
 			}
@@ -98,12 +99,12 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			viewModel.CanViewEntity = false;
 
-			CarViewModel = viewModel;
+			CarEntryViewModel = viewModel;
 		}
 
 		private void SetDriverViewModel()
 		{
-			if(DriverViewModel != null)
+			if(DriverEntryViewModel != null)
 			{
 				return;
 			}
@@ -121,12 +122,12 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			viewModel.CanViewEntity = false;
 
-			DriverViewModel = viewModel;
+			DriverEntryViewModel = viewModel;
 		}
 
 		private void SetAuthorViewModell()
 		{
-			if(AuthorViewModel != null)
+			if(AuthorEntryViewModel != null)
 			{
 				return;
 			}
@@ -143,7 +144,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			viewModel.CanViewEntity = false;
 
-			AuthorViewModel = viewModel;
+			AuthorEntryViewModel = viewModel;
 		}
 	}
 }
