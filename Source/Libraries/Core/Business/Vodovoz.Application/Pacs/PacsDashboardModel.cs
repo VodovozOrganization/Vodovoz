@@ -135,7 +135,8 @@ namespace Vodovoz.Application.Pacs
 				from = DateTime.Now.Add(_operatorsRecentTimespan);
 			}
 
-			_operatorIdToStates.Clear();
+			ClearOperators();
+
 			var recentOperators = _repository.GetOperators(from.Value);
 			foreach(var operatorState in recentOperators)
 			{
@@ -143,6 +144,12 @@ namespace Vodovoz.Application.Pacs
 			}
 
 			OperatorsLoaded?.Invoke(this, EventArgs.Empty);
+		}
+
+		private void ClearOperators()
+		{
+			_operatorIdToStates.Clear();
+			Operators.Clear();
 		}
 
 		private void LoadRecentCalls(DateTime from)
