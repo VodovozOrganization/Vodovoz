@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					oldDistricts.ContainsKey(d.Key)
 					&& (
 						d.Value.TariffZone.Id != oldDistricts[d.Key].TariffZone.Id
-						|| d.Value.MinBottles != oldDistricts[d.Key].MinBottles
+						|| d.Value.CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount) != oldDistricts[d.Key].CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount)
 						|| AllDistrictRuleItemsChanged(d.Value.AllDistrictRuleItems, oldDistricts[d.Key].AllDistrictRuleItems)
 						|| !d.Value.AllDeliveryScheduleRestrictions.All(dsr => oldDistricts[d.Key].AllDeliveryScheduleRestrictions
 							.Select(x => (x.AcceptBefore, x.WeekDay, x.DeliverySchedule.From, x.DeliverySchedule.To))
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			{
 				var tarifZoneChanged = oldDistricts[districtPair.Key].TariffZone.Name != districtPair.Value.TariffZone.Name;
 
-				var minimalBottlesCountChanged = oldDistricts[districtPair.Key].MinBottles != districtPair.Value.MinBottles;
+				var minimalBottlesCountChanged = oldDistricts[districtPair.Key].CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount) != districtPair.Value.CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount);
 
 				var delikveryRulesGeneralChanged = CommonDistrictRuleItemsChanged(districtPair.Value.CommonDistrictRuleItems, oldDistricts[districtPair.Key].CommonDistrictRuleItems);
 
@@ -102,11 +102,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						: "",
 
 					MinimalBottlesCountOld = minimalBottlesCountChanged
-						? (int?)oldDistricts[districtPair.Key].MinBottles
+						? (int?)oldDistricts[districtPair.Key].CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount)
 						: null,
 
 					MinimalBottlesCountNew = minimalBottlesCountChanged
-						? (int?)districtPair.Value.MinBottles
+						? (int?)districtPair.Value.CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount)
 						: null,
 
 					DelikveryRulesGeneralOld = 
@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					Id = district.Value.Id,
 					Name = district.Value.DistrictName,
 					TariffZoneName = district.Value.TariffZone.Name,
-					MinimalBottlesCount = district.Value.MinBottles,
+					MinimalBottlesCount = district.Value.CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount),
 
 					DelikveryRulesGeneral = string.Join("\n", district.Value.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
 
@@ -218,7 +218,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					Id = district.Value.Id,
 					Name = district.Value.DistrictName,
 					TariffZoneName = district.Value.TariffZone.Name,
-					MinimalBottlesCount = district.Value.MinBottles,
+					MinimalBottlesCount = district.Value.CommonDistrictRuleItems.Max(c => c.DeliveryPriceRule.Water19LCount),
 
 					DelikveryRulesGeneral = string.Join("\n", district.Value.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
 
