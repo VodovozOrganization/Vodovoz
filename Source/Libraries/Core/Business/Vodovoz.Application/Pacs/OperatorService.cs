@@ -363,7 +363,7 @@ namespace Vodovoz.Application.Pacs
 				result += $"\n{BreakAvailability.ShortBreakDescription}";
 				if(BreakAvailability.ShortBreakSupposedlyAvailableAfter.HasValue)
 				{
-					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value.ToString("dd.MM HH:mm")}";
+					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}";
 				}
 			}
 
