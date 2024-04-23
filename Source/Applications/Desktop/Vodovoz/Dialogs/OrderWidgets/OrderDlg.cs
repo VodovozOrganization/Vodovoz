@@ -347,18 +347,7 @@ namespace Vodovoz
 
 		public Order Order => Entity;
 
-		public List<StoredEmail> GetEmails()
-		{
-			if(Entity.Id != 0)
-			{
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Получение списка email для заказа {Entity.Id}"))
-				{
-					return _emailRepository.GetAllEmailsForOrder(uow, Entity.Id);
-				}
-			}
-
-			return null;
-		}
+		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
 		private CallTaskWorker callTaskWorker;
 

@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Orders
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
 		private bool _isExternalUoW;
+		private bool _isNewUndelivery;
 
 		public UndeliveryViewModel(
 
@@ -99,6 +100,8 @@ namespace Vodovoz.ViewModels.Orders
 
 			if(Entity.Id == 0)
 			{
+				_isNewUndelivery = true;
+
 				TabName = "Новый недовоз";
 
 				FillNewUndelivery();
@@ -159,7 +162,10 @@ namespace Vodovoz.ViewModels.Orders
 
 		private void OnDiscussionsChanged()
 		{
-			Entity.UpdateUndeliveryStatus();
+			if(!_isNewUndelivery)
+			{
+				Entity.UpdateUndeliveryStatusByDiscussionsStatus();
+			}
 		}
 
 		private bool OnEntitySaved()

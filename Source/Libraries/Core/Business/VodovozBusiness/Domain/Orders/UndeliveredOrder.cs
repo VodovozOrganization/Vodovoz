@@ -502,7 +502,7 @@ namespace Vodovoz.Domain.Orders
 			SetStatus(UndeliveryStatus.InProcess);
 		}
 
-		public virtual void UpdateUndeliveryStatus()
+		public virtual void UpdateUndeliveryStatusByDiscussionsStatus()
 		{
 			if(ObservableUndeliveryDiscussions.All(x => x.Status == UndeliveryDiscussionStatus.Closed))
 			{
