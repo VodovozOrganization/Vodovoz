@@ -1,9 +1,7 @@
 ﻿using Autofac;
 using MassTransit;
-using MassTransit.Transports;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Pacs.Admin.Client;
 using Pacs.Core;
 using System;
 using System.Threading;
