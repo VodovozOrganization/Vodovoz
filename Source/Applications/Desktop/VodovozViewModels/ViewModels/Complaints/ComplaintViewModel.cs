@@ -65,7 +65,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
 		private readonly bool _canCloseComplaintsPermissionResult;
 
-		private ILifetimeScope _scope;
 		private Employee _currentEmployee;
 		private ComplaintDiscussionsViewModel _discussionsViewModel;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
@@ -100,11 +99,8 @@ namespace Vodovoz.ViewModels.Complaints
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			LifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			CounterpartyAutocompleteSelectorFactory =
-				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(_scope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -160,10 +156,10 @@ namespace Vodovoz.ViewModels.Complaints
 				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
 			}
 
-			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 			InitializeEntryViewModels();
 		}
 
+		public ILifetimeScope LifetimeScope { get; private set; }
 		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; private set; }
 		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; private set; }
 		public IEntityEntryViewModel OrderRatingEntryViewModel { get; private set; }
@@ -227,7 +223,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(_discussionsViewModel == null)
 				{
-					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
+					_discussionsViewModel = LifetimeScope.Resolve<ComplaintDiscussionsViewModel>(
 						new TypedParameter(typeof(Complaint), Entity),
 						new TypedParameter(typeof(IUnitOfWork), UoW),
 						new TypedParameter(typeof(DialogViewModelBase), this));
@@ -247,7 +243,7 @@ namespace Vodovoz.ViewModels.Complaints
 							Entity,
 							UoW,
 							this,
-							_scope,
+							LifetimeScope,
 							CommonServices,
 							_subdivisionRepository,
 							EmployeeJournalFactory,
@@ -381,8 +377,7 @@ namespace Vodovoz.ViewModels.Complaints
 			nameof(CanSelectDeliveryPoint),
 			nameof(CanAddGuilty),
 			nameof(CanClose),
-			nameof(CanChangeDetalization),
-			nameof(CanChangeOrder))]
+			nameof(CanChangeDetalization))]
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		public bool CanAddGuilty => CanEdit && _canAddGuiltyInComplaintsPermissionResult;
@@ -394,7 +389,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddFine => CanEdit;
 
 		public bool CanAttachFine => CanEdit;
-		public bool CanChangeOrder => CanEdit && Entity.OrderRating is null;
 		public bool CanChangeOrderRating => false;
 
 		public bool CanAddArrangementComment => !string.IsNullOrWhiteSpace(NewArrangementCommentText);
@@ -564,20 +558,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private ISubdivisionSettings SubdivisionSettings { get; }
 
-		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
-		{
-			var orderFilter = _scope.Resolve<OrderJournalFilterViewModel>();
-
-			if(Entity.Counterparty != null)
-			{
-				orderFilter.RestrictCounterparty = Entity.Counterparty;
-			}
-
-			OrderAutocompleteSelectorFactory =
-				(orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
-				.CreateOrderAutocompleteSelectorFactory(orderFilter);
-		}
-
 		protected void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(
@@ -612,10 +592,6 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.ComplaintKind,
 				() => CanChangeDetalization);
-			
-			SetPropertyChangeRelation(
-				e => e.OrderRating,
-				() => CanChangeOrder);
 		}
 
 		private void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
@@ -677,7 +653,7 @@ namespace Vodovoz.ViewModels.Complaints
 		
 		private void InitializeEntryViewModels()
 		{
-			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
+			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, LifetimeScope);
 			
 			ComplaintDriverEntryViewModel =
 				builder
@@ -739,7 +715,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public override void Dispose()
 		{
 			_logger.Debug("Вызываем {Method}()", nameof(Dispose));
-			_scope = null;
+			LifetimeScope = null;
 			base.Dispose();
 		}
 	}
