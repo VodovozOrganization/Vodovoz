@@ -5,7 +5,6 @@ using Pacs.Core.Messages.Events;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -23,9 +22,9 @@ namespace Vodovoz.Application.Pacs
 	{
 		private readonly TimeSpan _operatorsRecentTimespan = TimeSpan.FromHours(-5);
 
-		private readonly Dictionary<int, OperatorModel> _operatorStatesDic;
-		private readonly Dictionary<string, CallModel> _callsDic;
-		private readonly Dictionary<string, MissedCallModel> _missedCallsDic;
+		private readonly ConcurrentDictionary<int, OperatorModel> _operatorIdToStates;
+		private readonly ConcurrentDictionary<string, CallModel> _callNumberToCalls;
+		private readonly ConcurrentDictionary<string, MissedCallModel> _missedCallsNumberToCalls;
 		private readonly IDisposable _operatorSubscription;
 		private readonly IDisposable _callSubscription;
 		private readonly IDisposable _settingsSubscription;
@@ -65,9 +64,9 @@ namespace Vodovoz.Application.Pacs
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
-			_operatorStatesDic = new Dictionary<int, OperatorModel>();
-			_callsDic = new Dictionary<string, CallModel>();
-			_missedCallsDic = new Dictionary<string, MissedCallModel>();
+			_operatorIdToStates = new ConcurrentDictionary<int, OperatorModel>();
+			_callNumberToCalls = new ConcurrentDictionary<string, CallModel>();
+			_missedCallsNumberToCalls = new ConcurrentDictionary<string, MissedCallModel>();
 			OperatorsOnBreak = new ObservableCollection<OperatorModel>();
 			Operators = new ObservableCollection<OperatorModel>();
 			Calls = new ObservableCollection<CallModel>();
@@ -136,7 +135,7 @@ namespace Vodovoz.Application.Pacs
 				from = DateTime.Now.Add(_operatorsRecentTimespan);
 			}
 
-			ClearOperatorStates();
+			_operatorIdToStates.Clear();
 			var recentOperators = _repository.GetOperators(from.Value);
 			foreach(var operatorState in recentOperators)
 			{
@@ -211,75 +210,65 @@ namespace Vodovoz.Application.Pacs
 				return;
 			}
 
-			if(_missedCallsDic.ContainsKey(model.Call.EntryId))
+			if(_missedCallsNumberToCalls.ContainsKey(model.Call.EntryId))
 			{
 				return;
 			}
 
-			var missedCallModel = new MissedCallModel(model, _operatorStatesDic.Values);
+			var missedCallModel = new MissedCallModel(model, _operatorIdToStates.Values);
 
 			lock(MissedCalls)
 			{
-				_missedCallsDic.Add(model.Call.EntryId, missedCallModel);
+				_missedCallsNumberToCalls.TryAdd(model.Call.EntryId, missedCallModel);
 				MissedCalls.Insert(0, missedCallModel);
 			}
 		}
 
 		#endregion IObserver<CallEvent>
 
-		private void ClearOperatorStates()
-		{
-			lock(_operatorStatesDic)
-			{
-				_operatorStatesDic.Clear();
-			}
-		}
-
 		private void AddOperatorState(OperatorState state)
 		{
-			lock(_operatorStatesDic)
+			if(_operatorIdToStates.TryGetValue(state.OperatorId, out var model))
 			{
-				if(_operatorStatesDic.TryGetValue(state.OperatorId, out var model))
-				{
-					model.AddState(state);
-					return;
-				}
-
-				model = new OperatorModel(_employeeService);
-				model.Settings = _settings;
-				model.BreakStarted += OnBreakStarted;
-				model.BreakEnded += OnBreakEnded;
 				model.AddState(state);
-				_operatorStatesDic.Add(state.OperatorId, model);
+				return;
+			}
+
+			model = new OperatorModel(_employeeService);
+			model.Settings = _settings;
+			model.BreakStarted += OnBreakStarted;
+			model.BreakEnded += OnBreakEnded;
+			model.AddState(state);
+			if(_operatorIdToStates.TryAdd(state.OperatorId, model))
+			{
 				Operators.Insert(0, model);
 			}
 		}
 
 		private void UpdateCall(Call call)
 		{
-			lock(_callsDic)
+			if(_callNumberToCalls.TryGetValue(call.EntryId, out var model))
 			{
-				if(_callsDic.TryGetValue(call.EntryId, out var model))
-				{
-					model.UpdateCall(call);
-					CheckCallMissed(model);
-					return;
-				}
-
-				model = new CallModel(_operatorStatesDic.Values);
 				model.UpdateCall(call);
-				if(!model.IsIncomingCall)
-				{
-					return;
-				}
+				CheckCallMissed(model);
+				return;
+			}
 
-				_callsDic.Add(call.EntryId, model);
+			model = new CallModel(_operatorIdToStates.Values);
+			model.UpdateCall(call);
+			if(!model.IsIncomingCall)
+			{
+				return;
+			}
+
+			if(_callNumberToCalls.TryAdd(call.EntryId, model))
+			{
 				lock(Calls)
 				{
 					Calls.Insert(0, model);
 				}
-				CheckCallMissed(model);
 			}
+			CheckCallMissed(model);
 		}
 
 		#region IObserver<SettingsEvent>
