@@ -952,6 +952,11 @@ public partial class MainWindow : Window
 	{
 		NavigationManager.OpenViewModel<MileageWriteOffJournalViewModel, Action<MileageWriteOffJournalFilterViewModel>>(
 			   null,
-			   filter => filter.WriteOffDateFrom = DateTime.Today.AddMonths(-1));
+			   filter =>
+			   {
+				   filter.WriteOffDateFrom = DateTime.Today.AddMonths(-1);
+				   filter.WriteOffDateTo = DateTime.Today;
+			   },
+			   OpenPageOptions.IgnoreHash);
 	}
 }

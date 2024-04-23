@@ -17,6 +17,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.WriteOffDateFrom, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.WriteOffDateTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
+
+			entityentryCar.ViewModel = ViewModel.CarViewModel;
+			entityentryDriver.ViewModel = ViewModel.DriverViewModel;
+			entityentryAuthor.ViewModel = ViewModel.AuthorViewModel;
 		}
 	}
 }

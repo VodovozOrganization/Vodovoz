@@ -11,8 +11,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Дата списания").AddTextRenderer(node => node.WriteOffDate.ToString("dd.MM.yyyy"))
 				.AddColumn("Списано, км").AddTextRenderer(node => node.DistanceKm.ToString("F2")).WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.AddColumn("Автомобиль").AddTextRenderer(node => node.CarRegNumber)
-				.AddColumn("Водитель").AddTextRenderer(node => node.DriverName).WrapWidth(250).WrapMode(WrapMode.WordChar)
-				.AddColumn("Автор").AddTextRenderer(node => node.AuthorName).WrapWidth(250).WrapMode(WrapMode.WordChar)
+				.AddColumn("Водитель").AddTextRenderer(node => node.DriverFullName).WrapWidth(250).WrapMode(WrapMode.WordChar)
+				.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName).WrapWidth(250).WrapMode(WrapMode.WordChar)
 				.AddColumn("Дата создания").AddTextRenderer(node => node.CreateDate.ToString("dd.MM.yyyy HH:mm:ss")).WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.Finish();
 	}

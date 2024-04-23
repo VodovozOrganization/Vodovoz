@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -27,6 +28,8 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+
+			filterViewModel.Journal = this;
 
 			Title = "Списание километража без МЛ";
 
@@ -71,24 +74,24 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			if(_filterViewModel.Car != null)
 			{
-				query.Where(() => carAlias == _filterViewModel.Car);
+				query.Where(() => carAlias.Id == _filterViewModel.Car.Id);
 			}
 
 			if(_filterViewModel.Driver != null)
 			{
-				query.Where(() => driverAlias == _filterViewModel.Driver);
+				query.Where(() => driverAlias.Id == _filterViewModel.Driver.Id);
 			}
 
 			if(_filterViewModel.Author != null)
 			{
-				query.Where(() => authorAlias == _filterViewModel.Author);
+				query.Where(() => authorAlias.Id == _filterViewModel.Author.Id);
 			}
 
 			query.Where(GetSearchCriterion(
 				() => mileageWriteOffAlias.Id,
 				() => carAlias.RegistrationNumber,
-				() => driverAlias.FullName,
-				() => authorAlias.FullName
+				() => driverAlias.LastName,
+				() => authorAlias.LastName
 			));
 
 			query = query.SelectList(list => list
@@ -97,8 +100,12 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				.Select(() => mileageWriteOffAlias.WriteOffDate).WithAlias(() => resultAlias.WriteOffDate)
 				.Select(() => mileageWriteOffAlias.CreationDate).WithAlias(() => resultAlias.CreateDate)
 				.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegNumber)
-				.Select(() => driverAlias.FullName).WithAlias(() => resultAlias.DriverName)
-				.Select(() => authorAlias.FullName).WithAlias(() => resultAlias.AuthorName))
+				.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+				.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+				.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+				.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+				.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+				.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic))
 			.TransformUsing(Transformers.AliasToBean<MileageWriteOffJournalNode>());
 
 			return query;
