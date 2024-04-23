@@ -1,12 +1,22 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MileageWriteOffJournalFilterView : Gtk.Bin
+	public partial class MileageWriteOffJournalFilterView : FilterViewBase<MileageWriteOffJournalFilterViewModel>
 	{
-		public MileageWriteOffJournalFilterView()
+		public MileageWriteOffJournalFilterView(MileageWriteOffJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			daterangepickerPeriod.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.WriteOffDateFrom, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.WriteOffDateTo, w => w.EndDateOrNull)
+				.InitializeFromSource();
 		}
 	}
 }
