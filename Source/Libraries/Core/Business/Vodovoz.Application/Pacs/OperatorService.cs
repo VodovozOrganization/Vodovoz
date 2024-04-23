@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.Mango;
@@ -48,7 +49,7 @@ namespace Vodovoz.Application.Pacs
 		private OperatorBreakAvailability _breakAvailability;
 		private GlobalBreakAvailabilityEvent _globalBreakAvailability;
 		private IPacsDomainSettings _settings;
-		private IEnumerable<OperatorState> _operatorsonBreak;
+		private IEnumerable<OperatorState> _operatorsonBreak = Enumerable.Empty<OperatorState>();
 		private PacsState _pacsState;
 		private bool _canStartLongBreak;
 		private BreakState _longBreakState;
@@ -819,18 +820,17 @@ namespace Vodovoz.Application.Pacs
 
 		#endregion IObserver<OperatorsOnBreakEvent>
 
-		public bool CanStopApplication()
+		public bool IsOperatorShiftActive()
 		{
 			if(OperatorState == null)
 			{
-				return true;
+				return false;
 			}
-			var canStop = OperatorState.State.IsIn(
+
+			return OperatorState.State.IsNotIn(
 				OperatorStateType.New,
 				OperatorStateType.Connected,
-				OperatorStateType.Disconnected
-			);
-			return canStop;
+				OperatorStateType.Disconnected);
 		}
 
 		public void Dispose()
