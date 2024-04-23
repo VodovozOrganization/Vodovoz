@@ -84,6 +84,7 @@ namespace Vodovoz.Views.Complaints
 						f => f.RestrictCounterparty = ViewModel.Entity.Counterparty
 					)
 					.Finish();
+			orderEntryViewModel.BeforeChangeByUser += OnBeforeChangeOrderByUser;
 
 			orderEntry.ViewModel = orderEntryViewModel;
 			orderEntry.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -101,6 +102,20 @@ namespace Vodovoz.Views.Complaints
 			{
 				OnCounterpartyChanged();
 			}
+		}
+		
+		private void OnBeforeChangeOrderByUser(object sender, BeforeChangeEventArgs e)
+		{
+			var result = ViewModel.Entity.CanChangeOrder();
+
+			if(!result.CanChange)
+			{
+				e.CanChange = false;
+				ViewModel.ShowMessage(result.Message);
+				return;
+			}
+			
+			e.CanChange = true;
 		}
 
 		private void OnCounterpartyChanged()

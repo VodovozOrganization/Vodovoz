@@ -298,6 +298,7 @@ namespace Vodovoz.Views.Complaints
 						f => f.RestrictCounterparty = ViewModel.Entity.Counterparty
 					)
 					.Finish();
+			orderEntryViewModel.BeforeChangeByUser += OnBeforeChangeOrderByUser;
 
 			orderEntry.ViewModel = orderEntryViewModel;
 			orderEntry.Binding
@@ -305,8 +306,32 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
 			orderEntry.ViewModel.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
+		}
 
-			//добавить обработчик для выбора заказа при установленной оценке
+		private void OnBeforeChangeOrderByUser(object sender, BeforeChangeEventArgs e)
+		{
+			var result = ViewModel.Entity.CanChangeOrder();
+
+			if(!result.CanChange)
+			{
+				e.CanChange = false;
+				ViewModel.ShowMessage(result.Message);
+				return;
+			}
+			
+			e.CanChange = true;
+		}
+
+		private void CanChangeOrder(BeforeChangeEventArgs e)
+		{
+			if(ViewModel.Entity.OrderRating != null)
+			{
+				ViewModel.ShowMessage("Нельзя менять заказ у рекламации, созданной по оценке заказа!");
+				e.CanChange = false;
+				return;
+			}
+
+			e.CanChange = true;
 		}
 
 		private void OnYenumcomboStatusChanged(object sender, ItemSelectedEventArgs e)

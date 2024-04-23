@@ -112,6 +112,11 @@ namespace Vodovoz.ViewModels.Complaints
 				Entity.Counterparty = orderRating.OnlineOrder.Counterparty;
 			}
 		}
+		
+		public void ShowMessage(string message)
+		{
+			ShowInfoMessage(message);
+		}
 
 		private void SetOrder(Order order)
 		{

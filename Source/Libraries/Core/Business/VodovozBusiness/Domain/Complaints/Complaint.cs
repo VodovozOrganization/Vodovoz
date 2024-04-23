@@ -486,6 +486,11 @@ namespace Vodovoz.Domain.Complaints
 			return false;
 		}
 
+		public virtual (bool CanChange, string Message) CanChangeOrder()
+		{
+			return OrderRating != null ? (false, "Нельзя менять заказ у рекламации, созданной по оценке заказа!") : (true, null);
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

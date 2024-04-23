@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
@@ -24,7 +23,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -39,7 +37,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -82,10 +79,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			IUserRepository userRepository,
-			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory driverJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionSettings subdivisionSettings,
 			IRouteListItemRepository routeListItemRepository,
@@ -101,15 +95,10 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			LifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
-			if(orderSelectorFactory == null)
-			{
-				throw new ArgumentNullException(nameof(orderSelectorFactory));
-			}
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -301,7 +290,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public string CreatedByAndDate => $"Созд: {Entity.CreatedBy?.ShortName} {Entity.CreationDate:g}";
 
-
 		public IEnumerable<ComplaintSource> ComplaintSources
 		{
 			get
@@ -389,7 +377,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddFine => CanEdit;
 
 		public bool CanAttachFine => CanEdit;
-		public bool CanChangeOrderRating => false;
 
 		public bool CanAddArrangementComment => !string.IsNullOrWhiteSpace(NewArrangementCommentText);
 		public bool CanAddResultComment => !string.IsNullOrWhiteSpace(NewResultCommentText);
@@ -551,12 +538,13 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#endregion Commands
 
-		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
-		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
-		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private ISubdivisionSettings SubdivisionSettings { get; }
+
+		public void ShowMessage(string message)
+		{
+			ShowInfoMessage(message);
+		}
 
 		protected void ConfigureEntityChangingRelations()
 		{
