@@ -6,9 +6,9 @@ namespace Vodovoz.Domain.Orders
 	{
 		[Display(Name = "Новая")]
 		New,
-		[Display(Name = "Обработана")]
-		Processed,
 		[Display(Name = "Положительная")]
-		Positive
+		Positive,
+		[Display(Name = "Обработана")]
+		Processed
 	}
 }

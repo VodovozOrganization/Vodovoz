@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using Gamma.Widgets;
 using QS.ViewModels.Control.EEVM;
@@ -11,12 +11,12 @@ using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class CreateComplaintView : TabViewBase<CreateComplaintViewModel>
 	{
 		public CreateComplaintView(CreateComplaintViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 

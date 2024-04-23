@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
@@ -22,7 +22,8 @@ namespace Vodovoz
 			.RegisterClassesByInterfaces("Repository", dependencyType)
 			.RegisterClassesByInterfaces("Service", dependencyType)
 			.RegisterClassesByInterfaces("Handler", dependencyType)
-			
+			.RegisterClassesByInterfaces("Factory", dependencyType)
+
 			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())

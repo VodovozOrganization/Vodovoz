@@ -3,7 +3,6 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
@@ -12,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using QS.DomainModel.Entity;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -21,12 +19,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -39,7 +35,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
@@ -61,10 +56,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IUserRepository userRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IFileDialogService fileDialogService,
-			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionSettings subdivisionSettings,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -74,9 +66,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 
 			Entity.ComplaintType = ComplaintType.Client;
@@ -92,7 +82,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 			TabName = "Новая клиентская рекламация";
 			
-			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 			InitializeEntryViewModels();
 			Entity.PropertyChanged += EntityPropertyChanged;
 		}
@@ -153,20 +142,6 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
-		{
-			var orderFilter = LifetimeScope.Resolve<OrderJournalFilterViewModel>();
-			
-			if(Entity.Counterparty != null)
-			{
-				orderFilter.RestrictCounterparty = Entity.Counterparty;
-			}
-			
-			OrderAutocompleteSelectorFactory =
-				(orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
-				.CreateOrderAutocompleteSelectorFactory(orderFilter);
-		}
-
 		public Employee CurrentEmployee {
 			get {
 				if(_currentEmployee == null) {
@@ -189,9 +164,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		//так как диалог только для создания рекламации
-		[PropertyChangedAlso(nameof(CanChangeOrder))]
 		public bool CanEdit => PermissionResult.CanCreate;
-		public bool CanChangeOrder => CanEdit && Entity.OrderRating is null;
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 		
@@ -265,11 +238,6 @@ namespace Vodovoz.ViewModels.Complaints
 				e => e.Counterparty,
 				() => CanSelectDeliveryPoint
 			);
-			
-			SetPropertyChangeRelation(
-				e => e.OrderRating,
-				() => CanChangeOrder
-			);
 		}
 
 		public void CheckAndSave()
@@ -320,11 +288,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#endregion ChangeDeliveryPointCommand
 
-		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 
 		public override void Dispose()
 		{

@@ -102,6 +102,7 @@ namespace Vodovoz.JournalViewModels
 			SearchEnabled = false;
 
 			filterViewModel.Journal = this;
+			JournalFilter = filterViewModel;
 
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
