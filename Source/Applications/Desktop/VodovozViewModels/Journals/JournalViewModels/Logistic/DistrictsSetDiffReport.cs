@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			foreach(var districtPair in onlyDifferentDistricts)
 			{
-				var tarifZoneChanged = oldDistricts[districtPair.Key].TariffZone.Name != districtPair.Value.TariffZone.Name;
+				var tarifZoneChanged = oldDistricts[districtPair.Key].TariffZone?.Name != districtPair.Value.TariffZone?.Name;
 
 				var minimalBottlesCountChanged = GetMinimalBottlesCount(oldDistricts[districtPair.Key]) != GetMinimalBottlesCount(districtPair.Value);
 
@@ -94,11 +94,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					Name = districtPair.Value.DistrictName,
 
 					TariffZoneNameOld = tarifZoneChanged
-						? oldDistricts[districtPair.Key].TariffZone.Name
+						? oldDistricts[districtPair.Key].TariffZone?.Name ?? ""
 						: "",
 
 					TariffZoneNameNew = tarifZoneChanged
-						? districtPair.Value.TariffZone.Name
+						? districtPair.Value.TariffZone?.Name ?? ""
 						: "",
 
 					MinimalBottlesCountOld = minimalBottlesCountChanged
@@ -191,7 +191,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				{
 					Id = district.Value.Id,
 					Name = district.Value.DistrictName,
-					TariffZoneName = district.Value.TariffZone.Name,
+					TariffZoneName = district.Value.TariffZone?.Name ?? "",
 					MinimalBottlesCount = GetMinimalBottlesCount(district.Value),
 
 					DelikveryRulesGeneral = string.Join("\n", district.Value.CommonDistrictRuleItems.Select(cdri => cdri.Title)),
@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				{
 					Id = district.Value.Id,
 					Name = district.Value.DistrictName,
-					TariffZoneName = district.Value.TariffZone.Name,
+					TariffZoneName = district.Value.TariffZone?.Name ?? "",
 					MinimalBottlesCount = GetMinimalBottlesCount(district.Value),
 
 					DelikveryRulesGeneral = string.Join("\n", district.Value.CommonDistrictRuleItems.Select(cdri => cdri.Title)).Trim('\n'),
