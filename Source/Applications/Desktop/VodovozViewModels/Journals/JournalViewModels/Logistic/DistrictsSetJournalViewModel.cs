@@ -326,9 +326,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								.OrderBy(x => x.DateCreated);
 
 							vm.SourceDistrictSetId = versions.First().Id;
-							vm.SourceDistrictSetName = versions.First().Name;
+							vm.SourceDistrictSetName = $"[{versions.First().Id}] {versions.First().Name}";
 							vm.TargetDistrictSetId = versions.Last().Id;
-							vm.TargetDistrictSetName = versions.Last().Name;
+							vm.TargetDistrictSetName = $"[{versions.Last().Id}] {versions.Last().Name}";
 
 							void OnPageClosed(object sender, DistrictSetDiffReportConfirmationClosedArgs e)
 							{
