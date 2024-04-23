@@ -4,8 +4,6 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class MileageWriteOffJournalFilterView
 	{
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
 		private global::Gamma.GtkWidgets.yTable ytableProperties;
@@ -33,13 +31,6 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.MileageWriteOffJournalFilterView";
 			// Container child Vodovoz.Filters.GtkViews.MileageWriteOffJournalFilterView.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
-			w1.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
@@ -56,83 +47,81 @@ namespace Vodovoz.Filters.GtkViews
 			this.daterangepickerPeriod.StartDate = new global::System.DateTime(0);
 			this.daterangepickerPeriod.EndDate = new global::System.DateTime(0);
 			this.ytableProperties.Add(this.daterangepickerPeriod);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.daterangepickerPeriod]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.daterangepickerPeriod]));
+			w1.LeftAttach = ((uint)(1));
+			w1.RightAttach = ((uint)(2));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.entityentryAuthor = new global::QS.Views.Control.EntityEntry();
 			this.entityentryAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryAuthor.Name = "entityentryAuthor";
 			this.ytableProperties.Add(this.entityentryAuthor);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryAuthor]));
-			w3.LeftAttach = ((uint)(7));
-			w3.RightAttach = ((uint)(8));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryAuthor]));
+			w2.LeftAttach = ((uint)(7));
+			w2.RightAttach = ((uint)(8));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
 			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryCar.Name = "entityentryCar";
 			this.ytableProperties.Add(this.entityentryCar);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryCar]));
-			w4.LeftAttach = ((uint)(3));
-			w4.RightAttach = ((uint)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryCar]));
+			w3.LeftAttach = ((uint)(3));
+			w3.RightAttach = ((uint)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.entityentryDriver = new global::QS.Views.Control.EntityEntry();
 			this.entityentryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryDriver.Name = "entityentryDriver";
 			this.ytableProperties.Add(this.entityentryDriver);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryDriver]));
-			w5.LeftAttach = ((uint)(5));
-			w5.RightAttach = ((uint)(6));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryDriver]));
+			w4.LeftAttach = ((uint)(5));
+			w4.RightAttach = ((uint)(6));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelAuthor = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelAuthor.Name = "ylabelAuthor";
 			this.ylabelAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Автор:");
 			this.ytableProperties.Add(this.ylabelAuthor);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelAuthor]));
-			w6.LeftAttach = ((uint)(6));
-			w6.RightAttach = ((uint)(7));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelAuthor]));
+			w5.LeftAttach = ((uint)(6));
+			w5.RightAttach = ((uint)(7));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelCar = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCar.Name = "ylabelCar";
 			this.ylabelCar.LabelProp = global::Mono.Unix.Catalog.GetString("Автомобиль:");
 			this.ytableProperties.Add(this.ylabelCar);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelCar]));
-			w7.LeftAttach = ((uint)(2));
-			w7.RightAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelCar]));
+			w6.LeftAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelDriver = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDriver.Name = "ylabelDriver";
 			this.ylabelDriver.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель:");
 			this.ytableProperties.Add(this.ylabelDriver);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelDriver]));
-			w8.LeftAttach = ((uint)(4));
-			w8.RightAttach = ((uint)(5));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelDriver]));
+			w7.LeftAttach = ((uint)(4));
+			w7.RightAttach = ((uint)(5));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelPeriod = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPeriod.Name = "ylabelPeriod";
 			this.ylabelPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.ytableProperties.Add(this.ylabelPeriod);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelPeriod]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelPeriod]));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.yvboxMain.Add(this.ytableProperties);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableProperties]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
-			w1.Add(this.yvboxMain);
-			this.GtkScrolledWindow.Add(w1);
-			this.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableProperties]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
