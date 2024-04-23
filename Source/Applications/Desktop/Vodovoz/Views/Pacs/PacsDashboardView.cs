@@ -1,7 +1,4 @@
-﻿using DocumentFormat.OpenXml.Drawing;
-using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using GLib;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.ViewModels;
@@ -20,12 +17,20 @@ namespace Vodovoz.Views.Pacs
 
 		public PacsDashboardView()
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
+
+			ycheckbuttonShowDisconnected.Binding
+				.AddBinding(ViewModel, vm => vm.ShowDisconnectedOperators, w => w.Active)
+				.InitializeFromSource();
+
+			labelOperatorsOnWorkshift.Binding
+				.AddBinding(ViewModel, vm => vm.OperatorsOnWorkshiftTitle, w => w.Text)
+				.InitializeFromSource();
 
 			treeViewOperatorsOnBreak.ColumnsConfig = FluentColumnsConfig<DashboardOperatorOnBreakViewModel>.Create()
 				.AddColumn("Имя").HeaderAlignment(0.5f)

@@ -1,9 +1,7 @@
 ﻿using Autofac;
 using MassTransit;
-using MassTransit.Transports;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Pacs.Admin.Client;
 using Pacs.Core;
 using System;
 using System.Threading;
@@ -42,6 +40,12 @@ namespace Vodovoz
 				await Task.Delay(200);
 			}
 
+			if(cancellationToken.IsCancellationRequested)
+			{
+				_logger.LogInformation("Запрошено завершение сервиса");
+				return;
+			}
+
 			try
 			{
 				await _bus.StartAsync(cancellationToken).ConfigureAwait(false);
@@ -60,7 +64,7 @@ namespace Vodovoz
 		{
 			_logger.LogInformation("Сервис сообщений остановлен");
 			_scope.Dispose();
-			return _bus.StopAsync(cancellationToken);
+			return _bus?.StopAsync(cancellationToken);
 		}
 	}
 }
