@@ -458,37 +458,37 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Today, district.TodayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.MondayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Monday, district.MondayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.TuesdayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Tuesday, district.TuesdayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.WednesdayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Wednesday, district.WednesdayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.ThursdayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Thursday, district.ThursdayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.FridayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Friday, district.FridayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.SaturdayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Saturday, district.SaturdayDistrictRuleItems));
 			}
 
-			if(district.TodayDistrictRuleItems.Any())
+			if(district.SundayDistrictRuleItems.Any())
 			{
 				stringBuilder.AppendLine(ConvertDeliveryRulesSpecialToString(WeekDayName.Sunday, district.SundayDistrictRuleItems));
 			}
