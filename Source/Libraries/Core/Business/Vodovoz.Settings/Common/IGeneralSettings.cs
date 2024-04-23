@@ -40,6 +40,12 @@ namespace Vodovoz.Settings.Common
 		int FastDelivery19LBottlesLimitCount { get; }
 		void UpdateIsFastDelivery19LBottlesLimitActive(bool value);
 		void UpdateFastDelivery19LBottlesLimitCount(int fastDelivery19LBottlesLimitCount);
+
+		int UpcomingTechInspectForOurCars { get; }
+		int UpcomingTechInspectForRaskatCars { get; }
+		void UpdateUpcomingTechInspectForOurCars(int upcomingTechInspectForOurCars);
+		void UpdateUpcomingTechInspectForRaskatCars(int upcomingTechInspectForRaskatCars);
+
 		string GetBillAdditionalInfo { get; }
 		void UpdateBillAdditionalInfo(string value);
 		string GetCarLoadDocumentInfoString { get; }
