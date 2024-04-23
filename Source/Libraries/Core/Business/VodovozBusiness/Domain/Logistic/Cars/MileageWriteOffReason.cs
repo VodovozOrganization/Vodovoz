@@ -8,7 +8,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "причины списаний киломатража",
-		Nominative = "причина списания километража")]
+		Nominative = "причина списания километража",
+		Genitive = "причины списания километража")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class MileageWriteOffReason : PropertyChangedBase, IDomainObject, IValidatableObject

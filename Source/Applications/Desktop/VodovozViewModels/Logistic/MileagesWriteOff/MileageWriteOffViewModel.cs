@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			CarEntryViewModel = CreateCarEntryViewModel();
 			DriverEntryViewModel = CreateDriverEntryViewModel();
 			AuthorEntryViewModel = CreateAuthorEntryViewModell();
+			WriteOffReasonEntryViewModel = CreateWriteOffReasonEntryViewModell();
 		}
 
 		public DelegateCommand SaveCommand { get; }
@@ -84,6 +85,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 		public IEntityEntryViewModel CarEntryViewModel { get; }
 		public IEntityEntryViewModel DriverEntryViewModel { get; }
 		public IEntityEntryViewModel AuthorEntryViewModel { get; }
+		public IEntityEntryViewModel WriteOffReasonEntryViewModel { get; }
 
 		private IEntityEntryViewModel CreateCarEntryViewModel()
 		{
@@ -130,6 +132,22 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				{
 					filter.Category = EmployeeCategory.office;
 					filter.Status = EmployeeStatus.IsWorking;
+				})
+				.Finish();
+
+			viewModel.CanViewEntity = false;
+
+			return viewModel;
+		}
+
+		private IEntityEntryViewModel CreateWriteOffReasonEntryViewModell()
+		{
+			var viewModel =
+				new CommonEEVMBuilderFactory<MileageWriteOff>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Reason)
+				.UseViewModelJournalAndAutocompleter<MileageWriteOffReasonJournalViewModel, MileageWriteOffReasonJournalFilterViewModel>(filter =>
+				{
+					filter.IsShowArchived = false;
 				})
 				.Finish();
 

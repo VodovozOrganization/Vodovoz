@@ -33,7 +33,8 @@ namespace Vodovoz.Views.Logistic
 			entityentryCar.ViewModel.ChangedByUser += (s, e) => ViewModel.CarChangedByUserCommand.Execute();
 
 			entityentryDriver.ViewModel = ViewModel.DriverEntryViewModel;
-			//entityentryWriteOffReason
+
+			entityentryWriteOffReason.ViewModel = ViewModel.WriteOffReasonEntryViewModel;
 			
 			ytextviewComment.Binding
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)

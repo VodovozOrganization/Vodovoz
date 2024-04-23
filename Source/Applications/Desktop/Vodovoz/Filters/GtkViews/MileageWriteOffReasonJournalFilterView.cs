@@ -1,12 +1,20 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MileageWriteOffReasonJournalFilterView : Gtk.Bin
+	public partial class MileageWriteOffReasonJournalFilterView : FilterViewBase<MileageWriteOffReasonJournalFilterViewModel>
 	{
-		public MileageWriteOffReasonJournalFilterView()
+		public MileageWriteOffReasonJournalFilterView(MileageWriteOffReasonJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			ycheckbuttonIsShowArchived.Binding
+				.AddBinding(ViewModel, vm => vm.IsShowArchived, w => w.Active)
+				.InitializeFromSource();
 		}
 	}
 }

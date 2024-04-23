@@ -26,9 +26,9 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			TabName =
 				UoWGeneric.IsNew
 				? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}"
-				: $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} №{Entity.Title}";
+				: $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} \"{Entity.Title}\"";
 
-			SaveCommand = new DelegateCommand(() => Save(true));
+			SaveCommand = new DelegateCommand(() => Save(true), () => CanCreateOrUpdate);
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 
