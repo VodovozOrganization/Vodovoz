@@ -1966,10 +1966,10 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(GeographicGroups) });
 			}
 
-			var ignoreRouteListStatuses = new List<RouteListItemStatus> { RouteListItemStatus.Canceled, RouteListItemStatus.Transfered };
+			var ignoreRouteListItemStatuses = new List<RouteListItemStatus> { RouteListItemStatus.Canceled, RouteListItemStatus.Transfered };
 
 			var onlineOrders = Addresses
-				.Where(x => !ignoreRouteListStatuses.Contains(x.Status) && x.Order.PaymentType != PaymentType.Terminal)
+				.Where(x => !ignoreRouteListItemStatuses.Contains(x.Status) && x.Order.PaymentType != PaymentType.Terminal)
 				.GroupBy(x => x.Order.OnlineOrder)
 				.Where(g => g.Key != null && g.Count() > 1)
 				.Select(o => o.Key);
