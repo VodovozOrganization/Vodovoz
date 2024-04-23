@@ -145,11 +145,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	private void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		var filter = new RouteListJournalFilterViewModel();
-		filter.StartDate = DateTime.Today.AddMonths(-2);
-		filter.EndDate = DateTime.Today;
-
-		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, Action<RouteListJournalFilterViewModel>>(null, filter =>
+		{
+			filter.StartDate = DateTime.Today.AddMonths(-2);
+			filter.EndDate = DateTime.Today;
+		});
 	}
 
 	/// <summary>

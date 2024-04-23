@@ -1837,6 +1837,11 @@ namespace Vodovoz.Domain.Logistic
 		{
 			bool cashOrderClose = false;
 
+			if(Car.CarModel.CarTypeOfUse == CarTypeOfUse.Loader)
+			{
+				yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ", new [] { nameof(Car) });
+			}
+
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
@@ -1878,7 +1883,9 @@ namespace Vodovoz.Domain.Logistic
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)
+							{
 								yield return result;
+							}
 						}
 						break;
 					case RouteListStatus.EnRoute: break;
@@ -1908,7 +1915,9 @@ namespace Vodovoz.Domain.Logistic
 					}
 
 					foreach(var result in address.Validate(new ValidationContext(address)))
+					{
 						yield return result;
+					}
 				}
 			}
 			else
@@ -1917,14 +1926,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(!GeographicGroups.Any())
+			{
 				yield return new ValidationResult(
 						"Необходимо указать район",
 						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
 					);
+			}
 
 			if(Driver == null)
+			{
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
+			}
 
 			if(Driver != null && Driver.GetActualWageParameter(Date) == null)
 			{
@@ -1939,8 +1952,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(Car == null)
+			{
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+			}
 
 			if(Car != null && GetCarVersion == null)
 			{
@@ -1966,8 +1981,10 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(GeographicGroups) });
 			}
 
+			var ignoreRouteListItemStatuses = new List<RouteListItemStatus> { RouteListItemStatus.Canceled, RouteListItemStatus.Transfered };
+
 			var onlineOrders = Addresses
-				.Where(x => x.Status != RouteListItemStatus.Transfered && x.Order.PaymentType != PaymentType.Terminal)
+				.Where(x => !ignoreRouteListItemStatuses.Contains(x.Status) && x.Order.PaymentType != PaymentType.Terminal)
 				.GroupBy(x => x.Order.OnlineOrder)
 				.Where(g => g.Key != null && g.Count() > 1)
 				.Select(o => o.Key);
@@ -3341,52 +3358,5 @@ namespace Vodovoz.Domain.Logistic
 		public static RouteListStatus[] AvailableToSendEnRouteStatuses { get; } = { RouteListStatus.Confirmed, RouteListStatus.InLoading };
 
 		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
-	}
-
-	public enum RouteListStatus
-	{
-		[Display(Name = "Новый")]
-		New,
-		[Display(Name = "Подтвержден")]
-		Confirmed,
-		[Display(Name = "На погрузке")]
-		InLoading,
-		[Display(Name = "В пути")]
-		EnRoute,
-		[Display(Name = "Доставлен")]
-		Delivered,
-		[Display(Name = "Сдаётся")]
-		OnClosing,
-		[Display(Name = "Проверка километража")]
-		MileageCheck,
-		[Display(Name = "Закрыт")]
-		Closed
-	}
-
-	public class RouteListStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public RouteListStatusStringType() : base(typeof(RouteListStatus)) { }
-	}
-
-	public enum DriverTerminalCondition
-	{
-		[Display(Name = "Исправен")]
-		Workable,
-		[Display(Name = "Неисправен")]
-		Broken
-	}
-
-	public class DriverTerminalConditionStringType : NHibernate.Type.EnumStringType
-	{
-		public DriverTerminalConditionStringType() : base(typeof(DriverTerminalCondition)) { }
-	}
-
-	public class RouteListControlNotLoadedNode
-	{
-		public int NomenclatureId { get; set; }
-		public Nomenclature Nomenclature { get; set; }
-		public decimal CountNotLoaded { get; set; }
-		public decimal CountTotal { get; set; }
-		public decimal CountLoaded => CountTotal - CountNotLoaded;
 	}
 }

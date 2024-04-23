@@ -27,7 +27,7 @@ namespace DatabaseServiceWorker
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-				if(DateTime.Now.Hour >= 4)
+				if(DateTime.Now.Hour >= 4 && DateTime.Now.Hour < 8)
 				{
 					if(_workInProgress)
 					{

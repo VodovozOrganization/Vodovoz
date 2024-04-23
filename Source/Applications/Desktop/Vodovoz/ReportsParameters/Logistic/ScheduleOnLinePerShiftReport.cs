@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
+﻿using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
@@ -28,6 +27,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			geographicGroup.Items = new GenericObservableList<GeoGroup>(UoW.GetAll<GeoGroup>().ToList());
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.SelectAll();
 
 			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
