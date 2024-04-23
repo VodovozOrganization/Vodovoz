@@ -99,7 +99,7 @@ namespace Vodovoz.Views.Logistic
 			this.ytableProperties = new global::Gamma.GtkWidgets.yTable();
 			this.ytableProperties.Name = "ytableProperties";
 			this.ytableProperties.NRows = ((uint)(8));
-			this.ytableProperties.NColumns = ((uint)(4));
+			this.ytableProperties.NColumns = ((uint)(5));
 			this.ytableProperties.RowSpacing = ((uint)(6));
 			this.ytableProperties.ColumnSpacing = ((uint)(6));
 			// Container child ytableProperties.Gtk.Table+TableChild
@@ -117,6 +117,7 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.datepickerCreateDate]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.datepickerWriteOffDate = new global::QS.Widgets.GtkUI.DatePicker();
@@ -125,7 +126,7 @@ namespace Vodovoz.Views.Logistic
 			this.datepickerWriteOffDate.WithTime = false;
 			this.datepickerWriteOffDate.HideCalendarButton = false;
 			this.datepickerWriteOffDate.Date = new global::System.DateTime(0);
-			this.datepickerWriteOffDate.IsEditable = false;
+			this.datepickerWriteOffDate.IsEditable = true;
 			this.datepickerWriteOffDate.AutoSeparation = false;
 			this.datepickerWriteOffDate.HideButtonClearDate = false;
 			this.ytableProperties.Add(this.datepickerWriteOffDate);
@@ -291,6 +292,7 @@ namespace Vodovoz.Views.Logistic
 			this.yspinbuttonDistance.Name = "yspinbuttonDistance";
 			this.yspinbuttonDistance.Adjustment.PageIncrement = 10D;
 			this.yspinbuttonDistance.ClimbRate = 1D;
+			this.yspinbuttonDistance.Digits = ((uint)(2));
 			this.yspinbuttonDistance.Numeric = true;
 			this.yspinbuttonDistance.ValueAsDecimal = 0m;
 			this.yspinbuttonDistance.ValueAsInt = 0;
@@ -300,7 +302,6 @@ namespace Vodovoz.Views.Logistic
 			w22.BottomAttach = ((uint)(3));
 			w22.LeftAttach = ((uint)(1));
 			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.yvboxMain.Add(this.ytableProperties);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableProperties]));
