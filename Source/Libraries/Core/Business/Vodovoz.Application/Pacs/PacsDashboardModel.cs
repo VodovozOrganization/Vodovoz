@@ -21,6 +21,8 @@ namespace Vodovoz.Application.Pacs
 		IObserver<SettingsEvent>,
 		IDisposable
 	{
+		private readonly TimeSpan _operatorsRecentTimespan = TimeSpan.FromHours(-5);
+
 		private readonly Dictionary<int, OperatorModel> _operatorStatesDic;
 		private readonly Dictionary<string, CallModel> _callsDic;
 		private readonly Dictionary<string, MissedCallModel> _missedCallsDic;
@@ -91,8 +93,8 @@ namespace Vodovoz.Application.Pacs
 			_callSubscription = callPublisher.Subscribe(this);
 			//потом загрузка из базы
 			//сначала операторов, потом звонки
-			var recentDate = DateTime.Now.AddHours(-5);
-			LoadOperatorsFromDateTime(recentDate);
+			var recentDate = DateTime.Now.Add(_operatorsRecentTimespan);
+			LoadOperatorsFromDateTime();
 			LoadRecentCalls(recentDate);
 			//потом запуск обработчиков очередей событий
 			StartOperatorStatesWorker();
@@ -127,10 +129,15 @@ namespace Vodovoz.Application.Pacs
 			}, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
 		}
 
-		public void LoadOperatorsFromDateTime(DateTime from)
+		public void LoadOperatorsFromDateTime(DateTime? from = null)
 		{
+			if(from == null)
+			{
+				from = DateTime.Now.Add(_operatorsRecentTimespan);
+			}
+
 			ClearOperatorStates();
-			var recentOperators = _repository.GetOperators(from);
+			var recentOperators = _repository.GetOperators(from.Value);
 			foreach(var operatorState in recentOperators)
 			{
 				AddOperatorState(operatorState);

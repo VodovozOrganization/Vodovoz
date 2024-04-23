@@ -14,7 +14,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class PacsDashboardViewModel : WidgetViewModelBase, IDisposable
 	{
-		private readonly TimeSpan _operatorsRecentTimespan = TimeSpan.FromHours(-5);
 
 		private readonly PacsDashboardModel _pacsDashboardModel;
 		private readonly IPacsDashboardViewModelFactory _pacsDashboardViewModelFactory;
@@ -92,7 +91,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				}
 				else
 				{
-					_pacsDashboardModel.LoadOperatorsFromDateTime(DateTime.Now.Add(_operatorsRecentTimespan));
+					_pacsDashboardModel.LoadOperatorsFromDateTime();
 				}
 			}
 		}
