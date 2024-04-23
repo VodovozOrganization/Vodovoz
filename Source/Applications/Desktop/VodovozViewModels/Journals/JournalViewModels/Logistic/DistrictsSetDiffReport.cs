@@ -400,7 +400,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			return string.Join("\n",
 					deliveryScheduleRestrictionsNew
 						.OrderBy(x => x.AcceptBefore == null)
-						.ThenBy(x => x.DeliverySchedule.Name)
+						.ThenBy(x => x.DeliverySchedule.From)
 						.Select(x =>
 						{
 							var formattedDeliveryShift = FormatDeliveryShift(x);
@@ -434,7 +434,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			return string.Join("\n",
 					deliveryScheduleRestrictionsOld
 						.OrderBy(x => x.AcceptBefore == null)
-						.ThenBy(x => x.DeliverySchedule.Name)
+						.ThenBy(x => x.DeliverySchedule.From)
 						.Select(x =>
 						{
 							var formattedDeliveryShift = FormatDeliveryShift(x);
@@ -510,7 +510,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			string.Join("\n",
 					deliveryScheduleRestrictions
 						.OrderBy(x => x.AcceptBefore == null)
-						.ThenBy(x => x.DeliverySchedule.Name)
+						.ThenBy(x => x.DeliverySchedule.From)
 						.Select(FormatDeliveryShift))
 				.Trim('\n');
 
