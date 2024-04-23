@@ -67,7 +67,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
 			yspinBtnOdometerReading.Binding
-				.AddBinding(ViewModel.Entity, e => e.OdometerReading, w => w.ValueAsInt)
+				.AddBinding(ViewModel.Entity, e => e.Odometer, w => w.ValueAsInt)
 				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
 				.InitializeFromSource();
 

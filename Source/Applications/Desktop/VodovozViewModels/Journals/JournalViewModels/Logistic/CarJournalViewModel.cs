@@ -92,10 +92,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Add(isCompanyCarRestriction)
 				.Add(isTechInspectForOurCarsUpcomingRestriction);
 
-			var isRaskatCar = Restrictions.Eq(Projections.Property(() => currentCarVersion.CarOwnType), CarOwnType.Raskat);
+			var isRaskatCarRestriction = Restrictions.Eq(Projections.Property(() => currentCarVersion.CarOwnType), CarOwnType.Raskat);
 			var isTechInspectForRaskatCarsUpcomingRestriction = Restrictions.Le(Projections.Property(() => carAlias.LeftUntilTechInspect), _generalSettings.UpcomingTechInspectForRaskatCars);
 			var isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction = Restrictions.Conjunction()
-				.Add(isRaskatCar)
+				.Add(isRaskatCarRestriction)
 				.Add(isTechInspectForRaskatCarsUpcomingRestriction);
 
 			var upcomingTechInspectProjection = Projections.Conditional(

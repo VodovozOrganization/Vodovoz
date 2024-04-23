@@ -64,6 +64,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventSettings carEventSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager == null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -136,7 +140,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				?.StartDate
 				.ToShortDateString();
 
-			PreviousTechInspectOdometer = lastTechInspectCarEvent?.OdometerReading ?? 0;
+			PreviousTechInspectOdometer = lastTechInspectCarEvent?.Odometer ?? 0;
 
 			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel.TeсhInspectInterval;			
 

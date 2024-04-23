@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
 		private CarEvent _originalCarEvent;
-		private int _odometerReading;
+		private int _odometer;
 
 		#region Свойства
 
@@ -139,10 +139,10 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Показание одометра")]
-		public virtual int OdometerReading
+		public virtual int Odometer
 		{
-			get => _odometerReading;
-			set => SetField(ref _odometerReading, value);
+			get => _odometer;
+			set => SetField(ref _odometer, value);
 		}
 
 		GenericObservableList<Fine> observableFines;		
@@ -239,10 +239,10 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(Comment) });
 			}
 
-			if(CarEventType.Id == carEventSettings.TechInspectCarEventTypeId && OdometerReading == 0 )
+			if(CarEventType.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0 )
 			{
 				yield return new ValidationResult($"Заполните показания одометра.",
-					new[] { nameof(OdometerReading) });
+					new[] { nameof(Odometer) });
 			}
 		}
 
