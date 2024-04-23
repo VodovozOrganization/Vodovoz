@@ -74,8 +74,8 @@ namespace DatabaseServiceWorker
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при при обновлении км до ТО {TodayDate}",
-					DateTime.Today.ToString("dd-MM-yyyy"));
+					"Ошибка при при обновлении км до ТО {ErrorDateTime}",
+					DateTimeOffset.Now);
 			}
 			finally
 			{
@@ -83,7 +83,7 @@ namespace DatabaseServiceWorker
 			}
 
 			_logger.LogInformation(
-				"Воркер {WorkerName} ожидает '{DelayInMinutes}' перед следующим запуском", nameof(TechInspectWorker), Interval);
+				"Воркер {WorkerName} ожидает '{DelayTime}' перед следующим запуском", nameof(TechInspectWorker), Interval);
 
 			await Task.CompletedTask;
 		}
