@@ -104,6 +104,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 					new[] { nameof(DistanceKm) });
 			}
 
+			if(LitersOutlayed == 0)
+			{
+				yield return new ValidationResult(
+					"Значение количества потраченного топлива должно быть больше 0",
+					new[] { nameof(LitersOutlayed) });
+			}
+
 			if(Reason is null)
 			{
 				yield return new ValidationResult(
