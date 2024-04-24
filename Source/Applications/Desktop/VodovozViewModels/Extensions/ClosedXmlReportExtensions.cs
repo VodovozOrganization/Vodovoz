@@ -5,7 +5,7 @@ namespace Vodovoz.ViewModels.Extensions
 {
 	public static class ClosedXmlReportExtensions
 	{
-		public static void Export(this IClosedXmlReport closedXmlReport, string path, bool adjustToContents = true)
+		public static XLTemplate RenderTemplate(this IClosedXmlReport closedXmlReport, bool adjustToContents = true)
 		{
 			var template = new XLTemplate(closedXmlReport.TemplatePath);
 			template.AddVariable(closedXmlReport);
@@ -28,6 +28,18 @@ namespace Vodovoz.ViewModels.Extensions
 				}
 			}
 
+			return template;
+		}
+
+		public static void Export(this IClosedXmlReport closedXmlReport, string path, bool adjustToContents = true)
+		{
+			var renderedTemplate = RenderTemplate(closedXmlReport, adjustToContents);
+
+			renderedTemplate.Export(path);
+		}
+
+		public static void Export(this XLTemplate template, string path)
+		{
 			template.SaveAs(path);
 		}
 	}
