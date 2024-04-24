@@ -12,6 +12,8 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxProperties;
+
 		private global::Gamma.GtkWidgets.yTable ytableProperties;
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerCreateDate;
@@ -42,11 +44,15 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDriver;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelLitersOutlayed;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelWriteOffDate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelWriteOffReason;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonDistance;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonLitersOutlayed;
 
 		protected virtual void Build()
 		{
@@ -96,10 +102,14 @@ namespace Vodovoz.Views.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxProperties = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxProperties.Name = "yhboxProperties";
+			this.yhboxProperties.Spacing = 6;
+			// Container child yhboxProperties.Gtk.Box+BoxChild
 			this.ytableProperties = new global::Gamma.GtkWidgets.yTable();
 			this.ytableProperties.Name = "ytableProperties";
-			this.ytableProperties.NRows = ((uint)(8));
-			this.ytableProperties.NColumns = ((uint)(5));
+			this.ytableProperties.NRows = ((uint)(7));
+			this.ytableProperties.NColumns = ((uint)(4));
 			this.ytableProperties.RowSpacing = ((uint)(6));
 			this.ytableProperties.ColumnSpacing = ((uint)(6));
 			// Container child ytableProperties.Gtk.Table+TableChild
@@ -146,6 +156,7 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryAuthor]));
 			w8.LeftAttach = ((uint)(3));
 			w8.RightAttach = ((uint)(4));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
@@ -199,7 +210,7 @@ namespace Vodovoz.Views.Logistic
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(4));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelAuthor = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelAuthor.Name = "ylabelAuthor";
@@ -246,7 +257,7 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelDistance = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDistance.Name = "ylabelDistance";
 			this.ylabelDistance.Xalign = 1F;
-			this.ylabelDistance.LabelProp = global::Mono.Unix.Catalog.GetString("Списываемое расстояние:");
+			this.ylabelDistance.LabelProp = global::Mono.Unix.Catalog.GetString("Списываемое расстояние, км:");
 			this.ytableProperties.Add(this.ylabelDistance);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelDistance]));
 			w18.TopAttach = ((uint)(2));
@@ -265,27 +276,40 @@ namespace Vodovoz.Views.Logistic
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
+			this.ylabelLitersOutlayed = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelLitersOutlayed.Name = "ylabelLitersOutlayed";
+			this.ylabelLitersOutlayed.Xalign = 1F;
+			this.ylabelLitersOutlayed.LabelProp = global::Mono.Unix.Catalog.GetString("Потрачено топлива, л:");
+			this.ytableProperties.Add(this.ylabelLitersOutlayed);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelLitersOutlayed]));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
+			w20.LeftAttach = ((uint)(2));
+			w20.RightAttach = ((uint)(3));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelWriteOffDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelWriteOffDate.Name = "ylabelWriteOffDate";
 			this.ylabelWriteOffDate.Xalign = 1F;
 			this.ylabelWriteOffDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата списания:");
 			this.ytableProperties.Add(this.ylabelWriteOffDate);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelWriteOffDate]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelWriteOffDate]));
+			w21.TopAttach = ((uint)(1));
+			w21.BottomAttach = ((uint)(2));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.ylabelWriteOffReason = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelWriteOffReason.Name = "ylabelWriteOffReason";
 			this.ylabelWriteOffReason.Xalign = 1F;
 			this.ylabelWriteOffReason.LabelProp = global::Mono.Unix.Catalog.GetString("Причина списания:");
 			this.ytableProperties.Add(this.ylabelWriteOffReason);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelWriteOffReason]));
-			w21.TopAttach = ((uint)(3));
-			w21.BottomAttach = ((uint)(4));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelWriteOffReason]));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.yspinbuttonDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
 			this.yspinbuttonDistance.CanFocus = true;
@@ -297,15 +321,41 @@ namespace Vodovoz.Views.Logistic
 			this.yspinbuttonDistance.ValueAsDecimal = 0m;
 			this.yspinbuttonDistance.ValueAsInt = 0;
 			this.ytableProperties.Add(this.yspinbuttonDistance);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.yspinbuttonDistance]));
-			w22.TopAttach = ((uint)(2));
-			w22.BottomAttach = ((uint)(3));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.YOptions = ((global::Gtk.AttachOptions)(0));
-			this.yvboxMain.Add(this.ytableProperties);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableProperties]));
-			w23.Position = 1;
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.yspinbuttonDistance]));
+			w23.TopAttach = ((uint)(2));
+			w23.BottomAttach = ((uint)(3));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableProperties.Gtk.Table+TableChild
+			this.yspinbuttonLitersOutlayed = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.yspinbuttonLitersOutlayed.CanFocus = true;
+			this.yspinbuttonLitersOutlayed.Name = "yspinbuttonLitersOutlayed";
+			this.yspinbuttonLitersOutlayed.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonLitersOutlayed.ClimbRate = 1D;
+			this.yspinbuttonLitersOutlayed.Digits = ((uint)(2));
+			this.yspinbuttonLitersOutlayed.Numeric = true;
+			this.yspinbuttonLitersOutlayed.ValueAsDecimal = 0m;
+			this.yspinbuttonLitersOutlayed.ValueAsInt = 0;
+			this.ytableProperties.Add(this.yspinbuttonLitersOutlayed);
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.yspinbuttonLitersOutlayed]));
+			w24.TopAttach = ((uint)(2));
+			w24.BottomAttach = ((uint)(3));
+			w24.LeftAttach = ((uint)(3));
+			w24.RightAttach = ((uint)(4));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(0));
+			this.yhboxProperties.Add(this.ytableProperties);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yhboxProperties[this.ytableProperties]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
+			this.yvboxMain.Add(this.yhboxProperties);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxProperties]));
+			w26.Position = 1;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
