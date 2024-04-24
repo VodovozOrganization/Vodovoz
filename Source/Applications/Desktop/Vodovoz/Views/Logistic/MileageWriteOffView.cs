@@ -27,6 +27,10 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.DistanceKm, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
+			yspinbuttonLitersOutlayed.Binding
+				.AddBinding(ViewModel.Entity, e => e.LitersOutlayed, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
 			entityentryAuthor.ViewModel = ViewModel.AuthorEntryViewModel;
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
