@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using FluentNHibernate.Data;
 using QS.Commands;
 using QS.Dialog;
@@ -429,7 +429,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
-		public Func<bool> UndelivedOrderSaved;		
+		public Func<bool, bool> SaveUndelivery;		
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -496,7 +496,7 @@ namespace Vodovoz.ViewModels.Widgets
 				{
 					if(Entity.Id == 0)
 					{
-						var saved = UndelivedOrderSaved?.Invoke();
+						var saved = SaveUndelivery?.Invoke(false);
 						if(!saved.HasValue || !saved.Value)
 						{
 							return;
@@ -599,7 +599,7 @@ namespace Vodovoz.ViewModels.Widgets
 						return;
 					}
 
-					var saved = UndelivedOrderSaved?.Invoke();
+					var saved = SaveUndelivery?.Invoke(false);
 					if(!saved.HasValue || !saved.Value)
 					{
 						return;
