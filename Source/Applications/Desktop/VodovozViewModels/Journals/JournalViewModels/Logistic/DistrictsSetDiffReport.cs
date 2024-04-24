@@ -505,7 +505,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				return string.Empty;
 			}
 
-			return WeekDayToVeryShort(weekDayName) + items.OrderByDescending(cdri => cdri.DeliveryPriceRule.Water19LCount).Select(cdri => cdri.Title);
+			return WeekDayToVeryShort(weekDayName) + string.Join("\n", items.OrderByDescending(cdri => cdri.DeliveryPriceRule.Water19LCount).Select(cdri => cdri.Title));
 		}
 
 		private static string ConvertRestrictionsToString(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions) =>
