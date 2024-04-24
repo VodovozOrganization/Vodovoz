@@ -511,12 +511,20 @@ END as model_info,
 cm.name as car_model_name,
 c.reg_number as car_reg_number,
 CONCAT(e.last_name, ' ', e.name, ' ', e.patronymic) as driver_name,
-(SELECT CASE car_own_type
-	WHEN 'Company' THEN 'ТС компании'
-	WHEN 'Raskat' THEN 'ТС в Раскате'
-	WHEN 'Driver' THEN 'ТС водителя'
- END FROM car_versions WHERE start_date &lt; cv.start_date AND car_id = c.id ORDER BY start_date DESC LIMIT 1
-) AS prev_car_own_type
+  IFNULL(
+  (SELECT CASE car_own_type
+	  WHEN 'Company' THEN 'ТС компании'
+	  WHEN 'Raskat' THEN 'ТС в Раскате'
+	  WHEN 'Driver' THEN 'ТС водителя'
+   END
+   FROM car_versions WHERE start_date &lt; cv.start_date AND car_id = c.id ORDER BY start_date DESC LIMIT 1
+),
+CASE c.income_channel
+	WHEN 'None' THEN ""
+	WHEN 'PurchasedNew' THEN 'Куплен - Новый'
+	WHEN 'PurchasedUsed' THEN 'Куплен - БУ'
+	WHEN 'DriverProperty' THEN 'ТС водителя'
+    END) AS prev_car_own_type
 FROM cars c 
 JOIN car_versions cv ON cv.car_id = c.id
 JOIN car_models cm ON c.model_id = cm.id 
