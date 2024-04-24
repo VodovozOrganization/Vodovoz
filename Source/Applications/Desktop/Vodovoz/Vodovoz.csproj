@@ -2052,6 +2052,8 @@
     <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
     <Compile Include="AboutAuthorsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
+    <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
