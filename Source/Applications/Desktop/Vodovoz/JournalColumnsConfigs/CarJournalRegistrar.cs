@@ -17,6 +17,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
+			        .AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = n.IsUpcomingTechInspect ? GdkColors.Pink : GdkColors.PrimaryBase)
 				.Finish();
 	}
 }

@@ -33,6 +33,7 @@ namespace Vodovoz.Views.Logistic
 			enumcheckCarTypeOfUse.ExpandCheckButtons = false;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
 				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
 

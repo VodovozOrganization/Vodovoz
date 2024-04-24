@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
 using QS.Report.ViewModels;
+using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
@@ -428,9 +429,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
 	{
+		var report = new NotFullyLoadedRouteListsReport(_autofacScope.BeginLifetimeScope(), NavigationManager);
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport()));
+			ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
+			() =>  new ReportViewDlg(report));
+		report.ConfigureWarehouseEntry(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
 	}
 
 	/// <summary>

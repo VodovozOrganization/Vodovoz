@@ -14,7 +14,6 @@ using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using DriverAPI.Library.V4.Models;
 using DriverAPI.Library.V5.Services;
 using Vodovoz.FirebaseCloudMessaging;
 using Microsoft.Extensions.Configuration;
@@ -51,8 +50,7 @@ namespace DriverAPI.Library
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>()
 				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
-			services.AddVersion4()
-				.AddVersion5();
+			services.AddVersion5();
 
 			services.AddScoped<IGlobalSettings, GlobalSettings>()
 				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
@@ -77,19 +75,6 @@ namespace DriverAPI.Library
 				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 
 			return services;
-		}
-
-		public static IServiceCollection AddVersion4(this IServiceCollection services)
-		{
-			// DAL обертки
-			return services.AddScoped<ITrackPointsModel, TrackPointsModel>()
-				.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>()
-				.AddScoped<IRouteListModel, RouteListModel>()
-				.AddScoped<IOrderModel, OrderModel>()
-				.AddScoped<IEmployeeModel, EmployeeModel>()
-				.AddScoped<ISmsPaymentModel, SmsPaymentModel>()
-				.AddScoped<IDriverComplaintModel, DriverComplaintModel>()
-				.AddScoped<IFastPaymentModel, FastPaymentModel>();
 		}
 
 		public static IServiceCollection AddVersion5(this IServiceCollection services)

@@ -157,6 +157,7 @@ namespace Vodovoz.ReportsParameters
 
 			// Тип автомобиля
 			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUseOneDayGroupReport.AddEnumToHideList(CarTypeOfUse.Loader);
 			SetChekBoxesInActive(new string[]{ CarTypeOfUse.Largus.ToString() }, ref enumcheckCarTypeOfUseOneDayGroupReport);
 
 			// Принадлежность автомобиля

@@ -89,6 +89,7 @@
     <Compile Include="Counterparties\TagJournalViewModel.cs" />
     <Compile Include="Counterparties\TagJournalViewModel.TagJournalNode.cs" />
     <Compile Include="Counterparties\TagViewModel.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparties\CloseSupplyToCounterpartyViewModel.cs" />
@@ -121,6 +122,9 @@
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
     <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
+    <Compile Include="Extensions\ClosedXmlReportExtensions.cs" />
+    <Compile Include="Factories\DialogSettingsFactory.cs" />
+    <Compile Include="Factories\IDialogSettingsFactory.cs" />
     <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
@@ -152,6 +156,7 @@
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryObjectJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\PaymentsJournalFilterViewModel.SortType.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\AvailableReceiptStatuses.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
@@ -198,6 +203,9 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineTemplateJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.DistrictDiffRow.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.DistrictRow.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RegradingOfGoodsReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.RouteColumnJournalNode.cs" />
@@ -216,6 +224,8 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Pacs\OperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesFilterViewModel.cs" />
+    <Compile Include="Logistic\DistrictSetDiffReportConfirmationViewModel.cs" />
+    <Compile Include="Logistic\DistrictSetDiffReportConfirmationViewModel.DistrictSetDiffReportConfirmationClosedArgs.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriverNode.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriversSortOrder.cs" />
@@ -248,6 +258,7 @@
     <Compile Include="ReportsParameters\RevisionReportViewModel.cs" />
     <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
+    <Compile Include="Reports\IClosedXmlReport.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />

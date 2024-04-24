@@ -2,7 +2,6 @@
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -101,6 +100,7 @@ namespace Vodovoz.Views.Employees
 
 			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			comboDriverOfCarTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)

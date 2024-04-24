@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -18,6 +19,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Logistic;
+using static Vodovoz.ViewModels.Logistic.DistrictSetDiffReportConfirmationViewModel;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -32,6 +34,9 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly bool _canCreate;
 		private readonly bool _canActivateDistrictsSet;
 
+		private int? _diffSourceDistrictSetVersionId = null;
+		private int? _diffTargetDistrictSetVersionId = null;
+
 		public DistrictsSetJournalViewModel(
 			DistrictsSetJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -42,13 +47,19 @@ namespace Vodovoz.Journals.JournalViewModels
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService)
-			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
+			: base(
+				  unitOfWorkFactory,
+				  interactiveService,
+				  navigationManager,
+				  deleteEntityService,
+				  currentPermissionService)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_deliveryRulesSettings =
 				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+
 			_canActivateDistrictsSet = CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
 			var permissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
 			_canCreate = permissionResult.CanCreate;
@@ -73,12 +84,28 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreatePopupActions();
 		}
 
+		private bool IsStoppedOnlineDeliveriesToday { get; set; }
+
+		public bool CanGenerateDiffReport => DiffSourceDistrictSetVersionId != null && DiffTargetDistrictSetVersionId != null;
+
+		[PropertyChangedAlso(nameof(CanGenerateDiffReport))]
+		public int? DiffSourceDistrictSetVersionId
+		{
+			get => _diffSourceDistrictSetVersionId;
+			set => SetField(ref _diffSourceDistrictSetVersionId, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanGenerateDiffReport))]
+		public int? DiffTargetDistrictSetVersionId
+		{
+			get => _diffTargetDistrictSetVersionId;
+			set => SetField(ref _diffTargetDistrictSetVersionId, value);
+		}
+
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
 		}
-
-		private bool IsStoppedOnlineDeliveriesToday { get; set; }
 
 		protected override IQueryOver<DistrictsSet> ItemsQuery(IUnitOfWork unitOfWork)
 		{
@@ -270,6 +297,52 @@ namespace Vodovoz.Journals.JournalViewModels
 					}
 				)
 			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Выбрать для сравнения",
+					selectedItems => true,
+					selectedItems => true,
+					selectedItems =>
+					{
+						_diffSourceDistrictSetVersionId = selectedItems.Cast<DistrictsSetJournalNode>().First().Id;
+					}));
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Сравнить с выбранной версией",
+					selectedItems => _diffSourceDistrictSetVersionId != null,
+					selectedItems => true,
+					selectedItems =>
+					{
+						_diffTargetDistrictSetVersionId = selectedItems.Cast<DistrictsSetJournalNode>().First().Id;
+
+						NavigationManager.OpenViewModel<DistrictSetDiffReportConfirmationViewModel>(this, OpenPageOptions.AsSlave, vm =>
+						{
+							var versions = Items
+								.Cast<DistrictsSetJournalNode>()
+								.Where(x => x.Id == _diffSourceDistrictSetVersionId
+									|| x.Id == _diffTargetDistrictSetVersionId)
+								.OrderBy(x => x.DateCreated);
+
+							vm.SourceDistrictSetId = versions.First().Id;
+							vm.SourceDistrictSetName = $"[{versions.First().Id}] {versions.First().Name}";
+							vm.TargetDistrictSetId = versions.Last().Id;
+							vm.TargetDistrictSetName = $"[{versions.Last().Id}] {versions.Last().Name}";
+
+							void OnPageClosed(object sender, DistrictSetDiffReportConfirmationClosedArgs e)
+							{
+								if(!e.Canceled)
+								{
+									_diffSourceDistrictSetVersionId = null;
+								}
+								_diffTargetDistrictSetVersionId = null;
+								vm.Closed -= OnPageClosed;
+							}
+
+							vm.Closed += OnPageClosed;
+						});
+					}));
 		}
 
 		private void CreateCloseNodeAction()

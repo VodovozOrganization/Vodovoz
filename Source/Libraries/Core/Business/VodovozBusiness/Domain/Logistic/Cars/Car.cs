@@ -54,6 +54,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _vIn;
 		private DateTime? _archivingDate;
 		private ArchivingReason? _archivingReason;
+		private int _leftUntilTechInspect;
 
 		public virtual int Id { get; set; }
 
@@ -293,6 +294,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _attachments;
 			set => SetField(ref _attachments, value);
+		}
+
+		[Display(Name = "Осталось до ТО, км")]
+		public virtual int LeftUntilTechInspect
+		{
+			get => _leftUntilTechInspect;
+			set => SetField(ref _leftUntilTechInspect, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.

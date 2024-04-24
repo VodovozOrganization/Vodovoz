@@ -1,7 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets.Additions;
 using QS.Views.GtkUI;
-using System;
 using System.ComponentModel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -53,6 +52,7 @@ namespace Vodovoz.JournalViewers
 				.InitializeFromSource();
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
 				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
 
