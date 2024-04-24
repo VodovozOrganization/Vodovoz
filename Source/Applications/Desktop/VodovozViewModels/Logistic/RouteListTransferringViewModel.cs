@@ -651,7 +651,7 @@ namespace Vodovoz.ViewModels.Logistic
 								}
 								 catch(Exception ex)
 								{
-									notifyingErrors.Add(Vodovoz.Errors.Common.DriverApiClient.RequestIsNotSuccess(ex.Message));
+									notifyingErrors.Add(Errors.Common.DriverApiClient.RequestIsNotSuccess(ex.Message));
 								}
 							}
 
@@ -712,6 +712,11 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.Message)
 				.ToList();
 
+			var driverApiClientRequestIsNotSuccess = errors
+				.Where(x => x.Code == Errors.Common.DriverApiClient.RequestIsNotSuccess(x.Message))
+				.Select(x => x.Message)
+				.ToList();
+			
 			_interactiveService.ShowMessage(ImportanceLevel.Error,
 				"Перенос не был осуществлен:\n" +
 				string.Join(",\n",
@@ -721,7 +726,9 @@ namespace Vodovoz.ViewModels.Logistic
 				string.Join(",\n",
 					transferRequiresLoadingWhenRouteListEnRoute) +
 				string.Join(",\n",
-					transferNotEnoughFreeBalance),
+					transferNotEnoughFreeBalance) +
+				string.Join(",\n",
+					driverApiClientRequestIsNotSuccess),
 				"Ошибка при переносе адресов");
 		}
 
