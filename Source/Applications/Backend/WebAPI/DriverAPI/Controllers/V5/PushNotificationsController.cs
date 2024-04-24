@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V5.Requests;
+﻿using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -329,6 +329,9 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
 		{
+			// Заглушка до фиксов реализации
+			return NoContent();
+
 			var targetDriverFirebaseToken =
 				_apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 
