@@ -515,6 +515,12 @@ CONCAT(e.last_name, ' ', e.name, ' ', e.patronymic) as driver_name,
 	WHEN 'Company' THEN 'ТС компании'
 	WHEN 'Raskat' THEN 'ТС в Раскате'
 	WHEN 'Driver' THEN 'ТС водителя'
+    WHEN NULL THEN CASE c.income_channel
+        WHEN 'None' THEN ''
+        WHEN 'PurchasedNew' THEN 'Куплен - Новый'
+        WHEN 'PurchasedUsed' THEN 'Куплен - БУ'
+        WHEN 'DriverProperty' THEN 'ТС водителя'
+    END
  END FROM car_versions WHERE start_date &lt; cv.start_date AND car_id = c.id ORDER BY start_date DESC LIMIT 1
 ) AS prev_car_own_type
 FROM cars c 
@@ -547,6 +553,12 @@ CONCAT(e2.last_name, ' ', e2.name, ' ', e2.patronymic) as driver_name,
 	WHEN 'Company' THEN 'ТС компании'
 	WHEN 'Raskat' THEN 'ТС в Раскате'
 	WHEN 'Driver' THEN 'ТС водителя'
+    WHEN NULL THEN CASE c2.income_channel
+        WHEN 'None' THEN ''
+        WHEN 'PurchasedNew' THEN 'Куплен - Новый'
+        WHEN 'PurchasedUsed' THEN 'Куплен - БУ'
+        WHEN 'DriverProperty' THEN 'ТС водителя'
+    END
  END FROM car_versions WHERE car_id = c2.id ORDER BY start_date DESC LIMIT 1
 ) AS prev_car_own_type
 FROM cars c2
