@@ -165,7 +165,7 @@ namespace Vodovoz.Application.Orders.Services
 					order.AddNomenclature(
 						onlineOrderItem.Nomenclature,
 						onlineOrderItem.Count,
-						onlineOrderItem.IsDiscountInMoney ? onlineOrderItem.MoneyDiscount : onlineOrderItem.PercentDiscount,
+						onlineOrderItem.GetDiscount,
 						onlineOrderItem.IsDiscountInMoney,
 						null,
 						onlineOrderItem.PromoSet);

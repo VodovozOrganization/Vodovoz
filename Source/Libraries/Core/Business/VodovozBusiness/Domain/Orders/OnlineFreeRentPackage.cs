@@ -4,6 +4,9 @@ using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "онлайн пакеты бесплатной аренды",
+		Nominative = "онлайн пакет бесплатной аренды")]
 	public class OnlineFreeRentPackage : PropertyChangedBase, IDomainObject
 	{
 		private int? _freeRentPackageId;

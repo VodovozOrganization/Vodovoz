@@ -242,10 +242,10 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("Сумма(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
 				.AddColumn("Скидка(онлайн заказ)")
-				.AddNumericRenderer(node => node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount)
+				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 					{
-						var onlineDiscount = node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount;
+						var onlineDiscount = node.GetDiscount;
 						cell.CellBackgroundGdk = onlineDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
 					})
 				.AddColumn("Скидка(в промонаборе)")

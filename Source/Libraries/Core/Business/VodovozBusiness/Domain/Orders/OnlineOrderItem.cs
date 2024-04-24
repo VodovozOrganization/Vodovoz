@@ -1,17 +1,15 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "строки онлайн заказа",
+		Nominative = "строка онлайн заказа")]
 	public class OnlineOrderItem : Product, IDomainObject
 	{
 		private int? _nomenclatureId;
-		private decimal _price;
-		private bool _isDiscountInMoney;
-		private decimal _percentDiscount;
-		private decimal _moneyDiscount;
 		private int? _promoSetId;
 		private OnlineOrder _onlineOrder;
 
@@ -33,34 +31,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _nomenclatureId, value);
 		}
 		
-		[Display(Name = "Цена")]
-		public virtual decimal Price
-		{
-			get => _price;
-			set => SetField(ref _price, value);
-		}
-		
-		[Display(Name = "Скидка в деньгах")]
-		public virtual bool IsDiscountInMoney
-		{
-			get => _isDiscountInMoney;
-			set => SetField(ref _isDiscountInMoney, value);
-		}
-		
-		[Display(Name = "Скидка в процентах")]
-		public virtual decimal PercentDiscount
-		{
-			get => _percentDiscount;
-			set => SetField(ref _percentDiscount, value);
-		}
-		
-		[Display(Name = "Скидка в деньгах")]
-		public virtual decimal MoneyDiscount
-		{
-			get => _moneyDiscount;
-			set => SetField(ref _moneyDiscount, value);
-		}
-		
 		[Display(Name = "Id промонабора")]
 		public virtual int? PromoSetId
 		{
@@ -79,10 +49,7 @@ namespace Vodovoz.Domain.Orders
 		
 		[Display(Name = "Тип скидки из промонабора")]
 		public virtual bool IsDiscountInMoneyFromPromoSet { get; set; }
-
-		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
-		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
-
+		
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
 			decimal count,
@@ -116,20 +83,20 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Price * Count == 0)
 			{
-				MoneyDiscount = 0;
-				PercentDiscount = 0;
+				DiscountMoney = 0;
+				Discount = 0;
 				return;
 			}
 			
 			if(IsDiscountInMoney)
 			{
-				MoneyDiscount = discount > Price * Count ? Price * Count : (discount < 0 ? 0 : discount);
-				PercentDiscount = (100 * MoneyDiscount) / (Price * Count);
+				DiscountMoney = discount > Price * Count ? Price * Count : (discount < 0 ? 0 : discount);
+				Discount = (100 * DiscountMoney) / (Price * Count);
 			}
 			else
 			{
-				PercentDiscount = discount > 100 ? 100 : (discount < 0 ? 0 : discount);
-				MoneyDiscount = Price * Count * PercentDiscount / 100;
+				Discount = discount > 100 ? 100 : (discount < 0 ? 0 : discount);
+				DiscountMoney = Price * Count * Discount / 100;
 			}
 		}
 	}

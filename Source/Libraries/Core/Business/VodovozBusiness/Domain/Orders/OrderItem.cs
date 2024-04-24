@@ -12,34 +12,6 @@ using Vodovoz.Extensions;
 
 namespace Vodovoz.Domain.Orders
 {
-	public abstract class Product : PropertyChangedBase
-	{
-		private decimal _count = -1;
-		private Nomenclature _nomenclature;
-		private PromotionalSet _promoSet;
-
-		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
-		{
-			get => _nomenclature;
-			protected set => SetField(ref _nomenclature, value);
-		}
-
-		[Display(Name = "Добавлено из промонабора")]
-		public virtual PromotionalSet PromoSet
-		{
-			get => _promoSet;
-			set => SetField(ref _promoSet, value);
-		}
-
-		[Display(Name = "Количество")]
-		public virtual decimal Count
-		{
-			get => _count;
-			protected set => SetField(ref _count, value);
-		}
-	}
-	
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
@@ -49,14 +21,9 @@ namespace Vodovoz.Domain.Orders
 		private int _id;
 		private Order _order;
 		private Equipment _equipment;
-		private decimal _price;
 		private bool _isUserPrice;
-		private decimal? _actualCount;
 		private decimal? _includeNDS;
-		private bool _isDiscountInMoney;
-		private decimal _discount;
 		private decimal? _originalDiscount;
-		private decimal _discountMoney;
 		private decimal? _originalDiscountMoney;
 		private decimal _discountByStock;
 		private decimal? _valueAddedTax;
@@ -99,24 +66,11 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _equipment, value);
 		}
 
-		[Display(Name = "Цена")]
-		public virtual decimal Price
-		{
-			get => _price;
-			protected set => SetField(ref _price, value);
-		}
-
 		[Display(Name = "Цена установлена пользователем")]
 		public virtual bool IsUserPrice
 		{
 			get => _isUserPrice;
 			set => SetField(ref _isUserPrice, value);
-		}
-
-		public virtual decimal? ActualCount
-		{
-			get => _actualCount;
-			protected set => SetField(ref _actualCount, value);
 		}
 
 		[Display(Name = "Включая НДС")]
@@ -126,32 +80,11 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _includeNDS, value);
 		}
 
-		[Display(Name = "Скидка деньгами?")]
-		public virtual bool IsDiscountInMoney
-		{
-			get => _isDiscountInMoney;
-			protected set => SetField(ref _isDiscountInMoney, value);
-		}
-
-		[Display(Name = "Процент скидки на товар")]
-		public virtual decimal Discount
-		{
-			get => _discount;
-			protected set => SetField(ref _discount, value);
-		}
-
 		[Display(Name = "Процент скидки на товар которая была установлена до отмены заказа")]
 		public virtual decimal? OriginalDiscount
 		{
 			get => _originalDiscount;
 			set => SetField(ref _originalDiscount, value);
-		}
-
-		[Display(Name = "Скидка на товар в деньгах")]
-		public virtual decimal DiscountMoney
-		{
-			get => _discountMoney;
-			protected set => SetField(ref _discountMoney, value);
 		}
 
 		[Display(Name = "Скидки на товар которая была установлена до отмены заказа")]
@@ -439,12 +372,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal PriceWithoutVat => Math.Round((Price * CurrentCount - CurrentNDS - DiscountMoney) / CurrentCount, 2);
 		public virtual decimal SumWithoutVat => Math.Round(Price * CurrentCount - CurrentNDS - DiscountMoney, 2);
 
-		public virtual decimal CurrentCount => ActualCount ?? Count;
-
-		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
-
-		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
-
 		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
 		public virtual bool CanEditPrice
@@ -464,8 +391,6 @@ namespace Vodovoz.Domain.Orders
 				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
-
-		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
 
 		public virtual bool RentVisible => OrderItemRentSubType == OrderItemRentSubType.RentServiceItem;
 

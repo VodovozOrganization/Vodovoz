@@ -15,18 +15,26 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Быстрая доставка
 		/// </summary>
 		public bool IsFastDelivery { get; set; }
+		
 		/// <summary>
 		/// Причины оценки
 		/// </summary>
 		public IEnumerable<int> RatingReasonsIds { get; private set; }
+		
 		/// <summary>
 		/// Комментарий к оценке
 		/// </summary>
 		public string OrderRatingComment { get; set; }
+		
 		/// <summary>
-		/// Товары
+		/// Товары без промонаборов
 		/// </summary>
 		public IEnumerable<OrderItemDto> OrderItems { get; private set; }
+		
+		/// <summary>
+		/// Промонаборы
+		/// </summary>
+		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
 
 		public void UpdateOrderRating(OrderRating orderRating, DateTime ratingAvailableFrom)
 		{
@@ -47,30 +55,57 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 			IsRatingAvailable = false;
 		}
 		
-		public void UpdateOrderItems(IEnumerable<OrderItem> orderItems)
+		public void UpdateOrderItems(IEnumerable<Product> orderItems)
 		{
-			OrderItems =
-				orderItems.Select(orderItem =>
+			OrderItems = orderItems
+				.Where(x => x.PromoSet == null)
+				.Select(orderItem =>
 					OrderItemDto.Create(
 						orderItem.Nomenclature.Id,
-						orderItem.Count,
+						orderItem.CurrentCount,
 						orderItem.Price,
 						orderItem.IsDiscountInMoney,
 						orderItem.GetDiscount))
 				.ToList();
+
+			UpdatePromoSets(orderItems);
 		}
-		
-		public void UpdateOrderItems(IEnumerable<OnlineOrderItem> onlineOrderItems)
+
+		private void UpdatePromoSets(IEnumerable<Product> orderItems)
 		{
-			OrderItems =
-				onlineOrderItems.Select(orderItem =>
-					OrderItemDto.Create(
-						orderItem.Nomenclature.Id,
-						orderItem.Count,
-						orderItem.Price,
-						orderItem.IsDiscountInMoney,
-						orderItem.GetDiscount))
-				.ToList();
+			var promoSetsGroup = orderItems
+				.Where(x => x.PromoSet != null)
+				.ToLookup(x => x.PromoSet.Id);
+			
+			var promoSets = new List<PromoSetDto>();
+
+			foreach(var orderItemGroup in promoSetsGroup)
+			{
+				var promo = orderItemGroup.First().PromoSet;
+				var promoItemsCount = promo.PromotionalSetItems.Count;
+				decimal promoPrice = 0m;
+				var i = 0;
+
+				foreach(var product in orderItemGroup)
+				{
+					i++;
+					promoPrice += product.ActualSum;
+
+					if(i >= promoItemsCount)
+					{
+						break;
+					}
+				}
+					
+				promoSets.Add(
+					PromoSetDto.Create(
+						orderItemGroup.Key,
+						orderItemGroup.Count() / promoItemsCount,
+						promoPrice
+					));
+			}
+
+			PromoSets = promoSets;
 		}
 	}
 
@@ -117,5 +152,36 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 			bool isDiscountInMoney,
 			decimal discount) =>
 			new OrderItemDto(nomenclatureId, count, price, isDiscountInMoney, discount);
+	}
+
+	public class PromoSetDto
+	{
+		/// <summary>
+		/// Id промонабора в Erp
+		/// </summary>
+		public int PromoSetId { get; set; }
+		
+		/// <summary>
+		/// Количество промонаборов
+		/// </summary>
+		public int Count { get; set; }
+		
+		/// <summary>
+		/// Цена промика
+		/// </summary>
+		public decimal Price { get; set; }
+
+		public static PromoSetDto Create(
+			int promoSetId,
+			int count,
+			decimal price)
+		{
+			return new PromoSetDto
+			{
+				PromoSetId = promoSetId,
+				Count = count,
+				Price = price
+			};
+		}
 	}
 }

@@ -220,8 +220,7 @@ namespace Vodovoz.Application.Orders.Services
 			var promoSetItem = onlineOrderItem.PromoSet.PromotionalSetItems[index];
 			var discountInMoneyFromPromoSet = promoSetItem.IsDiscountInMoney;
 			var discountItemFromPromoSet = discountInMoneyFromPromoSet ? promoSetItem.DiscountMoney : promoSetItem.Discount;
-			var onlineOrderItemDiscount =
-				onlineOrderItem.IsDiscountInMoney ? onlineOrderItem.MoneyDiscount : onlineOrderItem.PercentDiscount;
+			var onlineOrderItemDiscount = onlineOrderItem.GetDiscount;
 			
 			onlineOrderItem.DiscountFromPromoSet = discountItemFromPromoSet;
 			onlineOrderItem.IsDiscountInMoneyFromPromoSet = discountInMoneyFromPromoSet;
