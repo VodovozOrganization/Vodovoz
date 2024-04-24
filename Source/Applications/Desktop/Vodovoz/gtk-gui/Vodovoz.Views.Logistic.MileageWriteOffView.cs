@@ -330,6 +330,7 @@ namespace Vodovoz.Views.Logistic
 			w23.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableProperties.Gtk.Table+TableChild
 			this.yspinbuttonLitersOutlayed = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.yspinbuttonLitersOutlayed.Sensitive = false;
 			this.yspinbuttonLitersOutlayed.CanFocus = true;
 			this.yspinbuttonLitersOutlayed.Name = "yspinbuttonLitersOutlayed";
 			this.yspinbuttonLitersOutlayed.Adjustment.PageIncrement = 10D;
