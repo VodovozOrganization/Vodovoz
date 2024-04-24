@@ -1015,6 +1015,7 @@ namespace Vodovoz.EntityRepositories.Orders
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))				
 				.And(orderStatusRestriction)
 				.TransformUsing(Transformers.DistinctRootEntity)
+				.SetTimeout(120)
 				.List();
 
 			return result;
