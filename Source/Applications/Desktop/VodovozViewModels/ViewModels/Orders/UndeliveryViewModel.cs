@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Orders
 
 			UndeliveredOrderViewModel = _undeliveredOrderViewModelFactory.CreateUndeliveredOrderViewModel(Entity, _scope, this, UoW);
 
-			UndeliveredOrderViewModel.UndelivedOrderSaved += OnEntitySaved;
+			UndeliveredOrderViewModel.SaveUndelivery += SaveUndelivery;
 
 			UndeliveryDiscussionsViewModel = _undeliveryDiscussionsViewModelFactory.CreateUndeliveryDiscussionsViewModel(Entity, this, _scope, UoW);
 
@@ -168,10 +168,10 @@ namespace Vodovoz.ViewModels.Orders
 			}
 		}
 
-		private bool OnEntitySaved()
+		private bool SaveUndelivery(bool needClose = false)
 		{
 			_forceSave = true;
-			var result = Save(false);
+			var result = Save(needClose);
 			_forceSave = false;
 
 			return result;
@@ -238,7 +238,7 @@ namespace Vodovoz.ViewModels.Orders
 
 				if(_addedCommentToOldUndelivery)
 				{
-					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW));
+					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW || needClose));
 				}
 
 				Close(false, CloseSource.Self);
@@ -260,7 +260,7 @@ namespace Vodovoz.ViewModels.Orders
 				ProcessSmsNotification();
 			}
 
-			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW));
+			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW || needClose));
 
 			if(needClose)
 			{
@@ -294,10 +294,9 @@ namespace Vodovoz.ViewModels.Orders
 
 		public override void Dispose()
 		{
-			UndeliveredOrderViewModel.UndelivedOrderSaved -= OnEntitySaved;
+			UndeliveredOrderViewModel.SaveUndelivery -= SaveUndelivery;
 			Entity.ObservableUndeliveryDiscussions.ElementChanged -= OnObservableUndeliveryDiscussionsElementChanged;
 			Entity.ObservableUndeliveryDiscussions.ListContentChanged -= OnObservableUndeliveryDiscussionsListContentChanged;
-			UndeliveredOrderViewModel.UndelivedOrderSaved -= OnEntitySaved;
 			UndeliveredOrderViewModel.Dispose();
 
 			if(!_isExternalUoW)
