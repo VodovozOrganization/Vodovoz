@@ -2048,6 +2048,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrdersRatingsJournalFilterView.cs" />
     <Compile Include="Views\Orders\OrderRatingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderRatingView.cs" />
+    <Compile Include="Views\Orders\RequestForCallClosedReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallClosedReasonView.cs" />
+    <Compile Include="Views\Orders\RequestForCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
