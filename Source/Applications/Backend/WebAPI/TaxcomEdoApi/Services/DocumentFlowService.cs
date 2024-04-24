@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -156,7 +156,9 @@ namespace TaxcomEdoApi.Services
 					_logger.LogInformation("Создаем УПД по заказу №{OrderId}", order.Id);
 					try
 					{
-						var updXml = _edoUpdFactory.CreateNewUpdXml(order, edoAccountId, _certificate.Subject);
+						var updXml = _edoUpdFactory.CreateNewUpdXml(
+							order, _warrantOptions, edoAccountId, _certificate.Subject);
+						
 						var container = new TaxcomContainer
 						{
 							SignMode = DocumentSignMode.UseSpecifiedCertificate
