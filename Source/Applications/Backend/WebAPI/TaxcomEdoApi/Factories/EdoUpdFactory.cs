@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TISystems.TTC.Common;
 using Vodovoz.Domain.Client;
@@ -24,7 +25,7 @@ namespace TaxcomEdoApi.Factories
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
 		}
 		
-		public Fajl CreateNewUpdXml(Order order, string organizationAccountId, string certificateSubject)
+		public Fajl CreateNewUpdXml(Order order, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject)
 		{
 			var org = order.Contract.Organization;
 			
@@ -157,6 +158,7 @@ namespace TaxcomEdoApi.Factories
 
 			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
 			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
+			var patronymic = firstNameAndPatronymic.Length == 2 ? firstNameAndPatronymic[1] : null;
 
 			upd.Dokument.SvProdPer = new FajlDokumentSvProdPer
 			{
@@ -175,9 +177,9 @@ namespace TaxcomEdoApi.Factories
 							{
 								Familija = certDetails.SurName,
 								Imja = firstNameAndPatronymic[0],
-								Otchestvo = firstNameAndPatronymic[1]
+								Otchestvo = patronymic
 							},
-							Dolzhnost = "Главный бухгалтер"
+							Dolzhnost = warrantOptions.JobPosition
 						}
 					}
 				}
@@ -196,11 +198,11 @@ namespace TaxcomEdoApi.Factories
 						{
 							Familija = certDetails.SurName,
 							Imja = firstNameAndPatronymic[0],
-							Otchestvo = firstNameAndPatronymic[1]
+							Otchestvo = patronymic
 						},
 						INNJuL = org.INN,
 						NaimOrg = org.Name,
-						Dolzhn = "Главный бухгалтер"
+						Dolzhn = warrantOptions.JobPosition
 					}
 				}
 			};
