@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
-		Nominative = "автомобиль")]
+		Nominative = "автомобиль",
+		GenitivePlural = "автомобилей")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
@@ -50,11 +51,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
-		private string _registrationNumber = String.Empty;
+		private string _registrationNumber = string.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
 		private ArchivingReason? _archivingReason;
 		private int _leftUntilTechInspect;
+		private IncomeChannel _incomeChannel;
 
 		public virtual int Id { get; set; }
 
@@ -301,6 +303,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _leftUntilTechInspect;
 			set => SetField(ref _leftUntilTechInspect, value);
+		}
+
+		[Display(Name = "Канал поступления")]
+		public virtual IncomeChannel IncomeChannel
+		{
+			get => _incomeChannel;
+			set => SetField(ref _incomeChannel, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
