@@ -1,11 +1,10 @@
-﻿using System;
-using QS.Navigation;
-using QS.Views.GtkUI;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RequestForCallClosedReasonView : TabViewBase<RequestForCallClosedReasonViewModel>
+	public partial class RequestForCallClosedReasonView : ViewBase<RequestForCallClosedReasonViewModel>
 	{
 		public RequestForCallClosedReasonView(RequestForCallClosedReasonViewModel viewModel) : base(viewModel)
 		{
@@ -15,8 +14,8 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			btnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			btnSave.BindCommand(ViewModel.SaveAndCloseCommand);
+			btnCancel.BindCommand(ViewModel.CloseCommand);
 
 			lblIdTitle.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowId, w => w.Visible)
@@ -31,10 +30,12 @@ namespace Vodovoz.Views.Orders
 
 			chkIsArchive.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryReason.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanChangeName, w => w.IsEditable)
 				.InitializeFromSource();
 		}
 	}

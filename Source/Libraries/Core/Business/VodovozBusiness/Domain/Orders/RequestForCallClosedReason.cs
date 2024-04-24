@@ -1,9 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "Причины закрытия заявок на звонок",
+		Nominative = "Причина закрытия заявки на звонок",
+		Prepositional = "Причине закрытия заявки на звонок",
+		PrepositionalPlural = "Причинах закрытия заявок на звонок"
+	)]
 	public class RequestForCallClosedReason : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private const int _nameMaxLength = 150;
@@ -25,12 +32,22 @@ namespace Vodovoz.Domain.Orders
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-		
+
+		public override string ToString()
+		{
+			var entityName =
+				typeof(RequestForCallClosedReason)
+					.GetCustomAttribute<AppellativeAttribute>(true)
+					.Nominative;
+			
+			return Id > 0 ? $"{entityName} №{Id}" : $"Новая {entityName.ToLower()}";
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!string.IsNullOrWhiteSpace(Name) && Name.Length > _nameMaxLength)
 			{
-				yield return new ValidationResult($"Длина названия причины превышена на {_nameMaxLength - Name.Length}");
+				yield return new ValidationResult($"Длина названия причины превышена на {Name.Length - _nameMaxLength}");
 			}
 		}
 	}

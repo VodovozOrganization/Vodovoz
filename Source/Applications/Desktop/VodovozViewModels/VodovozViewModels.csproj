@@ -176,6 +176,7 @@
     <Compile Include="Journals\JournalNodes\Orders\OnlineOrdersJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrdersRatingReasonsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrdersRatingsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\RequestsForCallClosedReasonsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryDetalizationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryObjectJournalNode.cs" />
@@ -215,6 +216,7 @@
     <Compile Include="Journals\JournalViewModels\Goods\VodovozWebSiteNomenclatureOnlineCatalogsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\ComletedDriversWarehousesEventsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DriversWarehousesEventsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\RequestsForCallClosedReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
@@ -547,6 +549,7 @@
     <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\OrderRatingReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderRatingViewModel.cs" />
+    <Compile Include="ViewModels\Orders\RequestForCallClosedReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\RequestForCallViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />

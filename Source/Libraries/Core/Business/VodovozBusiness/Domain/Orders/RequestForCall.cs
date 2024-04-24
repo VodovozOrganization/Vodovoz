@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Заявках на звонок"
 	)]
 	[HistoryTrace]
-	public class RequestForCall : PropertyChangedBase, IDomainObject
+	public class RequestForCall : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private Source _source;
 		private int _externalId;
@@ -115,6 +116,21 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _closedReason;
 			set => SetField(ref _closedReason, value);
+		}
+		
+		public virtual void AttachOrder(Order order)
+		{
+			Order = order;
+			RequestForCallStatus = RequestForCallStatus.OrderPerformed;
+		}
+		
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(ClosedReason != null && RequestForCallStatus != RequestForCallStatus.Closed)
+			{
+				yield return new ValidationResult(
+					"Неправильное состояние заявки. Если указана причина закрытия, то заявку нужно закрыть");
+			}
 		}
 	}
 }
