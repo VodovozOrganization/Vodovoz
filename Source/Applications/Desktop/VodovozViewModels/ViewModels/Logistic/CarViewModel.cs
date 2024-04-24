@@ -142,7 +142,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			PreviousTechInspectOdometer = lastTechInspectCarEvent?.Odometer ?? 0;
 
-			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel.TeсhInspectInterval;			
+			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel?.TeсhInspectInterval ?? 0;
 
 			UpcomingTechInspectLeft = Entity.LeftUntilTechInspect;
 		}
