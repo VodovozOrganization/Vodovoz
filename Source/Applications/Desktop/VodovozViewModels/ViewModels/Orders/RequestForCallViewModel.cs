@@ -80,6 +80,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanEdit => _permissionResult.CanUpdate;
 		public bool AskSaveOnClose => CanEdit;
 		public bool CanGetToWork => CanEdit && Entity.EmployeeWorkWith is null;
+		public bool CanShowId => Entity.Id > 0;
 		
 		public bool CanCreateOrder =>
 			CanEdit

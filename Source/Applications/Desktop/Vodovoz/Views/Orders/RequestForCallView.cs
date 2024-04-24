@@ -27,7 +27,16 @@ namespace Vodovoz.Views.Orders
 			btnGetToWork.BindCommand(ViewModel.GetToWorkCommand);
 			btnCloseRequestForCall.BindCommand(ViewModel.CloseRequestCommand);
 			btnCancel.BindCommand(ViewModel.CancelCommand);
-			
+
+			lblIdTitle.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowId, w => w.Visible)
+				.InitializeFromSource();
+			lblId.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IdToString, w => w.LabelProp)
+				.AddBinding(ViewModel, vm => vm.CanShowId, w => w.Visible)
+				.InitializeFromSource();
+
 			lblStatus.Binding
 				.AddBinding(ViewModel, vm => vm.Status, w => w.LabelProp)
 				.InitializeFromSource();
@@ -51,7 +60,7 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			nomenclatureEntry.ViewModel = ViewModel.NomenclatureEntryViewModel;
-			closedReasonEntry.ViewModel = ViewModel.NomenclatureEntryViewModel;
+			closedReasonEntry.ViewModel = ViewModel.ClosedReasonEntryViewModel;
 		}
 
 		private void OnCreateOrderClicked(object sender, EventArgs e)
