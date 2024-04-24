@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private DateTime _creationDate;
 		private DateTime? _writeOffDate;
 		private decimal _distanceKm;
+		private decimal _litersOutlayed;
 		private MileageWriteOffReason _reason;
 		private Car _car;
 		private Employee _driver;
@@ -48,6 +49,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _distanceKm;
 			set => SetField(ref _distanceKm, value);
+		}
+
+		[Display(Name = "Потрачено топлива, литров")]
+		public virtual decimal LitersOutlayed
+		{
+			get => _litersOutlayed;
+			set => SetField(ref _litersOutlayed, value);
 		}
 
 		[Display(Name = "Причина списания")]

@@ -14,6 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.CreationDate).Column("creation_date");
 			Map(x => x.WriteOffDate).Column("write_off_date");
 			Map(x => x.DistanceKm).Column("distance_km");
+			Map(x => x.LitersOutlayed).Column("liters_outlayed");
 			Map(x => x.Comment).Column("comment");
 
 			References(x => x.Reason).Column("reason_id");
