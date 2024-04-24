@@ -338,7 +338,7 @@
           <TableColumn>
             <Width>42.5pt</Width>
           </TableColumn>
-          <TableColumn>
+          <TableColumn >
             <Width>97.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -391,7 +391,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>Тип авто</Value>
@@ -513,7 +513,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>={car_type_of_use}</Value>
@@ -856,12 +856,6 @@ FROM
 		WHEN 'Company' THEN 'ТС компании'
 		WHEN 'Raskat' THEN 'ТС в Раскате'
 		WHEN 'Driver' THEN 'ТС водителя'
-        WHEN NULL THEN CASE c.income_channel
-            WHEN 'None' THEN ''
-            WHEN 'PurchasedNew' THEN 'Куплен - Новый'
-            WHEN 'PurchasedUsed' THEN 'Куплен - БУ'
-            WHEN 'DriverProperty' THEN 'ТС водителя'
-        END
 	END as car_own_type
 	FROM cars c
 	JOIN car_models cm ON c.model_id = cm.id 
