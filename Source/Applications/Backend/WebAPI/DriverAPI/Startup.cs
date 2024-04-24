@@ -27,6 +27,7 @@ using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi.BuildVersion;
+using Vodovoz.Presentation.WebApi.ErrorHandling;
 using VodovozHealthCheck;
 
 namespace DriverAPI
@@ -195,7 +196,7 @@ namespace DriverAPI
 			}
 			else
 			{
-				app.UseJsonExceptionsHandler();
+				app.UseMiddleware<ErrorHandlingMiddleware>();
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}

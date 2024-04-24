@@ -71,6 +71,8 @@ namespace Vodovoz
 			}
 		}
 
+		public DateTime? RecievedTransferAt => RouteListItem.RecievedTransferAt;
+
 		public string Transferred => RouteListItem.GetTransferText();
 
 		public void UpdateStatus(RouteListItemStatus value, ICallTaskWorker callTaskWorker)

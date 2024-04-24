@@ -85,6 +85,18 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveBillAdditionaInfo.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
 			ybuttonSaveBillAdditionaInfo.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
+
+			yspinbuttonTechInspectOurCars.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectForOurCars, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonTechInspectRaskatCars.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectForRaskatCars, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			frameTechInspect.Sensitive = ViewModel.CanEditUpcomingTechInspectSetting;
+			ybuttonSaveUpcomingTechInspectSettings.Clicked += (s, e) => ViewModel.SaveUpcomingTechInspectCommand.Execute();
+
 			#endregion Вкладка Логистика
 
 			#region Вкладка Рекламации

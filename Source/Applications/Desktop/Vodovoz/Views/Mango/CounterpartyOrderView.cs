@@ -37,7 +37,10 @@ namespace Vodovoz.Views.Mango
 			CommTextView.Buffer.Text = ViewModel.Client.Comment;
 			CommTextView.Editable = false;
 
-			OrderYTreeView.Binding.AddBinding(ViewModel, v => v.LatestOrder, w => w.ItemsDataSource).InitializeFromSource();
+			OrderYTreeView.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.LatestOrder, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SelectedOrder, w => w.SelectedRow)
+				.InitializeFromSource();
 
 			specialListCmbDeliveryPoint.Binding.AddSource(ViewModel)
 				.AddBinding( vm => vm.DeliveryPoints, w => w.ItemsList)

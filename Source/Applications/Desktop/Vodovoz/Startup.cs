@@ -56,6 +56,7 @@ namespace Vodovoz
 		private readonly IApplicationInfo _applicationInfo;
 		private readonly IConfiguration _configuration;
 		private static IErrorReportingSettings _errorReportingSettings;
+		private readonly IWikiSettings _wikiSettings;
 		private readonly ViewModelWidgetsRegistrar _viewModelWidgetsRegistrar;
 		private static IPasswordValidator passwordValidator;
 
@@ -67,6 +68,7 @@ namespace Vodovoz
 			IApplicationInfo applicationInfo,
 			IConfiguration configuration,
 			IErrorReportingSettings errorReportingSettings,
+			IWikiSettings wikiSettings,
 			ViewModelWidgetsRegistrar viewModelWidgetsRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -74,6 +76,7 @@ namespace Vodovoz
 			_applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_errorReportingSettings = errorReportingSettings ?? throw new ArgumentNullException(nameof(errorReportingSettings));
+			_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
 			_viewModelWidgetsRegistrar = viewModelWidgetsRegistrar ?? throw new ArgumentNullException(nameof(viewModelWidgetsRegistrar));
 		}
 
@@ -239,7 +242,7 @@ namespace Vodovoz
 			var settingsController = AppDIContainer.Resolve<ISettingsController>();
 			if(ChangePassword(applicationConfigurator) && CanLogin())
 			{
-				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, settingsController);
+				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, settingsController, _wikiSettings);
 			}
 			else
 			{
@@ -331,7 +334,8 @@ namespace Vodovoz
 		private static void StartMainWindow(
 			string loginDialogName,
 			IApplicationConfigurator applicationConfigurator,
-			ISettingsController settingsController)
+			ISettingsController settingsController,
+			IWikiSettings wikiSettings)
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
@@ -349,7 +353,7 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow(passwordValidator, applicationConfigurator);
+			MainWin = new MainWindow(passwordValidator, applicationConfigurator, wikiSettings);
 			MainWin.InitializeManagers();
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;

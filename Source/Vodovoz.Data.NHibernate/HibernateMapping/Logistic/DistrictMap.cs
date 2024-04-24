@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
+using NHibernate;
 using NHibernate.Spatial.Type;
 using Vodovoz.Domain.Sale;
 
@@ -16,7 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.MinBottles).Column("min_bottles");
 			Map(x => x.DistrictBorder).Column("district_border").CustomType<MySQL57GeometryType>();
 			Map(x => x.WaterPrice).Column("water_price");
-			Map(x => x.PriceType).Column("price_type").CustomType<DistrictWaterPriceStringType>();
+			Map(x => x.PriceType).Column("price_type");
 
 			References(x => x.TariffZone).Column("tariff_zone_id");
 			References(x => x.WageDistrict).Column("wage_district_id");

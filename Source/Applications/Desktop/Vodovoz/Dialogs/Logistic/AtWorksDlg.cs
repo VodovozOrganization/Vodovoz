@@ -169,6 +169,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private void Initialize()
 		{
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.Binding
 				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList,
 					new EnumsListConverter<CarTypeOfUse>())

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Settings.Database.Logistics
@@ -19,6 +19,7 @@ namespace Vodovoz.Settings.Database.Logistics
 		public string NotifyOfSmsPaymentStatusChangedUri => _settingsController.GetValue<string>("NotifyOfSmsPaymentStatusChangedURI");
 		public string NotifyOfFastDeliveryOrderAddedUri => _settingsController.GetValue<string>("NotifyOfFastDeliveryOrderAddedURI");
 		public string NotifyOfWaitingTimeChangedURI => _settingsController.GetValue<string>(nameof(NotifyOfWaitingTimeChangedURI));
+		public string NotifyOfOrderWithGoodsTransferingIsTransferedUri => _settingsController.GetValue<string>(nameof(NotifyOfOrderWithGoodsTransferingIsTransferedUri));
 
 		public static void InitializeNotifications(ISettingsController settingsController, string currentDatabaseName)
 		{
