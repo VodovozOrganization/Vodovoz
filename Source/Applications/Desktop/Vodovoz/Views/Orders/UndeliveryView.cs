@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureWidget()
 		{
 			//если недовоз новый, то не можем оставлять комментарии
-			if(ViewModel.UndeliveredOrder.Id > 0)
+			if(ViewModel.Entity.Id > 0)
 			{
 				vboxDicussions.Add(new UndeliveryDiscussionsView(ViewModel.UndeliveryDiscussionsViewModel));
 				vboxDicussions.ShowAll();
@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Orders
 				hpanedUndelivery.Position = 0;
 			}
 
-			undeliveryView.WidgetViewModel = ViewModel.UndeliveredOrderViewModel;
+			undeliveredOrderView.WidgetViewModel = ViewModel.UndeliveredOrderViewModel;
 
 			buttonSave.Clicked += (s, e) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (s, e) => ViewModel.Close(true, CloseSource.Cancel);

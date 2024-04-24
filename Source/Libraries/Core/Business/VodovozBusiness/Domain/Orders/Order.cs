@@ -3248,6 +3248,19 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 
+			if(initialStatus != newStatus)
+			{
+				var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
+				if(undeliveries.Any())
+				{
+					var text = $"сменил(а) статус заказа\nс \"{initialStatus.GetEnumTitle()}\" на \"{newStatus.GetEnumTitle()}\"";
+					foreach(var u in undeliveries)
+					{
+						u.AddAutoCommentToOkkDiscussion(UoW, text);
+					}
+				}
+			}
+
 			if(Id == 0
 			   || newStatus == OrderStatus.Canceled
 			   || newStatus == OrderStatus.NotDelivered
@@ -3255,20 +3268,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
-
-			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
-			if(undeliveries.Any())
-			{
-				var text = string.Format(
-					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
-					initialStatus.GetEnumTitle(),
-					newStatus.GetEnumTitle()
-				);
-				foreach(var u in undeliveries)
-				{
-					u.AddAutoCommentToOkkDiscussion(UoW, text);
-				}
-			}
+		
 		}
 
 		private void OnChangeStatusToShipped() => SendUpdToEmailOnFinishIfNeeded();

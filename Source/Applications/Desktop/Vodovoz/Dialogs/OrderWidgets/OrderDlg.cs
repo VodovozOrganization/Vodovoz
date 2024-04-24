@@ -43,6 +43,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -84,6 +85,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
@@ -212,6 +214,7 @@ namespace Vodovoz
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -271,6 +274,7 @@ namespace Vodovoz
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
 		private bool _isStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -388,6 +392,10 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+			}
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
@@ -3835,39 +3843,47 @@ namespace Vodovoz
 				return;
 			}
 
-			OpenDlgToCreateNewUndeliveredOrder();
+			OpenUndelivery();
 		}
 
 		/// <summary>
-		/// Открытие окна создания нового недовоза при отмене заказа
+		/// Открытие окна недовоза при отмене заказа
 		/// </summary>
-		void OpenDlgToCreateNewUndeliveredOrder()
+		private void OpenUndelivery()
 		{
-			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
-			TabParent.AddSlaveTab(this, dlg);
-			dlg.DlgSaved += (sender, e) =>
+			_undeliveryViewModel = NavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
+				this,				
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.Saved += OnUndeliveryViewModelSaved;
+					vm.Initialize(UoW, Entity.Id);
+				}
+			).ViewModel;
+		}
+
+		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
+		{
+			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
+
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+			if(routeListItem != null)
 			{
-				Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
+				routeListItem.StatusLastUpdate = DateTime.Now;
+				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				UoW.Save(routeListItem);
+			}
+			else
+			{
+				Entity.SetActualCountsToZeroOnCanceled();
+			}
 
-				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
-				if(routeListItem != null)
-				{
-					routeListItem.StatusLastUpdate = DateTime.Now;
-					routeListItem.SetOrderActualCountsToZeroOnCanceled();
-					UoW.Save(routeListItem);
-				}
-				else
-				{
-					Entity.SetActualCountsToZeroOnCanceled();
-				}
+			UpdateUIState();
 
-				UpdateUIState();
-
-				if(Save() && e.NeedClose)
-				{
-					OnCloseTab(false);
-				}
-			};
+			if(Save() && e.NeedClose)
+			{
+				OnCloseTab(false);
+			}
 		}
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)

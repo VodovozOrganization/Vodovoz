@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Autofac;
+using FluentNHibernate.Data;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -195,7 +196,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 			if(e.PropertyName == nameof(Entity.OldOrder))
 			{
-				if(UoW.IsNew)
+				if(Entity.Id == 0)
 				{
 					Entity.OldOrderStatus = Entity.OldOrder.OrderStatus;
 				}
@@ -336,7 +337,7 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, который требуется открыть</param>
 		private void OpenOrder(Order order)
 		{
-			if(CommonServices.InteractiveService.Question("Требуется сохранить недовоз. Сохранить?"))
+			if(CommonServices.InteractiveService.Question("Требуется сохранить изменения. Продолжить?"))
 			{
 				UoW.Save();
 				UoW.Commit();
@@ -428,7 +429,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
-		public Func<bool> IsSaved;		
+		public Func<bool> UndelivedOrderSaved;		
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -495,7 +496,7 @@ namespace Vodovoz.ViewModels.Widgets
 				{
 					if(Entity.Id == 0)
 					{
-						var saved = IsSaved?.Invoke();
+						var saved = UndelivedOrderSaved?.Invoke();
 						if(!saved.HasValue || !saved.Value)
 						{
 							return;
@@ -514,7 +515,7 @@ namespace Vodovoz.ViewModels.Widgets
 			() =>
 			{
 				//если новый недовоз без выбранного недовезённого заказа
-				if(UoW.IsNew && Entity.OldOrder == null)
+				if(Entity.Id == 0 && Entity.OldOrder == null)
 				{
 					//открыть окно выбора недовезённого заказа
 					var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
@@ -598,7 +599,7 @@ namespace Vodovoz.ViewModels.Widgets
 						return;
 					}
 
-					var saved = IsSaved?.Invoke();
+					var saved = UndelivedOrderSaved?.Invoke();
 					if(!saved.HasValue || !saved.Value)
 					{
 						return;
