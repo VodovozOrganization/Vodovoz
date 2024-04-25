@@ -132,6 +132,7 @@ namespace Vodovoz.ViewModels.Logistic
 			if(!report.DistrictDiffs.Any())
 			{
 				renderedTemplate.Workbook.Worksheets.Delete(1);
+				return renderedTemplate;
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryRulesSpecialNew)
