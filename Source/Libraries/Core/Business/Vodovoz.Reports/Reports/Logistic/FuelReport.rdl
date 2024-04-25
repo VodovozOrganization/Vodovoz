@@ -28,14 +28,14 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn>
-            <Width>69.9pt</Width>
+          <TableColumn >
+            <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.3pt</Width>
+            <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.5pt</Width>
+            <Width>75.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>163.7pt</Width>
@@ -47,18 +47,18 @@
             <Width>60.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>56.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>54.4pt</Width>
+            <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.2pt</Width>
           </TableColumn>
-          <TableColumn>
+          <TableColumn >
+            <Width>57.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>57.2pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -70,11 +70,11 @@
             <TableRow>
               <Height>34.2pt</Height>
               <TableCells>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox2">
-                      <Value>Дата действия</Value>
-                      <Style>
+                    <Textbox Name="Textbox8">
+                      <Value>Дата операции</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -158,7 +158,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Потрачено литров</Value>
+                      <Value>Потрачено литров план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -172,61 +172,6 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>Выдано литров талонами (дизель)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>Выдано литров талонами (бензин)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>Выдано литров деньгами</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -252,6 +197,60 @@
                   <ReportItems>
                     <Textbox Name="Textbox5">
                       <Value>Выдано деньгами(безнал)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Выдано кассой литров</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Заправлено, литров</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Заправлено, рублей</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -293,26 +292,10 @@
             <TableRow>
               <Height>15.2pt</Height>
               <TableCells>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>=Format(Fields!route_list_date.Value, "dd/MM/yyyy")</Value>
+                    <Textbox Name="Textbox17">
+                      <Value>={date}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -320,6 +303,24 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >dd.MM.yyyy</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>={route_list_date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format >dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -327,7 +328,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!route_list_id.Value</Value>
+                      <Value>={route_list_id}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -343,7 +344,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!driver.Value</Value>
+                      <Value>={driver}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -359,7 +360,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>=Fields!distance.Value</Value>
+                      <Value>={distance}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -376,56 +377,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>=Fields!liters_outlayed.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>=Iif({fuel_type}=3, {liters_coupons}, "")</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>=Iif({fuel_type}!=3, {liters_coupons}, "")</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>=(Fields!liters_gived.Value - Fields!liters_coupons.Value)</Value>
+                      <Value>={liters_outlayed}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -442,7 +394,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
+                      <Value>={payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -452,6 +404,7 @@
                         <BorderWidth />
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -468,6 +421,58 @@
                         <BorderWidth />
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>={liters_gived}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>={fuel_transactions_quantity}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>={fuel_transactions_total_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -499,15 +504,15 @@
             <TableRow>
               <Height>20.0pt</Height>
               <TableCells>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Style>
+                    <Textbox Name="Textbox19">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -562,7 +567,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Fields!distance.Value)</Value>
+                      <Value>=Sum({distance})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -579,58 +585,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Fields!liters_outlayed.Value)</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox44">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
-                      </Style>
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox45">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
-                      </Style>
-                      <Value>=Sum(Fields!liters_gived.Value - Fields!liters_coupons.Value)</Value>
+                      <Value>=Sum({liters_outlayed})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -647,7 +603,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Fields!payed_for_fuel.Value)</Value>
+                      <Value>=Sum({payed_for_fuel})</Value>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -665,6 +622,61 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>=Sum({liters_gived})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>=Sum({fuel_transactions_quantity})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>=Sum({fuel_transactions_total_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -736,7 +748,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     TableRows.*,
@@ -752,7 +764,7 @@ FROM
     ) as TableBalance,
     #Конец выбора баланса
     #Выбираются все строки
-    (SELECT
+    ((SELECT
         date,
         route_list_id,
         route_list_date,
@@ -762,14 +774,14 @@ FROM
         SUM(liters_gived) as liters_gived,
         SUM(payed_for_fuel) as payed_for_fuel,
         SUM(cashless_payed_for_fuel) as cashless_payed_for_fuel,
-        SUM(liters_coupons) as liters_coupons,
-        fuel_type,
-        reg_number
+        reg_number,
+        SUM(fuel_transactions_quantity) as fuel_transactions_quantity,
+        SUM(fuel_transactions_total_sum) as fuel_transactions_total_sum
     FROM
         (
             #Выбираем полученное топливо
             (SELECT
-                DATE(fuel_operations.date)     AS date,
+                DATE(fuel_operations.date) AS date,
                 IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
                 route_lists.date AS route_list_date,
                 CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -779,9 +791,9 @@ FROM
                 IFNULL(fuel_operations.liters_gived,0) AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-                IFNULL(fuel_documents.fuel_coupons, 0) AS liters_coupons,
-                IFNULL(fuel_operations.fuel_type_id,0) AS fuel_type,         
-                cars.reg_number AS reg_number
+                cars.reg_number AS reg_number,
+                0 as fuel_transactions_quantity,
+				0 as fuel_transactions_total_sum
             FROM
                 fuel_operations
                 LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
@@ -800,7 +812,7 @@ FROM
         UNION ALL
             #Выбираем потраченное топливо
             (SELECT
-                DATE(fuel_operations.date)     AS date,
+                DATE(fuel_operations.date) AS date,
                 IFNULL(route_lists.id, IF(fuel_operations.is_fine,'Штраф','Коррек-ка')) AS route_list_id,
                 route_lists.date AS route_list_date,
                 CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -810,10 +822,10 @@ FROM
                 IFNULL(fuel_operations.liters_gived,0)    AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-                IFNULL(fuel_documents.fuel_coupons, 0) AS liters_coupons,
-                IFNULL(fuel_operations.fuel_type_id,0)     AS fuel_type,         
-                cars.reg_number AS reg_number
-             FROM
+                cars.reg_number AS reg_number,
+                0 as fuel_transactions_quantity,
+				0 as fuel_transactions_total_sum
+            FROM
                 fuel_operations
                 LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
                 LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
@@ -828,9 +840,109 @@ FROM
                         OR (@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id))
             )
             #Конец выбора потраченного топлива
+        UNION ALL 
+            #Выбираем данные по транзакциям
+        	(SELECT
+				IFNULL(rls.fuel_operations_date, trs.transaction_date) AS date,
+				IFNULL(rls.route_list_id, 'Заправка без МЛ') AS route_list_id,
+				rls.route_list_date AS route_list_date,
+				'' AS driver,
+				'' AS shift,
+				0 as distance, # Расстояние берется из таблицы с потраченным топливом
+				0 AS liters_outlayed,
+				0 AS liters_gived,
+				0 AS payed_for_fuel,
+				0 AS cashless_payed_for_fuel,
+				rls.car_reg_number AS reg_number,
+				trs.fuel_transactions_quantity as fuel_transactions_quantity,
+				trs.fuel_transactions_total_sum as fuel_transactions_total_sum
+			FROM
+			#Получаем данные по транзакциям
+			(SELECT
+			DATE(fuel_transactions.transaction_date) as transaction_date,
+			#Устанавливаем порядоквый номер транзакции за день для сопоставления с МЛ
+			(CASE 
+			    WHEN DATE(fuel_transactions.transaction_date) = @prev_transaction_date THEN @daily_transaction_number := @daily_transaction_number + 1
+			    ELSE @daily_transaction_number := 1
+			END) as daily_transaction_number,
+			(CASE 
+			    WHEN DATE(fuel_transactions.transaction_date) = @prev_transaction_date THEN @prev_transaction_date
+			    ELSE @prev_transaction_date := DATE(fuel_transactions.transaction_date)
+			END) as prev_transaction_date,
+			fuel_transactions.quantity as fuel_transactions_quantity,
+			fuel_transactions.total_sum  as fuel_transactions_total_sum
+			FROM 
+				#Устанавливаем начальную дату предыдущей транзакции
+				(SELECT @prev_transaction_date:=DATE_ADD(DATE(@start_date), INTERVAL -1 DAY)) as default_prev_transaction_date,
+				cars
+				LEFT JOIN fuel_cards ON cars.fuel_card_id = fuel_cards.id 
+				LEFT JOIN fuel_transactions ON fuel_transactions.card_number  = fuel_cards.card_number 
+			WHERE 
+				fuel_transactions.transaction_date &gt;= @start_date
+			    AND fuel_transactions.transaction_date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
+			    AND ((@driver_id &lt;&gt; -1 AND cars.driver_id  = @driver_id) 
+			            OR (@car_id &lt;&gt; -1 AND cars.id  = @car_id))
+			ORDER BY fuel_transactions.transaction_date) trs
+			LEFT JOIN 
+			#Получаем данные по маршрутным листам
+			(SELECT
+				DATE(fuel_operations.date) AS fuel_operations_date,
+				IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
+				route_lists.date AS route_list_date,
+				cars.reg_number as car_reg_number,
+			#Устанавливаем порядоквый номер МЛ за день для сопоставления с транзакциями
+			(CASE 
+			    WHEN DATE(route_lists.date) = @prev_rl_date THEN @daily_rl_number := @daily_rl_number + 1
+			    ELSE @daily_rl_number := 1
+			END) as daily_rl_number,
+			(CASE 
+			    WHEN DATE(route_lists.date) = @prev_rl_date THEN @prev_rl_date
+			    ELSE @prev_rl_date := DATE(route_lists.date)
+			END) as prev_rl_date
+			FROM
+				#Устанавливаем начальную дату предыдущего МЛ
+				(SELECT @prev_rl_date:=DATE_ADD(DATE(@start_date), INTERVAL -1 DAY)) as default_prev_rl_date,
+			    fuel_operations
+			    LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
+			    LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id
+			    LEFT JOIN cars ON cars.id = route_lists.car_id 
+			WHERE
+				fuel_operations.date &gt;= @start_date
+				AND fuel_operations.date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
+				AND (fuel_operations.liters_gived &gt; 0 OR fuel_operations.payed_liters &gt; 0) AND fuel_operations.liters_outlayed = 0
+				AND ((@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id) 
+				        OR (@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id))
+			) rls
+			ON trs.transaction_date = rls.route_list_date AND trs.daily_transaction_number = rls.daily_rl_number
+        	)
+            #Конец выбора данных по транзакциям
         ) as fuelOperations
         GROUP BY date, route_list_id ORDER BY date
-    ) as TableRows
+    )
+    UNION ALL
+    #Выбираем списание километража без МЛ
+    (SELECT    	
+        DATE(mwo.write_off_date) AS date,
+        'Списание километража без МЛ' AS route_list_id,
+        '' AS route_list_date,
+        CONCAT_WS(' ', e.last_name, e.name) AS driver,
+        mwo.distance_km as distance, # Расстояние берется из таблицы с потраченным топливом
+        mwo.liters_outlayed AS liters_outlayed,
+        0 AS liters_gived,
+        0 AS payed_for_fuel,
+        0 AS cashless_payed_for_fuel,
+        c.reg_number AS reg_number,
+        0 as fuel_transactions_quantity,
+        0 as fuel_transactions_total_sum
+	FROM 
+		mileage_write_off mwo 
+		LEFT JOIN employees e ON mwo.driver_id = e.id 
+		LEFT JOIN cars c on mwo.car_id = c.id 
+	WHERE
+		mwo.write_off_date &gt;= @start_date AND mwo.write_off_date &lt;= @end_date
+        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) 
+                OR (@car_id &lt;&gt; -1 AND mwo.car_id = @car_id))
+    ))as TableRows
     #Конец выбора всех строк
     ;</CommandText>
         <QueryParameters>
@@ -848,7 +960,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -881,10 +993,6 @@ FROM
           <DataField>payed_for_fuel</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
         <Field Name="reg_number">
           <DataField>reg_number</DataField>
           <TypeName>System.String</TypeName>
@@ -893,12 +1001,17 @@ FROM
           <DataField>balance</DataField>
           <TypeName>System.Double</TypeName>
         </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
         <Field Name="cashless_payed_for_fuel">
           <DataField>cashless_payed_for_fuel</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="fuel_transactions_quantity">
+          <DataField>fuel_transactions_quantity</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="fuel_transactions_total_sum">
+          <DataField>fuel_transactions_total_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
