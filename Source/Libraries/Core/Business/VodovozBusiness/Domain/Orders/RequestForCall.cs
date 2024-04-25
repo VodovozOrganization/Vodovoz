@@ -20,10 +20,8 @@ namespace Vodovoz.Domain.Orders
 	public class RequestForCall : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private Source _source;
-		private int _externalId;
 		private string _author;
 		private string _phone;
-		private string _question;
 		private Counterparty _counterparty;
 		private Nomenclature _nomenclature;
 		private Employee _employeeWorkWith;
@@ -32,62 +30,50 @@ namespace Vodovoz.Domain.Orders
 		private DateTime _created;
 		private RequestForCallClosedReason _closedReason;
 
+		protected RequestForCall() { }
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Дата создания")]
 		public virtual DateTime Created
 		{
 			get => _created;
-			set => SetField(ref _created, value);
-		}
-		
-		[Display(Name = "Номер заявки из ИПЗ")]
-		public virtual int ExternalId
-		{
-			get => _externalId;
-			set => SetField(ref _externalId, value);
+			protected set => SetField(ref _created, value);
 		}
 		
 		[Display(Name = "Источник заявки")]
 		public virtual Source Source
 		{
 			get => _source;
-			set => SetField(ref _source, value);
+			protected set => SetField(ref _source, value);
 		}
 		
 		[Display(Name = "Автор заявки")]
 		public virtual string Author
 		{
 			get => _author;
-			set => SetField(ref _author, value);
-		}
-		
-		[Display(Name = "Вопрос")]
-		public virtual string Question
-		{
-			get => _question;
-			set => SetField(ref _question, value);
+			protected set => SetField(ref _author, value);
 		}
 		
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Counterparty
 		{
 			get => _counterparty;
-			set => SetField(ref _counterparty, value);
+			protected set => SetField(ref _counterparty, value);
 		}
 		
 		[Display(Name = "Номер телефона")]
 		public virtual string Phone
 		{
 			get => _phone;
-			set => SetField(ref _phone, value);
+			protected set => SetField(ref _phone, value);
 		}
 		
 		[Display(Name = "Товар")]
 		public virtual Nomenclature Nomenclature
 		{
 			get => _nomenclature;
-			set => SetField(ref _nomenclature, value);
+			protected set => SetField(ref _nomenclature, value);
 		}
 		
 		[Display(Name = "У кого в работе заявка")]
@@ -122,6 +108,27 @@ namespace Vodovoz.Domain.Orders
 		{
 			Order = order;
 			RequestForCallStatus = RequestForCallStatus.OrderPerformed;
+		}
+
+		public static RequestForCall Create(
+			Source source,
+			string contactName,
+			string phoneNumber,
+			Nomenclature nomenclature,
+			Counterparty counterparty)
+		{
+			var requestForCall = new RequestForCall
+			{
+				Source = source,
+				Author = contactName,
+				Phone = phoneNumber,
+				Nomenclature = nomenclature,
+				Counterparty = counterparty,
+				Created = DateTime.Now,
+				RequestForCallStatus = RequestForCallStatus.New
+			};
+
+			return requestForCall;
 		}
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

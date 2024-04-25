@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
@@ -136,6 +138,21 @@ namespace CustomerOrdersApi.Library.Services
 				out generatedSignature);
 		}
 
+		public bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature)
+		{
+			var sourceSign = GetSourceSign(creatingInfoDto.Source);
+			
+			return _signatureManager.Validate(
+				creatingInfoDto.Signature,
+				new RequestForCallSignatureParams
+				{
+					PhoneNumber = creatingInfoDto.PhoneNumber,
+					ShopId = (int)creatingInfoDto.Source,
+					Sign = sourceSign
+				},
+				out generatedSignature);
+		}
+
 		#endregion
 
 		public DetailedOrderInfoDto GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto)
@@ -233,6 +250,35 @@ namespace CustomerOrdersApi.Library.Services
 			uow.Save(onlineOrder);
 			uow.Commit();
 			return true;
+		}
+
+		public void CreateRequestForCall(CreatingRequestForCallDto creatingInfoDto)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+
+			Nomenclature nomenclature = null;
+			Counterparty counterparty = null;
+
+			if(creatingInfoDto.NomenclatureErpId.HasValue)
+			{
+				nomenclature = uow.GetById<Nomenclature>(creatingInfoDto.NomenclatureErpId.Value);
+			}
+			
+			if(creatingInfoDto.CounterpartyErpId.HasValue)
+			{
+				counterparty = uow.GetById<Counterparty>(creatingInfoDto.CounterpartyErpId.Value);
+			}
+
+			var requestForCall = RequestForCall.Create(
+				creatingInfoDto.Source,
+				creatingInfoDto.ContactName,
+				creatingInfoDto.PhoneNumber,
+				nomenclature,
+				counterparty
+				);
+			
+			uow.Save(requestForCall);
+			uow.Commit();
 		}
 
 		private string GetSourceSign(Source source)
