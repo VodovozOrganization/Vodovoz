@@ -188,6 +188,8 @@ namespace Vodovoz.Views.Payments
 					.AddNumericRenderer(n => n.PaymentNum)
 				.AddColumn("Дата платежа")
 					.AddTextRenderer(n => n.PaymentDate.ToShortDateString())
+				.AddColumn("Плательщик")
+					.AddTextRenderer(n => n.Payer)
 				.AddColumn("Сумма по акту")
 					.AddNumericRenderer(n => n.DocumentPaymentSum)
 				.AddColumn("Сумма по ДВ")
