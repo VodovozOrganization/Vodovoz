@@ -46,12 +46,12 @@ namespace DriverAPI.HealthChecks
 			};
 
 			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
-				$"{baseAddress}/api/v{Startup._apiVersion}/Authenticate",
+				$"{baseAddress}/api/v{Startup.ApiVersion}/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);
 
 			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
-				$"{baseAddress}/api/v{Startup._apiVersion}/GetOrderQRPaymentStatus?orderId={orderId}",
+				$"{baseAddress}/api/v{Startup.ApiVersion}/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 
@@ -63,7 +63,7 @@ namespace DriverAPI.HealthChecks
 			}
 
 			var routeList = await ResponseHelper.GetJsonByUri<RouteListDto>(
-				$"{baseAddress}/api/v{Startup._apiVersion}/GetRouteList?routeListId={routeListId}",
+				$"{baseAddress}/api/v{Startup.ApiVersion}/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 

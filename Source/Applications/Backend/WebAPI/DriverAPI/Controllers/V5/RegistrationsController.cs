@@ -21,7 +21,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер регистраций событий
 	/// </summary>
-	[ApiVersion(Startup._apiVersion)]
+	[ApiVersion(Startup.ApiVersion)]
 	[Authorize]
 	public class RegistrationsController : VersionedController
 	{

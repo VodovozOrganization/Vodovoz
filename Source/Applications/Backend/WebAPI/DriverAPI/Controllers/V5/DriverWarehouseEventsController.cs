@@ -18,7 +18,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер событий нахождения водителя на складе
 	/// </summary>
-	[ApiVersion(Startup._apiVersion)]
+	[ApiVersion(Startup.ApiVersion)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverWarehouseEventsController : VersionedController
 	{

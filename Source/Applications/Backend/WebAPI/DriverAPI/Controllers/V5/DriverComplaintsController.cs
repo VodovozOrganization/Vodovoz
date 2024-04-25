@@ -14,7 +14,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер рекламаций водителей
 	/// </summary>
-	[ApiVersion(Startup._apiVersion)]
+	[ApiVersion(Startup.ApiVersion)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverComplaintsController : VersionedController
 	{
