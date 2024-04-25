@@ -69,8 +69,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var onlyDifferentDistricts = newDistricts
 				.Where(d =>
 					oldDistricts.ContainsKey(d.Key)
-					&& (
-						d.Value.TariffZone.Id != oldDistricts[d.Key].TariffZone.Id
+					&& (d.Value.TariffZone.Id != oldDistricts[d.Key].TariffZone.Id
+						|| d.Value.DistrictBorder != oldDistricts[d.Key].DistrictBorder
 						|| GetMinimalBottlesCount(d.Value) != GetMinimalBottlesCount(oldDistricts[d.Key])
 						|| AllDistrictRuleItemsChanged(d.Value.AllDistrictRuleItems, oldDistricts[d.Key].AllDistrictRuleItems)
 						|| !d.Value.AllDeliveryScheduleRestrictions.All(dsr => oldDistricts[d.Key].AllDeliveryScheduleRestrictions
