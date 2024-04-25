@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -89,8 +90,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
 		public bool CanShowOrder => Entity.Order != null;
-		public bool CanShowOnlinePayment => Entity.OnlinePayment != null;
-		public bool CanShowOnlinePaymentSource => Entity.OnlinePaymentSource != null;
+		public bool CanShowOnlinePayment => Entity.OnlinePayment.HasValue;
+		public bool CanShowOnlinePaymentSource => Entity.OnlinePaymentSource.HasValue;
 		public bool CanShowContactPhone => !string.IsNullOrWhiteSpace(Entity.ContactPhone);
 		public bool CanShowNotPromoItems => OnlineOrderNotPromoItems.Any();
 		public bool CanShowPromoItems => OnlineOrderPromoItems.Any();
@@ -159,7 +160,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();
 		public string OnlinePayment => Entity.OnlinePayment.ToString();
-		public string OnlinePaymentSource => Entity.OnlinePaymentSource.ToString();
+		public string OnlinePaymentSource =>
+			Entity.OnlinePaymentSource.HasValue
+				? Entity.OnlinePaymentSource.GetEnumTitle()
+				: string.Empty;
 		public string ValidationErrors { get; private set; }
 		
 		public IEntityEntryViewModel CancellationReasonViewModel { get; private set; }
