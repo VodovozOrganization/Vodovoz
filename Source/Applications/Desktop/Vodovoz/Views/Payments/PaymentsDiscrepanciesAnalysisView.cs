@@ -121,6 +121,10 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel, vm => vm.PaymentStatus, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			ycheckbuttonHideUnregisteredCounterparties.Binding
+				.AddBinding(ViewModel, vm => vm.HideUnregisteredCounterparties, w => w.Active)
+				.InitializeFromSource();
+
 			ConfigureFileChooser();
 			ConfigureOrdersTree();
 			ConfigurePaymentsTree();

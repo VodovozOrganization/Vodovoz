@@ -68,6 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private string _oldBalanceInDatabase;
 
 		private PaymentStatus? _paymentStatus;
+		private bool _hideUnregisteredCounterparties;
 
 		public PaymentsDiscrepanciesAnalysisViewModel(
 			INavigationManager navigation,
@@ -238,6 +239,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			get => _paymentStatus;
 			set => SetField(ref _paymentStatus, value);
+		}
+
+		public bool HideUnregisteredCounterparties
+		{
+			get => _hideUnregisteredCounterparties;
+			set => SetField(ref _hideUnregisteredCounterparties, value);
 		}
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
