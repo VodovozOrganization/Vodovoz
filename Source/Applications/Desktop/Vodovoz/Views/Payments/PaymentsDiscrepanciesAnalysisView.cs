@@ -3,8 +3,12 @@ using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Views.Dialog;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
@@ -108,6 +112,13 @@ namespace Vodovoz.Views.Payments
 
 			ylabelClientTotalPaymentsDocumentData.Binding
 				.AddBinding(ViewModel, vm => vm.PaymentsTotalSum1C, w => w.Text)
+				.InitializeFromSource();
+
+			speciallistcomboboxPaymentStatus.ShowSpecialStateAll = true;
+			speciallistcomboboxPaymentStatus.SetRenderTextFunc<PaymentStatus?>(x => x.GetEnumTitle());
+			speciallistcomboboxPaymentStatus.ItemsList = Enum.GetValues(typeof(PaymentStatus));
+			speciallistcomboboxPaymentStatus.Binding
+				.AddBinding(ViewModel, vm => vm.PaymentStatus, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			ConfigureFileChooser();

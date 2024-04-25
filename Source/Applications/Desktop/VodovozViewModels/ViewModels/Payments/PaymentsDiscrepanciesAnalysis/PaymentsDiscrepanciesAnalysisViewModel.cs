@@ -10,7 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -24,13 +26,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private static readonly OrderStatus[] _availableOrderStatuses = new OrderStatus[]
 		{
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed
+			OrderStatus.Accepted,
+			OrderStatus.InTravelList,
+			OrderStatus.OnLoading,
+			OrderStatus.OnTheWay,
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock,
+			OrderStatus.Closed
 		};
 
 		private readonly ICommonServices _commonServices;
@@ -64,6 +66,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private string _paymentsTotalSumInDatabase;
 		private string _balanceInDatabase;
 		private string _oldBalanceInDatabase;
+
+		private PaymentStatus? _paymentStatus;
 
 		public PaymentsDiscrepanciesAnalysisViewModel(
 			INavigationManager navigation,
@@ -230,6 +234,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			set => SetField(ref _oldBalanceInDatabase, value);
 		}
 
+		public PaymentStatus? PaymentStatus
+		{
+			get => _paymentStatus;
+			set => SetField(ref _paymentStatus, value);
+		}
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
