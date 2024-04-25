@@ -106,6 +106,8 @@ namespace Vodovoz.Views.Payments
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerCommonMaxDate;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideUnregisteredCounterparties;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewCounterpartiesData;
@@ -603,11 +605,23 @@ namespace Vodovoz.Views.Payments
 			w46.Position = 1;
 			w46.Expand = false;
 			w46.Fill = false;
-			this.yvboxByCommonMain.Add(this.yhbox1);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.yvboxByCommonMain[this.yhbox1]));
-			w47.Position = 1;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.ycheckbuttonHideUnregisteredCounterparties = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonHideUnregisteredCounterparties.CanFocus = true;
+			this.ycheckbuttonHideUnregisteredCounterparties.Name = "ycheckbuttonHideUnregisteredCounterparties";
+			this.ycheckbuttonHideUnregisteredCounterparties.Label = global::Mono.Unix.Catalog.GetString("Скрывать КА отсутствующих в ДВ");
+			this.ycheckbuttonHideUnregisteredCounterparties.DrawIndicator = true;
+			this.ycheckbuttonHideUnregisteredCounterparties.UseUnderline = true;
+			this.yhbox1.Add(this.ycheckbuttonHideUnregisteredCounterparties);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ycheckbuttonHideUnregisteredCounterparties]));
+			w47.Position = 2;
 			w47.Expand = false;
 			w47.Fill = false;
+			this.yvboxByCommonMain.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.yvboxByCommonMain[this.yhbox1]));
+			w48.Position = 1;
+			w48.Expand = false;
+			w48.Fill = false;
 			// Container child yvboxByCommonMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
@@ -618,11 +632,11 @@ namespace Vodovoz.Views.Payments
 			this.ytreeviewCounterpartiesData.Name = "ytreeviewCounterpartiesData";
 			this.GtkScrolledWindow2.Add(this.ytreeviewCounterpartiesData);
 			this.yvboxByCommonMain.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.yvboxByCommonMain[this.GtkScrolledWindow2]));
-			w49.Position = 2;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.yvboxByCommonMain[this.GtkScrolledWindow2]));
+			w50.Position = 2;
 			this.ynotebook.Add(this.yvboxByCommonMain);
-			global::Gtk.Notebook.NotebookChild w50 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook[this.yvboxByCommonMain]));
-			w50.Position = 1;
+			global::Gtk.Notebook.NotebookChild w51 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook[this.yvboxByCommonMain]));
+			w51.Position = 1;
 			// Notebook tab
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
@@ -630,8 +644,8 @@ namespace Vodovoz.Views.Payments
 			this.ynotebook.SetTabLabel(this.yvboxByCommonMain, this.label2);
 			this.label2.ShowAll();
 			this.yvboxMain.Add(this.ynotebook);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ynotebook]));
-			w51.Position = 3;
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ynotebook]));
+			w52.Position = 3;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
