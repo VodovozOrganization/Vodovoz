@@ -99,7 +99,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-			return new ReportInfo
+
+			return new ReportInfo(connectionString)
 			{
 				Title = this.Title,
 				Identifier = "Documents.BillWithoutShipmentForPayment",
