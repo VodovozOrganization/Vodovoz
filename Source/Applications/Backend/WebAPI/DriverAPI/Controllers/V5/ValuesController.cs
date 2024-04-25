@@ -13,7 +13,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер значений
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion(Startup._apiVersion)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class ValuesController : VersionedController
 	{

@@ -20,7 +20,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер аутентификации
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion(Startup._apiVersion)]
 	public class TokenController : VersionedController
 	{
 		private readonly IConfiguration _configuration;

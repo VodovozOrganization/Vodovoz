@@ -7,7 +7,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Базовый контроллер с версией
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion(Startup._apiVersion)]
 	[Route("api/v{version:apiVersion}/[action]")]
 	[ApiController]
 	public class VersionedController : ApiControllerBase

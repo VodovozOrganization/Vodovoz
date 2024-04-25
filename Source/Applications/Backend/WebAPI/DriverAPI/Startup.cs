@@ -34,6 +34,7 @@ namespace DriverAPI
 {
 	internal class Startup
 	{
+		public const string _apiVersion = "5.0";
 		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;
 

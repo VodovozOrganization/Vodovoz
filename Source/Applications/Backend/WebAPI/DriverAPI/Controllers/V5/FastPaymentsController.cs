@@ -22,7 +22,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер оплат СБП
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion(Startup._apiVersion)]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class FastPaymentsController : VersionedController
 	{

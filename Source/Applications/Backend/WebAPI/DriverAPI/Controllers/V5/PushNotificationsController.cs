@@ -27,7 +27,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер PUSH-сообщений
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion(Startup._apiVersion)]
 	[Authorize]
 	public class PushNotificationsController : VersionedController
 	{

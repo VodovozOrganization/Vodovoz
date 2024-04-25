@@ -14,7 +14,7 @@ namespace DriverAPI.Controllers.V5
 	/// <summary>
 	/// Контроллер аккаунтов
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion(Startup._apiVersion)]
 	[Authorize]
 	public class AccountController : VersionedController
 	{
