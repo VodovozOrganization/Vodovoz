@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -120,7 +120,7 @@ namespace TrueMarkApi.Services
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
-				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint);
+				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint, organizationCertificate.Inn);
 
 				_logger.LogInformation("Получили токен авторизации: {AuthorizationToken} ", token);
 
