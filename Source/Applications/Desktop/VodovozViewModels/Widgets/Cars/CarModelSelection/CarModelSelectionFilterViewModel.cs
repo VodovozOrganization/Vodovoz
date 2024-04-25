@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 		private string _searchString;
 		private bool _isShowArchiveCarModels;
 		private IEnumerable<CarTypeOfUse> _selectedCarTypesOfUse;
+		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
 
 		public CarModelSelectionFilterViewModel(IUnitOfWork unitOfWork, ICarSettings carSettings)
 		{
@@ -61,6 +62,17 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			set
 			{
 				SetField(ref _selectedCarTypesOfUse, value);
+				UpdateCarModelNodes();
+				OnPropertyChanged(nameof(CarModelNodes));
+			}
+		}
+
+		public IEnumerable<CarTypeOfUse> ExcludedCarTypesOfUse
+		{
+			get => _excludedCarTypesOfUse ?? new List<CarTypeOfUse>();
+			set
+			{
+				SetField(ref _excludedCarTypesOfUse, value);
 				UpdateCarModelNodes();
 				OnPropertyChanged(nameof(CarModelNodes));
 			}
@@ -129,7 +141,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 			foreach(var carModel in _carModels)
 			{
-				if(SelectedCarTypesOfUse.Contains(carModel.CarTypeOfUse))
+				if(SelectedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
+					&& !ExcludedCarTypesOfUse.Contains(carModel.CarTypeOfUse))
 				{
 					var carModelRow = CarModelNodes
 						.Where(r => r.ModelId == carModel.Id)

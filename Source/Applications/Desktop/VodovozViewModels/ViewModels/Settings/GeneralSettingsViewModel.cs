@@ -43,6 +43,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private string _carLoadDocumentInfoString;
 		private bool _isFastDelivery19LBottlesLimitActive;
 		private int _fastDelivery19LBottlesLimitCount;
+		private int _upcomingTechInspectForOurCars;
+		private int _upcomingTechInspectForRaskatCars;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettingsSettings,
@@ -95,6 +97,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_carLoadDocumentInfoString = _generalSettingsSettings.GetCarLoadDocumentInfoString;
 			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
 			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
+
+			_upcomingTechInspectForOurCars = _generalSettingsSettings.UpcomingTechInspectForOurCars;
+			_upcomingTechInspectForRaskatCars = _generalSettingsSettings.UpcomingTechInspectForRaskatCars;
+			CanEditUpcomingTechInspectSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditTechInspectSetting);
+			SaveUpcomingTechInspectCommand = new DelegateCommand(SaveUpcomingTechInspect, () => CanEditUpcomingTechInspectSetting);
 		}
 
 		#region RouteListPrintedFormPhones
@@ -309,6 +316,33 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			get => _fastDelivery19LBottlesLimitCount;
 			set => SetField(ref _fastDelivery19LBottlesLimitCount, value);
 		}
+
+		#endregion
+
+		#region Настройка уведомления о приближающемся ТО
+
+		public int UpcomingTechInspectForOurCars
+		{
+			get => _upcomingTechInspectForOurCars;
+			set => SetField(ref _upcomingTechInspectForOurCars, value);
+		}
+
+		public int UpcomingTechInspectForRaskatCars
+		{
+			get => _upcomingTechInspectForRaskatCars;
+			set => SetField(ref _upcomingTechInspectForRaskatCars, value);
+		}
+
+		public DelegateCommand SaveUpcomingTechInspectCommand { get; }
+		public bool CanEditUpcomingTechInspectSetting { get; }
+
+		private void SaveUpcomingTechInspect()
+		{
+			_generalSettingsSettings.UpdateUpcomingTechInspectForOurCars(UpcomingTechInspectForOurCars);
+			_generalSettingsSettings.UpdateUpcomingTechInspectForRaskatCars(UpcomingTechInspectForRaskatCars);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
 
 		#endregion
 

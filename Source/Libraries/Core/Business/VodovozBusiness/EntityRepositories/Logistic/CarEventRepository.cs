@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -19,6 +20,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return unitOfWork.Session.Query<CarEvent>()
 				.Where(predicate)
 				.ToList();
+		}
+
+		public CarEvent GetLastTechInspectCarEvent(IUnitOfWork uow, int carId, int techInspectCarEventTypeId)
+		{
+			return
+				(
+					from ce in uow.Session.Query<CarEvent>()
+					join c in uow.GetAll<Car>() on ce.Car.Id equals c.Id
+					where c.Id == carId
+						&& ce.CarEventType.Id == techInspectCarEventTypeId
+					orderby ce.StartDate descending
+					select ce
+				).FirstOrDefault();
 		}
 	}
 }

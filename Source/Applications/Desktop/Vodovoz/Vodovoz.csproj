@@ -637,6 +637,7 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="ReportsParameters\PACS\PacsMissingCallsReport.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
+    <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureNode.cs" />
@@ -1078,8 +1079,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OnlineStore.ExportToSiteDlg.cs" />
     <Compile Include="ViewWidgets\UndeliveredOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
-    <Compile Include="Dialogs\UndeliveryOnOrderCloseDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveryOnOrderCloseDlg.cs" />
     <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.UndeliveredOrdersPanelView.cs" />
     <Compile Include="Dialogs\UndeliveriesWithCommentsPrintDlg.cs" />
@@ -2047,12 +2046,17 @@
     <Compile Include="gtk-gui\Vodovoz.Views.EntityButtonsSelectionView.cs" />
     <Compile Include="ViewWidgets\GtkUI\RestrictedDatePicker.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
+    <Compile Include="AboutView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
+    <Compile Include="AboutAuthorsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
+    <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewWidgets\GtkUI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2666,6 +2670,9 @@
     <EmbeddedResource Include="icons\map\points\custom\order_info_cooler.png" />
     <EmbeddedResource Include="icons\map\points\custom\order_info_many.png" />
     <EmbeddedResource Include="icons\map\points\custom\order_info_small_bottles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\buttons\wiki.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

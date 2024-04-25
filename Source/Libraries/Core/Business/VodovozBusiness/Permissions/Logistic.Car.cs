@@ -33,6 +33,13 @@ namespace Vodovoz.Permissions
 			[Display(
 				Name = "Доступ к отчету \"Отчет о принадлежности ТС\"")]
 			public static string HasAccessToCarOwnershipReport => "has_access_to_car_ownership_report";
+
+			/// <summary>
+			/// Доступ к настройке уведомления о приближающемся ТО
+			/// </summary>
+			[Display(
+				Name = "Доступ к настройке уведомления о приближающемся ТО")]
+			public static string CanEditTechInspectSetting => nameof(CanEditTechInspectSetting);
 		}
 	}
 }

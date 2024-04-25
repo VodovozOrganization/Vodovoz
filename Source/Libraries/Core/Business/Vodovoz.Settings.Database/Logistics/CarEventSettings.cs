@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Logistics;
 
@@ -15,5 +15,6 @@ namespace Vodovoz.Settings.Database.Logistics
 
 		public int CompensationFromInsuranceByCourtId => _settingsController.GetIntValue("compensation_from_insurance_by_court_id");
 		public int CarEventStartNewPeriodDay => _settingsController.GetIntValue("CarEventStartNewPeriodDay");
+		public int TechInspectCarEventTypeId => _settingsController.GetIntValue(nameof(TechInspectCarEventTypeId));
 	}
 }

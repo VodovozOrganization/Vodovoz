@@ -38,24 +38,6 @@ namespace Vodovoz.Logistic
 		{
 			CopyIdCommand = new DelegateCommand(CopyEntityId);
 
-			ViewModel.UndeliveryOpenDlgAction = (order, unitOfWork, newStatus) =>
-			{
-				var result = new UndeliveryOnOrderCloseDlg(order, unitOfWork);
-
-				result.DlgSaved += (s, ea) =>
-				{
-					var address = ViewModel.Items
-						.Where(x => x.RouteListItem.Order.Id == order.Id)
-						.FirstOrDefault();
-
-					address.UpdateStatus(newStatus, ViewModel.CallTaskWorker);
-					ViewModel.UoW.Save(address.RouteListItem);
-					ViewModel.UoW.Commit();
-				};
-
-				return result;
-			};
-
 			Build();
 			Initialize();
 		}
@@ -308,6 +290,8 @@ namespace Vodovoz.Logistic
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
+				.AddColumn("Время передачи")
+					.AddTextRenderer(node => node.RecievedTransferAt == null ? "": node.RecievedTransferAt.Value.ToString("dd.MM.yyyy hh:mm:ss"))
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)

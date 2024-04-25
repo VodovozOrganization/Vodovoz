@@ -1,6 +1,5 @@
-﻿using QS.Project.ViewModels;
-using QS.Project.Views;
-using System;
+﻿using System;
+using Vodovoz.ViewModels;
 
 public partial class MainWindow
 {
@@ -11,10 +10,6 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAboutActionActivated(object sender, EventArgs e)
 	{
-		var aboutViewModel = new AboutViewModel(_applicationInfo);
-		var aboutView = new AboutView(aboutViewModel);
-		aboutView.ShowAll();
-		aboutView.Run();
-		aboutView.Destroy();
+		NavigationManager.OpenViewModel<AboutViewModel>(null);
 	}
 }

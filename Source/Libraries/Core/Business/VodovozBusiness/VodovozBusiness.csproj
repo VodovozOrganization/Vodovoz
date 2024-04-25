@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -58,7 +58,12 @@
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
+    <Compile Include="Domain\Logistic\DriverTerminalCondition.cs" />
+    <Compile Include="Domain\Logistic\RouteListControlNotLoadedNode.cs" />
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
+    <Compile Include="Domain\Sale\WeekDayName.cs" />
+    <Compile Include="Domain\Logistic\RouteListStatus.cs" />
+    <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyCashlessBalanceNode.cs" />
@@ -66,6 +71,10 @@
     <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Errors\Logistics\DistrictSet.cs" />
+    <Compile Include="NotificationRecievers\DriverApiHelperConfiguration.cs" />
+    <Compile Include="NotificationRecievers\DriverAPIHelperException.cs" />
+    <Compile Include="NotificationRecievers\IRouteListTransferhandByHandReciever.cs" />
     <Compile Include="Models\IFastDeliveryAvailabilityHistoryModel.cs" />
     <Compile Include="Options\PushNotificationSettings.cs" />
     <Compile Include="NotificationRecievers\ICashRequestForDriverIsGivenForTakeNotificationReciever.cs" />
@@ -509,7 +518,7 @@
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\GeoGroupVersion.cs" />
-    <Compile Include="Domain\Sale\SaleEnums.cs" />
+    <Compile Include="Domain\Sale\DistrictWaterPrice.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />

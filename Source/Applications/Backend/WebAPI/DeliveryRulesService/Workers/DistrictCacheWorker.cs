@@ -8,12 +8,14 @@ namespace DeliveryRulesService.Workers
 	public class DistrictCacheWorker : TimerServiceBase
 	{
 		private readonly ILogger<DistrictCacheWorker> _logger;
-		private readonly DistrictCache _districtCache;
+		private readonly DistrictCacheService _districtCache;
 
-		public DistrictCacheWorker(ILogger<DistrictCacheWorker> logger, DistrictCache districtCache)
+		public DistrictCacheWorker(ILogger<DistrictCacheWorker> logger, DistrictCacheService districtCache)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_districtCache = districtCache
+				?? throw new ArgumentNullException(nameof(districtCache));
 		}
 
 		protected override TimeSpan Interval => TimeSpan.FromHours(1);

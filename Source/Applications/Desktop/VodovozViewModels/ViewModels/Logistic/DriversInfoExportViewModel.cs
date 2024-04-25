@@ -65,6 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Truck);
+			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Loader);
 
 			TabName = "Выгрузка по водителям";
 			Items = new GenericObservableList<DriverInfoNode>();

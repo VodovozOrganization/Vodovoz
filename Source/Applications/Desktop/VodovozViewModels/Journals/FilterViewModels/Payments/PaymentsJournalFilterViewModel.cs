@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.Navigation;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using QS.Tdi;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
+	public partial class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -22,7 +21,8 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _hideAllocatedPayments;
 		private bool _isSortingDescByUnAllocatedSum;
 		private Counterparty _counterparty;
-		
+		private PaymentJournalSortType _sortType;
+
 		public PaymentsJournalFilterViewModel(
 			ILifetimeScope scope,
 			INavigationManager navigationManager,
@@ -99,9 +99,15 @@ namespace Vodovoz.Filters.ViewModels
 			get => _isSortingDescByUnAllocatedSum;
 			set => UpdateFilterField(ref _isSortingDescByUnAllocatedSum, value);
 		}
-		
+
+		public PaymentJournalSortType SortType
+		{
+			get => _sortType;
+			set => UpdateFilterField(ref _sortType, value);
+		}
+
 		public override bool IsShow { get; set; } = true;
-		
+
 		private void Refilter(Action<PaymentsJournalFilterViewModel>[] filterParams)
 		{
 			if(filterParams.Any())

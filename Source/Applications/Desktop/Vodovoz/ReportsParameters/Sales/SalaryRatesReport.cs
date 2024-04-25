@@ -7,7 +7,6 @@ using MoreLinq;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Services;
@@ -81,19 +80,5 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
-	}
-
-	public class SalaryRateFilterNode : PropertyChangedBase
-	{
-		private bool _selected;
-
-		public bool Selected
-		{
-			get => _selected;
-			set => SetField(ref _selected, value);
-		}
-
-		public int WageId { get; set; }
-		public string Name { get; set; }
 	}
 }

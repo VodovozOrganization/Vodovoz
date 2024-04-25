@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;

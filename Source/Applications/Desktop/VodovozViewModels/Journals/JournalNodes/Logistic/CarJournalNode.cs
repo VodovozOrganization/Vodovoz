@@ -12,5 +12,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string RegistrationNumber { get; set; }
 		public string DriverName { get; set; }
 		public bool IsArchive { get; set; }
+		public bool IsUpcomingTechInspect { get; set; }
 	}
 }

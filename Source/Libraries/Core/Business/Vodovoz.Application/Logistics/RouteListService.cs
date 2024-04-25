@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
@@ -53,6 +54,9 @@ namespace Vodovoz.Application.Logistics
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
+		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
+		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -74,7 +78,10 @@ namespace Vodovoz.Application.Logistics
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
-			RouteGeometryCalculator routeGeometryCalculator)
+			RouteGeometryCalculator routeGeometryCalculator,
+			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
+			IGenericRepository<RouteListItem> routeListAddressesRepository,
+			IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -104,7 +111,7 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_deliveryRulesSettings = deliveryRulesSettings
 				?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
-			_deliveryRepository = deliveryRepository 
+			_deliveryRepository = deliveryRepository
 				?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository
 				?? throw new ArgumentNullException(nameof(trackRepository));
@@ -116,6 +123,12 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
 			_productGroupRepository = productGroupRepository
 				?? throw new ArgumentNullException(nameof(productGroupRepository));
+			_routeListAddressTransferItemRepository = routeListAddressTransferItemRepository
+				?? throw new ArgumentNullException(nameof(routeListAddressTransferItemRepository));
+			_routeListAddressesRepository = routeListAddressesRepository
+				?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
+			_unitOfWorkFactory = unitOfWorkFactory
+				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public bool TrySendEnRoute(
@@ -772,7 +785,6 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}
 
-
 		private void FlushSessionWithoutCommit(IUnitOfWork uow)
 		{
 			// Если транзакция не открыта, то вызов Session.Flush() сразу коммитит изменения в базу
@@ -1056,6 +1068,83 @@ namespace Vodovoz.Application.Logistics
 			RecalculateRouteList(unitOfWork, routeList);
 
 			return Result.Success();
+		}
+
+		public RouteListItem FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
+		{
+			var nextAddress = routeListAddress.TransferedTo;
+
+			if(nextAddress == null)
+			{
+				return routeListAddress;
+			}
+
+			var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
+				unitOfWork,
+				atdi => (atdi.OldAddress.Id == routeListAddress.Id && atdi.NewAddress.Id == nextAddress.Id)
+					 || (atdi.OldAddress.Id == nextAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)).Count();
+
+			if(transferDocumentsCount % 2 == 0)
+			{
+				return routeListAddress;
+			}
+
+			if((nextAddress.Status != RouteListItemStatus.Transfered && !nextAddress.WasTransfered) || nextAddress.RecievedTransferAt != null)
+			{
+				return nextAddress;
+			}
+
+			return FindTransferTarget(unitOfWork,nextAddress);
+		}
+
+		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
+		{
+			var previousAddresses = _routeListAddressesRepository.Get(
+				unitOfWork,
+				address => address.TransferedTo.Id == routeListAddress.Id);
+
+			if(!previousAddresses.Any())
+			{
+				return routeListAddress;
+			}
+
+			foreach(var previousAddress in previousAddresses)
+			{
+				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
+				{
+					return previousAddress;
+				}
+
+				var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
+					unitOfWork,
+					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)
+						 || (atdi.NewAddress.Id == previousAddress.Id && atdi.OldAddress.Id == routeListAddress.Id)).Count();
+
+				if(transferDocumentsCount % 2 == 0)
+				{
+					continue;
+				}
+
+				return FindTransferSource(unitOfWork, previousAddress);
+			}
+
+			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+		}
+
+		public void ConfirmRouteListAddressTransferRecieved(int routeListAddressId, DateTime actionTime)
+		{
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Подтверждение приема переноса адреса маршрутного листа"))
+			{
+				var routeListAddress = _routeListAddressesRepository.Get(
+					unitOfWork,
+					address => address.Id == routeListAddressId)
+					.FirstOrDefault();
+
+				routeListAddress.RecievedTransferAt = actionTime;
+
+				unitOfWork.Save(routeListAddress);
+				unitOfWork.Commit();
+			}
 		}
 	}
 }

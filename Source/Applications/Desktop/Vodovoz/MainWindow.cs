@@ -2,6 +2,7 @@
 using MassTransit;
 using NLog;
 using Pacs.Core;
+using QS.Commands;
 using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Services;
@@ -14,6 +15,7 @@ using QSBanks;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Vodovoz;
@@ -26,6 +28,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Tabs;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Mango;
@@ -42,6 +45,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IInteractiveService _interativeService;
 	private readonly IPasswordValidator _passwordValidator;
 	private readonly IApplicationConfigurator _applicationConfigurator;
+	private readonly IWikiSettings _wikiSettings;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
@@ -55,11 +59,11 @@ public partial class MainWindow : Gtk.Window
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
-	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
+	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator, IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
-		
+		_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
 		Build();
 
 		_interativeService = ServicesConfig.CommonServices.InteractiveService;
@@ -334,8 +338,21 @@ public partial class MainWindow : Gtk.Window
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
 
 		InitializeThemesMenuItem();
+
+		OpenWikiCommand = new DelegateCommand(OpenWiki);
+		ybuttonWiki.BindCommand(OpenWikiCommand);
+
+		this.KeyPressEvent += OnKeyPressed;
 	}
-	
+
+	private void OnKeyPressed(object o, Gtk.KeyPressEventArgs args)
+	{
+		if(args.Event.Key == Gdk.Key.F1)
+		{
+			OpenWikiCommand.Execute();
+		}
+	}
+
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }
 
@@ -353,6 +370,13 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	public DelegateCommand OpenWikiCommand { get; }
+
+	private void OpenWiki()
+	{
+		Process.Start(new ProcessStartInfo(_wikiSettings.Url) { UseShellExecute = true });
+	}
 
 	protected override void OnDestroyed()
 	{
