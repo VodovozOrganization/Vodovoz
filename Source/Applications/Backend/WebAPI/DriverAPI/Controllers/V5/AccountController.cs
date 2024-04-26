@@ -46,13 +46,13 @@ namespace DriverAPI.Controllers.V5
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="Exception"></exception>
-		[HttpPost("Register")]
+		[HttpPost]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> Post([FromBody] RegisterRequest loginRequestModel)
+		public async Task<IActionResult> Register([FromBody] RegisterRequest loginRequestModel)
 		{
 			var user = new IdentityUser
 			{
@@ -103,7 +103,7 @@ namespace DriverAPI.Controllers.V5
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="Exception"></exception>
-		[HttpPost("AddRoleToUser")]
+		[HttpPost]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Consumes(MediaTypeNames.Application.Json)]
@@ -150,7 +150,7 @@ namespace DriverAPI.Controllers.V5
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="Exception"></exception>
-		[HttpPost("RemoveRoleFromUser")]
+		[HttpPost]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[Consumes(MediaTypeNames.Application.Json)]
