@@ -595,8 +595,9 @@ namespace Vodovoz.Domain.Orders
 
 			var isOrderStatusForbiddenForCancellation = !orderRepository.GetStatusesForOrderCancelationWithCancellation().Contains(OldOrder.OrderStatus);
 			var isSelfDeliveryOnLoadingOrder = NewOrder != null && NewOrder.SelfDelivery && OldOrder.OrderStatus == OrderStatus.OnLoading;
+			var isNotUndelivery = GuiltyInUndelivery.Any(x => x.GuiltySide == GuiltyTypes.None);
 
-			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder)
+			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder && !isNotUndelivery)
 			{
 				yield return new ValidationResult("В текущий момент заказ нельзя отменить.",
 					new[] { nameof(OrderStatus) });
