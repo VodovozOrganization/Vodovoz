@@ -124,7 +124,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e,"Ошибка при обновлении уведомления ИПЗ");
+				_logger.LogError(
+					e,
+					"Ошибка при обновлении уведомления ИПЗ по онлайн заказу {OnlineOrderId}",
+					notification.OnlineOrder.Id);
 			}
 		}
 	}
