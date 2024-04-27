@@ -344,12 +344,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
 			}
 
-			if(FuelType == null)
+			if(FuelType is null)
 			{
 				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
 			}
 
-			if(CarModel == null)
+			if(CarModel is null)
 			{
 				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
 			}
@@ -357,6 +357,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(FuelConsumption <= 0)
 			{
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { nameof(FuelConsumption) });
+			}
+
+			if(Id == 0 && IncomeChannel == IncomeChannel.None)
+			{
+				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
 			var cars = UoW.Session.QueryOver<Car>()
