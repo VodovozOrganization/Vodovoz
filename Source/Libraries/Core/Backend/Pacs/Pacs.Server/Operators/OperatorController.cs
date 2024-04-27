@@ -34,8 +34,6 @@ namespace Pacs.Server.Operators
 			operatorAgent.OnDisconnect += OperatorAgentOnDisconnect;
 		}
 
-		public OperatorState GetState() => _operatorAgent.OperatorState;
-
 		public bool AssignedToPhone(string phone)
 		{
 			return _operatorAgent.OperatorState.PhoneNumber == phone;
