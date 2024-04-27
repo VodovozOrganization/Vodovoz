@@ -359,7 +359,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { nameof(FuelConsumption) });
 			}
 
-			if(Id == 0 && IncomeChannel == IncomeChannel.None)
+			if(IncomeChannel == IncomeChannel.None)
 			{
 				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
