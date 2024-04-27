@@ -1,5 +1,4 @@
 ﻿using Pacs.Core.Messages.Events;
-using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Core.Messages.Commands
 {
