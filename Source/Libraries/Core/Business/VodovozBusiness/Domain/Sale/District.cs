@@ -696,7 +696,7 @@ namespace Vodovoz.Domain.Sale
 		{
 			if(aList is GenericObservableList<DeliveryScheduleRestriction> gol
 				&& gol[aIdx] is DeliveryScheduleRestriction newDsr
-				&& !_allDeliveryScheduleRestrictions.Any(adsr => adsr.Id == newDsr.Id))
+				&& !_allDeliveryScheduleRestrictions.Any(adsr => adsr.Id == newDsr.Id && newDsr.Id != 0))
 			{
 				_allDeliveryScheduleRestrictions.Add(newDsr);
 			}
@@ -714,18 +714,18 @@ namespace Vodovoz.Domain.Sale
 		private void OnObservableDistrictRuleItemsElementAdded(object aList, int[] aIdx)
 		{
 			if(aList is GenericObservableList<WeekDayDistrictRuleItem> wdril
-				&& wdril[aIdx] is WeekDayDistrictRuleItem newWrib
-				&& !_allDistrictRuleItems.Any(adsr => adsr.Id == newWrib.Id))
+				&& wdril[aIdx] is WeekDayDistrictRuleItem newWddri
+				&& !_allDistrictRuleItems.Any(adsr => adsr.Id == newWddri.Id && newWddri.Id != 0))
 			{
-				_allDistrictRuleItems.Add(newWrib);
+				_allDistrictRuleItems.Add(newWddri);
 				return;
 			}
 
 			if(aList is GenericObservableList<CommonDistrictRuleItem> cdril
-				&& cdril[aIdx] is CommonDistrictRuleItem newCrib
-				&& !_allDistrictRuleItems.Any(adsr => adsr.Id == newCrib.Id))
+				&& cdril[aIdx] is CommonDistrictRuleItem newCdrib
+				&& !_allDistrictRuleItems.Any(adsr => adsr.Id == newCdrib.Id && newCdrib.Id != 0))
 			{
-				_allDistrictRuleItems.Add(newCrib);
+				_allDistrictRuleItems.Add(newCdrib);
 				return;
 			}
 		}
@@ -809,6 +809,7 @@ namespace Vodovoz.Domain.Sale
 			FridayDeliveryScheduleRestrictions.Clear();
 			SaturdayDeliveryScheduleRestrictions.Clear();
 			SundayDeliveryScheduleRestrictions.Clear();
+			AllDeliveryScheduleRestrictions.Clear();
 		}
 
 		public virtual void ReplaceDistrictDeliveryScheduleRestrictions(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions)

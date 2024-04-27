@@ -557,7 +557,6 @@ namespace Vodovoz.ViewModels.Logistic
 				},
 				() => SelectedScheduleRestriction != null);
 
-
 		public DelegateCommand CopyDistrictSchedulesCommand { get; }
 		public DelegateCommand PasteSchedulesToDistrictCommand { get; }
 		public DelegateCommand PasteSchedulesToZoneCommand { get; }
