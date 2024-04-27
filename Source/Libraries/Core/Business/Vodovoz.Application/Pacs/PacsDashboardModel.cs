@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
 using Pacs.Core.Messages.Events;
@@ -31,7 +31,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly ILogger<PacsDashboardModel> _logger;
 		private readonly IEmployeeService _employeeService;
 		private readonly IPacsRepository _repository;
-		private readonly AdminClient _adminClient;
+		private readonly IAdminClient _adminClient;
 		private readonly ConcurrentQueue<OperatorState> _operatorStatesQueue = new ConcurrentQueue<OperatorState>();
 		private readonly ConcurrentQueue<PacsCallEvent> _callEventsQueue = new ConcurrentQueue<PacsCallEvent>();
 		private Timer _operatorStatesWorker;
@@ -48,7 +48,7 @@ namespace Vodovoz.Application.Pacs
 			IPacsRepository repository,
 			OperatorStateAdminConsumer operatorStateAdminConsumer,
 			IObservable<SettingsEvent> settingsPublisher,
-			AdminClient adminClient,
+			IAdminClient adminClient,
 			IObservable<PacsCallEvent> callPublisher)
 		{
 			if(operatorStateAdminConsumer is null)

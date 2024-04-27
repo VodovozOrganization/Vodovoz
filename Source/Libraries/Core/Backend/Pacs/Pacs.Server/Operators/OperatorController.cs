@@ -34,14 +34,14 @@ namespace Pacs.Server.Operators
 			operatorAgent.OnDisconnect += OperatorAgentOnDisconnect;
 		}
 
-		private void OperatorAgentOnDisconnect(object sender, int operatorId)
-		{
-			OnDisconnect?.Invoke(sender, operatorId);
-		}
-
 		public bool AssignedToPhone(string phone)
 		{
 			return _operatorAgent.OperatorState.PhoneNumber == phone;
+		}
+
+		private void OperatorAgentOnDisconnect(object sender, int operatorId)
+		{
+			OnDisconnect?.Invoke(sender, operatorId);
 		}
 
 		public async Task<OperatorResult> Connect()

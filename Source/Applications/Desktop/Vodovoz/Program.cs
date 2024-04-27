@@ -10,16 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NLog.Extensions.Logging;
-using Pacs.Admin.Client;
-using Pacs.Admin.Client.Consumers;
-using Pacs.Admin.Client.Consumers.Definitions;
-using Pacs.Calls.Consumers;
-using Pacs.Calls.Consumers.Definitions;
 using Pacs.Core;
-using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
-using Pacs.Operators.Client.Consumers;
-using Pacs.Operators.Client.Consumers.Definitions;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -51,6 +43,7 @@ using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Validation;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
 using QS.Views.Resolve;
@@ -76,6 +69,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Pacs;
+using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -84,8 +79,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
@@ -98,6 +93,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Presentation.ViewModels.PaymentType;
@@ -129,6 +125,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango;
@@ -141,14 +138,6 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
-using Vodovoz.Data.NHibernate;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Domain.Sms;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
-using Vodovoz.Tools.Orders;
-using MassTransit;
-using Vodovoz.ViewModels.Infrastructure;
 
 namespace Vodovoz
 {
@@ -295,7 +284,6 @@ namespace Vodovoz
 					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
 					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
 					builder.RegisterType<OperatorClient>().As<IOperatorClient>();
-					builder.RegisterType<AdminClient>().AsSelf();
 
 					builder.RegisterType<PacsDashboardModel>()
 						.AsSelf()
@@ -722,65 +710,22 @@ namespace Vodovoz
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
 
-
 						//Messages
 						.AddSingleton<MessagesHostedService>()
 						.AddSingleton<IMessageTransportInitializer>(ctx => ctx.GetRequiredService<MessagesHostedService>())
 						.AddHostedService(ctx => ctx.GetRequiredService<MessagesHostedService>())
 
-						.AddSingleton<SettingsConsumer>()
-						.AddSingleton<IObservable<SettingsEvent>>(ctx => ctx.GetRequiredService<SettingsConsumer>())
-
-						.AddSingleton<OperatorStateAdminConsumer>()
-						.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetRequiredService<OperatorStateAdminConsumer>())
-
-						.AddScoped<MessageEndpointConnector>()
-						.AddScoped<PacsEndpointsConnector>()
-
 						.AddTransient(typeof(ViewModelEEVMBuilder<>))
 						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
 						.AddTransient<EntityModelFactory>()
 
-						.AddPacsOperatorClient()
+						.AddPacs()
 						.AddWaterDeliveryDesktop()
 						;
 
 					services.AddStaticHistoryTracker();
 					services.AddStaticScopeForEntity();
 					services.AddStaticServicesConfig();
-
-					services.AddPacsMassTransitNotHosted(
-						(context, rabbitCfg) =>
-						{
-							rabbitCfg.AddPacsBaseTopology(context);
-						},
-						(busCfg) =>
-						{
-							//Оператор
-							busCfg.AddConsumer<OperatorStateConsumer, OperatorStateConsumerDefinition>();
-							busCfg.AddConsumer<OperatorsOnBreakConsumer, OperatorsOnBreakConsumerDefinition>();
-							busCfg.AddConsumer<OperatorSettingsConsumer, OperatorSettingsConsumerDefinition>();
-
-							//Админ
-							busCfg.AddConsumer<OperatorStateAdminConsumer, OperatorStateAdminConsumerDefinition>();
-							busCfg.AddConsumer<SettingsConsumer, SettingsConsumerDefinition>();
-							busCfg.AddConsumer<PacsCallEventConsumer, PacsCallEventConsumerDefinition>();
-						}
-						//Exclude необходим для отложенного запуска конечной точки, или отмены запуска по условию
-						//При этом добавление определения потребителя в конфигурации обязательно
-						, (filter) =>
-						{
-							filter.Exclude<SettingsConsumer>();
-							filter.Exclude<OperatorSettingsConsumer>();
-							filter.Exclude<OperatorStateAdminConsumer>();
-							filter.Exclude<OperatorStateConsumer>();
-							filter.Exclude<OperatorsOnBreakConsumer>();
-							filter.Exclude<PacsCallEventConsumer>();
-						}
-					);
 				});
-
-
-
 	}
 }

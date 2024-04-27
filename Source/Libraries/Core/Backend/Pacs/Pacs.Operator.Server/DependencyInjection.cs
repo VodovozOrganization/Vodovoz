@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pacs.Server;
-using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Operators.Server
 {
