@@ -91,7 +91,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 				var result = uow.Session.QueryOver(() => operatorStateAlias)
 					.Left.JoinAlias(() => operatorStateAlias.Session, () => operatorSessionAlias)
-					.Where(() => operatorSessionAlias.Started >= from)
+					.Where(() => operatorStateAlias.Started >= from)
 					.List();
 
 				return result;
