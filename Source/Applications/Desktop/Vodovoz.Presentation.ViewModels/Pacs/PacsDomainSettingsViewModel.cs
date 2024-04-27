@@ -20,7 +20,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	{
 		private readonly ILogger<PacsDomainSettingsViewModel> _logger;
 		private readonly Employee _employee;
-		private readonly AdminClient _adminClient;
+		private readonly IAdminClient _adminClient;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _canEdit;
 
@@ -42,7 +42,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			ILogger<PacsDomainSettingsViewModel> logger,
 			IEmployeeService employeeService,
 			IPermissionService permissionService,
-			AdminClient adminClient, 
+			IAdminClient adminClient, 
 			IObservable<SettingsEvent> settingsPublisher, 
 			IGuiDispatcher guiDispatcher)
 		{

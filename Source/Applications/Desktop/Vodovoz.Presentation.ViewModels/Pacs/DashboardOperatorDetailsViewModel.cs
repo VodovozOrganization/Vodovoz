@@ -15,7 +15,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	public class DashboardOperatorDetailsViewModel : WidgetViewModelBase
 	{
 		private readonly OperatorModel _model;
-		private readonly AdminClient _adminClient;
+		private readonly IAdminClient _adminClient;
 		private readonly IInteractiveService _interactiveService;
 		private string _tittle;
 		private string _breakReason;
@@ -24,7 +24,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public DelegateCommand StartShortBreakCommand { get; set; }
 		public DelegateCommand EndBreakCommand { get; set; }
 
-		public DashboardOperatorDetailsViewModel(OperatorModel model, AdminClient adminClient, IInteractiveService interactiveService)
+		public DashboardOperatorDetailsViewModel(OperatorModel model, IAdminClient adminClient, IInteractiveService interactiveService)
 		{
 			_model = model ?? throw new ArgumentNullException(nameof(model));
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));

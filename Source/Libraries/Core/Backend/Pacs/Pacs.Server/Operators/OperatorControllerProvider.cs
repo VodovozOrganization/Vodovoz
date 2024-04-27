@@ -1,8 +1,10 @@
 ﻿using Pacs.Core;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Operators
 {
