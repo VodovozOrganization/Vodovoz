@@ -9,33 +9,53 @@ namespace Pacs.Server.Operators
 	public class OperatorControllerProvider : IOperatorControllerProvider
 	{
 		private readonly IOperatorControllerFactory _operatorControllerFactory;
+		private readonly IPacsRepository _pacsRepository;
 		private readonly IOperatorRepository _operatorRepository;
-		private ConcurrentDictionary<int, OperatorController> _controllers;
+		private readonly ConcurrentDictionary<int, OperatorController> _operatorControllers;
 
-		public OperatorControllerProvider(IOperatorControllerFactory operatorControllerFactory, IOperatorRepository operatorRepository)
+		public OperatorControllerProvider(IOperatorControllerFactory operatorControllerFactory, IPacsRepository pacsRepository, IOperatorRepository operatorRepository)
 		{
-			_controllers = new ConcurrentDictionary<int, OperatorController>();
 			_operatorControllerFactory = operatorControllerFactory ?? throw new ArgumentNullException(nameof(operatorControllerFactory));
+			_pacsRepository = pacsRepository;
 			_operatorRepository = operatorRepository ?? throw new ArgumentNullException(nameof(operatorRepository));
+
+			_operatorControllers = new ConcurrentDictionary<int, OperatorController>();
+
+			var lastOperators = _pacsRepository.GetOperators(DateTime.Now.Add(TimeSpan.FromHours(15)));
+
+			if(!lastOperators.Any())
+			{
+				return;
+			}
+
+			foreach(var op in lastOperators)
+			{
+				if(!_operatorControllers.TryGetValue(op.Id, out var _))
+				{
+					_operatorControllers.TryAdd(op.Id, _operatorControllerFactory.CreateOperatorController(_operatorRepository.GetOperator(op.Id)));
+				}
+			}
 		}
 
 		public OperatorController GetOperatorController(int operatorId)
 		{
-			if(_controllers.TryGetValue(operatorId, out var controller))
+			if(_operatorControllers.TryGetValue(operatorId, out var controller))
 			{
 				return controller;
 			}
 
 			var @operator = _operatorRepository.GetOperator(operatorId);
+
 			if(@operator == null)
 			{
 				throw new PacsException($"Оператор {operatorId} не зарегистрирован");
 			}
 
 			controller = _operatorControllerFactory.CreateOperatorController(@operator);
-			if(!_controllers.TryAdd(operatorId, controller))
+
+			if(!_operatorControllers.TryAdd(operatorId, controller))
 			{
-				return _controllers[operatorId];
+				return _operatorControllers[operatorId];
 			}
 
 			controller.OnDisconnect += ControllerOnDisconnect;
@@ -45,13 +65,13 @@ namespace Pacs.Server.Operators
 
 		public OperatorController GetOperatorController(string phoneNumber)
 		{
-			var controller = _controllers.Select(x => x.Value).FirstOrDefault(x => x.AssignedToPhone(phoneNumber));
+			var controller = _operatorControllers.Select(x => x.Value).FirstOrDefault(x => x.AssignedToPhone(phoneNumber));
 			return controller;
 		}
 
 		private void ControllerOnDisconnect(object sender, int operatorId)
 		{
-			if(_controllers.TryRemove(operatorId, out var controller))
+			if(_operatorControllers.TryRemove(operatorId, out var controller))
 			{
 				controller.Dispose();
 				controller.OnDisconnect -= ControllerOnDisconnect;
