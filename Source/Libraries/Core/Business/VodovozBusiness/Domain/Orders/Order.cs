@@ -3248,7 +3248,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 
-			if(initialStatus != newStatus)
+			if(Id != 0 && initialStatus != newStatus)
 			{
 				var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 				if(undeliveries.Any())
@@ -3268,7 +3268,6 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			_paymentFromBankClientController.CancelRefundedPaymentIfOrderRevertFromUndelivery(UoW, this, initialStatus);
-		
 		}
 
 		private void OnChangeStatusToShipped() => SendUpdToEmailOnFinishIfNeeded();
