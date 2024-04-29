@@ -67,7 +67,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimits = 40;
 			fuelDocument.PayedForFuel = null;
 			fuelDocument.Subdivision = subdivisionMock;
 
@@ -76,7 +76,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			// assert
 			AssertsAccumulator.Create
-				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelCoupons), "Количество топлива в операции не совпадает с количеством в документе"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelLimits), "Количество топлива в операции не совпадает с количеством в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.PayedLiters, Is.EqualTo(fuelDocument.PayedLiters), "Количество топлива оплаченного деньгами не совпадает с количеством топлива оплаченного деньгами в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Car, Is.Null, "Автомобиль не должен быть заполнен"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Driver, Is.SameAs(fuelDocument.Driver), "Водитель в операции не совпадает с водителем в документе"))
@@ -126,7 +126,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 				Fuel = fuelTypeMock,
 				RouteList = routeListMock,
 				UoW = uowMock,
-				FuelCoupons = 40,
+				FuelLimits = 40,
 				PayedForFuel = null,
 				Subdivision = subdivisionMock
 			};
@@ -136,7 +136,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			// assert
 			AssertsAccumulator.Create
-				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelCoupons), "Количество топлива в операции не совпадает с количеством в документе"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelLimits), "Количество топлива в операции не совпадает с количеством в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.PayedLiters, Is.EqualTo(fuelDocument.PayedLiters), "Количество топлива оплаченного деньгами не совпадает с количеством топлива оплаченного деньгами в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Car, Is.SameAs(fuelDocument.Car), "Автомобиль в операции не совпадает с автомобилем в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Driver, Is.Null, "Водитель не должен быть заполнен"))
@@ -212,7 +212,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 0;
+			fuelDocument.FuelLimits = 0;
 			fuelDocument.PayedForFuel = 0;
 
 			// act, assert
@@ -265,7 +265,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimits = 40;
 			fuelDocument.PayedForFuel = null;
 			fuelDocument.Subdivision = subdivisionMock;
 
@@ -276,7 +276,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			AssertsAccumulator.Create
 				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelDocument, Is.SameAs(fuelDocument), "Документ в операции должен совпадать с документом выдачи топлива"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelTransferDocument, Is.Null, "Документ перемещения топлива не должен быть заполнен"))
-				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelLiters, Is.EqualTo(fuelDocument.FuelCoupons), "Списанное топливо должно совпадать с топливом выданным талонами в документе выдачи"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelLiters, Is.EqualTo(fuelDocument.FuelLimits), "Списанное топливо должно совпадать с топливом выданным талонами в документе выдачи"))
 				.Release();
 		}
 
@@ -348,7 +348,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 0;
+			fuelDocument.FuelLimits = 0;
 			fuelDocument.PayedForFuel = null;
 
 			// act, assert
@@ -480,7 +480,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimits = 40;
 			fuelDocument.PayedForFuel = null;
 			fuelDocument.Subdivision = subdivisionMock;
 
@@ -529,7 +529,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimits = 40;
 			fuelDocument.PayedForFuel = 0;
 			fuelDocument.Subdivision = subdivisionMock;
 
@@ -577,7 +577,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimits = 40;
 			fuelDocument.PayedForFuel = 500;
 			fuelDocument.Subdivision = subdivisionMock;
 
@@ -640,7 +640,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimits = 40;
 			fuelDocument.PayedForFuel = payedForFuel;
 			fuelDocument.Subdivision = subdivisionMock;
 

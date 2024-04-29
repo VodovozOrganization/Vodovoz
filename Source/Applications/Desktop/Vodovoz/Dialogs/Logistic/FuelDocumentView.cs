@@ -30,7 +30,7 @@ namespace Vodovoz
 
 			entityentryFuelType.ViewModel = ViewModel.FuelTypeEntryViewModel;
 
-			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
+			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelLimits, w => w.ValueAsInt).InitializeFromSource ();
 
 			disablespinMoney.Binding.AddBinding(ViewModel.FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
 

@@ -13,7 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 
 			Map(x => x.Date).Column("date");
 			Map(x => x.PayedForFuel).Column("payed_for_fuel");
-			Map(x => x.FuelCoupons).Column("fuel_coupons");
+			Map(x => x.FuelLimits).Column("fuel_limits");
 			Map(x => x.LiterCost).Column("liter_cost");
 			Map(x => x.LastEditDate).Column("last_edit_date");
 			Map(x => x.FuelCardNumber).Column("fuel_card");
