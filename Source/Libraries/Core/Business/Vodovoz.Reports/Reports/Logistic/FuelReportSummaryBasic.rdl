@@ -542,7 +542,7 @@ FROM
 	LEFT JOIN car_models 
 		ON cars.model_id = car_models.id 
 	LEFT JOIN car_versions 
-		ON cars.id = car_versions.car_id AND car_versions.start_date &lt;= fuel_transactions.transaction_date  and (car_versions.end_date IS NULL OR car_versions.end_date &gt;= fuel_transactions.transaction_date)
+		ON cars.id = car_versions.car_id AND car_versions.start_date &lt;= fuel_transactions.transaction_date and (car_versions.end_date IS NULL OR car_versions.end_date &gt;= fuel_transactions.transaction_date)
 	LEFT JOIN employees ON cars.driver_id = employees.id
 WHERE 
 fuel_transactions.transaction_date &gt;= @start_date AND fuel_transactions.transaction_date &lt;= @end_date
@@ -568,9 +568,9 @@ FROM
 	cv.car_own_type as car_own_type,
 	cm.car_type_of_use as car_type_of_use,
     0 as lites_by_fuel_write_off_document,
-    0 AS fuel_limit_liters_gived, # Добавить в выборку, когда будет готов механизм выдачи лимитов
-    SUM(IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0)) AS payed_for_fuel,
-    SUM(IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0)) AS cashless_payed_for_fuel,
+    fuel_documents.fuel_limits AS fuel_limit_liters_gived,
+    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
     0 as fuel_received_quantity,
     0 as fuel_received_total_sum
 	FROM fuel_documents
@@ -677,7 +677,7 @@ HAVING COUNT(fwdi.id) &gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="fuel_types">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT ft.name, fpv.fuel_price as cost
 FROM fuel_types ft
@@ -693,7 +693,7 @@ WHERE fpv.start_date &lt;= NOW()  and (fpv.end_date &gt; NOW() OR fpv.end_date I
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
