@@ -29,16 +29,16 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>65.9pt</Width>
+            <Width>63.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.9pt</Width>
+            <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75.8pt</Width>
+            <Width>71.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>163.7pt</Width>
+            <Width>154.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.6pt</Width>
@@ -52,17 +52,20 @@
           <TableColumn>
             <Width>57.2pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>57.2pt</Width>
+          <TableColumn >
+            <Width>46.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.2pt</Width>
+            <Width>44.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.2pt</Width>
+            <Width>55.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.6pt</Width>
+            <Width>54.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -211,10 +214,28 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Выдано лимитами, литров</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Выдано кассой литров</Value>
+                      <Value>Выдано суммарно, литров</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -337,8 +358,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -414,6 +435,23 @@
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>= {cashless_payed_for_fuel}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={liters_limits}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -628,6 +666,24 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>=Sum({liters_limits})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
@@ -765,9 +821,9 @@ SELECT
     TableRows.liters_gived as liters_gived,
     TableRows.payed_for_fuel as payed_for_fuel,
     TableRows.cashless_payed_for_fuel as cashless_payed_for_fuel,
+    TableRows.liters_limits as liters_limits,
     TableRows.reg_number as reg_number,
     TableRows.is_fine as is_fine,
-    #ROUND((@fuel_balance:=@fuel_balance - IF(TableRows.is_fine=0,TableRows.liters_outlayed,0) + TableRows.liters_gived),2) AS balance,
 	#Устанавливаем порядоквый номер МЛ за день для сопоставления с транзакциями
 	(CASE
 		WHEN TableRows.route_list_date IS NULL THEN NULL
@@ -782,18 +838,6 @@ SELECT
 FROM
 	#Устанавливаем начальную дату предыдущего МЛ и начальное значение порядкового номера МЛ за день
 	(SELECT @previous_rl_date:=DATE_ADD(DATE(@start_date), INTERVAL -1 DAY), @daily_rl_number:=0) as default_rl_variables,
-	
-    #Выбирается баланс на начало выбранного периода
-    /*(SELECT
-        @fuel_balance:= (
-            SELECT IFNULL(SUM(liters_gived), 0) - IFNULL(SUM(liters_outlayed), 0)
-            FROM fuel_operations
-            WHERE DATE(date) &lt; @start_date AND (driver_id = @driver_id OR @car_id &lt;&gt; -1 AND car_id = @car_id)
-        )
-    ) as TableBalance,*/	
-    #Конец выбора баланса
-	
-    #Выбираются все строки
     ((SELECT
         date,
         route_list_id,
@@ -804,6 +848,7 @@ FROM
         SUM(liters_gived) as liters_gived,
         SUM(payed_for_fuel) as payed_for_fuel,
         SUM(cashless_payed_for_fuel) as cashless_payed_for_fuel,
+        SUM(liters_limits) as liters_limits,
         reg_number,
         is_fine
     FROM
@@ -819,6 +864,7 @@ FROM
                 IFNULL(fuel_operations.liters_gived,0) AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
+                IFNULL(fuel_documents.fuel_limits, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 0 as is_fine
 	            FROM
@@ -846,7 +892,8 @@ FROM
                 IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
                 IFNULL(fuel_operations.liters_gived,0)    AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
-                IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,        
+                IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
+                IFNULL(fuel_documents.fuel_limits, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 fuel_operations.is_fine as is_fine
              FROM
@@ -877,6 +924,7 @@ FROM
 	        0 AS liters_gived,
 	        0 AS payed_for_fuel,
 	        0 AS cashless_payed_for_fuel,
+            0 AS liters_limits,
 	        c.reg_number AS reg_number,
             0 as is_fine
 		FROM 
@@ -890,7 +938,6 @@ FROM
 	    )
 	    #Конец выбора списания километража без МЛ
     ) as TableRows
-    #Конец выбора всех строк
 ),
 
 #Получаем данные по транзакциям за указанный период
@@ -940,6 +987,7 @@ SELECT
 	fod.liters_gived,
 	fod.payed_for_fuel,
 	fod.cashless_payed_for_fuel,
+	fod.liters_limits,
 	fod.reg_number,
 	fod.is_fine,
 	td.fuel_transactions_quantity,
@@ -956,7 +1004,9 @@ LEFT JOIN transactions_data td
 #но при этом значения выданного и истраченного топлива устанавливаем 0, чтобы повторно не отражались на балансе
 route_lists_transactions AS 
 (
-SELECT
+SELECT  *
+FROM 
+(SELECT
 	rlt.date,
 	rlt.route_list_id,
 	rlt.route_list_date,
@@ -966,6 +1016,7 @@ SELECT
 	rlt.liters_gived,
 	rlt.payed_for_fuel,
 	rlt.cashless_payed_for_fuel,
+	rlt.liters_limits,
 	rlt.reg_number,
 	rlt.is_fine,
 	IFNULL(rlt.fuel_transactions_quantity,0) as fuel_transactions_quantity,
@@ -982,12 +1033,14 @@ SELECT
 	0 as liters_gived,
 	0 as payed_for_fuel,
 	0 as cashless_payed_for_fuel,
+	0 as liters_limits,
 	IFNULL((SELECT reg_number FROM route_lists_part_of_transactions WHERE route_list_date = td.transaction_date ORDER BY route_list_id DESC LIMIT 1), td.reg_number) as reg_number,
 	0 as is_fine,
 	td.fuel_transactions_quantity,
 	td.fuel_transactions_total_sum
 FROM transactions_data td
-WHERE td.transaction_id NOT IN (SELECT transaction_id FROM route_lists_part_of_transactions WHERE NOT transaction_id IS NULL)
+WHERE td.transaction_id NOT IN (SELECT transaction_id FROM route_lists_part_of_transactions WHERE NOT transaction_id IS NULL)) t
+ORDER BY date, route_list_id
 ),
 
 #Добавляем расчет баланса в строках
@@ -1078,6 +1131,10 @@ SELECT * FROM route_lists_transactions_balance
         </Field>
         <Field Name="fuel_transactions_total_sum">
           <DataField>fuel_transactions_total_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="liters_limits">
+          <DataField>liters_limits</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
