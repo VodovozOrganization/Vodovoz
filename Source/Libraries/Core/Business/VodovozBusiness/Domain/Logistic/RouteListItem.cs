@@ -984,9 +984,8 @@ namespace Vodovoz.Domain.Logistic
 
 		protected internal virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status)
 		{
-			var oldStatus = Status;
-			Status = status;
-			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
+			CreateDeliveryFreeBalanceOperation(uow, Status, status);
+			Status = status;			
 		}
 
 		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)

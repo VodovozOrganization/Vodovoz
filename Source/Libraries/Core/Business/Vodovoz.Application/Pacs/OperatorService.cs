@@ -333,7 +333,7 @@ namespace Vodovoz.Application.Pacs
 
 			interval.Add(TimeSpan.FromSeconds(1));
 
-			_delayedBreakUpdateTimer.Interval = interval.Milliseconds;
+			_delayedBreakUpdateTimer.Interval = interval.TotalMilliseconds;
 			_delayedBreakUpdateTimer.AutoReset = false;
 			_delayedBreakUpdateTimer.Start();
 		}

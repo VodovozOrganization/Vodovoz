@@ -1,13 +1,11 @@
-﻿using MessageTransport;
+﻿using ApiAuthentication;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
 using Pacs.Admin.Server;
-using ApiAuthentication;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 

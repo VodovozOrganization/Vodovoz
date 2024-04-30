@@ -69,6 +69,7 @@
     <Compile Include="Domain\Logistic\Cars\MileageWriteOff.cs" />
     <Compile Include="Domain\Logistic\Cars\MileageWriteOffReason.cs" />
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
+    <Compile Include="Domain\Sale\WeekDayName.cs" />
     <Compile Include="Domain\Logistic\RouteListStatus.cs" />
     <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="EntityRepositories\Orders\OrderRepository.OrderWithAllocation.cs" />
     <Compile Include="EntityRepositories\Payments\PaymentNode.cs" />
     <Compile Include="Errors\Employees\Driver.cs" />
+    <Compile Include="Errors\Logistics\DistrictSet.cs" />
     <Compile Include="NotificationRecievers\DriverApiHelperConfiguration.cs" />
     <Compile Include="NotificationRecievers\DriverAPIHelperException.cs" />
     <Compile Include="NotificationRecievers\IRouteListTransferhandByHandReciever.cs" />
@@ -524,7 +526,7 @@
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\GeoGroupVersion.cs" />
-    <Compile Include="Domain\Sale\SaleEnums.cs" />
+    <Compile Include="Domain\Sale\DistrictWaterPrice.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
     <Compile Include="Domain\SmsPayment.cs" />

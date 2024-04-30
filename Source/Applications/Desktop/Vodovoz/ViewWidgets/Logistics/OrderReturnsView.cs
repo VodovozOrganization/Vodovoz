@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
+using NHibernate.Criterion;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -19,10 +21,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using NHibernate.Criterion;
-using QS.DomainModel.Entity;
+using Vodovoz.Application.Orders;
 using Vodovoz.Controllers;
-using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -47,6 +47,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -62,7 +63,7 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
-		private readonly INavigationManager _navigationManager;
+		private readonly ITdiCompatibilityNavigation _tdiNavigationManager;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
@@ -85,6 +86,8 @@ namespace Vodovoz
 		private bool _canEditOrderAfterRecieptCreated;
 
 		private OrderNode _orderNode;
+		private RouteListItemStatus _routeListItemStatusToChange;
+		private UndeliveryViewModel _undeliveryViewModel;
 
 		public IUnitOfWork UoW { get; }
 
@@ -107,7 +110,7 @@ namespace Vodovoz
 			IOrderSettings orderSettings,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			INavigationManager navigationManager,
+			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope)
 		{
 			if(currentPermissionService is null)
@@ -139,7 +142,7 @@ namespace Vodovoz
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
-			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
@@ -190,8 +193,7 @@ namespace Vodovoz
 
 		private void OpenSelectNomenclatureDlg()
 		{
-			var journalViewModel = (_navigationManager as ITdiCompatibilityNavigation)
-				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+			var journalViewModel = _tdiNavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
 			{
 				filter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
 				filter.SelectCategory = NomenclatureCategory.deposit;
@@ -271,7 +273,7 @@ namespace Vodovoz
 
 			_orderNode = new OrderNode(_routeListItem.Order);
 
-			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _navigationManager, _lifetimeScope);
+			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
 
 			clientEntry.ViewModel = builder.ForProperty(x => x.Client)
 				.UseTdiEntityDialog()
@@ -520,44 +522,42 @@ namespace Vodovoz
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
-			var dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
-			TabParent.AddSlaveTab(this, dlg);
-			dlg.DlgSaved += (s, ea) =>
-			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
-				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
-				_routeListItem.BottlesReturned = 0;
-				UpdateButtonsState();
-
-				if(ea.NeedClose)
-				{
-					OnCloseTab(false);
-				}
-
-				UoW.Save(_routeListItem);
-				UoW.Commit();
-			};
+			OpenOrCreateUndelivery(RouteListItemStatus.Overdue);
 		}
 
 		protected void OnButtonDeliveryCanceledClicked(object sender, EventArgs e)
 		{
-			var dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
-			TabParent.AddSlaveTab(this, dlg);
-			dlg.DlgSaved += (s, ea) =>
-			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
-				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
-				_routeListItem.BottlesReturned = 0;
-				UpdateButtonsState();
+			OpenOrCreateUndelivery(RouteListItemStatus.Canceled);
+		}
 
-				if(ea.NeedClose)
+		private void OpenOrCreateUndelivery(RouteListItemStatus routeListItemStatusToChange)
+		{
+			_routeListItemStatusToChange = routeListItemStatusToChange;
+			_undeliveryViewModel = _tdiNavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
+				this,			
+				OpenPageOptions.AsSlave,
+				vm =>
 				{
-					OnCloseTab(false);
+					vm.Saved += OnUndeliveryViewModelSaved;
+					vm.Initialize(UoW, _routeListItem.Order.Id);					
 				}
+				).ViewModel;
+		}
 
-				UoW.Save(_routeListItem);
-				UoW.Commit();
-			};
+		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
+		{
+			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, _routeListItemStatusToChange, CallTaskWorker, true);
+			_routeListItem.SetOrderActualCountsToZeroOnCanceled();
+			_routeListItem.BottlesReturned = 0;
+			UpdateButtonsState();
+
+			if(e.NeedClose)
+			{
+				OnCloseTab(false);
+			}
+
+			UoW.Save(_routeListItem);
+			UoW.Commit();
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
@@ -756,6 +756,16 @@ namespace Vodovoz
 		protected void OnEntityVMEntryDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
 			AcceptOrderChange();
+		}
+
+		public override void Dispose()
+		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+			}
+
+			base.Dispose();
 		}
 	}
 }

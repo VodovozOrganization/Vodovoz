@@ -1,9 +1,11 @@
-﻿using Gamma.ColumnConfig;
+﻿using Gamma.Binding;
+using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -104,6 +106,22 @@ namespace Vodovoz.Views.Logistic
 			btnAddGeographicGroup.Clicked += (s, e) => ViewModel.AddGeoGroupCommand.Execute();
 			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
 			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
+
+			yentryPreviousTechInspectDate.Binding
+				.AddBinding(ViewModel, vm => vm.PreviousTechInspectDate, w => w.Text)
+				.InitializeFromSource();
+
+			yentryPreviousTechInspectOdometer.Binding
+				.AddBinding(ViewModel, vm => vm.PreviousTechInspectOdometer, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			yentryUpcomingTechInspectKm.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectKm, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			yentryUpcomingTechInspectLeft.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectLeft, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);

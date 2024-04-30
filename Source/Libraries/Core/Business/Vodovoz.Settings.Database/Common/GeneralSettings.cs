@@ -24,6 +24,8 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
 		private const string _billAdditionalInfo = "bill_additional_info";
 		private const string _carLoadDocumentInfoString = "car_load_document_info_string";
+		private const string _upcomingTechInspectForOurCars = nameof(UpcomingTechInspectForOurCars);
+		private const string _upcomingTechInspectFoRaskatCars = nameof(UpcomingTechInspectForRaskatCars);
 
 		public GeneralSettings(ISettingsController settingsController)
 		{
@@ -104,7 +106,13 @@ namespace Vodovoz.Settings.Database.Common
 		public bool IsFastDelivery19LBottlesLimitActive => _settingsController.GetValue<bool>(_isFastDelivery19LBottlesLimitActive);
 		public void UpdateIsFastDelivery19LBottlesLimitActive(bool value) =>_settingsController.CreateOrUpdateSetting(_isFastDelivery19LBottlesLimitActive, value.ToString());
 		public int FastDelivery19LBottlesLimitCount => _settingsController.GetValue<int>(_fastDelivery19LBottlesLimitCount);
+
 		public void UpdateFastDelivery19LBottlesLimitCount(int value) => _settingsController.CreateOrUpdateSetting(_fastDelivery19LBottlesLimitCount, value.ToString());
+		public void UpdateUpcomingTechInspectForOurCars(int value) => _settingsController.CreateOrUpdateSetting(_upcomingTechInspectForOurCars, value.ToString());
+		public void UpdateUpcomingTechInspectForRaskatCars(int value) => _settingsController.CreateOrUpdateSetting(_upcomingTechInspectFoRaskatCars, value.ToString());
+		public int UpcomingTechInspectForOurCars => _settingsController.GetValue<int>(_upcomingTechInspectForOurCars);
+		public int UpcomingTechInspectForRaskatCars => _settingsController.GetValue<int>(_upcomingTechInspectFoRaskatCars);
+
 		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
 		{
 			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);

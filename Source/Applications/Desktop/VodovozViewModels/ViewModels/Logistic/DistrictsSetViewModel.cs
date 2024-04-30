@@ -20,7 +20,6 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -33,7 +32,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEntityDeleteWorker _entityDeleteWorker;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly GeometryFactory _geometryFactory;
-		private ICommonServices _commonServices;
 
 		public readonly bool CanChangeDistrictWageTypePermissionResult;
 		public readonly bool CanEditDistrict;
@@ -68,7 +66,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
 			DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Районы с графиками доставки";
 
@@ -559,7 +556,6 @@ namespace Vodovoz.ViewModels.Logistic
 					SelectedScheduleRestriction.AcceptBefore = null;
 				},
 				() => SelectedScheduleRestriction != null);
-
 
 		public DelegateCommand CopyDistrictSchedulesCommand { get; }
 		public DelegateCommand PasteSchedulesToDistrictCommand { get; }

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
@@ -19,8 +19,11 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Settings.Car;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -44,6 +47,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
 		private bool _isNeedToUpdateCarInfoInDriverEntity;
+		private readonly ICarEventRepository _carEventRepository;
+		private readonly ICarEventSettings _carEventSettings;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -55,7 +60,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			ICarEventRepository carEventRepository,
+			ICarEventSettings carEventSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -65,7 +72,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			TabName = "Автомобиль";
 
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
@@ -123,6 +131,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
 
 			OnDriverChanged();
+
+			ConfigureTechInspectInfo();
+		}
+
+		private void ConfigureTechInspectInfo()
+		{
+			var lastTechInspectCarEvent = _carEventRepository.GetLastTechInspectCarEvent(UoW, Entity.Id, _carEventSettings.TechInspectCarEventTypeId);
+
+			PreviousTechInspectDate = lastTechInspectCarEvent
+				?.StartDate
+				.ToShortDateString();
+
+			PreviousTechInspectOdometer = lastTechInspectCarEvent?.Odometer ?? 0;
+
+			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel?.TeсhInspectInterval ?? 0;
+
+			UpcomingTechInspectLeft = Entity.LeftUntilTechInspect;
 		}
 
 		public string DriverInfoText
@@ -337,6 +362,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return _addGeoGroupCommand;
 			}
 		}
+
+		public string PreviousTechInspectDate { get; private set; }
+		public int PreviousTechInspectOdometer { get; private set; }
+		public int UpcomingTechInspectKm { get; private set; }
+		public int UpcomingTechInspectLeft { get; private set; }
 
 		private void AddGeoGroup()
 		{

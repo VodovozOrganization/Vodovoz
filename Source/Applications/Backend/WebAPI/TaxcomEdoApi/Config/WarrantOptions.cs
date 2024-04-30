@@ -21,5 +21,9 @@ namespace TaxcomEdoApi.Config
 		/// Номер доверенности
 		/// </summary>
 		public string WarrantNumber { get; set; }
+		/// <summary>
+		/// Должность подписанта
+		/// </summary>
+		public string JobPosition { get; set; }
 	}
 }

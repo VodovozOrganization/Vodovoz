@@ -61,9 +61,11 @@ namespace DatabaseServiceWorker
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
 						.AddHostedService<PowerBiExportWorker>()
+						.AddHostedService<TechInspectWorker>()
 						.AddHostedService<FuelTransactionsControlWorker>()
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
 						.ConfigurePowerBiExportWorker(hostContext)
+						.ConfigureTextInspectWorker(hostContext)
 						.AddFuelTransactionsControlWorker(hostContext)
 						;
 

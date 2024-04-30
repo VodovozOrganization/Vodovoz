@@ -31,6 +31,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\CarOwnershipPeriodReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\DistrictsSetDiffReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\FastDeliveryPercentCoverageReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

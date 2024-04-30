@@ -101,28 +101,19 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
 
-			ReportInfo reportInfo;
-
-			if(!string.IsNullOrWhiteSpace(connectionString))
+			var reportInfo = new ReportInfo(connectionString)
 			{
-				reportInfo = new ReportInfo(connectionString);
-			}
-			else
-			{
-				reportInfo = new ReportInfo();
-			}
+				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
+				Identifier = identifier,
+				Parameters = new Dictionary<string, object>
+				{
+					{ "order_id", Order.Id },
+					{ "special", false },
+					{ "hide_signature", HideSignature}
+				},
 
-			reportInfo.Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}";
-			reportInfo.Identifier = identifier;
-
-			reportInfo.Parameters = new Dictionary<string, object>
-			{
-				{ "order_id", Order.Id },
-				{ "special", false },
-				{ "hide_signature", HideSignature}
+				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
-
-			reportInfo.RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes;
 
 			return reportInfo;
 		}
