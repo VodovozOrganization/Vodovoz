@@ -2069,6 +2069,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.MileageWriteOffView.cs" />
     <Compile Include="Views\Logistic\MileageWriteOffReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.MileageWriteOffReasonView.cs" />
+    <Compile Include="Views\Logistic\FuelCardVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
