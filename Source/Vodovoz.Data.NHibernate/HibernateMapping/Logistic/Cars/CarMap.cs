@@ -38,10 +38,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.CarModel).Column("model_id");
-			References(x => x.FuelCard).Column("fuel_card_id");
 
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
+				.OrderBy("start_date DESC");
+			HasMany(x => x.FuelCardVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
 
 			HasMany(x => x.OdometerReadings).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")

@@ -28,6 +28,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<CarVersion> _observableCarVersions;
 		private IList<OdometerReading> _odometerReadings = new List<OdometerReading>();
 		private GenericObservableList<OdometerReading> _observableOdometerReadings;
+		private IList<FuelCardVersion> _fuelCardVersions = new List<FuelCardVersion>();
+		private GenericObservableList<FuelCardVersion> _observableFuelCardVersions;
 		private string _carcase;
 		private string _chassisNumber;
 		private string _color;
@@ -39,7 +41,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _docSeries;
 		private Employee _driver;
 		private string _fuelCardNumber;
-		private FuelCard _fuelCard;
 		private double _fuelConsumption;
 		private FuelType _fuelType;
 		private IList<GeoGroup> _geographicGroups = new List<GeoGroup>();
@@ -110,6 +111,15 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings
 			?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
+
+		public virtual IList<FuelCardVersion> FuelCardVersions
+		{
+			get => _fuelCardVersions;
+			set => SetField(ref _fuelCardVersions, value);
+		}
+
+		public virtual GenericObservableList<FuelCardVersion> ObservableFuelCardVersions => _observableFuelCardVersions
+			?? (_observableFuelCardVersions = new GenericObservableList<FuelCardVersion>(FuelCardVersions));
 
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber
@@ -259,13 +269,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
-		[Display(Name = "Топливная карта")]
-		public virtual FuelCard FuelCard
-		{
-			get => _fuelCard;
-			set => SetField(ref _fuelCard, value);
-		}
-
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -318,6 +321,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 			var currentDateTime = DateTime.Now;
 			return ObservableCarVersions.FirstOrDefault(x =>
 				x.StartDate <= currentDateTime && (x.EndDate == null || x.EndDate >= currentDateTime));
+		}
+
+		public virtual FuelCardVersion GetCurrentActiveFuelCardVersion()
+		{
+			return GetActiveFuelCardVersionOnDate(DateTime.Now);
+		}
+
+		public virtual FuelCardVersion GetActiveFuelCardVersionOnDate(DateTime date)
+		{
+			return ObservableFuelCardVersions.FirstOrDefault(x =>
+				x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
 		}
 
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
@@ -374,17 +388,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
 			}
 
-			if(FuelCard != null)
-			{
-				var carsHavingSelectedFuelCard = UoW.Session.Query<Car>().Where(c => c.FuelCard.Id == FuelCard.Id && c.Id != Id).Select(c => c.RegistrationNumber);
+			//if(FuelCard != null)
+			//{
+			//	var carsHavingSelectedFuelCard = UoW.Session.Query<Car>().Where(c => c.FuelCard.Id == FuelCard.Id && c.Id != Id).Select(c => c.RegistrationNumber);
 
-				if(carsHavingSelectedFuelCard.Any())
-				{
-					yield return new ValidationResult(
-						   $"Топливная карта уже используется у авто: {string.Join(", ", carsHavingSelectedFuelCard)}",
-						new[] { nameof(FuelCard) });
-				}
-			}
+			//	if(carsHavingSelectedFuelCard.Any())
+			//	{
+			//		yield return new ValidationResult(
+			//			   $"Топливная карта уже используется у авто: {string.Join(", ", carsHavingSelectedFuelCard)}",
+			//			new[] { nameof(FuelCard) });
+			//	}
+			//}
 		}
 
 		private double GetFuelConsumption()

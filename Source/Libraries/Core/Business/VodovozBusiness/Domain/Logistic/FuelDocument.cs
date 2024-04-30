@@ -4,6 +4,7 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -315,7 +316,7 @@ namespace Vodovoz.Domain.Logistic
 			Fuel = rl.Car.FuelType;
 			LiterCost = rl.Car.FuelType.Cost;
 			RouteList = rl;
-			FuelCardNumber = rl.Car.FuelCard?.CardNumber;
+			FuelCardNumber = rl.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber;
 		}
 
 		#region IValidatableObject implementation

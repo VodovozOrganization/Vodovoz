@@ -99,17 +99,17 @@ namespace Vodovoz.Domain.Fuel
 							new[] { nameof(CardNumber) });
 					}
 
-					if(IsArchived)
-					{
-						var carsUsingCard = uow.Session.Query<Car>().Where(c => c.FuelCard.Id == Id);
+					//if(IsArchived)
+					//{
+					//	var carsUsingCard = uow.Session.Query<Car>().Where(c => c.FuelCard.Id == Id);
 
-						if(carsUsingCard.Any())
-						{
-							yield return new ValidationResult(
-								$"Нельзя добавить карту в архив, т.к. она используется в карточках авто: {string.Join(", ", carsUsingCard.Select(c => c.RegistrationNumber))}",
-								new[] { nameof(CardNumber) });
-						}
-					}
+					//	if(carsUsingCard.Any())
+					//	{
+					//		yield return new ValidationResult(
+					//			$"Нельзя добавить карту в архив, т.к. она используется в карточках авто: {string.Join(", ", carsUsingCard.Select(c => c.RegistrationNumber))}",
+					//			new[] { nameof(CardNumber) });
+					//	}
+					//}
 				}				
 			}
 		}

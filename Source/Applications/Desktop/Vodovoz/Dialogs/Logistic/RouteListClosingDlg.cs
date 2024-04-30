@@ -1423,7 +1423,7 @@ namespace Vodovoz
 				);
 			}
 
-			text.Add($"Номер топливной карты: {Entity.Car.FuelCard?.CardNumber}");
+			text.Add($"Номер топливной карты: {Entity.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}
