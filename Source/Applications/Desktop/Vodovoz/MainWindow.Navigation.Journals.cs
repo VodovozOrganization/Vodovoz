@@ -1,4 +1,4 @@
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.Profitability;
 
 public partial class MainWindow
@@ -1067,6 +1068,16 @@ public partial class MainWindow
 	protected void OnActionFuelCardsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FuelCardJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Причины списания километража
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnMileageWriteOffReasonsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MileageWriteOffReasonJournalViewModel>(null);
 	}
 
 	#region События нахождения на складе водителей
