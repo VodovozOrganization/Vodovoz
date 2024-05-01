@@ -1075,7 +1075,7 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	protected void OnMileageWriteOffReasonsActivated(object sender, EventArgs e)
+	protected void OnActionMileageWriteOffReasonsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<MileageWriteOffReasonJournalViewModel>(null);
 	}
