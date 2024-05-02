@@ -395,18 +395,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			{
 				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
 			}
-
-			//if(FuelCard != null)
-			//{
-			//	var carsHavingSelectedFuelCard = UoW.Session.Query<Car>().Where(c => c.FuelCard.Id == FuelCard.Id && c.Id != Id).Select(c => c.RegistrationNumber);
-
-			//	if(carsHavingSelectedFuelCard.Any())
-			//	{
-			//		yield return new ValidationResult(
-			//			   $"Топливная карта уже используется у авто: {string.Join(", ", carsHavingSelectedFuelCard)}",
-			//			new[] { nameof(FuelCard) });
-			//	}
-			//}
 		}
 
 		private double GetFuelConsumption()

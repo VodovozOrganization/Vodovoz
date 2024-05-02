@@ -1,13 +1,12 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Fuel;
 
 namespace Vodovoz.Domain.Fuel
@@ -89,7 +88,7 @@ namespace Vodovoz.Domain.Fuel
 							new[] { nameof(CardId) });
 					}
 
-					var isCardNumberDuplicate = 
+					var isCardNumberDuplicate =
 						fuelRepository.GetFuelCardsByCardNumber(uow, CardNumber).Any(c => c.Id != Id);
 
 					if(isCardNumberDuplicate)
@@ -99,18 +98,19 @@ namespace Vodovoz.Domain.Fuel
 							new[] { nameof(CardNumber) });
 					}
 
-					//if(IsArchived)
-					//{
-					//	var carsUsingCard = uow.Session.Query<Car>().Where(c => c.FuelCard.Id == Id);
+					if(IsArchived && Id > 0)
+					{
+						var acitveFuelCardVersionsHavingCard =
+							fuelRepository.GetActiveVersionsOnDateHavingFuelCard(uow, DateTime.Now, Id);
 
-					//	if(carsUsingCard.Any())
-					//	{
-					//		yield return new ValidationResult(
-					//			$"Нельзя добавить карту в архив, т.к. она используется в карточках авто: {string.Join(", ", carsUsingCard.Select(c => c.RegistrationNumber))}",
-					//			new[] { nameof(CardNumber) });
-					//	}
-					//}
-				}				
+						if(acitveFuelCardVersionsHavingCard.Any())
+						{
+							yield return new ValidationResult(
+								$"Нельзя добавить карту в архив, т.к. она используется в карточках авто: {string.Join(", ", acitveFuelCardVersionsHavingCard.Select(v => v.Car.RegistrationNumber))}",
+								new[] { nameof(CardNumber) });
+						}
+					}
+				}
 			}
 		}
 	}

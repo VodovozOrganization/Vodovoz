@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
@@ -14,28 +15,38 @@ using Vodovoz.ViewModels.Fuel.FuelCards;
 
 namespace Vodovoz.ViewModels.Widgets.Cars
 {
-	public class CarFuelCardVersionViewModel : EntityWidgetViewModelBase<Car>
+	public class FuelCardVersionViewModel : EntityWidgetViewModelBase<Car>, IDisposable
 	{
 		private DateTime? _selectedDate;
 		private FuelCard _selectedFuelCard;
 		private FuelCardVersion _selectedVersion;
 		private DialogViewModelBase _parentDialog;
 
-		private readonly ICarFuelCardVersionController _fuelCardVersionController;
+		private readonly IFuelCardVersionController _fuelCardVersionController;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IUnitOfWork _unitOfWork;
 
-		public CarFuelCardVersionViewModel(
+		public FuelCardVersionViewModel(
 			Car entity,
 			ICommonServices commonServices,
-			ICarFuelCardVersionController fuelCardVersionController,
+			IFuelCardVersionController fuelCardVersionController,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			IUnitOfWorkFactory unitOfWorkFactory)
 			: base(entity, commonServices)
 		{
-			_fuelCardVersionController = fuelCardVersionController ?? throw new System.ArgumentNullException(nameof(fuelCardVersionController));
-			_navigationManager = navigationManager;
-			_lifetimeScope = lifetimeScope;
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			_fuelCardVersionController = fuelCardVersionController ?? throw new ArgumentNullException(nameof(fuelCardVersionController));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Версия топливной карты");
+
 			CanRead = PermissionResult.CanRead;
 			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
 				&& commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
@@ -115,11 +126,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		public virtual bool CanCreateOrUpdate => CanCreate || CanEdit;
 
 		public bool CanAddNewVersion =>
-			CanCreate
+			CanCreateOrUpdate
 			&& SelectedDate.HasValue
 			&& SelectedFuelCard != null
 			&& Entity.FuelCardVersions.All(x => x.Id != 0)
-			&& _fuelCardVersionController.IsValidDateForNewCarVersion(SelectedDate.Value);
+			&& _fuelCardVersionController.IsValidDateForNewCarVersion(SelectedDate.Value, SelectedFuelCard);
 
 		public bool CanChangeVersionStartDate =>
 			SelectedDate.HasValue
@@ -129,7 +140,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 		private void AddNewVersion()
 		{
-			if(SelectedDate == null)
+			if(SelectedDate == null || SelectedFuelCard == null)
 			{
 				return;
 			}
@@ -153,7 +164,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 		private IEntityEntryViewModel GetFuelCardViewModel()
 		{
-			var viewModel = new CommonEEVMBuilderFactory<CarFuelCardVersionViewModel>(ParentDialog, this, UoW, _navigationManager, _lifetimeScope)
+			var viewModel = new CommonEEVMBuilderFactory<FuelCardVersionViewModel>(ParentDialog, this, _unitOfWork, _navigationManager, _lifetimeScope)
 				.ForProperty(x => x.SelectedFuelCard)
 				.UseViewModelDialog<FuelCardViewModel>()
 				.UseViewModelJournalAndAutocompleter<FuelCardJournalViewModel, FuelCardJournalFilterViewModel>(filter =>
@@ -166,6 +177,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanRead;
 
 			return viewModel;
+		}
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
 		}
 	}
 }

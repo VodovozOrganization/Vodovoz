@@ -6,11 +6,11 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Controllers
 {
-	public class CarFuelCardVersionController : ICarFuelCardVersionController
+	public class FuelCardVersionController : IFuelCardVersionController
 	{
 		private readonly Car _car;
 
-		public CarFuelCardVersionController(Car car)
+		public FuelCardVersionController(Car car)
 		{
 			_car = car ?? throw new System.ArgumentNullException(nameof(car));
 		}
@@ -27,12 +27,18 @@ namespace Vodovoz.Controllers
 				throw new ArgumentException("Неверно заполнен авто в переданной версии");
 			}
 
+			if(version.FuelCard == null)
+			{
+				throw new ArgumentException("Не указана топливная карта в переданной версии");
+			}
+
 			var previousVersion = GetPreviousVersionOrNull(version);
 			if(previousVersion != null)
 			{
 				var newEndDate = newStartDate.AddMilliseconds(-1);
 				previousVersion.EndDate = newEndDate;
 			}
+
 			version.StartDate = newStartDate;
 		}
 
@@ -58,20 +64,37 @@ namespace Vodovoz.Controllers
 			{
 				throw new ArgumentNullException(nameof(version));
 			}
-			if(version.StartDate == newStartDate)
+
+			if(version.StartDate == newStartDate
+				|| newStartDate >= version.EndDate
+				|| version.FuelCard == null)
 			{
 				return false;
 			}
-			if(newStartDate >= version.EndDate)
-			{
-				return false;
-			}
+
 			var previousVersion = GetPreviousVersionOrNull(version);
 			return previousVersion == null || newStartDate > previousVersion.StartDate;
 		}
 
-		public bool IsValidDateForNewCarVersion(DateTime dateTime)
+		public bool IsValidDateForNewCarVersion(DateTime dateTime, FuelCard fuelCard)
 		{
+			if(fuelCard == null)
+			{
+				return false;
+			}
+
+			var lastVersion = _car.FuelCardVersions?.LastOrDefault();
+
+			if(lastVersion == null)
+			{
+				return true;
+			}
+
+			if(lastVersion.FuelCard.Id == fuelCard.Id)
+			{
+				return false;
+			}
+
 			return _car.FuelCardVersions.All(x => x.StartDate < dateTime);
 		}
 
@@ -81,25 +104,41 @@ namespace Vodovoz.Controllers
 			{
 				throw new ArgumentNullException(nameof(newVersion));
 			}
+
+			if(newVersion.FuelCard == null)
+			{
+				throw new ArgumentException("Не указана топливная карта для новой версии");
+			}
+
 			if(newVersion.Car == null || newVersion.Car.Id != _car.Id)
 			{
 				newVersion.Car = _car;
 			}
+
 			newVersion.StartDate = startDate;
 
-			if(_car.FuelCardVersions.Any())
-			{
-				var currentLatestVersion = _car.FuelCardVersions.MaxBy(x => x.StartDate).First();
-				if(startDate < currentLatestVersion.StartDate.AddDays(1))
-				{
-					throw new ArgumentException(
-						"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
-						nameof(startDate));
-				}
-				currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
-			}
+			SetCurrentLatestVersionEndDateIfNeed(startDate);
 
 			_car.ObservableFuelCardVersions.Insert(0, newVersion);
+		}
+
+		private void SetCurrentLatestVersionEndDateIfNeed(DateTime newVersionStartDate)
+		{
+			var currentLatestVersion = _car.FuelCardVersions.MaxBy(x => x.StartDate).FirstOrDefault();
+
+			if(currentLatestVersion == null)
+			{
+				return;
+			}
+
+			if(newVersionStartDate < currentLatestVersion.StartDate.AddDays(1))
+			{
+				throw new ArgumentException(
+					"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
+				nameof(newVersionStartDate));
+			}
+
+			currentLatestVersion.EndDate = newVersionStartDate.AddMilliseconds(-1);
 		}
 
 		private FuelCardVersion GetPreviousVersionOrNull(FuelCardVersion currentVersion)

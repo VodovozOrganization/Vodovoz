@@ -1,7 +1,7 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -22,5 +22,6 @@ namespace Vodovoz.EntityRepositories.Fuel
 		IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId);
 		IEnumerable<FuelCard> GetFuelCardsByCardNumber(IUnitOfWork uow, string cardNumber);
 		Task SaveFuelApiRequest(IUnitOfWork uow, FuelApiRequest request);
+		IEnumerable<FuelCardVersion> GetActiveVersionsOnDateHavingFuelCard(IUnitOfWork unitOfWork, DateTime date, int fuelCardId);
 	}
 }

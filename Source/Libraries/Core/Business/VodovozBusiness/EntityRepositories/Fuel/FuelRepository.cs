@@ -297,5 +297,11 @@ namespace Vodovoz.EntityRepositories.Fuel
 			await uow.SaveAsync(request);
 			await uow.CommitAsync();
 		}
+
+		public IEnumerable<FuelCardVersion> GetActiveVersionsOnDateHavingFuelCard(IUnitOfWork unitOfWork, DateTime date, int fuelCardId) =>
+			unitOfWork.Session.Query<FuelCardVersion>()
+			.Where(v => v.FuelCard.Id == fuelCardId
+				&& v.StartDate <= date
+				&& (v.EndDate == null || v.EndDate >= date));
 	}
 }
