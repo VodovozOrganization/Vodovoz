@@ -537,8 +537,11 @@ FROM
 	fuel_transactions
 	LEFT JOIN fuel_cards 
 		ON fuel_cards.card_id = fuel_transactions.card_id
-	LEFT JOIN cars 
-		ON cars.fuel_card_id = fuel_cards.id 
+	LEFT JOIN fuel_card_versions ON fuel_cards.id = fuel_card_versions.fuel_card_id 
+        AND fuel_card_versions.start_date &lt;= fuel_transactions.transaction_date 
+        AND (fuel_card_versions.end_date IS NULL OR fuel_card_versions.end_date &gt;= fuel_transactions.transaction_date)
+	LEFT JOIN cars
+		ON cars.id = fuel_card_versions.car_id 
 	LEFT JOIN car_models 
 		ON cars.model_id = car_models.id 
 	LEFT JOIN car_versions 
@@ -624,10 +627,16 @@ FROM
     fuel_writeoff_documents fwd
     LEFT JOIN
         fuel_writeoff_document_items fwdi ON fwdi.fuel_writeoff_document_id = fwd.id
+    LEFT JOIN employees e ON fwd.employee_id = e.id 
+    LEFT JOIN cars c ON c.driver_id = e.id    
+	LEFT JOIN car_models cm ON c.model_id = cm.id
+	LEFT JOIN car_versions cv ON c.id = cv.car_id
+		AND cv.start_date &lt;= fwd.date 
+	    AND (cv.end_date IS NULL OR cv.end_date &gt;= fwd.date)
 WHERE
     fwd.date &gt;= @start_date
   	AND fwd.date &lt; @end_date
-  	AND 0 IN (@include_car_models)
+    AND ((0 IN (@include_car_models) OR (cm.id IN (@include_car_models))) AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models))))
 HAVING COUNT(fwdi.id) &gt; 0
 ;</CommandText>
         <QueryParameters>
