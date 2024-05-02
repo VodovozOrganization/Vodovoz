@@ -137,9 +137,8 @@ namespace Vodovoz.Representations
 			}
 
 			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
-			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
+			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
