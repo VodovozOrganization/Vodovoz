@@ -1,5 +1,7 @@
-﻿using System;
+﻿using DateTimeHelpers;
+using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,7 +17,7 @@ namespace EventsApi.Library.Converters
 
 		public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
 		{
-			writer.WriteStringValue(value.ToString("yyyy-MM-ddTHH:mm:ss"));
+			writer.WriteStringValue(value.ToString(DateTimeFormats.QueryDateTimeFormat));
 		}
 	}
 }
