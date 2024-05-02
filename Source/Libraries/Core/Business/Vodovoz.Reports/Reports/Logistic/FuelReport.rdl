@@ -52,7 +52,7 @@
           <TableColumn>
             <Width>57.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>46.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -214,7 +214,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>Выдано лимитами, литров</Value>
@@ -448,7 +448,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>={liters_limits}</Value>
@@ -666,7 +666,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>=Sum({liters_limits})</Value>
@@ -806,7 +806,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>#Получаем данные по операциям с топливом в ДВ
 WITH fuel_operations_data AS
@@ -940,7 +940,7 @@ FROM
     ) as TableRows
 ),
 
-#Получаем данные по транзакциям за указанный период
+#Получаем данные по транзакциям за указанный период для выбранного авто
 transactions_data AS
 (
 SELECT
@@ -962,10 +962,17 @@ SELECT
 FROM 
 	#Устанавливаем начальную дату предыдущей транзакции и начальное значение порядкового номера транзакции за день
 	(SELECT @prev_transaction_date:=DATE_ADD(DATE(@start_date), INTERVAL -1 DAY), @daily_transaction_number:=0) as default_prev_transaction_date,
-	cars
+	fuel_transactions
+	LEFT JOIN fuel_cards ON fuel_cards.card_id = fuel_transactions.card_id 
+	LEFT JOIN fuel_card_versions ON fuel_cards.id = fuel_card_versions.fuel_card_id 
+        AND fuel_card_versions.start_date &lt;= fuel_transactions.transaction_date 
+        AND (fuel_card_versions.end_date IS NULL OR fuel_card_versions.end_date &gt;= fuel_transactions.transaction_date )
+    LEFT JOIN cars ON cars.id = fuel_card_versions.car_id 
 	LEFT JOIN employees ON cars.driver_id = employees.id 
-	LEFT JOIN fuel_cards ON cars.fuel_card_id = fuel_cards.id 
-	LEFT JOIN fuel_transactions ON fuel_transactions.card_number  = fuel_cards.card_number 
+	LEFT JOIN car_models ON cars.model_id = car_models.id
+	LEFT JOIN car_versions ON cars.id = car_versions.car_id
+        AND car_versions.start_date &lt;= fuel_transactions.transaction_date
+        AND (car_versions.end_date IS NULL OR car_versions.end_date &gt;= fuel_transactions.transaction_date)
 WHERE 
 	fuel_transactions.transaction_date &gt;= @start_date
     AND fuel_transactions.transaction_date &lt;= @end_date
@@ -1080,7 +1087,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1140,7 +1147,7 @@ SELECT * FROM route_lists_transactions_balance
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 (
@@ -1181,7 +1188,8 @@ SELECT * FROM route_lists_transactions_balance
 				route_lists.date as route_listDate,
 				route_lists.driver_id as rl_driver
 			FROM fuel_operations
-			LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id        
+			LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
+			WHERE fuel_operations.is_fine = 0
 		) as fuel_operations_out
 	WHERE	
 		DATE(fuel_operations_out.date) &lt; @start_date	
@@ -1199,7 +1207,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
