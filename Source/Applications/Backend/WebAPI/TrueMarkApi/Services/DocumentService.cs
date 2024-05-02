@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -42,7 +42,7 @@ namespace TrueMarkApi.Services
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly OrganizationCertificate[] _organizationsCertificates;
 		private readonly TrueMarkApiClient _trueMarkApiClient;
-		private const int _workerDelaySec = 10;
+		private const int _workerDelaySec = 60;
 		private const int _createDocumentDelaySec = 5;
 
 		public DocumentService(
@@ -120,7 +120,7 @@ namespace TrueMarkApi.Services
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
-				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint);
+				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint, organizationCertificate.Inn);
 
 				_logger.LogInformation("Получили токен авторизации: {AuthorizationToken} ", token);
 
@@ -167,16 +167,16 @@ namespace TrueMarkApi.Services
 
 			foreach(var doc in documentsForCancellation)
 			{
-				_logger.LogInformation("Отмена вывода из оборота по заказу №{OrderId}", doc.Order.Id);
+				_logger.LogInformation("Отмена вывода из оборота по заказу №{OrderId}", doc.OrderId);
 
 				try
 				{
-					var documentFactory = new CancellationDocumentFactory(organization.INN, doc.Guid.ToString());
+					var documentFactory = new CancellationDocumentFactory(organization.INN, doc.DocGuid.ToString());
 
 					var trueMarkApiDocument =
 						await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT_CANCEL, documentFactory, certificateThumbPrint, cancellationToken);
 
-					trueMarkApiDocument.Order = doc.Order;
+					trueMarkApiDocument.Order = new Order { Id = doc.OrderId };
 					trueMarkApiDocument.Type = TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation;
 
 					if(!trueMarkApiDocument.IsSuccess)
@@ -185,7 +185,7 @@ namespace TrueMarkApi.Services
 					}
 
 					var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == doc.Order.Id)
+						.Where(x => x.Order.Id == doc.OrderId)
 						.FirstOrDefault();
 
 					if(actions != null && actions.IsNeedToCancelTrueMarkDocument)
@@ -199,7 +199,7 @@ namespace TrueMarkApi.Services
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, "Ошибка в процессе формирования документа отмены вывода из оборота для заказа №{OrderId} и его отправки", doc.Order.Id);
+					_logger.LogError(e, "Ошибка в процессе формирования документа отмены вывода из оборота для заказа №{OrderId} и его отправки", doc.OrderId);
 				}
 			}
 		}
@@ -246,6 +246,7 @@ namespace TrueMarkApi.Services
 
 					var trueMarkApiDocument = await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, organizationCertificateThumbPrint, cancellationToken);
 					trueMarkApiDocument.Order = order;
+					trueMarkApiDocument.Organization = organization;
 					trueMarkApiDocument.Type = TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal;
 
 					uow.Save(trueMarkApiDocument);

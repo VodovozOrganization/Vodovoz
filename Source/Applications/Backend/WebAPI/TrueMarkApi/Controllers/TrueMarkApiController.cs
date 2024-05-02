@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -54,7 +54,7 @@ namespace TrueMarkApi.Controllers
 		{
 			var uri = $"participants?inns={inn}";
 
-			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 			StringBuilder errorMessage = new StringBuilder();
@@ -118,7 +118,7 @@ namespace TrueMarkApi.Controllers
 				return null;
 			}
 
-			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 			var innString = string.Join("&inns=", inns);
@@ -146,7 +146,7 @@ namespace TrueMarkApi.Controllers
 		{
 			var uri = $"cises/info";
 
-			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			_logger.LogInformation($"token: {token}");
 
