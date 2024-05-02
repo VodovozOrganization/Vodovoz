@@ -59,6 +59,10 @@ namespace Vodovoz
 			
 
 			disablespinMoney.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+
+			labelAvalilableFuel.Visible = false;
+			label6.Visible = false;
+			hbox6.Visible = false;
 		}
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
