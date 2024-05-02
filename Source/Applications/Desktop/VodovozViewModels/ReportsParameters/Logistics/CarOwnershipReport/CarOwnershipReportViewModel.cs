@@ -152,8 +152,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			{
 				Identifier = _periodReportIdentifier;
 
-				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date);
-				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date);
+				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date.ToString("yyyy-MM-ddTHH:mm:ss"));
+				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date.ToString("yyyy-MM-ddTHH:mm:ss"));
 
 				return;
 			}
