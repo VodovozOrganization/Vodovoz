@@ -18,14 +18,13 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -71,11 +70,13 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			UpdateCashSubdivisions();
 
 			TabName = "Акт выдачи топлива";
-			if(CurrentEmployee == null) {
+			if(CurrentEmployee == null)
+			{
 				AbortOpening("К вашему пользователю не привязан сотрудник, невозможно открыть документ");
 			}
 
-			if(UoW.IsNew) {
+			if(UoW.IsNew)
+			{
 				Entity.Date = DateTime.Now;
 				Entity.Cashier = CurrentEmployee;
 			}
@@ -125,18 +126,24 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		#endregion EntityEntry ViewModels
 
-		public Employee CurrentEmployee {
-			get {
-				if(_currentEmployee == null) {
+		public Employee CurrentEmployee
+		{
+			get
+			{
+				if(_currentEmployee == null)
+				{
 					_currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return _currentEmployee;
 			}
 		}
 
-		public FuelBalanceViewModel FuelBalanceViewModel {
-			get {
-				if(_fuelBalanceViewModel == null) {
+		public FuelBalanceViewModel FuelBalanceViewModel
+		{
+			get
+			{
+				if(_fuelBalanceViewModel == null)
+				{
 					_fuelBalanceViewModel = new FuelBalanceViewModel(_unitOfWorkFactory, _subdivisionRepository, _fuelRepository);
 				}
 				return _fuelBalanceViewModel;
@@ -157,30 +164,62 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		#endregion Entries
 
 		protected override bool BeforeSave()
-        {
-            Entity.UpdateOperations();
-            return base.BeforeSave();
-        }
+		{
+			if(!IsEmployeeHasCarAndFuelCard())
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					QS.Dialog.ImportanceLevel.Error,
+					$"У сотрудника отсутствуте авто, либо не выбрана топливная карта");
+
+				return false;
+			}
+
+			Entity.UpdateOperations();
+			return base.BeforeSave();
+		}
 
 		public bool CanEdit => true;
 		public bool CanEditDate => CanEdit && CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_fuelwriteoff_document_date");
 
 		public decimal GetAvailableLiters(FuelType fuelType)
 		{
-			if(Entity.CashSubdivision == null || fuelType == null) {
+			if(Entity.CashSubdivision == null || fuelType == null)
+			{
 				return 0;
 			}
 			decimal existedLiters = 0;
-			if(!UoW.IsNew) {
-				using(var localUow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			if(!UoW.IsNew)
+			{
+				using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
 					var doc = localUow.GetById<FuelWriteoffDocument>(Entity.Id);
 					var item = doc?.FuelWriteoffDocumentItems?.FirstOrDefault(x => x.FuelType.Id == fuelType.Id);
-					if(item != null) {
+					if(item != null)
+					{
 						existedLiters = item.Liters;
 					}
 				}
 			}
 			return _fuelRepository.GetFuelBalanceForSubdivision(UoW, Entity.CashSubdivision, fuelType) + existedLiters;
+		}
+
+		private bool IsEmployeeHasCarAndFuelCard()
+		{
+			var employeeCar = UoW.Session.Query<Car>()
+				.Where(c => c.Driver.Id == Entity.Employee.Id)
+				.FirstOrDefault();
+
+			if(employeeCar == null)
+			{
+				return false;
+			}
+
+			var carFuelCard = employeeCar.FuelCardVersions
+				.Where(v => v.StartDate <= Entity.Date
+					&& (v.EndDate == null || v.EndDate >= Entity.Date))
+				.FirstOrDefault();
+
+			return carFuelCard != null;
 		}
 
 		#region Настройка списков доступных подразделений кассы
@@ -190,7 +229,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void UpdateCashSubdivisions()
 		{
 			AvailableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
-			if(AvailableSubdivisions.Contains(CurrentEmployee.Subdivision)) {
+			if(AvailableSubdivisions.Contains(CurrentEmployee.Subdivision))
+			{
 				Entity.CashSubdivision = CurrentEmployee.Subdivision;
 			}
 		}
@@ -213,7 +253,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void CreateAddWriteoffItemCommand()
 		{
 			AddWriteoffItemCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
 						() =>
 							new FuelTypeViewModel(
@@ -223,13 +264,16 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 								EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _routeListProfitabilityController),
 						_unitOfWorkFactory,
 						CommonServices);
-					fuelTypeJournalViewModel.SetRestriction(() => {
+					fuelTypeJournalViewModel.SetRestriction(() =>
+					{
 						return Restrictions.Not(Restrictions.In(Projections.Id(), Entity.ObservableFuelWriteoffDocumentItems.Select(x => x.FuelType.Id).ToArray()));
 					});
 					fuelTypeJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fuelTypeJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+					fuelTypeJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+					{
 						var node = e.SelectedNodes.FirstOrDefault();
-						if(node == null) {
+						if(node == null)
+						{
 							return;
 						}
 						Entity.AddNewWriteoffItem(UoW.GetById<FuelType>(node.Id));
@@ -270,8 +314,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void CreatePrintCommand()
 		{
 			PrintCommand = new DelegateCommand(
-				() => {
-					var reportInfo = new QS.Report.ReportInfo {
+				() =>
+				{
+					var reportInfo = new QS.Report.ReportInfo
+					{
 						Title = String.Format($"Акт выдачи топлива №{Entity.Id} от {Entity.Date:d}"),
 						Identifier = "Documents.FuelWriteoffDocument",
 						Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } }
