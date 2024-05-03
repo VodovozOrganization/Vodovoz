@@ -161,9 +161,10 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			if(Entity.Car == null || Entity.WriteOffDate == null)
 			{
 				Entity.LitersOutlayed = 0;
+				return;
 			}
 
-			var activeFuelVersion = Entity.Car.CarModel.GetCarFuelVersionOnDate(Entity.WriteOffDate.Value);
+			var activeFuelVersion = Entity.Car?.CarModel.GetCarFuelVersionOnDate(Entity.WriteOffDate.Value);
 
 			if(activeFuelVersion == null)
 			{
@@ -172,7 +173,9 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				CommonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Error,
 					$"Расчет потраченного топлива выполнить не удалось.\n" +
-					$"На указанную дату списания {Entity.WriteOffDate.Value} отсутствует версия топлива для модели авто {Entity.Car.CarModel.Name}");
+					$"На указанную дату списания {Entity.WriteOffDate.Value} отсутствует версия топлива для модели авто {Entity.Car?.CarModel.Name}");
+
+				return;
 			}
 
 			var fuelConsumption = (decimal)activeFuelVersion.FuelConsumption;
@@ -185,6 +188,8 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 					ImportanceLevel.Error,
 					$"Расчет потраченного топлива выполнить не удалось.\n" +
 					$"На указанную дату списания {Entity.WriteOffDate.Value} в версии топлива для модели авто {Entity.Car.CarModel.Name} расход топлива установлен 0");
+
+				return;
 			}
 
 			Entity.LitersOutlayed = Entity.DistanceKm / fuelConsumption;
