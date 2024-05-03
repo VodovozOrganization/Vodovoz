@@ -841,7 +841,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				return false;
 			}
-			return !_routeListRepository.RouteListContainsGivedFuelLiters(UoW, selectedNode.Id);
+			return !_routeListRepository.RouteListContainsGivenFuelLiters(UoW, selectedNode.Id);
 		}
 
 		private void SendRouteListsInLoading(IList<RouteListJournalNode> selectedNodes)
