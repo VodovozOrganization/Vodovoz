@@ -54,7 +54,6 @@ namespace DatabaseServiceWorker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			return;
 			if(_workInProgress)
 			{
 				return;
