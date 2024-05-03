@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using DatabaseServiceWorker;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -17,6 +18,10 @@ namespace TrueMarkApi
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();
-				});
+				})
+			.ConfigureServices((hostContext, services) =>
+			{
+				services.ConfigureTrueMarkWorker(hostContext);
+			});
 	}
 }
