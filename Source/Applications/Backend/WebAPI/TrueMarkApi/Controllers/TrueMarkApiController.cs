@@ -20,7 +20,7 @@ namespace TrueMarkApi.Controllers
 {
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/[action]")]
 	
 	public class TrueMarkApiController : ControllerBase
 	{
@@ -49,7 +49,6 @@ namespace TrueMarkApi.Controllers
 		}
 		
 		[HttpGet]
-		[Route("/api/ParticipantRegistrationForWater")]
 		public async Task<TrueMarkResponseResultDto> ParticipantRegistrationForWaterAsync(string inn)
 		{
 			var uri = $"participants?inns={inn}";
@@ -110,7 +109,6 @@ namespace TrueMarkApi.Controllers
 		}
 
 		[HttpPost]
-		[Route("/api/Participants")]
 		public async Task<IList<ParticipantRegistrationDto>> ParticipantsAsync(IList<string> inns)
 		{
 			if(!inns.Any())
@@ -141,8 +139,7 @@ namespace TrueMarkApi.Controllers
 		}
 
 		[HttpPost]
-		[Route("/api/RequestProductInstanceInfo")]
-		public async Task<ProductInstancesInfo> GetProductInstanceInfo([FromBody]IEnumerable<string> identificationCodes)
+		public async Task<ProductInstancesInfo> RequestProductInstanceInfoAsync([FromBody]IEnumerable<string> identificationCodes)
 		{
 			var uri = $"cises/info";
 

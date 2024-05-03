@@ -17,7 +17,6 @@ using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
@@ -53,7 +52,6 @@ namespace TrueMarkApi
 				logging.AddNLogWeb();
 				logging.AddConfiguration(Configuration.GetSection("NLog"));
 			});
-
 
 			services.AddMappingAssemblies(
 				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
