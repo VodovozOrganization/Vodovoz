@@ -502,6 +502,7 @@ CASE cv.car_own_type
 	WHEN 'Raskat' THEN 'ТС в Раскате'
 	WHEN 'Driver' THEN 'ТС водителя'
 END as car_own_type,
+cv.car_own_type as current_own_type,
 CASE cm.car_type_of_use 
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
@@ -535,7 +536,7 @@ WHERE
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
     AND cm.car_type_of_use IN (@car_type_of_use)
 HAVING 
-    car_own_type IN (@car_type_of_use) OR previous_car_own_type IN (@car_own_type)
+    current_own_type IN (@car_own_type) OR previous_car_own_type IN (@car_own_type)
 UNION
 SELECT
 date(c2.archiving_date) as change_date,
@@ -545,6 +546,7 @@ CONCAT('В архиве (',
 		WHEN 'Scrap' THEN 'Утиль'
 		ELSE 'Неизвестно'
 	END, ')')   as car_own_type,
+cv2.car_own_type as current_own_type,
 CASE cm2.car_type_of_use 
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
@@ -571,7 +573,7 @@ WHERE
 	AND c2.is_archive = 1
     AND cv2.car_own_type IN (@car_own_type)
 HAVING 
-    car_own_type IN (@car_type_of_use) OR previous_car_own_type IN (@car_own_type)
+    current_own_type IN (@car_own_type) OR previous_car_own_type IN (@car_own_type)
 ORDER BY change_date DESC, car_own_type
 ;</CommandText>
         <QueryParameters>
