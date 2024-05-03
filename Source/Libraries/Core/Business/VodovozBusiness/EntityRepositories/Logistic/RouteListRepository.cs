@@ -1121,19 +1121,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
 		
-		public bool RouteListContainsGivedFuelLiters(IUnitOfWork uow, int id)
+		public bool RouteListContainsGivenFuelLiters(IUnitOfWork uow, int routeListId)
 		{
-			bool result = false;
+			var result = false;
 
-			var routeList = uow.Session.QueryOver<RouteList>()
-				.Where(x => x.Id == id)
-				.SingleOrDefault<RouteList>();
+			var fuelOperations = uow.Session.QueryOver<FuelDocument>()
+				.Where(x => x.RouteList.Id == routeListId)
+				.Select(f => f.FuelOperation)
+				.List<FuelOperation>();
 
-			foreach(var fuelDocument in routeList.FuelDocuments)
+			foreach(var operation in fuelOperations)
 			{
-				decimal litersGived = fuelDocument.FuelOperation?.LitersGived ?? default(decimal);
-				decimal payedLiters = fuelDocument.FuelOperation?.PayedLiters ?? default(decimal);
-				if(litersGived > 0 || payedLiters > 0)
+				var litersGiven = operation.LitersGived;
+				var payedLiters = operation.PayedLiters;
+				
+				if(litersGiven > 0 || payedLiters > 0)
 				{
 					result = true;
 				}
