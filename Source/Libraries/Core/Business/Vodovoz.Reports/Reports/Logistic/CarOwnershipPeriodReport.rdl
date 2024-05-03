@@ -534,6 +534,8 @@ LEFT JOIN employees e ON c.driver_id = e.id
 WHERE 
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
     AND cm.car_type_of_use IN (@car_type_of_use)
+HAVING 
+    car_own_type IN (@car_type_of_use) OR previous_car_own_type IN (@car_own_type)
 UNION
 SELECT
 date(c2.archiving_date) as change_date,
