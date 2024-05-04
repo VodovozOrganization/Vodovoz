@@ -62,11 +62,11 @@
       </Textbox>
       <Textbox Name="Textbox4">
         <Height>13.51pt</Height>
-        <Width>118.11pt</Width>
+        <Width>176.76pt</Width>
         <Value>Фургоны (Ларгусы) компании:</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>213.9pt</Top>
+        <Left>0.00pt</Left>
+        <Top>213.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -159,7 +159,7 @@
                         <FontSize>8pt</FontSize>
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Bottom</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -185,7 +185,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Bottom</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -211,7 +211,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Bottom</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -263,7 +263,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Bottom</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -289,7 +289,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Bottom</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -314,7 +314,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Bottom</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -941,12 +941,12 @@
         </Footer>
       </Table>
       <Textbox Name="Textbox5">
-        <Height>12.00pt</Height>
-        <Width>105.34pt</Width>
+        <Height>12.75pt</Height>
+        <Width>190.43pt</Width>
         <Value>Грузовые (ГАЗели) компании:</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>302.1pt</Top>
+        <Left>0.00pt</Left>
+        <Top>302.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -983,7 +983,7 @@
             <Width>52.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.0pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.4pt</Width>
@@ -992,10 +992,10 @@
             <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>107.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.3pt</Width>
+            <Width>40.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -1013,7 +1013,7 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.8pt</Width>
+            <Width>48.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
@@ -1022,7 +1022,7 @@
             <Width>75.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.3pt</Width>
+            <Width>63.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1043,6 +1043,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1060,6 +1061,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1077,6 +1079,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1094,6 +1097,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1111,6 +1115,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1256,6 +1261,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1273,6 +1279,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1973,6 +1980,13 @@
               <FilterValue>Driver</FilterValue>
             </FilterValues>
           </Filter>
+          <Filter>
+            <FilterExpression>={driver_category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>office</FilterValue>
+            </FilterValues>
+          </Filter>
         </Filters>
       </Table>
       <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1990,7 +2004,7 @@
             <Width>52.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.0pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.4pt</Width>
@@ -1999,10 +2013,10 @@
             <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>107.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.3pt</Width>
+            <Width>39.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -2020,7 +2034,7 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.8pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
@@ -2029,7 +2043,7 @@
             <Width>75.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.3pt</Width>
+            <Width>63.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -2050,6 +2064,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2067,6 +2082,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2084,6 +2100,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2101,6 +2118,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2118,6 +2136,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2263,6 +2282,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2280,6 +2300,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2972,7 +2993,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={car_own_type}</FilterExpression>
             <Operator>Equal</Operator>
@@ -2985,6 +3006,13 @@
             <Operator>Equal</Operator>
             <FilterValues>
               <FilterValue>Truck</FilterValue>
+            </FilterValues>
+          </Filter>
+          <Filter>
+            <FilterExpression>={driver_category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>office</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>
@@ -3004,7 +3032,7 @@
             <Width>52.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.0pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.4pt</Width>
@@ -3013,10 +3041,10 @@
             <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>106.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.3pt</Width>
+            <Width>41.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -3034,7 +3062,7 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.8pt</Width>
+            <Width>48.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
@@ -3043,7 +3071,7 @@
             <Width>75.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.3pt</Width>
+            <Width>63.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -3064,6 +3092,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3081,6 +3110,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3098,6 +3128,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3115,6 +3146,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3132,6 +3164,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3277,6 +3310,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3294,6 +3328,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3986,7 +4021,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={car_own_type}</FilterExpression>
             <Operator>Equal</Operator>
@@ -3999,6 +4034,13 @@
             <Operator>Equal</Operator>
             <FilterValues>
               <FilterValue>Largus</FilterValue>
+            </FilterValues>
+          </Filter>
+          <Filter>
+            <FilterExpression>={driver_category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>office</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>
@@ -4018,7 +4060,7 @@
             <Width>52.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.0pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.4pt</Width>
@@ -4027,10 +4069,10 @@
             <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>106.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.3pt</Width>
+            <Width>41.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -4048,16 +4090,16 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.8pt</Width>
+            <Width>48.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75.3pt</Width>
+            <Width>76.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.3pt</Width>
+            <Width>60.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -4078,6 +4120,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4095,6 +4138,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4112,6 +4156,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4129,6 +4174,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4146,6 +4192,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4291,6 +4338,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4308,6 +4356,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5000,7 +5049,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={car_own_type}</FilterExpression>
             <Operator>Equal</Operator>
@@ -5013,6 +5062,13 @@
             <Operator>Equal</Operator>
             <FilterValues>
               <FilterValue>GAZelle</FilterValue>
+            </FilterValues>
+          </Filter>
+          <Filter>
+            <FilterExpression>={driver_category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>office</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>
@@ -5032,7 +5088,7 @@
             <Width>52.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.0pt</Width>
+            <Width>50.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43.4pt</Width>
@@ -5041,10 +5097,10 @@
             <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>106.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.3pt</Width>
+            <Width>42.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -5062,7 +5118,7 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.8pt</Width>
+            <Width>49.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
@@ -5071,7 +5127,7 @@
             <Width>75.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.3pt</Width>
+            <Width>62.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -5092,6 +5148,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5109,6 +5166,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5126,6 +5184,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5143,6 +5202,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5160,6 +5220,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5305,6 +5366,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5322,6 +5384,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -6014,12 +6077,26 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={car_own_type}</FilterExpression>
             <Operator>Equal</Operator>
             <FilterValues>
               <FilterValue>Raskat</FilterValue>
+            </FilterValues>
+          </Filter>
+          <Filter>
+            <FilterExpression>={driver_category}</FilterExpression>
+            <Operator>Equal</Operator>
+            <FilterValues>
+              <FilterValue>driver</FilterValue>
+            </FilterValues>
+          </Filter>
+          <Filter>
+            <FilterExpression>={driver_category}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>office</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>
@@ -6049,24 +6126,20 @@
     <DataSet Name="Fuel">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>300</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>#Получаем данные по операциям с топливом в ДВ
 WITH fuel_operations_data as
 (SELECT
-	cv.car_own_type as car_own_type,
-	cm.car_type_of_use as car_type_of_use,
-	cars.id as car_id,
+	fuel_documents.car_id as car_id,
+	fuel_documents.driver_id as driver_id,
     fuel_documents.date AS date,
     fuel_documents.fuel_limits AS liters_limits,
     IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
     fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number,
-    author.id as author_id,
-    GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
-    GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
+    fuel_documents.author_id as author_id,
+    fuel_documents.last_editor_id as last_editor_id,
     fuel_documents.last_edit_date AS last_edit_date,
     fuel_documents.fuel_card AS fuel_card_number,
     IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
@@ -6077,24 +6150,9 @@ fuel_documents
 LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
 LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
 LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
-LEFT JOIN cars ON fuel_documents.car_id = cars.id
-LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
-LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
   fuel_documents.date &gt;= @start_date
-  AND fuel_documents.date &lt; @end_date
-  AND (
-         (0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
-             AND NOT (cm.id IN (@exclude_car_models))
-      )
-ORDER BY date),
+  AND fuel_documents.date &lt; @end_date),
 
 #Устанавливаем порядоквый номер МЛ за день для каждого автомобиля для сопоставления с транзакциями
 fuel_operations_data_with_daily_number as
@@ -6126,31 +6184,18 @@ SELECT
 	fuel_transactions.quantity as fuel_transactions_quantity,
 	fuel_transactions.total_sum  as fuel_transactions_total_sum,
 	fuel_transactions.card_number as fuel_card_number,
-	cars.id as car_id,
-	cars.reg_number as reg_number,
-	CONCAT_WS(' ', employees.last_name, employees.name) as driver,
-	car_versions.car_own_type,
-	car_models.car_type_of_use
+	fuel_card_versions.car_id as car_id,
+	cars.driver_id as driver_id
 FROM 
 	fuel_transactions
 	LEFT JOIN fuel_cards ON fuel_cards.card_id = fuel_transactions.card_id 
 	LEFT JOIN fuel_card_versions ON fuel_cards.id = fuel_card_versions.fuel_card_id 
         AND fuel_card_versions.start_date &lt;= fuel_transactions.transaction_date 
-        AND (fuel_card_versions.end_date IS NULL OR fuel_card_versions.end_date &gt;= fuel_transactions.transaction_date )
-    LEFT JOIN cars ON cars.id = fuel_card_versions.car_id 
-	LEFT JOIN employees ON cars.driver_id = employees.id 
-	LEFT JOIN car_models ON cars.model_id = car_models.id
-	LEFT JOIN car_versions ON cars.id = car_versions.car_id
-        AND car_versions.start_date &lt;= fuel_transactions.transaction_date
-        AND (car_versions.end_date IS NULL OR car_versions.end_date &gt;= fuel_transactions.transaction_date)
+        AND (fuel_card_versions.end_date IS NULL OR fuel_card_versions.end_date &gt;= fuel_transactions.transaction_date)
+    LEFT JOIN cars ON fuel_card_versions.car_id = cars.id 
 WHERE 
 	fuel_transactions.transaction_date &gt;= @start_date
     AND fuel_transactions.transaction_date &lt;= @end_date
-    AND (
-         (0 IN (@include_car_models) OR (car_models.id IN (@include_car_models)))
-             AND NOT (car_models.id IN (@exclude_car_models))
-      )
-ORDER BY fuel_transactions.transaction_date
 ),
 
 #Устанавливаем порядоквый номер транзакции за день для каждого автомобиля для сопоставления с операциями
@@ -6163,10 +6208,7 @@ SELECT
 	transactions_data.fuel_transactions_total_sum,
 	transactions_data.fuel_card_number,
 	transactions_data.car_id,
-	transactions_data.reg_number,
-	transactions_data.driver,
-	transactions_data.car_own_type,
-	transactions_data.car_type_of_use,
+	transactions_data.driver_id as driver_id,
 (
 	SELECT
 	COUNT(DISTINCT td.transaction_id)+1
@@ -6198,20 +6240,16 @@ SELECT *
 FROM 
 (
 SELECT 
-	fot.car_own_type,
-	fot.car_type_of_use,
 	fot.car_id,
+	fot.driver_id,
     fot.date,
     fot.liters_limits,
     fot.liters_outlayed,
     fot.route_list_id,
     fot.route_list_date,
-    fot.driver_name,
     fot.fuel_type,
-    fot.reg_number,
     fot.author_id,
-    fot.author_name,
-    fot.last_editor_name,
+    fot.last_editor_id,
     fot.last_edit_date,
     fot.fuel_card_number,
     fot.payed_for_fuel,
@@ -6223,20 +6261,16 @@ FROM
 fuel_operations_part_of_transactions fot
 UNION
 SELECT 
-	td.car_own_type,
-	td.car_type_of_use,
-	td.car_id,
+	IFNULL(td.car_id,0) as car_id,
+    IFNULL((SELECT driver_id FROM fuel_operations_part_of_transactions WHERE route_list_date = td.transaction_date AND car_id = td.car_id ORDER BY route_list_id DESC LIMIT 1),td.driver_id) as driver_id,
     td.transaction_date as date,
     0 as liters_limits,
     0 as liters_outlayed,
     IFNULL((SELECT route_list_id FROM fuel_operations_part_of_transactions WHERE route_list_date = td.transaction_date AND car_id = td.car_id ORDER BY route_list_id DESC LIMIT 1), 'Топлива в день заправки не выдавалось') as route_list_id,
     IFNULL((SELECT route_list_date FROM fuel_operations_part_of_transactions WHERE route_list_date = td.transaction_date AND car_id = td.car_id ORDER BY route_list_id DESC LIMIT 1), '') as route_list_date,
-	IFNULL((SELECT driver FROM fuel_operations_part_of_transactions WHERE route_list_date = td.transaction_date AND car_id = td.car_id ORDER BY route_list_id DESC LIMIT 1), td.driver) as driver_name,
-    '' as fuel_type,
-    IFNULL((SELECT reg_number FROM fuel_operations_part_of_transactions WHERE route_list_date = td.transaction_date AND car_id = td.car_id ORDER BY route_list_id DESC LIMIT 1), td.reg_number) as reg_number,
+	'' as fuel_type,
     0 as author_id,
-    '' as author_name,
-    '' as last_editor_name,
+    0 as last_editor_id,
     '' as last_edit_date,
     td.fuel_card_number,
     0 as payed_for_fuel,
@@ -6247,11 +6281,54 @@ SELECT
 FROM
 transactions_data_numered td
 WHERE NOT td.transaction_id IN (SELECT transaction_id FROM fuel_operations_part_of_transactions WHERE NOT transaction_id IS NULL)) t
-ORDER BY t.date
+),
+
+#Получаем все необходимые данные и выполняем фильтрацию
+result_data AS 
+(
+SELECT
+	fuel_operations_transactions.car_id,
+	fuel_operations_transactions.driver_id,
+    DATE_FORMAT(fuel_operations_transactions.date, '%d.%m.%Y') as date,
+    fuel_operations_transactions.liters_limits,
+    fuel_operations_transactions.liters_outlayed,
+    fuel_operations_transactions.route_list_id,
+    DATE_FORMAT(fuel_operations_transactions.route_list_date, '%d.%m.%Y') as route_list_date,
+    fuel_operations_transactions.fuel_type,
+    fuel_operations_transactions.author_id,
+    fuel_operations_transactions.last_editor_id,
+    DATE_FORMAT(fuel_operations_transactions.last_edit_date, '%d.%m.%Y %H:%i:%s') as last_edit_date,
+    fuel_operations_transactions.fuel_card_number,
+    fuel_operations_transactions.payed_for_fuel,
+    fuel_operations_transactions.cashless_payed_for_fuel,
+    fuel_operations_transactions.liters_payed,
+    fuel_operations_transactions.fuel_transactions_quantity,
+	fuel_operations_transactions.fuel_transactions_total_sum,
+	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+	GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
+	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
+	IFNULL(car_versions.car_own_type,'no_car_own_type') as car_own_type,
+	IFNULL(car_models.car_type_of_use,'no_car_type_of_use') as car_type_of_use,
+	IFNULL(driver.category,'no_driver_category') as driver_category
+FROM
+	fuel_operations_transactions
+	LEFT JOIN cars ON fuel_operations_transactions.car_id = cars.id
+	LEFT JOIN employees AS driver ON driver.id = fuel_operations_transactions.driver_id
+	LEFT JOIN employees AS author ON author.id = fuel_operations_transactions.author_id
+	LEFT JOIN employees AS last_editor ON last_editor.id = fuel_operations_transactions.last_editor_id
+	LEFT JOIN car_models ON cars.model_id = car_models.id
+	LEFT JOIN car_versions ON cars.id = car_versions.car_id
+        AND car_versions.start_date &lt;= fuel_operations_transactions.date
+        AND (car_versions.end_date IS NULL OR car_versions.end_date &gt;= DATE(fuel_operations_transactions.date))
+WHERE 
+	(@author = - 1 OR author_id = @author)
+    AND (
+         (0 IN (@include_car_models) OR (car_models.id IN (@include_car_models)))
+             AND (car_models.id IS NULL OR NOT (car_models.id IN (@exclude_car_models)))
+      )
 )
-SELECT * FROM fuel_operations_transactions
-WHERE (@author = - 1 OR author_id = @author)
-ORDER BY car_id, date;</CommandText>
+SELECT * FROM result_data
+ORDER BY result_data.car_id, result_data.date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -6299,10 +6376,6 @@ ORDER BY car_id, date;</CommandText>
           <DataField>liters_limits</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="reg_number">
-          <DataField>reg_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="author_name">
           <DataField>author_name</DataField>
           <TypeName>System.String</TypeName>
@@ -6347,392 +6420,16 @@ ORDER BY car_id, date;</CommandText>
           <DataField>car_type_of_use</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="FuelTruck">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number ,
-    GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
-    GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    fuel_documents.fuel_card AS fuel_card_number,
-    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
-    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-    IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
-FROM fuel_documents
-LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
-LEFT JOIN cars ON fuel_documents.car_id = cars.id
-LEFT JOIN employees as driver on driver.id = fuel_documents.driver_id
-LEFT JOIN employees as author on author.id = fuel_documents.author_id
-LEFT JOIN employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE cv.car_own_type = 'Company'
-  AND cm.car_type_of_use = 'Truck'
-  AND fuel_documents.date &gt;= @start_date
-  AND fuel_documents.date &lt; @end_date
-  AND (@author = -1 OR author_id = @author)
-  AND (
-         (0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
-             AND NOT (cm.id IN (@exclude_car_models))
-      )
-;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="author">
-            <Value>={?author}</Value>
-          </QueryParameter>
-          <QueryParameter Name="include_car_models">
-            <Value>={?include_car_models}</Value>
-          </QueryParameter>
-          <QueryParameter Name="exclude_car_models">
-            <Value>={?exclude_car_models}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="route_list_id">
-          <DataField>route_list_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="route_list_date">
-          <DataField>route_list_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
+        <Field Name="driver_category">
+          <DataField>driver_category</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int64</TypeName>
-        </Field>
-        <Field Name="liters_outlayed">
-          <DataField>liters_outlayed</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="reg_number">
-          <DataField>reg_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="author_name">
-          <DataField>author_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_editor_name">
-          <DataField>last_editor_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_edit_date">
-          <DataField>last_edit_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="fuel_card_number">
-          <DataField>fuel_card_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="payed_for_fuel">
-          <DataField>payed_for_fuel</DataField>
-        </Field>
-        <Field Name="liters_payed">
-          <DataField>liters_payed</DataField>
-        </Field>
-        <Field Name="cashless_payed_for_fuel">
-          <DataField>cashless_payed_for_fuel</DataField>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="FuelGAZelle">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number,
-    GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
-    GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    fuel_documents.fuel_card AS fuel_card_number,
-    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
-    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-    IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
-FROM fuel_documents
-LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
-LEFT JOIN cars ON fuel_documents.car_id = cars.id
-LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
-LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE cv.car_own_type = 'Company'
-  AND cm.car_type_of_use = 'GAZelle'
-  AND fuel_documents.date &gt;= @start_date
-  AND fuel_documents.date &lt; @end_date
-  AND (@author = - 1 OR author_id = @author)
-  AND (
-         (0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
-             AND NOT (cm.id IN (@exclude_car_models))
-      )
-;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="author">
-            <Value>={?author}</Value>
-          </QueryParameter>
-          <QueryParameter Name="include_car_models">
-            <Value>={?include_car_models}</Value>
-          </QueryParameter>
-          <QueryParameter Name="exclude_car_models">
-            <Value>={?exclude_car_models}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="route_list_id">
-          <DataField>route_list_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="route_list_date">
-          <DataField>route_list_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int64</TypeName>
-        </Field>
-        <Field Name="liters_outlayed">
-          <DataField>liters_outlayed</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="reg_number">
-          <DataField>reg_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="author_name">
-          <DataField>author_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_editor_name">
-          <DataField>last_editor_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_edit_date">
-          <DataField>last_edit_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="fuel_card_number">
-          <DataField>fuel_card_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="liters_payed">
-          <DataField>liters_payed</DataField>
-        </Field>
-        <Field Name="payed_for_fuel">
-          <DataField>payed_for_fuel</DataField>
-        </Field>
-        <Field Name="cashless_payed_for_fuel">
-          <DataField>cashless_payed_for_fuel</DataField>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="FuelLargus">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number,
-    GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
-    GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    fuel_documents.fuel_card AS fuel_card_number,
-    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
-    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-    IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
-FROM fuel_documents
-LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
-LEFT JOIN cars ON fuel_documents.car_id = cars.id
-LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
-LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE cv.car_own_type = 'Company'
-  AND cm.car_type_of_use = 'Largus'
-  AND fuel_documents.date &gt;= @start_date
-  AND fuel_documents.date &lt; @end_date
-  AND (@author = - 1 OR author_id = @author)
-  AND (
-         (0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
-             AND NOT (cm.id IN (@exclude_car_models))
-      )
-;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="author">
-            <Value>={?author}</Value>
-          </QueryParameter>
-          <QueryParameter Name="include_car_models">
-            <Value>={?include_car_models}</Value>
-          </QueryParameter>
-          <QueryParameter Name="exclude_car_models">
-            <Value>={?exclude_car_models}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="route_list_id">
-          <DataField>route_list_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="route_list_date">
-          <DataField>route_list_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int64</TypeName>
-        </Field>
-        <Field Name="liters_outlayed">
-          <DataField>liters_outlayed</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="reg_number">
-          <DataField>reg_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="author_name">
-          <DataField>author_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_editor_name">
-          <DataField>last_editor_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_edit_date">
-          <DataField>last_edit_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="fuel_card_number">
-          <DataField>fuel_card_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="liters_payed">
-          <DataField>liters_payed</DataField>
-        </Field>
-        <Field Name="payed_for_fuel">
-          <DataField>payed_for_fuel</DataField>
-        </Field>
-        <Field Name="cashless_payed_for_fuel">
-          <DataField>cashless_payed_for_fuel</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FuelSummary">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
-	SUM(fuel_operations.liters_outlayed) AS liters_used,
-	SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
-	SUM(CASE
-		WHEN fuel_documents.fuel_type_id = 3 THEN fuel_documents.fuel_coupons
-	END) AS coupons_diesel,
-	SUM(CASE
-		WHEN fuel_documents.fuel_type_id &lt;&gt; 3 THEN fuel_documents.fuel_coupons
-	END) AS coupons_benzene
-FROM
-	fuel_operations
-LEFT JOIN
-	fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
-WHERE
-	fuel_operations.date &gt;= @start_date
-	AND fuel_operations.date &lt;= @end_date
-	AND (@author = -1 OR author_id = @author)</CommandText>
+        <CommandText>SELECT 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -6745,28 +6442,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int64</TypeName>
-        </Field>
-        <Field Name="liters_used">
-          <DataField>liters_used</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="coupons_diesel">
-          <DataField>coupons_diesel</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="coupons_benzene">
-          <DataField>coupons_benzene</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-      </Fields>
+      <Fields />
     </DataSet>
     <DataSet Name="FuelWriteoffDocuments">
       <Query>
@@ -6841,125 +6517,6 @@ GROUP BY fuel_writeoff_documents.id;</CommandText>
         <Field Name="expense_category">
           <DataField>expense_category</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="FuelRaskat">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number,
-    GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
-    GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    fuel_documents.fuel_card AS fuel_card_number,
-    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
-    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-    IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
-FROM fuel_documents
-LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
-LEFT JOIN cars ON fuel_documents.car_id = cars.id
-LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
-LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
-LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE cv.car_own_type = 'Raskat'
-  AND fuel_documents.date &gt;= @start_date
-  AND fuel_documents.date &lt; @end_date
-  AND (@author = - 1 OR author_id = @author)
-  AND (
-         (0 IN (@include_car_models) OR (cars.model_id IN (@include_car_models)))
-             AND NOT (cars.model_id IN (@exclude_car_models))
-      )
-;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="author">
-            <Value>={?author}</Value>
-          </QueryParameter>
-          <QueryParameter Name="include_car_models">
-            <Value>={?include_car_models}</Value>
-          </QueryParameter>
-          <QueryParameter Name="exclude_car_models">
-            <Value>={?exclude_car_models}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="route_list_id">
-          <DataField>route_list_id</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="route_list_date">
-          <DataField>route_list_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.Int64</TypeName>
-        </Field>
-        <Field Name="liters_outlayed">
-          <DataField>liters_outlayed</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters_coupons">
-          <DataField>liters_coupons</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="reg_number">
-          <DataField>reg_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="author_name">
-          <DataField>author_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_editor_name">
-          <DataField>last_editor_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="last_edit_date">
-          <DataField>last_edit_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="fuel_card_number">
-          <DataField>fuel_card_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="payed_for_fuel">
-          <DataField>payed_for_fuel</DataField>
-        </Field>
-        <Field Name="liters_payed">
-          <DataField>liters_payed</DataField>
-        </Field>
-        <Field Name="cashless_payed_for_fuel">
-          <DataField>cashless_payed_for_fuel</DataField>
         </Field>
       </Fields>
     </DataSet>

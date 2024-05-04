@@ -550,7 +550,7 @@ FROM
 WHERE 
 fuel_transactions.transaction_date &gt;= @start_date AND fuel_transactions.transaction_date &lt;= @end_date
 AND ((0 IN (@include_car_models) OR (car_models.id IN (@include_car_models)))AND (car_models.id IS NULL OR NOT (car_models.id IN (@exclude_car_models))))
-GROUP BY car_models.car_type_of_use, car_versions.car_own_type)
+GROUP BY car_models.car_type_of_use, car_versions.car_own_type, employees.category)
 SELECT
     CASE
         WHEN car_own_type = 'Driver' THEN 'ТС водителей'
