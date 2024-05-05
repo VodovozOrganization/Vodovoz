@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
-using System.Data;
 using System.Linq;
-using QS.DomainModel.Tracking;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain;
@@ -12,7 +10,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
@@ -23,7 +20,6 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
-using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -43,11 +39,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly FastDeliveryHandler _fastDeliveryHandler;
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IEmployeeSettings _employeeSettings;
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
-		private readonly IOrderSettings _orderSettings;
-		private readonly IOrderRepository _orderRepository;
-		private readonly IOrderDiscountsController _orderDiscountsController;
 		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
 
 		public OrderService(
@@ -65,11 +56,6 @@ namespace Vodovoz.Application.Orders.Services
 			FastDeliveryHandler fastDeliveryHandler,
 			IPromotionalSetRepository promotionalSetRepository,
 			IEmployeeSettings employeeSettings,
-			INomenclatureRepository nomenclatureRepository,
-			IGenericRepository<DiscountReason> discountReasonRepository,
-			IOrderSettings orderSettings,
-			IOrderRepository orderRepository,
-			IOrderDiscountsController orderDiscountsController,
 			IDeliveryPriceCalculator deliveryPriceCalculator)
 		{
 			if(nomenclatureSettings is null)
@@ -90,11 +76,6 @@ namespace Vodovoz.Application.Orders.Services
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
 			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
 
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
