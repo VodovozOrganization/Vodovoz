@@ -40,6 +40,24 @@ namespace Vodovoz.Errors.Orders
 				nameof(IsEmptyDeliverySchedule),
 				"Не заполнен график доставки");
 		
+		public static Error NeedPaidDelivery =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(NeedPaidDelivery),
+				"В онлайн заказе отсутствует платная доставка");
+		
+		public static Error NotNeedPaidDelivery =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(NotNeedPaidDelivery),
+				"В онлайн заказе не должно быть платной доставки");
+		
+		public static Error IncorrectPricePaidDelivery(decimal price, decimal onlineOrderItemPrice) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IncorrectPricePaidDelivery),
+				$"Платная доставка с неверной ценой: пришла {onlineOrderItemPrice}, а должна быть {price}");
+		
 		public static Error FastDeliveryNotAvailable =>
 			new Error(
 				typeof(OnlineOrder),

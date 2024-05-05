@@ -5,17 +5,25 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Application.Orders.Services
 {
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
 		private readonly IGoodsPriceCalculator _priceCalculator;
+		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private OnlineOrder _onlineOrder;
 
-		public OrderFromOnlineOrderValidator(IGoodsPriceCalculator priceCalculator)
+		public OrderFromOnlineOrderValidator(
+			IGoodsPriceCalculator goodsPriceCalculator,
+			IDeliveryPriceCalculator deliveryPriceCalculator,
+			INomenclatureSettings nomenclatureSettings)
 		{
-			_priceCalculator = priceCalculator;
+			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
+			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 		
 		public Result ValidateOnlineOrder(OnlineOrder onlineOrder)
@@ -81,7 +89,8 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			var archivedNomenclatures = new Dictionary<int, bool>();
 			ValidatePromoSet(archivedNomenclatures, errors);
-			ValidateOtherItems(archivedNomenclatures, errors);
+			ValidateOtherItemsWithoutPaidDelivery(archivedNomenclatures, errors);
+			ValidatePaidDelivery(errors);
 			ValidateOnlineRentPackages(errors);
 		}
 
@@ -197,6 +206,11 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void ValidatePrice(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
+			if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.NomenclatureId)
+			{
+				//проверка цены платной доставки
+			}
+			
 			var price = _priceCalculator.CalculateItemPrice(
 				_onlineOrder.OnlineOrderItems,
 				_onlineOrder.DeliveryPoint,
@@ -248,7 +262,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void ValidateOtherItems(IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
+		private void ValidateOtherItemsWithoutPaidDelivery(IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
 		{
 			var onlineOrderItemsNotPromoSet =
 				_onlineOrder.OnlineOrderItems
@@ -261,9 +275,41 @@ namespace Vodovoz.Application.Orders.Services
 					errors.Add(Errors.Orders.OnlineOrder.IsIncorrectNomenclatureInOnlineOrder(onlineOrderItem.NomenclatureId));
 					continue;
 				}
-					
+
+				
 				ValidateNomenclatureByArchive(archivedNomenclatures, onlineOrderItem, errors);
 				ValidatePrice(onlineOrderItem, errors);
+			}
+		}
+		
+		private void ValidatePaidDelivery(ICollection<Error> errors)
+		{
+			if(_onlineOrder.IsSelfDelivery || _onlineOrder.DeliveryPoint?.District is null)
+			{
+				return;
+			}
+			
+			var paidDelivery =
+				_onlineOrder.OnlineOrderItems
+					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
+
+			var deliveryPrice = _deliveryPriceCalculator.CalculateDeliveryPrice(_onlineOrder);
+			var needPaidDelivery = deliveryPrice > 0;
+
+			if(needPaidDelivery && paidDelivery != null)
+			{
+				if(paidDelivery.Price != deliveryPrice)
+				{
+					errors.Add(Errors.Orders.OnlineOrder.IncorrectPricePaidDelivery(deliveryPrice, paidDelivery.Price));
+				}
+			}
+			else if(needPaidDelivery && paidDelivery is null)
+			{
+				errors.Add(Errors.Orders.OnlineOrder.NeedPaidDelivery);
+			}
+			else if(!needPaidDelivery && paidDelivery != null)
+			{
+				errors.Add(Errors.Orders.OnlineOrder.NotNeedPaidDelivery);
 			}
 		}
 
