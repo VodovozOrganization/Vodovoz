@@ -206,11 +206,6 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void ValidatePrice(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
-			if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.NomenclatureId)
-			{
-				//проверка цены платной доставки
-			}
-			
 			var price = _priceCalculator.CalculateItemPrice(
 				_onlineOrder.OnlineOrderItems,
 				_onlineOrder.DeliveryPoint,
@@ -276,7 +271,11 @@ namespace Vodovoz.Application.Orders.Services
 					errors.Add(Errors.Orders.OnlineOrder.IsIncorrectNomenclatureInOnlineOrder(onlineOrderItem.NomenclatureId));
 					continue;
 				}
-
+				
+				if(onlineOrderItem.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId)
+				{
+					continue;
+				}
 				
 				ValidateNomenclatureByArchive(archivedNomenclatures, onlineOrderItem, errors);
 				ValidatePrice(onlineOrderItem, errors);
