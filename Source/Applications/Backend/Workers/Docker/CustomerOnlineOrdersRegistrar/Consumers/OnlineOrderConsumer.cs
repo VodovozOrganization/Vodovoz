@@ -36,21 +36,34 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				uow.Commit();
 
 				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
-
-				var orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
-					
-				if(orderId == default)
+				var orderId = 0;
+				
+				try
 				{
-					Logger.LogInformation(
-						"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
+					orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
+				}
+				catch(Exception e)
+				{
+					Logger.LogError(
+						e,
+						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId}",
 						message.ExternalOrderId);
 				}
-				else
+				finally
 				{
-					Logger.LogInformation(
-						"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
-						message.ExternalOrderId,
-						orderId);
+					if(orderId == default)
+					{
+						Logger.LogInformation(
+							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
+							message.ExternalOrderId);
+					}
+					else
+					{
+						Logger.LogInformation(
+							"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
+							message.ExternalOrderId,
+							orderId);
+					}
 				}
 			}
 		}

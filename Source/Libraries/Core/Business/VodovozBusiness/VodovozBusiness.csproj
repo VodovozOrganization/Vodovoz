@@ -1093,8 +1093,10 @@
     <Compile Include="Domain\Orders\Documents\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
+    <Compile Include="Tools\Orders\ComparerDeliveryPrice.cs" />
     <Compile Include="Tools\Orders\EdoContainerMainDocumentIdParser.cs" />
     <Compile Include="Tools\Orders\FastDeliveryHistoryConverter.cs" />
+    <Compile Include="Tools\Orders\OnlineOrderStateKey.cs" />
     <Compile Include="Tools\Orders\OrderStateKey.cs" />
     <Compile Include="Tools\Orders\OrderRules.cs" />
     <Compile Include="Domain\Sale\DeliveryPriceRule.cs" />

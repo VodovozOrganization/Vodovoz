@@ -38,6 +38,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
+			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
 		;
 	}
 }

@@ -49,6 +49,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
+		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -69,7 +70,8 @@ namespace Vodovoz.Application.Orders.Services
 			IGenericRepository<DiscountReason> discountReasonRepository,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
-			IOrderDiscountsController orderDiscountsController)
+			IOrderDiscountsController orderDiscountsController,
+			IDeliveryPriceCalculator deliveryPriceCalculator)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -94,7 +96,8 @@ namespace Vodovoz.Application.Orders.Services
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
-			
+			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -102,55 +105,8 @@ namespace Vodovoz.Application.Orders.Services
 
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			OrderItem deliveryPriceItem = order.OrderItems
-				.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-
-			#region перенести всё это в OrderStateKey
-
-			bool IsDeliveryForFree = order.SelfDelivery
-				|| order.OrderAddressType == OrderAddressType.Service
-				|| order.DeliveryPoint.AlwaysFreeDelivery
-				|| order.ObservableOrderItems
-					.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-				|| !order.ObservableOrderItems
-					.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId)
-				&& (order.BottlesReturn > 0
-					|| order.ObservableOrderEquipments.Any()
-					|| order.ObservableOrderDepositItems.Any());
-
-			if(IsDeliveryForFree)
-			{
-				if(deliveryPriceItem != null)
-				{
-					order.RemoveOrderItem(deliveryPriceItem);
-				}
-				return;
-			}
-
-			#endregion
-
-			var district = order.DeliveryPoint != null
-				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
-				: null;
-
-			var orderKey = new OrderStateKey(order);
-
-			var price =
-				district?.GetDeliveryPrice(orderKey, order.ObservableOrderItems
-					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
-				?? 0m;
-
-			if(price != 0)
-			{
-				order.AddOrUpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), price);
-
-				return;
-			}
-
-			if(deliveryPriceItem != null)
-			{
-				order.RemoveOrderItem(deliveryPriceItem);
-			}
+			var deliveryPrice = _deliveryPriceCalculator.CalculateDeliveryPrice(unitOfWork, order);
+			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
 		}
 
 		/// <summary>
