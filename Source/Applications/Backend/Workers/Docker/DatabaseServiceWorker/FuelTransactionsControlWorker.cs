@@ -149,6 +149,12 @@ namespace DatabaseServiceWorker
 
 				var transactionsCount = 0;
 				var pageLimit = _fuelControlSettings.TransactionsPerQueryLimit;
+
+				if(pageLimit <= 0)
+				{
+					throw new InvalidOperationException("Значение лимита возвращаемого количества транзакций за один запрос должно быть больше нуля");
+				}
+
 				var pageOffset = 0;
 
 				do

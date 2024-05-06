@@ -8,7 +8,9 @@ namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "версия топливной карты",
-		NominativePlural = "версии топливных карт")]
+		NominativePlural = "версии топливных карт",
+		Genitive = "версии топливной карты",
+		GenitivePlural = "версий топливных карт")]
 	[HistoryTrace]
 	public class FuelCardVersion : PropertyChangedBase, IDomainObject
 	{

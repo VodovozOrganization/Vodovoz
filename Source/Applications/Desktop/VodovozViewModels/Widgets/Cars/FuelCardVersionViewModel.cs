@@ -8,9 +8,9 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Linq;
-using Vodovoz.Controllers;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Fuel.FuelCards;
 
 namespace Vodovoz.ViewModels.Widgets.Cars
@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		private FuelCardVersion _selectedVersion;
 		private DialogViewModelBase _parentDialog;
 
-		private readonly IFuelCardVersionController _fuelCardVersionController;
+		private readonly IFuelCardVersionService _fuelCardVersionController;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IUnitOfWork _unitOfWork;
@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		public FuelCardVersionViewModel(
 			Car entity,
 			ICommonServices commonServices,
-			IFuelCardVersionController fuelCardVersionController,
+			IFuelCardVersionService fuelCardVersionController,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory)

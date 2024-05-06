@@ -56,13 +56,15 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
-    <Compile Include="Controllers\FuelCardVersionController.cs" />
-    <Compile Include="Controllers\IFuelCardVersionController.cs" />
+    <Compile Include="Services\Fuel\IFuelCardVersionService.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequest.cs" />
+    <Compile Include="Domain\Fuel\FuelApiRequestFunction.cs" />
+    <Compile Include="Domain\Fuel\FuelApiResponseResult.cs" />
     <Compile Include="Domain\Fuel\FuelCard.cs" />
     <Compile Include="Domain\Fuel\FuelTransaction.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
+    <Compile Include="Domain\Logistic\Cars\IncomeChannel.cs" />
     <Compile Include="Domain\Logistic\Cars\FuelCardVersion.cs" />
     <Compile Include="Domain\Logistic\DriverTerminalCondition.cs" />
     <Compile Include="Domain\Logistic\RouteListControlNotLoadedNode.cs" />

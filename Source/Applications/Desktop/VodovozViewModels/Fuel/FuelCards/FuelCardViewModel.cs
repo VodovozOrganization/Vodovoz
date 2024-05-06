@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation = null)
+			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(unitOfWorkFactory is null)
@@ -64,9 +64,6 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 			GetCardIdCommand = new DelegateCommand(async () => await SetCardId(), () => IsCanSetCardId);
 			ResetFuelCardIdCommand = new DelegateCommand(ResetFuelCardId);
-
-			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWorkFactory), unitOfWorkFactory);
-			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}

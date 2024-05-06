@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -33,6 +34,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly IGenericRepository<Car> _carRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
@@ -46,6 +48,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
+			IGenericRepository<Car> carRepository,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -58,6 +61,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
@@ -205,8 +209,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private bool IsEmployeeHasCarAndFuelCard()
 		{
-			var employeeCar = UoW.Session.Query<Car>()
-				.Where(c => c.Driver.Id == Entity.Employee.Id)
+			var employeeCar = _carRepository
+				.Get(UoW, c => c.Driver.Id == Entity.Employee.Id)
 				.FirstOrDefault();
 
 			if(employeeCar == null)

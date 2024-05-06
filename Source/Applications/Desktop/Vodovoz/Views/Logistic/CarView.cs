@@ -5,6 +5,7 @@ using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -97,7 +98,7 @@ namespace Vodovoz.Views.Logistic
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
 			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
-			fuelcardversionview2.ViewModel = ViewModel.FuelCardVersionViewModel;
+			fuelcardversionview.ViewModel = ViewModel.FuelCardVersionViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
@@ -122,6 +123,12 @@ namespace Vodovoz.Views.Logistic
 
 			yentryUpcomingTechInspectLeft.Binding
 				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectLeft, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			speciallistcomboboxIncomeChannel.SetRenderTextFunc<IncomeChannel>(x => x.GetEnumDisplayName());
+			speciallistcomboboxIncomeChannel.ItemsList = Enum.GetValues(typeof(IncomeChannel));
+			speciallistcomboboxIncomeChannel.Binding
+				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();

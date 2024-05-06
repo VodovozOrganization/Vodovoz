@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Fuel
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "топливные карты",
 		Nominative = "топливная карта",
-		Genitive = "топливной карты")]
+		Genitive = "топливной карты",
+		GenitivePlural = "топливных карт")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class FuelCard : PropertyChangedBase, IDomainObject, IValidatableObject

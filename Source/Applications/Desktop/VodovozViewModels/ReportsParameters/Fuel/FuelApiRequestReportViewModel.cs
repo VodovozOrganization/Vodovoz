@@ -27,13 +27,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly ViewModelEEVMBuilder<User> _userViewModelEEVMBuilder;
 
 		public FuelApiRequestReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope) : base(rdlViewerViewModel)
+			ILifetimeScope lifetimeScope,
+			ViewModelEEVMBuilder<User> userViewModelEEVMBuilder) : base(rdlViewerViewModel)
 		{
 			if(commonServices is null)
 			{
@@ -48,6 +50,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_userViewModelEEVMBuilder = userViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(userViewModelEEVMBuilder));
 
 			Title = "Отчет по запросам к API Газпром-нефть";
 			Identifier = "Cash.FuelApiRequestReport";
@@ -87,20 +90,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 
 		public bool CanCreateReport => StartDate.HasValue && EndDate.HasValue;
 
-		protected override Dictionary<string, object> Parameters
-		{
-			get
+		protected override Dictionary<string, object> Parameters =>
+			new Dictionary<string, object>
 			{
-				var parameters = new Dictionary<string, object>
-				{
-					{ "start_date", StartDate.Value.ToString("yyyy-MM-dd") },
-					{ "end_date", EndDate.Value.ToString("yyyy-MM-dd") },
-					{ "user_id", User?.Id ?? 0 }
-				};
-
-				return parameters;
-			}
-		}
+				{ "start_date", StartDate.Value.ToString("yyyy-MM-dd") },
+				{ "end_date", EndDate.Value.ToString("yyyy-MM-dd") },
+				{ "user_id", User?.Id ?? 0 }
+			};
 
 		private void CreateReport()
 		{
@@ -108,7 +104,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Error,
-				"Для формирования отчета необходимо указать период");
+					"Для формирования отчета необходимо указать период");
 			}
 
 			LoadReport();
@@ -116,8 +112,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 
 		private IEntityEntryViewModel GetUserViewModel()
 		{
-			var viewModel = new CommonEEVMBuilderFactory<FuelApiRequestReportViewModel>(_rdlViewerViewModel, this, _unitOfWork, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.User)
+			var viewModel = _userViewModelEEVMBuilder
+				.SetViewModel(_rdlViewerViewModel)
+				.SetUnitOfWork(_unitOfWork)
+				.ForProperty(this, x => x.User)
 				.UseViewModelJournalAndAutocompleter<SelectUserJournalViewModel, UsersJournalFilterViewModel>(filter =>
 				{
 				})

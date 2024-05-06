@@ -278,7 +278,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var newFuelCardVersion = Entity.FuelCardVersions.Where(v => v.Id == 0).FirstOrDefault();
 
-			if(newFuelCardVersion == null)
+			if(newFuelCardVersion is null)
 			{
 				return true;
 			}

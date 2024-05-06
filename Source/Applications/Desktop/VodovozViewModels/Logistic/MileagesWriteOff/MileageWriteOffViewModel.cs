@@ -1,5 +1,4 @@
-﻿using Autofac;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
@@ -25,20 +25,29 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 {
 	public class MileageWriteOffViewModel : EntityTabViewModelBase<MileageWriteOff>
 	{
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ViewModelEEVMBuilder<Car> _carViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Employee> _authorViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<MileageWriteOffReason> _writeOffReasonViewModelEEVMBuilder;
 
 		public MileageWriteOffViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			ILifetimeScope lifetimeScope,
-			IEmployeeRepository employeeRepository)
+			IEmployeeRepository employeeRepository,
+			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> authorViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<MileageWriteOffReason> writeOffReasonViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
+			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
+			_authorViewModelEEVMBuilder = authorViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
+			_writeOffReasonViewModelEEVMBuilder = writeOffReasonViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffReasonViewModelEEVMBuilder));
 			if(!CanRead)
 			{
 				AbortOpening("У вас недостаточно прав для просмотра");
@@ -89,15 +98,16 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 		private IEntityEntryViewModel CreateCarEntryViewModel()
 		{
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOff>(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Car)
-				.UseViewModelDialog<CarViewModel>()
+			var viewModel = _carViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Car)
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
 				{
 					filter.Archive = false;
 					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
 				})
+				.UseViewModelDialog<CarViewModel>()
 				.Finish();
 
 			viewModel.CanViewEntity = false;
@@ -107,15 +117,16 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 		private IEntityEntryViewModel CreateDriverEntryViewModel()
 		{
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOff>(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Driver)
-				.UseViewModelDialog<EmployeeViewModel>()
+			var viewModel = _driverViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Driver)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Category = EmployeeCategory.driver;
 					filter.Status = EmployeeStatus.IsWorking;
 				})
+				.UseViewModelDialog<EmployeeViewModel>()
 				.Finish();
 
 			viewModel.CanViewEntity = false;
@@ -125,14 +136,16 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 		private IEntityEntryViewModel CreateAuthorEntryViewModell()
 		{
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOff>(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Author)
+			var viewModel = _authorViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Author)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Category = EmployeeCategory.office;
 					filter.Status = EmployeeStatus.IsWorking;
 				})
+				.UseViewModelDialog<EmployeeViewModel>()
 				.Finish();
 
 			viewModel.CanViewEntity = false;
@@ -142,13 +155,15 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 		private IEntityEntryViewModel CreateWriteOffReasonEntryViewModell()
 		{
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOff>(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Reason)
+			var viewModel = _writeOffReasonViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Reason)
 				.UseViewModelJournalAndAutocompleter<MileageWriteOffReasonJournalViewModel, MileageWriteOffReasonJournalFilterViewModel>(filter =>
 				{
 					filter.IsShowArchived = false;
 				})
+				.UseViewModelDialog<MileageWriteOffReasonViewModel>()
 				.Finish();
 
 			viewModel.CanViewEntity = false;
@@ -166,7 +181,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			var activeFuelVersion = Entity.Car?.CarModel.GetCarFuelVersionOnDate(Entity.WriteOffDate.Value);
 
-			if(activeFuelVersion == null)
+			if(activeFuelVersion is null)
 			{
 				Entity.LitersOutlayed = 0;
 

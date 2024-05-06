@@ -90,6 +90,11 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			var pageOffset = 0;
 			var cardsInResponseCount = 0;
 
+			if(pageLimit <= 0)
+			{
+				throw new InvalidOperationException("Значение лимита возвращаемого количества транзакций за один запрос должно быть больше нуля");
+			}
+
 			_logger.LogDebug("Запрашиваем по API Газпром данные по всем имеющимся топливным картам компании");
 
 			do

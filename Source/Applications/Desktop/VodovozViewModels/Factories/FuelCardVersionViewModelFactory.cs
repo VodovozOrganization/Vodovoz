@@ -1,7 +1,8 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
-using Vodovoz.Controllers;
+using System;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.ViewModels.Factories
@@ -13,17 +14,17 @@ namespace Vodovoz.ViewModels.Factories
 		public FuelCardVersionViewModelFactory(
 			ILifetimeScope lifetimeScope)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public FuelCardVersionViewModel CreateFuelCardVersionViewModel(Car car, IUnitOfWork unitOfWork)
 		{
-			var fuelCardVersionController = _lifetimeScope.Resolve<IFuelCardVersionController>(
+			var fuelCardVersionService = _lifetimeScope.Resolve<IFuelCardVersionService>(
 				new TypedParameter(typeof(Car), car));
 
 			var fuelCardVersionViewModel = _lifetimeScope.Resolve<FuelCardVersionViewModel>(
 				 new TypedParameter(typeof(Car), car),
-				 new TypedParameter(typeof(IFuelCardVersionController), fuelCardVersionController));
+				 new TypedParameter(typeof(IFuelCardVersionService), fuelCardVersionService));
 
 			return fuelCardVersionViewModel;
 		}
