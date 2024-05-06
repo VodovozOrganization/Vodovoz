@@ -181,7 +181,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			var activeFuelVersion = Entity.Car?.CarModel.GetCarFuelVersionOnDate(Entity.WriteOffDate.Value);
 
-			if(activeFuelVersion == null)
+			if(activeFuelVersion is null)
 			{
 				Entity.LitersOutlayed = 0;
 
