@@ -61,7 +61,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
-using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.Suppliers;
@@ -172,13 +171,13 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
-		
+
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
-		
+
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -270,7 +269,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionUndeliveredOrders, null);
 		w1.Add(ActionCashReceiptsJournal, null);
 		w1.Add(ActionOrdersWithReceiptJournal, null);
-		
+
 		//
 		w1.Add(ActionServiceClaims, null);
 		w1.Add(ActionWarehouseDocuments, null);
@@ -358,8 +357,8 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevision, null);
 		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionOldExportTo1c, null);
-		w1.Add(ActionExportCounterpartiesTo1c, null); 
-		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null); 
+		w1.Add(ActionExportCounterpartiesTo1c, null);
+		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
 
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
@@ -371,7 +370,7 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
 		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
-		
+
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
@@ -823,7 +822,7 @@ public partial class MainWindow : Window
 	{
 		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 		Action<NomenclatureStockFilterViewModel> filterParams = null;
-		
+
 		if(_accessOnlyToWarehouseAndComplaints && defaultWarehouse != null)
 		{
 			filterParams = f =>
@@ -836,7 +835,7 @@ public partial class MainWindow : Window
 		{
 			filterParams = f => f.ShowArchive = true;
 		}
-		
+
 		NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
 			null, filterParams);
 	}
@@ -946,18 +945,6 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			   null,
 			   filter => filter.IsForSalesDepartment = true,
-			   OpenPageOptions.IgnoreHash);
-	}
-
-	void OnActionMileageWriteOffJournalActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<MileageWriteOffJournalViewModel, Action<MileageWriteOffJournalFilterViewModel>>(
-			   null,
-			   filter =>
-			   {
-				   filter.WriteOffDateFrom = DateTime.Today.AddMonths(-1);
-				   filter.WriteOffDateTo = DateTime.Today;
-			   },
 			   OpenPageOptions.IgnoreHash);
 	}
 }
