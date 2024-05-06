@@ -100,12 +100,11 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				.SetViewModel(_journal)
 				.SetUnitOfWork(_journal.UoW)
 				.ForProperty(this, x => x.Car)
-				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
-					filter =>
-					{
-						filter.Archive = false;
-						filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
-					})
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.Archive = false;
+					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
+				})
 				.UseViewModelDialog<CarViewModel>()
 				.Finish();
 
