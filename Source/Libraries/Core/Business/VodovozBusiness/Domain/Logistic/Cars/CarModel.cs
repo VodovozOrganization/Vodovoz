@@ -9,7 +9,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "модель автомобиля",
-		NominativePlural = "модели автомобилей")]
+		NominativePlural = "модели автомобилей",
+		GenitivePlural = "моделей автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class CarModel : PropertyChangedBase, IDomainObject, IValidatableObject
