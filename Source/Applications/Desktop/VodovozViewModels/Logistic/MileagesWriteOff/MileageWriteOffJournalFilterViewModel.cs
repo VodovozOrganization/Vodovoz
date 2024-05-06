@@ -25,10 +25,20 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 		private Employee _author;
 		private JournalViewModelBase _journal;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly ViewModelEEVMBuilder<Car> _carViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Employee> _authorViewModelEEVMBuilder;
 
-		public MileageWriteOffJournalFilterViewModel(ILifetimeScope lifetimeScope)
+		public MileageWriteOffJournalFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> authorViewModelEEVMBuilder)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
+			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
+			_authorViewModelEEVMBuilder = authorViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
 		}
 
 		public DateTime? WriteOffDateFrom
@@ -86,15 +96,17 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				return;
 			}
 
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOffJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Car)
+			var viewModel = _carViewModelEEVMBuilder
+				.SetViewModel(_journal)
+				.SetUnitOfWork(_journal.UoW)
+				.ForProperty(this, x => x.Car)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+						filter.Archive = false;
+						filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
+					})
 				.UseViewModelDialog<CarViewModel>()
-				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
-				{
-					filter.Archive = false;
-					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
-				})
 				.Finish();
 
 			viewModel.CanViewEntity = false;
@@ -109,15 +121,16 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				return;
 			}
 
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOffJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Driver)
-				.UseViewModelDialog<EmployeeViewModel>()
+			var viewModel = _driverViewModelEEVMBuilder
+				.SetViewModel(_journal)
+				.SetUnitOfWork(_journal.UoW)
+				.ForProperty(this, x => x.Driver)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Category = EmployeeCategory.driver;
 					filter.Status = EmployeeStatus.IsWorking;
 				})
+				.UseViewModelDialog<EmployeeViewModel>()
 				.Finish();
 
 			viewModel.CanViewEntity = false;
@@ -132,14 +145,16 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				return;
 			}
 
-			var viewModel =
-				new CommonEEVMBuilderFactory<MileageWriteOffJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Author)
+			var viewModel = _authorViewModelEEVMBuilder
+				.SetViewModel(_journal)
+				.SetUnitOfWork(_journal.UoW)
+				.ForProperty(this, x => x.Author)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Category = EmployeeCategory.office;
 					filter.Status = EmployeeStatus.IsWorking;
 				})
+				.UseViewModelDialog<EmployeeViewModel>()
 				.Finish();
 
 			viewModel.CanViewEntity = false;
