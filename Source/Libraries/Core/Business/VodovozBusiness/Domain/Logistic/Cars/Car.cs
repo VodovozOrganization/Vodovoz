@@ -15,7 +15,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
-		Nominative = "автомобиль")]
+		Nominative = "автомобиль",
+		GenitivePlural = "автомобилей")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
@@ -53,11 +54,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
-		private string _registrationNumber = String.Empty;
+		private string _registrationNumber = string.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
 		private ArchivingReason? _archivingReason;
 		private int _leftUntilTechInspect;
+		private IncomeChannel _incomeChannel;
 
 		public virtual int Id { get; set; }
 
@@ -308,6 +310,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _leftUntilTechInspect, value);
 		}
 
+		[Display(Name = "Канал поступления")]
+		public virtual IncomeChannel IncomeChannel
+		{
+			get => _incomeChannel;
+			set => SetField(ref _incomeChannel, value);
+		}
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
@@ -351,12 +360,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
 			}
 
-			if(FuelType == null)
+			if(FuelType is null)
 			{
 				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
 			}
 
-			if(CarModel == null)
+			if(CarModel is null)
 			{
 				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
 			}
@@ -364,6 +373,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(FuelConsumption <= 0)
 			{
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { nameof(FuelConsumption) });
+			}
+
+			if(IncomeChannel == IncomeChannel.None)
+			{
+				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
 			var cars = UoW.Session.QueryOver<Car>()
