@@ -1,5 +1,4 @@
-﻿using Autofac;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
 using System;
@@ -24,18 +23,15 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 		private Employee _driver;
 		private Employee _author;
 		private JournalViewModelBase _journal;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ViewModelEEVMBuilder<Car> _carViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _authorViewModelEEVMBuilder;
 
 		public MileageWriteOffJournalFilterViewModel(
-			ILifetimeScope lifetimeScope,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> authorViewModelEEVMBuilder)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_authorViewModelEEVMBuilder = authorViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
