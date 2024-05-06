@@ -1,11 +1,11 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Contacts;
 
