@@ -97,7 +97,7 @@ namespace Vodovoz.Views.Logistic
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
 			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
-			//fuelcardversionview2.ViewModel = ViewModel.FuelCardVersionViewModel;
+			fuelcardversionview.ViewModel = ViewModel.FuelCardVersionViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
