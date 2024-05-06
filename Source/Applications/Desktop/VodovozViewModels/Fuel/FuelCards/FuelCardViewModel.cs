@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation = null)
+			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(unitOfWorkFactory is null)
