@@ -65,9 +65,6 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			GetCardIdCommand = new DelegateCommand(async () => await SetCardId(), () => IsCanSetCardId);
 			ResetFuelCardIdCommand = new DelegateCommand(ResetFuelCardId);
 
-			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWorkFactory), unitOfWorkFactory);
-			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
-
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
