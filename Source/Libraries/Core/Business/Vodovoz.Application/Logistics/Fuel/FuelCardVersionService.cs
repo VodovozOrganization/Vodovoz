@@ -3,16 +3,17 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Services.Fuel;
 
-namespace Vodovoz.Controllers
+namespace Vodovoz.Application.Logistics.Fuel
 {
-	public class FuelCardVersionController : IFuelCardVersionController
+	public class FuelCardVersionService : IFuelCardVersionService
 	{
 		private readonly Car _car;
 
-		public FuelCardVersionController(Car car)
+		public FuelCardVersionService(Car car)
 		{
-			_car = car ?? throw new System.ArgumentNullException(nameof(car));
+			_car = car ?? throw new ArgumentNullException(nameof(car));
 		}
 
 		public void ChangeVersionStartDate(FuelCardVersion version, DateTime newStartDate)

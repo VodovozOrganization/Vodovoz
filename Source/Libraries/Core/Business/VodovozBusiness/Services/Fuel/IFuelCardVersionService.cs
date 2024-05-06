@@ -2,9 +2,9 @@
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
 
-namespace Vodovoz.Controllers
+namespace Vodovoz.Services.Fuel
 {
-	public interface IFuelCardVersionController
+	public interface IFuelCardVersionService
 	{
 		void ChangeVersionStartDate(FuelCardVersion version, DateTime newStartDate);
 		void CreateAndAddVersion(FuelCard fuelCard, DateTime? startDate);
