@@ -50,13 +50,7 @@ namespace DatabaseServiceWorker
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		protected override TimeSpan Interval
-		{
-			get
-			{
-				return _options.Value.ScanInterval;
-			}
-		}
+		protected override TimeSpan Interval => _options.Value.ScanInterval;
 
 		private bool IsAuthorized =>
 			!string.IsNullOrWhiteSpace(_sessionId)
@@ -72,7 +66,7 @@ namespace DatabaseServiceWorker
 
 			_isWorkInProgress = true;
 
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сохранение транзакций топлива");
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(FuelTransactionsControlWorker));
 
 			await DailyFuelTransactionsUpdate(uow, stoppingToken);
 
