@@ -4,11 +4,9 @@ using Gdk;
 using Gtk;
 using QS.Views.Dialog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Payments;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
@@ -115,10 +113,10 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			speciallistcomboboxPaymentStatus.ShowSpecialStateAll = true;
-			speciallistcomboboxPaymentStatus.SetRenderTextFunc<PaymentStatus?>(x => x.GetEnumTitle());
-			speciallistcomboboxPaymentStatus.ItemsList = Enum.GetValues(typeof(PaymentStatus));
+			speciallistcomboboxPaymentStatus.SetRenderTextFunc<OrderPaymentStatus?>(x => x.GetEnumTitle());
+			speciallistcomboboxPaymentStatus.ItemsList = Enum.GetValues(typeof(OrderPaymentStatus));
 			speciallistcomboboxPaymentStatus.Binding
-				.AddBinding(ViewModel, vm => vm.PaymentStatus, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			ycheckbuttonHideUnregisteredCounterparties.Binding
@@ -189,7 +187,7 @@ namespace Vodovoz.Views.Payments
 				.AddColumn("Дата платежа")
 					.AddTextRenderer(n => n.PaymentDate.ToShortDateString())
 				.AddColumn("Плательщик")
-					.AddTextRenderer(n => n.Payer)
+					.AddTextRenderer(n => n.PayerName)
 				.AddColumn("Сумма по акту")
 					.AddNumericRenderer(n => n.DocumentPaymentSum)
 				.AddColumn("Сумма по ДВ")

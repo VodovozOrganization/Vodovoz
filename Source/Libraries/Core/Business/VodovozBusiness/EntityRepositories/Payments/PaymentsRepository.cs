@@ -285,10 +285,10 @@ namespace Vodovoz.EntityRepositories.Payments
 			return payment != null;
 		}
 
-		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
+		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork unitOfWork, int counterpartyId, string counterpartyInn)
 		{
-			var query = from payment in uow.Session.Query<Payment>()
-						join c in uow.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
+			var query = from payment in unitOfWork.Session.Query<Payment>()
+						join c in unitOfWork.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
 						from counterparty in counterparties.DefaultIfEmpty()
 						where
 						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
@@ -300,6 +300,8 @@ namespace Vodovoz.EntityRepositories.Payments
 							CounterpartyId = counterparty.Id,
 							CounterpartyInn = counterparty.INN,
 							CounterpartyName = counterparty.Name,
+							CounterpartyFullName = counterparty.FullName,
+							PayerName = payment.CounterpartyName,
 							IsManuallyCreated = payment.IsManuallyCreated,
 							PaymentPurpose = payment.PaymentPurpose,
 							PaymentSum = payment.Total
