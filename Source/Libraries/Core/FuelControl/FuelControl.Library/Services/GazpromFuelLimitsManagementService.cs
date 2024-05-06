@@ -1,0 +1,112 @@
+﻿using FuelControl.Contracts.Responses;
+using FuelControl.Library.Converters;
+using FuelControl.Library.Exceptions;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Fuel;
+using Vodovoz.Settings.Fuel;
+
+namespace FuelControl.Library.Services
+{
+	public class GazpromFuelLimitsManagementService
+	{
+		private const string _requestDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
+		private const string _cardsEndpointAddress = "vip/v1/limit";
+
+		private readonly ILogger<GazpromFuelLimitsManagementService> _logger;
+		private readonly IFuelLimitConverter _fuelLimitConverter;
+		private readonly IFuelControlSettings _fuelControlSettings;
+
+		public GazpromFuelLimitsManagementService(
+			ILogger<GazpromFuelLimitsManagementService> logger,
+			IFuelLimitConverter fuelLimitConverter,
+			IFuelControlSettings fuelControlSettings)
+		{
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_fuelLimitConverter = fuelLimitConverter ?? throw new ArgumentNullException(nameof(fuelLimitConverter));
+			_fuelControlSettings = fuelControlSettings ?? throw new System.ArgumentNullException(nameof(fuelControlSettings));
+		}
+
+		public async Task<IEnumerable<FuelLimit>> GetFuelLimitsByCardId(
+			string cardId,
+			string sessionId,
+			string apiKey,
+			CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(cardId))
+			{
+				throw new System.ArgumentException($"'{nameof(cardId)}' cannot be null or whitespace.", nameof(cardId));
+			}
+
+			if(string.IsNullOrWhiteSpace(sessionId))
+			{
+				throw new System.ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
+			}
+
+			if(string.IsNullOrWhiteSpace(apiKey))
+			{
+				throw new System.ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
+			}
+
+			_logger.LogDebug(
+				"Запрос на получение списка имеющихся лимитов по карте CardId={CardId}.",
+				cardId);
+
+			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+
+			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			{
+				httpClient.Timeout = TimeSpan.FromSeconds(_fuelControlSettings.ApiRequesTimeout.TotalSeconds);
+				httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
+				httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
+				httpClient.DefaultRequestHeaders.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+				var response = await httpClient.GetAsync(
+					  $"{_cardsEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}",
+					  cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<FuelLimitsResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessages =
+						$"На запрос получения списка лимитов сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"Тип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					_logger.LogError(errorMessages);
+
+					throw new FuelControlException(errorMessages);
+				}
+
+				_logger.LogDebug("Количество полученных лимитов: {LimitsCount}",
+					responseData.FuelLimitsData.FuelLimits?.Count());
+
+				var transactions = ConvertResponseDataToFuelLimits(responseData);
+
+				return transactions;
+			}
+		}
+
+		private IEnumerable<FuelLimit> ConvertResponseDataToFuelLimits(FuelLimitsResponse responseData)
+		{
+			var transactionDtos = responseData?.FuelLimitsData?.FuelLimits;
+
+			if(transactionDtos == null)
+			{
+				return Enumerable.Empty<FuelLimit>();
+			}
+
+			var transactions = transactionDtos
+					.Select(t => _fuelLimitConverter.ConvertDtoToDomainFuelLimit(t));
+
+			return transactions;
+		}
+	}
+}
