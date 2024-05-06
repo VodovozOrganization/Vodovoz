@@ -59,6 +59,8 @@
     <Compile Include="Controllers\FuelCardVersionController.cs" />
     <Compile Include="Controllers\IFuelCardVersionController.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequest.cs" />
+    <Compile Include="Domain\Fuel\FuelApiRequestFunction.cs" />
+    <Compile Include="Domain\Fuel\FuelApiResponseResult.cs" />
     <Compile Include="Domain\Fuel\FuelCard.cs" />
     <Compile Include="Domain\Fuel\FuelTransaction.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
