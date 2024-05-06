@@ -660,10 +660,7 @@ namespace Vodovoz.Domain.Logistic
 				CreateDeliveryFreeBalanceOperation(uow, Status, status);
 			}
 
-			Status = status;
-			StatusLastUpdate = DateTime.Now;
-
-			switch(Status)
+			switch(status)
 			{
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
@@ -689,6 +686,9 @@ namespace Vodovoz.Domain.Logistic
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
+			
+			Status = status;
+			StatusLastUpdate = DateTime.Now;
 
 			uow.Save(Order);
 
