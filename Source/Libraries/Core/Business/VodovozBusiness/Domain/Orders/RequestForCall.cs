@@ -12,13 +12,14 @@ namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Заявки на звонок",
-		Nominative = "Заявка на звонок",
+		Nominative = RequestForCallName,
 		Prepositional = "Заявке на звонок",
 		PrepositionalPlural = "Заявках на звонок"
 	)]
 	[HistoryTrace]
 	public class RequestForCall : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		public const string RequestForCallName = "Заявка на звонок";
 		private Source _source;
 		private string _author;
 		private string _phone;
@@ -29,8 +30,6 @@ namespace Vodovoz.Domain.Orders
 		private RequestForCallStatus _requestForCallStatus;
 		private DateTime _created;
 		private RequestForCallClosedReason _closedReason;
-
-		protected RequestForCall() { }
 
 		public virtual int Id { get; set; }
 

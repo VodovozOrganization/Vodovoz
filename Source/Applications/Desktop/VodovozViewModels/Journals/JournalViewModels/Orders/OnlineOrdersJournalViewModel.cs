@@ -54,7 +54,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var dataLoader = new ThreadDataLoader<OnlineOrdersJournalNode>(unitOfWorkFactory);
 			dataLoader.AddQuery(OnlineOrdersQuery);
 			dataLoader.AddQuery(RequestsForCallQuery);
-			//dataLoader.Me
+			dataLoader.MergeInOrderBy(x => x.CreationDate, true);
+			dataLoader.MergeInOrderBy(x => x.EntityType);
 			DataLoader = dataLoader;
 
 			Title = "Журнал онлайн заказов";
@@ -273,9 +274,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			query.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
+					.Select(o => o.Created).WithAlias(() => resultAlias.CreationDate)
 					.Select(o => o.IsSelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 					.Select(o => o.IsFastDelivery).WithAlias(() => resultAlias.IsFastDelivery)
 					.Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
@@ -326,6 +329,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				|| _filterViewModel.RestrictSelfDelivery.HasValue
 				|| _filterViewModel.RestrictNeedConfirmationByCall.HasValue
 				|| _filterViewModel.RestrictFastDelivery.HasValue
+				|| _filterViewModel.OnlineOrderId.HasValue
 				|| _filterViewModel.GeographicGroup != null)
 			{
 				query.Where(r => r.Id == null);
@@ -382,12 +386,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			if(_filterViewModel.OrderId.HasValue)
 			{
-				query.Where(o => o.Order.Id == _filterViewModel.OrderId.Value);
-			}
-
-			if(_filterViewModel.OnlineOrderId.HasValue)
-			{
-				query.Where(r => r.Id == _filterViewModel.OnlineOrderId);
+				query.Where(r => r.Order.Id == _filterViewModel.OrderId.Value);
 			}
 			
 			if(!string.IsNullOrWhiteSpace(_filterViewModel.CounterpartyPhone))
@@ -421,6 +420,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			query.SelectList(list => list
 					.SelectGroup(r => r.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => typeof(RequestForCall)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => RequestForCall.RequestForCallName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(r => r.Created).WithAlias(() => resultAlias.CreationDate)
+					.Select(r => r.RequestForCallStatus).WithAlias(() => resultAlias.RequestForCallStatus)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(employeeWorkWithProjection).WithAlias(() => resultAlias.ManagerWorkWith)
 					.Select(r => r.Source).WithAlias(() => resultAlias.Source)

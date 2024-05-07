@@ -11,10 +11,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Id(x => x.Id).GeneratedBy.Native();
 
-			Map(x => x.ExternalId).Column("external_id");
 			Map(x => x.Author).Column("author");
 			Map(x => x.Source).Column("source");
-			Map(x => x.Question).Column("question");
 			Map(x => x.Created).Column("created");
 			Map(x => x.Phone).Column("phone");
 			Map(x => x.RequestForCallStatus).Column("request_for_call_status");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
 using CustomerOnlineOrdersStatusUpdateNotifier.Services;
@@ -48,15 +49,20 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness()
-						
+
 						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
-					
-						.AddHostedService<OnlineOrdersStatusUpdatedNotifier>()
-						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(client =>
+						.AddSingleton(_ => new JsonSerializerOptions
 						{
-							client.Timeout = TimeSpan.FromSeconds(15);
-						});
+							PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+						})
+
+						.AddHostedService<OnlineOrdersStatusUpdatedNotifier>()
+						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(
+							client =>
+							{
+								client.Timeout = TimeSpan.FromSeconds(15);
+							});
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

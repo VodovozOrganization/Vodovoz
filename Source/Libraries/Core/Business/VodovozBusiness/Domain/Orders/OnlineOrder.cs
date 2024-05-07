@@ -13,12 +13,13 @@ namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Онлайн заказы",
-		Nominative = "Онлайн заказ",
+		Nominative = OnlineOrderName,
 		Prepositional = "Онлайн заказе",
 		PrepositionalPlural = "Онлайн заказах"
 	)]
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
+		public const string OnlineOrderName = "Онлайн заказ";
 		private DateTime _version;
 		private DateTime _created;
 		private Source _source;

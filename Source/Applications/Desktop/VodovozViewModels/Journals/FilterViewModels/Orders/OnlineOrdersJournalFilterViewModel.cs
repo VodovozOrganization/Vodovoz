@@ -141,11 +141,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 				if(UpdateFilterField(ref _restrictPaymentType, value))
 				{
 					CanChangePaymentType = false;
-					/*PaymentsFromVisibility = _restrictPaymentType == PaymentType.PaidOnline;
-					if(_restrictPaymentType != PaymentType.PaidOnline && PaymentByCardFrom != null)
-					{
-						PaymentByCardFrom = null;
-					}*/
 				}
 			}
 		}
