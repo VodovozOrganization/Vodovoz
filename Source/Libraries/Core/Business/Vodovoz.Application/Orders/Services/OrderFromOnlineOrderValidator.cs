@@ -12,17 +12,17 @@ namespace Vodovoz.Application.Orders.Services
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
 		private readonly IGoodsPriceCalculator _priceCalculator;
-		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
+		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IDeliveryPriceCalculator deliveryPriceCalculator,
+			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
-			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 		
@@ -293,7 +293,7 @@ namespace Vodovoz.Application.Orders.Services
 				_onlineOrder.OnlineOrderItems
 					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
 
-			var deliveryPrice = _deliveryPriceCalculator.CalculateDeliveryPrice(_onlineOrder);
+			var deliveryPrice = _deliveryPriceGetter.GetDeliveryPrice(_onlineOrder);
 			var needPaidDelivery = deliveryPrice > 0;
 
 			if(needPaidDelivery && paidDelivery != null)

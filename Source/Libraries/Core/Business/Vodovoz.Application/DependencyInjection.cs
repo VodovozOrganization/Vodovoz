@@ -26,6 +26,7 @@ namespace Vodovoz.Application
 			.AddScoped<IPaymentService, PaymentService>()
 			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
+			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
 			.AddOrderServicesDependencies()
 		;
 		
@@ -38,7 +39,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
-			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
+			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 		;
 	}
 }

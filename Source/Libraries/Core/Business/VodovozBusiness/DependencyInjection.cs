@@ -1,8 +1,9 @@
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
 using Vodovoz.Models;
@@ -12,6 +13,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
 
 namespace Vodovoz
@@ -40,6 +42,8 @@ namespace Vodovoz
 			.AddScoped<ICallTaskWorker, CallTaskWorker>()
 			.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
 			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
+			.AddScoped<OrderStateKey>()
+			.AddScoped<OnlineOrderStateKey>()
 			.AddDriverApiHelper()
 		;
 
@@ -71,12 +75,14 @@ namespace Vodovoz
 						NotifyOfCashRequestForDriverIsGivenForTakeUri = databaseSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri,
 						NotifyOfFastDeliveryOrderAddedURI = databaseSettings.NotifyOfFastDeliveryOrderAddedUri,
 						NotifyOfSmsPaymentStatusChangedURI = databaseSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfWaitingTimeChangedURI = databaseSettings.NotifyOfWaitingTimeChangedURI
+						NotifyOfWaitingTimeChangedURI = databaseSettings.NotifyOfWaitingTimeChangedURI,
+						NotifyOfOrderWithGoodsTransferingIsTransferedUri = databaseSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri,
 					};
 				})
 				.AddScoped<ISmsPaymentStatusNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
-				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>();
+				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>()
+				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 	}
 }

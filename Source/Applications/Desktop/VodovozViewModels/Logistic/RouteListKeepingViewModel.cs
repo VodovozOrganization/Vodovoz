@@ -27,6 +27,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
@@ -34,6 +35,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
@@ -60,6 +62,8 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
+		private RouteListItemStatus _routeListItemStatusToChange;
+		private UndeliveryViewModel _undeliveryViewModel;
 
 		public RouteListKeepingViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -417,24 +421,22 @@ namespace Vodovoz
 
 		private void OnRouteListAddressNodeStatusChanged(object sender, StatusChangedEventArgs e)
 		{
-			var newStatus = e.NewStatus;
+			_routeListItemStatusToChange = e.NewStatus;
 
 			if(sender is RouteListKeepingItemNode rli)
 			{
-				if(newStatus == RouteListItemStatus.Canceled
-					|| newStatus == RouteListItemStatus.Overdue)
-				{
-					if(UndeliveryOpenDlgAction is null)
-					{
-						_interactiveService.ShowMessage(ImportanceLevel.Error, "Не назначено действие открытие диалога, обратитесь в отдел разработки", "Ошибка");
-					}
-
-					var dlg = UndeliveryOpenDlgAction.Invoke(
-						rli.RouteListItem.Order,
-						rli.RouteListItem.RouteList.UoW,
-						newStatus);
-
-					TabParent.AddSlaveTab(this, dlg);
+				if(_routeListItemStatusToChange == RouteListItemStatus.Canceled
+					|| _routeListItemStatusToChange == RouteListItemStatus.Overdue)
+				{					
+					_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.Saved += OnUndeliveryViewModelSaved;
+							vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+						}
+						).ViewModel;
 
 					return;
 				}
@@ -451,13 +453,24 @@ namespace Vodovoz
 				{
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Warning,
-						$"Нельзя перевести адрес в статус \"{newStatus.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
+						$"Нельзя перевести адрес в статус \"{_routeListItemStatusToChange.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
 
 					return;
 				}
 
-				rli.UpdateStatus(newStatus, CallTaskWorker);
+				rli.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
 			}
+		}
+
+		private void OnUndeliveryViewModelSaved(object sender, Application.Orders.UndeliveryOnOrderCloseEventArgs e)
+		{
+			var address = Items
+				.Where(x => x.RouteListItem.Order.Id == e.UndeliveredOrder.OldOrder.Id)
+				.FirstOrDefault();
+
+			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			UoW.Save(address.RouteListItem);
+			UoW.Commit();
 		}
 
 		private void OnForwarderChanged(object sender, EventArgs e)
@@ -495,34 +508,41 @@ namespace Vodovoz
 
 		protected override bool BeforeSave()
 		{
-			IsCanClose = false;
-			UoWGeneric.Save();
-
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-
-			UoW.Save(Entity.RouteListProfitability);
-			UoW.Commit();
-
-			var changedList = Items
-				.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
-				.ToList();
-
-			IsCanClose = true;
-
-			if(changedList.Count == 0)
+			try
 			{
-				return true;
+				IsCanClose = false;
+				
+				UoWGeneric.Save();
+
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+
+				UoW.Save(Entity.RouteListProfitability);
+				UoW.Commit();
+
+				var changedList = Items
+					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+					.ToList();
+
+				if(changedList.Count == 0)
+				{
+					return true;
+				}
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+
+				if(currentEmployee == null)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Info,
+						"Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				}
+
+				Entity.CalculateWages(_wageParameterService);
 			}
-
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-
-			if(currentEmployee == null)
+			finally
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Info, "Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				IsCanClose = true;
 			}
-
-			Entity.CalculateWages(_wageParameterService);
-
+			
 			return base.BeforeSave();
 		}
 
@@ -605,6 +625,10 @@ namespace Vodovoz
 
 		public override void Dispose()
 		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+			}
 			Entity.ObservableAddresses.ElementAdded -= OnObservableAddressesElementAdded;
 			Entity.ObservableAddresses.ElementRemoved -= OnObservableAddressesElementRemoved;
 			Entity.ObservableAddresses.ElementChanged -= OnObservableAddressesElementChanged;

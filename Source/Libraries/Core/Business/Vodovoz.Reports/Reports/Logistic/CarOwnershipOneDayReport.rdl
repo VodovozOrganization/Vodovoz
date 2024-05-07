@@ -777,6 +777,7 @@ CASE t.car_type_of_use
 	WHEN 'Largus' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
+	WHEN 'Loader' THEN 'Погрузчик'
 END as model_info,
 CONVERT(IFNULL(SUM(case when t.car_own_type = 'Company' then t.cars_count end ), '0'), UNSIGNED) as company_cars_count,
 CONVERT(IFNULL(SUM(case when t.car_own_type = 'Raskat' then t.cars_count end ), '0'), UNSIGNED) as raskat_cars_count,
@@ -846,6 +847,7 @@ FROM
 		WHEN 'Largus' THEN 'Фургон (Ларгус)'
 		WHEN 'Truck' THEN 'Фура'
 		WHEN 'GAZelle' THEN 'Грузовой'
+		WHEN 'Loader' THEN 'Погрузчик'
 	END as car_type_of_use,
 	cm.name as car_model_name,
 	c.reg_number as car_reg_number,

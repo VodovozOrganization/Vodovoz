@@ -8,8 +8,6 @@ using Pacs.Server.Phones;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.Repositories;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Server
 {

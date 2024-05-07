@@ -147,7 +147,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -208,7 +208,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1378,8 +1378,8 @@ WHERE
           <Image Name="Image2">
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
-            <Left>72.9pt</Left>
-            <Top>9.7pt</Top>
+            <Left>72.90pt</Left>
+            <Top>9.70pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1691,7 +1691,7 @@ Iif(
         <Visibility>
           <Hidden>={?hide_signature}</Hidden>
         </Visibility>
-        <ZIndex>0</ZIndex>
+        <ZIndex>1</ZIndex>
       </Image>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>

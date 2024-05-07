@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Vodovoz.Core.WidgetContainerView undeliveryView;
+		private global::Vodovoz.Core.WidgetContainerView undeliveredOrderView;
 
 		protected virtual void Build()
 		{
@@ -99,11 +99,11 @@ namespace Vodovoz.Views.Orders
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child mainBox1.Gtk.Box+BoxChild
-			this.undeliveryView = new global::Vodovoz.Core.WidgetContainerView();
-			this.undeliveryView.Events = ((global::Gdk.EventMask)(256));
-			this.undeliveryView.Name = "undeliveryView";
-			this.mainBox1.Add(this.undeliveryView);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.undeliveryView]));
+			this.undeliveredOrderView = new global::Vodovoz.Core.WidgetContainerView();
+			this.undeliveredOrderView.Events = ((global::Gdk.EventMask)(256));
+			this.undeliveredOrderView.Name = "undeliveryView";
+			this.mainBox1.Add(this.undeliveredOrderView);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.undeliveredOrderView]));
 			w11.Position = 1;
 			w5.Add(this.mainBox1);
 			this.GtkScrolledWindow.Add(w5);

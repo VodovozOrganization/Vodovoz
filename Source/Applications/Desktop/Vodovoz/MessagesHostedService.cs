@@ -1,8 +1,7 @@
-﻿using MassTransit;
-using MassTransit.Transports;
+﻿using Autofac;
+using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Pacs.Admin.Client;
 using Pacs.Core;
 using System;
 using System.Threading;
@@ -12,34 +11,40 @@ namespace Vodovoz
 {
 	public interface IMessageTransportInitializer
 	{
-		void Initialize(IBusControl bus);
+		void Initialize();
 	}
 
 	public class MessagesHostedService : IHostedService, IMessageTransportInitializer
 	{
 		private IBusControl _bus;
 		private readonly ILogger<MessagesHostedService> _logger;
+		private readonly ILifetimeScope _scope;
 		private bool _initialized = false;
 
-		public MessagesHostedService(ILogger<MessagesHostedService> logger)
+		public MessagesHostedService(ILogger<MessagesHostedService> logger, ILifetimeScope scope)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_scope = scope?.BeginLifetimeScope() ?? throw new ArgumentNullException(nameof(scope));
 		}
 
-		public void Initialize(IBusControl bus)
+		public void Initialize()
 		{
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_bus = _scope.Resolve<IBusControl>();
 			_initialized = true;
 		}
 
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
-			while(!_initialized)
+			while(!_initialized && !cancellationToken.IsCancellationRequested)
 			{
 				await Task.Delay(200);
 			}
 
-			_logger.LogInformation("Сервис сообщений запущен");
+			if(cancellationToken.IsCancellationRequested)
+			{
+				_logger.LogInformation("Запрошено завершение сервиса");
+				return;
+			}
 
 			try
 			{
@@ -49,12 +54,17 @@ namespace Vodovoz
 			{
 				_logger.LogInformation(ex.Message);
 			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при подключении к шине сообщений");
+			}
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Сервис сообщений остановлен");
-			return _bus.StopAsync(cancellationToken);
+			_scope.Dispose();
+			return _bus?.StopAsync(cancellationToken);
 		}
 	}
 }

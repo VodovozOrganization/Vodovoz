@@ -14,8 +14,13 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
+using ApiRouteListService = DriverAPI.Library.V5.Services.IRouteListService;
+using IRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -28,38 +33,47 @@ namespace DriverAPI.Controllers.V5
 	{
 		private readonly ILogger<PushNotificationsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
+		private readonly ApiRouteListService _apiRouteListService;
 		private readonly IRouteListService _routeListService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 		private readonly IFirebaseCloudMessagingService _firebaseCloudMessagingService;
 		private readonly IGenericRepository<CashRequest> _cashRequestRepository;
+		private readonly IGenericRepository<RouteListItem> _routeListItemRepository;
+		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="userManager"></param>
-		/// <param name="routeListService"></param>
+		/// <param name="apiRouteListService"></param>
 		/// <param name="employeeService"></param>
 		/// <param name="wakeUpDriverClientService"></param>
 		/// <param name="firebaseCloudMessagingService"></param>
 		/// <param name="cashRequestRepository"></param>
+		/// <param name="routeListItemRepository"></param>
+		/// <param name="routeListService"></param>
+		/// <param name="addressTransferDocumentItemRepository"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,
-			IRouteListService routeListService,
+			ApiRouteListService apiRouteListService,
 			IEmployeeService employeeService,
 			IWakeUpDriverClientService wakeUpDriverClientService,
 			IFirebaseCloudMessagingService firebaseCloudMessagingService,
-			IGenericRepository<CashRequest> cashRequestRepository) : base(logger)
+			IGenericRepository<CashRequest> cashRequestRepository,
+			IGenericRepository<RouteListItem> routeListItemRepository,
+			IRouteListService routeListService,
+			IGenericRepository<AddressTransferDocumentItem> addressTransferDocumentItemRepository) : base(logger)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager
 				?? throw new ArgumentNullException(nameof(userManager));
-			_routeListService = routeListService
-				?? throw new ArgumentNullException(nameof(routeListService));
+			_apiRouteListService = apiRouteListService
+				?? throw new ArgumentNullException(nameof(apiRouteListService));
 			_employeeService = employeeService
 				?? throw new ArgumentNullException(nameof(employeeService));
 			_wakeUpDriverClientService = wakeUpDriverClientService
@@ -68,6 +82,12 @@ namespace DriverAPI.Controllers.V5
 				?? throw new ArgumentNullException(nameof(firebaseCloudMessagingService));
 			_cashRequestRepository = cashRequestRepository
 				?? throw new ArgumentNullException(nameof(cashRequestRepository));
+			_routeListItemRepository = routeListItemRepository
+				?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_routeListService = routeListService
+				?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListAddressTransferItemRepository = addressTransferDocumentItemRepository
+				?? throw new ArgumentNullException(nameof(addressTransferDocumentItemRepository));
 		}
 
 		/// <summary>
@@ -158,7 +178,7 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfFastDeliveryOrderAddedAsync([FromBody] int orderId)
 		{
-			var token = _routeListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			var token = _apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 
 			if(string.IsNullOrWhiteSpace(token))
 			{
@@ -184,7 +204,7 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfWaitingTimeChangedAsync([FromBody] int orderId)
 		{
-			var token = _routeListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			var token = _apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 
 			if(string.IsNullOrWhiteSpace(token))
 			{
@@ -284,7 +304,7 @@ namespace DriverAPI.Controllers.V5
 
 		private async Task SendPaymentStatusChangedPushNotificationAsync(int orderId)
 		{
-			var token = _routeListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			var token = _apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 
 			if(string.IsNullOrWhiteSpace(token))
 			{
@@ -295,6 +315,84 @@ namespace DriverAPI.Controllers.V5
 				_logger.LogInformation("Отправка PUSH-сообщения об изменении статуса заказа {OrderId}", orderId);
 				await _firebaseCloudMessagingService.SendMessage(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
 			}
+		}
+
+		/// <summary>
+		/// Оповещение о переносе адреса МЛ с передачей товаров по номеру заказа
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns></returns>
+		[HttpPost]
+		[AllowAnonymous]
+		[ApiExplorerSettings(IgnoreApi = true)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
+		{
+			// Заглушка до фиксов реализации
+			return NoContent();
+
+			var targetDriverFirebaseToken =
+				_apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+
+			var targetAddress = _routeListItemRepository
+				.Get(
+					unitOfWork,
+					rli => rli.Status == RouteListItemStatus.EnRoute
+						&& rli.Order.Id == orderId)
+				.FirstOrDefault();
+
+			var previousRouteListAddresses = _routeListItemRepository
+				.Get(
+					unitOfWork,
+					rli => rli.Status == RouteListItemStatus.Transfered
+						&& rli.TransferedTo.Id == targetAddress.Id)
+				.ToList();
+
+			RouteListItem previousItem = null;
+
+			foreach(var previousAddress in previousRouteListAddresses)
+			{
+				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
+				{
+					previousItem = previousAddress;
+					break;
+				}
+
+				var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
+					unitOfWork,
+					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == targetAddress.Id)
+						 || (atdi.NewAddress.Id == previousAddress.Id && atdi.OldAddress.Id == targetAddress.Id)).Count();
+
+				if(transferDocumentsCount % 2 == 0)
+				{
+					continue;
+				}
+
+				previousItem = previousAddress;
+				break;
+			}
+
+			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
+
+			if(source.IsFailure)
+			{
+				return Problem($"Не найден предыдущий адрес МЛ для {targetAddress.Id}");
+			}
+
+			var sourceDriverFirebaseToken = source.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+
+			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+
+			if(source.Value.Id != previousItem.Id)
+			{
+				var previousItemDriverFirebaseToken = previousItem.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+			}
+
+			await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
+
+			return NoContent();
 		}
 	}
 }

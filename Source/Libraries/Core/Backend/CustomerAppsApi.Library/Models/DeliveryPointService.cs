@@ -82,6 +82,7 @@ namespace CustomerAppsApi.Library.Models
 				newDeliveryPointInfoDto.CounterpartyErpId,
 				SourceTitle(newDeliveryPointInfoDto.Source));
 
+			FillEmptyEntranceAndRoomAndFloorDefaultValue(newDeliveryPointInfoDto);
 			var validationResult = _deliveryPointModelValidator.NewDeliveryPointInfoDtoValidate(newDeliveryPointInfoDto);
 
 			if(!string.IsNullOrWhiteSpace(validationResult))
@@ -214,5 +215,25 @@ namespace CustomerAppsApi.Library.Models
 		}
 
 		private string SourceTitle(Source source) => source.GetEnumTitle();
+		
+		private void FillEmptyEntranceAndRoomAndFloorDefaultValue(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
+		{
+			const string defaultValue = "-";
+			
+			if(string.IsNullOrWhiteSpace(newDeliveryPointInfoDto.Entrance))
+			{
+				newDeliveryPointInfoDto.Entrance = defaultValue;
+			}
+			
+			if(string.IsNullOrWhiteSpace(newDeliveryPointInfoDto.Room))
+			{
+				newDeliveryPointInfoDto.Room = defaultValue;
+			}
+			
+			if(string.IsNullOrWhiteSpace(newDeliveryPointInfoDto.Floor))
+			{
+				newDeliveryPointInfoDto.Floor = defaultValue;
+			}
+		}
 	}
 }

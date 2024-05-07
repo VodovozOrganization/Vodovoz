@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using QS.Project.Core;
 using System.Linq;
+using System.Reflection;
 
 namespace Vodovoz.Settings.Database
 {
@@ -8,6 +10,8 @@ namespace Vodovoz.Settings.Database
 		public static IServiceCollection AddDatabaseSettings(this IServiceCollection services)
 		{
 			services.AddScoped<ISettingsController, SettingsController>();
+
+			services.AddMappingAssemblies(Assembly.GetExecutingAssembly());
 
 			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
 				.Where(t => t.IsClass
@@ -25,6 +29,8 @@ namespace Vodovoz.Settings.Database
 		public static IServiceCollection AddDatabaseSingletonSettings(this IServiceCollection services)
 		{
 			services.AddSingleton<ISettingsController, SettingsController>();
+
+			services.AddMappingAssemblies(Assembly.GetExecutingAssembly());
 
 			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
 				.Where(t => t.IsClass

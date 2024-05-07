@@ -44,8 +44,28 @@ namespace Pacs.Server.Phones
 			}
 		}
 
+		private void UpdatePhones()
+		{
+			_logger.LogInformation("Обновление телефонов");
+			var assignments = _pacsPhoneRepository.GetPhoneAssignments();
+			foreach(var assignment in assignments)
+			{
+				if(_phones.ContainsKey(assignment.Phone))
+				{
+					continue;
+				}
+				_logger.LogInformation("Добавление телефона {phone}", assignment.Phone);
+				_phones.Add(assignment.Phone, assignment.OperatorId);
+			}
+		}
+
 		public bool ValidatePhone(string phone)
 		{
+			var unknownPhone = _phones.ContainsKey(phone);
+			if(!unknownPhone)
+			{
+				UpdatePhones();
+			}
 			return _phones.ContainsKey(phone);
 		}
 

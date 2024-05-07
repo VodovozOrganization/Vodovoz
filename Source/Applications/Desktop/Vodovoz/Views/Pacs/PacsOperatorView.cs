@@ -1,17 +1,18 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class PacsOperatorView : WidgetViewBase<PacsOperatorViewModel>
 	{
 		public PacsOperatorView()
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()

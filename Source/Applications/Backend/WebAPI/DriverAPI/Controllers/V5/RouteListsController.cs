@@ -90,7 +90,7 @@ namespace DriverAPI.Controllers.V5
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
-			var routeLists = _apiRouteListService.Get(routeListsIds);
+			var routeLists = _apiRouteListService.GetRouteLists(routeListsIds);
 			var ordersIds = routeLists
 				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
@@ -128,7 +128,7 @@ namespace DriverAPI.Controllers.V5
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				tokenStr);
 
-			return Ok(_apiRouteListService.Get(routeListId));
+			return Ok(_apiRouteListService.GetRouteList(routeListId));
 		}
 
 		/// <summary>
@@ -241,6 +241,8 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="specialConditionsIds">Идентификаторы специальных условий для принятия</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> AcceptRouteListSpecialConditionsAsync([FromBody] IEnumerable<int> specialConditionsIds)
 		{
@@ -255,6 +257,106 @@ namespace DriverAPI.Controllers.V5
 
 			_routeListService.AcceptConditions(_unitOfWork, employee.Id, specialConditionsIds);
 
+			return NoContent();
+		}
+
+		/// <summary>
+		/// Получение информации о переносах адресов маршрутных листов
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverTransfersInfoResponse))]
+		public async Task<IActionResult> GetTransfersAsync()
+		{
+			_logger.LogInformation(
+				"Попытка получения переносов адресов пользователем {Username} User token: {AccessToken}",
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+			var userName = await _userManager.GetUserNameAsync(user);
+
+			var employee = _employeeService.GetByAPILogin(userName);
+
+			return MapResult(_apiRouteListService.GetDriverDriverTransfers(employee.Id));
+		}
+
+		/// <summary>
+		/// Получение информации о входящем переносе адреса маршрутного листа
+		/// </summary>
+		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>
+		/// <returns></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListAddressIncomingTransferDto))]
+		public IActionResult GetIncomingTransferInfo(int routeListAddressId)
+		{
+			_logger.LogInformation(
+				"Попытка получения входящего переноса адреса {RouteListAddressId} пользователем {Username} User token: {AccessToken}",
+				routeListAddressId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			if(routeListAddressId == 0)
+			{
+				return Problem("Не передан идентификатор адреса маршрутного листа");
+			}
+
+			return MapResult(_apiRouteListService.GetIncomingTransferInfo(routeListAddressId), errorStatusCode: StatusCodes.Status400BadRequest);
+		}
+
+		/// <summary>
+		/// Получение информации о исходящем переносе адреса маршрутного листа
+		/// </summary>
+		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>
+		/// <returns></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListAddressOutgoingTransferDto))]
+		public IActionResult GetOutgoingTransferInfo(int routeListAddressId)
+		{
+			_logger.LogInformation(
+				"Попытка получения исходящего переноса адреса {RouteListAddressId} пользователем {Username} User token: {AccessToken}",
+				routeListAddressId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			if(routeListAddressId == 0)
+			{
+				return Problem("Не передан идентификатор адреса маршрутного листа");
+			}
+
+			return MapResult(_apiRouteListService.GetOutgoingTransferInfo(routeListAddressId), errorStatusCode: StatusCodes.Status400BadRequest);
+		}
+
+		/// <summary>
+		/// Запрос на подтверждение приема переноса маршрутного листа
+		/// </summary>
+		/// <param name="confirmRouteListAddressTransferRecievedRequest"></param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public IActionResult ConfirmRouteListAddressTransferRecieved(ConfirmRouteListAddressTransferRecievedRequest confirmRouteListAddressTransferRecievedRequest)
+		{
+			_routeListService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTime.ToLocalTime());
+			return NoContent();
+		}
+
+		/// <summary>
+		/// Запрос на подтверждение передачи переноса маршрутного листа
+		/// </summary>
+		/// <param name="confirmRouteListAddressTransferTransferedRequest"></param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public IActionResult ConfirmRouteListAddressTransferTransfered(ConfirmRouteListAddressTransferTransferedRequest confirmRouteListAddressTransferTransferedRequest)
+		{
 			return NoContent();
 		}
 	}

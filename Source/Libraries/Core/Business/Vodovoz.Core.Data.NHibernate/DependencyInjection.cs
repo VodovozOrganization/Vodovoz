@@ -5,6 +5,7 @@ using QS;
 using QS.Project;
 using QS.Project.Core;
 using QS.Project.DB;
+using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using MySqlConnectionStringBuilder = MySqlConnector.MySqlConnectionStringBuilder;
@@ -13,8 +14,16 @@ namespace Vodovoz.Core.Data.NHibernate
 {
 	public static class DependencyInjection
 	{
+		public static IServiceCollection AddCoreDataNHibernate(this IServiceCollection services)
+		{
+			services.AddMappingAssemblies(Assembly.GetExecutingAssembly());
+
+			return services;
+		}
+
 		public static IServiceCollection AddSpatialSqlConfiguration(this IServiceCollection services)
 		{
+
 			services.AddSingleton<MySQLConfiguration>((provider) =>
 			{
 				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
@@ -33,6 +42,7 @@ namespace Vodovoz.Core.Data.NHibernate
 		public static IServiceCollection AddDatabaseConnection(this IServiceCollection services)
 		{
 			services
+				.AddCoreDataNHibernate()
 				.AddDatabaseConnectionSettings()
 				.AddDatabaseConnectionString()
 				.AddSpatialSqlConfiguration()

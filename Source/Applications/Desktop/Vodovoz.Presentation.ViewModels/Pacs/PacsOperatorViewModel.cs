@@ -31,21 +31,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private bool _endWorkShiftReasonRequired;
 		private string _breakInfo;
 
-		public DelegateCommand StartWorkShiftCommand { get; private set; }
-		public DelegateCommand EndWorkShiftCommand { get; private set; }
-		public DelegateCommand CancelEndWorkShiftReasonCommand { get; private set; }
-		public DelegateCommand ChangePhoneCommand { get; private set; }
-		public DelegateCommand StartLongBreakCommand { get; private set; }
-		public DelegateCommand StartShortBreakCommand { get; private set; }
-		public DelegateCommand EndBreakCommand { get; private set; }
-
 		public PacsOperatorViewModel(
 			OperatorService operatorService,
 			IEmployeeService employeeService,
 			IInteractiveService interactiveService,
 			IGuiDispatcher guiDispatcher,
-			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory
-			)
+			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory)
 		{
 			_operatorService = operatorService ?? throw new ArgumentNullException(nameof(operatorService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -69,6 +60,68 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			PrepareOperatorsOnBreakViewModels();
 
 			_operatorService.PropertyChanged += OperatorServicePropertyChanged;
+		}
+
+		public DelegateCommand StartWorkShiftCommand { get; private set; }
+		public DelegateCommand EndWorkShiftCommand { get; private set; }
+		public DelegateCommand CancelEndWorkShiftReasonCommand { get; private set; }
+		public DelegateCommand ChangePhoneCommand { get; private set; }
+		public DelegateCommand StartLongBreakCommand { get; private set; }
+		public DelegateCommand StartShortBreakCommand { get; private set; }
+		public DelegateCommand EndBreakCommand { get; private set; }
+
+		public GenericObservableList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak
+		{
+			get => _operatorsOnBreak;
+			private set => SetField(ref _operatorsOnBreak, value);
+		}
+
+		public bool CanStartWorkShift => !string.IsNullOrWhiteSpace(PhoneNumber)
+			&& _operatorService.AvailablePhones.Contains(PhoneNumber)
+			&& _operatorService.CanStartWorkShift;
+
+		public virtual bool EndWorkShiftReasonRequired
+		{
+			get => _endWorkShiftReasonRequired;
+			set => SetField(ref _endWorkShiftReasonRequired, value);
+		}
+
+		public virtual string EndWorkShiftReason
+		{
+			get => _endWorkShiftReason;
+			set => SetField(ref _endWorkShiftReason, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanStartWorkShift))]
+		[PropertyChangedAlso(nameof(CanChangePhone))]
+		public virtual string PhoneNumber
+		{
+			get => _phoneNumber;
+			set => SetField(ref _phoneNumber, value);
+		}
+
+		public virtual IEnumerable<string> AvailablePhones
+		{
+			get => _availablePhones;
+			private set => SetField(ref _availablePhones, value);
+		}
+
+		public bool CanChangePhone => !string.IsNullOrWhiteSpace(PhoneNumber)
+			&& _operatorService.AvailablePhones.Contains(PhoneNumber)
+			&& _operatorService.OperatorState != null
+			&& _operatorService.OperatorState.PhoneNumber != PhoneNumber
+			&& _operatorService.CanChangePhone;
+
+		public bool CanStartLongBreak => _operatorService.CanStartLongBreak && !_operatorService.BreakInProgress;
+		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
+		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
+		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
+		public bool CanEndWorkShift => _operatorService.CanEndWorkShift;
+
+		public virtual string BreakInfo
+		{
+			get => _breakInfo;
+			private set => SetField(ref _breakInfo, value);
 		}
 
 		private void OperatorServicePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -117,26 +170,22 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 						OnPropertyChanged(nameof(CanStartShortBreak));
 						OnPropertyChanged(nameof(CanEndBreak));
 						break;
+					case nameof(OperatorService.CanEndWorkShift):
+						OnPropertyChanged(nameof(CanEndWorkShift));
+						break;
 					default:
 						break;
 				}
 			});
 		}
 
-		public GenericObservableList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak
-		{
-			get => _operatorsOnBreak;
-			private set => SetField(ref _operatorsOnBreak, value);
-		}
-
-		
 		private void ConfigureCommands()
 		{
 			StartWorkShiftCommand = new DelegateCommand(() => StartWorkShift().Wait(), () => CanStartWorkShift);
 			StartWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanStartWorkShift);
 
-			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => _operatorService.CanEndWorkShift);
-			EndWorkShiftCommand.CanExecuteChangedWith(_operatorService, x => x.CanEndWorkShift);
+			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => CanEndWorkShift);
+			EndWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanEndWorkShift);
 
 			CancelEndWorkShiftReasonCommand = new DelegateCommand(() => ClearEndWorkShiftReason());
 
@@ -153,10 +202,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EndBreakCommand.CanExecuteChangedWith(this, x => x.CanEndBreak);
 		}
 
-		public bool CanStartWorkShift => !string.IsNullOrWhiteSpace(PhoneNumber)
-			&& _operatorService.AvailablePhones.Contains(PhoneNumber)
-			&& _operatorService.CanStartWorkShift;
-
 		private async Task StartWorkShift()
 		{
 			try
@@ -167,18 +212,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
-		}
-
-		public virtual bool EndWorkShiftReasonRequired
-		{
-			get => _endWorkShiftReasonRequired;
-			set => SetField(ref _endWorkShiftReasonRequired, value);
-		}
-
-		public virtual string EndWorkShiftReason
-		{
-			get => _endWorkShiftReason;
-			set => SetField(ref _endWorkShiftReason, value);
 		}
 
 		private async Task EndWorkShift()
@@ -223,26 +256,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EndWorkShiftReasonRequired = false;
 		}
 
-		[PropertyChangedAlso(nameof(CanStartWorkShift))]
-		[PropertyChangedAlso(nameof(CanChangePhone))]
-		public virtual string PhoneNumber
-		{
-			get => _phoneNumber;
-			set => SetField(ref _phoneNumber, value);
-		}
-
-		public virtual IEnumerable<string> AvailablePhones
-		{
-			get => _availablePhones;
-			private set => SetField(ref _availablePhones, value);
-		}
-
-		public bool CanChangePhone => !string.IsNullOrWhiteSpace(PhoneNumber)
-			&& _operatorService.AvailablePhones.Contains(PhoneNumber)
-			&& _operatorService.OperatorState != null
-			&& _operatorService.OperatorState.PhoneNumber != PhoneNumber
-			&& _operatorService.CanChangePhone;
-
 		private async Task ChangePhone()
 		{
 			try
@@ -254,8 +267,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
-
-		public bool CanStartLongBreak => _operatorService.CanStartLongBreak && !_operatorService.BreakInProgress;
 
 		private async Task StartLongBreak()
 		{
@@ -274,8 +285,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
-
 		private async Task StartShortBreak()
 		{
 			if(!_interactiveService.Question("Хотите взять малый перерыв?", "Перерыв"))
@@ -293,8 +302,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
-
 		private async Task EndBreak()
 		{
 			if(!_interactiveService.Question("Закончить перерыв?", "Перерыв"))
@@ -310,14 +317,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
-		}
-
-		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
-
-		public virtual string BreakInfo
-		{
-			get => _breakInfo;
-			private set => SetField(ref _breakInfo, value);
 		}
 
 		private void PrepareOperatorsOnBreakViewModels()

@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.Mango;
@@ -21,7 +22,7 @@ using Timer = System.Timers.Timer;
 namespace Vodovoz.Application.Pacs
 {
 	public class OperatorService : PropertyChangedBase, 
-		IObserver<GlobalBreakAvailability>,
+		IObserver<GlobalBreakAvailabilityEvent>,
 		IObserver<SettingsEvent>,
 		IObserver<OperatorsOnBreakEvent>,
 		IDisposable
@@ -36,7 +37,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
 		private readonly IOperatorStateAgent _operatorStateAgent;
 		private readonly IPacsRepository _pacsRepository;
-		private readonly IObservable<GlobalBreakAvailability> _globalBreakPublisher;
+		private readonly IObservable<GlobalBreakAvailabilityEvent> _globalBreakPublisher;
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
 		private readonly IObservable<OperatorsOnBreakEvent> _operatorsOnBreakPublisher;
 		private readonly IPacsEmployeeProvider _pacsEmployeeProvider;
@@ -46,9 +47,9 @@ namespace Vodovoz.Application.Pacs
 		private bool _isConnecting;
 		private bool _breakInProgress;
 		private OperatorBreakAvailability _breakAvailability;
-		private GlobalBreakAvailability _globalBreakAvailability;
+		private GlobalBreakAvailabilityEvent _globalBreakAvailability;
 		private IPacsDomainSettings _settings;
-		private IEnumerable<OperatorState> _operatorsonBreak;
+		private IEnumerable<OperatorState> _operatorsonBreak = Enumerable.Empty<OperatorState>();
 		private PacsState _pacsState;
 		private bool _canStartLongBreak;
 		private BreakState _longBreakState;
@@ -69,7 +70,7 @@ namespace Vodovoz.Application.Pacs
 			IMangoManager mangoManager,
 			IOperatorStateAgent operatorStateAgent,
 			IPacsRepository pacsRepository,
-			IObservable<GlobalBreakAvailability> globalBreakPublisher,
+			IObservable<GlobalBreakAvailabilityEvent> globalBreakPublisher,
 			OperatorSettingsConsumer operatorSettingsConsumer,
 			IObservable<OperatorsOnBreakEvent> operatorsOnBreakPublisher,
 			IPacsEmployeeProvider pacsEmployeeProvider,
@@ -89,7 +90,7 @@ namespace Vodovoz.Application.Pacs
 			_operatorKeepAliveController = operatorKeepAliveController ?? throw new ArgumentNullException(nameof(operatorKeepAliveController));
 
 			_breakAvailability = new OperatorBreakAvailability();
-			_globalBreakAvailability = new GlobalBreakAvailability();
+			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
 			_delayedBreakUpdateTimer.Elapsed += (s, e) => UpdateBreakInfo();
@@ -289,7 +290,7 @@ namespace Vodovoz.Application.Pacs
 				UpdateShortBreak();
 			}
 		}
-		public GlobalBreakAvailability GlobalBreakAvailability
+		public GlobalBreakAvailabilityEvent GlobalBreakAvailability
 		{
 			get => _globalBreakAvailability;
 			private set
@@ -332,7 +333,7 @@ namespace Vodovoz.Application.Pacs
 
 			interval.Add(TimeSpan.FromSeconds(1));
 
-			_delayedBreakUpdateTimer.Interval = interval.Milliseconds;
+			_delayedBreakUpdateTimer.Interval = interval.TotalMilliseconds;
 			_delayedBreakUpdateTimer.AutoReset = false;
 			_delayedBreakUpdateTimer.Start();
 		}
@@ -362,7 +363,7 @@ namespace Vodovoz.Application.Pacs
 				result += $"\n{BreakAvailability.ShortBreakDescription}";
 				if(BreakAvailability.ShortBreakSupposedlyAvailableAfter.HasValue)
 				{
-					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value.ToString("dd.MM HH:mm")}";
+					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}";
 				}
 			}
 
@@ -592,6 +593,7 @@ namespace Vodovoz.Application.Pacs
 			{
 				var operatorState = await _client.ChangeNumber(phone);
 				SetState(operatorState);
+				UpdateMango();
 			}
 			catch(Exception ex)
 			{
@@ -710,7 +712,7 @@ namespace Vodovoz.Application.Pacs
 				}
 
 				//инициализация со скуд
-				var hasPhone = uint.TryParse(OperatorState.PhoneNumber, out var phone);
+				var hasPhone = uint.TryParse(OperatorState?.PhoneNumber, out var phone);
 				if(!hasPhone)
 				{
 					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState.PhoneNumber);
@@ -718,10 +720,10 @@ namespace Vodovoz.Application.Pacs
 
 				if(_operatorStateAgent.OnWorkshift)
 				{
+					MangoPhone = OperatorState.PhoneNumber;
 					if(_mangoManager.CanConnect && hasPhone)
 					{
 						_mangoManager.Connect(phone);
-						MangoPhone = OperatorState.PhoneNumber;
 						CanOpenMango = true;
 					}
 				}
@@ -765,17 +767,17 @@ namespace Vodovoz.Application.Pacs
 
 		#region IObserver<GlobalBreakAvailability>
 
-		void IObserver<GlobalBreakAvailability>.OnCompleted()
+		void IObserver<GlobalBreakAvailabilityEvent>.OnCompleted()
 		{
 			_breakAvailabilitySubscription.Dispose();
 		}
 
-		void IObserver<GlobalBreakAvailability>.OnError(Exception error)
+		void IObserver<GlobalBreakAvailabilityEvent>.OnError(Exception error)
 		{
 			_logger.LogError(error, "");
 		}
 
-		void IObserver<GlobalBreakAvailability>.OnNext(GlobalBreakAvailability value)
+		void IObserver<GlobalBreakAvailabilityEvent>.OnNext(GlobalBreakAvailabilityEvent value)
 		{
 			GlobalBreakAvailability = value;
 		}
@@ -818,18 +820,17 @@ namespace Vodovoz.Application.Pacs
 
 		#endregion IObserver<OperatorsOnBreakEvent>
 
-		public bool CanStopApplication()
+		public bool IsOperatorShiftActive()
 		{
 			if(OperatorState == null)
 			{
-				return true;
+				return false;
 			}
-			var canStop = OperatorState.State.IsIn(
+
+			return OperatorState.State.IsNotIn(
 				OperatorStateType.New,
 				OperatorStateType.Connected,
-				OperatorStateType.Disconnected
-			);
-			return canStop;
+				OperatorStateType.Disconnected);
 		}
 
 		public void Dispose()

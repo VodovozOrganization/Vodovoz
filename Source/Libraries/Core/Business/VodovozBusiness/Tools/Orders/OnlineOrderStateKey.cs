@@ -4,16 +4,12 @@ namespace Vodovoz.Tools.Orders
 {
 	public class OnlineOrderStateKey : ComparerDeliveryPrice
 	{
-		private OnlineOrder OnlineOrder { get; }
+		private OnlineOrder OnlineOrder { get; set; }
 
-		public OnlineOrderStateKey(OnlineOrder onlineOrder) : base(onlineOrder.DeliveryDate)
+		public override void InitializeFields(OnlineOrder onlineOrder)
 		{
 			OnlineOrder = onlineOrder;
-			InitializeFields();
-		}
-
-		private void InitializeFields()
-		{
+			DeliveryDate = onlineOrder.DeliveryDate;
 			CalculateAllWaterCount(OnlineOrder.OnlineOrderItems);
 		}
 	}

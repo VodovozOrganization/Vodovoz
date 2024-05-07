@@ -7,33 +7,20 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
 	public class OrderStateKey : ComparerDeliveryPrice
 	{
+		private readonly IOrderSettings _orderSettings;
+
 		[Display(Name = "Заказ, для которого определяются параметры")]
-		public Order Order { get; set; }
+		public Order Order { get; private set; }
 
-		public OrderStateKey()
+		public OrderStateKey(IOrderSettings orderSettings)
 		{
-		}
-
-		public OrderStateKey(Order order) : base(order.DeliveryDate)
-		{
-			Order = order;
-			OrderStatus = Order.OrderStatus;
-			InitializeFields();
-		}
-
-		/// <summary>
-		/// Создает ключ для определенного требуемого статуса
-		/// </summary>
-		public OrderStateKey(Order order, OrderStatus requiredStatus) : base(order.DeliveryDate)
-		{
-			Order = order;
-			OrderStatus = requiredStatus;
-			InitializeFields();
+			_orderSettings = orderSettings ?? throw new System.ArgumentNullException(nameof(orderSettings));
 		}
 
 		#region для проверки документов
@@ -82,8 +69,12 @@ namespace Vodovoz.Tools.Orders
 		public IEnumerable<OrderEquipment> OnlyEquipments =>
 			Order.OrderEquipments.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.equipment);
 
-		void InitializeFields()
+		public override void InitializeFields(Order order, OrderStatus? requiredStatus = null)
 		{
+			Order = order;
+			DeliveryDate = order.DeliveryDate;
+			OrderStatus = requiredStatus ?? Order.OrderStatus;
+
 			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			//для документов
 			DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;

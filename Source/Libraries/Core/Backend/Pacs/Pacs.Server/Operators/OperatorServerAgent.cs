@@ -1,6 +1,7 @@
 ﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
+using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Breaks;
 using Pacs.Server.Phones;
@@ -247,12 +248,15 @@ namespace Pacs.Server.Operators
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				_logger.LogInformation("Сохраняются состояния: {OperatorStateId}, {PreviousOperatorStateId}", OperatorState.Id, _previuosState.Id);
 				await uow.SaveAsync(OperatorState);
+				_logger.LogInformation("Сохранилось состояние: {OperatorStateId}", OperatorState.Id);
+				await uow.SaveAsync(Session);
 				if(_previuosState.State != OperatorStateType.New)
 				{
 					await uow.SaveAsync(_previuosState);
 				}
-
+				_logger.LogInformation("Сохранилось прошлое состояние: {PreviousOperatorStateId}", _previuosState.Id);
 				await uow.CommitAsync();
 			}
 		}
@@ -302,6 +306,7 @@ namespace Pacs.Server.Operators
 		{
 			await _machine.FireAsync(_disconnectTrigger, DisconnectionType.Manual);
 		}
+
 		private void OnDisconnected(StateMachine.Transition transition)
 		{
 			var reason = (DisconnectionType)transition.Parameters[0];
@@ -314,10 +319,15 @@ namespace Pacs.Server.Operators
 			{
 				OperatorState.Started = _disconnectedTime;
 			}
+
+			_previuosState.Ended = OperatorState.Started;
+			//У состояния Disconnected нет времени окончания, так как это конечное состояние
 			OperatorState.Ended = OperatorState.Started;
 
 			CloseSession();
 			ClearPhoneNumber();
+
+			OnDisconnect?.Invoke(this, OperatorId);
 
 			var reasonExplain = reason == DisconnectionType.InactivityTimeout ? "автоматически по таймауту" : "сам";
 			_logger.LogInformation($"Оператор {{OperatorId}} отключился {reasonExplain}", OperatorId);
@@ -331,6 +341,7 @@ namespace Pacs.Server.Operators
 			}
 
 			Session.Ended = OperatorState.Ended;
+			
 			StopCheckInactivity();
 
 			var endTimeExplain = Session.Ended.HasValue ? " Завершена в {SesstionEndTime}." : "";

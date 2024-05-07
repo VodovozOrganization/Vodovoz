@@ -1,11 +1,10 @@
-﻿using MessageTransport;
+﻿using ApiAuthentication;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
 using Pacs.Admin.Server;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -25,21 +24,14 @@ namespace Pacs.Admin.Service
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
-				.AddLogging(logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
-				})
-				.AddMappingAssemblies(
-					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
-				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
 				.AddMessageTransportSettings()
 				.AddPacsAdminServices()
 				;
+
+			services.AddApiKeyAuthentication();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +45,9 @@ namespace Pacs.Admin.Service
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+
+			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

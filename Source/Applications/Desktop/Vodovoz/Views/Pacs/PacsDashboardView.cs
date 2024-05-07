@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using QS.Journal.GtkUI;
 using QS.ViewModels;
 using QS.Views.GtkUI;
 using System.ComponentModel;
@@ -12,15 +13,24 @@ namespace Vodovoz.Views.Pacs
 	public partial class PacsDashboardView : WidgetViewBase<PacsDashboardViewModel>
 	{
 		private Widget _detailsWidget;
+		private Menu _treeViewCallsPopup;
 
 		public PacsDashboardView()
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
+
+			ycheckbuttonShowDisconnected.Binding
+				.AddBinding(ViewModel, vm => vm.ShowDisconnectedOperators, w => w.Active)
+				.InitializeFromSource();
+
+			labelOperatorsOnWorkshift.Binding
+				.AddBinding(ViewModel, vm => vm.OperatorsOnWorkshiftTitle, w => w.Text)
+				.InitializeFromSource();
 
 			treeViewOperatorsOnBreak.ColumnsConfig = FluentColumnsConfig<DashboardOperatorOnBreakViewModel>.Create()
 				.AddColumn("Имя").HeaderAlignment(0.5f)
@@ -87,16 +97,57 @@ namespace Vodovoz.Views.Pacs
 					.AddReadOnlyTextRenderer(x => x.Operator)
 				.AddColumn("Статус").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.State)
+				.AddColumn("Результат").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Result)
 				.AddColumn("")
 				.Finish();
+			treeViewAllCalls.ButtonReleaseEvent += TreeViewAllCalls_ButtonReleaseEvent;
+
 			treeViewAllCalls.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Calls, w => w.ItemsDataSource)
 				.InitializeFromSource();
 			treeViewAllCalls.RowActivated += OnActivateCallRow;
+			treeViewAllCalls.Vadjustment.Changed += Vadjustment_Changed;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
 			hboxHeader.Visible = false;
+		}
+
+		private void TreeViewAllCalls_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			if(_treeViewCallsPopup == null)
+			{
+				_treeViewCallsPopup = new Menu();
+				var copyPhoneItem = new MenuItem("Скопировать телефон");
+				copyPhoneItem.ButtonPressEvent += CopyPhoneFromCall;
+				_treeViewCallsPopup.Add(copyPhoneItem);
+				_treeViewCallsPopup.ShowAll();
+			}
+
+			_treeViewCallsPopup.Popup();
+		}
+
+		private void CopyPhoneFromCall(object o, ButtonPressEventArgs args)
+		{
+			var selectedItem = treeViewAllCalls.GetSelectedObject<DashboardCallViewModel>();
+			if(selectedItem == null)
+			{
+				return;
+			}
+
+			var clipBoard = treeViewAllCalls.GetClipboard(Gdk.Selection.Clipboard);
+			clipBoard.Text = selectedItem.Phone;
+		}
+
+		private void Vadjustment_Changed(object sender, System.EventArgs e)
+		{
+			treeViewAllCalls.Vadjustment.Value = 0;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

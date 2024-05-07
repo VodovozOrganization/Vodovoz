@@ -2,6 +2,8 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 
@@ -11,11 +13,16 @@ namespace DriverAPI.Library.V5.Services
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 
-		public EmployeeService(IUnitOfWork unitOfWork, IEmployeeRepository employeeRepository)
+		public EmployeeService(
+			IUnitOfWork unitOfWork,
+			IEmployeeRepository employeeRepository,
+			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository)
 		{
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_externalApplicationUserRepository = externalApplicationUserRepository ?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 		}
 
 		public void EnablePushNotifications(ExternalApplicationUser driverAppUser, string token)
@@ -46,6 +53,11 @@ namespace DriverAPI.Library.V5.Services
 		public string GetDriverPushTokenById(int notifyableEmployeeId)
 		{
 			return _employeeRepository.GetDriverPushTokenById(_unitOfWork, notifyableEmployeeId);
+		}
+
+		public ExternalApplicationUser GetDriverExternalApplicationUserByFirebaseToken(string recipientToken)
+		{
+			return _externalApplicationUserRepository.Get(_unitOfWork, eau => eau.Token == recipientToken).FirstOrDefault();
 		}
 	}
 }

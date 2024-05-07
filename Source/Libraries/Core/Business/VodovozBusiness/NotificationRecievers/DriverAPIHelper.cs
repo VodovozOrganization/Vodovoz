@@ -11,12 +11,14 @@ namespace Vodovoz.NotificationRecievers
 		IFastDeliveryOrderAddedNotificationReciever,
 		IWaitingTimeChangedNotificationReciever,
 		ICashRequestForDriverIsGivenForTakeNotificationReciever,
+		IRouteListTransferhandByHandReciever,
 		IDisposable
 	{
 		private readonly ILogger _logger;
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
 		private string _notifyOfWaitingTimeChangedUri;
+		private string _notifyOfOrderWithGoodsTransferingIsTransferedUri;
 		private string _notifyOfCashRequestForDriverIsGivenForTakeUri;
 		private HttpClient _apiClient;
 
@@ -38,6 +40,7 @@ namespace Vodovoz.NotificationRecievers
 			_notifyOfSmsPaymentStatusChangedUri = configuration.NotifyOfSmsPaymentStatusChangedURI;
 			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedURI;
 			_notifyOfWaitingTimeChangedUri = configuration.NotifyOfWaitingTimeChangedURI;
+			_notifyOfOrderWithGoodsTransferingIsTransferedUri = configuration.NotifyOfOrderWithGoodsTransferingIsTransferedUri;
 			_notifyOfCashRequestForDriverIsGivenForTakeUri = configuration.NotifyOfCashRequestForDriverIsGivenForTakeUri;
 		}
 
@@ -102,20 +105,17 @@ namespace Vodovoz.NotificationRecievers
 		{
 			_apiClient?.Dispose();
 		}
-	}
 
-	public class DriverAPIHelperException : Exception
-	{
-		public DriverAPIHelperException(string message) : base(message)
-		{ }
-	}
-
-	public class DriverApiHelperConfiguration
-	{
-		public Uri ApiBase { get; set; }
-		public string NotifyOfSmsPaymentStatusChangedURI { get; set; }
-		public string NotifyOfFastDeliveryOrderAddedURI { get; set; }
-		public string NotifyOfWaitingTimeChangedURI { get; set; }
-		public string NotifyOfCashRequestForDriverIsGivenForTakeUri { get; set; }
+		public async Task NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+				throw new DriverAPIHelperException(response.ReasonPhrase);
+			}
+		}
 	}
 }

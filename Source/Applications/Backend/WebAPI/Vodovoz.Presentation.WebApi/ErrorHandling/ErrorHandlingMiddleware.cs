@@ -17,7 +17,7 @@ namespace Vodovoz.Presentation.WebApi.ErrorHandling
 			RequestDelegate next)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_next = next;
+			_next = next ?? throw new ArgumentNullException(nameof(next));
 		}
 
 		public async Task Invoke(HttpContext context)

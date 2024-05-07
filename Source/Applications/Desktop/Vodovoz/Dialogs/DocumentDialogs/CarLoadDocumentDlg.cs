@@ -31,6 +31,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 
@@ -305,21 +306,9 @@ namespace Vodovoz
 				}
 			}
 
-			var rdlPath = "Reports/Store/CarLoadDocument.rdl";
 			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
-
-			_eventsQrPlacer.AddQrEventForDocument(UoW, Entity.Id, EventQrDocumentType.CarLoadDocument, ref rdlPath);
-
-			var reportInfo = new ReportInfo
-			{
-				Title = Entity.Title,
-				Path = rdlPath,
-				Parameters = new System.Collections.Generic.Dictionary<string, object>
-					{
-						{ "id",  Entity.Id }
-					},
-				PrintType = ReportInfo.PrintingType.MultiplePrinters
-			};
+			var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
+				UoW, Entity.Id, Entity.Title, EventQrDocumentType.CarLoadDocument);
 
 			TabParent.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),

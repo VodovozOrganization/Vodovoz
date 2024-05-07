@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DriverApi.Contracts.V4;
+using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -49,12 +50,12 @@ namespace DriverAPI.HealthChecks
 				_httpClientFactory,
 				loginRequestDto);
 
-			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQRPaymentStatusResponseDto>(
+			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
 				$"{baseAddress}/api/v4/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 
-			var orderQrPaymentStatusIsHealthy = orderQrPaymentStatus.QRPaymentStatus == QRPaymentDTOStatus.Paid;
+			var orderQrPaymentStatusIsHealthy = orderQrPaymentStatus.QRPaymentStatus == QrPaymentDtoStatus.Paid;
 
 			if(!orderQrPaymentStatusIsHealthy)
 			{

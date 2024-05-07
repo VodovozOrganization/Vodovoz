@@ -99,8 +99,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			return new ReportInfo {
-				Title = String.Format("Особый УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
+
+			return new ReportInfo(connectionString)
+			{
+				Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}",
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },

@@ -4,14 +4,13 @@ using System;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -24,7 +23,6 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
-using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -49,7 +47,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
-		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
+		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -71,7 +69,7 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,
-			IDeliveryPriceCalculator deliveryPriceCalculator)
+			IOrderDeliveryPriceGetter orderDeliveryPriceGetter)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -96,7 +94,7 @@ namespace Vodovoz.Application.Orders.Services
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
-			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
@@ -105,7 +103,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _deliveryPriceCalculator.CalculateDeliveryPrice(unitOfWork, order);
+			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
 			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
 		}
 
@@ -413,7 +411,7 @@ namespace Vodovoz.Application.Orders.Services
 			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
 
 			var beforeAddItemsCount = order.OrderItems.Count();
-			order.AddWaterForSale(nomenclature, bottlesToAdd);		
+			order.AddNomenclature(nomenclature, bottlesToAdd);		
 			var afterAddItemsCount = order.OrderItems.Count();
 
 			if(afterAddItemsCount == beforeAddItemsCount)

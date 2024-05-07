@@ -11,7 +11,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public override IColumnsConfig Configure(FluentColumnsConfig<FineJournalNode> config) =>
 			config.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
-				.AddColumn("Сотудники").AddTextRenderer(node => node.FinedEmployeesNames)
+				.AddColumn("Сотрудники").AddTextRenderer(node => node.FinedEmployeesNames)
 				.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSum.ToString(CultureInfo.CurrentCulture))
 				.AddColumn("Причина штрафа")
 					.AddTextRenderer(node => node.FineReason)

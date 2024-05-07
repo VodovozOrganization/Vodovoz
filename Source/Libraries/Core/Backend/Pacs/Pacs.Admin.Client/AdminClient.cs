@@ -4,8 +4,9 @@ using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using Pacs.Server;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,39 +15,54 @@ using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Admin.Client
 {
-	public class AdminClient
-    {
+	public class AdminClient : IAdminClient
+	{
 		private readonly string _settingsUrl = "pacs/settings";
 		private readonly string _adminCommandsUrl = "pacs/admin/operator";
-		private readonly HttpClient _httpClient = new HttpClient();
+		private readonly HttpClient _httpClient;
 		private readonly ILogger<AdminClient> _logger;
 		private readonly IPacsAdministratorProvider _adminProvider;
 		private readonly IPacsSettings _pacsSettings;
 		private readonly JsonSerializerOptions _jsonSerializerOptions;
+		private readonly Dictionary<string, string> _endpointsUrl;
 
-		public AdminClient(ILogger<AdminClient> logger, IPacsAdministratorProvider adminProvider, IPacsSettings pacsSettings)
+		public AdminClient(
+			ILogger<AdminClient> logger,
+			IPacsAdministratorProvider adminProvider,
+			IPacsSettings pacsSettings,
+			HttpClient httpClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_adminProvider = adminProvider ?? throw new ArgumentNullException(nameof(adminProvider));
 			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
+			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 			_jsonSerializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 			if(_adminProvider.AdministratorId == null)
 			{
 				throw new PacsInitException("Апи клиент администратора СКУД недоступен, так как пользователь не является администратором");
 			}
+
+			_endpointsUrl = new Dictionary<string, string>
+			{
+				{ nameof(SetSettings), $"{_pacsSettings.AdministratorApiUrl}/{_settingsUrl}/set" },
+				{ nameof(GetSettings), $"{_pacsSettings.AdministratorApiUrl}/{_settingsUrl}/get" },
+				{ nameof(StartBreak), $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/startbreak" },
+				{ nameof(EndBreak), $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/endbreak" },
+			};
 		}
 
 		public async Task SetSettings(DomainSettings settings)
 		{
-			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_settingsUrl}/set";
-			var content = new StringContent(JsonSerializer.Serialize(settings), Encoding.UTF8, "application/json");
-			_httpClient.DefaultRequestHeaders.Clear();
-			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.AdministratorApiKey);
-
 			try
 			{
-				await _httpClient.PostAsync(uri, content);
+				await _httpClient.PostAsJsonAsync(
+					_endpointsUrl[nameof(SetSettings)],
+					settings,
+					new Dictionary<string, string>
+					{
+						{ "ApiKey", _pacsSettings.AdministratorApiKey },
+					});
 			}
 			catch(Exception ex)
 			{
@@ -57,24 +73,24 @@ namespace Pacs.Admin.Client
 
 		public async Task<DomainSettings> GetSettings()
 		{
-			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_settingsUrl}/get";
-			_httpClient.DefaultRequestHeaders.Clear();
-			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.AdministratorApiKey);
-
 			try
 			{
-				var response = await _httpClient.GetAsync(uri);
+				var response = await _httpClient.GetAsync(
+					_endpointsUrl[nameof(GetSettings)],
+					new Dictionary<string, string>
+					{
+						{ "ApiKey", _pacsSettings.AdministratorApiKey },
+					});
+
 				if(response.IsSuccessStatusCode)
 				{
-					var responseBody = await response.Content.ReadAsStringAsync();
-					var registrationResult = JsonSerializer.Deserialize<DomainSettings>(responseBody, _jsonSerializerOptions);
-					return registrationResult;
+					return await response.Content.ReadFromJsonAsync<DomainSettings>(_jsonSerializerOptions);
 				}
 				else
 				{
 					throw new InvalidOperationException($"Code: {response.StatusCode}. {response.ReasonPhrase}");
 				}
-				
+
 			}
 			catch(Exception ex)
 			{
@@ -83,10 +99,12 @@ namespace Pacs.Admin.Client
 			}
 		}
 
-		public async Task<OperatorStateEvent> StartBreak(int operatorId, string reason, OperatorBreakType breakType, 
+		public async Task<OperatorStateEvent> StartBreak(
+			int operatorId,
+			string reason,
+			OperatorBreakType breakType,
 			CancellationToken cancellationToken = default)
 		{
-			var uri = $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/startbreak";
 			var payload = new AdminStartBreak
 			{
 				OperatorId = operatorId,
@@ -94,23 +112,29 @@ namespace Pacs.Admin.Client
 				AdminId = _adminProvider.AdministratorId.Value,
 				Reason = reason
 			};
-			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-			_httpClient.DefaultRequestHeaders.Clear();
-			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
 
 			try
 			{
-				var response = await _httpClient.PostAsync(uri, content);
-				var responseContent = await response.Content.ReadAsStringAsync();
-				var operatorResult = JsonSerializer.Deserialize<OperatorResult>(responseContent, _jsonSerializerOptions);
-				if(operatorResult.Result == Result.Success)
+				var response = await _httpClient.PostAsJsonAsync(
+					_endpointsUrl[nameof(StartBreak)],
+					payload,
+					new Dictionary<string, string>
+					{
+						{ "ApiKey",  _pacsSettings.OperatorApiKey }
+					});
+
+				if(response.IsSuccessStatusCode)
 				{
-					return operatorResult.OperatorState;
-				}
-				else
-				{
+					var operatorResult = await response.Content.ReadFromJsonAsync<OperatorResult>(_jsonSerializerOptions);
+
+					if(operatorResult.Result == Result.Success)
+					{
+						return operatorResult.OperatorState;
+					}
+
 					throw new PacsException(operatorResult.FailureDescription);
 				}
+				throw new PacsException($"Не удалось начать перерыв, {response.StatusCode}");
 			}
 			catch(Exception ex)
 			{
@@ -121,23 +145,26 @@ namespace Pacs.Admin.Client
 
 		public async Task<OperatorStateEvent> EndBreak(int operatorId, string reason, CancellationToken cancellationToken = default)
 		{
-			var uri = $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/endbreak";
-			var payload = new AdminEndBreak 
-			{ 
+			var payload = new AdminEndBreak
+			{
 				OperatorId = operatorId,
 				AdminId = _adminProvider.AdministratorId.Value,
 				Reason = reason
 			};
-			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-			_httpClient.DefaultRequestHeaders.Clear();
-			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
 
 			try
 			{
-				var response = await _httpClient.PostAsync(uri, content);
-				var responseContent = await response.Content.ReadAsStringAsync();
-				var operatorResult = JsonSerializer.Deserialize<OperatorResult>(responseContent, _jsonSerializerOptions);
-				if(operatorResult.Result == Result.Success)
+				var response = await _httpClient.PostAsJsonAsync(
+					_endpointsUrl[nameof(EndBreak)],
+					payload,
+					new Dictionary<string, string>
+					{
+						{ "ApiKey",  _pacsSettings.OperatorApiKey }
+					});
+
+				var operatorResult = await response.Content.ReadFromJsonAsync<OperatorResult>(_jsonSerializerOptions);
+
+				if(response.IsSuccessStatusCode && operatorResult.Result == Result.Success)
 				{
 					return operatorResult.OperatorState;
 				}

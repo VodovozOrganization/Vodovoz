@@ -64,6 +64,10 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOriginalCarEvent;
 
+		private global::Gamma.GtkWidgets.yLabel ylblOdometerReading;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinBtnOdometerReading;
+
 		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotalCarEvent;
 
 		private global::Gtk.Label labelComment4;
@@ -127,7 +131,7 @@ namespace Vodovoz.Views.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(12)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(13)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -140,8 +144,8 @@ namespace Vodovoz.Views.Logistic
 			this.checkbuttonDoNotShowInOperation.UseUnderline = true;
 			this.table1.Add(this.checkbuttonDoNotShowInOperation);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.checkbuttonDoNotShowInOperation]));
-			w6.TopAttach = ((uint)(9));
-			w6.BottomAttach = ((uint)(10));
+			w6.TopAttach = ((uint)(10));
+			w6.BottomAttach = ((uint)(11));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -212,8 +216,8 @@ namespace Vodovoz.Views.Logistic
 			this.GtkScrolledWindowComment.Add(this.ytextviewCommnet);
 			this.table1.Add(this.GtkScrolledWindowComment);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindowComment]));
-			w12.TopAttach = ((uint)(11));
-			w12.BottomAttach = ((uint)(12));
+			w12.TopAttach = ((uint)(12));
+			w12.BottomAttach = ((uint)(13));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -230,8 +234,8 @@ namespace Vodovoz.Views.Logistic
 			this.GtkScrolledWindowFoundation.Add(this.ytextviewFoundation);
 			this.table1.Add(this.GtkScrolledWindowFoundation);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindowFoundation]));
-			w14.TopAttach = ((uint)(10));
-			w14.BottomAttach = ((uint)(11));
+			w14.TopAttach = ((uint)(11));
+			w14.BottomAttach = ((uint)(12));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -277,8 +281,8 @@ namespace Vodovoz.Views.Logistic
 			this.labelComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий:");
 			this.table1.Add(this.labelComment);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment]));
-			w18.TopAttach = ((uint)(11));
-			w18.BottomAttach = ((uint)(12));
+			w18.TopAttach = ((uint)(12));
+			w18.BottomAttach = ((uint)(13));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -289,8 +293,8 @@ namespace Vodovoz.Views.Logistic
 			this.labelComment1.LabelProp = global::Mono.Unix.Catalog.GetString("Основание:");
 			this.table1.Add(this.labelComment1);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment1]));
-			w19.TopAttach = ((uint)(10));
-			w19.BottomAttach = ((uint)(11));
+			w19.TopAttach = ((uint)(11));
+			w19.BottomAttach = ((uint)(12));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -313,8 +317,8 @@ namespace Vodovoz.Views.Logistic
 			this.labelComment3.LabelProp = global::Mono.Unix.Catalog.GetString("Не отражать в эксплуатации ТС");
 			this.table1.Add(this.labelComment3);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment3]));
-			w21.TopAttach = ((uint)(9));
-			w21.BottomAttach = ((uint)(10));
+			w21.TopAttach = ((uint)(10));
+			w21.BottomAttach = ((uint)(11));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -427,6 +431,34 @@ namespace Vodovoz.Views.Logistic
 			w30.XOptions = ((global::Gtk.AttachOptions)(4));
 			w30.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
+			this.ylblOdometerReading = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblOdometerReading.Name = "ylblOdometerReading";
+			this.ylblOdometerReading.Xalign = 1F;
+			this.ylblOdometerReading.LabelProp = global::Mono.Unix.Catalog.GetString("Показания одометра, км:");
+			this.table1.Add(this.ylblOdometerReading);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblOdometerReading]));
+			w31.TopAttach = ((uint)(9));
+			w31.BottomAttach = ((uint)(10));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yspinBtnOdometerReading = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinBtnOdometerReading.CanFocus = true;
+			this.yspinBtnOdometerReading.Name = "yspinBtnOdometerReading";
+			this.yspinBtnOdometerReading.Adjustment.PageIncrement = 10D;
+			this.yspinBtnOdometerReading.ClimbRate = 1D;
+			this.yspinBtnOdometerReading.Numeric = true;
+			this.yspinBtnOdometerReading.ValueAsDecimal = 0m;
+			this.yspinBtnOdometerReading.ValueAsInt = 0;
+			this.table1.Add(this.yspinBtnOdometerReading);
+			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.yspinBtnOdometerReading]));
+			w32.TopAttach = ((uint)(9));
+			w32.BottomAttach = ((uint)(10));
+			w32.LeftAttach = ((uint)(1));
+			w32.RightAttach = ((uint)(2));
+			w32.XOptions = ((global::Gtk.AttachOptions)(4));
+			w32.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yspinPaymentTotalCarEvent = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
 			this.yspinPaymentTotalCarEvent.CanFocus = true;
 			this.yspinPaymentTotalCarEvent.Name = "yspinPaymentTotalCarEvent";
@@ -437,18 +469,18 @@ namespace Vodovoz.Views.Logistic
 			this.yspinPaymentTotalCarEvent.ValueAsDecimal = 0m;
 			this.yspinPaymentTotalCarEvent.ValueAsInt = 0;
 			this.table1.Add(this.yspinPaymentTotalCarEvent);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.yspinPaymentTotalCarEvent]));
-			w31.TopAttach = ((uint)(8));
-			w31.BottomAttach = ((uint)(9));
-			w31.LeftAttach = ((uint)(1));
-			w31.RightAttach = ((uint)(2));
-			w31.XOptions = ((global::Gtk.AttachOptions)(4));
-			w31.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.yspinPaymentTotalCarEvent]));
+			w33.TopAttach = ((uint)(8));
+			w33.BottomAttach = ((uint)(9));
+			w33.LeftAttach = ((uint)(1));
+			w33.RightAttach = ((uint)(2));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w32.Position = 1;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w34.Position = 1;
+			w34.Expand = false;
+			w34.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.labelComment4 = new global::Gtk.Label();
 			this.labelComment4.Name = "labelComment4";
@@ -456,10 +488,10 @@ namespace Vodovoz.Views.Logistic
 			this.labelComment4.Yalign = 0F;
 			this.labelComment4.LabelProp = global::Mono.Unix.Catalog.GetString("Возмещение затрат за счет штрафов:");
 			this.vbox1.Add(this.labelComment4);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelComment4]));
-			w33.Position = 2;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelComment4]));
+			w35.Position = 2;
+			w35.Expand = false;
+			w35.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
@@ -470,8 +502,8 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewFines.Name = "ytreeviewFines";
 			this.GtkScrolledWindow5.Add(this.ytreeviewFines);
 			this.vbox1.Add(this.GtkScrolledWindow5);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow5]));
-			w35.Position = 3;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow5]));
+			w37.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxFineButtons = new global::Gtk.HBox();
 			this.hboxFineButtons.Name = "hboxFineButtons";
@@ -483,10 +515,10 @@ namespace Vodovoz.Views.Logistic
 			this.buttonAttachFine.UseUnderline = true;
 			this.buttonAttachFine.Label = global::Mono.Unix.Catalog.GetString("Прикрепить штраф");
 			this.hboxFineButtons.Add(this.buttonAttachFine);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
-			w36.Position = 0;
-			w36.Expand = false;
-			w36.Fill = false;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
+			w38.Position = 0;
+			w38.Expand = false;
+			w38.Fill = false;
 			// Container child hboxFineButtons.Gtk.Box+BoxChild
 			this.buttonAddFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddFine.CanFocus = true;
@@ -494,15 +526,15 @@ namespace Vodovoz.Views.Logistic
 			this.buttonAddFine.UseUnderline = true;
 			this.buttonAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
 			this.hboxFineButtons.Add(this.buttonAddFine);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
-			w37.Position = 1;
-			w37.Expand = false;
-			w37.Fill = false;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
+			w39.Position = 1;
+			w39.Expand = false;
+			w39.Fill = false;
 			this.vbox1.Add(this.hboxFineButtons);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFineButtons]));
-			w38.Position = 4;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFineButtons]));
+			w40.Position = 4;
+			w40.Expand = false;
+			w40.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
