@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private TurnoverBalanceSheet1C _turnoverBalanceSheet1C;
 
 		private IDictionary<int, OrderDiscrepanciesNode> _orderDiscrepanciesNodes;
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> _paymentDiscrepanciesNodes;
+		private IDictionary<(int PaymentNum, DateTime Date, string PayerName), PaymentDiscrepanciesNode> _paymentDiscrepanciesNodes;
 		private IDictionary<string, CounterpartyBalanceNode> _counterpartyBalanceNodes;
 
 		private DiscrepancyCheckMode _selectedCheckMode;
@@ -511,7 +511,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			return payments;
 		}
 
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CreatePaymentDiscrepanciesNodes(
+		private IDictionary<(int PaymentNum, DateTime Date, string PayerName), PaymentDiscrepanciesNode> CreatePaymentDiscrepanciesNodes(
 			IList<PaymentReconciliation1C> payments1C,
 			IList<PaymentNode> paymentsFromDatabase)
 		{
@@ -519,7 +519,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			foreach(var paymentDatabase in paymentsFromDatabase)
 			{
-				if(paymentDiscrepanciesNodes.TryGetValue((paymentDatabase.PaymentNum, paymentDatabase.PaymentDate), out var paymentDiscrepanciesNode))
+				if(paymentDiscrepanciesNodes.TryGetValue((paymentDatabase.PaymentNum, paymentDatabase.PaymentDate, paymentDatabase.PayerName), out var paymentDiscrepanciesNode))
 				{
 					paymentDiscrepanciesNode.ProgramPaymentSum = paymentDatabase.PaymentSum;
 					paymentDiscrepanciesNode.IsManuallyCreated = paymentDatabase.IsManuallyCreated;
@@ -554,21 +554,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 						newNode.PayerName = paymentDatabase.PayerName;
 					}
 
-					paymentDiscrepanciesNodes.Add((paymentDatabase.PaymentNum, paymentDatabase.PaymentDate), newNode);
+					paymentDiscrepanciesNodes.Add((paymentDatabase.PaymentNum, paymentDatabase.PaymentDate, paymentDatabase.PayerName), newNode);
 				}
 			}
 
 			return paymentDiscrepanciesNodes;
 		}
 
-		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> CreatePaymentDiscrepanciesNodesFromReconciliations1C(
+		private IDictionary<(int PaymentNum, DateTime Date, string PayerName), PaymentDiscrepanciesNode> CreatePaymentDiscrepanciesNodesFromReconciliations1C(
 			IList<PaymentReconciliation1C> paymentReconciliations)
 		{
-			var paymentDiscrepanciesNodes = new Dictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode>();
+			var paymentDiscrepanciesNodes = new Dictionary<(int PaymentNum, DateTime Date, string PayerName), PaymentDiscrepanciesNode>();
 
 			foreach(var paymentReconciliation in paymentReconciliations)
 			{
-				if(paymentDiscrepanciesNodes.TryGetValue((paymentReconciliation.PaymentNum, paymentReconciliation.PaymentDate), out var payment))
+				if(paymentDiscrepanciesNodes.TryGetValue((paymentReconciliation.PaymentNum, paymentReconciliation.PaymentDate, SelectedClient.Name), out var payment))
 				{
 					payment.DocumentPaymentSum += paymentReconciliation.PaymentSum;
 
@@ -578,11 +578,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				var paymentDiscrepanciesNode = new PaymentDiscrepanciesNode
 				{
 					PaymentNum = paymentReconciliation.PaymentNum,
+					PayerName = "",
 					PaymentDate = paymentReconciliation.PaymentDate,
 					DocumentPaymentSum = paymentReconciliation.PaymentSum
 				};
 
-				paymentDiscrepanciesNodes.Add((paymentDiscrepanciesNode.PaymentNum, paymentDiscrepanciesNode.PaymentDate), paymentDiscrepanciesNode);
+				paymentDiscrepanciesNodes.Add((paymentDiscrepanciesNode.PaymentNum, paymentDiscrepanciesNode.PaymentDate, paymentDiscrepanciesNode.PayerName), paymentDiscrepanciesNode);
 			}
 
 			return paymentDiscrepanciesNodes;
