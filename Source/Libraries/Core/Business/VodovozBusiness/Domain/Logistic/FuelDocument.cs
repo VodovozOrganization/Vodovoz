@@ -4,7 +4,6 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -48,7 +47,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual DateTime Date
 		{
 			get => _date;
-			set => SetField(ref _date, value);
+			set
+			{
+				if(SetField(ref _date, value) && Id == 0)
+				{
+					SetFuelCardnamberByDocumentDate();
+				}
+			}
 		}
 
 		[Display(Name = "Водитель")]
@@ -316,7 +321,12 @@ namespace Vodovoz.Domain.Logistic
 			Fuel = rl.Car.FuelType;
 			LiterCost = rl.Car.FuelType.Cost;
 			RouteList = rl;
-			FuelCardNumber = rl.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber;
+			SetFuelCardnamberByDocumentDate();
+		}
+
+		private void SetFuelCardnamberByDocumentDate()
+		{
+			FuelCardNumber = Car?.GetActiveFuelCardVersionOnDate(Date)?.FuelCard?.CardNumber;
 		}
 
 		#region IValidatableObject implementation
@@ -360,6 +370,13 @@ namespace Vodovoz.Domain.Logistic
 						yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
 					}
 				}
+			}
+
+			if(FuelLimits > 0 && FuelCardNumber is null)
+			{
+				yield return new ValidationResult(
+					"При выдаче топливных лимитов у авто должна быть указана топливная карта",
+					new[] { nameof(FuelCardNumber) });
 			}
 		}
 

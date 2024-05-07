@@ -191,7 +191,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			Configure();
 		}
-		
+
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
 		/// </summary>
@@ -542,6 +542,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				OnPropertyChanged(nameof(Balance));
 				OnPropertyChanged(nameof(BalanceState));
+			}
+
+			if(e.PropertyName == nameof(FuelDocument.Date))
+			{
+				if(UoW.IsNew)
+				{
+					OnPropertyChanged(nameof(FuelInfo));
+				}
 			}
 		}
 
