@@ -10,10 +10,13 @@ namespace Vodovoz.Application.Logistics.Fuel
 	public class FuelCardVersionService : IFuelCardVersionService
 	{
 		private readonly Car _car;
+		private readonly bool _isLastFuelCardVersionHasEndDate;
 
 		public FuelCardVersionService(Car car)
 		{
 			_car = car ?? throw new ArgumentNullException(nameof(car));
+
+			_isLastFuelCardVersionHasEndDate = LastFuelCardVersion?.EndDate != null;
 		}
 
 		public void ChangeVersionStartDate(FuelCardVersion version, DateTime newStartDate)
@@ -34,7 +37,7 @@ namespace Vodovoz.Application.Logistics.Fuel
 			}
 
 			var previousVersion = GetPreviousVersionOrNull(version);
-			if(previousVersion != null)
+			if(previousVersion != null && !_isLastFuelCardVersionHasEndDate)
 			{
 				var newEndDate = newStartDate.AddMilliseconds(-1);
 				previousVersion.EndDate = newEndDate;
@@ -66,7 +69,8 @@ namespace Vodovoz.Application.Logistics.Fuel
 				throw new ArgumentNullException(nameof(version));
 			}
 
-			if(version.StartDate == newStartDate
+			if(version.Id != 0
+				|| version.StartDate == newStartDate
 				|| newStartDate >= version.EndDate
 				|| version.FuelCard == null)
 			{
@@ -84,14 +88,19 @@ namespace Vodovoz.Application.Logistics.Fuel
 				return false;
 			}
 
-			var lastVersion = _car.FuelCardVersions?.LastOrDefault();
+			var lastVersion = LastFuelCardVersion;
 
 			if(lastVersion == null)
 			{
 				return true;
 			}
 
-			if(lastVersion.FuelCard.Id == fuelCard.Id)
+			if(lastVersion.FuelCard.Id == fuelCard.Id && lastVersion.EndDate == null)
+			{
+				return false;
+			}
+
+			if(lastVersion.EndDate != null && lastVersion.EndDate.Value > dateTime)
 			{
 				return false;
 			}
@@ -139,7 +148,10 @@ namespace Vodovoz.Application.Logistics.Fuel
 				nameof(newVersionStartDate));
 			}
 
-			currentLatestVersion.EndDate = newVersionStartDate.AddMilliseconds(-1);
+			if(currentLatestVersion.EndDate == null)
+			{
+				currentLatestVersion.EndDate = newVersionStartDate.AddMilliseconds(-1);
+			}
 		}
 
 		private FuelCardVersion GetPreviousVersionOrNull(FuelCardVersion currentVersion)
@@ -149,5 +161,8 @@ namespace Vodovoz.Application.Logistics.Fuel
 				.OrderByDescending(x => x.StartDate)
 				.FirstOrDefault();
 		}
+
+		private FuelCardVersion LastFuelCardVersion =>
+			_car.FuelCardVersions?.OrderBy(v => v.StartDate).LastOrDefault();
 	}
 }
