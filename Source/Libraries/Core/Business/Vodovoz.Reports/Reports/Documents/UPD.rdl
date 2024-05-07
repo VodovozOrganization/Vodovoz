@@ -2780,9 +2780,9 @@ WHERE o.id = @order_id
             <Height>11.27pt</Height>
             <Width>367.44pt</Width>
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
-            <ZIndex>0</ZIndex>
-            <Left>7.3pt</Left>
-            <Top>151.0pt</Top>
+            <ZIndex>1</ZIndex>
+            <Left>7.30pt</Left>
+            <Top>151.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2857,9 +2857,9 @@ WHERE o.id = @order_id
             <Height>13.50pt</Height>
             <Width>143.08pt</Width>
             <Value>='(   ' + {bottles_in_fact} + '   )'</Value>
-            <ZIndex>0</ZIndex>
-            <Left>174.7pt</Left>
-            <Top>80.3pt</Top>
+            <ZIndex>1</ZIndex>
+            <Left>174.70pt</Left>
+            <Top>80.30pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -3699,8 +3699,8 @@ WHERE o.id = @order_id
           <Image Name="Image6">
             <Height>53.45pt</Height>
             <Width>72.30pt</Width>
-            <Left>131.2pt</Left>
-            <Top>156.4pt</Top>
+            <Left>131.20pt</Left>
+            <Top>156.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4509,9 +4509,9 @@ WHERE o.id = @order_id
                           <Default>None</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Top</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4563,8 +4563,8 @@ WHERE o.id = @order_id
                           <Default>None</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
