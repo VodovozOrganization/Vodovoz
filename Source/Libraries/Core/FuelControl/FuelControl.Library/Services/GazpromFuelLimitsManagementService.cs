@@ -14,10 +14,10 @@ using Vodovoz.Settings.Fuel;
 
 namespace FuelControl.Library.Services
 {
-	public class GazpromFuelLimitsManagementService
+	public class GazpromFuelLimitsManagementService : IFuelLimitsManagementService
 	{
 		private const string _requestDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
-		private const string _cardsEndpointAddress = "vip/v1/limit";
+		private const string _limitsListEndpointAddress = "vip/v1/limit";
 
 		private readonly ILogger<GazpromFuelLimitsManagementService> _logger;
 		private readonly IFuelLimitConverter _fuelLimitConverter;
@@ -41,17 +41,17 @@ namespace FuelControl.Library.Services
 		{
 			if(string.IsNullOrWhiteSpace(cardId))
 			{
-				throw new System.ArgumentException($"'{nameof(cardId)}' cannot be null or whitespace.", nameof(cardId));
+				throw new ArgumentException($"'{nameof(cardId)}' cannot be null or whitespace.", nameof(cardId));
 			}
 
 			if(string.IsNullOrWhiteSpace(sessionId))
 			{
-				throw new System.ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
+				throw new ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
 			}
 
 			if(string.IsNullOrWhiteSpace(apiKey))
 			{
-				throw new System.ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
+				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
 			_logger.LogDebug(
@@ -68,7 +68,7 @@ namespace FuelControl.Library.Services
 				httpClient.DefaultRequestHeaders.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
 				var response = await httpClient.GetAsync(
-					  $"{_cardsEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}",
+					  $"{_limitsListEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}",
 					  cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
@@ -88,22 +88,22 @@ namespace FuelControl.Library.Services
 				_logger.LogDebug("Количество полученных лимитов: {LimitsCount}",
 					responseData.FuelLimitsData.FuelLimits?.Count());
 
-				var transactions = ConvertResponseDataToFuelLimits(responseData);
+				var fuelLimits = ConvertResponseDataToFuelLimits(responseData);
 
-				return transactions;
+				return fuelLimits;
 			}
 		}
 
 		private IEnumerable<FuelLimit> ConvertResponseDataToFuelLimits(FuelLimitsResponse responseData)
 		{
-			var transactionDtos = responseData?.FuelLimitsData?.FuelLimits;
+			var fuelLimitDtos = responseData?.FuelLimitsData?.FuelLimits;
 
-			if(transactionDtos == null)
+			if(fuelLimitDtos == null)
 			{
 				return Enumerable.Empty<FuelLimit>();
 			}
 
-			var transactions = transactionDtos
+			var transactions = fuelLimitDtos
 					.Select(t => _fuelLimitConverter.ConvertDtoToDomainFuelLimit(t));
 
 			return transactions;

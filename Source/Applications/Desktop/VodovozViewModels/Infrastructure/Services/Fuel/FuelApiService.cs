@@ -23,6 +23,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IFuelControlAuthorizationService _fuelControlAuthorizationService;
 		private readonly IFuelControlFuelCardsDataService _fuelCardsDataService;
+		private readonly IFuelLimitsManagementService _fuelLimitsManagementService;
 		private readonly IUserSettingsService _userSettingsService;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly IFuelRepository _fuelRepository;
@@ -32,6 +33,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			ILogger<FuelApiService> logger,
 			IFuelControlAuthorizationService fuelControlAuthorizationService,
 			IFuelControlFuelCardsDataService fuelCardsDataService,
+			IFuelLimitsManagementService fuelLimitsManagementService,
 			IUserSettingsService userSettingsService,
 			IFuelControlSettings fuelControlSettings,
 			IFuelRepository fuelRepository)
@@ -40,6 +42,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fuelControlAuthorizationService = fuelControlAuthorizationService ?? throw new ArgumentNullException(nameof(fuelControlAuthorizationService));
 			_fuelCardsDataService = fuelCardsDataService ?? throw new ArgumentNullException(nameof(fuelCardsDataService));
+			_fuelLimitsManagementService = fuelLimitsManagementService ?? throw new ArgumentNullException(nameof(fuelLimitsManagementService));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -51,7 +54,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			string apiKey,
 			CancellationToken cancellationToken)
 		{
-			var request = CreateDomainFuelApiRequest(FuelApiRequestFunction.Login);
+			var request = CreateFuelApiRequestData(FuelApiRequestFunction.Login);
 
 			try
 			{
@@ -70,7 +73,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 			finally
 			{
-				await SaveFuelApiRequest(request);
+				await SaveFuelApiRequestData(request);
 			}
 		}
 
@@ -81,6 +84,37 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			var allCards = await GetAllCardsFromFuelControlService(sessionId, cancellationToken);
 
 			return allCards;
+		}
+
+		public async Task<IEnumerable<FuelLimit>> GetFuelLimitsByCardId(string cardId, CancellationToken cancellationToken)
+		{
+			var sessionId = await GetSessionIdOrLogin(cancellationToken);
+
+			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.FuelCardsLimitsData);
+
+			try
+			{
+				var limits = await _fuelLimitsManagementService.GetFuelLimitsByCardId(
+					cardId,
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken);
+
+				requestData.ResponseResult = FuelApiResponseResult.Success;
+
+				return limits;
+			}
+			catch(Exception ex)
+			{
+				requestData.ResponseResult = FuelApiResponseResult.Error;
+				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
+
+				throw ex;
+			}
+			finally
+			{
+				await SaveFuelApiRequestData(requestData);
+			}
 		}
 
 		private async Task<IEnumerable<FuelCard>> GetAllCardsFromFuelControlService(string sessionId, CancellationToken cancellationToken)
@@ -121,7 +155,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			int pageOffset,
 			CancellationToken cancellationToken)
 		{
-			var request = CreateDomainFuelApiRequest(FuelApiRequestFunction.FuelCardsData);
+			var request = CreateFuelApiRequestData(FuelApiRequestFunction.FuelCardsData);
 
 			try
 			{
@@ -146,7 +180,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 			finally
 			{
-				await SaveFuelApiRequest(request);
+				await SaveFuelApiRequestData(request);
 			}
 		}
 
@@ -193,7 +227,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 		}
 
-		private FuelApiRequest CreateDomainFuelApiRequest(FuelApiRequestFunction requestFunction)
+		private FuelApiRequest CreateFuelApiRequestData(FuelApiRequestFunction requestFunction)
 		{
 			return new FuelApiRequest
 			{
@@ -203,7 +237,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			};
 		}
 
-		private async Task SaveFuelApiRequest(FuelApiRequest fuelApiRequest)
+		private async Task SaveFuelApiRequestData(FuelApiRequest fuelApiRequest)
 		{
 			if(fuelApiRequest is null)
 			{
