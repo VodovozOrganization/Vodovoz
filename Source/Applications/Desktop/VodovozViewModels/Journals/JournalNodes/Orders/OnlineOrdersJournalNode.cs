@@ -21,6 +21,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public string DeliveryTime { get; set; }
 		public OnlineOrderStatus? OnlineOrderStatus { get; set; }
 		public RequestForCallStatus? RequestForCallStatus { get; set; }
+		public int OrderByStatusValue { get; set; }
 
 		public string Status
 		{

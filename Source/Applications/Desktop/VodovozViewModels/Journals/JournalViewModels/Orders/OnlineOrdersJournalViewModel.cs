@@ -54,8 +54,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var dataLoader = new ThreadDataLoader<OnlineOrdersJournalNode>(unitOfWorkFactory);
 			dataLoader.AddQuery(OnlineOrdersQuery);
 			dataLoader.AddQuery(RequestsForCallQuery);
+			
+			dataLoader.MergeInOrderBy(x => x.OrderByStatusValue);
+			dataLoader.MergeInOrderBy(x => x.EntityTypeString, true);
 			dataLoader.MergeInOrderBy(x => x.CreationDate, true);
-			dataLoader.MergeInOrderBy(x => x.EntityType);
 			DataLoader = dataLoader;
 
 			Title = "Журнал онлайн заказов";
@@ -114,6 +116,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				Projections.Property(() => employeeWorkWithAlias.Name),
 				Projections.Property(() => employeeWorkWithAlias.Patronymic)
 			);
+
+			var orderByStatusProjection =
+				Projections.Conditional(
+					new[]
+					{
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => onlineOrderAlias.OnlineOrderStatus == OnlineOrderStatus.New),
+							Projections.Constant((int)OnlineOrderStatus.New)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => onlineOrderAlias.OnlineOrderStatus == OnlineOrderStatus.OrderPerformed),
+							Projections.Constant((int)OnlineOrderStatus.OrderPerformed)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => onlineOrderAlias.OnlineOrderStatus == OnlineOrderStatus.Canceled),
+							Projections.Constant((int)OnlineOrderStatus.Canceled))
+					},
+					Projections.Constant(int.MaxValue)
+				);
 
 			#region Фильтрация
 
@@ -275,6 +294,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
@@ -292,7 +312,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.IsNeedConfirmationByCall).WithAlias(() => resultAlias.IsNeedConfirmationByCall)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				)
-				.OrderBy(o => o.OnlineOrderStatus).Asc
+				.OrderBy(o => o.OnlineOrderStatus).Asc()
+				.ThenBy(o => o.Created).Desc()
 				.TransformUsing(Transformers.AliasToBean<OnlineOrdersJournalNode>());
 
 			return query;
@@ -318,6 +339,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				Projections.Property(() => employeeWorkWithAlias.Name),
 				Projections.Property(() => employeeWorkWithAlias.Patronymic)
 			);
+			
+			var orderByStatusProjection =
+				Projections.Conditional(
+					new[]
+					{
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => requestForCallAlias.RequestForCallStatus == RequestForCallStatus.New),
+							Projections.Constant((int)RequestForCallStatus.New)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => requestForCallAlias.RequestForCallStatus == RequestForCallStatus.OrderPerformed),
+							Projections.Constant((int)RequestForCallStatus.OrderPerformed)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => requestForCallAlias.RequestForCallStatus == RequestForCallStatus.Closed),
+							Projections.Constant((int)RequestForCallStatus.Closed))
+					},
+					Projections.Constant(int.MaxValue)
+				);
 
 			#region Фильтрация
 			
@@ -330,7 +368,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				|| _filterViewModel.RestrictNeedConfirmationByCall.HasValue
 				|| _filterViewModel.RestrictFastDelivery.HasValue
 				|| _filterViewModel.OnlineOrderId.HasValue
-				|| _filterViewModel.GeographicGroup != null)
+				|| _filterViewModel.GeographicGroup != null
+				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
 			{
 				query.Where(r => r.Id == null);
 			}
@@ -421,6 +460,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectGroup(r => r.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => typeof(RequestForCall)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => RequestForCall.RequestForCallName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(r => r.Created).WithAlias(() => resultAlias.CreationDate)
 					.Select(r => r.RequestForCallStatus).WithAlias(() => resultAlias.RequestForCallStatus)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
@@ -428,7 +468,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(r => r.Source).WithAlias(() => resultAlias.Source)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				)
-				.OrderBy(r => r.RequestForCallStatus).Asc
+				.OrderBy(r => r.RequestForCallStatus).Asc()
+				.ThenBy(r => r.Created).Desc()
 				.TransformUsing(Transformers.AliasToBean<OnlineOrdersJournalNode>());
 
 			return query;

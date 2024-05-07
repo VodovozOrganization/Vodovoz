@@ -66,6 +66,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 			StartDate = DateTime.Now.AddDays(-1);
 			EndDate = DateTime.Now.AddDays(7);
+			_filterDateType = OrdersDateFilterType.CreationDate;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
