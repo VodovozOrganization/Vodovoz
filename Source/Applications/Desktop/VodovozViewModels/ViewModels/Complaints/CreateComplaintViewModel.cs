@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -286,12 +287,21 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public void CheckAndSave()
 		{
-			if (!HasСounterpartyDuplicateToday() ||
-				CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
+			var canCreateDuplicateComplaints = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanCreateDuplicateComplaints);
+			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday();
+			var canSave = !hasСounterpartyDuplicateToday
+				|| (canCreateDuplicateComplaints && CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"));
+
+			if(canSave)
 			{
 				SaveAndClose();
 			}
+			else
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Рекламация с данным контрагентом уже создавалась сегодня, сохранение не выполнено");
+			}
 		}
+		
 
 		private bool HasСounterpartyDuplicateToday()
 		{
