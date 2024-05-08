@@ -995,7 +995,7 @@
             <Width>107.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.3pt</Width>
+            <Width>42.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -1013,7 +1013,7 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.8pt</Width>
+            <Width>45.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
@@ -1125,7 +1125,8 @@
                     <Textbox Name="Textbox191">
                       <Value>Потра-
 чено
-литров</Value>
+литров
+план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2016,7 +2017,7 @@
             <Width>107.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.5pt</Width>
+            <Width>41.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
@@ -2028,13 +2029,13 @@
             <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.0pt</Width>
+            <Width>46.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.4pt</Width>
+            <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.9pt</Width>
@@ -2049,7 +2050,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>39.4pt</Height>
+              <Height>38.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2146,7 +2147,8 @@
                     <Textbox Name="Textbox131">
                       <Value>Потра-
 чено
-литров</Value>
+литров
+план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -3077,7 +3079,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>39.4pt</Height>
+              <Height>34.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -3174,7 +3176,8 @@
                     <Textbox Name="Textbox14">
                       <Value>Потра-
 чено
-литров</Value>
+литров
+план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -4202,7 +4205,8 @@
                     <Textbox Name="Textbox76">
                       <Value>Потра-
 чено
-литров</Value>
+литров
+план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -5230,7 +5234,8 @@
                     <Textbox Name="Textbox160">
                       <Value>Потра-
 чено
-литров</Value>
+литров
+план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
