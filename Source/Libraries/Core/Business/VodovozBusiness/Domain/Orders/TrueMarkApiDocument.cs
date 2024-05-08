@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -17,6 +18,7 @@ namespace Vodovoz.Domain.Orders
 		private string _errorMessage;
 		private bool _isSuccess;
 		private TrueMarkApiDocumentType _type;
+		private Organization _organization;
 
 		public virtual int Id { get; set; }
 
@@ -60,6 +62,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _type;
 			set => SetField(ref _type, value);
+		}
+
+		[Display(Name = "Организация на момент вывода из оборота")]
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
 		}
 
 		public enum TrueMarkApiDocumentType

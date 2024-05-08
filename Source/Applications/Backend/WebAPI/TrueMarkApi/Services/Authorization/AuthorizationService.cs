@@ -29,7 +29,7 @@ namespace TrueMarkApi.Services.Authorization
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public async Task<string> Login(string сertificateThumbPrint)
+		public async Task<string> Login(string сertificateThumbPrint, string inn)
 		{
 			var authUrn = "auth/key";
 			var signInUrn = "auth/simpleSignIn";
@@ -56,7 +56,8 @@ namespace TrueMarkApi.Services.Authorization
 			var tokenRequest = new TokenRequestDto
 			{
 				Uuid = authKey.Uuid,
-				Data = signModel.Sign()
+				Data = signModel.Sign(),
+				Inn = inn
 			};
 
 			var serializedTokenRequest = JsonSerializer.Serialize(tokenRequest);

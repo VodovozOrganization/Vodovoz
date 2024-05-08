@@ -139,8 +139,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		{
 			_parameters = FilterViewModel.GetReportParametersSet();
 
-			_parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
-			_parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
+			_parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString(DateTimeFormats.QueryDateTimeFormat) : string.Empty);
+			_parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat) : string.Empty);
 			_parameters.Add("closing_document_delivery_schedule_id", _closingDocumentDeliveryScheduleId);
 
 			if(isReportBySingleCounterpartyDebt)

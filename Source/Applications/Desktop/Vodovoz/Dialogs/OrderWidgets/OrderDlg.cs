@@ -857,6 +857,10 @@ namespace Vodovoz
 
 			ycheckFastDelivery.Binding.AddBinding(Entity, e => e.IsFastDelivery, w => w.Active).InitializeFromSource();
 			ycheckFastDelivery.Toggled += OnCheckFastDeliveryToggled;
+			
+			chkDontArriveBeforeInterval.Binding
+				.AddBinding(Entity, e => e.DontArriveBeforeInterval, w => w.Active)
+				.InitializeFromSource();
 
 			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			evmeAuthor.Sensitive = false;

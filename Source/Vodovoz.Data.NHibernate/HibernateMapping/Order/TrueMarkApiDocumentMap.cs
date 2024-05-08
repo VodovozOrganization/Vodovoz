@@ -17,6 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Type).Column("type");
 
 			References(x => x.Order).Column("order_id");
+			References(x => x.Organization).Column("organization_id");
 		}
 	}
 }
