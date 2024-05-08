@@ -253,6 +253,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public ICommonServices CommonServices { get; }
 		public IUnitOfWork UoW => UoWGeneric;
 		public Employee Entity => UoWGeneric.Root;
+		public bool CanCopyId => Entity.Id != 0;
 		public IUnitOfWorkGeneric<Employee> UoWGeneric { get; }
 		public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
@@ -1283,7 +1284,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 			return GenerateHashName(Entity.Id) == hashName;
 		}
-		
+
 		private string GenerateHashName(int id)
 		{
 			return DomainHelper.GenerateDialogHashName(typeof(Employee), id);
