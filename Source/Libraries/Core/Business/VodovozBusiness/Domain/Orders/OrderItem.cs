@@ -327,7 +327,14 @@ namespace Vodovoz.Domain.Orders
 
 			if(CurrentCount == 0)
 			{
-				RemoveAndPreserveDiscount();
+				if(Order.IsUndeliveredStatus)
+				{
+					RemoveAndPreserveDiscount();
+				}
+				else
+				{
+					ClearDiscount();
+				}
 			}
 			else
 			{
@@ -363,11 +370,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			DiscountReason = null;
-			IsDiscountInMoney = false;
-			DiscountMoney = default;
-			Discount = default;
-
+			ClearDiscount();
 			RecalculateVAT();
 		}
 
@@ -377,6 +380,14 @@ namespace Vodovoz.Domain.Orders
 			CalculateVATType();
 		}
 
+		private void ClearDiscount()
+		{
+			DiscountReason = null;
+			IsDiscountInMoney = false;
+			DiscountMoney = default;
+			Discount = default;
+		}
+		
 		private void CalculateAndSetDiscount(decimal value)
 		{
 			if(value == 0)
