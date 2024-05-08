@@ -1070,11 +1070,11 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success();
 		}
 
-		public RouteListItem FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
+		public Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
 		{
 			var nextAddress = routeListAddress.TransferedTo;
 
-			if(nextAddress == null)
+			if(nextAddress is null || nextAddress.AddressTransferType != AddressTransferType.FromHandToHand)
 			{
 				return routeListAddress;
 			}
@@ -1094,7 +1094,14 @@ namespace Vodovoz.Application.Logistics
 				return nextAddress;
 			}
 
-			return FindTransferTarget(unitOfWork,nextAddress);
+			var target = FindTransferTarget(unitOfWork, nextAddress);
+
+			if(target.IsSuccess && target.Value != routeListAddress)
+			{
+				return target;
+			}
+
+			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 		}
 
 		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
@@ -1110,6 +1117,11 @@ namespace Vodovoz.Application.Logistics
 
 			foreach(var previousAddress in previousAddresses)
 			{
+				if(previousAddress.AddressTransferType != AddressTransferType.FromHandToHand)
+				{
+					continue;
+				}
+
 				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
 				{
 					return previousAddress;
