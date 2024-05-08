@@ -70,7 +70,7 @@ namespace Vodovoz.Services.Logistics
 
 		Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 
-		RouteListItem FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
+		Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 		void ConfirmRouteListAddressTransferRecieved(int routeListAddress, DateTime actionTime);
 	}
 }
