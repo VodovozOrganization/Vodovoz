@@ -38,7 +38,8 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				OnlineOrderPaymentStatus = orderInfoDto.OnlineOrderPaymentStatus,
 				OnlinePaymentSource = orderInfoDto.OnlinePaymentSource,
 				OnlinePayment = orderInfoDto.OnlinePayment,
-				OnlineOrderSum = orderInfoDto.OrderSum
+				OnlineOrderSum = orderInfoDto.OrderSum,
+				DontArriveBeforeInterval = orderInfoDto.DontArriveBeforeInterval
 			};
 
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);

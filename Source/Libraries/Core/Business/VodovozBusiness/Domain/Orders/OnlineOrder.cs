@@ -47,6 +47,7 @@ namespace Vodovoz.Domain.Orders
 		private int? _trifle;
 		private int? _bottlesReturn;
 		private decimal _onlineOrderSum;
+		private bool _dontArriveBeforeInterval;
 		private OnlineOrderStatus _onlineOrderStatus;
 		private Order _order;
 		private Employee _employeeWorkWith;
@@ -250,6 +251,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _onlineOrderSum;
 			set => SetField(ref _onlineOrderSum, value);
+		}
+		
+		[Display(Name = "Не приезжать раньше интервала")]
+		public virtual bool DontArriveBeforeInterval
+		{
+			get => _dontArriveBeforeInterval;
+			set => SetField(ref _dontArriveBeforeInterval, value);
 		}
 		
 		[Display(Name = "Выставленный заказ")]

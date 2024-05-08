@@ -70,6 +70,7 @@ namespace Vodovoz.Application.Orders.Services
 			order.OnlineOrder = onlineOrder.OnlinePayment;
 			order.PaymentByCardFrom = paymentFrom;
 			order.Trifle = onlineOrder.Trifle;
+			order.DontArriveBeforeInterval = onlineOrder.DontArriveBeforeInterval;
 
 			if(!string.IsNullOrWhiteSpace(onlineOrder.OnlineOrderComment))
 			{

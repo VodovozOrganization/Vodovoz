@@ -125,6 +125,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Сумма онлайн заказа
 		/// </summary>
 		public decimal OrderSum { get; set; }
+		
+		/// <summary>
+		/// Не приезжать раньше интервала
+		/// </summary>
+		public bool DontArriveBeforeInterval { get; set; }
 
 		/// <summary>
 		/// Список товаров
