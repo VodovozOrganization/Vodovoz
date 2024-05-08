@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Tools;
 
@@ -25,7 +26,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
-
+		private readonly IUserSettingsService _userSettingsService;
 		private CancellationTokenSource _cancellationTokenSource;
 		private bool _isCardIdObtainingProcessInWork;
 
@@ -34,6 +35,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			IFuelApiService fuelApiService,
 			IFuelRepository fuelRepository,
 			IGuiDispatcher guiDispatcher,
+			IUserSettingsService userSettingsService,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -49,6 +51,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 
 			if(!CanRead)
 			{
@@ -102,6 +105,17 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 				ShowMessageInGuiThread(
 					ImportanceLevel.Error,
 					"В базе уже сохранена карта с указанным номером.");
+
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiLogin)
+				|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiPassword)
+				|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiKey))
+			{
+				ShowMessageInGuiThread(
+					ImportanceLevel.Error,
+					"У Вас не указаны данные для авторизации в сервисе Газпром");
 
 				return;
 			}
