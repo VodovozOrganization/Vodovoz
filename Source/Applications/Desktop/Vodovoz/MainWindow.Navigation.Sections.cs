@@ -276,7 +276,7 @@ public partial class MainWindow
 
 	#region ТРО
 	/// <summary>
-	/// Списание километража без МЛ
+	/// Пробег без МЛ
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>

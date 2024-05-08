@@ -243,7 +243,7 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
-		ActionMileageWriteOffJournal = new Action("ActionMileageWriteOffJournal", "Списание километража без МЛ", null, "table");
+		ActionMileageWriteOffJournal = new Action("ActionMileageWriteOffJournal", "Пробег без МЛ", null, "table");
 
 		//Отдел продаж
 		ActionSalesOrdersJournal = new Action("ActionSalesOrdersJournal", "Журнал заказов", null, "table");

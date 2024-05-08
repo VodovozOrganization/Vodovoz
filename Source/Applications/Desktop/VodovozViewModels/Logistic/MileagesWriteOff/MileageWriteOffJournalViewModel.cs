@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			filterViewModel.Journal = this;
 
-			Title = "Списание километража без МЛ";
+			Title = "Пробег без МЛ";
 
 			UpdateOnChanges(typeof(MileageWriteOff));
 

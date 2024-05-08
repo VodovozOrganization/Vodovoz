@@ -207,7 +207,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 				return;
 			}
 
-			Entity.LitersOutlayed = Entity.DistanceKm / fuelConsumption;
+			Entity.LitersOutlayed = fuelConsumption * Entity.DistanceKm / 100;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
