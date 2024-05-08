@@ -1837,11 +1837,6 @@ namespace Vodovoz.Domain.Logistic
 		{
 			bool cashOrderClose = false;
 
-			if(Car.CarModel.CarTypeOfUse == CarTypeOfUse.Loader)
-			{
-				yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ", new [] { nameof(Car) });
-			}
-
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
@@ -1951,16 +1946,24 @@ namespace Vodovoz.Domain.Logistic
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Forwarder) });
 			}
 
-			if(Car == null)
+			if(Car is null)
 			{
 				yield return new ValidationResult("На заполнен автомобиль.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+					new[] { nameof(Car) });
 			}
-
-			if(Car != null && GetCarVersion == null)
+			else
 			{
-				yield return new ValidationResult("Нет данных о версии автомобиля на выбранную дату доставки.",
-				new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car.CarVersions) });
+				if(GetCarVersion == null)
+				{
+					yield return new ValidationResult("Нет данных о версии автомобиля на выбранную дату доставки.",
+						new[] { nameof(Car.CarVersions) });
+				}
+				
+				if(Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
+				{
+					yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ",
+						new[] { nameof(Car) });
+				}
 			}
 
 			if(MileageComment?.Length > 500)
