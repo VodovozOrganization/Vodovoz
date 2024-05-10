@@ -26,6 +26,7 @@ namespace Vodovoz.Domain.Organizations
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private OrganizationVersion _activeOrganizationVersion;
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
+		private GenericObservableList<Phone> _observablePhones;
 
 		public Organization()
 		{
@@ -100,7 +101,7 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _oKVED, value);
 		}
 
-		private IList<Phone> _phones;
+		private IList<Phone> _phones = new List<Phone>();
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
 			get => _phones;
@@ -162,6 +163,9 @@ namespace Vodovoz.Domain.Organizations
 
 		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
 			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
+
+		public virtual GenericObservableList<Phone> ObservablePhones => _observablePhones
+			?? (_observablePhones = new GenericObservableList<Phone>(Phones));
 
 		public virtual OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
 			ObservableOrganizationVersions.LastOrDefault(x =>
