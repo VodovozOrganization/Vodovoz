@@ -5,6 +5,7 @@ using QS.Services;
 using QSReport;
 using QSWidgetLib;
 using System;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
@@ -132,12 +133,25 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
+			var phoneTypeSettings = _lifetimeScope.Resolve<IPhoneTypeSettings>();
+			var externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings,  _commonServices);
+			ClientPhonesView.ViewModel = new PhonesViewModel(
+				phoneTypeSettings,
+				_phoneRepository,
+				UoW,
+				_contactsSettings,
+				_commonServices,
+				externalCounterpartyController);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _commonServices);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(
+				phoneTypeSettings,
+				_phoneRepository,
+				UoW,
+				_contactsSettings,
+				_commonServices,
+				externalCounterpartyController);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)

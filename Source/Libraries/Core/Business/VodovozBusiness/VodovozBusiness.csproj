@@ -56,6 +56,9 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="Controllers\ExternalCounterpartyController.cs" />
+    <Compile Include="Controllers\IExternalCounterpartyController.cs" />
+    <Compile Include="Domain\Client\CounterpartyFrom.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
     <Compile Include="Domain\Logistic\Cars\IncomeChannel.cs" />
@@ -64,6 +67,7 @@
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
     <Compile Include="Domain\Sale\WeekDayName.cs" />
     <Compile Include="Domain\Logistic\RouteListStatus.cs" />
+    <Compile Include="EntityRepositories\Nodes\ExternalCounterpartyNode.cs" />
     <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />

@@ -17,24 +17,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.CreationDate).Column("creation_date").ReadOnly();
 			Map(x => x.IsArchive).Column("is_archive");
 
-			References(x => x.Phone).Column("phone_id").Cascade.AllDeleteOrphan();
-			References(x => x.Email).Column("email_id").Cascade.AllDeleteOrphan();
-		}
-	}
-
-	public class MobileAppCounterpartyMap : SubclassMap<MobileAppCounterparty>
-	{
-		public MobileAppCounterpartyMap()
-		{
-			DiscriminatorValue(nameof(CounterpartyFrom.MobileApp));
-		}
-	}
-
-	public class WebSiteCounterpartyMap : SubclassMap<WebSiteCounterparty>
-	{
-		public WebSiteCounterpartyMap()
-		{
-			DiscriminatorValue(nameof(CounterpartyFrom.WebSite));
+			References(x => x.Phone).Column("phone_id");
+			References(x => x.Email).Column("email_id");
 		}
 	}
 }
