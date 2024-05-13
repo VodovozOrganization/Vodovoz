@@ -247,9 +247,10 @@ namespace DriverAPI.Library.V5.Services
 
 		public Result<RouteListAddressIncomingTransferDto> GetIncomingTransferInfo(int routeListAddressId)
 		{
-			var address = _routeListAddressesRepository.Get(
-				_unitOfWork,
-				address => address.Id == routeListAddressId)
+			var address = _routeListAddressesRepository
+				.Get(
+					_unitOfWork,
+					address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
 			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
@@ -354,7 +355,6 @@ namespace DriverAPI.Library.V5.Services
 			var outgoingAddresses = _routeListAddressesRepository.Get(
 				_unitOfWork,
 				address => address.RouteList.Driver.Id == driver.Id
-					&& address.Status == RouteListItemStatus.Transfered
 					&& address.Order.OrderStatus == OrderStatus.OnTheWay
 					&& (!address.WasTransfered || address.RecievedTransferAt != null));
 
@@ -394,8 +394,7 @@ namespace DriverAPI.Library.V5.Services
 				address => address.RouteList.Driver.Id == driver.Id
 					&& statusesTransferInWork.Contains(address.Status)
 					&& address.AddressTransferType == AddressTransferType.FromHandToHand
-					&& address.WasTransfered
-					&& (address.Status != RouteListItemStatus.Transfered || address.RecievedTransferAt != null));
+					&& address.Order.OrderStatus == OrderStatus.OnTheWay);
 
 			foreach(var address in incomingAddresses)
 			{

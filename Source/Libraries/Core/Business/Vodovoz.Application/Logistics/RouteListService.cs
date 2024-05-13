@@ -23,7 +23,6 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.NotificationRecievers;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
@@ -1073,43 +1072,27 @@ namespace Vodovoz.Application.Logistics
 
 		public Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
 		{
-			var nextAddress = routeListAddress.TransferedTo;
+			var nextAddress = _routeListAddressTransferItemRepository.Get(
+				unitOfWork,
+				atdi => atdi.OldAddress.Id == routeListAddress.Id
+					&& atdi.AddressTransferType == AddressTransferType.FromHandToHand)
+					.OrderBy(td => td.NewAddress.CreationDate)
+					.FirstOrDefault()
+					?.NewAddress;
 
 			if(nextAddress is null)
-			{
-				return routeListAddress;
-			}
-
-			if(nextAddress.AddressTransferType != AddressTransferType.FromHandToHand)
-			{
-				Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
-			}
-
-			var transferDocuments = _routeListAddressTransferItemRepository.Get(
-				unitOfWork,
-				atdi => (atdi.OldAddress.Id == routeListAddress.Id && atdi.NewAddress.Id == nextAddress.Id)
-					 || (atdi.OldAddress.Id == nextAddress.Id && atdi.NewAddress.Id == routeListAddress.Id));
-
-			var transferDocumentsCount = transferDocuments.Count();
-
-			if(transferDocuments.Any(td => td.OldAddress.RecievedTransferAt != null))
-			{
-				return transferDocuments.Where(td => td.OldAddress.RecievedTransferAt != null).OrderByDescending(td => td.NewAddress.Version).First().NewAddress;
-			}
-
-			if(transferDocumentsCount % 2 == 0)
 			{
 				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 			}
 
-			if((nextAddress.Status != RouteListItemStatus.Transfered && !nextAddress.WasTransfered) || nextAddress.RecievedTransferAt != null)
+			if(nextAddress.Status != RouteListItemStatus.Transfered || nextAddress.RecievedTransferAt != null)
 			{
 				return nextAddress;
 			}
 
 			var target = FindTransferTarget(unitOfWork, nextAddress);
 
-			if(target.IsSuccess && target.Value != routeListAddress)
+			if(target.IsSuccess && target.Value.RouteList.Id != routeListAddress.RouteList.Id)
 			{
 				return target;
 			}
@@ -1119,40 +1102,29 @@ namespace Vodovoz.Application.Logistics
 
 		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
 		{
-			var previousAddresses = _routeListAddressesRepository.Get(
+			var previousAddress = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
-				address => address.TransferedTo.Id == routeListAddress.Id);
+				atdi => atdi.NewAddress.Id == routeListAddress.Id
+					&& atdi.AddressTransferType == AddressTransferType.FromHandToHand)
+					.OrderByDescending(td => td.OldAddress.CreationDate)
+					.FirstOrDefault()
+					?.OldAddress;
 
-			if(!previousAddresses.Any())
+			if(previousAddress is null)
 			{
-				return routeListAddress;
+				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 			}
 
-			foreach(var previousAddress in previousAddresses)
+			if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
 			{
-				if(previousAddress.RecievedTransferAt != null)
-				{
-					return previousAddress;
-				}
+				return previousAddress;
+			}
 
-				var transferDocuments = _routeListAddressTransferItemRepository.Get(
-					unitOfWork,
-					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == routeListAddress.Id)
-							|| (atdi.NewAddress.Id == previousAddress.Id && atdi.OldAddress.Id == routeListAddress.Id));
+			var source = FindTransferSource(unitOfWork, previousAddress);
 
-				var transferDocumentsCount = transferDocuments.Count();
-
-				if(transferDocuments.Any(td => td.NewAddress.RecievedTransferAt != null))
-				{
-					return transferDocuments.Where(td => td.NewAddress.RecievedTransferAt != null).OrderByDescending(td => td.NewAddress.Version).First().OldAddress;
-				}
-
-				if(transferDocumentsCount % 2 == 0)
-				{
-					continue;
-				}
-
-				return FindTransferSource(unitOfWork, previousAddress);
+			if(source.IsSuccess && source.Value.RouteList.Id != routeListAddress.RouteList.Id)
+			{
+				return source;
 			}
 
 			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
