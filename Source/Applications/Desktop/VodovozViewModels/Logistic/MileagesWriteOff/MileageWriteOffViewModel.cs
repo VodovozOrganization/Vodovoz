@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_authorViewModelEEVMBuilder = authorViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
 			_writeOffReasonViewModelEEVMBuilder = writeOffReasonViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffReasonViewModelEEVMBuilder));
+			
 			if(!CanRead)
 			{
 				AbortOpening("У вас недостаточно прав для просмотра");
@@ -56,7 +57,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 			TabName =
 				UoWGeneric.IsNew
 				? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}"
-				: $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} №{Entity.Title}";
+				: $"{Entity.Title}";
 
 			SaveCommand = new DelegateCommand(() => Save(true), () => CanCreateOrUpdate);
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));

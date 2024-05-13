@@ -625,6 +625,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteListMaxFastDeliveryOrders>();
 
+			DeleteConfig.AddHibernateDeleteInfo<MileageWriteOff>();
+
 			#region Формирование МЛ
 
 			DeleteConfig.AddHibernateDeleteInfo<AtWorkDriverDistrictPriority>();
