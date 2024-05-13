@@ -3277,7 +3277,8 @@ namespace Vodovoz.Domain.Orders
 
 		private void SendUpdToEmailOnFinishIfNeeded()
 		{
-			var emailSendUpdResult = _emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _deliveryScheduleSettings);
+			var emailSendUpdResult =
+				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 
 			if(emailSendUpdResult.IsSuccess)
 			{
