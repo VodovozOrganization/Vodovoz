@@ -501,6 +501,8 @@ namespace Vodovoz
 
 		public void CopyOrderFrom(int orderId)
 		{
+			Entity.IsCopiedFromUndelivery = true;
+
 			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
@@ -511,8 +513,9 @@ namespace Vodovoz
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
+			
+			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 
-			Entity.IsCopiedFromUndelivery = true;
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
@@ -1214,7 +1217,10 @@ namespace Vodovoz
 							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
 
-						_orderService.CheckAndAddBottlesToReferrerByReferFriendPromo(UoW, Entity, _canChangeDiscountValue);
+						if(!Entity.IsCopiedFromUndelivery)
+						{
+							_orderService.CheckAndAddBottlesToReferrerByReferFriendPromo(UoW, Entity, _canChangeDiscountValue);
+						}
 					}
 					UpdateAvailableEnumSignatureTypes();
 					UpdateOrderAddressTypeWithUI();

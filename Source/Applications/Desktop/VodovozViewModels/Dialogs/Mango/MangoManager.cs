@@ -196,6 +196,29 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public void OpenMangoDialog()
 		{
+			// <--- Заглушка для теста
+
+			var message = new NotificationMessage
+			{
+				CallFrom = new Caller
+				{
+					Number = "+79998887766",
+					Type = CallerType.External
+				},
+				Direction = CallDirection.Incoming,
+				IsTransfer = false,
+				State = CallState.Connected,
+				Timestamp = new Google.Protobuf.WellKnownTypes.Timestamp { Seconds = DateTimeOffset.Now.ToUnixTimeSeconds() }
+			};
+
+			ActiveCalls.Add(new ActiveCall(message));
+
+			OpenTalkDlg();
+
+			return;
+
+			// ---> Заглушка для теста
+
 			if(_connectionState == ConnectionState.Disable || _connectionState == ConnectionState.Disconnected)
 			{
 				return;
