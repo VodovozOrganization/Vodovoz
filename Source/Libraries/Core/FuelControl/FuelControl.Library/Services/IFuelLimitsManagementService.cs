@@ -8,5 +8,6 @@ namespace FuelControl.Library.Services
 	public interface IFuelLimitsManagementService
 	{
 		Task<IEnumerable<FuelLimit>> GetFuelLimitsByCardId(string cardId, string sessionId, string apiKey, CancellationToken cancellationToken);
+		Task<bool> RemoveFuelLimitById(string limitId, string sessionId, string apiKey, CancellationToken cancellationToken);
 	}
 }

@@ -18,6 +18,8 @@ namespace FuelControl.Library.Services
 	{
 		private const string _requestDateTimeFormatString = "yyyy-MM-dd HH:mm:ss";
 		private const string _limitsListEndpointAddress = "vip/v1/limit";
+		private const string _removeLimitEndpointAddress = "vip/v1/removeLimit";
+		private const string _setLimitEndpointAddress = "vip/v1/setLimit";
 
 		private readonly ILogger<GazpromFuelLimitsManagementService> _logger;
 		private readonly IFuelLimitConverter _fuelLimitConverter;
@@ -107,6 +109,73 @@ namespace FuelControl.Library.Services
 					.Select(t => _fuelLimitConverter.ConvertDtoToDomainFuelLimit(t));
 
 			return transactions;
+		}
+
+		public async Task<bool> RemoveFuelLimitById(
+			string limitId,
+			string sessionId,
+			string apiKey,
+			CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(limitId))
+			{
+				throw new ArgumentException($"'{nameof(limitId)}' cannot be null or whitespace.", nameof(limitId));
+			}
+
+			if(string.IsNullOrWhiteSpace(sessionId))
+			{
+				throw new ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
+			}
+
+			if(string.IsNullOrWhiteSpace(apiKey))
+			{
+				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
+			}
+
+			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId, sessionId, apiKey);
+
+			_logger.LogDebug("Выполняется запрос удаления существующего лимита {LimitId}. Id сессии {SessionId}, ключ API {ApiKey}",
+				limitId,
+				sessionId,
+				apiKey);
+
+			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			{
+				var response = await httpClient.PostAsync(_setLimitEndpointAddress, httpContent, cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<RemoveFuelLimitResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessages =
+						$"На запрос удаления существующего лимита сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					_logger.LogError(errorMessages);
+
+					throw new FuelControlException(errorMessages);
+				}
+
+				return responseData.IsRemovalSuccessful;
+			}
+		}
+
+		private HttpContent CreateRemoveLimitHttpContent(string contractId, string limitId, string apiKey, string sessionId)
+		{
+			var requestData = new List<KeyValuePair<string, string>>
+			{
+				new KeyValuePair<string, string>("contract_id", contractId),
+				new KeyValuePair<string, string>("limit_id", limitId)
+			};
+
+			var content = new FormUrlEncodedContent(requestData);
+			content.Headers.Add("api_key", apiKey);
+			content.Headers.Add("session_id", sessionId);
+			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+			return content;
 		}
 	}
 }
