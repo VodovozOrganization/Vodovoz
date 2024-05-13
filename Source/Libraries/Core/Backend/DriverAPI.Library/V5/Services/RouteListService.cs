@@ -357,8 +357,7 @@ namespace DriverAPI.Library.V5.Services
 			var outgoingAddresses = _routeListAddressesRepository.Get(
 				_unitOfWork,
 				address => address.RouteList.Driver.Id == driver.Id
-					&& address.Order.OrderStatus == OrderStatus.OnTheWay
-					&& address.Status == RouteListItemStatus.Transfered);
+					&& address.Order.OrderStatus == OrderStatus.OnTheWay);
 
 			foreach (var address in outgoingAddresses)
 			{
