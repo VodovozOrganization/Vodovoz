@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -21,6 +22,7 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
@@ -40,7 +42,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly ITrackRepository _trackRepository;
 
 		private readonly IOrganizationRepository _organizationRepository;
-
+		private readonly IFuelApiService _fuelApiService;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
 		private FuelDocument _fuelDocument;
@@ -58,6 +61,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
+		/// Создание нового документа из диалого закрытия МЛ
 		/// </summary>
 		public FuelDocumentViewModel
 		(
@@ -72,6 +76,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -85,6 +91,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -102,6 +110,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			Configure();
 		}
 
+		/// <summary>
+		/// Открытие существующего документа из диалога закрытия МЛ
+		/// </summary>
 		public FuelDocumentViewModel
 		(
 			IUnitOfWork uow,
@@ -115,6 +126,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -128,6 +141,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -147,6 +162,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// Создание нового документа из журнала "Работа кассы с МЛ"
 		/// </summary>
 		public FuelDocumentViewModel
 		(
@@ -161,6 +177,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -174,6 +192,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -194,6 +214,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// Создание нового документа из журнала "Журнал МЛ"
 		/// </summary>
 		public FuelDocumentViewModel
 		(
@@ -208,6 +229,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -222,6 +245,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -419,7 +444,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			RouteList = UoW.GetById<RouteList>(routeListId);
 			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
 
-
 			if(UoW.IsNew)
 			{
 				FuelDocument.FillEntity(RouteList);
@@ -548,6 +572,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				if(UoW.IsNew)
 				{
+					FuelDocument.SetFuelCardNumberByDocumentDate();
 					OnPropertyChanged(nameof(FuelInfo));
 				}
 			}

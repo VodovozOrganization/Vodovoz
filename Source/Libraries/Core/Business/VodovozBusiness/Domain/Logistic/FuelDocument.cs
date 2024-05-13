@@ -47,13 +47,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual DateTime Date
 		{
 			get => _date;
-			set
-			{
-				if(SetField(ref _date, value) && Id == 0)
-				{
-					SetFuelCardnamberByDocumentDate();
-				}
-			}
+			set => SetField(ref _date, value);
 		}
 
 		[Display(Name = "Водитель")]
@@ -321,10 +315,10 @@ namespace Vodovoz.Domain.Logistic
 			Fuel = rl.Car.FuelType;
 			LiterCost = rl.Car.FuelType.Cost;
 			RouteList = rl;
-			SetFuelCardnamberByDocumentDate();
+			SetFuelCardNumberByDocumentDate();
 		}
 
-		private void SetFuelCardnamberByDocumentDate()
+		public virtual void SetFuelCardNumberByDocumentDate()
 		{
 			FuelCardNumber = Car?.GetActiveFuelCardVersionOnDate(Date)?.FuelCard?.CardNumber;
 		}

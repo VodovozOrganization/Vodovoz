@@ -81,6 +81,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using QS.Dialog.Gtk;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Services.Fuel;
 
 namespace Vodovoz
 {
@@ -1628,6 +1629,8 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IGuiDispatcher>(),
 				_lifetimeScope
 				));
 		}
@@ -1648,6 +1651,8 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IGuiDispatcher>(),
 				_lifetimeScope
 				));
 		}

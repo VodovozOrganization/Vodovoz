@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using NHibernate.Util;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
@@ -30,6 +31,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Logistics;
@@ -452,13 +454,15 @@ namespace Vodovoz.JournalViewModels
 								UnitOfWorkFactory,
 								commonServices,
 								_subdivisionRepository,
-								new EmployeeRepository(),
+								_lifetimeScope.Resolve<IEmployeeRepository>(),
 								_fuelRepository,
 								NavigationManager,
-								new TrackRepository(),
-								new EmployeeJournalFactory(NavigationManager),
+								_lifetimeScope.Resolve<ITrackRepository>(),
+								_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 								_financialCategoriesGroupsSettings,
 								_organizationRepository,
+								_lifetimeScope.Resolve<IFuelApiService>(),
+								_lifetimeScope.Resolve<IGuiDispatcher>(),
 								_lifetimeScope
 							)
 						);
