@@ -1081,6 +1081,13 @@ namespace Vodovoz.Application.Logistics
 
 			bool sourceFound = false;
 
+			if(routeListAddress.RecievedTransferAt is null
+				&& routeListAddress.Status == RouteListItemStatus.Transfered
+				&& transferItems.FirstOrDefault()?.OldAddress.Id != routeListAddress.Id)
+			{
+				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+			}
+
 			foreach(var transferItem in transferItems)
 			{
 				if(!sourceFound)
@@ -1137,8 +1144,26 @@ namespace Vodovoz.Application.Logistics
 
 			RouteListItem source = null;
 
+			bool targetFound = false;
+
+			if(routeListAddress.RecievedTransferAt is null
+				&& routeListAddress.Status == RouteListItemStatus.Transfered)
+			{
+				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+			}
+
 			foreach(var transferItem in transferItems)
 			{
+				if(!targetFound)
+				{
+					if(transferItem.NewAddress.Id != routeListAddress.Id)
+					{
+						continue;
+					}
+
+					targetFound = true;
+				}
+
 				if(transferItem.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
 					break;
