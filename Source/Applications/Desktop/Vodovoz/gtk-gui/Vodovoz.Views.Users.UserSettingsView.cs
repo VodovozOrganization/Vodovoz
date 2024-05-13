@@ -98,6 +98,36 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.Label GtkLabel16;
 
+		private global::Gtk.Frame frameFuelControl;
+
+		private global::Gtk.Alignment GtkAlignment10;
+
+		private global::Gamma.GtkWidgets.yTable ytableFuelControl;
+
+		private global::QS.Widgets.GtkUI.DatePicker datepickerFuelApiSessionExpirationDate;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonLogin;
+
+		private global::Gamma.GtkWidgets.yEntry yentryFuelApiKey;
+
+		private global::Gamma.GtkWidgets.yEntry yentryFuelApiLogin;
+
+		private global::Gamma.GtkWidgets.yEntry yentryFuelApiPassword;
+
+		private global::Gamma.GtkWidgets.yEntry yentrySessionId;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuelApiKey;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuelApiLogin;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuelApiPassword;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuelApiSessionExpirationDate;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelSessionId;
+
+		private global::Gtk.Label GtkLabel19;
+
 		private global::Gamma.GtkWidgets.yVBox vboxUpdateFixedPrices;
 
 		private global::Gamma.GtkWidgets.yLabel lblUpdateFixedPricesTitle;
@@ -427,6 +457,7 @@ namespace Vodovoz.Views.Users
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
 			this.entryCounterparty.CanEditReference = true;
+			this.entryCounterparty.CanDisposeEntitySelectorFactory = false;
 			this.entryCounterparty.CanOpenWithoutTabParent = false;
 			this.vbox2.Add(this.entryCounterparty);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.entryCounterparty]));
@@ -510,11 +541,176 @@ namespace Vodovoz.Views.Users
 			w40.Position = 2;
 			w40.Expand = false;
 			w40.Fill = false;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.frameFuelControl = new global::Gtk.Frame();
+			this.frameFuelControl.WidthRequest = 350;
+			this.frameFuelControl.Name = "frameFuelControl";
+			this.frameFuelControl.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child frameFuelControl.Gtk.Container+ContainerChild
+			this.GtkAlignment10 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment10.Name = "GtkAlignment10";
+			this.GtkAlignment10.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment10.Gtk.Container+ContainerChild
+			this.ytableFuelControl = new global::Gamma.GtkWidgets.yTable();
+			this.ytableFuelControl.Name = "ytableFuelControl";
+			this.ytableFuelControl.NRows = ((uint)(6));
+			this.ytableFuelControl.NColumns = ((uint)(2));
+			this.ytableFuelControl.RowSpacing = ((uint)(6));
+			this.ytableFuelControl.ColumnSpacing = ((uint)(6));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.datepickerFuelApiSessionExpirationDate = new global::QS.Widgets.GtkUI.DatePicker();
+			this.datepickerFuelApiSessionExpirationDate.Sensitive = false;
+			this.datepickerFuelApiSessionExpirationDate.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerFuelApiSessionExpirationDate.Name = "datepickerFuelApiSessionExpirationDate";
+			this.datepickerFuelApiSessionExpirationDate.WithTime = false;
+			this.datepickerFuelApiSessionExpirationDate.HideCalendarButton = false;
+			this.datepickerFuelApiSessionExpirationDate.Date = new global::System.DateTime(0);
+			this.datepickerFuelApiSessionExpirationDate.IsEditable = false;
+			this.datepickerFuelApiSessionExpirationDate.AutoSeparation = false;
+			this.datepickerFuelApiSessionExpirationDate.HideButtonClearDate = false;
+			this.ytableFuelControl.Add(this.datepickerFuelApiSessionExpirationDate);
+			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.datepickerFuelApiSessionExpirationDate]));
+			w41.TopAttach = ((uint)(4));
+			w41.BottomAttach = ((uint)(5));
+			w41.LeftAttach = ((uint)(1));
+			w41.RightAttach = ((uint)(2));
+			w41.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.ybuttonLogin = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonLogin.CanFocus = true;
+			this.ybuttonLogin.Name = "ybuttonLogin";
+			this.ybuttonLogin.UseUnderline = true;
+			this.ybuttonLogin.Label = global::Mono.Unix.Catalog.GetString("Обновить сессию");
+			this.ytableFuelControl.Add(this.ybuttonLogin);
+			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.ybuttonLogin]));
+			w42.TopAttach = ((uint)(5));
+			w42.BottomAttach = ((uint)(6));
+			w42.LeftAttach = ((uint)(1));
+			w42.RightAttach = ((uint)(2));
+			w42.XOptions = ((global::Gtk.AttachOptions)(4));
+			w42.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.yentryFuelApiKey = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryFuelApiKey.CanFocus = true;
+			this.yentryFuelApiKey.Name = "yentryFuelApiKey";
+			this.yentryFuelApiKey.IsEditable = true;
+			this.yentryFuelApiKey.InvisibleChar = '•';
+			this.ytableFuelControl.Add(this.yentryFuelApiKey);
+			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.yentryFuelApiKey]));
+			w43.TopAttach = ((uint)(2));
+			w43.BottomAttach = ((uint)(3));
+			w43.LeftAttach = ((uint)(1));
+			w43.RightAttach = ((uint)(2));
+			w43.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.yentryFuelApiLogin = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryFuelApiLogin.CanFocus = true;
+			this.yentryFuelApiLogin.Name = "yentryFuelApiLogin";
+			this.yentryFuelApiLogin.IsEditable = true;
+			this.yentryFuelApiLogin.InvisibleChar = '•';
+			this.ytableFuelControl.Add(this.yentryFuelApiLogin);
+			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.yentryFuelApiLogin]));
+			w44.LeftAttach = ((uint)(1));
+			w44.RightAttach = ((uint)(2));
+			w44.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.yentryFuelApiPassword = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryFuelApiPassword.CanFocus = true;
+			this.yentryFuelApiPassword.Name = "yentryFuelApiPassword";
+			this.yentryFuelApiPassword.IsEditable = true;
+			this.yentryFuelApiPassword.InvisibleChar = '•';
+			this.ytableFuelControl.Add(this.yentryFuelApiPassword);
+			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.yentryFuelApiPassword]));
+			w45.TopAttach = ((uint)(1));
+			w45.BottomAttach = ((uint)(2));
+			w45.LeftAttach = ((uint)(1));
+			w45.RightAttach = ((uint)(2));
+			w45.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.yentrySessionId = new global::Gamma.GtkWidgets.yEntry();
+			this.yentrySessionId.Sensitive = false;
+			this.yentrySessionId.CanFocus = true;
+			this.yentrySessionId.Name = "yentrySessionId";
+			this.yentrySessionId.IsEditable = true;
+			this.yentrySessionId.InvisibleChar = '•';
+			this.ytableFuelControl.Add(this.yentrySessionId);
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.yentrySessionId]));
+			w46.TopAttach = ((uint)(3));
+			w46.BottomAttach = ((uint)(4));
+			w46.LeftAttach = ((uint)(1));
+			w46.RightAttach = ((uint)(2));
+			w46.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.ylabelFuelApiKey = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuelApiKey.Name = "ylabelFuelApiKey";
+			this.ylabelFuelApiKey.Xalign = 1F;
+			this.ylabelFuelApiKey.LabelProp = global::Mono.Unix.Catalog.GetString("Ключ API:");
+			this.ytableFuelControl.Add(this.ylabelFuelApiKey);
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.ylabelFuelApiKey]));
+			w47.TopAttach = ((uint)(2));
+			w47.BottomAttach = ((uint)(3));
+			w47.XOptions = ((global::Gtk.AttachOptions)(4));
+			w47.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.ylabelFuelApiLogin = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuelApiLogin.Name = "ylabelFuelApiLogin";
+			this.ylabelFuelApiLogin.Xalign = 1F;
+			this.ylabelFuelApiLogin.LabelProp = global::Mono.Unix.Catalog.GetString("Логин:");
+			this.ytableFuelControl.Add(this.ylabelFuelApiLogin);
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.ylabelFuelApiLogin]));
+			w48.XOptions = ((global::Gtk.AttachOptions)(4));
+			w48.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.ylabelFuelApiPassword = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuelApiPassword.Name = "ylabelFuelApiPassword";
+			this.ylabelFuelApiPassword.Xalign = 1F;
+			this.ylabelFuelApiPassword.LabelProp = global::Mono.Unix.Catalog.GetString("Пароль:");
+			this.ytableFuelControl.Add(this.ylabelFuelApiPassword);
+			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.ylabelFuelApiPassword]));
+			w49.TopAttach = ((uint)(1));
+			w49.BottomAttach = ((uint)(2));
+			w49.XOptions = ((global::Gtk.AttachOptions)(4));
+			w49.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.ylabelFuelApiSessionExpirationDate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuelApiSessionExpirationDate.Name = "ylabelFuelApiSessionExpirationDate";
+			this.ylabelFuelApiSessionExpirationDate.Xalign = 1F;
+			this.ylabelFuelApiSessionExpirationDate.LabelProp = global::Mono.Unix.Catalog.GetString("Сессия\nдействует по:");
+			this.ylabelFuelApiSessionExpirationDate.Justify = ((global::Gtk.Justification)(1));
+			this.ytableFuelControl.Add(this.ylabelFuelApiSessionExpirationDate);
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.ylabelFuelApiSessionExpirationDate]));
+			w50.TopAttach = ((uint)(4));
+			w50.BottomAttach = ((uint)(5));
+			w50.XOptions = ((global::Gtk.AttachOptions)(4));
+			w50.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFuelControl.Gtk.Table+TableChild
+			this.ylabelSessionId = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSessionId.Name = "ylabelSessionId";
+			this.ylabelSessionId.Xalign = 1F;
+			this.ylabelSessionId.LabelProp = global::Mono.Unix.Catalog.GetString("Id сессии");
+			this.ytableFuelControl.Add(this.ylabelSessionId);
+			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.ytableFuelControl[this.ylabelSessionId]));
+			w51.TopAttach = ((uint)(3));
+			w51.BottomAttach = ((uint)(4));
+			w51.XOptions = ((global::Gtk.AttachOptions)(4));
+			w51.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.GtkAlignment10.Add(this.ytableFuelControl);
+			this.frameFuelControl.Add(this.GtkAlignment10);
+			this.GtkLabel19 = new global::Gtk.Label();
+			this.GtkLabel19.Name = "GtkLabel19";
+			this.GtkLabel19.LabelProp = global::Mono.Unix.Catalog.GetString("<b>API управления топливными картами</b>");
+			this.GtkLabel19.UseMarkup = true;
+			this.frameFuelControl.LabelWidget = this.GtkLabel19;
+			this.hbox6.Add(this.frameFuelControl);
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.frameFuelControl]));
+			w54.Position = 3;
+			w54.Expand = false;
+			w54.Fill = false;
 			this.vbox4.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
-			w41.Position = 2;
-			w41.Expand = false;
-			w41.Fill = false;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
+			w55.Position = 2;
+			w55.Expand = false;
+			w55.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.vboxUpdateFixedPrices = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxUpdateFixedPrices.Name = "vboxUpdateFixedPrices";
@@ -526,10 +722,10 @@ namespace Vodovoz.Views.Users
 			this.lblUpdateFixedPricesTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Обновление фиксы</b>");
 			this.lblUpdateFixedPricesTitle.UseMarkup = true;
 			this.vboxUpdateFixedPrices.Add(this.lblUpdateFixedPricesTitle);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vboxUpdateFixedPrices[this.lblUpdateFixedPricesTitle]));
-			w42.Position = 0;
-			w42.Expand = false;
-			w42.Fill = false;
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vboxUpdateFixedPrices[this.lblUpdateFixedPricesTitle]));
+			w56.Position = 0;
+			w56.Expand = false;
+			w56.Fill = false;
 			// Container child vboxUpdateFixedPrices.Gtk.Box+BoxChild
 			this.hboxUpdateFixedPrices = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxUpdateFixedPrices.Name = "hboxUpdateFixedPrices";
@@ -539,10 +735,10 @@ namespace Vodovoz.Views.Users
 			this.lblIncrementFixedPrices.Name = "lblIncrementFixedPrices";
 			this.lblIncrementFixedPrices.LabelProp = global::Mono.Unix.Catalog.GetString("Увеличить фиксу на:");
 			this.hboxUpdateFixedPrices.Add(this.lblIncrementFixedPrices);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.lblIncrementFixedPrices]));
-			w43.Position = 0;
-			w43.Expand = false;
-			w43.Fill = false;
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.lblIncrementFixedPrices]));
+			w57.Position = 0;
+			w57.Expand = false;
+			w57.Fill = false;
 			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
 			this.spinBtnIncrementFixedPrices = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.spinBtnIncrementFixedPrices.CanFocus = true;
@@ -554,10 +750,10 @@ namespace Vodovoz.Views.Users
 			this.spinBtnIncrementFixedPrices.ValueAsDecimal = 0m;
 			this.spinBtnIncrementFixedPrices.ValueAsInt = 0;
 			this.hboxUpdateFixedPrices.Add(this.spinBtnIncrementFixedPrices);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.spinBtnIncrementFixedPrices]));
-			w44.Position = 1;
-			w44.Expand = false;
-			w44.Fill = false;
+			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.spinBtnIncrementFixedPrices]));
+			w58.Position = 1;
+			w58.Expand = false;
+			w58.Fill = false;
 			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
 			this.btnUpdateFixedPrices = new global::Gamma.GtkWidgets.yButton();
 			this.btnUpdateFixedPrices.CanFocus = true;
@@ -565,26 +761,26 @@ namespace Vodovoz.Views.Users
 			this.btnUpdateFixedPrices.UseUnderline = true;
 			this.btnUpdateFixedPrices.Label = global::Mono.Unix.Catalog.GetString("Обновить фиксу");
 			this.hboxUpdateFixedPrices.Add(this.btnUpdateFixedPrices);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.btnUpdateFixedPrices]));
-			w45.Position = 2;
-			w45.Expand = false;
-			w45.Fill = false;
+			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.btnUpdateFixedPrices]));
+			w59.Position = 2;
+			w59.Expand = false;
+			w59.Fill = false;
 			// Container child hboxUpdateFixedPrices.Gtk.Box+BoxChild
 			this.updateFixedPricesProgress = new global::Gtk.ProgressBar();
 			this.updateFixedPricesProgress.Name = "updateFixedPricesProgress";
 			this.hboxUpdateFixedPrices.Add(this.updateFixedPricesProgress);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.updateFixedPricesProgress]));
-			w46.Position = 3;
+			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.hboxUpdateFixedPrices[this.updateFixedPricesProgress]));
+			w60.Position = 3;
 			this.vboxUpdateFixedPrices.Add(this.hboxUpdateFixedPrices);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vboxUpdateFixedPrices[this.hboxUpdateFixedPrices]));
-			w47.Position = 1;
-			w47.Expand = false;
-			w47.Fill = false;
+			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vboxUpdateFixedPrices[this.hboxUpdateFixedPrices]));
+			w61.Position = 1;
+			w61.Expand = false;
+			w61.Fill = false;
 			this.vbox4.Add(this.vboxUpdateFixedPrices);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vboxUpdateFixedPrices]));
-			w48.Position = 3;
-			w48.Expand = false;
-			w48.Fill = false;
+			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vboxUpdateFixedPrices]));
+			w62.Position = 3;
+			w62.Expand = false;
+			w62.Fill = false;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{

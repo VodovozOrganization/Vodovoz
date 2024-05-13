@@ -30,7 +30,7 @@ namespace Vodovoz
 
 			entityentryFuelType.ViewModel = ViewModel.FuelTypeEntryViewModel;
 
-			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
+			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelLimits, w => w.ValueAsInt).InitializeFromSource ();
 
 			disablespinMoney.Binding.AddBinding(ViewModel.FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -59,6 +59,10 @@ namespace Vodovoz
 			
 
 			disablespinMoney.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+
+			labelAvalilableFuel.Visible = false;
+			label6.Visible = false;
+			hbox6.Visible = false;
 		}
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
