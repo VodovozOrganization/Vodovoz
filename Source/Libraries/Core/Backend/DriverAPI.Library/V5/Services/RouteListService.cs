@@ -292,7 +292,9 @@ namespace DriverAPI.Library.V5.Services
 		{
 			var address = _routeListAddressesRepository.Get(
 				_unitOfWork,
-				address => address.Id == routeListAddressId)
+				address => address.Id == routeListAddressId
+				&& (address.Order.OrderStatus == OrderStatus.OnTheWay
+					|| address.Order.OrderStatus == OrderStatus.Shipped))
 				.FirstOrDefault();
 
 			var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
@@ -356,7 +358,7 @@ namespace DriverAPI.Library.V5.Services
 				_unitOfWork,
 				address => address.RouteList.Driver.Id == driver.Id
 					&& address.Order.OrderStatus == OrderStatus.OnTheWay
-					&& (!address.WasTransfered || address.RecievedTransferAt != null));
+					&& address.Status == RouteListItemStatus.Transfered);
 
 			foreach (var address in outgoingAddresses)
 			{

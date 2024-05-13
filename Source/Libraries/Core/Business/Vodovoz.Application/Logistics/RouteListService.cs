@@ -1075,12 +1075,24 @@ namespace Vodovoz.Application.Logistics
 			var transferItems = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
 				atdi => atdi.NewAddress.Order.Id == routeListAddress.Order.Id)
-					.OrderBy(atdi => atdi.Document.TimeStamp);
+					.OrderBy(atdi => atdi.Document.Id);
 
 			RouteListItem target = null;
 
+			bool sourceFound = false;
+
 			foreach(var transferItem in transferItems)
 			{
+				if(!sourceFound)
+				{
+					if(transferItem.OldAddress.Id != routeListAddress.Id)
+					{
+						continue;
+					}
+
+					sourceFound = true;
+				}
+
 				if(transferItem.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
 					break;
@@ -1101,7 +1113,9 @@ namespace Vodovoz.Application.Logistics
 				target = transferItem.NewAddress;
 			}
 
-			if(target != null && target.RouteList.Id == routeListAddress.RouteList.Id)
+			if(target != null
+				&& (target.RouteList.Id == routeListAddress.RouteList.Id
+				|| target.Status == RouteListItemStatus.Transfered && target.RecievedTransferAt is null))
 			{
 				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 			}
@@ -1119,7 +1133,7 @@ namespace Vodovoz.Application.Logistics
 			var transferItems = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
 				atdi => atdi.OldAddress.Order.Id == routeListAddress.Order.Id)
-					.OrderByDescending(atdi => atdi.Document.TimeStamp);
+					.OrderByDescending(atdi => atdi.Document.Id);
 
 			RouteListItem source = null;
 
