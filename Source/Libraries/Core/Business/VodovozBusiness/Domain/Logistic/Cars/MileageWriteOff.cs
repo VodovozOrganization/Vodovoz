@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _comment, value);
 		}
 
-		public virtual string Title => $"{Id}";
+		public virtual string Title => $"Списание километража №{Id}";
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
