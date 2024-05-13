@@ -165,6 +165,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
 		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
+		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode

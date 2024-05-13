@@ -1107,6 +1107,17 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(x => x.Order.Id == orderId)
 				.List();
 		}
+		
+		public bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId)
+		{
+			var result = uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.Order.Id == orderId)
+				.And(x => x.Type == Type.Upd)
+				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+				.Take(1);
+			
+			return result != null;
+		}
 
 		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
