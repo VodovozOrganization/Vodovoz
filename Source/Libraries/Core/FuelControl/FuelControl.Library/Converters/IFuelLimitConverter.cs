@@ -5,6 +5,6 @@ namespace FuelControl.Library.Converters
 {
 	public interface IFuelLimitConverter
 	{
-		FuelLimit ConvertDtoToDomainFuelLimit(FuelLimitDto fuelLimitDto);
+		FuelLimit ConvertDtoToDomainFuelLimit(FuelLimitResponseDto fuelLimitDto);
 	}
 }

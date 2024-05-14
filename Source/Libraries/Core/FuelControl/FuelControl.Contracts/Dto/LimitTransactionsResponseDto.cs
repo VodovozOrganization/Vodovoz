@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Ограничение по числу транзакций за период для лимита по карте
 	/// </summary>
-	public class LimitTransactionsDto
+	public class LimitTransactionsResponseDto
 	{
 		/// <summary>
 		/// Количество транзакций по услуге

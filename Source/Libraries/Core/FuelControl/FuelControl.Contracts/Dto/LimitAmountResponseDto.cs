@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Ограничение по количеству для лимита по карте
 	/// </summary>
-	public class LimitAmountDto
+	public class LimitAmountResponseDto
 	{
 		/// <summary>
 		/// Единица измерения

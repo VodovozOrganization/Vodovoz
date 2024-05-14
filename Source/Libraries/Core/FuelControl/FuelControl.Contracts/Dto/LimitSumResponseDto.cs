@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Ограничение по сумме для лимита по карте
 	/// </summary>
-	public class LimitSumDto
+	public class LimitSumResponseDto
 	{
 		/// <summary>
 		/// Валюта

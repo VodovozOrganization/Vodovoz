@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Лимит топливной карты
 	/// </summary>
-	public class FuelLimitDto
+	public class FuelLimitResponseDto
 	{
 		/// <summary>
 		/// ID лимита
@@ -41,31 +41,31 @@ namespace FuelControl.Contracts.Dto
 		/// Ограничение по сумме
 		/// </summary>
 		[JsonPropertyName("sum")]
-		public LimitSumDto Sum { get; set; }
+		public LimitSumResponseDto Sum { get; set; }
 
 		/// <summary>
 		/// Ограничение по количеству
 		/// </summary>
 		[JsonPropertyName("amount")]
-		public LimitAmountDto Amount { get; set; }
+		public LimitAmountResponseDto Amount { get; set; }
 
 		/// <summary>
 		/// Лимт по времени
 		/// </summary>
 		[JsonPropertyName("term")]
-		public LimitTermDto Term { get; set; }
+		public LimitTermResponseDto Term { get; set; }
 
 		/// <summary>
 		/// Ограничение по числу транзакций за период
 		/// </summary>
 		[JsonPropertyName("transactions")]
-		public LimitTransactionsDto Transactions { get; set; }
+		public LimitTransactionsResponseDto Transactions { get; set; }
 
 		/// <summary>
 		/// Длительность, период времени
 		/// </summary>
 		[JsonPropertyName("time")]
-		public LimitTimePeriodDto TimePeriod { get; set; }
+		public LimitTimePeriodResponseDto TimePeriod { get; set; }
 
 		/// <summary>
 		/// Дата последнего изменения

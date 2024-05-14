@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Ограничение по времени для лимита по карте
 	/// </summary>
-	public class LimitTermDto
+	public class LimitTermResponseDto
 	{
 		/// <summary>
 		/// Строка из 7 нулей и единиц. 1 – ограничение применяется в этот день, 0 – нет

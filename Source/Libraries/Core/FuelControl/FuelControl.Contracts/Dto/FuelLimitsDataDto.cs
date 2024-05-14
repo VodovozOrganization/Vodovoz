@@ -18,6 +18,6 @@ namespace FuelControl.Contracts.Dto
 		/// Продуктовые лимиты
 		/// </summary>
 		[JsonPropertyName("result")]
-		public IEnumerable<FuelLimitDto> FuelLimits { get; set; }
+		public IEnumerable<FuelLimitResponseDto> FuelLimits { get; set; }
 	}
 }

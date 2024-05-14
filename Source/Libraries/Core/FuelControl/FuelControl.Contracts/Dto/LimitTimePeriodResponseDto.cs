@@ -5,7 +5,7 @@ namespace FuelControl.Contracts.Dto
 	/// <summary>
 	/// Длительность, период времени лимита
 	/// </summary>
-	public class LimitTimePeriodDto
+	public class LimitTimePeriodResponseDto
 	{
 		/// <summary>
 		/// Период действия ограничения.
