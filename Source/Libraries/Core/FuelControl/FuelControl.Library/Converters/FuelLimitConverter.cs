@@ -11,6 +11,7 @@ namespace FuelControl.Library.Converters
 			return new FuelLimit
 			{
 				LimitId = fuelLimitDto.Id,
+				CardId = fuelLimitDto.CardId,
 				ContractId = fuelLimitDto.ContractId,
 				Amount = fuelLimitDto.Amount?.Value,
 				UsedAmount = fuelLimitDto.Amount?.Used,

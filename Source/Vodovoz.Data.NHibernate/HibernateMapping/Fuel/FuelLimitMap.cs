@@ -29,6 +29,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Map(x => x.Period).Column("period");
 			Map(x => x.PeriodUnit).Column("period_unit");
 			Map(x => x.TermType).Column("term_type");
+			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.LastEditDate).Column("last_edit_date");
 			Map(x => x.Status).Column("status");
 		}

@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Fuel
 		private int _period;
 		private FuelLimitPeriodUnit _periodUnit;
 		private FuelLimitTermType? _termType;
+		private DateTime _createDate;
 		private DateTime? _lastEditDate;
 		private FuelLimitStatus _status;
 
@@ -129,6 +130,13 @@ namespace Vodovoz.Domain.Fuel
 		{
 			get => _termType;
 			set => SetField(ref _termType, value);
+		}
+
+		[Display(Name = "Дата создания")]
+		public virtual DateTime CreateDate
+		{
+			get => _createDate;
+			set => SetField(ref _createDate, value);
 		}
 
 		[Display(Name = "Дата последнего изменения")]
