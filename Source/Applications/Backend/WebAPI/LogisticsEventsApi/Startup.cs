@@ -24,7 +24,7 @@ using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Settings.Database;
+using Vodovoz.Presentation.WebApi;
 using VodovozHealthCheck;
 
 namespace LogisticsEventsApi
@@ -61,6 +61,8 @@ namespace LogisticsEventsApi
 
 			services.AddWarehouseEventsDependencies();
 
+			services.AddSecurity(Configuration);
+
 			//закомментил пока нет зарегистрированных пользователей
 			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
 			services.AddHttpClient();
@@ -90,22 +92,6 @@ namespace LogisticsEventsApi
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
-
-			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-				.AddJwtBearer(cfg =>
-				{
-					cfg.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuer = false,
-						ValidIssuer = Configuration.GetValue<string>("SecurityToken:Issuer"),
-						ValidateAudience = false,
-						ValidAudience =	Configuration.GetValue<string>("SecurityToken:Audience"),
-						ValidateIssuerSigningKey = true,
-						IssuerSigningKey =
-							new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("SecurityToken:Key")
-						))
-					};
-				});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
