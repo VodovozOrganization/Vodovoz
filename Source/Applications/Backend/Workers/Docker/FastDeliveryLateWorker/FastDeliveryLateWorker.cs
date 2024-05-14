@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
@@ -25,10 +25,8 @@ namespace FastDeliveryLateWorker
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly IUnitOfWork _uow;
-		private readonly ComplaintDetalization _complaintDetalization;
-		private readonly Employee _currentEmployee;
-
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IGenericRepository<ComplaintDetalization> _complaintDetalizationRepository;
 		private bool _workInProgress;
 
 		public FastDeliveryLateWorker(
@@ -37,22 +35,16 @@ namespace FastDeliveryLateWorker
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGeneralSettings generalSettings,
 			IDeliveryRepository deliveryRepository,
-			IEmployeeRepository employeeRepository)
+			IEmployeeRepository employeeRepository,
+			IGenericRepository<ComplaintDetalization> complaintDetalizationRepository)
 		{
-			if(employeeRepository is null)
-			{
-				throw new ArgumentNullException(nameof(employeeRepository));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-
-			_uow = _unitOfWorkFactory.CreateWithoutRoot((nameof(FastDeliveryLateWorker)));
-			_complaintDetalization = _uow.Session.Get<ComplaintDetalization>(_options.Value.ComplaintDetalizationId);
-			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(_uow);
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_complaintDetalizationRepository = complaintDetalizationRepository ?? throw new ArgumentNullException(nameof(complaintDetalizationRepository));
 		}
 
 		protected override void OnStartService()
@@ -111,51 +103,57 @@ namespace FastDeliveryLateWorker
 
 		private void CreateComplaintsForFasteDeliveryLateOrders()
 		{
-			var fastDeliveryLateOrders = _deliveryRepository.GetFastDeliveryLateOrders(_uow, DateTime.Today, _generalSettings, _complaintDetalization.Id);
-
-			if(!fastDeliveryLateOrders.Any())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot((nameof(FastDeliveryLateWorker))))
 			{
-				return;
-			}
+				var fastDeliveryLateOrders = _deliveryRepository.GetFastDeliveryLateOrders(uow, DateTime.Today, _generalSettings, _options.Value.ComplaintDetalizationId);
 
-			foreach(var lateOrder in fastDeliveryLateOrders)
-			{
-				var isPrepayment = lateOrder.PaymentType == PaymentType.PaidOnline || lateOrder.PaymentType == PaymentType.SmsQR;
-
-				var isSouthDistrict = lateOrder.GeoGroupId == _options.Value.SouthGeoGroupId;
-
-				var complaintText = "Не исполнены условия Экспресс доставки.\n"
-						+ (isPrepayment
-						? "Осуществить возврат средств за экспресс- доставку."
-						: "");
-
-				var complaint = new Complaint
+				if(!fastDeliveryLateOrders.Any())
 				{
-					Order = new Order { Id = lateOrder.OrderId },
-					DeliveryPoint = new DeliveryPoint { Id = lateOrder.DeliveryPointId },
-					ComplaintKind = _complaintDetalization.ComplaintKind,
-					ComplaintDetalization = _complaintDetalization,
-					ComplaintSource = new ComplaintSource { Id = _options.Value.ComplaintSourceId },
-					ComplaintText = complaintText,
-					ComplaintType = ComplaintType.Client,
-					CreationDate = DateTime.Now,
-					ChangedDate = DateTime.Now,
-					CreatedBy = _currentEmployee,
-					ChangedBy = _currentEmployee,
-				};
+					return;
+				}
 
-				_uow.Save(complaint);
+				var complaintDetalization = _complaintDetalizationRepository.Get(uow, cd => cd.Id == _options.Value.ComplaintDetalizationId).FirstOrDefault();
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
-				var guilty = new ComplaintGuiltyItem
+				foreach(var lateOrder in fastDeliveryLateOrders)
 				{
-					Complaint = complaint,
-					Subdivision = new Subdivision { Id = isSouthDistrict ? _options.Value.LoSofiyskayaSubdivisionId : _options.Value.LoBugrySubdivisionId },
-					Responsible = new Responsible { Id = _options.Value.ResponsibleId }
-				};
+					var isPrepayment = lateOrder.PaymentType == PaymentType.PaidOnline || lateOrder.PaymentType == PaymentType.SmsQR;
 
-				_uow.Save(guilty);
+					var isSouthDistrict = lateOrder.GeoGroupId == _options.Value.SouthGeoGroupId;
 
-				_uow.Commit();
+					var complaintText = "Не исполнены условия Экспресс доставки.\n"
+							+ (isPrepayment
+							? "Осуществить возврат средств за экспресс- доставку."
+							: "");
+
+					var complaint = new Complaint
+					{
+						Order = new Order { Id = lateOrder.OrderId },
+						DeliveryPoint = new DeliveryPoint { Id = lateOrder.DeliveryPointId },
+						ComplaintKind = complaintDetalization.ComplaintKind,
+						ComplaintDetalization = complaintDetalization,
+						ComplaintSource = new ComplaintSource { Id = _options.Value.ComplaintSourceId },
+						ComplaintText = complaintText,
+						ComplaintType = ComplaintType.Client,
+						CreationDate = DateTime.Now,
+						ChangedDate = DateTime.Now,
+						CreatedBy = currentEmployee,
+						ChangedBy = currentEmployee,
+					};
+
+					uow.Save(complaint);
+
+					var guilty = new ComplaintGuiltyItem
+					{
+						Complaint = complaint,
+						Subdivision = new Subdivision { Id = isSouthDistrict ? _options.Value.LoSofiyskayaSubdivisionId : _options.Value.LoBugrySubdivisionId },
+						Responsible = new Responsible { Id = _options.Value.ResponsibleId }
+					};
+
+					uow.Save(guilty);
+
+					uow.Commit();
+				}
 			}
 		}
 	}

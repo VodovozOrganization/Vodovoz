@@ -6,6 +6,8 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
@@ -51,7 +53,9 @@ namespace FastDeliveryLateWorker
 						.ConfigureFastDeliveryLateOptions(hostContext)
 						.AddSingleton<IDeliveryRepository, DeliveryRepository>()
 						.AddSingleton<IOrderRepository, OrderRepository>()
-						.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+						.AddSingleton<IEmployeeRepository, EmployeeRepository>()
+						.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						;
 				});
 	}
 }
