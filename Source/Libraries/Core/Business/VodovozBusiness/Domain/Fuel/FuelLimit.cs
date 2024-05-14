@@ -12,7 +12,9 @@ namespace Vodovoz.Domain.Fuel
 		private string _serviceProductGroup;
 		private string _serviceProductType;
 		private decimal? _amount;
+		private decimal? _usedAmount;
 		private decimal? _sum;
+		private decimal? _usedSum;
 		private FuelLimitUnit _unit;
 		private int _transactionsCount;
 		private int? _transactionsOccured;
@@ -66,11 +68,25 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref _amount, value);
 		}
 
+		[Display(Name = "Использовано из ограничения по количеству")]
+		public virtual decimal? UsedAmount
+		{
+			get => _usedAmount;
+			set => SetField(ref _usedAmount, value);
+		}
+
 		[Display(Name = "Ограничение по сумме")]
 		public virtual decimal? Sum
 		{
 			get => _sum;
 			set => SetField(ref _sum, value);
+		}
+
+		[Display(Name = "Использовано из ограничения по сумме")]
+		public virtual decimal? UsedSum
+		{
+			get => _usedSum;
+			set => SetField(ref _usedSum, value);
 		}
 
 		[Display(Name = "Единица измерения ограничения")]

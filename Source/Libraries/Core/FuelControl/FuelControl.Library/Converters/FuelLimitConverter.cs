@@ -13,7 +13,9 @@ namespace FuelControl.Library.Converters
 				LimitId = fuelLimitDto.Id,
 				ContractId = fuelLimitDto.ContractId,
 				Amount = fuelLimitDto.Amount?.Value,
+				UsedAmount = fuelLimitDto.Amount?.Used,
 				Sum = fuelLimitDto.Sum?.Value,
+				UsedSum = fuelLimitDto.Sum?.Used,
 				TransctionsCount = fuelLimitDto.Transactions?.Count ?? 0,
 				TransactionsOccured = fuelLimitDto.Transactions?.Occured ?? 0,
 				LastEditDate = DateTime.Parse(fuelLimitDto.LatEditDate)
