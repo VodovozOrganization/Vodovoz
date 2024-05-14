@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
+using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -24,13 +25,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		private static readonly OrderStatus[] _availableOrderStatuses = new OrderStatus[]
 		{
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed
+			OrderStatus.Accepted,
+			OrderStatus.InTravelList,
+			OrderStatus.OnLoading,
+			OrderStatus.OnTheWay,
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock,
+			OrderStatus.Closed
 		};
 
 		private readonly ICommonServices _commonServices;
@@ -64,6 +65,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private string _paymentsTotalSumInDatabase;
 		private string _balanceInDatabase;
 		private string _oldBalanceInDatabase;
+
+		private OrderPaymentStatus? _orderPaymentStatus;
+		private bool _hideUnregisteredCounterparties;
 
 		public PaymentsDiscrepanciesAnalysisViewModel(
 			INavigationManager navigation,
@@ -230,6 +234,29 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			set => SetField(ref _oldBalanceInDatabase, value);
 		}
 
+		public OrderPaymentStatus? OrderPaymentStatus
+		{
+			get => _orderPaymentStatus;
+			set
+			{
+				if(SetField(ref _orderPaymentStatus, value))
+				{
+					FillOrderNodes();
+				}
+			}
+		}
+
+		public bool HideUnregisteredCounterparties
+		{
+			get => _hideUnregisteredCounterparties;
+			set
+			{
+				if(SetField(ref _hideUnregisteredCounterparties, value))
+				{
+					AnalyseDiscrepanciesCommand?.Execute();
+				}
+			}
+		}
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
@@ -500,22 +527,34 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					paymentDiscrepanciesNode.CounterpartyName = paymentDatabase.CounterpartyName;
 					paymentDiscrepanciesNode.CounterpartyInn = paymentDatabase.CounterpartyInn;
 					paymentDiscrepanciesNode.PaymentPurpose = paymentDatabase.PaymentPurpose;
+
+					if(paymentDatabase.PayerName != paymentDatabase.CounterpartyName
+						&& paymentDatabase.PayerName != paymentDatabase.CounterpartyFullName)
+					{
+						paymentDiscrepanciesNode.PayerName = paymentDatabase.PayerName;
+					}
 				}
 				else
 				{
-					paymentDiscrepanciesNodes.Add(
-						(paymentDatabase.PaymentNum, paymentDatabase.PaymentDate),
-						new PaymentDiscrepanciesNode
-						{
-							PaymentNum = paymentDatabase.PaymentNum,
-							PaymentDate = paymentDatabase.PaymentDate,
-							ProgramPaymentSum = paymentDatabase.PaymentSum,
-							IsManuallyCreated = paymentDatabase.IsManuallyCreated,
-							CounterpartyId = paymentDatabase.CounterpartyId,
-							CounterpartyName = paymentDatabase.CounterpartyName,
-							CounterpartyInn = paymentDatabase.CounterpartyInn,
-							PaymentPurpose = paymentDatabase.PaymentPurpose
-						});
+					var newNode = new PaymentDiscrepanciesNode
+					{
+						PaymentNum = paymentDatabase.PaymentNum,
+						PaymentDate = paymentDatabase.PaymentDate,
+						ProgramPaymentSum = paymentDatabase.PaymentSum,
+						IsManuallyCreated = paymentDatabase.IsManuallyCreated,
+						CounterpartyId = paymentDatabase.CounterpartyId,
+						CounterpartyName = paymentDatabase.CounterpartyName,
+						CounterpartyInn = paymentDatabase.CounterpartyInn,
+						PaymentPurpose = paymentDatabase.PaymentPurpose
+					};
+
+					if(paymentDatabase.PayerName != paymentDatabase.CounterpartyName
+						&& paymentDatabase.PayerName != paymentDatabase.CounterpartyFullName)
+					{
+						newNode.PayerName = paymentDatabase.PayerName;
+					}
+
+					paymentDiscrepanciesNodes.Add((paymentDatabase.PaymentNum, paymentDatabase.PaymentDate), newNode);
 				}
 			}
 
@@ -690,6 +729,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			{
 				var orderNode = keyPairValue.Value;
 
+				if(OrderPaymentStatus != null && orderNode.OrderPaymentStatus != OrderPaymentStatus)
+				{
+					continue;
+				}
+
 				if(IsDiscrepanciesOnly && !orderNode.OrderSumDiscrepancy)
 				{
 					continue;
@@ -751,6 +795,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			foreach(var keyPairValue in _counterpartyBalanceNodes)
 			{
 				var balanceNode = keyPairValue.Value;
+
+				if(HideUnregisteredCounterparties && string.IsNullOrWhiteSpace(balanceNode.CounterpartyName))
+				{
+					continue;
+				}
 
 				if(balanceNode.CounterpartyBalance == balanceNode.CounterpartyBalance1C)
 				{

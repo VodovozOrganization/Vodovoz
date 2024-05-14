@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 
 			Entity.ComplaintType = ComplaintType.Client;
-			Entity.SetStatus(ComplaintStatuses.Checking);
+			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
 
@@ -91,6 +91,8 @@ namespace Vodovoz.ViewModels.Complaints
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			CanEditComplaintClassification = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
 		}
 
 		public CreateComplaintViewModel(Counterparty client,
@@ -210,6 +212,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		//так как диалог только для создания рекламации
 		public bool CanEdit => PermissionResult.CanCreate;
+
+		public bool CanEditComplaintClassification { get; }
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 

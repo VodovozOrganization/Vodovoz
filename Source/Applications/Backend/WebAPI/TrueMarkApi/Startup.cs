@@ -72,7 +72,7 @@ namespace TrueMarkApi
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddControllers();
-			services.AddHostedService<DocumentService>();
+			services.AddHostedService<TrueMarkDocumentService>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();

@@ -1,6 +1,11 @@
 using DatabaseServiceWorker.Options;
+using FuelControl.Library.Converters;
+using FuelControl.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.Settings.Database.Fuel;
+using Vodovoz.Settings.Fuel;
 
 namespace DatabaseServiceWorker
 {
@@ -14,5 +19,16 @@ namespace DatabaseServiceWorker
 
 		public static IServiceCollection ConfigureTextInspectWorker(this IServiceCollection services, HostBuilderContext context) =>
 			services.Configure<TechInspectOptions>(context.Configuration.GetSection(nameof(TechInspectOptions)));
+
+		public static IServiceCollection AddFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
+			.ConfigureFuelTransactionsControlWorker(context)
+			.AddSingleton<IFuelControlAuthorizationService, GazpromAuthorizationService>()
+			.AddSingleton<ITransactionConverter, TransactionConverter>()
+			.AddSingleton<IFuelControlTransactionsDataService, GazpromTransactionsDataService>()
+			.AddSingleton<IFuelRepository, FuelRepository>()
+			.AddSingleton<IFuelControlSettings, FuelControlSettings>();
+
+		public static IServiceCollection ConfigureFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
+			.Configure<FuelTransactionsControlOptions>(context.Configuration.GetSection(nameof(FuelTransactionsControlOptions)));
 	}
 }

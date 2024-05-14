@@ -79,6 +79,12 @@ namespace Vodovoz
 		{
 			var uow = RouteListItem.RouteList.UoW;
 			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);
+
+			if(RouteListItem.Status == RouteListItemStatus.Overdue || RouteListItem.Status == RouteListItemStatus.Canceled)
+			{
+				RouteListItem.SetOrderActualCountsToZeroOnCanceled();
+			}
+			
 			HasChanged = true;
 			OnPropertyChanged(() => Status);
 		}

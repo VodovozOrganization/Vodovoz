@@ -138,6 +138,18 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
+using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Domain.Sms;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Tools.Orders;
+using MassTransit;
+using Vodovoz.ViewModels.Infrastructure;
+using FuelControl.Library;
+using Vodovoz.Services.Fuel;
+using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
+using Vodovoz.Application.Logistics.Fuel;
 
 namespace Vodovoz
 {
@@ -709,6 +721,9 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddScoped<IFuelApiService, FuelApiService>()
+						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
+						.AddFuelControl(hostingContext)
 
 						//Messages
 						.AddSingleton<MessagesHostedService>()

@@ -1,10 +1,17 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Permissions
 {
 	public static partial class Complaint
 	{
+		/// <summary>
+		/// Изменение классификации рекламации
+		/// </summary>
+		[Display(
+			Name = "Изменение классификации рекламации",
+			Description = "Можно редактировать объект и вид недовоза в рекламации")]
+		public static string CanEditComplaintClassification => "can_edit_complaint_classification";
+
 		/// <summary>
 		/// Можно создавать дубликаты рекламаций
 		/// </summary>

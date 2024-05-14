@@ -532,7 +532,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void FuelDocument_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(FuelDocument.FuelCoupons))
+			if(e.PropertyName == nameof(FuelDocument.FuelLimits))
 			{
 				OnPropertyChanged(nameof(ResultInfo));
 				OnPropertyChanged(nameof(CashExpenseInfo));

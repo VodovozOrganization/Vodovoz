@@ -409,6 +409,12 @@ namespace Vodovoz.Views.Employees
 
 			#endregion
 
+			btnCopyEntityId.Binding
+				.AddBinding(ViewModel, vm => vm.CanCopyId, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 		}
 
@@ -899,6 +905,15 @@ namespace Vodovoz.Views.Employees
 		protected void OnBtnRegisterDriverAppUserClicked(object sender, EventArgs e)
 		{
 			ViewModel.RegisterDriverAppUserOrAddRoleCommand.Execute();
+		}
+
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 
 		public override void Destroy()
