@@ -22,7 +22,6 @@ namespace LogisticsEventsApi
 {
 	public class Startup
 	{
-		
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -34,7 +33,14 @@ namespace LogisticsEventsApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "LogisticsEventsApi", Version = "v1" }); });
+
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo
+				{
+					Title = "LogisticsEventsApi", Version = "v1"
+				});
+			});
 
 			services.AddWarehouseEventsDependencies();
 
@@ -66,7 +72,9 @@ namespace LogisticsEventsApi
 			});
 
 			// Аутентификация
-			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+			services
+				.AddDefaultIdentity<IdentityUser>(options
+					=> options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 		}
