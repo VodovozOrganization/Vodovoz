@@ -1,10 +1,6 @@
-﻿using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using EventsApi.Library;
+﻿using EventsApi.Library;
 using LogisticsEventsApi.Data;
 using LogisticsEventsApi.HealthChecks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -12,18 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
-using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
-using System.Text;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Presentation.WebApi;
 using VodovozHealthCheck;
 
@@ -31,12 +22,6 @@ namespace LogisticsEventsApi
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = nameof(NLog);
-		public static readonly string[] AccessedRoles =
-			{
-				ApplicationUserRole.WarehousePicker.ToString(),
-				ApplicationUserRole.WarehouseDriver.ToString()
-			};
 		
 		public Startup(IConfiguration configuration)
 		{
@@ -50,14 +35,6 @@ namespace LogisticsEventsApi
 		{
 			services.AddControllers();
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "LogisticsEventsApi", Version = "v1" }); });
-			
-			services.AddLogging(
-				logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
-				});
 
 			services.AddWarehouseEventsDependencies();
 
