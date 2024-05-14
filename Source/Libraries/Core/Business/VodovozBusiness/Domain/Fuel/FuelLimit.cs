@@ -9,8 +9,8 @@ namespace Vodovoz.Domain.Fuel
 		private string _limitId;
 		private string _cardId;
 		private string _contractId;
-		private string _serviceProductGroup;
-		private string _serviceProductType;
+		private string _productGroup;
+		private string _productType;
 		private decimal? _amount;
 		private decimal? _usedAmount;
 		private decimal? _sum;
@@ -26,18 +26,18 @@ namespace Vodovoz.Domain.Fuel
 
 		public virtual int Id { get; set; }
 
+		[Display(Name = "Id лимита в Газпромнефть (выдается сервисом)")]
+		public virtual string LimitId
+		{
+			get => _limitId;
+			set => SetField(ref _limitId, value);
+		}
+
 		[Display(Name = "Id карты на которую выдается лимит")]
 		public virtual string CardId
 		{
 			get => _cardId;
 			set => SetField(ref _cardId, value);
-		}
-
-		[Display(Name = "Id лимита (выдается сервисом)")]
-		public virtual string LimitId
-		{
-			get => _limitId;
-			set => SetField(ref _limitId, value);
 		}
 
 		[Display(Name = "ID договора организации")]
@@ -47,18 +47,18 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref _contractId, value);
 		}
 
-		[Display(Name = "ID группы продукта")]
-		public virtual string ServiceProductGroup
+		[Display(Name = "ID группы продукта в Газпромнефть")]
+		public virtual string ProductGroup
 		{
-			get => _serviceProductGroup;
-			set => SetField(ref _serviceProductGroup, value);
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
 		}
 
-		[Display(Name = "ID типа продукта")]
-		public virtual string ServiceProductType
+		[Display(Name = "ID типа продукта в Газпромнефть")]
+		public virtual string ProductType
 		{
-			get => _serviceProductType;
-			set => SetField(ref _serviceProductType, value);
+			get => _productType;
+			set => SetField(ref _productType, value);
 		}
 
 		[Display(Name = "Ограничение по количеству")]

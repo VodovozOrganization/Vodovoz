@@ -28,8 +28,8 @@ namespace FuelControl.Library.Converters
 			{
 				CardId = fuelLimit.CardId,
 				ContractId = fuelLimit.ContractId,
-				ProductGroup = fuelLimit.ServiceProductGroup,
-				ProductType = fuelLimit.ServiceProductType,
+				ProductGroup = fuelLimit.ProductGroup,
+				ProductType = fuelLimit.ProductType,
 				Term = new LimitTermRequestDto { Type = (int)fuelLimit.TermType },
 				Time = new LimitTimePeriodRequestDto { Number = fuelLimit.Period, Type = (int)fuelLimit.PeriodUnit },
 				Transactions = new LimitTransactionsRequestDto { Count = fuelLimit.TransctionsCount }
