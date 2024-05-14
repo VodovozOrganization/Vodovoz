@@ -1,4 +1,5 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
@@ -15,8 +16,12 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(x => x.EventName)
 				.AddColumn(CompletedDriversWarehousesEventsJournalNode.EventTypeColumn)
 					.AddEnumRenderer(x => x.EventType).Editing(false)
+				.AddColumn(CompletedDriversWarehousesEventsJournalNode.DocumentTypeColumn)
+					.AddTextRenderer(x => x.DocumentType.HasValue ? x.DocumentType.GetEnumTitle() : null)
+				.AddColumn(CompletedDriversWarehousesEventsJournalNode.DocumentNumberColumn)
+					.AddTextRenderer(x => x.DocumentNumber.ToString())
 				.AddColumn(CompletedDriversWarehousesEventsJournalNode.EmployeeColumn)
-					.AddTextRenderer(x => x.DriverName)
+					.AddTextRenderer(x => x.EmployeeName)
 				.AddColumn(CompletedDriversWarehousesEventsJournalNode.CarColumn)
 					.AddTextRenderer(x => x.Car)
 				.AddColumn(CompletedDriversWarehousesEventsJournalNode.CompletedDateColumn)
