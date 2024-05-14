@@ -397,9 +397,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastDeliveryLateWorker", "A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FuelControl", "FuelControl", "{8788AC3C-7DFB-4E78-BFC1-61D4F2D7E70C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelControl.Library", "Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj", "{7C6D2E5D-7501-4905-B518-C080B06A6B3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelControl.Library", "Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj", "{7C6D2E5D-7501-4905-B518-C080B06A6B3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelControl.Contracts", "Libraries\Core\FuelControl\FuelControl.Contracts\FuelControl.Contracts.csproj", "{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelControl.Contracts", "Libraries\Core\FuelControl\FuelControl.Contracts\FuelControl.Contracts.csproj", "{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -5149,9 +5149,7 @@ Global
 		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
 		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.WCF|x86.ActiveCfg = Debug|Any CPU
 		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.Web|Any CPU.ActiveCfg = Debug|Any CPU
-		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.Web|Any CPU.Build.0 = Debug|Any CPU
 		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.Web|x86.ActiveCfg = Debug|Any CPU
-		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.Web|x86.Build.0 = Debug|Any CPU
 		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{17910AFE-9354-4408-92A0-F8EDB99C95F1}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{7C6D2E5D-7501-4905-B518-C080B06A6B3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
