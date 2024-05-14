@@ -35,6 +35,9 @@ namespace Vodovoz.Settings.Database.Fuel
 		public DateTime FuelTransactionsPerMonthLastUpdateDate =>
 			_settingsController.GetDateTimeValue($"{_parametersPrefix}{nameof(FuelTransactionsPerMonthLastUpdateDate)}");
 
+		public string FuelProductTypeId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(FuelProductTypeId)}");
+
 		public void SetFuelTransactionsPerDayLastUpdateDate(string value)
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelTransactionsPerDayLastUpdateDate)}", value);

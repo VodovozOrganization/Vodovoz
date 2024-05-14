@@ -40,6 +40,11 @@ namespace Vodovoz.Settings.Fuel
 		DateTime FuelTransactionsPerMonthLastUpdateDate { get; }
 
 		/// <summary>
+		/// Id типа продукта "Топливо" в сервисе Газпромнефть
+		/// </summary>
+		string FuelProductTypeId {  get; }
+
+		/// <summary>
 		/// Обновление даты на которую были успешно получены данные по транзакциям за день
 		/// </summary>
 		/// <param name="value"></param>
