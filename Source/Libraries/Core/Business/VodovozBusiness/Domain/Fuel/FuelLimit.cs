@@ -7,6 +7,7 @@ namespace Vodovoz.Domain.Fuel
 	public class FuelLimit : PropertyChangedBase, IDomainObject
 	{
 		private string _limitId;
+		private string _cardId;
 		private string _contractId;
 		private string _serviceProductGroup;
 		private string _serviceProductType;
@@ -22,6 +23,13 @@ namespace Vodovoz.Domain.Fuel
 		private FuelLimitStatus _status;
 
 		public virtual int Id { get; set; }
+
+		[Display(Name = "Id карты на которую выдается лимит")]
+		public virtual string CardId
+		{
+			get => _cardId;
+			set => SetField(ref _cardId, value);
+		}
 
 		[Display(Name = "Id лимита (выдается сервисом)")]
 		public virtual string LimitId

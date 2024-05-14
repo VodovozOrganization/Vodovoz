@@ -5,6 +5,7 @@ namespace FuelControl.Library.Converters
 {
 	public interface IFuelLimitConverter
 	{
-		FuelLimit ConvertDtoToDomainFuelLimit(FuelLimitResponseDto fuelLimitDto);
+		FuelLimit ConvertResponseDtoToFuelLimit(FuelLimitResponseDto fuelLimitDto);
+		FuelLimitRequestDto ConvertFuelLimitToRequestDto(FuelLimit fuelLimit, string literUnitId, string rubleCurrencyId);
 	}
 }

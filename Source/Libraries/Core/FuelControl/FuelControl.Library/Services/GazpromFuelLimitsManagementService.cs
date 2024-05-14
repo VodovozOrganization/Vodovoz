@@ -106,7 +106,7 @@ namespace FuelControl.Library.Services
 			}
 
 			var transactions = fuelLimitDtos
-					.Select(t => _fuelLimitConverter.ConvertDtoToDomainFuelLimit(t));
+					.Select(t => _fuelLimitConverter.ConvertResponseDtoToFuelLimit(t));
 
 			return transactions;
 		}
@@ -142,7 +142,7 @@ namespace FuelControl.Library.Services
 
 			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
 			{
-				var response = await httpClient.PostAsync(_setLimitEndpointAddress, httpContent, cancellationToken);
+				var response = await httpClient.PostAsync(_removeLimitEndpointAddress, httpContent, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -168,6 +168,84 @@ namespace FuelControl.Library.Services
 			{
 				new KeyValuePair<string, string>("contract_id", contractId),
 				new KeyValuePair<string, string>("limit_id", limitId)
+			};
+
+			var content = new FormUrlEncodedContent(requestData);
+			content.Headers.Add("api_key", apiKey);
+			content.Headers.Add("session_id", sessionId);
+			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+			return content;
+		}
+
+		public async Task<IEnumerable<string>> SetFuelLimit(
+			FuelLimit fuelLimit,
+			string sessionId,
+			string apiKey,
+			CancellationToken cancellationToken)
+		{
+			if(fuelLimit is null)
+			{
+				throw new ArgumentNullException(nameof(fuelLimit));
+			}
+
+			if(string.IsNullOrWhiteSpace(sessionId))
+			{
+				throw new ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
+			}
+
+			if(string.IsNullOrWhiteSpace(apiKey))
+			{
+				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
+			}
+
+			var requestDto = _fuelLimitConverter.ConvertFuelLimitToRequestDto(fuelLimit, _fuelControlSettings.LiterUnitId, _fuelControlSettings.RubleCurrencyId);
+			var requestParameters = JsonSerializer.Serialize(requestDto);
+
+			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+			var httpContent = CreateSetLimitHttpContent(requestParameters, sessionId, apiKey);
+
+			_logger.LogDebug("Выполняется создания нового лимита. Параметры запроса: {RequestParameters}, ключ API {ApiKey}",
+				requestParameters,
+				apiKey);
+
+			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			{
+				var response = await httpClient.PostAsync(_setLimitEndpointAddress, httpContent, cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<SetFuelLimitResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessages =
+						$"На запрос создания нового лимита сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					_logger.LogError(errorMessages);
+
+					throw new FuelControlException(errorMessages);
+				}
+
+				if(responseData.CreatedLimitsIds?.Count() < 1)
+				{
+					var errorMessages =
+						$"Ответ на запрос создания нового лимита не содержит Id созданных лимитов.";
+
+					_logger.LogError(errorMessages);
+
+					throw new FuelControlException(errorMessages);
+				}
+
+				return responseData.CreatedLimitsIds;
+			}
+		}
+
+		private HttpContent CreateSetLimitHttpContent(string requestParameters, string apiKey, string sessionId)
+		{
+			var requestData = new List<KeyValuePair<string, string>>
+			{
+				new KeyValuePair<string, string>("limit", requestParameters)
 			};
 
 			var content = new FormUrlEncodedContent(requestData);

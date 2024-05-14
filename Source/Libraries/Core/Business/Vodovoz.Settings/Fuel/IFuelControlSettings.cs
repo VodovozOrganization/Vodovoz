@@ -45,6 +45,16 @@ namespace Vodovoz.Settings.Fuel
 		string FuelProductTypeId {  get; }
 
 		/// <summary>
+		/// Id единицы измерения при выдаче лимита литрами
+		/// </summary>
+		string LiterUnitId { get; }
+
+		/// <summary>
+		/// Id валюты Рубль при выдаче лимита деньгами
+		/// </summary>
+		string RubleCurrencyId { get; }
+
+		/// <summary>
 		/// Обновление даты на которую были успешно получены данные по транзакциям за день
 		/// </summary>
 		/// <param name="value"></param>

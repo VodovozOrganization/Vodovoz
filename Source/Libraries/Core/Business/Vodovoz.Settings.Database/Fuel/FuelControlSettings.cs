@@ -38,6 +38,12 @@ namespace Vodovoz.Settings.Database.Fuel
 		public string FuelProductTypeId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(FuelProductTypeId)}");
 
+		public string LiterUnitId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(LiterUnitId)}");
+
+		public string RubleCurrencyId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(RubleCurrencyId)}");
+
 		public void SetFuelTransactionsPerDayLastUpdateDate(string value)
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelTransactionsPerDayLastUpdateDate)}", value);

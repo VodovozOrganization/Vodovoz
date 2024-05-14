@@ -117,6 +117,68 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 		}
 
+		public async Task<bool> RemoveFuelLimitById(string limitId, CancellationToken cancellationToken)
+		{
+			var sessionId = await GetSessionIdOrLogin(cancellationToken);
+
+			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.FuelCardsLimitsDelete);
+
+			try
+			{
+				var isRemoved = await _fuelLimitsManagementService.RemoveFuelLimitById(
+					limitId,
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken);
+
+				requestData.ResponseResult = FuelApiResponseResult.Success;
+
+				return isRemoved;
+			}
+			catch(Exception ex)
+			{
+				requestData.ResponseResult = FuelApiResponseResult.Error;
+				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
+
+				throw ex;
+			}
+			finally
+			{
+				await SaveFuelApiRequestData(requestData);
+			}
+		}
+
+		public async Task<IEnumerable<string>> SetFuelLimit(FuelLimit fuelLimit, CancellationToken cancellationToken)
+		{
+			var sessionId = await GetSessionIdOrLogin(cancellationToken);
+
+			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.FuelCardsLimitCreate);
+
+			try
+			{
+				var createdLimits = await _fuelLimitsManagementService.SetFuelLimit(
+					fuelLimit,
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken);
+
+				requestData.ResponseResult = FuelApiResponseResult.Success;
+
+				return createdLimits;
+			}
+			catch(Exception ex)
+			{
+				requestData.ResponseResult = FuelApiResponseResult.Error;
+				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
+
+				throw ex;
+			}
+			finally
+			{
+				await SaveFuelApiRequestData(requestData);
+			}
+		}
+
 		private async Task<IEnumerable<FuelCard>> GetAllCardsFromFuelControlService(string sessionId, CancellationToken cancellationToken)
 		{
 			var cards = new List<FuelCard>();
