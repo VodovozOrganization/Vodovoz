@@ -27,7 +27,7 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _upcomingTechInspectForOurCars = nameof(UpcomingTechInspectForOurCars);
 		private const string _upcomingTechInspectFoRaskatCars = nameof(UpcomingTechInspectForRaskatCars);
 		private const string _fastDeliveryIntervalFrom = nameof(FastDeliveryIntervalFrom);
-		private const string _fastDeliveryMaximumPermissibleLate = nameof(FastDeliveryMaximumPermissibleLate);
+		private const string _fastDeliveryMaximumPermissibleLateMinutes = nameof(FastDeliveryMaximumPermissibleLateMinutes);
 
 		public GeneralSettings(ISettingsController settingsController)
 		{
@@ -116,8 +116,8 @@ namespace Vodovoz.Settings.Database.Common
 		public int UpcomingTechInspectForRaskatCars => _settingsController.GetValue<int>(_upcomingTechInspectFoRaskatCars);
 		public FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom => _settingsController.GetValue<FastDeliveryIntervalFromEnum>(_fastDeliveryIntervalFrom);
 		public void UpdateFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum value) => _settingsController.CreateOrUpdateSetting(_fastDeliveryIntervalFrom, value.ToString());
-		public int FastDeliveryMaximumPermissibleLate => _settingsController.GetValue<int>(_fastDeliveryMaximumPermissibleLate);
-		public void UpdateFastDeliveryMaximumPermissibleLate(int value) => _settingsController.CreateOrUpdateSetting(_fastDeliveryMaximumPermissibleLate, value.ToString());
+		public int FastDeliveryMaximumPermissibleLateMinutes => _settingsController.GetValue<int>(_fastDeliveryMaximumPermissibleLateMinutes);
+		public void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value) => _settingsController.CreateOrUpdateSetting(_fastDeliveryMaximumPermissibleLateMinutes, value.ToString());
 
 		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
 		{

@@ -54,7 +54,7 @@ namespace Vodovoz.Settings.Common
 		FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom { get; }
 		void UpdateFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum value);
 
-		int FastDeliveryMaximumPermissibleLate { get; }
-		void UpdateFastDeliveryMaximumPermissibleLate(int value);
+		int FastDeliveryMaximumPermissibleLateMinutes { get; }
+		void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value);
 	}
 }

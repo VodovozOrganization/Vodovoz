@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _isIntervalFromOrderCreated;
 		private bool _isIntervalFromAddedInFirstRouteList;
 		private bool _isIntervalFromRouteListItemTransfered;
-		private int _fastDeliveryMaximumPermissibleLate;
+		private int _fastDeliveryMaximumPermissibleLateMinutes;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettings,
@@ -113,7 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.CanEditFastDeliveryIntervalFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
 
-			_fastDeliveryMaximumPermissibleLate = _generalSettings.FastDeliveryMaximumPermissibleLate;
+			_fastDeliveryMaximumPermissibleLateMinutes = _generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
 			SaveFastDeliveryMaximumPermissibleLateCommand = new DelegateCommand(SaveFastDeliveryMaximumPermissibleLate, () => CanEditFastDeliveryIntervalFromSetting);
 		}
 
@@ -418,21 +418,23 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			get => _isIntervalFromOrderCreated;
 			set => SetField(ref _isIntervalFromOrderCreated, value);
 		}
+
 		public bool IsIntervalFromAddedInFirstRouteList
 		{
 			get => _isIntervalFromAddedInFirstRouteList;
 			set => SetField(ref _isIntervalFromAddedInFirstRouteList, value);
 		}
+
 		public bool IsIntervalFromRouteListItemTransfered
 		{
 			get => _isIntervalFromRouteListItemTransfered;
 			set => SetField(ref _isIntervalFromRouteListItemTransfered, value);
 		}
 
-		public int FastDeliveryMaximumPermissibleLate
+		public int FastDeliveryMaximumPermissibleLateMinutes
 		{
-			get => _fastDeliveryMaximumPermissibleLate; 
-			set => SetField(ref _fastDeliveryMaximumPermissibleLate, value);
+			get => _fastDeliveryMaximumPermissibleLateMinutes; 
+			set => SetField(ref _fastDeliveryMaximumPermissibleLateMinutes, value);
 		}
 
 		private FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom =>
@@ -470,7 +472,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveFastDeliveryMaximumPermissibleLate()
 		{
-			_generalSettings.UpdateFastDeliveryMaximumPermissibleLate(FastDeliveryMaximumPermissibleLate);
+			_generalSettings.UpdateFastDeliveryMaximumPermissibleLateMinutes(FastDeliveryMaximumPermissibleLateMinutes);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 

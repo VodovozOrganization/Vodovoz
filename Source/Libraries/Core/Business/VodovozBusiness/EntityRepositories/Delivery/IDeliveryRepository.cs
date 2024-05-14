@@ -1,12 +1,12 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.EntityRepositories.Delivery
 {
@@ -36,6 +36,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 		void UpdateFastDeliveryMaxDistanceParameter(double value);
 		double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime);
 		double MaxDistanceToLatestTrackPointKm { get; }
+
+		IList<FastDeliveryLateNode> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime, IGeneralSettings generalSettings,
+			int complaintDetalizationId);
 
 	}
 }

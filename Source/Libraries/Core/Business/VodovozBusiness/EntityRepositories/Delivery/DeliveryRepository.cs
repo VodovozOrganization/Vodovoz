@@ -1,6 +1,8 @@
-﻿using NetTopologySuite.Geometries;
+﻿using MassTransit;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Osrm;
@@ -8,6 +10,8 @@ using QS.Utilities.Spatial;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -549,6 +553,95 @@ namespace Vodovoz.EntityRepositories.Delivery
 				unitOfWork.Commit();
 			}
 		}
+
+		public IList<FastDeliveryLateNode> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime,
+			IGeneralSettings generalSettings, int complaintDetalizationId)
+		{
+			var fastDeliveryIntervalFrom = generalSettings.FastDeliveryIntervalFrom;			
+			var fastDeliveryMaximumPermissibleLate = generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
+			var maxTimeForFastDelivery = _deliveryRulesSettings.MaxTimeForFastDelivery;
+			var maxTimeForFastDeliveryWithLateMinutes = maxTimeForFastDelivery.TotalMinutes + fastDeliveryMaximumPermissibleLate;
+
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Order orderAlias = null;
+			FastDeliveryLateNode result = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			GeoGroup geoGroupAlias = null;
+			Complaint complaintAlias = null;
+
+			var alreadyExistsComplaintSubquery = QueryOver.Of(() => complaintAlias)
+				.Where(() => complaintAlias.Order.Id == orderAlias.Id)
+				.And(() => complaintAlias.ComplaintDetalization.Id == complaintDetalizationId)
+				.Select(Projections.Property(() => complaintAlias.Id))
+				.Take(1);
+
+			var fastDeliveryOrdersLateQuery = uow.Session.QueryOver(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)				
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => orderAlias.DeliveryDate >= fromDateTime)
+				.WithSubquery.WhereNotExists(alreadyExistsComplaintSubquery)
+				;
+
+			IProjection intervalProjection = null;
+
+			if(fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated)
+			{
+				intervalProjection = Projections.Property(() => orderAlias.CreateDate);
+			}
+
+			if(fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList)
+			{
+				var rlaFirstSubquery = QueryOver.Of(() => routeListItemAlias)
+					.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
+					.OrderBy(() => routeListItemAlias.CreationDate).Asc()
+					.Select(Projections.Property(() => routeListItemAlias.CreationDate))
+					.Take(1);
+
+				intervalProjection = Projections.SubQuery(rlaFirstSubquery);
+			}
+
+			if(fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered)
+			{
+				intervalProjection = Projections.Property(() => routeListItemAlias.CreationDate);
+			}
+
+			var dateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.Date,
+					"DATE_ADD(?1, INTERVAL ?2 MINUTE)"
+					),
+				NHibernateUtil.Date,
+				intervalProjection,
+				Projections.Constant(maxTimeForFastDeliveryWithLateMinutes)
+			);
+
+			fastDeliveryOrdersLateQuery.Where(Restrictions.Lt(dateProjection, DateTime.Now));
+
+			var fastDeliveryOrdersLate = fastDeliveryOrdersLateQuery.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => result.OrderId)
+					.Select(() => orderAlias.PaymentType).WithAlias(() => result.PaymentType)
+					.Select(() => geoGroupAlias.Id).WithAlias(() => result.GeoGroupId)
+					.Select(() => deliveryPointAlias.Id).WithAlias(() => result.DeliveryPointId)
+				)
+				.TransformUsing(Transformers.AliasToBean<FastDeliveryLateNode>())
+				.List<FastDeliveryLateNode>();
+
+			return fastDeliveryOrdersLate;
+		}
+	}
+
+	public class FastDeliveryLateNode
+	{
+		public int OrderId { get; set; }
+		public int GeoGroupId { get; set; }
+		public PaymentType PaymentType { get; set; }
+		public int DeliveryPointId { get; set; }
 	}
 
 	public class CountUnclosedFastDeliveryAddressesNode

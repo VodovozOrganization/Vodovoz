@@ -164,7 +164,7 @@ namespace Vodovoz.Views.Settings
 			ytableframeFastDeliveryMaximumPermissibleLate.Sensitive = ViewModel.CanEditFastDeliveryIntervalFromSetting;
 
 			yspinbuttonFastDeliveryMaximumPermissibleLate.Binding
-				.AddBinding(ViewModel, vm => vm.FastDeliveryMaximumPermissibleLate, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.FastDeliveryMaximumPermissibleLateMinutes, w => w.ValueAsInt)
 				.InitializeFromSource();
 
 			ybuttonSaveFastDeliveryMaximumPermissibleLate.Clicked += (s, e) => ViewModel.SaveFastDeliveryMaximumPermissibleLateCommand.Execute();
