@@ -78,7 +78,7 @@ namespace EventsApi.Library.Services
 			return new DriverWarehouseEventQrData
 			{
 				EventId = eventId,
-				DocumentId = documentId,
+				DocumentId = documentId == default ? null : documentId,
 				Latitude = latitude,
 				Longitude = longitude
 			};
