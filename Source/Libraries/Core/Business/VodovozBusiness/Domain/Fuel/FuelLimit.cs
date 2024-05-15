@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Fuel
 		}
 
 		[Display(Name = "Единица измерения ограничения")]
-		public FuelLimitUnit Unit
+		public virtual FuelLimitUnit Unit
 		{
 			get => _unit;
 			set => SetField(ref _unit, value);
@@ -147,7 +147,7 @@ namespace Vodovoz.Domain.Fuel
 		}
 
 		[Display(Name = "Статус лимита")]
-		public FuelLimitStatus Status
+		public virtual FuelLimitStatus Status
 		{
 			get => _status;
 			set => SetField(ref _status, value);
