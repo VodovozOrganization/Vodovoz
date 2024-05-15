@@ -57,6 +57,7 @@
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Domain\Fuel\FuelLimit.cs" />
+    <Compile Include="Permissions\Logistic.Fuel.cs" />
     <Compile Include="Services\Fuel\IFuelCardVersionService.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequest.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequestFunction.cs" />

@@ -55,6 +55,26 @@ namespace Vodovoz.Settings.Fuel
 		string RubleCurrencyId { get; }
 
 		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Фургон
+		/// </summary>
+		int LargusMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Фура
+		/// </summary>
+		int TruckMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Грузовой
+		/// </summary>
+		int GAZelleMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Погрузчик
+		/// </summary>
+		int LoaderMaxDailyFuelLimit { get; }
+
+		/// <summary>
 		/// Обновление даты на которую были успешно получены данные по транзакциям за день
 		/// </summary>
 		/// <param name="value"></param>

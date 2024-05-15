@@ -44,6 +44,18 @@ namespace Vodovoz.Settings.Database.Fuel
 		public string RubleCurrencyId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(RubleCurrencyId)}");
 
+		public int LargusMaxDailyFuelLimit =>
+			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(LargusMaxDailyFuelLimit)}");
+
+		public int TruckMaxDailyFuelLimit =>
+			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(TruckMaxDailyFuelLimit)}");
+
+		public int GAZelleMaxDailyFuelLimit =>
+			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(GAZelleMaxDailyFuelLimit)}");
+
+		public int LoaderMaxDailyFuelLimit =>
+			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(LoaderMaxDailyFuelLimit)}");
+
 		public void SetFuelTransactionsPerDayLastUpdateDate(string value)
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelTransactionsPerDayLastUpdateDate)}", value);
