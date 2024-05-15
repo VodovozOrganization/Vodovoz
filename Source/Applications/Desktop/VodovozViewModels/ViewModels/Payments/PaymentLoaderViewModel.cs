@@ -216,7 +216,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_progress = 0;
 			UpdateProgress?.Invoke("Начинаем работу...", _progress);
 			Parser = new TransferDocumentsFromBankParser(docPath);
-			Parser.Parse();
+
+			try
+			{
+				Parser.Parse();
+			}
+			catch(Exception ex)
+			{
+				if(ex is NotSupportedException)
+				{
+					InteractiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+					UpdateProgress?.Invoke("Произошла ошибка во время загрузки", 0);
+					return;
+				}
+			}
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", _progress);
 			MatchPayments();
