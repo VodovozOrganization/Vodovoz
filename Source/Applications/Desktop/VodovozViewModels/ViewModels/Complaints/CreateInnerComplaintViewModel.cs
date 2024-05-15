@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
-			Entity.SetStatus(ComplaintStatuses.Checking);
+			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 
 			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 

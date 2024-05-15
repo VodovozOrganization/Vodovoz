@@ -52,6 +52,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				CompletedDriversWarehousesEventsJournalNode.IdColumn,
 				CompletedDriversWarehousesEventsJournalNode.EventNameColumn,
 				CompletedDriversWarehousesEventsJournalNode.EventTypeColumn,
+				CompletedDriversWarehousesEventsJournalNode.DocumentTypeColumn,
+				CompletedDriversWarehousesEventsJournalNode.DocumentNumberColumn,
 				CompletedDriversWarehousesEventsJournalNode.EmployeeColumn,
 				CompletedDriversWarehousesEventsJournalNode.CarColumn,
 				CompletedDriversWarehousesEventsJournalNode.CompletedDateColumn,
@@ -73,7 +75,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				ws.Cell(row, col).Value = newRow.Id;
 				ws.Cell(row, ++col).Value = newRow.EventName;
 				ws.Cell(row, ++col).Value = newRow.EventType.GetEnumDisplayName();
-				ws.Cell(row, ++col).Value = newRow.DriverName;
+				ws.Cell(row, ++col).Value = newRow.DocumentType?.GetEnumDisplayName();
+				ws.Cell(row, ++col).Value = newRow.DocumentNumber;
+				ws.Cell(row, ++col).Value = newRow.EmployeeName;
 				ws.Cell(row, ++col).Value = newRow.Car;
 				ws.Cell(row, ++col).Value = newRow.CompletedDate;
 				ws.Cell(row, ++col).Value = newRow.DistanceMetersFromScanningLocation;

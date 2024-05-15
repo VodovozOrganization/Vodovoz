@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Globalization;
+using System;
+using System.Runtime.CompilerServices;
 
 namespace Vodovoz.Settings
 {
@@ -10,6 +12,7 @@ namespace Vodovoz.Settings
 		int GetIntValue(string settingName);
 		decimal GetDecimalValue(string settingName);
 		char GetCharValue(string settingName);
+		DateTime GetDateTimeValue(string settingName, CultureInfo cultureInfo = null);
 		T GetValue<T>(string settingName);
 
 		void CreateOrUpdateSetting(string name, string value);

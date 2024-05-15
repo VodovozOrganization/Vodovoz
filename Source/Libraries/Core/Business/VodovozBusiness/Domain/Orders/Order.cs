@@ -68,6 +68,7 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
+		public const string DontArriveBeforeIntervalString = "Не приезжать раньше интервала!";
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private IOrderRepository _orderRepository => ScopeProvider.Scope
@@ -128,6 +129,7 @@ namespace Vodovoz.Domain.Orders
 
 		private int? _callBeforeArrivalMinutes;
 		private bool? _isDoNotMakeCallBeforeArrival;
+		private bool _dontArriveBeforeInterval;
 		private DateTime? _firstDeliveryDate;
 
 		#region Cвойства
@@ -1229,6 +1231,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+		
+		[Display(Name = "Не приезжать раньше интервала")]
+		public virtual bool DontArriveBeforeInterval
+		{
+			get => _dontArriveBeforeInterval;
+			set => SetField(ref _dontArriveBeforeInterval, value);
 		}
 
 		public Order()
@@ -3277,7 +3286,8 @@ namespace Vodovoz.Domain.Orders
 
 		private void SendUpdToEmailOnFinishIfNeeded()
 		{
-			var emailSendUpdResult = _emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _deliveryScheduleSettings);
+			var emailSendUpdResult =
+				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 
 			if(emailSendUpdResult.IsSuccess)
 			{

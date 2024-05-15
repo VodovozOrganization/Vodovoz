@@ -3,6 +3,7 @@ using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
@@ -71,7 +72,6 @@ namespace DriverAPI.Library.V5.Converters
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
-				OrderComment = vodovozOrder.Comment,
 				OrderSum = vodovozOrder.OrderSum,
 				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
@@ -84,6 +84,23 @@ namespace DriverAPI.Library.V5.Converters
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
 				WaitUntilTime = vodovozOrder.WaitUntilTime
 			};
+
+			if(vodovozOrder.DontArriveBeforeInterval)
+			{
+				var sb = new StringBuilder();
+
+				if(!string.IsNullOrWhiteSpace(vodovozOrder.Comment))
+				{
+					sb.AppendLine(vodovozOrder.Comment.TrimEnd('\r', '\n'));
+				}
+				
+				sb.AppendLine(Order.DontArriveBeforeIntervalString);
+				apiOrder.OrderComment = sb.ToString();
+			}
+			else
+			{
+				apiOrder.OrderComment = vodovozOrder.Comment;
+			}
 
 			return apiOrder;
 		}

@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace Vodovoz.Settings.Database
 {
@@ -155,6 +156,28 @@ namespace Vodovoz.Settings.Database
 			}
 
 			return value;
+		}
+
+		public DateTime GetDateTimeValue(string settingName, CultureInfo cultureInfo = null)
+		{
+			if(!ContainsSetting(settingName))
+			{
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
+			}
+
+			string value = GetSettingValue(settingName);
+
+			if(cultureInfo == null)
+			{
+				cultureInfo = CultureInfo.GetCultureInfo("ru-RU");
+			}
+
+			if(string.IsNullOrWhiteSpace(value) || !DateTime.TryParse(value, cultureInfo, DateTimeStyles.None, out DateTime result))
+			{
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
+			}
+
+			return result;
 		}
 
 		public T GetValue<T>(string settingName)

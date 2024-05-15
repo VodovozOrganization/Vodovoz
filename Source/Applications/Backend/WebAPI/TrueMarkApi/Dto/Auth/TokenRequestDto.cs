@@ -18,5 +18,11 @@ namespace TrueMarkApi.Dto.Auth
 		/// </summary>
 		[JsonPropertyName("data")]
 		public string Data { get; set; }
+
+		/// <summary>
+		/// ИНН
+		/// </summary>
+		[JsonPropertyName("inn")]
+		public string Inn { get; set; }
 	}
 }
