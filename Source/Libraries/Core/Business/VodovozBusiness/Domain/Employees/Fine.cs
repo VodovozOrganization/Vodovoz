@@ -304,7 +304,8 @@ namespace Vodovoz.Domain.Employees
 		{
 			var nomenclaturesToRemove =
 				Nomenclatures.Where(nom =>
-					nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id));
+					nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id))
+					.ToArray();
 
 			foreach(var nom in nomenclaturesToRemove)
 			{
