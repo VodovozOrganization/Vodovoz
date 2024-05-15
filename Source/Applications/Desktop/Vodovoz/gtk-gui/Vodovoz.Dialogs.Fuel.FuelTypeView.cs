@@ -236,6 +236,7 @@ namespace Vodovoz.Dialogs.Fuel
 			w18.BottomAttach = ((uint)(3));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableContent.Gtk.Table+TableChild
 			this.ylabelProductGroupId = new global::Gamma.GtkWidgets.yLabel();
