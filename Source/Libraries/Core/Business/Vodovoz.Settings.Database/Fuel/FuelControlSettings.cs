@@ -65,5 +65,25 @@ namespace Vodovoz.Settings.Database.Fuel
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelTransactionsPerMonthLastUpdateDate)}", value);
 		}
+
+		public void SetLargusMaxDailyFuelLimit(int value)
+		{
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(LargusMaxDailyFuelLimit)}", value.ToString());
+		}
+
+		public void SetTruckMaxDailyFuelLimit(int value)
+		{
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(TruckMaxDailyFuelLimit)}", value.ToString());
+		}
+
+		public void SetGAZelleMaxDailyFuelLimit(int value)
+		{
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(GAZelleMaxDailyFuelLimit)}", value.ToString());
+		}
+
+		public void SetLoaderMaxDailyFuelLimit(int value)
+		{
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(LoaderMaxDailyFuelLimit)}", value.ToString());
+		}
 	}
 }
