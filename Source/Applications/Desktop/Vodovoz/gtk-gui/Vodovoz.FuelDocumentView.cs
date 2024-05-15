@@ -20,31 +20,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
-		private global::Gtk.HBox hbox3;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinFuelPrice;
-
-		private global::Gtk.HBox hbox4;
-
-		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxPaymentType;
-
-		private global::QSOrmProject.DisableSpinButton disablespinMoney;
-
-		private global::Gamma.GtkWidgets.yButton buttonSetRemain;
-
 		private global::Gtk.HBox hbox5;
-
-		private global::Gtk.HBox hbox6;
-
-		private global::Gamma.GtkWidgets.ySpinButton yspinFuelTicketLiters;
-
-		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxSubdivision;
-
-		private global::Gtk.HBox hbox7;
-
-		private global::Gamma.GtkWidgets.yLabel labelExpenseInfo;
-
-		private global::Gamma.GtkWidgets.yButton buttonOpenExpense;
 
 		private global::Gtk.Label label1;
 
@@ -56,15 +32,37 @@ namespace Vodovoz
 
 		private global::Gtk.Label label5;
 
-		private global::Gtk.Label label6;
-
 		private global::Gtk.Label label7;
-
-		private global::Gamma.GtkWidgets.yLabel labelAvalilableFuel;
 
 		private global::Gamma.GtkWidgets.yLabel labelResultInfo;
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepicker;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxExpenseInfo;
+
+		private global::Gamma.GtkWidgets.yLabel labelExpenseInfo;
+
+		private global::Gamma.GtkWidgets.yButton buttonOpenExpense;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxFuelPrice;
+
+		private global::Gamma.GtkWidgets.ySpinButton spinFuelPrice;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxGivedLimits;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinFuelLimitsLiters;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonOnlyDocumentsCreation;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxGivedMoney;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxPaymentType;
+
+		private global::QSOrmProject.DisableSpinButton disablespinMoney;
+
+		private global::Gamma.GtkWidgets.yButton buttonSetRemain;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelGivedFuelLimits;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewFuelInfo;
 
@@ -116,7 +114,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table3 = new global::Gtk.Table(((uint)(9)), ((uint)(3)), false);
+			this.table3 = new global::Gtk.Table(((uint)(8)), ((uint)(3)), false);
 			this.table3.Name = "table3";
 			this.table3.RowSpacing = ((uint)(6));
 			this.table3.ColumnSpacing = ((uint)(6));
@@ -161,265 +159,93 @@ namespace Vodovoz
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.spinFuelPrice = new global::Gamma.GtkWidgets.ySpinButton(0D, 200D, 0.01D);
-			this.spinFuelPrice.WidthRequest = 100;
-			this.spinFuelPrice.Sensitive = false;
-			this.spinFuelPrice.CanFocus = true;
-			this.spinFuelPrice.Name = "spinFuelPrice";
-			this.spinFuelPrice.Adjustment.PageIncrement = 0.01D;
-			this.spinFuelPrice.ClimbRate = 1D;
-			this.spinFuelPrice.Digits = ((uint)(2));
-			this.spinFuelPrice.Numeric = true;
-			this.spinFuelPrice.ValueAsDecimal = 0m;
-			this.spinFuelPrice.ValueAsInt = 0;
-			this.hbox3.Add(this.spinFuelPrice);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.spinFuelPrice]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.table3.Add(this.hbox3);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox3]));
-			w10.TopAttach = ((uint)(6));
-			w10.BottomAttach = ((uint)(7));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.yenumcomboboxPaymentType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcomboboxPaymentType.Name = "yenumcomboboxPaymentType";
-			this.yenumcomboboxPaymentType.ShowSpecialStateAll = false;
-			this.yenumcomboboxPaymentType.ShowSpecialStateNot = false;
-			this.yenumcomboboxPaymentType.UseShortTitle = false;
-			this.yenumcomboboxPaymentType.DefaultFirst = false;
-			this.hbox4.Add(this.yenumcomboboxPaymentType);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yenumcomboboxPaymentType]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.disablespinMoney = new global::QSOrmProject.DisableSpinButton();
-			this.disablespinMoney.Events = ((global::Gdk.EventMask)(256));
-			this.disablespinMoney.Name = "disablespinMoney";
-			this.disablespinMoney.Active = false;
-			this.disablespinMoney.Upper = 100000D;
-			this.disablespinMoney.Lower = 0D;
-			this.disablespinMoney.Digits = ((uint)(2));
-			this.hbox4.Add(this.disablespinMoney);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.disablespinMoney]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonSetRemain = new global::Gamma.GtkWidgets.yButton();
-			this.buttonSetRemain.CanFocus = true;
-			this.buttonSetRemain.Name = "buttonSetRemain";
-			this.buttonSetRemain.UseUnderline = true;
-			this.buttonSetRemain.Label = global::Mono.Unix.Catalog.GetString("Весь остаток");
-			this.hbox4.Add(this.buttonSetRemain);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonSetRemain]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.table3.Add(this.hbox4);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox4]));
-			w14.TopAttach = ((uint)(7));
-			w14.BottomAttach = ((uint)(8));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
 			this.hbox5 = new global::Gtk.HBox();
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			this.table3.Add(this.hbox5);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox5]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
-			w15.LeftAttach = ((uint)(2));
-			w15.RightAttach = ((uint)(3));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.hbox6 = new global::Gtk.HBox();
-			this.hbox6.Name = "hbox6";
-			this.hbox6.Spacing = 6;
-			// Container child hbox6.Gtk.Box+BoxChild
-			this.yspinFuelTicketLiters = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 10D);
-			this.yspinFuelTicketLiters.WidthRequest = 90;
-			this.yspinFuelTicketLiters.CanFocus = true;
-			this.yspinFuelTicketLiters.Name = "yspinFuelTicketLiters";
-			this.yspinFuelTicketLiters.Adjustment.PageIncrement = 20D;
-			this.yspinFuelTicketLiters.ClimbRate = 1D;
-			this.yspinFuelTicketLiters.Numeric = true;
-			this.yspinFuelTicketLiters.ValueAsDecimal = 0m;
-			this.yspinFuelTicketLiters.ValueAsInt = 0;
-			this.hbox6.Add(this.yspinFuelTicketLiters);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yspinFuelTicketLiters]));
-			w16.Position = 0;
-			w16.Expand = false;
-			w16.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
-			this.yspeccomboboxSubdivision = new global::Gamma.Widgets.ySpecComboBox();
-			this.yspeccomboboxSubdivision.Name = "yspeccomboboxSubdivision";
-			this.yspeccomboboxSubdivision.AddIfNotExist = false;
-			this.yspeccomboboxSubdivision.DefaultFirst = false;
-			this.yspeccomboboxSubdivision.ShowSpecialStateAll = false;
-			this.yspeccomboboxSubdivision.ShowSpecialStateNot = false;
-			this.hbox6.Add(this.yspeccomboboxSubdivision);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yspeccomboboxSubdivision]));
-			w17.Position = 1;
-			w17.Expand = false;
-			w17.Fill = false;
-			this.table3.Add(this.hbox6);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox6]));
-			w18.TopAttach = ((uint)(4));
-			w18.BottomAttach = ((uint)(5));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.hbox7 = new global::Gtk.HBox();
-			this.hbox7.Name = "hbox7";
-			this.hbox7.Spacing = 6;
-			// Container child hbox7.Gtk.Box+BoxChild
-			this.labelExpenseInfo = new global::Gamma.GtkWidgets.yLabel();
-			this.labelExpenseInfo.Name = "labelExpenseInfo";
-			this.labelExpenseInfo.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel1");
-			this.hbox7.Add(this.labelExpenseInfo);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.labelExpenseInfo]));
-			w19.Position = 0;
-			w19.Expand = false;
-			w19.Fill = false;
-			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonOpenExpense = new global::Gamma.GtkWidgets.yButton();
-			this.buttonOpenExpense.CanFocus = true;
-			this.buttonOpenExpense.Name = "buttonOpenExpense";
-			this.buttonOpenExpense.UseUnderline = true;
-			this.buttonOpenExpense.Label = global::Mono.Unix.Catalog.GetString("Открыть расходный ордер");
-			this.hbox7.Add(this.buttonOpenExpense);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonOpenExpense]));
-			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
-			this.table3.Add(this.hbox7);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox7]));
-			w21.TopAttach = ((uint)(8));
-			w21.BottomAttach = ((uint)(9));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table3[this.hbox5]));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
+			w9.LeftAttach = ((uint)(2));
+			w9.RightAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.table3.Add(this.label1);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table3[this.label1]));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table3[this.label1]));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель:");
 			this.table3.Add(this.label2);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table3[this.label2]));
-			w23.TopAttach = ((uint)(1));
-			w23.BottomAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table3[this.label2]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Вид топлива:");
 			this.table3.Add(this.label3);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table3[this.label3]));
-			w24.TopAttach = ((uint)(3));
-			w24.BottomAttach = ((uint)(4));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table3[this.label3]));
+			w12.TopAttach = ((uint)(3));
+			w12.BottomAttach = ((uint)(4));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Автомобиль:");
 			this.table3.Add(this.label4);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table3[this.label4]));
-			w25.TopAttach = ((uint)(2));
-			w25.BottomAttach = ((uint)(3));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table3[this.label4]));
+			w13.TopAttach = ((uint)(2));
+			w13.BottomAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Выдано деньгами:");
 			this.table3.Add(this.label5);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table3[this.label5]));
-			w26.TopAttach = ((uint)(7));
-			w26.BottomAttach = ((uint)(8));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.label6 = new global::Gtk.Label();
-			this.label6.Name = "label6";
-			this.label6.Xalign = 1F;
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Выдано талонами(л):");
-			this.table3.Add(this.label6);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table3[this.label6]));
-			w27.TopAttach = ((uint)(4));
-			w27.BottomAttach = ((uint)(5));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table3[this.label5]));
+			w14.TopAttach = ((uint)(6));
+			w14.BottomAttach = ((uint)(7));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Стоимость, р/литр:");
 			this.table3.Add(this.label7);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table3[this.label7]));
-			w28.TopAttach = ((uint)(6));
-			w28.BottomAttach = ((uint)(7));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.labelAvalilableFuel = new global::Gamma.GtkWidgets.yLabel();
-			this.labelAvalilableFuel.Name = "labelAvalilableFuel";
-			this.labelAvalilableFuel.Xalign = 0F;
-			this.labelAvalilableFuel.LabelProp = global::Mono.Unix.Catalog.GetString("label1");
-			this.table3.Add(this.labelAvalilableFuel);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table3[this.labelAvalilableFuel]));
-			w29.TopAttach = ((uint)(5));
-			w29.BottomAttach = ((uint)(6));
-			w29.LeftAttach = ((uint)(1));
-			w29.RightAttach = ((uint)(2));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table3[this.label7]));
+			w15.TopAttach = ((uint)(5));
+			w15.BottomAttach = ((uint)(6));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.labelResultInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.labelResultInfo.Name = "labelResultInfo";
 			this.labelResultInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Итог");
 			this.table3.Add(this.labelResultInfo);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table3[this.labelResultInfo]));
-			w30.TopAttach = ((uint)(7));
-			w30.BottomAttach = ((uint)(8));
-			w30.LeftAttach = ((uint)(2));
-			w30.RightAttach = ((uint)(3));
-			w30.XOptions = ((global::Gtk.AttachOptions)(4));
-			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table3[this.labelResultInfo]));
+			w16.TopAttach = ((uint)(6));
+			w16.BottomAttach = ((uint)(7));
+			w16.LeftAttach = ((uint)(2));
+			w16.RightAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.ydatepicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydatepicker.Events = ((global::Gdk.EventMask)(256));
@@ -431,28 +257,185 @@ namespace Vodovoz
 			this.ydatepicker.AutoSeparation = false;
 			this.ydatepicker.HideButtonClearDate = false;
 			this.table3.Add(this.ydatepicker);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table3[this.ydatepicker]));
-			w31.LeftAttach = ((uint)(1));
-			w31.RightAttach = ((uint)(2));
-			w31.XOptions = ((global::Gtk.AttachOptions)(4));
-			w31.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table3[this.ydatepicker]));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.yhboxExpenseInfo = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxExpenseInfo.Name = "yhboxExpenseInfo";
+			this.yhboxExpenseInfo.Spacing = 6;
+			// Container child yhboxExpenseInfo.Gtk.Box+BoxChild
+			this.labelExpenseInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.labelExpenseInfo.Name = "labelExpenseInfo";
+			this.labelExpenseInfo.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel1");
+			this.yhboxExpenseInfo.Add(this.labelExpenseInfo);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxExpenseInfo[this.labelExpenseInfo]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child yhboxExpenseInfo.Gtk.Box+BoxChild
+			this.buttonOpenExpense = new global::Gamma.GtkWidgets.yButton();
+			this.buttonOpenExpense.CanFocus = true;
+			this.buttonOpenExpense.Name = "buttonOpenExpense";
+			this.buttonOpenExpense.UseUnderline = true;
+			this.buttonOpenExpense.Label = global::Mono.Unix.Catalog.GetString("Открыть расходный ордер");
+			this.yhboxExpenseInfo.Add(this.buttonOpenExpense);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhboxExpenseInfo[this.buttonOpenExpense]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
+			this.table3.Add(this.yhboxExpenseInfo);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table3[this.yhboxExpenseInfo]));
+			w20.TopAttach = ((uint)(7));
+			w20.BottomAttach = ((uint)(8));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.yhboxFuelPrice = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxFuelPrice.Name = "yhboxFuelPrice";
+			this.yhboxFuelPrice.Spacing = 6;
+			// Container child yhboxFuelPrice.Gtk.Box+BoxChild
+			this.spinFuelPrice = new global::Gamma.GtkWidgets.ySpinButton(0D, 200D, 0.01D);
+			this.spinFuelPrice.WidthRequest = 100;
+			this.spinFuelPrice.Sensitive = false;
+			this.spinFuelPrice.CanFocus = true;
+			this.spinFuelPrice.Name = "spinFuelPrice";
+			this.spinFuelPrice.Adjustment.PageIncrement = 0.01D;
+			this.spinFuelPrice.ClimbRate = 1D;
+			this.spinFuelPrice.Digits = ((uint)(2));
+			this.spinFuelPrice.Numeric = true;
+			this.spinFuelPrice.ValueAsDecimal = 0m;
+			this.spinFuelPrice.ValueAsInt = 0;
+			this.yhboxFuelPrice.Add(this.spinFuelPrice);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhboxFuelPrice[this.spinFuelPrice]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
+			this.table3.Add(this.yhboxFuelPrice);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table3[this.yhboxFuelPrice]));
+			w22.TopAttach = ((uint)(5));
+			w22.BottomAttach = ((uint)(6));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.yhboxGivedLimits = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxGivedLimits.Name = "yhboxGivedLimits";
+			this.yhboxGivedLimits.Spacing = 6;
+			// Container child yhboxGivedLimits.Gtk.Box+BoxChild
+			this.yspinFuelLimitsLiters = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 10D);
+			this.yspinFuelLimitsLiters.WidthRequest = 90;
+			this.yspinFuelLimitsLiters.CanFocus = true;
+			this.yspinFuelLimitsLiters.Name = "yspinFuelLimitsLiters";
+			this.yspinFuelLimitsLiters.Adjustment.PageIncrement = 20D;
+			this.yspinFuelLimitsLiters.ClimbRate = 1D;
+			this.yspinFuelLimitsLiters.Numeric = true;
+			this.yspinFuelLimitsLiters.ValueAsDecimal = 0m;
+			this.yspinFuelLimitsLiters.ValueAsInt = 0;
+			this.yhboxGivedLimits.Add(this.yspinFuelLimitsLiters);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yhboxGivedLimits[this.yspinFuelLimitsLiters]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child yhboxGivedLimits.Gtk.Box+BoxChild
+			this.ycheckbuttonOnlyDocumentsCreation = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonOnlyDocumentsCreation.CanFocus = true;
+			this.ycheckbuttonOnlyDocumentsCreation.Name = "ycheckbuttonOnlyDocumentsCreation";
+			this.ycheckbuttonOnlyDocumentsCreation.Label = global::Mono.Unix.Catalog.GetString("Создать только документы");
+			this.ycheckbuttonOnlyDocumentsCreation.DrawIndicator = true;
+			this.ycheckbuttonOnlyDocumentsCreation.UseUnderline = true;
+			this.yhboxGivedLimits.Add(this.ycheckbuttonOnlyDocumentsCreation);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yhboxGivedLimits[this.ycheckbuttonOnlyDocumentsCreation]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
+			this.table3.Add(this.yhboxGivedLimits);
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table3[this.yhboxGivedLimits]));
+			w25.TopAttach = ((uint)(4));
+			w25.BottomAttach = ((uint)(5));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(2));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.yhboxGivedMoney = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxGivedMoney.Name = "yhboxGivedMoney";
+			this.yhboxGivedMoney.Spacing = 6;
+			// Container child yhboxGivedMoney.Gtk.Box+BoxChild
+			this.yenumcomboboxPaymentType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxPaymentType.Name = "yenumcomboboxPaymentType";
+			this.yenumcomboboxPaymentType.ShowSpecialStateAll = false;
+			this.yenumcomboboxPaymentType.ShowSpecialStateNot = false;
+			this.yenumcomboboxPaymentType.UseShortTitle = false;
+			this.yenumcomboboxPaymentType.DefaultFirst = false;
+			this.yhboxGivedMoney.Add(this.yenumcomboboxPaymentType);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yhboxGivedMoney[this.yenumcomboboxPaymentType]));
+			w26.Position = 0;
+			// Container child yhboxGivedMoney.Gtk.Box+BoxChild
+			this.disablespinMoney = new global::QSOrmProject.DisableSpinButton();
+			this.disablespinMoney.Events = ((global::Gdk.EventMask)(256));
+			this.disablespinMoney.Name = "disablespinMoney";
+			this.disablespinMoney.Active = false;
+			this.disablespinMoney.Upper = 100000D;
+			this.disablespinMoney.Lower = 0D;
+			this.disablespinMoney.Digits = ((uint)(2));
+			this.yhboxGivedMoney.Add(this.disablespinMoney);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yhboxGivedMoney[this.disablespinMoney]));
+			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child yhboxGivedMoney.Gtk.Box+BoxChild
+			this.buttonSetRemain = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSetRemain.CanFocus = true;
+			this.buttonSetRemain.Name = "buttonSetRemain";
+			this.buttonSetRemain.UseUnderline = true;
+			this.buttonSetRemain.Label = global::Mono.Unix.Catalog.GetString("Весь остаток");
+			this.yhboxGivedMoney.Add(this.buttonSetRemain);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhboxGivedMoney[this.buttonSetRemain]));
+			w28.Position = 2;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.table3.Add(this.yhboxGivedMoney);
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table3[this.yhboxGivedMoney]));
+			w29.TopAttach = ((uint)(6));
+			w29.BottomAttach = ((uint)(7));
+			w29.LeftAttach = ((uint)(1));
+			w29.RightAttach = ((uint)(2));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.ylabelGivedFuelLimits = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelGivedFuelLimits.Name = "ylabelGivedFuelLimits";
+			this.ylabelGivedFuelLimits.Xalign = 1F;
+			this.ylabelGivedFuelLimits.LabelProp = global::Mono.Unix.Catalog.GetString("Выдано лимитами, л:");
+			this.table3.Add(this.ylabelGivedFuelLimits);
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table3[this.ylabelGivedFuelLimits]));
+			w30.TopAttach = ((uint)(4));
+			w30.BottomAttach = ((uint)(5));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.ytextviewFuelInfo = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewFuelInfo.CanFocus = true;
 			this.ytextviewFuelInfo.Name = "ytextviewFuelInfo";
 			this.ytextviewFuelInfo.Editable = false;
 			this.table3.Add(this.ytextviewFuelInfo);
-			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table3[this.ytextviewFuelInfo]));
-			w32.BottomAttach = ((uint)(4));
-			w32.LeftAttach = ((uint)(2));
-			w32.RightAttach = ((uint)(3));
-			w32.XOptions = ((global::Gtk.AttachOptions)(4));
-			w32.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table3[this.ytextviewFuelInfo]));
+			w31.BottomAttach = ((uint)(4));
+			w31.LeftAttach = ((uint)(2));
+			w31.RightAttach = ((uint)(3));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table3);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table3]));
-			w33.Position = 1;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table3]));
+			w32.Position = 1;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -461,9 +444,9 @@ namespace Vodovoz
 			this.Hide();
 			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
-			this.buttonOpenExpense.Clicked += new global::System.EventHandler(this.OnButtonOpenExpenseClicked);
 			this.disablespinMoney.ValueChanged += new global::System.EventHandler(this.OnDisablespinMoneyValueChanged);
 			this.buttonSetRemain.Clicked += new global::System.EventHandler(this.OnButtonSetRemainClicked);
+			this.buttonOpenExpense.Clicked += new global::System.EventHandler(this.OnButtonOpenExpenseClicked);
 		}
 	}
 }
