@@ -38,6 +38,10 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
+		private global::Gamma.GtkWidgets.yEntry yentryProductGroupId;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelProductGroupId;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelVersions;
 
 		protected virtual void Build()
@@ -88,7 +92,7 @@ namespace Vodovoz.Dialogs.Fuel
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxDialog.Gtk.Box+BoxChild
-			this.tableContent = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
+			this.tableContent = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
 			this.tableContent.Name = "tableContent";
 			this.tableContent.RowSpacing = ((uint)(6));
 			this.tableContent.ColumnSpacing = ((uint)(6));
@@ -168,6 +172,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.datepickerVersionDate.Date = new global::System.DateTime(0);
 			this.datepickerVersionDate.IsEditable = true;
 			this.datepickerVersionDate.AutoSeparation = false;
+			this.datepickerVersionDate.HideButtonClearDate = false;
 			this.hbox8.Add(this.datepickerVersionDate);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.datepickerVersionDate]));
 			w12.Position = 3;
@@ -220,22 +225,47 @@ namespace Vodovoz.Dialogs.Fuel
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableContent.Gtk.Table+TableChild
+			this.yentryProductGroupId = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryProductGroupId.CanFocus = true;
+			this.yentryProductGroupId.Name = "yentryProductGroupId";
+			this.yentryProductGroupId.IsEditable = true;
+			this.yentryProductGroupId.InvisibleChar = '•';
+			this.tableContent.Add(this.yentryProductGroupId);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableContent[this.yentryProductGroupId]));
+			w18.TopAttach = ((uint)(2));
+			w18.BottomAttach = ((uint)(3));
+			w18.LeftAttach = ((uint)(1));
+			w18.RightAttach = ((uint)(2));
+			w18.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child tableContent.Gtk.Table+TableChild
+			this.ylabelProductGroupId = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelProductGroupId.Name = "ylabelProductGroupId";
+			this.ylabelProductGroupId.Xalign = 1F;
+			this.ylabelProductGroupId.LabelProp = global::Mono.Unix.Catalog.GetString("Id группы\nпродуктов в сервисе\nГазпромнефть:");
+			this.ylabelProductGroupId.Justify = ((global::Gtk.Justification)(1));
+			this.tableContent.Add(this.ylabelProductGroupId);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableContent[this.ylabelProductGroupId]));
+			w19.TopAttach = ((uint)(2));
+			w19.BottomAttach = ((uint)(3));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableContent.Gtk.Table+TableChild
 			this.ylabelVersions = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelVersions.Name = "ylabelVersions";
 			this.ylabelVersions.Xalign = 1F;
 			this.ylabelVersions.Yalign = 0F;
 			this.ylabelVersions.LabelProp = global::Mono.Unix.Catalog.GetString("Версии:");
 			this.tableContent.Add(this.ylabelVersions);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableContent[this.ylabelVersions]));
-			w18.TopAttach = ((uint)(1));
-			w18.BottomAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableContent[this.ylabelVersions]));
+			w20.TopAttach = ((uint)(1));
+			w20.BottomAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxDialog.Add(this.tableContent);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableContent]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableContent]));
+			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{
