@@ -29,13 +29,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.DocNumber).Column("doc_number");
 			Map(x => x.DocIssuedOrg).Column("doc_issued_org");
 			Map(x => x.DocIssuedDate).Column("doc_issued_date");
-			Map(x => x.FuelCardNumber).Column("fuel_card_number");
 			Map(x => x.DocPTSNumber).Column("doc_pts_num");
 			Map(x => x.DocPTSSeries).Column("doc_pts_series");
 			Map(x => x.OrderNumber).Column("car_order_number");
 			Map(x => x.ArchivingDate).Column("archiving_date");
 			Map(x => x.ArchivingReason).Column("archiving_reason");
-			Map(x => x.LeftUntilTechInspect).Column("left_until_tech_inspect");		
+			Map(x => x.LeftUntilTechInspect).Column("left_until_tech_inspect");
+			Map(x => x.IncomeChannel).Column("income_channel");
 
 			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
@@ -43,6 +43,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
+				.OrderBy("start_date DESC");
+			HasMany(x => x.FuelCardVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
 
 			HasMany(x => x.OdometerReadings).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")

@@ -4,6 +4,8 @@ namespace Vodovoz.Domain.Complaints
 {
 	public enum ComplaintStatuses
 	{
+		[Display(Name = "Не взята в работу")]
+		NotTakenInProcess,
 		[Display(Name = "В работе")]
 		InProcess,
 		[Display(Name = "На проверке")]

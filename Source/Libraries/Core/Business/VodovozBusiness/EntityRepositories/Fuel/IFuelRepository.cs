@@ -1,7 +1,9 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 
@@ -16,5 +18,10 @@ namespace Vodovoz.EntityRepositories.Fuel
 		decimal GetFuelBalance(IUnitOfWork uow, Employee driver, Car car, DateTime? before = null, params int[] excludeOperationsIds);
 		decimal GetFuelBalanceForSubdivision(IUnitOfWork uow, Subdivision subdivision, FuelType fuelType);
 		FuelType GetDefaultFuel(IUnitOfWork uow);
+		Task<int> SaveFuelTransactionsIfNeedAsync(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions);
+		IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId);
+		IEnumerable<FuelCard> GetFuelCardsByCardNumber(IUnitOfWork uow, string cardNumber);
+		Task SaveFuelApiRequest(IUnitOfWork uow, FuelApiRequest request);
+		IEnumerable<FuelCardVersion> GetActiveVersionsOnDateHavingFuelCard(IUnitOfWork unitOfWork, DateTime date, int fuelCardId);
 	}
 }

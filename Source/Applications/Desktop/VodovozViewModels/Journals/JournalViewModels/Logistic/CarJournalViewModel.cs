@@ -54,7 +54,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			UpdateOnChanges(
 				typeof(Car),
 				typeof(CarModel),
-				typeof(Employee));
+				typeof(Employee),
+				typeof(CarVersion)
+				);
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}

@@ -8,5 +8,6 @@
 		<toolitem name='ActionWarehouseDocuments' action='ActionWarehouseDocuments'/>
 		<toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
 		<toolitem name='ActionCar' action='ActionCar'/>
+		<toolitem name='ActionMileageWriteOffJournal' action='ActionMileageWriteOffJournal'/>
 	</toolbar>
 </ui>

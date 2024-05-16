@@ -118,7 +118,7 @@ namespace Vodovoz.Views.Mango.Talks
 			this.ComplaintButton.CanFocus = true;
 			this.ComplaintButton.Name = "ComplaintButton";
 			this.ComplaintButton.UseUnderline = true;
-			this.ComplaintButton.Label = global::Mono.Unix.Catalog.GetString("+Жалоба");
+			this.ComplaintButton.Label = global::Mono.Unix.Catalog.GetString("Обращение");
 			this.table5.Add(this.ComplaintButton);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table5[this.ComplaintButton]));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));

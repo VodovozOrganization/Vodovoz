@@ -10,6 +10,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public DateTime PaymentDate { get; set; }
 			public decimal DocumentPaymentSum { get; set; }
 			public decimal ProgramPaymentSum { get; set; }
+			public string PayerName { get; set; }
 			public int CounterpartyId { get; set; }
 			public string CounterpartyName { get; set; }
 			public string CounterpartyInn { get; set; }
