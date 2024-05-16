@@ -13,8 +13,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
@@ -24,6 +27,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Fuel;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -43,6 +47,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IFuelApiService _fuelApiService;
+		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
@@ -55,10 +60,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private bool _canOpenExpense;
 		private decimal _fuelBalance;
 		private decimal _fuelOutlayed;
-
+		private bool _isOnlyDocumentsCreation;
+		private CancellationTokenSource _cancellationTokenSource;
 
 		#region ctor
-
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
 		/// Создание нового документа из диалого закрытия МЛ
@@ -77,6 +82,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -92,6 +98,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -127,6 +134,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -142,6 +150,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -178,6 +187,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -193,6 +203,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -230,6 +241,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
@@ -246,6 +258,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -352,6 +365,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			get => _canOpenExpense;
 			set => SetField(ref _canOpenExpense, value);
+		}
+
+		public virtual bool IsOnlyDocumentsCreation
+		{
+			get => _isOnlyDocumentsCreation;
+			set => SetField(ref _isOnlyDocumentsCreation, value);
 		}
 
 		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
@@ -481,7 +500,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			return true;
 		}
 
-		public bool SaveDocument()
+		public async Task<bool> SaveDocument()
 		{
 			if(FuelDocument.Author == null)
 			{
@@ -506,6 +525,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			if(FuelDocument.Id == 0)
 			{
+				if(!await SetFuelLimit())
+				{
+					return false;
+				}
+
 				FuelDocument.CreateOperations(FuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
@@ -531,6 +555,94 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			return true;
+		}
+
+		private async Task<bool> SetFuelLimit()
+		{
+			if(_cancellationTokenSource != null)
+			{
+				return false;
+			}
+
+			_cancellationTokenSource = new CancellationTokenSource();
+			var cancellationToken = _cancellationTokenSource.Token;
+
+			var fuelCardId = string.Empty;
+
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				fuelCardId = uow.Session.Query<FuelCard>()
+					.Where(c => c.CardNumber == FuelDocument.FuelCardNumber)
+					.Select(c => c.CardId)
+					.FirstOrDefault();
+			}
+
+			fuelCardId = "24895784";
+
+			if(fuelCardId == null)
+			{
+				return false;
+			}
+
+			var fuelLimit = new FuelLimit
+			{
+				CardId = fuelCardId,
+				ContractId = _fuelControlSettings.OrganizationContractId,
+				ProductGroup = FuelDocument.Fuel.ProductGroupId,
+				ProductType = _fuelControlSettings.FuelProductTypeId,
+				Amount = FuelDocument.FuelLimits,
+				TermType = FuelLimitTermType.AllDays,
+				Period = 1,
+				PeriodUnit = FuelLimitPeriodUnit.OneTime,
+				TransctionsCount = 3
+			};
+
+			try
+			{
+				var existingLimits = await GetExistingFuleLimits(fuelCardId, cancellationToken);
+
+				await RemoveFuelLimits(existingLimits.Select(l => l.LimitId), cancellationToken);
+
+				await SetNewFuelLimit(fuelLimit, cancellationToken);
+
+				return true;
+			}
+			catch(Exception ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					ShowWarningMessage(ex.Message);
+				});
+
+				return false;
+			}
+			finally
+			{
+				_cancellationTokenSource?.Dispose();
+				_cancellationTokenSource = null;
+			}
+		}
+
+		private async Task<IEnumerable<FuelLimit>> GetExistingFuleLimits(string fuelCardId, CancellationToken cancellationToken)
+		{
+			var fuelLimits = await _fuelApiService.GetFuelLimitsByCardId(fuelCardId, cancellationToken);
+
+			return fuelLimits;
+		}
+
+		private async Task RemoveFuelLimits(IEnumerable<string> limitIds, CancellationToken cancellationToken)
+		{
+			foreach(var limitId in limitIds)
+			{
+				await _fuelApiService.RemoveFuelLimitById(limitId, cancellationToken);
+			}
+		}
+
+		private async Task<string> SetNewFuelLimit(FuelLimit fuelLimit, CancellationToken cancellationToken)
+		{
+			var result = await _fuelApiService.SetFuelLimit(fuelLimit, cancellationToken);
+
+			return result.First();
 		}
 
 		protected void SetRemain()
@@ -658,7 +770,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			text.Add($"Израсходовано топлива: {_fuelOutlayed:f2} л. ({fc:f2} л/100км)");
 			text.Add($"Номер топливной карты: {FuelDocument.FuelCardNumber}");
 
-			return String.Join("\n", text);
+			return string.Join("\n", text);
 		}
 
 		protected virtual string UpdateResutlInfo()
@@ -745,7 +857,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			SaveCommand = new DelegateCommand(
 				() =>
 				{
-					if(SaveDocument())
+					if(SaveDocument().Result)
 					{
 						Close(false, CloseSource.Save);
 					}

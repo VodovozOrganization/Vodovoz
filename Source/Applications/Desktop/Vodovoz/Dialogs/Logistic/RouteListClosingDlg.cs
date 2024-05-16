@@ -82,6 +82,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using QS.Dialog.Gtk;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services.Fuel;
+using Vodovoz.Settings.Fuel;
 
 namespace Vodovoz
 {
@@ -1630,6 +1631,7 @@ namespace Vodovoz
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
 				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IFuelControlSettings>(),
 				_lifetimeScope.Resolve<IGuiDispatcher>(),
 				_lifetimeScope
 				));
@@ -1652,6 +1654,7 @@ namespace Vodovoz
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
 				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IFuelControlSettings>(),
 				_lifetimeScope.Resolve<IGuiDispatcher>(),
 				_lifetimeScope
 				));

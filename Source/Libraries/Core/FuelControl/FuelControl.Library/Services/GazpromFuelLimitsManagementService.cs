@@ -2,6 +2,7 @@
 using FuelControl.Library.Converters;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,7 +91,7 @@ namespace FuelControl.Library.Services
 				_logger.LogDebug("Количество полученных лимитов: {LimitsCount}",
 					responseData.FuelLimitsData.FuelLimits?.Count());
 
-				var fuelLimits = ConvertResponseDataToFuelLimits(responseData);
+				var fuelLimits = ConvertResponseDataToFuelLimits(responseData).ToList();
 
 				return fuelLimits;
 			}
@@ -105,10 +106,10 @@ namespace FuelControl.Library.Services
 				return Enumerable.Empty<FuelLimit>();
 			}
 
-			var transactions = fuelLimitDtos
+			var limits = fuelLimitDtos
 					.Select(t => _fuelLimitConverter.ConvertResponseDtoToFuelLimit(t));
 
-			return transactions;
+			return limits;
 		}
 
 		public async Task<bool> RemoveFuelLimitById(
@@ -150,15 +151,21 @@ namespace FuelControl.Library.Services
 
 				if(responseData.Status.Errors?.Count() > 0)
 				{
-					var errorMessages =
-						$"На запрос удаления существующего лимита сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+					var errorMessage =
+						$"На запрос удаления существующего лимита {limitId} сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
-					_logger.LogError(errorMessages);
-
-					throw new FuelControlException(errorMessages);
+					LogErrorMessageAndThrowException(errorMessage);
 				}
 
-				return responseData.IsRemovalSuccessful;
+				if(!responseData.IsRemovalSuccessful)
+				{
+					var errorMessage =
+						$"На запрос удаления существующего лимита {limitId} сервер Газпром вернул ответ что лимит не удален.";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				return true;
 			}
 		}
 
@@ -219,22 +226,18 @@ namespace FuelControl.Library.Services
 
 				if(responseData.Status.Errors?.Count() > 0)
 				{
-					var errorMessages =
+					var errorMessage =
 						$"На запрос создания нового лимита сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
-					_logger.LogError(errorMessages);
-
-					throw new FuelControlException(errorMessages);
+					LogErrorMessageAndThrowException(errorMessage);
 				}
 
 				if(responseData.CreatedLimitsIds?.Count() < 1)
 				{
-					var errorMessages =
+					var errorMessage =
 						$"Ответ на запрос создания нового лимита не содержит Id созданных лимитов.";
 
-					_logger.LogError(errorMessages);
-
-					throw new FuelControlException(errorMessages);
+					LogErrorMessageAndThrowException(errorMessage);
 				}
 
 				return responseData.CreatedLimitsIds;
@@ -254,6 +257,13 @@ namespace FuelControl.Library.Services
 			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
 			return content;
+		}
+
+		private void LogErrorMessageAndThrowException(string errorMessage)
+		{
+			_logger.LogError(errorMessage);
+
+			throw new FuelControlException(errorMessage);
 		}
 	}
 }

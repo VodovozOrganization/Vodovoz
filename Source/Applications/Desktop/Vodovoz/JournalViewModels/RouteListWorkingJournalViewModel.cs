@@ -34,6 +34,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -462,6 +463,7 @@ namespace Vodovoz.JournalViewModels
 								_financialCategoriesGroupsSettings,
 								_organizationRepository,
 								_lifetimeScope.Resolve<IFuelApiService>(),
+								_lifetimeScope.Resolve<IFuelControlSettings>(),
 								_lifetimeScope.Resolve<IGuiDispatcher>(),
 								_lifetimeScope
 							)

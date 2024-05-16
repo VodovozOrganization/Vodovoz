@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.FuelDocuments;
 using QS.Views.GtkUI;
@@ -30,7 +30,14 @@ namespace Vodovoz
 
 			entityentryFuelType.ViewModel = ViewModel.FuelTypeEntryViewModel;
 
-			//yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelLimits, w => w.ValueAsInt).InitializeFromSource ();
+			yspinFuelLimitsLiters.Binding
+				.AddBinding(ViewModel.FuelDocument, e => e.FuelLimits, w => w.ValueAsInt)
+				.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckbuttonOnlyDocumentsCreation.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyDocumentsCreation, w => w.Active)
+				.InitializeFromSource();
 
 			disablespinMoney.Binding.AddBinding(ViewModel.FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -49,7 +56,7 @@ namespace Vodovoz
 			buttonOpenExpense.Binding.AddBinding(ViewModel, e => e.CanOpenExpense, w => w.Sensitive).InitializeFromSource();
 			spinFuelPrice.Binding.AddBinding(ViewModel, e => e.FuelInMoney, w => w.Sensitive).InitializeFromSource();
 			ydatepicker.Binding.AddBinding(ViewModel, e => e.CanChangeDate, w => w.Sensitive).InitializeFromSource();
-			//yspinFuelTicketLiters.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+
 			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 
 			spinFuelPrice.Binding.AddBinding(ViewModel.FuelDocument, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
@@ -62,10 +69,7 @@ namespace Vodovoz
 
 			//labelAvalilableFuel.Visible = false;
 			//label6.Visible = false;
-			//hbox6.Visible = false;
-			labelAvalilableFuel.Visible = false;
-			label6.Visible = false;
-			yspinFuelTicketLiters.Visible = false;
+			//yspinFuelTicketLiters.Visible = false;
 		}
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
