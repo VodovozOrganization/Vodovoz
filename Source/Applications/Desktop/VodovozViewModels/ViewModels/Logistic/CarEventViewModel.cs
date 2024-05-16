@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -19,13 +19,14 @@ using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using static Vodovoz.Permissions.Logistic;
+using Car = Vodovoz.Domain.Logistic.Cars.Car;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -34,6 +35,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly ILifetimeScope _lifetimeScope;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
+		private EntityEntryViewModel<Car> _viewModel;
+
 		public decimal RepairCost
 		{
 			get => Math.Abs(Entity.RepairCost);
@@ -55,12 +58,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get => Entity.CompensationFromInsuranceByCourt;
 			set => Entity.CompensationFromInsuranceByCourt = value;
-		}
-
-		public Car Car
-		{
-			get => Entity.Car;
-			set => SetCar(value);
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
@@ -232,6 +229,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public override void Dispose()
 		{
 			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
+			_viewModel.ChangedByUser -= OnCarChangedByUser;
+			_viewModel.Dispose();
 			base.Dispose();
 		}
 
@@ -244,7 +243,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var carViewModelBuilder = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = carViewModelBuilder
+			_viewModel = carViewModelBuilder
 				.ForProperty(x => x.Car)
 				.UseViewModelDialog<CarViewModel>()
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
@@ -253,20 +252,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					})
 				.Finish();
 
-			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+			_viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
 
-			return viewModel;
+			_viewModel.ChangedByUser += OnCarChangedByUser;
+
+			return _viewModel;
 		}
 
-		private void SetCar(Car car)
+		private void OnCarChangedByUser(object sender, EventArgs e)
 		{
-			Entity.Car = car;
-
-			if(Car != null)
+			if(Entity.Car != null)
 			{
-				Entity.Driver = (Car.Driver != null && Car.Driver.Status != EmployeeStatus.IsFired)
-					? Car.Driver
-					: null;
+				Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired)
+				? Entity.Car.Driver
+				: null;
 			}
 		}
 
