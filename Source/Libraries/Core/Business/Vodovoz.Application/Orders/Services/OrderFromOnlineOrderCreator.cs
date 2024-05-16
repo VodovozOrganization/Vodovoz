@@ -96,55 +96,66 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void AddOrderItems(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
 		{
-			if(manualCreation)
-			{
-				AddNomenclaturesFromManualCreationOrder(order, onlineOrderItems);
-			}
-			else
-			{
-				AddNomenclaturesFromAutoCreationOrder(order, onlineOrderItems);
-			}
+			AddNomenclaturesFromManualCreationOrder(order, onlineOrderItems);
 		}
 
 		private void AddNomenclaturesFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
 		{
-			var promoSets =
-				onlineOrderItems
-					.Where(x => x.PromoSet != null)
-					.Select(x => x.PromoSet);
+			var onlineOrderPromoSets = onlineOrderItems
+				.Where(x => x.PromoSet != null)
+				.ToLookup(x => x.PromoSetId);
 
 			var otherItems =
 				onlineOrderItems
 					.Where(x => x.PromoSet is null);
 
-			AddPromoSetFromManualCreationOrder(order, promoSets);
+			AddPromoSetFromManualCreationOrder(order, onlineOrderPromoSets);
 			AddOtherItemsFromManualCreationOrder(order, otherItems);
 		}
 
-		private void AddPromoSetFromManualCreationOrder(Order order, IEnumerable<PromotionalSet> promoSets)
+		private void AddPromoSetFromManualCreationOrder(Order order, ILookup<int?, OnlineOrderItem> onlineOrderPromoSets)
 		{
 			var addedPromoSetsForNewClients = new Dictionary<int, bool>();
-			foreach(var promoSet in promoSets)
+			
+			foreach(var onlineOrderItemGroup in onlineOrderPromoSets)
 			{
+				var promoSet = onlineOrderItemGroup.First().PromoSet;
+				
 				if(promoSet.PromotionalSetForNewClients && addedPromoSetsForNewClients.Any())
 				{
 					continue;
 				}
-				
-				foreach(var proSetItem in promoSet.PromotionalSetItems)
+
+				var promoSetItemsCount = promoSet.PromotionalSetItems.Count;
+				var onlinePromoItemsCount = onlineOrderItemGroup.Count();
+				var promoSetCount = onlinePromoItemsCount % promoSetItemsCount;
+
+				if(promoSetCount == default)
 				{
-					order.AddNomenclature(
-						proSetItem.Nomenclature,
-						proSetItem.Count,
-						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-						proSetItem.IsDiscountInMoney,
-						null,
-						proSetItem.PromoSet);
+					promoSetCount = 1;
+					//добавить сообщение о несоответствии количества позиций в пришедшем промике и существующем
 				}
 
-				if(promoSet.PromotionalSetForNewClients)
+				for(var i = 0; i < promoSetCount; i++)
 				{
-					addedPromoSetsForNewClients.Add(promoSet.Id, true);
+					foreach(var proSetItem in promoSet.PromotionalSetItems)
+					{
+						order.AddNomenclature(
+							proSetItem.Nomenclature,
+							proSetItem.Count,
+							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+							proSetItem.IsDiscountInMoney,
+							null,
+							proSetItem.PromoSet);
+					}
+					
+					order.ObservablePromotionalSets.Add(promoSet);
+					
+					if(promoSet.PromotionalSetForNewClients)
+					{
+						addedPromoSetsForNewClients.Add(promoSet.Id, true);
+						break;
+					}
 				}
 			}
 		}
