@@ -68,7 +68,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
-		private ILifetimeScope _lifetimeScope;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
@@ -152,7 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
@@ -166,7 +165,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			ConfigureValidationContext(validationContextFactory);
 
-			PhonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
 			
 			if(Entity.Id == 0)
 			{
@@ -205,12 +204,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			InitializeSubdivisionEntryViewModel();
 		}
 
+		public ILifetimeScope LifetimeScope { get; private set; }
 		public ExternalApplicationUser DriverAppUser { get; private set; }
 		public ExternalApplicationUser WarehouseAppUser { get; private set; }
 
 		private void InitializeSubdivisionEntryViewModel()
 		{
-			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			var subdivisionEntryViewModelBuilder =
+				new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, LifetimeScope);
 
 			var canSetOnlyLogisticsSubdivision = CanManageDriversAndForwarders && !CanManageOfficeWorkers;
 
@@ -1293,7 +1294,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public override void Dispose()
 		{
 			UoW?.Dispose();
-			_lifetimeScope = null;
+			LifetimeScope = null;
 			base.Dispose();
 		}
 	}
