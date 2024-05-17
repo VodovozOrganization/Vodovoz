@@ -42,7 +42,7 @@ namespace Vodovoz.Settings.Fuel
 		/// <summary>
 		/// Id типа продукта "Топливо" в сервисе Газпромнефть
 		/// </summary>
-		string FuelProductTypeId {  get; }
+		string FuelProductTypeId { get; }
 
 		/// <summary>
 		/// Id единицы измерения при выдаче лимита литрами
@@ -73,6 +73,26 @@ namespace Vodovoz.Settings.Fuel
 		/// Максимальный суточный лимит на топливо для авто типа Погрузчик, л.
 		/// </summary>
 		int LoaderMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Фургон
+		/// </summary>
+		int LargusFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Грузовной
+		/// </summary>
+		int GAZelleFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Фура
+		/// </summary>
+		int TruckFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Погрузчик
+		/// </summary>
+		int LoaderFuelLimitMaxTransactionsCount { get; }
 
 		/// <summary>
 		/// Обновление даты на которую были успешно получены данные по транзакциям за день
