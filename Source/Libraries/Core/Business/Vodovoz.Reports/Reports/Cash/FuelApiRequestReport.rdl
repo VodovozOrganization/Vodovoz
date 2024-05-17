@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -571,8 +571,8 @@ CASE far.request_function
 	WHEN 'FuelCardsData' THEN 'Список топливных карт'
 	WHEN 'FuelCardDetails' THEN 'Подробная информация по карте'
 	WHEN 'FuelCardsLimitsData' THEN 'Список топливных лимитов по карте'
-	WHEN 'FuelCardsLimitsDelete' THEN 'Удаление топливных лимитов по карте'
-	WHEN 'FuelCardsLimitCreate' THEN 'Создания топливного лимита'
+	WHEN 'FuelCardsLimitsDelete' THEN 'Удаление топливного лимита по карте'
+	WHEN 'FuelCardsLimitCreate' THEN 'Создание топливного лимита'
 	WHEN 'TransactionsData' THEN 'Список транзакций'
 END as request,
 CASE far.response_result 
