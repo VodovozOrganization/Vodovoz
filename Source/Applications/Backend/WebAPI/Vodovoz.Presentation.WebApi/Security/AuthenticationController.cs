@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,7 +13,9 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 
 namespace Vodovoz.Presentation.WebApi.Security
@@ -26,6 +29,8 @@ namespace Vodovoz.Presentation.WebApi.Security
 	{
 		private readonly IOptions<SecurityOptions> _securityOptions;
 		private readonly UserManager<IdentityUser> _userManager;
+		private readonly IFirebaseCloudMessagingService _firebaseCloudMessagingService;
+		private readonly IUnitOfWork _unitOfWork;
 
 		/// <summary>
 		/// Конструктор
@@ -35,12 +40,18 @@ namespace Vodovoz.Presentation.WebApi.Security
 		/// <param name="userManager"></param>
 		public AuthenticationController(
 			IOptions<SecurityOptions> securityOptions,
-			UserManager<IdentityUser> userManager)
+			UserManager<IdentityUser> userManager,
+			IFirebaseCloudMessagingService firebaseCloudMessagingService,
+			IUnitOfWork unitOfWork)
 		{
 			_securityOptions = securityOptions
 				?? throw new ArgumentNullException(nameof(securityOptions));
 			_userManager = userManager
 				?? throw new ArgumentNullException(nameof(userManager));
+			_firebaseCloudMessagingService = firebaseCloudMessagingService
+				?? throw new ArgumentNullException(nameof(firebaseCloudMessagingService));
+			_unitOfWork = unitOfWork
+				?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		/// <summary>
@@ -113,6 +124,8 @@ namespace Vodovoz.Presentation.WebApi.Security
 
 			var lifetimeOffset = _securityOptions.Value.Token?.Lifetime ?? TimeSpan.FromHours(1);
 
+			var activeSessionKey = Guid.NewGuid().ToString();
+
 			var claims = new List<Claim>
 			{
 				new Claim(ClaimTypes.Name, username),
@@ -122,7 +135,8 @@ namespace Vodovoz.Presentation.WebApi.Security
 					JwtRegisteredClaimNames.Exp,
 					DateTimeOffset.Now.Add(lifetimeOffset)
 						.ToUnixTimeSeconds()
-						.ToString())
+						.ToString()),
+				new Claim(VodovozClaimTypes.ActiveSessionKey, activeSessionKey)
 			};
 
 			claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -139,6 +153,23 @@ namespace Vodovoz.Presentation.WebApi.Security
 				AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
 				UserName = username
 			};
+
+			var externalApplicationUser = _unitOfWork.Session.Query<ExternalApplicationUser>()
+				.Where(eau => eau.Login == username)
+				.FirstOrDefault();
+
+			if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))
+			{
+				await _firebaseCloudMessagingService
+					.SendMessage(
+						externalApplicationUser.Token,
+						"Веселый водовоз",
+						"Ваша сессия для этого приложения была завершена.");
+			}
+
+			externalApplicationUser.SessionKey = activeSessionKey;
+
+			_unitOfWork.Save(externalApplicationUser);
 
 			return response;
 		}
