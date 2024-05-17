@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private FuelDocument _fuelDocument;
 		private Employee _cashier;
-		private Track _track;
+		//private Track _track;
 		private bool _canEdit = true;
 		private bool _autoCommit;
 		private bool _fuelInMoney;
@@ -274,21 +275,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
 
-			TabName = "Выдача топлива";
-
-			if(!InitActualCashier())
-			{
-				AbortOpening();
-				return;
-			}
-
-			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_organizationRepository);
-
-			CreateCommands();
-
-			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
-
-			OpenExpenseCommand = new DelegateCommand(OpenExpense);
+			Configure();
 		}
 
 		private void Configure()
@@ -302,9 +289,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			TabName = "Выдача топлива";
 			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_organizationRepository);
 			CreateCommands();
-			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+			//Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
 
-			if(FuelDocument.Id == 0)
+			if(FuelDocument.Id == 0 && RouteList != null)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}
@@ -339,11 +326,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref _cashier, value);
 		}
 
-		public virtual Track Track
-		{
-			get => _track;
-			set => SetField(ref _track, value);
-		}
+		//public virtual Track Track
+		//{
+		//	get => _track;
+		//	set => SetField(ref _track, value);
+		//}
 
 		public virtual bool CanEdit
 		{
@@ -461,7 +448,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public void SetRouteListById(int routeListId)
 		{
 			RouteList = UoW.GetById<RouteList>(routeListId);
-			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+			//Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
 
 			if(UoW.IsNew)
 			{
@@ -471,7 +458,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool InitActualCashier()
 		{
-			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Cashier = EmployeeForCurrentUser;
 
 			if(Cashier == null)
 			{
@@ -479,15 +466,30 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			}
 
-			var cashSubdivisions = SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
-			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true)
+			return true;
+		}
+
+		private bool IsCurrentCashierCanGiveFuel()
+		{
+			if(!IsUserWorkInCashSubdivisions && !IsCurrentUserHasPermissonToGiveFuelLimit)
 			{
-				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
+				ShowWarningMessage("Выдать топливо может только сотрудник кассы, либо иметь право на выдачу топливных лимитов");
 				return false;
 			}
 
 			return true;
 		}
+
+		private Employee EmployeeForCurrentUser => EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+
+		private IEnumerable<Subdivision> CashSubdivisions =>
+			SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+
+		private bool IsUserWorkInCashSubdivisions =>
+			CashSubdivisions?.Contains(Cashier.Subdivision) ?? false;
+
+		private bool IsCurrentUserHasPermissonToGiveFuelLimit =>
+			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanGiveFuelLimits);
 
 		private bool CarHasFuelType()
 		{
@@ -502,6 +504,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public async Task<bool> SaveDocument()
 		{
+			if(FuelDocument.Id != 0 && FuelDocument.FuelLimitLitersAmount > 0)
+			{
+				return false;
+			}
+
 			if(FuelDocument.Author == null)
 			{
 				FuelDocument.Author = _cashier;
@@ -525,7 +532,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			if(FuelDocument.Id == 0)
 			{
-				if(!await SetFuelLimit())
+				if(FuelDocument.FuelLimitLitersAmount > 0 && !await SetFuelLimit())
 				{
 					return false;
 				}
@@ -590,7 +597,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				ContractId = _fuelControlSettings.OrganizationContractId,
 				ProductGroup = FuelDocument.Fuel.ProductGroupId,
 				ProductType = _fuelControlSettings.FuelProductTypeId,
-				Amount = FuelDocument.FuelLimits,
+				Amount = FuelDocument.FuelLimitLitersAmount,
 				TermType = FuelLimitTermType.AllDays,
 				Period = 1,
 				PeriodUnit = FuelLimitPeriodUnit.OneTime,
@@ -670,7 +677,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void FuelDocument_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(FuelDocument.FuelLimits))
+			if(e.PropertyName == nameof(FuelDocument.FuelLimitLitersAmount))
 			{
 				OnPropertyChanged(nameof(ResultInfo));
 				OnPropertyChanged(nameof(CashExpenseInfo));

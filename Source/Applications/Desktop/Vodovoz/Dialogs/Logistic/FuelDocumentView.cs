@@ -31,7 +31,7 @@ namespace Vodovoz
 			entityentryFuelType.ViewModel = ViewModel.FuelTypeEntryViewModel;
 
 			yspinFuelLimitsLiters.Binding
-				.AddBinding(ViewModel.FuelDocument, e => e.FuelLimits, w => w.ValueAsInt)
+				.AddBinding(ViewModel.FuelDocument, e => e.FuelLimitLitersAmount, w => w.ValueAsInt)
 				.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive)
 				.InitializeFromSource();
 
