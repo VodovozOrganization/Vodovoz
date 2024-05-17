@@ -19,8 +19,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Map(x => x.ContractId).Column("contract_id");
 			Map(x => x.ProductGroup).Column("product_group");
 			Map(x => x.ProductType).Column("product_type");
-			Map(x => x.Amount).Column("amount");
-			Map(x => x.UsedAmount).Column("used_amount");
+			Map(x => x.Amount).Column("amount_liters");
+			Map(x => x.UsedAmount).Column("used_amount_liters");
 			Map(x => x.Sum).Column("sum");
 			Map(x => x.UsedSum).Column("used_sum");
 			Map(x => x.Unit).Column("unit");
@@ -32,6 +32,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.LastEditDate).Column("last_edit_date");
 			Map(x => x.Status).Column("status");
+			Map(x => x.TransferredAmountLiters).Column("transferred_amount_liters");
+
+			References(x => x.TransferredFromFuelLimit).Column("transferred_from_fuel_limit_id");
 		}
 	}
 }
