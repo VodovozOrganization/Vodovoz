@@ -199,7 +199,7 @@ namespace Vodovoz.Views.Payments
 					{
 						spin.ForegroundGdk = _primaryTextColor;
 
-						if(node.CounterpartyInn != ViewModel.SelectedClient.INN)
+						if(ViewModel.SelectedClient != null && node.CounterpartyInn != ViewModel.SelectedClient.INN)
 						{
 							spin.ForegroundGdk = _dangerTextColor;
 						}
