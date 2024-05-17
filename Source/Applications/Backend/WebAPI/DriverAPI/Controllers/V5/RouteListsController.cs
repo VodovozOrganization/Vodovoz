@@ -284,21 +284,6 @@ namespace DriverAPI.Controllers.V5
 		}
 
 		/// <summary>
-		/// Получение переносов водителя
-		/// </summary>
-		/// <param name="driverId"></param>
-		/// <returns></returns>
-		[HttpGet]
-		[AllowAnonymous]
-		[Consumes(MediaTypeNames.Application.Json)]
-		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverTransfersInfoResponse))]
-		public IActionResult GetTransfersTest(int driverId)
-		{
-			return MapResult(_apiRouteListService.GetDriverDriverTransfers(driverId));
-		}
-
-		/// <summary>
 		/// Получение информации о входящем переносе адреса маршрутного листа
 		/// </summary>
 		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>

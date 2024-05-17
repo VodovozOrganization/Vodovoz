@@ -72,5 +72,6 @@ namespace Vodovoz.Services.Logistics
 
 		Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 		void ConfirmRouteListAddressTransferRecieved(int routeListAddress, DateTime actionTime);
+		Result<RouteListItem> FindPrevious(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 	}
 }

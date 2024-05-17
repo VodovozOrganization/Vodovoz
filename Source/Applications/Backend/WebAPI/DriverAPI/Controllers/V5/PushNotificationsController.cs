@@ -329,9 +329,6 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
 		{
-			// Заглушка до фиксов реализации
-			return NoContent();
-
 			var targetDriverFirebaseToken =
 				_apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 
@@ -342,36 +339,7 @@ namespace DriverAPI.Controllers.V5
 						&& rli.Order.Id == orderId)
 				.FirstOrDefault();
 
-			var previousRouteListAddresses = _routeListItemRepository
-				.Get(
-					unitOfWork,
-					rli => rli.Status == RouteListItemStatus.Transfered
-						&& rli.TransferedTo.Id == targetAddress.Id)
-				.ToList();
-
-			RouteListItem previousItem = null;
-
-			foreach(var previousAddress in previousRouteListAddresses)
-			{
-				if(!previousAddress.WasTransfered || previousAddress.RecievedTransferAt != null)
-				{
-					previousItem = previousAddress;
-					break;
-				}
-
-				var transferDocumentsCount = _routeListAddressTransferItemRepository.Get(
-					unitOfWork,
-					atdi => (atdi.OldAddress.Id == previousAddress.Id && atdi.NewAddress.Id == targetAddress.Id)
-						 || (atdi.NewAddress.Id == previousAddress.Id && atdi.OldAddress.Id == targetAddress.Id)).Count();
-
-				if(transferDocumentsCount % 2 == 0)
-				{
-					continue;
-				}
-
-				previousItem = previousAddress;
-				break;
-			}
+			var previousItemResult = _routeListService.FindPrevious(unitOfWork, targetAddress);
 
 			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
 
@@ -384,9 +352,9 @@ namespace DriverAPI.Controllers.V5
 
 			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
 
-			if(source.Value.Id != previousItem.Id)
+			if(previousItemResult.IsSuccess && source.Value.Id != previousItemResult.Value.Id)
 			{
-				var previousItemDriverFirebaseToken = previousItem.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+				var previousItemDriverFirebaseToken = previousItemResult.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
 				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
 			}
 
