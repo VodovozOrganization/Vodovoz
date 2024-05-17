@@ -39,7 +39,8 @@ namespace Vodovoz.Domain.Logistic
 		private Employee _lastEditor;
 		private DateTime _lastEditDate;
 		private Subdivision _subdivision;
-		string _fuelCardNumber;
+		private string _fuelCardNumber;
+		private FuelLimit _fuelLimit;
 
 		public virtual int Id { get; set; }
 
@@ -160,6 +161,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _fuelCardNumber;
 			set => SetField(ref _fuelCardNumber, value);
+		}
+
+		[Display(Name = "Лимит по топливу")]
+		public virtual FuelLimit FuelLimit
+		{
+			get => _fuelLimit;
+			set => SetField(ref _fuelLimit, value);
 		}
 
 		public virtual decimal PayedLiters
