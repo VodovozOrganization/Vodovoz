@@ -91,7 +91,7 @@ namespace FuelControl.Library.Services
 				_logger.LogDebug("Количество полученных лимитов: {LimitsCount}",
 					responseData.FuelLimitsData.FuelLimits?.Count());
 
-				var fuelLimits = ConvertResponseDataToFuelLimits(responseData).ToList();
+				var fuelLimits = ConvertResponseDataToFuelLimits(responseData);
 
 				return fuelLimits;
 			}
@@ -134,7 +134,7 @@ namespace FuelControl.Library.Services
 			}
 
 			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId, sessionId, apiKey);
+			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId, apiKey, sessionId);
 
 			_logger.LogDebug("Выполняется запрос удаления существующего лимита {LimitId}. Id сессии {SessionId}, ключ API {ApiKey}",
 				limitId,
@@ -210,7 +210,7 @@ namespace FuelControl.Library.Services
 			var requestParameters = JsonSerializer.Serialize(requestDto);
 
 			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateSetLimitHttpContent(requestParameters, sessionId, apiKey);
+			var httpContent = CreateSetLimitHttpContent(requestParameters, apiKey, sessionId);
 
 			_logger.LogDebug("Выполняется создания нового лимита. Параметры запроса: {RequestParameters}, ключ API {ApiKey}",
 				requestParameters,
@@ -248,7 +248,7 @@ namespace FuelControl.Library.Services
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
-				new KeyValuePair<string, string>("limit", requestParameters)
+				new KeyValuePair<string, string>("limit", $"[{requestParameters}]")
 			};
 
 			var content = new FormUrlEncodedContent(requestData);

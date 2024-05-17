@@ -597,13 +597,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				TransctionsCount = 3
 			};
 
+			var existingLimits = new List<FuelLimit>();
+
 			try
 			{
-				var existingLimits = await GetExistingFuleLimits(fuelCardId, cancellationToken);
+				existingLimits.AddRange(await GetExistingFuleLimits(fuelCardId, cancellationToken));
 
 				await RemoveFuelLimits(existingLimits.Select(l => l.LimitId), cancellationToken);
 
-				await SetNewFuelLimit(fuelLimit, cancellationToken);
+				fuelLimit.LimitId = await SetNewFuelLimit(fuelLimit, cancellationToken);
 
 				return true;
 			}
