@@ -20,13 +20,13 @@ namespace Vodovoz
 			yspeccomboboxSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
 
 			yspeccomboboxSubdivision.Binding
-				.AddBinding(ViewModel, w => w.AvailableSubdivisionsForUser, e => e.ItemsList)
+				.AddBinding(ViewModel, vm => vm.AvailableSubdivisionsForUser, e => e.ItemsList)
 				.AddBinding(ViewModel.FuelDocument, w => w.Subdivision, e => e.SelectedItem)
 				.InitializeFromSource();
 
 			ydatepicker.Binding
 				.AddBinding(ViewModel.FuelDocument, e => e.Date, w => w.Date)
-				.AddBinding(ViewModel, e => e.CanChangeDate, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanChangeDate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelector);
@@ -55,19 +55,19 @@ namespace Vodovoz
 				.AddFuncBinding(ViewModel, vm => vm.IsFuelLimitsCanBeEdited, w => w.Sensitive)
 				.InitializeFromSource();
 
-			labelResultInfo.Binding.AddBinding(ViewModel, e => e.ResultInfo, w => w.Text).InitializeFromSource();
+			labelResultInfo.Binding.AddBinding(ViewModel, vm => vm.ResultInfo, w => w.Text).InitializeFromSource();
 
-			labelExpenseInfo.Binding.AddBinding(ViewModel, e => e.CashExpenseInfo, w => w.Text).InitializeFromSource();
+			labelExpenseInfo.Binding.AddBinding(ViewModel, vm => vm.CashExpenseInfo, w => w.Text).InitializeFromSource();
 
-			ytextviewFuelInfo.Binding.AddBinding(ViewModel, e => e.FuelInfo, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewFuelInfo.Binding.AddBinding(ViewModel, vm => vm.FuelInfo, w => w.Buffer.Text).InitializeFromSource();
 
 			yenumcomboboxPaymentType.ItemsEnum = typeof(FuelPaymentType);
 			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel.FuelDocument, e => e.FuelPaymentType, w => w.SelectedItem).InitializeFromSource();
 
-			buttonSave.Binding.AddBinding(ViewModel, e => e.IsDocumentCanBeEdited, w => w.Sensitive).InitializeFromSource();
-			buttonOpenExpense.Binding.AddBinding(ViewModel, e => e.CanOpenExpense, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsDocumentCanBeSaved, w => w.Sensitive).InitializeFromSource();
+			buttonOpenExpense.Binding.AddBinding(ViewModel, vm => vm.CanOpenExpense, w => w.Sensitive).InitializeFromSource();
 
-			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, vm => vm.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 
 			spinFuelPrice.Binding
 				.AddBinding(ViewModel, vm => vm.IsGiveFuelInMoneySelected, w => w.Sensitive)

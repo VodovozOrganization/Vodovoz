@@ -385,9 +385,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual bool IsUserCanGiveFuelInMoney =>
 			IsUserWorkInCashSubdivisions;
 
-		[PropertyChangedAlso(nameof(CanChangeDate))]
+		[PropertyChangedAlso(nameof(CanChangeDate), nameof(IsDocumentCanBeSaved))]
 		public virtual bool IsDocumentCanBeEdited =>
 			UoW.IsNew || FuelDocument.FuelLimitLitersAmount == 0;
+
+		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && _cancellationTokenSource == null;
 
 		public virtual bool IsFuelLimitsCanBeEdited =>
 			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits;
@@ -564,6 +566,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			return true;
 		}
 
+		private void CancelDocumentCreation()
+		{
+			if(!CanClose())
+			{
+				return;
+			}
+
+			Close(true, CloseSource.Cancel);
+		}
+
 		private async Task SaveAndClose()
 		{
 			var saveDocumentResult = await SaveDocument();
@@ -657,6 +669,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			_cancellationTokenSource = new CancellationTokenSource();
 			var cancellationToken = _cancellationTokenSource.Token;
+			OnPropertyChanged(nameof(IsDocumentCanBeSaved));
 
 			var fuelCardId = FuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
 
@@ -667,55 +680,21 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			}
 
-			var fuelLimit = new FuelLimit
-			{
-				CardId = fuelCardId,
-				ContractId = _fuelControlSettings.OrganizationContractId,
-				ProductGroup = FuelDocument.Fuel.ProductGroupId,
-				ProductType = _fuelControlSettings.FuelProductTypeId,
-				Amount = FuelDocument.FuelLimitLitersAmount,
-				TermType = FuelLimitTermType.AllDays,
-				Period = 1,
-				PeriodUnit = FuelLimitPeriodUnit.OneTime,
-				TransctionsCount = FuelLimitTransactionsCount
-			};
+			var fuelLimit = CreateFuelLimitForCard(fuelCardId);
 
 			try
 			{
-				var existingLimits = await GetExistingFuleLimits(fuelCardId, cancellationToken);
+				var existingLimits = await GetExistingFuleLimitsFromService(fuelCardId, cancellationToken);
 
 				var notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
-				var notUsedFuelLimitsSum = notUsedFuelLimits.Select(l => l.Amount).Sum() ?? 0;
 
-				if(notUsedFuelLimitsSum > 0)
-				{
-					var questionMessage = $"На сервере Газпром для данного авто имеется неиспользованные лимиты на {notUsedFuelLimitsSum:N2} литров\n" +
-						$"Выдать на сервере Газпром лимит с суммарным значением?\n\n" +
-						$"\t\"Да\" - на сервере Газпром создастся лимит на {fuelLimit.Amount + (int)notUsedFuelLimitsSum} л.\n" +
-						$"\t\"Нет\" на сервере Газпром создастся лимит на {fuelLimit.Amount} л.";
+				SummarizeNotUsedLimitsWithCurrentIfNeed(notUsedFuelLimits);
 
-					bool isSummarizeLimits = false;
+				UpdateExistingFuelDocumentsWithNotUsedLimits(notUsedFuelLimits);
 
-					//isSummarizeLimits = AskQuestion(questionMessage);
+				await RemoveFuelLimitsFromService(existingLimits.Select(l => l.LimitId), cancellationToken);
 
-					fuelLimit.Amount = isSummarizeLimits ? fuelLimit.Amount + (int)notUsedFuelLimitsSum : fuelLimit.Amount;
-				}
-
-				foreach(var limit in notUsedFuelLimits)
-				{
-					var fuelDocument = UoW.Session.Query<FuelDocument>()
-						.Where(d => d.FuelLimit.LimitId == limit.LimitId)
-						.FirstOrDefault();
-
-					if(fuelDocument != null)
-					{
-						fuelDocument.FuelLimitLitersAmount = limit.UsedAmount ?? 0;
-						fuelDocument.FuelOperation.LitersGived = fuelDocument.FuelLimitLitersAmount + fuelDocument.FuelOperation.PayedLiters;
-					}
-				}
-
-				await RemoveFuelLimits(existingLimits.Select(l => l.LimitId), cancellationToken);
-
+				fuelLimit.Amount = FuelDocument.FuelLimitLitersAmount;
 				fuelLimit.LimitId = await SetNewFuelLimit(fuelLimit, cancellationToken);
 				fuelLimit.CreateDate = DateTime.Now;
 
@@ -733,17 +712,69 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				_cancellationTokenSource?.Dispose();
 				_cancellationTokenSource = null;
+				OnPropertyChanged(nameof(IsDocumentCanBeSaved));
 			}
 		}
 
-		private async Task<IEnumerable<FuelLimit>> GetExistingFuleLimits(string fuelCardId, CancellationToken cancellationToken)
+		private void SummarizeNotUsedLimitsWithCurrentIfNeed(IEnumerable<FuelLimit> notUsedFuelLimits)
+		{
+			var notUsedFuelLimitsSum = notUsedFuelLimits.Select(l => l.Amount).Sum() ?? 0;
+
+			if(notUsedFuelLimitsSum > 0)
+			{
+				var questionMessage = $"На сервере Газпром для данного авто имеется неиспользованные лимиты на {notUsedFuelLimitsSum} литров\n" +
+					$"Выдать лимит с суммарным значением?\n\n" +
+					$"\t\"Да\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum} л.\n" +
+					$"\t\"Нет\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount} л.";
+
+				bool isSummarizeLimits = false;
+
+				//isSummarizeLimits = AskQuestion(questionMessage);
+
+				FuelDocument.FuelLimitLitersAmount =
+					isSummarizeLimits
+					? FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum
+					: FuelDocument.FuelLimitLitersAmount;
+			}
+		}
+
+		private void UpdateExistingFuelDocumentsWithNotUsedLimits(IEnumerable<FuelLimit> notUsedFuelLimits)
+		{
+			foreach(var limit in notUsedFuelLimits)
+			{
+				var fuelDocument = FuelRepository.GetFuelDocumentByFuelLimitId(UoW, limit.LimitId);
+
+				if(fuelDocument != null)
+				{
+					fuelDocument.FuelLimitLitersAmount = limit.UsedAmount ?? 0;
+					fuelDocument.FuelOperation.LitersGived = fuelDocument.FuelLimitLitersAmount + fuelDocument.FuelOperation.PayedLiters;
+				}
+			}
+		}
+
+		private FuelLimit CreateFuelLimitForCard(string fuelCardId)
+		{
+			return new FuelLimit
+			{
+				CardId = fuelCardId,
+				ContractId = _fuelControlSettings.OrganizationContractId,
+				ProductGroup = FuelDocument.Fuel.ProductGroupId,
+				ProductType = _fuelControlSettings.FuelProductTypeId,
+				TermType = FuelLimitTermType.AllDays,
+				Period = 1,
+				PeriodUnit = FuelLimitPeriodUnit.OneTime,
+				TransctionsCount = FuelLimitTransactionsCount
+			};
+		}
+
+		private async Task<IEnumerable<FuelLimit>> GetExistingFuleLimitsFromService(string fuelCardId, CancellationToken cancellationToken)
 		{
 			var fuelLimits = await _fuelApiService.GetFuelLimitsByCardId(fuelCardId, cancellationToken);
 
 			return fuelLimits;
 		}
 
-		private async Task RemoveFuelLimits(IEnumerable<string> limitIds, CancellationToken cancellationToken)
+		private async Task RemoveFuelLimitsFromService(IEnumerable<string> limitIds, CancellationToken cancellationToken)
 		{
 			foreach(var limitId in limitIds)
 			{
@@ -956,7 +987,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private void CreateCommands()
 		{
 			SaveCommand = new DelegateCommand(async () => await SaveAndClose(), () => IsDocumentCanBeEdited);
-			CancelCommand = new DelegateCommand(() => { Close(true, CloseSource.Cancel); }, () => true);
+			CancelCommand = new DelegateCommand(CancelDocumentCreation, () => true);
 			SetRemainCommand = new DelegateCommand(SetRemain, () => true);
 			SetFuelDocumentTodayDateIfNeedCommand = new DelegateCommand(SetFuelDocumentTodayDateIfNeed, () => true);
 		}
