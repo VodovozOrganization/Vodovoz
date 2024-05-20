@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -323,7 +323,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		protected IEmployeeRepository EmployeeRepository { get; }
 		protected ICommonServices CommonServices { get; }
 
-		[PropertyChangedAlso(nameof(Balance), nameof(FuelInfo), nameof(ResultInfo))]
+		[PropertyChangedAlso(nameof(FuelInfo), nameof(ResultInfo))]
 		public virtual FuelDocument FuelDocument
 		{
 			get => _fuelDocument;
@@ -397,8 +397,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
 
-		public virtual string BalanceState => $"Доступно к выдаче: {Balance} л.";
-
 		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && IsDocumentCanBeEdited;
 
 		public virtual bool CanChangeDate =>
@@ -406,19 +404,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			&& CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
 				CommonServices.UserService.CurrentUserId)
 			&& IsGiveFuelInMoneySelected;
-
-		public virtual decimal Balance
-		{
-			get
-			{
-				if(FuelDocument.Subdivision != null && FuelDocument.Fuel != null)
-				{
-					return FuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
-				}
-
-				return 0m;
-			}
-		}
 
 		public IList<Subdivision> AvailableSubdivisionsForUser
 		{
@@ -802,12 +787,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				OnPropertyChanged(nameof(CashExpenseInfo));
 			}
 
-			if(e.PropertyName == nameof(FuelDocument.Subdivision) || e.PropertyName == nameof(FuelDocument.Fuel))
-			{
-				OnPropertyChanged(nameof(Balance));
-				OnPropertyChanged(nameof(BalanceState));
-			}
-
 			if(e.PropertyName == nameof(FuelDocument.Date))
 			{
 				if(UoW.IsNew)
@@ -827,8 +806,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			OnPropertyChanged(nameof(ResultInfo));
 			OnPropertyChanged(nameof(CashExpenseInfo));
-			OnPropertyChanged(nameof(Balance));
-			OnPropertyChanged(nameof(BalanceState));
 		}
 
 		private void SetFuelDocumentTodayDateIfNeed()
