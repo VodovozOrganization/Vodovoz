@@ -13,8 +13,10 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Nomenclature;
 
 namespace FastDeliveryLateWorker
 {
@@ -24,9 +26,11 @@ namespace FastDeliveryLateWorker
 		private readonly IOptions<FastDeliveryLateOptions> _options;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IGenericRepository<ComplaintDetalization> _complaintDetalizationRepository;
+		private readonly IGenericRepository<ComplaintDetalization> _complaintDetalizationRepository;		
+		private readonly IOrderRepository _orderRepository;
 		private bool _workInProgress;
 
 		public FastDeliveryLateWorker(
@@ -36,7 +40,9 @@ namespace FastDeliveryLateWorker
 			IGeneralSettings generalSettings,
 			IDeliveryRepository deliveryRepository,
 			IEmployeeRepository employeeRepository,
-			IGenericRepository<ComplaintDetalization> complaintDetalizationRepository)
+			IGenericRepository<ComplaintDetalization> complaintDetalizationRepository,
+			INomenclatureSettings nomenclatureSettings,
+			IOrderRepository orderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -45,6 +51,8 @@ namespace FastDeliveryLateWorker
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_complaintDetalizationRepository = complaintDetalizationRepository ?? throw new ArgumentNullException(nameof(complaintDetalizationRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		protected override void OnStartService()
@@ -112,7 +120,7 @@ namespace FastDeliveryLateWorker
 					return;
 				}
 
-				var complaintDetalization = _complaintDetalizationRepository.Get(uow, cd => cd.Id == _options.Value.ComplaintDetalizationId).FirstOrDefault();
+				var complaintDetalization = _complaintDetalizationRepository.Get(uow, cd => cd.Id == _options.Value.ComplaintDetalizationId).FirstOrDefault();				
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
 				foreach(var lateOrder in fastDeliveryLateOrders)
@@ -126,9 +134,11 @@ namespace FastDeliveryLateWorker
 							? "Осуществить возврат средств за экспресс- доставку."
 							: "");
 
+					var order = _orderRepository.GetOrder(uow, lateOrder.OrderId);
+
 					var complaint = new Complaint
 					{
-						Order = new Order { Id = lateOrder.OrderId },
+						Order = order,
 						DeliveryPoint = new DeliveryPoint { Id = lateOrder.DeliveryPointId },
 						ComplaintKind = complaintDetalization.ComplaintKind,
 						ComplaintDetalization = complaintDetalization,
@@ -140,6 +150,11 @@ namespace FastDeliveryLateWorker
 						CreatedBy = currentEmployee,
 						ChangedBy = currentEmployee,
 					};
+
+					var fastDeliveryOrderItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.FastDeliveryNomenclatureId);
+					fastDeliveryOrderItem.SetDiscount(100);
+					fastDeliveryOrderItem.DiscountReason = new DiscountReason { Id = 96 };
+					uow.Save(fastDeliveryOrderItem);
 
 					uow.Save(complaint);
 

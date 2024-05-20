@@ -56,6 +56,8 @@ namespace FastDeliveryLateWorker
 						.AddSingleton<IEmployeeRepository, EmployeeRepository>()
 						.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
+
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
 	}
 }
