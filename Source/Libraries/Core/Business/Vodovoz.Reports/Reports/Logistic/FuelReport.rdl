@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -842,7 +842,7 @@ WITH all_fuel_operations as
                 IFNULL(fuel_operations.liters_gived,0) AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-                IFNULL(fuel_documents.fuel_limits, 0) AS liters_limits,
+                IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 0 as is_fine
 	            FROM
@@ -871,7 +871,7 @@ WITH all_fuel_operations as
                 IFNULL(fuel_operations.liters_gived,0)    AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-                IFNULL(fuel_documents.fuel_limits, 0) AS liters_limits,
+                IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 fuel_operations.is_fine as is_fine
              FROM
