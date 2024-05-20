@@ -90,50 +90,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				return;
 			}
 
-			var totalCreateDialogConfigs = EntityConfigs
-				.Where(x => x.Value.PermissionResult.CanCreate)
-				.Sum(x => x.Value.EntityDocumentConfigurations
-							.Select(y => y.GetCreateEntityDlgConfigs().Count())
-							.Sum());
-
-			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1)
-			{
-				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
-				foreach(var entityConfig in EntityConfigs.Values)
+			var entityConfig = EntityConfigs.First().Value;
+			var addAction = new JournalAction("Добавить",
+				selected => entityConfig.PermissionResult.CanCreate && FilterViewModel?.Counterparty != null,
+				selected => entityConfig.PermissionResult.CanCreate,
+				selected =>
 				{
-					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
-					{
-						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
-						{
-							var childNodeAction = new JournalAction(createDlgConfig.Title,
-								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) =>
-								{
-									createDlgConfig.OpenEntityDialogFunction.Invoke();
-								}
-							);
-							addParentNodeAction.ChildActionsList.Add(childNodeAction);
-						}
-					}
-				}
-				NodeActionsList.Add(addParentNodeAction);
-			}
-			else
-			{
-				var entityConfig = EntityConfigs.First().Value;
-				var addAction = new JournalAction("Добавить",
-					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) =>
-					{
-						var docConfig = entityConfig.EntityDocumentConfigurations.First();
-						docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
-					},
-					"Insert"
-					);
-				NodeActionsList.Add(addAction);
-			};
+					var docConfig = entityConfig.EntityDocumentConfigurations.First();
+					docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
+				},
+				"Insert"
+				);
+			NodeActionsList.Add(addAction);
 		}
 
 		protected override void CreateNodeActions()
@@ -197,7 +165,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		};
 
 		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () =>
-			NavigationManager.OpenViewModel<DeliveryPointViewModel, IEntityUoWBuilder, Counterparty>(this, EntityUoWBuilder.ForCreate(), FilterViewModel.Counterparty).ViewModel;
+			NavigationManager.OpenViewModel<DeliveryPointViewModel, IEntityUoWBuilder, Counterparty>(
+				this, EntityUoWBuilder.ForCreate(), FilterViewModel.Counterparty)
+				.ViewModel;
 
 		protected override Func<DeliveryPointByClientJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
 			NavigationManager.OpenViewModel<DeliveryPointViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
