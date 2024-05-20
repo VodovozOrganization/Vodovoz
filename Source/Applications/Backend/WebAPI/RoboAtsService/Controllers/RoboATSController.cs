@@ -109,7 +109,7 @@ namespace RoboatsService.Controllers
 		{
 			try
 			{
-				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterpartyPhone).FirstOrDefault();
+				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterpartyPhone.Skip(1).ToString()).FirstOrDefault();
 				return Ok(
 					new GetContactPhoneHasOrdersForDeliveryTodayResponse
 					{
@@ -132,7 +132,7 @@ namespace RoboatsService.Controllers
 				var phone = string.Empty;
 
 				_phoneService
-					.GetCourierPhonesByTodayOrderContactPhone(counterpartyPhone)
+					.GetCourierPhonesByTodayOrderContactPhone(counterpartyPhone.Skip(1).ToString())
 					.Match(
 						phoneNumber => phone = phoneNumber,
 						errors => _logger.LogWarning("Телефон курьера не найден: {@Errors}", errors.Select(e => e.Message)));
