@@ -799,8 +799,19 @@ namespace Vodovoz
 				_addressKeepingDocumentItemsCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
 			}
 
+			RouteListItemStatus oldAddressStatus;
+
+			using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Получение сохранённого статуса адреса"))
+			{
+				oldAddressStatus = uow.GetById<RouteListItem>(node.Id).Status;
+			}
+
+			var isFromRouteListClosingNewUndelivery = RouteListItem.GetUndeliveryStatuses().Contains(node.Status)
+				&& !RouteListItem.GetUndeliveryStatuses().Contains(oldAddressStatus);
+
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
-				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id],
+				isFromRouteListClosingUndelivery: isFromRouteListClosingNewUndelivery);
 
 			ReloadDiscrepancies();
 

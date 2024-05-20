@@ -674,12 +674,12 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 
-					RestoreOrder();
+					RestoreOrder(status);
 					AutoCancelAutoTransfer(uow);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-					RestoreOrder();
+					RestoreOrder(status);
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
@@ -692,7 +692,7 @@ namespace Vodovoz.Domain.Logistic
 
 			uow.Save(Order);
 
-			UpdateRouteListDebt();
+			UpdateRouteListDebt();			
 		}
 
 		/// <summary>
@@ -937,13 +937,15 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual void SetOrderActualCountsToZeroOnCanceled() => Order.SetActualCountsToZeroOnCanceled();
 
-		public virtual void RestoreOrder()
+		public virtual void RestoreOrder(RouteListItemStatus? status = null)
 		{
+			var newStatus = status ?? Status;
+
 			foreach(var item in Order.OrderItems)
 			{
 				item.RestoreOriginalDiscount();
 
-				if(Status == RouteListItemStatus.EnRoute)
+				if(newStatus == RouteListItemStatus.EnRoute)
 				{
 					item.SetActualCount(null);
 				}
@@ -982,9 +984,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeOrderStatus(OrderStatus orderStatus) => Order.OrderStatus = orderStatus;
 
-		protected internal virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status)
+		protected internal virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status, bool needCreateDeliveryFreeBalanceOperation = true)
 		{
-			CreateDeliveryFreeBalanceOperation(uow, Status, status);
+			if(needCreateDeliveryFreeBalanceOperation)
+			{
+				CreateDeliveryFreeBalanceOperation(uow, Status, status);
+			}
+
 			Status = status;			
 		}
 
