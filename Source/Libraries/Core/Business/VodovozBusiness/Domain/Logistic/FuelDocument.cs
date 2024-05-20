@@ -214,7 +214,6 @@ namespace Vodovoz.Domain.Logistic
 			try
 			{
 				CreateFuelOperation();
-				CreateFuelExpenseOperation();
 				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelFinancialExpenseCategoryId, organizationRepository);
 			}
 			catch(Exception ex)
@@ -260,29 +259,6 @@ namespace Vodovoz.Domain.Logistic
 				LitersOutlayed = 0,
 				PayedLiters = litersPaid,
 				OperationTime = Date
-			};
-		}
-
-		private void CreateFuelExpenseOperation()
-		{
-			if(FuelLimitLitersAmount <= 0)
-			{
-				return;
-			}
-
-			if(FuelExpenseOperation != null)
-			{
-				_logger.Warn("Попытка создания операции списания топлива при уже имеющейся операции");
-				return;
-			}
-
-			FuelExpenseOperation = new FuelExpenseOperation()
-			{
-				FuelDocument = this,
-				FuelType = Fuel,
-				FuelLiters = FuelLimitLitersAmount,
-				RelatedToSubdivision = Subdivision,
-				СreationTime = Date
 			};
 		}
 
