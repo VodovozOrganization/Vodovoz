@@ -1,4 +1,5 @@
 ﻿using EventsApi.Library;
+using FirebaseAdmin;
 using LogisticsEventsApi.Data;
 using LogisticsEventsApi.HealthChecks;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +18,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi;
 using VodovozHealthCheck;
+using static MassTransit.MessageHeaders;
 
 namespace LogisticsEventsApi
 {
@@ -42,9 +44,10 @@ namespace LogisticsEventsApi
 				});
 			});
 
-			services.AddWarehouseEventsDependencies();
+			services.AddWarehouseEventsDependencies(Configuration);
 
-			services.AddSecurity(Configuration);
+			services.AddSecurity(Configuration)
+				.AddOnlyOneSessionRestriction();
 
 			//закомментил пока нет зарегистрированных пользователей
 			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
@@ -67,7 +70,7 @@ namespace LogisticsEventsApi
 
 			services.AddDbContext<ApplicationDbContext>((provider, options) =>
 			{
-				var connectionStringBuilder =  provider.GetRequiredService<MySqlConnectionStringBuilder>();
+				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
 				options.UseMySql(connectionStringBuilder.ConnectionString, ServerVersion.AutoDetect(connectionStringBuilder.ConnectionString));
 			});
 
@@ -82,6 +85,8 @@ namespace LogisticsEventsApi
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetRequiredService<FirebaseApp>();
+
 			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{

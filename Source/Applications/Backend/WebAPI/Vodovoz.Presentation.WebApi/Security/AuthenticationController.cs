@@ -154,22 +154,26 @@ namespace Vodovoz.Presentation.WebApi.Security
 				UserName = username
 			};
 
-			var externalApplicationUser = _unitOfWork.Session.Query<ExternalApplicationUser>()
-				.Where(eau => eau.Login == username)
-				.FirstOrDefault();
-
-			if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))
+			if(_securityOptions.Value.Authorization.OnlyOneSessionAllowed)
 			{
-				await _firebaseCloudMessagingService
-					.SendMessage(
-						externalApplicationUser.Token,
-						"Веселый водовоз",
-						"Ваша сессия для этого приложения была завершена.");
+				var externalApplicationUser = _unitOfWork.Session
+					.Query<ExternalApplicationUser>()
+					.Where(eau => eau.Login == username)
+					.FirstOrDefault();
+
+				if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))
+				{
+					await _firebaseCloudMessagingService
+						.SendMessage(
+							externalApplicationUser.Token,
+							"Веселый водовоз",
+							"Ваша сессия для этого приложения была завершена.");
+				}
+
+				externalApplicationUser.SessionKey = activeSessionKey;
+
+				_unitOfWork.Save(externalApplicationUser);
 			}
-
-			externalApplicationUser.SessionKey = activeSessionKey;
-
-			_unitOfWork.Save(externalApplicationUser);
 
 			return response;
 		}
