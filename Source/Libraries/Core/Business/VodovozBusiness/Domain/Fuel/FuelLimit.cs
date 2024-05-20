@@ -175,6 +175,8 @@ namespace Vodovoz.Domain.Fuel
 			get => _transferredAmountLiters;
 			set => SetField(ref _transferredAmountLiters, value);
 		}
+
+		public virtual string Title => $"Топливный лимит на {Amount} л. №{Id} (Id={LimitId}) Id карты: {CardId}";
 	}
 
 	public enum FuelLimitStatus
