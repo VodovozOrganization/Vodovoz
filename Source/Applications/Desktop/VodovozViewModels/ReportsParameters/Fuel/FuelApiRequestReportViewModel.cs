@@ -10,6 +10,7 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using VodovozInfrastructure.Utils;
@@ -21,6 +22,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private User _user;
+		private FuelApiResponseResult? _fuelApiResponseResult;
 
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
@@ -88,6 +90,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			set => SetField(ref _user, value);
 		}
 
+		public FuelApiResponseResult? FuelApiResponseResult
+		{
+			get => _fuelApiResponseResult;
+			set => SetField(ref _fuelApiResponseResult, value);
+		}
+
 		public bool CanCreateReport => StartDate.HasValue && EndDate.HasValue;
 
 		protected override Dictionary<string, object> Parameters =>
@@ -95,7 +103,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			{
 				{ "start_date", StartDate.Value.ToString("yyyy-MM-dd") },
 				{ "end_date", EndDate.Value.ToString("yyyy-MM-dd") },
-				{ "user_id", User?.Id ?? 0 }
+				{ "user_id", User?.Id ?? 0 },
+				{ "response_result", FuelApiResponseResult?.ToString() ?? "0" }
 			};
 
 		private void CreateReport()
