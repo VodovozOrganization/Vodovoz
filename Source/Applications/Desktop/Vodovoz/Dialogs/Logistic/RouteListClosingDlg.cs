@@ -1611,6 +1611,13 @@ namespace Vodovoz
 			if(fd == null) {
 				return;
 			}
+
+			if(fd.FuelLimitLitersAmount > 0 || fd.FuelLimit != null)
+			{
+				MessageDialogHelper.RunErrorDialog("Нельзя удалить талоны по которым выдавались топливные лимиты");
+				return;
+			}
+
 			Entity.ObservableFuelDocuments.Remove(fd);
 		}
 
