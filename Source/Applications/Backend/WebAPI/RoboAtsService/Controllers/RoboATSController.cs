@@ -134,7 +134,7 @@ namespace RoboatsService.Controllers
 				_phoneService
 					.GetCourierPhonesByTodayOrderContactPhone(counterpartyPhone.Substring(1).ToString())
 					.Match(
-						phoneNumber => phone = phoneNumber,
+						phoneNumber => phone = "7" + phoneNumber,
 						errors => _logger.LogWarning("Телефон курьера не найден: {@Errors}", errors.Select(e => e.Message)));
 
 				var dispatcherPhone = _phoneService
