@@ -477,6 +477,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			SetFuelLimitTransactionsCount();
+			OnPropertyChanged(nameof(FuelInfo));
 		}
 
 		private bool InitActualCashier()
