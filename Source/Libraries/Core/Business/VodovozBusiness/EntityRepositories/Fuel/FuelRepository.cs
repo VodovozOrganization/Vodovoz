@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using DocumentFormat.OpenXml.Math;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -308,6 +309,11 @@ namespace Vodovoz.EntityRepositories.Fuel
 			unitOfWork.Session.Query<FuelCard>()
 			.Where(c => c.CardNumber == cardNumber)
 			.Select(c => c.CardId)
+			.FirstOrDefault();
+
+		public FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId) =>
+			unitOfWork.Session.Query<FuelDocument>()
+			.Where(d => d.FuelLimit.LimitId == fuelLimitId)
 			.FirstOrDefault();
 	}
 }

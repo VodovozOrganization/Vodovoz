@@ -24,5 +24,6 @@ namespace Vodovoz.EntityRepositories.Fuel
 		Task SaveFuelApiRequest(IUnitOfWork uow, FuelApiRequest request);
 		IEnumerable<FuelCardVersion> GetActiveVersionsOnDateHavingFuelCard(IUnitOfWork unitOfWork, DateTime date, int fuelCardId);
 		string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber);
+		FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId);
 	}
 }
