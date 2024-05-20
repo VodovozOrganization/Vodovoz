@@ -392,7 +392,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && _cancellationTokenSource == null;
 
 		public virtual bool IsFuelLimitsCanBeEdited =>
-			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits;
+			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits && _autoCommit;
 
 		public virtual bool IsFuelInMoneyCanBeEdited =>
 			IsNewEditable && IsUserCanGiveFuelInMoney;
