@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -286,6 +286,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
+			if(FuelDocument.Id == 0 && RouteList != null)
+			{
+				FuelDocument.FillEntity(RouteList);
+			}
+
 			if(RouteList != null)
 			{
 				if(!CarHasFuelType())
@@ -301,11 +306,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_organizationRepository);
 
 			CreateCommands();
-
-			if(FuelDocument.Id == 0 && RouteList != null)
-			{
-				FuelDocument.FillEntity(RouteList);
-			}
 
 			IsGiveFuelInMoneySelected = FuelDocument?.FuelOperation?.PayedLiters > 0m;
 
