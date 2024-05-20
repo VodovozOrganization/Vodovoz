@@ -28,7 +28,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			References(x => x.FuelExpenseOperation).Column("fuel_expense_operation_id").Cascade.All();
 			References(x => x.Author).Column("author_id");
 			References(x => x.LastEditor).Column("last_editor_id");
-			References(x => x.FuelLimit).Column("fuel_limit_id");
+			References(x => x.FuelLimit).Column("fuel_limit_id").Cascade.All();
 		}
 	}
 }

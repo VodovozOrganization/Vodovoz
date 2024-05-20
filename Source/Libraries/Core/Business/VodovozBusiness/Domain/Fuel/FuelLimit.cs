@@ -1,9 +1,16 @@
 ﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Fuel
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "топливные лимиты",
+		Nominative = "топливный лимит",
+		Genitive = "топливного лимита",
+		GenitivePlural = "топливных лимитов")]
+	[HistoryTrace]
 	public class FuelLimit : PropertyChangedBase, IDomainObject
 	{
 		private string _limitId;

@@ -303,5 +303,11 @@ namespace Vodovoz.EntityRepositories.Fuel
 			.Where(v => v.FuelCard.Id == fuelCardId
 				&& v.StartDate <= date
 				&& (v.EndDate == null || v.EndDate >= date));
+
+		public string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber) =>
+			unitOfWork.Session.Query<FuelCard>()
+			.Where(c => c.CardNumber == cardNumber)
+			.Select(c => c.CardId)
+			.FirstOrDefault();
 	}
 }

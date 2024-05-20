@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Logistic
 		private FuelPaymentType? _fuelPaymentType;
 		private decimal _literCost;
 		private FuelType _fuel;
-		private int _fuelLimitsLitersAmount;
+		private decimal _fuelLimitsLitersAmount;
 		private Expense _fuelCashExpense;
 		private Employee _author;
 		private Employee _lastEditor;
@@ -115,7 +115,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Литры выданные лимитами")]
-		public virtual int FuelLimitLitersAmount
+		public virtual decimal FuelLimitLitersAmount
 		{
 			get => _fuelLimitsLitersAmount;
 			set => SetField(ref _fuelLimitsLitersAmount, value);
@@ -379,6 +379,20 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult(
 					"При выдаче топливных лимитов у авто должна быть указана топливная карта",
 					new[] { nameof(FuelCardNumber) });
+			}
+
+			if(FuelLimitLitersAmount > 0 && PayedForFuel.HasValue && PayedForFuel.Value > 0)
+			{
+				yield return new ValidationResult(
+					"Нельзя выдавать топливо лимитами и деньгами одновременно",
+					new[] { nameof(FuelLimitLitersAmount), nameof(PayedForFuel) });
+			}
+
+			if(Id > 0 && FuelLimitLitersAmount > 0)
+			{
+				yield return new ValidationResult(
+					"Нельзя вносить изменения в документ по которому уже выдано топливо лимитами",
+					new[] { nameof(FuelLimitLitersAmount) });
 			}
 		}
 

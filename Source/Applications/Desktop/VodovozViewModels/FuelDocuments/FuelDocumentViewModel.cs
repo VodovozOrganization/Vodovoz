@@ -10,7 +10,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -56,7 +55,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private FuelDocument _fuelDocument;
 		private Employee _cashier;
 		private bool _autoCommit;
-		private bool _fuelInMoney;
 		private bool _canOpenExpense;
 		private decimal _fuelBalance;
 		private decimal _fuelOutlayed;
@@ -253,7 +251,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
-
+			_uowFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -268,7 +266,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
-			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
+			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(_uowFactory);
 			UoW = uow;
 			FuelDocument = uow.Root;
 			FuelDocument.UoW = UoW;
@@ -313,34 +311,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 
-			OpenExpenseCommand = new DelegateCommand(OpenExpense);
-		}
-
-		private void SetFuelLimitTransactionsCount()
-		{
-			if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus)
-			{
-				FuelLimitTransactionsCountMaxValue = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle)
-			{
-				FuelLimitTransactionsCountMaxValue = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck)
-			{
-				FuelLimitTransactionsCountMaxValue = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
-			{
-				FuelLimitTransactionsCountMaxValue = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
-			}
-			else
-			{
-				throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
-					"Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
-			}
-
-			FuelLimitTransactionsCount = FuelLimitTransactionsCountMaxValue;
+			OpenExpenseCommand = new DelegateCommand(OpenExpense, () => CanOpenExpense);
 		}
 
 		#endregion ctor
@@ -361,17 +332,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public RouteList RouteList { get; set; }
 
-		[PropertyChangedAlso(nameof(CanEdit))]
+		[PropertyChangedAlso(nameof(IsDocumentCanBeEdited))]
 		public virtual Employee Cashier
 		{
 			get => _cashier;
 			set => SetField(ref _cashier, value);
-		}
-
-		public virtual bool FuelInMoney
-		{
-			get => _fuelInMoney;
-			set => SetField(ref _fuelInMoney, value);
 		}
 
 		public virtual bool CanOpenExpense
@@ -407,7 +372,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref _isOnlyDocumentsCreation, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanChangeDate))]
+		[PropertyChangedAlso(nameof(CanChangeDate), nameof(IsFuelLimitsCanBeEdited))]
 		public virtual bool IsGiveFuelInMoneySelected
 		{
 			get => _isGiveFuelInMoneySelected;
@@ -421,17 +386,23 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IsUserWorkInCashSubdivisions;
 
 		[PropertyChangedAlso(nameof(CanChangeDate))]
-		public virtual bool CanEdit =>
+		public virtual bool IsDocumentCanBeEdited =>
 			UoW.IsNew || FuelDocument.FuelLimitLitersAmount == 0;
+
+		public virtual bool IsFuelLimitsCanBeEdited =>
+			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits;
+
+		public virtual bool IsFuelInMoneyCanBeEdited =>
+			IsNewEditable && IsUserCanGiveFuelInMoney;
 
 		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
 
 		public virtual string BalanceState => $"Доступно к выдаче: {Balance} л.";
 
-		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && CanEdit;
+		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && IsDocumentCanBeEdited;
 
 		public virtual bool CanChangeDate =>
-			CanEdit
+			IsDocumentCanBeEdited
 			&& CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
 				CommonServices.UserService.CurrentUserId)
 			&& IsGiveFuelInMoneySelected;
@@ -469,7 +440,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public string FuelInfo => UpdateFuelInfo();
 
 		public string ResultInfo => UpdateResutlInfo();
-
 
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
 		public IEntityEntryViewModel CarEntryViewModel { get; }
@@ -524,7 +494,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool InitActualCashier()
 		{
-			Cashier = EmployeeForCurrentUser;
+			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(Cashier == null)
 			{
@@ -546,7 +516,48 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			return true;
 		}
 
-		private Employee EmployeeForCurrentUser => EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+		private void SetFuelLimitTransactionsCount()
+		{
+			if(UoW.IsNew)
+			{
+				FuelLimitTransactionsCountMaxValue = GetCarModelFuelLimitMaxTransactionsCount();
+			}
+			else
+			{
+				FuelLimitTransactionsCountMaxValue = FuelDocument?.FuelLimit?.TransctionsCount ?? 1;
+			}
+
+			FuelLimitTransactionsCount = FuelLimitTransactionsCountMaxValue;
+		}
+
+		private int GetCarModelFuelLimitMaxTransactionsCount()
+		{
+			int maxTransactionsCount;
+
+			if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus)
+			{
+				maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
+			}
+			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle)
+			{
+				maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
+			}
+			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck)
+			{
+				maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
+			}
+			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
+			{
+				maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
+			}
+			else
+			{
+				throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
+					"Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
+			}
+
+			return maxTransactionsCount;
+		}
 
 		private IEnumerable<Subdivision> CashSubdivisions =>
 			SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
@@ -561,17 +572,29 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			if(RouteList.Car.FuelType == null)
 			{
-				ShowWarningMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
+				ShowErrorMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
 				return false;
 			}
 
 			return true;
 		}
 
-		public async Task<bool> SaveDocument()
+		private async Task SaveAndClose()
+		{
+			var saveDocumentResult = await SaveDocument();
+
+			if(saveDocumentResult)
+			{
+				Close(false, CloseSource.Save);
+			}
+		}
+
+		private async Task<bool> SaveDocument()
 		{
 			if(FuelDocument.Id != 0 && FuelDocument.FuelLimitLitersAmount > 0)
 			{
+				ShowErrorMessage("Запрещено изменять документы, по которым выдавалось топливо лимитами");
+
 				return false;
 			}
 
@@ -598,15 +621,25 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			if(FuelDocument.Id == 0)
 			{
-				if(!IsGiveFuelInMoneySelected && FuelDocument.FuelLimitLitersAmount > 0 && !await CreateFuelLimit())
+				if(!IsGiveFuelInMoneySelected && FuelDocument.FuelLimitLitersAmount > 0 && !IsOnlyDocumentsCreation)
 				{
-					return false;
+					if(!_autoCommit)
+					{
+						ShowErrorMessage("Выдача топлива лимитами доступна только при открытии диалога из журналов МЛ");
+					}
+
+					var isFuelLimitCreated = await CreateFuelLimit();
+
+					if(!isFuelLimitCreated)
+					{
+						return false;
+					}
 				}
 
 				FuelDocument.CreateOperations(FuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
 				RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
-				if(FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				if(IsGiveFuelInMoneySelected && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
 				{
 					_fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
 				}
@@ -640,15 +673,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_cancellationTokenSource = new CancellationTokenSource();
 			var cancellationToken = _cancellationTokenSource.Token;
 
-			var fuelCardId = string.Empty;
-
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				fuelCardId = uow.Session.Query<FuelCard>()
-					.Where(c => c.CardNumber == FuelDocument.FuelCardNumber)
-					.Select(c => c.CardId)
-					.FirstOrDefault();
-			}
+			var fuelCardId = FuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
 
 			fuelCardId = "24895784";
 
@@ -670,24 +695,52 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				TransctionsCount = FuelLimitTransactionsCount
 			};
 
-			var existingLimits = new List<FuelLimit>();
-
 			try
 			{
-				existingLimits.AddRange(await GetExistingFuleLimits(fuelCardId, cancellationToken));
+				var existingLimits = await GetExistingFuleLimits(fuelCardId, cancellationToken);
+
+				var notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
+				var notUsedFuelLimitsSum = notUsedFuelLimits.Select(l => l.Amount).Sum() ?? 0;
+
+				if(notUsedFuelLimitsSum > 0)
+				{
+					var questionMessage = $"На сервере Газпром для данного авто имеется неиспользованные лимиты на {notUsedFuelLimitsSum:N2} литров\n" +
+						$"Выдать на сервере Газпром лимит с суммарным значением?\n\n" +
+						$"\t\"Да\" - на сервере Газпром создастся лимит на {fuelLimit.Amount + (int)notUsedFuelLimitsSum} л.\n" +
+						$"\t\"Нет\" на сервере Газпром создастся лимит на {fuelLimit.Amount} л.";
+
+					bool isSummarizeLimits = false;
+
+					//isSummarizeLimits = AskQuestion(questionMessage);
+
+					fuelLimit.Amount = isSummarizeLimits ? fuelLimit.Amount + (int)notUsedFuelLimitsSum : fuelLimit.Amount;
+				}
+
+				foreach(var limit in notUsedFuelLimits)
+				{
+					var fuelDocument = UoW.Session.Query<FuelDocument>()
+						.Where(d => d.FuelLimit.LimitId == limit.LimitId)
+						.FirstOrDefault();
+
+					if(fuelDocument != null)
+					{
+						fuelDocument.FuelLimitLitersAmount = limit.UsedAmount ?? 0;
+						fuelDocument.FuelOperation.LitersGived = fuelDocument.FuelLimitLitersAmount + fuelDocument.FuelOperation.PayedLiters;
+					}
+				}
 
 				await RemoveFuelLimits(existingLimits.Select(l => l.LimitId), cancellationToken);
 
 				fuelLimit.LimitId = await SetNewFuelLimit(fuelLimit, cancellationToken);
+				fuelLimit.CreateDate = DateTime.Now;
+
+				FuelDocument.FuelLimit = fuelLimit;
 
 				return true;
 			}
 			catch(Exception ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					ShowWarningMessage(ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => ShowErrorMessage(ex.Message));
 
 				return false;
 			}
@@ -763,6 +816,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					OnPropertyChanged(nameof(FuelInfo));
 				}
 			}
+
+			if(e.PropertyName == nameof(FuelDocument.FuelLimitLitersAmount))
+			{
+				OnPropertyChanged(nameof(IsDocumentCanBeEdited));
+			}
 		}
 
 		public void UpdateInfo()
@@ -771,6 +829,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			OnPropertyChanged(nameof(CashExpenseInfo));
 			OnPropertyChanged(nameof(Balance));
 			OnPropertyChanged(nameof(BalanceState));
+		}
+
+		private void SetFuelDocumentTodayDateIfNeed()
+		{
+			if(UoW.IsNew && !IsGiveFuelInMoneySelected)
+			{
+				FuelDocument.Date = DateTime.Now;
+			}
 		}
 
 		#region FuelInfo
@@ -912,48 +978,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void CreateCommands()
 		{
-			CreateSaveCommand();
-			CreateCancelCommand();
-			CreateSetRemainCommand();
-			CreateSetFuelDocumentTodayDateIfNeedCommand();
-		}
-
-		private void CreateSetRemainCommand()
-		{
-			SetRemainCommand = new DelegateCommand(SetRemain, () => true);
-		}
-
-		private void CreateCancelCommand()
-		{
+			SaveCommand = new DelegateCommand(async () => await SaveAndClose(), () => IsDocumentCanBeEdited);
 			CancelCommand = new DelegateCommand(() => { Close(true, CloseSource.Cancel); }, () => true);
-		}
-
-		private void CreateSaveCommand()
-		{
-			SaveCommand = new DelegateCommand(
-				() =>
-				{
-					if(SaveDocument().Result)
-					{
-						Close(false, CloseSource.Save);
-					}
-				},
-				() => CanEdit
-			);
-
-			SaveCommand.CanExecuteChangedWith(this, x => x.CanEdit);
-		}
-
-		private void CreateSetFuelDocumentTodayDateIfNeedCommand()
-		{
-			SetFuelDocumentTodayDateIfNeedCommand = new DelegateCommand(
-				() =>
-				{
-					if(UoW.IsNew && !IsGiveFuelInMoneySelected)
-					{
-						FuelDocument.Date = DateTime.Now;
-					}
-				});
+			SetRemainCommand = new DelegateCommand(SetRemain, () => true);
+			SetFuelDocumentTodayDateIfNeedCommand = new DelegateCommand(SetFuelDocumentTodayDateIfNeed, () => true);
 		}
 
 		#endregion Commands
@@ -968,10 +996,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			var message = "В данный момент выполняется запрос к сервису Газпромнефть.\n" +
 				"Дождитесь заверешния операции и после этого закройте вкладку.";
 
-			_guiDispatcher.RunInGuiTread(() =>
-			{
-				ShowWarningMessage(message);
-			});
+			_guiDispatcher.RunInGuiTread(() => ShowWarningMessage(message));
 
 			return false;
 		}
