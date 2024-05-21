@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
 using Pacs.Core.Messages.Events;
@@ -180,7 +180,7 @@ namespace Vodovoz.Application.Pacs
 		private void OnBreakStarted(object sender, EventArgs e)
 		{
 			var model = (OperatorModel)sender;
-			if(!OperatorsOnBreak.Contains(model))
+			if(!OperatorsOnBreak.Any(x => x.Employee.Id == model.Employee.Id))
 			{
 				OperatorsOnBreak.Insert(0, model);
 			}
