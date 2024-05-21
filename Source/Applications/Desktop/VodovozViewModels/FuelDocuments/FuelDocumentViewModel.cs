@@ -643,13 +643,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 			catch(Exception ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					IsDocumentSavingInProcess = false;
-					_logger.Error(ex);
-
-					ShowErrorMessage(ex.Message);
-				});
+				LogAndShowExceptionMessageInGuiThread(ex);
 			}
 		}
 
@@ -687,10 +681,19 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			var fuelLimit = CreateFuelLimitForCard(fuelCardId);
+			var existingLimits = Enumerable.Empty<FuelLimit>();
+			var notUsedFuelLimits = Enumerable.Empty<FuelLimit>();
 
-			var existingLimits = await GetExistingFuleLimitsFromService(fuelCardId, token);
-
-			var notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
+			try
+			{
+				existingLimits = await GetExistingFuleLimitsFromService(fuelCardId, token);
+				notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
+			}
+			catch(Exception ex)
+			{
+				LogAndShowExceptionMessageInGuiThread(ex);
+				return;
+			}
 
 			_guiDispatcher.RunInGuiTread(async () =>
 			{
@@ -718,14 +721,19 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				}
 				catch(Exception ex)
 				{
-					_guiDispatcher.RunInGuiTread(() =>
-					{
-						IsDocumentSavingInProcess = false;
-						_logger.Error(ex);
-
-						ShowErrorMessage(ex.Message);
-					});
+					LogAndShowExceptionMessageInGuiThread(ex);
 				}
+			});
+		}
+
+		private void LogAndShowExceptionMessageInGuiThread(Exception ex)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				IsDocumentSavingInProcess = false;
+				_logger.Error(ex);
+
+				ShowErrorMessage(ex.Message);
 			});
 		}
 
