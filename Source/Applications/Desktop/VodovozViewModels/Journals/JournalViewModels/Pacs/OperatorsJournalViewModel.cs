@@ -62,6 +62,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 				.TransformUsing(Transformers.AliasToBean<OperatorNode>());
 
 			query.Where(GetSearchCriterion(
+				() => operatorAlias.Id,
 				() => employeeAlias.LastName,
 				() => employeeAlias.Name,
 				() => employeeAlias.Patronymic,
