@@ -180,7 +180,15 @@ namespace Vodovoz.Application.Pacs
 		private void OnBreakStarted(object sender, EventArgs e)
 		{
 			var model = (OperatorModel)sender;
-			if(!OperatorsOnBreak.Any(x => x.Employee.Id == model.Employee.Id))
+
+			var existingModel = OperatorsOnBreak.FirstOrDefault(x => x.Employee.Id == model.Employee.Id);
+
+			if(existingModel != null && !OperatorsOnBreak.Contains(model))
+			{
+				OperatorsOnBreak.Remove(existingModel);
+			}
+
+			if(!OperatorsOnBreak.Contains(model))
 			{
 				OperatorsOnBreak.Insert(0, model);
 			}
