@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 
 namespace FastDeliveryLateWorker
 {
@@ -26,6 +27,7 @@ namespace FastDeliveryLateWorker
 		private readonly IOptions<FastDeliveryLateOptions> _options;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IOrderSettings _orderSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -42,7 +44,8 @@ namespace FastDeliveryLateWorker
 			IEmployeeRepository employeeRepository,
 			IGenericRepository<ComplaintDetalization> complaintDetalizationRepository,
 			INomenclatureSettings nomenclatureSettings,
-			IOrderRepository orderRepository)
+			IOrderRepository orderRepository,
+			IOrderSettings orderSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -53,6 +56,7 @@ namespace FastDeliveryLateWorker
 			_complaintDetalizationRepository = complaintDetalizationRepository ?? throw new ArgumentNullException(nameof(complaintDetalizationRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
 		protected override void OnStartService()
@@ -149,11 +153,11 @@ namespace FastDeliveryLateWorker
 						ChangedDate = DateTime.Now,
 						CreatedBy = currentEmployee,
 						ChangedBy = currentEmployee,
-					};
+					};					
 
 					var fastDeliveryOrderItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.FastDeliveryNomenclatureId);
 					fastDeliveryOrderItem.SetDiscount(100);
-					fastDeliveryOrderItem.DiscountReason = new DiscountReason { Id = 96 };
+					fastDeliveryOrderItem.DiscountReason =  new DiscountReason { Id = _orderSettings.FastDeliveryLateDiscountReasonId };
 					uow.Save(fastDeliveryOrderItem);
 
 					uow.Save(complaint);
