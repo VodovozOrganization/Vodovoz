@@ -592,8 +592,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
-			IsDocumentSavingInProcess = true;
-
 			UpdateDocumentEditionInfo();
 
 			try
@@ -602,6 +600,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				{
 					return;
 				}
+
+				IsDocumentSavingInProcess = true;
 
 				if(FuelDocument.Id == 0)
 				{
