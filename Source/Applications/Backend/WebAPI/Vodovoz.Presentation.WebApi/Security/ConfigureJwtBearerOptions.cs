@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Vodovoz.Presentation.WebApi.Security
 {
-	public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
+	public class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
 	{
 		private readonly IOptions<SecurityOptions> _options;
 

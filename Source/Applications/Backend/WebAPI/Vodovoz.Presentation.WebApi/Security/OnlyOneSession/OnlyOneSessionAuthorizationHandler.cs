@@ -5,8 +5,8 @@ using QS.DomainModel.UoW;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 {
@@ -25,7 +25,7 @@ namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 
 		protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, OnlyOneSessionRequirement requirement)
 		{
-			string username = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+			string username = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
 
 			if(!string.IsNullOrWhiteSpace(username))
 			{
@@ -34,25 +34,32 @@ namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 
 			using(var scope = _scopeFactory.CreateScope())
 			{
-				IEmployeeRepository employeeRepository = scope.ServiceProvider.GetRequiredService<IEmployeeRepository>();
-
 				IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-				var employee = employeeRepository.GetEmployeeByAndroidLogin(unitOfWork, username);
 
 				var onlyOneSessionAllowed = _optionsMonitor.CurrentValue.Authorization?.OnlyOneSessionAllowed ?? false;
 
 				var allowedApplicationTypes = _optionsMonitor.CurrentValue.Authorization?.ApplicationUserTypes ?? Enumerable.Empty<ExternalApplicationType>();
 
-				var applicationUsers = employee.ExternalApplicationsUsers.Where(x => allowedApplicationTypes.Contains(x.ExternalApplicationType));
+				var applicationUser = unitOfWork.Session.Query<ExternalApplicationUserForApi>()
+					.Where(eau => eau.Login == username
+						&& allowedApplicationTypes.Contains(eau.ExternalApplicationType))
+					.FirstOrDefault();
 
-				if(!onlyOneSessionAllowed
-					|| applicationUsers
-						.Any(x => x.SessionKey == context.User?.Claims
-							.FirstOrDefault(x => x.ValueType == VodovozClaimTypes.ActiveSessionKey)?.Value))
+				if(!onlyOneSessionAllowed)
 				{
 					context.Succeed(requirement);
+					return;
 				}
+
+				if(applicationUser != null &&
+					applicationUser.SessionKey == context.User?.Claims
+						.FirstOrDefault(x => x.ValueType == VodovozClaimTypes.ActiveSessionKey)?.Value)
+				{
+					context.Succeed(requirement);
+					return;
+				}
+
+				context.Fail();
 			}
 		}
 	}

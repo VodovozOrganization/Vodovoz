@@ -18,7 +18,6 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi;
 using VodovozHealthCheck;
-using static MassTransit.MessageHeaders;
 
 namespace LogisticsEventsApi
 {
@@ -45,9 +44,6 @@ namespace LogisticsEventsApi
 			});
 
 			services.AddWarehouseEventsDependencies(Configuration);
-
-			services.AddSecurity(Configuration)
-				.AddOnlyOneSessionRestriction();
 
 			//закомментил пока нет зарегистрированных пользователей
 			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
@@ -80,6 +76,9 @@ namespace LogisticsEventsApi
 					=> options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
+
+			services.AddSecurity(Configuration)
+				.AddOnlyOneSessionRestriction();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
