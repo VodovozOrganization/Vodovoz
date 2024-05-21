@@ -681,8 +681,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			var fuelCardId = _fuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
 
-			fuelCardId = "24895784";
-
 			if(fuelCardId == null)
 			{
 				return;
