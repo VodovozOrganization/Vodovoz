@@ -503,7 +503,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			if(!IsUserWorkInCashSubdivisions && !IsCurrentUserHasPermissonToGiveFuelLimit)
 			{
-				ShowWarningMessage("Выдать топливо может только сотрудник кассы, либо иметь право на выдачу топливных лимитов");
+				ShowWarningMessage("Выдать топливо может только сотрудник кассы, либо должно иметься право на выдачу топливных лимитов");
 				return false;
 			}
 

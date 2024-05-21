@@ -311,7 +311,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Subdivision == null)
+			if(Subdivision == null && PayedForFuel > 0m)
 			{
 				yield return new ValidationResult("Необходимо выбрать кассу, с которой будет списываться топливо");
 			}
