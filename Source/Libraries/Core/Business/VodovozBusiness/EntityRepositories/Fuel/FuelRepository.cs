@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Math;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -315,5 +314,23 @@ namespace Vodovoz.EntityRepositories.Fuel
 			unitOfWork.Session.Query<FuelDocument>()
 			.Where(d => d.FuelLimit.LimitId == fuelLimitId)
 			.FirstOrDefault();
+
+		public decimal GetTodayGivedFuelInLiters(IUnitOfWork unitOfWork, int carId)
+		{
+			var todayDate = DateTime.Today;
+
+			var fuelOperationsForCar = (unitOfWork.Session.Query<FuelOperation>()
+				.Where(o =>
+					o.Car.Id == carId
+					&& o.LitersGived > 0
+					&& o.OperationTime >= todayDate
+					&& o.OperationTime < todayDate.AddDays(1))).ToList();
+
+			var givedLitersSum = fuelOperationsForCar
+				.Select(o => o.LitersGived)
+				.Sum();
+
+			return givedLitersSum;
+		}
 	}
 }

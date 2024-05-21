@@ -68,6 +68,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private bool _isDocumentSavingInProcess;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
+		private int _fuelLimitMaxTransactionsCount;
+		private decimal _maxDailyFuelLimitForCar;
+
 		#region ctor
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
@@ -512,9 +515,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void SetFuelLimitTransactionsCount()
 		{
+			SetFuelDispensingRestrictionsParameters();
+
 			if(UoW.IsNew)
 			{
-				FuelLimitTransactionsCountMaxValue = GetCarModelFuelLimitMaxTransactionsCount();
+				FuelLimitTransactionsCountMaxValue = _fuelLimitMaxTransactionsCount;
 			}
 			else
 			{
@@ -524,25 +529,30 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			FuelLimitTransactionsCount = FuelLimitTransactionsCountMaxValue;
 		}
 
-		private int GetCarModelFuelLimitMaxTransactionsCount()
+		private void SetFuelDispensingRestrictionsParameters()
 		{
 			int maxTransactionsCount;
+			decimal maxDailyFuelLimit;
 
 			if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus)
 			{
 				maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
+				maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
 			}
 			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle)
 			{
 				maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
+				maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
 			}
 			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck)
 			{
 				maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
+				maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
 			}
 			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
 			{
 				maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
+				maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
 			}
 			else
 			{
@@ -550,7 +560,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					"Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
 			}
 
-			return maxTransactionsCount;
+			_fuelLimitMaxTransactionsCount = maxTransactionsCount;
+			_maxDailyFuelLimitForCar = maxDailyFuelLimit;
 		}
 
 		private IEnumerable<Subdivision> CashSubdivisions =>
@@ -597,6 +608,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			try
 			{
 				if(!IsFuelDocumentValid())
+				{
+					return;
+				}
+
+				if(IsMaxDailyFuelLimitExceededForCar())
 				{
 					return;
 				}
@@ -684,6 +700,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				{
 					SummarizeNotUsedLimitsWithCurrentIfNeed(notUsedFuelLimits);
 
+					if(IsMaxDailyFuelLimitExceededForCar())
+					{
+						IsDocumentSavingInProcess = false;
+						return;
+					}
+
 					UpdateExistingFuelDocumentsWithNotUsedLimits(notUsedFuelLimits);
 
 					await RemoveFuelLimitsFromService(existingLimits.Select(l => l.LimitId), token);
@@ -707,6 +729,23 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					});
 				}
 			});
+		}
+
+		private bool IsMaxDailyFuelLimitExceededForCar()
+		{
+			var todayGivedLiters = _fuelRepository.GetTodayGivedFuelInLiters(UoW, FuelDocument.Car.Id);
+			var totalFuelLitersAmount = todayGivedLiters + FuelDocument.PayedLiters + FuelDocument.FuelLimitLitersAmount;
+
+			var isLimitExceeded = totalFuelLitersAmount > _maxDailyFuelLimitForCar;
+
+			if(isLimitExceeded)
+			{
+				ShowErrorMessage($"Выдать топливо нельзя! Достгнут максимальный лимит по выдаче топлива для авто.\n"
+					+ $"За текущие сутки уже выдано топлива: {todayGivedLiters} л.\n"
+					+ $"Суточное ограничение по топливу: {_maxDailyFuelLimitForCar} л.");
+			}
+
+			return isLimitExceeded;
 		}
 
 		private void CreateFuelOperationSaveAndClose()

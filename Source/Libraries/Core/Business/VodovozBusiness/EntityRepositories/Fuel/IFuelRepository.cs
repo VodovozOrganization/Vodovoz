@@ -25,5 +25,6 @@ namespace Vodovoz.EntityRepositories.Fuel
 		IEnumerable<FuelCardVersion> GetActiveVersionsOnDateHavingFuelCard(IUnitOfWork unitOfWork, DateTime date, int fuelCardId);
 		string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber);
 		FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId);
+		decimal GetTodayGivedFuelInLiters(IUnitOfWork unitOfWork, int carId);
 	}
 }
