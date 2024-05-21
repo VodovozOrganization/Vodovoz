@@ -725,8 +725,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				var questionMessage = $"На сервере Газпром для данного авто имеется неиспользованные лимиты на {notUsedFuelLimitsSum} литров\n" +
 					$"Выдать лимит с суммарным значением?\n\n" +
-					$"\t\"Да\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum} л.\n" +
-					$"\t\"Нет\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount} л.";
+					$"\"Да\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum} л.\n" +
+					$"\"Нет\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount} л.";
 
 				bool isSummarizeLimits = false;
 
