@@ -62,7 +62,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private int _fuelLimitTransactionsCountMaxValue;
 		private bool _isOnlyDocumentsCreation;
 		private bool _isGiveFuelInMoneySelected;
-		private CancellationTokenSource _cancellationTokenSource;
+		private bool _isDocumentSavingInProcess;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		#region ctor
 		/// <summary>
@@ -379,6 +380,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref _isGiveFuelInMoneySelected, value);
 		}
 
+		[PropertyChangedAlso(nameof(IsDocumentCanBeSaved))]
+		public virtual bool IsDocumentSavingInProcess
+		{
+			get => _isDocumentSavingInProcess;
+			set => SetField(ref _isDocumentSavingInProcess, value);
+		}
+
 		public virtual bool IsUserCanGiveFuelLimits =>
 			IsCurrentUserHasPermissonToGiveFuelLimit || IsUserWorkInCashSubdivisions;
 
@@ -389,7 +397,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual bool IsDocumentCanBeEdited =>
 			UoW.IsNew || FuelDocument.FuelLimitLitersAmount == 0;
 
-		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && _cancellationTokenSource == null;
+		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && !IsDocumentSavingInProcess;
 
 		public virtual bool IsFuelLimitsCanBeEdited =>
 			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits && _autoCommit;
@@ -577,25 +585,62 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			Close(true, CloseSource.Cancel);
 		}
 
-		private async Task SaveAndClose()
-		{
-			var saveDocumentResult = await SaveDocument();
-
-			if(saveDocumentResult)
-			{
-				Close(false, CloseSource.Save);
-			}
-		}
-
-		private async Task<bool> SaveDocument()
+		private void UpdateDependentDocumentsSaveAndClose()
 		{
 			if(FuelDocument.Id != 0 && FuelDocument.FuelLimitLitersAmount > 0)
 			{
 				ShowErrorMessage("Запрещено изменять документы, по которым выдавалось топливо лимитами");
 
-				return false;
+				return;
 			}
 
+			IsDocumentSavingInProcess = true;
+
+			UpdateDocumentEditionInfo();
+
+			try
+			{
+				if(!IsFuelDocumentValid())
+				{
+					return;
+				}
+
+				if(FuelDocument.Id == 0)
+				{
+					var isNeedToCreateFuelLimitOnServer =
+						IsFuelLimitsCanBeEdited
+						&& FuelDocument.FuelLimitLitersAmount > 0
+						&& !IsOnlyDocumentsCreation;
+
+					if(isNeedToCreateFuelLimitOnServer)
+					{
+						CreateFuelLimitFuelOperationSaveAndClose(_cancellationTokenSource.Token);
+					}
+					else
+					{
+						CreateFuelOperationSaveAndClose();
+					}
+				}
+				else
+				{
+					FuelDocument.UpdateFuelOperation();
+					SaveAndClose();
+				}
+			}
+			catch(Exception ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					IsDocumentSavingInProcess = false;
+					_logger.Error(ex);
+
+					ShowErrorMessage(ex.Message);
+				});
+			}
+		}
+
+		private void UpdateDocumentEditionInfo()
+		{
 			if(FuelDocument.Author == null)
 			{
 				FuelDocument.Author = _cashier;
@@ -609,44 +654,91 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				FuelDocument.FuelCashExpense.Casher = _cashier;
 			}
+		}
 
-			var valid = CommonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
+		private bool IsFuelDocumentValid()
+		{
+			var isValid = CommonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
 
-			if(!valid)
+			return isValid;
+		}
+
+		private async void CreateFuelLimitFuelOperationSaveAndClose(CancellationToken token)
+		{
+			var fuelCardId = FuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
+
+			fuelCardId = "24895784";
+
+			if(fuelCardId == null)
 			{
-				return false;
+				return;
 			}
 
-			if(FuelDocument.Id == 0)
+			var fuelLimit = CreateFuelLimitForCard(fuelCardId);
+
+			var existingLimits = await GetExistingFuleLimitsFromService(fuelCardId, token);
+
+			var notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
+
+			_guiDispatcher.RunInGuiTread(async () =>
 			{
-				if(!IsGiveFuelInMoneySelected && FuelDocument.FuelLimitLitersAmount > 0 && !IsOnlyDocumentsCreation)
+				try
 				{
-					if(!_autoCommit)
-					{
-						ShowErrorMessage("Выдача топлива лимитами доступна только при открытии диалога из журналов МЛ");
-					}
+					SummarizeNotUsedLimitsWithCurrentIfNeed(notUsedFuelLimits);
 
-					var isFuelLimitCreated = await CreateFuelLimit();
+					UpdateExistingFuelDocumentsWithNotUsedLimits(notUsedFuelLimits);
 
-					if(!isFuelLimitCreated)
-					{
-						return false;
-					}
+					await RemoveFuelLimitsFromService(existingLimits.Select(l => l.LimitId), token);
+
+					fuelLimit.Amount = FuelDocument.FuelLimitLitersAmount;
+					fuelLimit.LimitId = await CreateNewFuelLimitInService(fuelLimit, token);
+					fuelLimit.CreateDate = DateTime.Now;
+
+					FuelDocument.FuelLimit = fuelLimit;
+
+					CreateFuelOperationSaveAndClose();
 				}
-
-				FuelDocument.CreateOperations(FuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
-				RouteList.ObservableFuelDocuments.Add(FuelDocument);
-
-				if(IsGiveFuelInMoneySelected && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				catch(Exception ex)
 				{
-					_fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
-				}
-			}
-			else
-			{
-				FuelDocument.UpdateFuelOperation();
-			}
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						IsDocumentSavingInProcess = false;
+						_logger.Error(ex);
 
+						ShowErrorMessage(ex.Message);
+					});
+				}
+			});
+		}
+
+		private void CreateFuelOperationSaveAndClose()
+		{
+			CreateFuelOperations();
+			SaveAndClose();
+		}
+
+		private void CreateFuelOperations()
+		{
+			FuelDocument.CreateOperations(FuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
+			RouteList.ObservableFuelDocuments.Add(FuelDocument);
+
+			if(IsGiveFuelInMoneySelected && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+			{
+				_fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
+			}
+		}
+
+		private void SaveAndClose()
+		{
+			SaveDocument();
+
+			IsDocumentSavingInProcess = false;
+
+			Close(false, CloseSource.Save);
+		}
+
+		private void SaveDocument()
+		{
 			_logger.Info("Сохраняем топливный документ...");
 
 			if(_autoCommit)
@@ -656,64 +748,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			else
 			{
 				UoW.Save(FuelDocument);
-			}
-
-			return true;
-		}
-
-		private async Task<bool> CreateFuelLimit()
-		{
-			if(_cancellationTokenSource != null)
-			{
-				return false;
-			}
-
-			_cancellationTokenSource = new CancellationTokenSource();
-			var cancellationToken = _cancellationTokenSource.Token;
-			OnPropertyChanged(nameof(IsDocumentCanBeSaved));
-
-			var fuelCardId = FuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
-
-			fuelCardId = "24895784";
-
-			if(fuelCardId == null)
-			{
-				return false;
-			}
-
-			var fuelLimit = CreateFuelLimitForCard(fuelCardId);
-
-			try
-			{
-				var existingLimits = await GetExistingFuleLimitsFromService(fuelCardId, cancellationToken);
-
-				var notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
-
-				SummarizeNotUsedLimitsWithCurrentIfNeed(notUsedFuelLimits);
-
-				UpdateExistingFuelDocumentsWithNotUsedLimits(notUsedFuelLimits);
-
-				await RemoveFuelLimitsFromService(existingLimits.Select(l => l.LimitId), cancellationToken);
-
-				fuelLimit.Amount = FuelDocument.FuelLimitLitersAmount;
-				fuelLimit.LimitId = await SetNewFuelLimit(fuelLimit, cancellationToken);
-				fuelLimit.CreateDate = DateTime.Now;
-
-				FuelDocument.FuelLimit = fuelLimit;
-
-				return true;
-			}
-			catch(Exception ex)
-			{
-				_guiDispatcher.RunInGuiTread(() => ShowErrorMessage(ex.Message));
-
-				return false;
-			}
-			finally
-			{
-				_cancellationTokenSource?.Dispose();
-				_cancellationTokenSource = null;
-				OnPropertyChanged(nameof(IsDocumentCanBeSaved));
 			}
 		}
 
@@ -728,9 +762,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					$"\"Да\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum} л.\n" +
 					$"\"Нет\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount} л.";
 
-				bool isSummarizeLimits = false;
-
-				//isSummarizeLimits = AskQuestion(questionMessage);
+				bool isSummarizeLimits = AskQuestion(questionMessage);
 
 				FuelDocument.FuelLimitLitersAmount =
 					isSummarizeLimits
@@ -783,7 +815,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 		}
 
-		private async Task<string> SetNewFuelLimit(FuelLimit fuelLimit, CancellationToken cancellationToken)
+		private async Task<string> CreateNewFuelLimitInService(FuelLimit fuelLimit, CancellationToken cancellationToken)
 		{
 			var result = await _fuelApiService.SetFuelLimit(fuelLimit, cancellationToken);
 
@@ -987,7 +1019,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void CreateCommands()
 		{
-			SaveCommand = new DelegateCommand(async () => await SaveAndClose(), () => IsDocumentCanBeEdited);
+			SaveCommand = new DelegateCommand(UpdateDependentDocumentsSaveAndClose, () => IsDocumentCanBeEdited);
 			CancelCommand = new DelegateCommand(CancelDocumentCreation, () => true);
 			SetRemainCommand = new DelegateCommand(SetRemain, () => true);
 			SetFuelDocumentTodayDateIfNeedCommand = new DelegateCommand(SetFuelDocumentTodayDateIfNeed, () => true);
@@ -997,7 +1029,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public bool CanClose()
 		{
-			if(_cancellationTokenSource == null)
+			if(!IsDocumentSavingInProcess)
 			{
 				return true;
 			}
@@ -1016,6 +1048,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				UoW.Dispose();
 			}
+
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = null;
 
 			base.Dispose();
 		}
