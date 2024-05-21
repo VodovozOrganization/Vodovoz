@@ -45,7 +45,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrackRepository _trackRepository;
-
+		private readonly IFuelRepository _fuelRepository;
+		private readonly ISubdivisionRepository _subdivisionsRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICommonServices _commonServices;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IFuelControlSettings _fuelControlSettings;
@@ -93,16 +96,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -145,16 +148,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -198,16 +201,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -253,16 +256,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 			_uowFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -318,11 +321,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		#endregion ctor
 
 		public virtual IUnitOfWork UoW { get; set; }
-
-		protected IFuelRepository FuelRepository { get; set; }
-		protected ISubdivisionRepository SubdivisionsRepository { get; }
-		protected IEmployeeRepository EmployeeRepository { get; }
-		protected ICommonServices CommonServices { get; }
 
 		[PropertyChangedAlso(nameof(FuelInfo), nameof(ResultInfo))]
 		public virtual FuelDocument FuelDocument
@@ -411,17 +409,17 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public virtual bool CanChangeDate =>
 			IsDocumentCanBeEdited
-			&& CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
-				CommonServices.UserService.CurrentUserId)
+			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
+				_commonServices.UserService.CurrentUserId)
 			&& IsGiveFuelInMoneySelected;
 
 		public IList<Subdivision> AvailableSubdivisionsForUser
 		{
 			get
 			{
-				var user = CommonServices.UserService.GetCurrentUser();
-				var employee = EmployeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
-				var subdivisions = SubdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
+				var user = _commonServices.UserService.GetCurrentUser();
+				var employee = _employeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
+				var subdivisions = _subdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
 
 				if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
 				{
@@ -454,7 +452,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.Finish();
 
 			viewModel.IsEditable = false;
-			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
 
 			return viewModel;
 		}
@@ -470,7 +468,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.Finish();
 
 			viewModel.IsEditable = false;
-			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelType)).CanUpdate;
+			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelType)).CanUpdate;
 
 			return viewModel;
 		}
@@ -490,7 +488,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool InitActualCashier()
 		{
-			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(Cashier == null)
 			{
@@ -556,13 +554,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		}
 
 		private IEnumerable<Subdivision> CashSubdivisions =>
-			SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			_subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 
 		private bool IsUserWorkInCashSubdivisions =>
 			CashSubdivisions?.Contains(Cashier.Subdivision) ?? false;
 
 		private bool IsCurrentUserHasPermissonToGiveFuelLimit =>
-			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanGiveFuelLimits);
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanGiveFuelLimits);
 
 		private bool CarHasFuelType()
 		{
@@ -658,14 +656,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool IsFuelDocumentValid()
 		{
-			var isValid = CommonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
+			var isValid = _commonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
 
 			return isValid;
 		}
 
 		private async void CreateFuelLimitFuelOperationSaveAndClose(CancellationToken token)
 		{
-			var fuelCardId = FuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
+			var fuelCardId = _fuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
 
 			fuelCardId = "24895784";
 
@@ -719,7 +717,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void CreateFuelOperations()
 		{
-			FuelDocument.CreateOperations(FuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
+			FuelDocument.CreateOperations(_fuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
 			RouteList.ObservableFuelDocuments.Add(FuelDocument);
 
 			if(IsGiveFuelInMoneySelected && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
@@ -775,7 +773,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			foreach(var limit in notUsedFuelLimits)
 			{
-				var fuelDocument = FuelRepository.GetFuelDocumentByFuelLimitId(UoW, limit.LimitId);
+				var fuelDocument = _fuelRepository.GetFuelDocumentByFuelLimitId(UoW, limit.LimitId);
 
 				if(fuelDocument != null)
 				{
@@ -938,7 +936,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					car = null;
 				}
 
-				_fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
+				_fuelBalance = _fuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
 
 				text.Add($"Остаток без документа {_fuelBalance:F2} л.");
 			}
