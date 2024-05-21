@@ -27,7 +27,7 @@ namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 		{
 			string username = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
 
-			if(!string.IsNullOrWhiteSpace(username))
+			if(string.IsNullOrWhiteSpace(username))
 			{
 				return;
 			}
@@ -51,9 +51,11 @@ namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 					return;
 				}
 
+				var tokenActiveSessionKey = context.User?.Claims
+						.FirstOrDefault(x => x.Type == VodovozClaimTypes.ActiveSessionKey)?.Value;
+
 				if(applicationUser != null &&
-					applicationUser.SessionKey == context.User?.Claims
-						.FirstOrDefault(x => x.ValueType == VodovozClaimTypes.ActiveSessionKey)?.Value)
+					applicationUser.SessionKey == tokenActiveSessionKey)
 				{
 					context.Succeed(requirement);
 					return;

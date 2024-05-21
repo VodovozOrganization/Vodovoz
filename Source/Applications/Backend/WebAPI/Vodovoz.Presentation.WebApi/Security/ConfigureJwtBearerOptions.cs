@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Vodovoz.Presentation.WebApi.Security
 {
-	public class ConfigureJwtBearerOptions : IConfigureOptions<JwtBearerOptions>
+	public class ConfigureJwtBearerOptions : IPostConfigureOptions<JwtBearerOptions>
 	{
 		private readonly IOptions<SecurityOptions> _options;
 
@@ -27,9 +27,11 @@ namespace Vodovoz.Presentation.WebApi.Security
 				IssuerSigningKey =
 					new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Token.Key))
 			};
+
+			options.IncludeErrorDetails = true;
 		}
 
-		public void Configure(string name, JwtBearerOptions options)
+		public void PostConfigure(string name, JwtBearerOptions options)
 		{
 			Configure(options);
 		}

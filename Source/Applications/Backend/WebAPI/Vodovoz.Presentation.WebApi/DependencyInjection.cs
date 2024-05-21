@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Vodovoz.Presentation.WebApi.Security;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 
@@ -23,8 +26,9 @@ namespace Vodovoz.Presentation.WebApi
 				.ConfigureOptions<ConfigureJwtBearerOptions>()
 				.ConfigureOptions<ConfigureIdentityOptions>();
 
-			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			var builder = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer();
+				//.AddConfiguredJwtBearer();
 
 			return services;
 		}
@@ -45,5 +49,16 @@ namespace Vodovoz.Presentation.WebApi
 
 			return services;
 		}
+
+		//public static AuthenticationBuilder AddConfiguredJwtBearer(this AuthenticationBuilder builder)
+		//{
+		//	builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, JwtBearerPostConfigureOptions>(
+		//		sp =>
+		//		{
+		//			JwtBearerPostConfigureOptions
+		//			sp.GetRequiredService<ConfigureJwtBearerOptions>();
+		//		}));
+		//	return builder.AddScheme<JwtBearerOptions, JwtBearerHandler>(JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler).Name, configureOptions);
+		//}
 	}
 }
