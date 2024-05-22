@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1155,7 +1155,7 @@ SELECT * FROM route_lists_transactions_balance
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 (
@@ -1202,6 +1202,18 @@ SELECT * FROM route_lists_transactions_balance
 	WHERE	
 		DATE(fuel_operations_out.date) &lt; @start_date	
 		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
+-
+# Списание километража без МЛ
+	(SELECT
+	        SUM(mwo.liters_outlayed) AS liters_outlayed
+		FROM 
+			mileage_write_off mwo 
+			LEFT JOIN employees e ON mwo.driver_id = e.id 
+			LEFT JOIN cars c on mwo.car_id = c.id 
+		WHERE
+			mwo.write_off_date &lt; @start_date
+	        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND mwo.car_id = @car_id))
+	    )
 ) as balance</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1215,7 +1227,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
