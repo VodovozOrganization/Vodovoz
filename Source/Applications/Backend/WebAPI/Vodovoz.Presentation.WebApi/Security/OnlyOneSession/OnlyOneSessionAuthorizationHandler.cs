@@ -32,37 +32,35 @@ namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 				return;
 			}
 
-			using(var scope = _scopeFactory.CreateScope())
+			using var scope = _scopeFactory.CreateScope();
+			using var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+			var onlyOneSessionAllowed = _optionsMonitor.CurrentValue.Authorization?.OnlyOneSessionAllowed ?? false;
+
+			var allowedApplicationTypes = _optionsMonitor.CurrentValue.Authorization?.ApplicationUserTypes ?? Enumerable.Empty<ExternalApplicationType>();
+
+			var applicationUser = unitOfWork.Session.Query<ExternalApplicationUserForApi>()
+				.Where(eau => eau.Login == username
+					&& allowedApplicationTypes.Contains(eau.ExternalApplicationType))
+				.FirstOrDefault();
+
+			if(!onlyOneSessionAllowed)
 			{
-				IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
-				var onlyOneSessionAllowed = _optionsMonitor.CurrentValue.Authorization?.OnlyOneSessionAllowed ?? false;
-
-				var allowedApplicationTypes = _optionsMonitor.CurrentValue.Authorization?.ApplicationUserTypes ?? Enumerable.Empty<ExternalApplicationType>();
-
-				var applicationUser = unitOfWork.Session.Query<ExternalApplicationUserForApi>()
-					.Where(eau => eau.Login == username
-						&& allowedApplicationTypes.Contains(eau.ExternalApplicationType))
-					.FirstOrDefault();
-
-				if(!onlyOneSessionAllowed)
-				{
-					context.Succeed(requirement);
-					return;
-				}
-
-				var tokenActiveSessionKey = context.User?.Claims
-						.FirstOrDefault(x => x.Type == VodovozClaimTypes.ActiveSessionKey)?.Value;
-
-				if(applicationUser != null &&
-					applicationUser.SessionKey == tokenActiveSessionKey)
-				{
-					context.Succeed(requirement);
-					return;
-				}
-
-				context.Fail();
+				context.Succeed(requirement);
+				return;
 			}
+
+			var tokenActiveSessionKey = context.User?.Claims
+				.FirstOrDefault(x => x.Type == VodovozClaimTypes.ActiveSessionKey)?.Value;
+
+			if(applicationUser != null &&
+				applicationUser.SessionKey == tokenActiveSessionKey)
+			{
+				context.Succeed(requirement);
+				return;
+			}
+
+			context.Fail();
 		}
 	}
 }
