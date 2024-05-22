@@ -4,7 +4,7 @@ namespace Vodovoz.Core.Domain.Pacs
 {
 	public class OperatorWorkshift
 	{
-		protected OperatorWorkshift()
+		public OperatorWorkshift()
 		{
 		}
 
