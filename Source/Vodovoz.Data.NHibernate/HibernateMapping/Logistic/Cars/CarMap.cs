@@ -46,6 +46,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 				.OrderBy("start_date DESC");
 			HasMany(x => x.FuelCardVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
+			HasMany(x => x.CarInsurances).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
+				.OrderBy("end_date DESC");
 
 			HasMany(x => x.OdometerReadings).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
