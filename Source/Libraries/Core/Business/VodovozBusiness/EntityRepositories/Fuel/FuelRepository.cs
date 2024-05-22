@@ -155,35 +155,63 @@ namespace Vodovoz.EntityRepositories.Fuel
 		{
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
+			MileageWriteOff mileageWriteOffAlias = null;
 
-			var queryResult = uow.Session.QueryOver<FuelOperation>(() => operationAlias);
+			var fuelOperationsQuery = uow.Session.QueryOver(() => operationAlias);
 
 			if(driver != null)
 			{
-				queryResult.Where(() => operationAlias.Driver.Id == driver.Id);
+				fuelOperationsQuery.Where(() => operationAlias.Driver.Id == driver.Id);
 			}
 
 			if(car != null)
 			{
-				queryResult.Where(() => operationAlias.Car.Id == car.Id);
+				fuelOperationsQuery.Where(() => operationAlias.Car.Id == car.Id);
 			}
 
 			if(before.HasValue)
 			{
-				queryResult.Where(() => operationAlias.OperationTime < before);
+				fuelOperationsQuery.Where(() => operationAlias.OperationTime < before);
 			}
 
 			if(excludeOperationsIds != null)
 			{
-				queryResult.Where(() => !operationAlias.Id.IsIn(excludeOperationsIds));
+				fuelOperationsQuery.Where(() => !operationAlias.Id.IsIn(excludeOperationsIds));
 			}
 
-			return queryResult.SelectList(list => list
+			fuelOperationsQuery.Where(() => !operationAlias.IsFine);
+
+			var operationsSum = fuelOperationsQuery.SelectList(list => list
 					.SelectSum(() => operationAlias.LitersGived).WithAlias(() => result.Gived)
 					.SelectSum(() => operationAlias.LitersOutlayed).WithAlias(() => result.Outlayed))
 				.TransformUsing(Transformers.AliasToBean<FuelQueryResult>())
 				.List<FuelQueryResult>()
 				.FirstOrDefault()?.FuelBalance ?? 0;
+
+			var mileageWriteOffQuery = uow.Session.QueryOver(() => mileageWriteOffAlias);
+
+			if(driver != null)
+			{
+				mileageWriteOffQuery.Where(() => mileageWriteOffAlias.Driver.Id == driver.Id);
+			}
+
+			if(car != null)
+			{
+				mileageWriteOffQuery.Where(() => mileageWriteOffAlias.Car.Id == car.Id);
+			}
+
+			if(before.HasValue)
+			{
+				mileageWriteOffQuery.Where(() => mileageWriteOffAlias.WriteOffDate < before);
+			}
+
+			var mileageWriteOffFuelSum =
+				mileageWriteOffQuery
+				.Select(Projections.Property(nameof(mileageWriteOffAlias.LitersOutlayed)))
+				.List<decimal>()
+				.Sum();
+
+			return operationsSum - mileageWriteOffFuelSum;
 		}
 
 		public decimal GetFuelBalanceForSubdivision(IUnitOfWork uow, Subdivision subdivision, FuelType fuelType)
@@ -319,14 +347,12 @@ namespace Vodovoz.EntityRepositories.Fuel
 		{
 			var todayDate = DateTime.Today;
 
-			var fuelOperationsForCar = (unitOfWork.Session.Query<FuelOperation>()
+			var givedLitersSum = unitOfWork.Session.Query<FuelOperation>()
 				.Where(o =>
 					o.Car.Id == carId
 					&& o.LitersGived > 0
 					&& o.OperationTime >= todayDate
-					&& o.OperationTime < todayDate.AddDays(1))).ToList();
-
-			var givedLitersSum = fuelOperationsForCar
+					&& o.OperationTime < todayDate.AddDays(1))
 				.Select(o => o.LitersGived)
 				.Sum();
 
