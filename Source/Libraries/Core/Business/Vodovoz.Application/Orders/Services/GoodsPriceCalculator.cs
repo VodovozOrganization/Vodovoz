@@ -61,7 +61,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			IList<NomenclatureFixedPrice> fixedPrices;
 
-			if(promoSet is null)
+			if(promoSet != null)
 			{
 				return null;
 			}

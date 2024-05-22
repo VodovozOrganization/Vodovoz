@@ -81,6 +81,10 @@ namespace Vodovoz.Application.Orders.Services
 				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes ?? 15;
 				order.IsDoNotMakeCallBeforeArrival = false;
 			}
+			else
+			{
+				order.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
+			}
 			
 			order.UpdateOrCreateContract(order.UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 
