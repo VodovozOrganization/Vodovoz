@@ -824,6 +824,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				{
 					fuelDocument.FuelLimitLitersAmount = limit.UsedAmount ?? 0;
 					fuelDocument.FuelOperation.LitersGived = fuelDocument.FuelLimitLitersAmount + fuelDocument.FuelOperation.PayedLiters;
+					fuelDocument.FuelLimit.UsedAmount = limit.UsedAmount ?? 0;
+					fuelDocument.FuelLimit.TransactionsOccured = limit.TransactionsOccured ?? 0;
+					fuelDocument.FuelLimit.LastEditDate = limit.LastEditDate;
 				}
 			}
 		}
