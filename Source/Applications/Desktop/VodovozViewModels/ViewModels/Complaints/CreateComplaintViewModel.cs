@@ -289,23 +289,22 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		public void CheckAndSave()
+		protected override bool BeforeSave()
+		{
+			var canSave = CheckForDuplicates();
+
+			return canSave;
+		}
+
+		private bool CheckForDuplicates()
 		{
 			var canCreateDuplicateComplaints = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanCreateDuplicateComplaints);
 			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday();
-			var canSave = !hasСounterpartyDuplicateToday
+			var canSaveDuplicate = !hasСounterpartyDuplicateToday
 				|| (canCreateDuplicateComplaints && CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"));
 
-			if(canSave)
-			{
-				SaveAndClose();
-			}
-			else
-			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Рекламация с данным контрагентом уже создавалась сегодня, сохранение не выполнено");
-			}
+			return canSaveDuplicate; 
 		}
-		
 
 		private bool HasСounterpartyDuplicateToday()
 		{
