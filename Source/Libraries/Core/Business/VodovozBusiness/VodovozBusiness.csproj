@@ -57,6 +57,10 @@
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Domain\Fuel\FuelLimit.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitPeriodUnit.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitStatus.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitTermType.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitUnit.cs" />
     <Compile Include="Permissions\Logistic.Fuel.cs" />
     <Compile Include="Services\Fuel\IFuelCardVersionService.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequest.cs" />
