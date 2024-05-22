@@ -395,9 +395,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiAuthentication", "Librar
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FuelControl", "FuelControl", "{8788AC3C-7DFB-4E78-BFC1-61D4F2D7E70C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelControl.Library", "Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj", "{7C6D2E5D-7501-4905-B518-C080B06A6B3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelControl.Library", "Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj", "{7C6D2E5D-7501-4905-B518-C080B06A6B3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelControl.Contracts", "Libraries\Core\FuelControl\FuelControl.Contracts\FuelControl.Contracts.csproj", "{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelControl.Contracts", "Libraries\Core\FuelControl\FuelControl.Contracts\FuelControl.Contracts.csproj", "{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Zabbix.Sender", "Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj", "{872C1218-114B-48F7-8F0B-3E4180BEE4DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -5198,6 +5200,42 @@ Global
 		{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{5A21D88D-AE9F-45A7-A57C-A52AFAD31402}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Debug|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Docker|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Release|x86.ActiveCfg = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Release|x86.Build.0 = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WCF|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Web|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.Web|x86.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -5387,6 +5425,7 @@ Global
 		{8788AC3C-7DFB-4E78-BFC1-61D4F2D7E70C} = {286272B6-AAA0-47EF-98AF-F43BB3360F48}
 		{7C6D2E5D-7501-4905-B518-C080B06A6B3E} = {8788AC3C-7DFB-4E78-BFC1-61D4F2D7E70C}
 		{5A21D88D-AE9F-45A7-A57C-A52AFAD31402} = {8788AC3C-7DFB-4E78-BFC1-61D4F2D7E70C}
+		{872C1218-114B-48F7-8F0B-3E4180BEE4DD} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
