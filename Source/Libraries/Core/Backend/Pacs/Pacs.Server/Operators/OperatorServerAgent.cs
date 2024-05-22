@@ -1,7 +1,6 @@
 ﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
-using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Breaks;
 using Pacs.Server.Phones;
@@ -47,9 +46,7 @@ namespace Pacs.Server.Operators
 		private StateMachine.TriggerWithParameters<BreakStartArgs> _startBreakTrigger;
 		private StateMachine.TriggerWithParameters<BreakEndArgs> _endBreakTrigger;
 
-
 		public event EventHandler<int> OnDisconnect;
-
 
 		public int OperatorId => _operator.Id;
 		public OperatorSession Session { get; private set; }
@@ -66,8 +63,7 @@ namespace Pacs.Server.Operators
 			IPhoneController phoneController,
 			GlobalBreakController globalBreakController,
 			OperatorBreakController operatorBreakController,
-			IUnitOfWorkFactory uowFactory
-		)
+			IUnitOfWorkFactory uowFactory)
 		{
 			_operator = @operator ?? throw new ArgumentNullException(nameof(@operator));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -396,12 +392,7 @@ namespace Pacs.Server.Operators
 			var phoneNumber = (string)transition.Parameters[0];
 			_phoneController.AssignPhone(phoneNumber, OperatorId);
 			OperatorState.PhoneNumber = phoneNumber;
-			OperatorState.WorkShift = new OperatorWorkshift
-			{
-				OperatorId = OperatorId,
-				Started = DateTime.Now,
-				PlannedWorkShift = _operator.WorkShift
-			};
+			OperatorState.WorkShift = OperatorWorkshift.Create(OperatorId, DateTime.Now, _operator.WorkShift);
 			_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
 		}
 
