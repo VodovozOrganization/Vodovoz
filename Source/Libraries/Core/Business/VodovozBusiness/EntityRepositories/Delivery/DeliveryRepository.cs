@@ -554,7 +554,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			}
 		}
 
-		public IList<FastDeliveryLateNode> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime,
+		public IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime,
 			IGeneralSettings generalSettings, int complaintDetalizationId)
 		{
 			var fastDeliveryIntervalFrom = generalSettings.FastDeliveryIntervalFrom;			
@@ -565,10 +565,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			Order orderAlias = null;
-			FastDeliveryLateNode result = null;
-			DeliveryPoint deliveryPointAlias = null;
-			District districtAlias = null;
-			GeoGroup geoGroupAlias = null;
 			Complaint complaintAlias = null;
 
 			var alreadyExistsComplaintSubquery = QueryOver.Of(() => complaintAlias)
@@ -577,12 +573,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Select(Projections.Property(() => complaintAlias.Id))
 				.Take(1);
 
-			var fastDeliveryOrdersLateQuery = uow.Session.QueryOver(() => routeListItemAlias)
+			var fastDeliveryOrdersLateQuery = uow.Session.QueryOver(() => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => orderAlias.Id == routeListItemAlias.Order.Id)
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)				
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => orderAlias.DeliveryDate >= fromDateTime)
 				.WithSubquery.WhereNotExists(alreadyExistsComplaintSubquery)
@@ -623,25 +616,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 			fastDeliveryOrdersLateQuery.Where(Restrictions.Lt(dateProjection, DateTime.Now));
 
-			var fastDeliveryOrdersLate = fastDeliveryOrdersLateQuery.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => result.OrderId)
-					.Select(() => orderAlias.PaymentType).WithAlias(() => result.PaymentType)
-					.Select(() => geoGroupAlias.Id).WithAlias(() => result.GeoGroupId)
-					.Select(() => deliveryPointAlias.Id).WithAlias(() => result.DeliveryPointId)
-				)
-				.TransformUsing(Transformers.AliasToBean<FastDeliveryLateNode>())
-				.List<FastDeliveryLateNode>();
-
-			return fastDeliveryOrdersLate;
+			return fastDeliveryOrdersLateQuery
+				.TransformUsing(Transformers.RootEntity)
+				.List<Order>();
 		}
-	}
-
-	public class FastDeliveryLateNode
-	{
-		public int OrderId { get; set; }
-		public int GeoGroupId { get; set; }
-		public PaymentType PaymentType { get; set; }
-		public int DeliveryPointId { get; set; }
 	}
 
 	public class CountUnclosedFastDeliveryAddressesNode

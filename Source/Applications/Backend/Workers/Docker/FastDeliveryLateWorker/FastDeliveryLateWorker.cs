@@ -131,19 +131,18 @@ namespace FastDeliveryLateWorker
 				{
 					var isPrepayment = lateOrder.PaymentType == PaymentType.PaidOnline || lateOrder.PaymentType == PaymentType.SmsQR;
 
-					var isSouthDistrict = lateOrder.GeoGroupId == _options.Value.SouthGeoGroupId;
+					var isSouthDistrict = lateOrder.DeliveryPoint.District.GeographicGroup.Id == _options.Value.SouthGeoGroupId;
 
 					var complaintText = "Не исполнены условия Экспресс доставки.\n"
 							+ (isPrepayment
 							? "Осуществить возврат средств за экспресс- доставку."
-							: "");
-
-					var order = _orderRepository.GetOrder(uow, lateOrder.OrderId);
+							: "");				
 
 					var complaint = new Complaint
 					{
-						Order = order,
-						DeliveryPoint = new DeliveryPoint { Id = lateOrder.DeliveryPointId },
+						Order = lateOrder,
+						Counterparty = lateOrder.Client,
+						DeliveryPoint = lateOrder.DeliveryPoint,
 						ComplaintKind = complaintDetalization.ComplaintKind,
 						ComplaintDetalization = complaintDetalization,
 						ComplaintSource = new ComplaintSource { Id = _options.Value.ComplaintSourceId },
@@ -152,10 +151,10 @@ namespace FastDeliveryLateWorker
 						CreationDate = DateTime.Now,
 						ChangedDate = DateTime.Now,
 						CreatedBy = currentEmployee,
-						ChangedBy = currentEmployee,
+						ChangedBy = currentEmployee						
 					};					
 
-					var fastDeliveryOrderItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.FastDeliveryNomenclatureId);
+					var fastDeliveryOrderItem = lateOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.FastDeliveryNomenclatureId);
 					fastDeliveryOrderItem.SetDiscount(100);
 					fastDeliveryOrderItem.DiscountReason =  new DiscountReason { Id = _orderSettings.FastDeliveryLateDiscountReasonId };
 					uow.Save(fastDeliveryOrderItem);

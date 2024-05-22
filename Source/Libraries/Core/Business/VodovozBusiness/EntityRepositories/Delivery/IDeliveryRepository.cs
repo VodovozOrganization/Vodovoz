@@ -37,7 +37,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 		double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime);
 		double MaxDistanceToLatestTrackPointKm { get; }
 
-		IList<FastDeliveryLateNode> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime, IGeneralSettings generalSettings,
+		IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime, IGeneralSettings generalSettings,
 			int complaintDetalizationId);
 
 	}
