@@ -180,5 +180,16 @@ namespace Vodovoz.EntityRepositories.Employees
 					select externalUser.Token)
 					.FirstOrDefault();
 		}
+
+		public int? GetEmployeeCounterpartyFromDatabase(IUnitOfWorkFactory uowFactory, int employeeId)
+		{
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				return (from employee in uow.Session.Query<Employee>()
+						where employee.Id == employeeId
+						select employee.Counterparty.Id)
+					.SingleOrDefault();
+			}
+		}
 	}
 }

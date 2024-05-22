@@ -142,6 +142,7 @@ namespace Vodovoz.Views.Users
 
 			#region Обновление фиксы
 
+			lblUpdateFixedPricesTitle.LabelProp = @"<b>Обновление фиксы 19л воды</b>";
 			btnUpdateFixedPrices.Clicked += (sender, args) => UpdateFixedPrices();
 			btnUpdateFixedPrices.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanUpdateFixedPrices && !vm.IsFixedPricesUpdating, w => w.Sensitive)

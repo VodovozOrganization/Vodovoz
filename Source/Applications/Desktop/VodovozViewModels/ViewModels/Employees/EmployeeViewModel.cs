@@ -22,12 +22,14 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
@@ -67,6 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageSettings _wageSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
+		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
@@ -86,6 +89,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DateTime? _selectedRegistrationDate;
 		private EmployeeRegistrationVersion _selectedRegistrationVersion;
 		private bool _showWarehouseAppCredentials;
+		private bool _counterpartyChangedByUser;
+		private bool _statusChangedByUser;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
 		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
@@ -129,6 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
+			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -155,7 +161,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			
+			_nomenclatureFixedPriceController =
+				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
+
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(validationContextFactory == null)
@@ -849,6 +857,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					UpdateDocumentsPermissions();
 					OnPropertyChanged(nameof(CanReadEmployeeDocuments));
 					break;
+				case nameof(Entity.Counterparty):
+					_counterpartyChangedByUser = true;
+					break;
+				case nameof(Entity.Status):
+					_statusChangedByUser = true;
+					break;
 				default:
 					break;
 			}
@@ -1262,6 +1276,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			_terminalManagementViewModel?.SaveChanges();
 
+			if(Entity.Counterparty != null)
+			{
+				if(Entity.Status == EmployeeStatus.OnCalculation || Entity.Status == EmployeeStatus.IsFired)
+				{
+					TryRemoveAllFixedPrices();
+				}
+				else
+				{
+					TryAddEmployeeFixedPrices();
+				}
+			}
+
 			_logger.Info("Сохраняем сотрудника...");
 			try
 			{
@@ -1276,6 +1302,46 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			_logger.Info("Ok");
 			return true;
+		}
+
+		private void TryRemoveAllFixedPrices()
+		{
+			if(!_statusChangedByUser)
+			{
+				return;
+			}
+
+			var counterparty = Entity.Counterparty;
+			_nomenclatureFixedPriceController.DeleteAllFixedPricesFromCounterpartyAndDeliveryPoints(counterparty);
+			UoW.Save(counterparty);
+		}
+
+		private void TryAddEmployeeFixedPrices()
+		{
+			if(!_counterpartyChangedByUser && !_statusChangedByUser)
+			{
+				return;
+			}
+
+			var oldCounterpartyId =
+				Entity.Id > 0
+					? _employeeRepository.GetEmployeeCounterpartyFromDatabase(_unitOfWorkFactory, Entity.Id)
+					: null;
+			
+			var fixedPrices = _nomenclatureFixedPriceController.GetEmployeesNomenclatureFixedPrices(UoW);
+
+			if(oldCounterpartyId.HasValue && (Entity.Counterparty is null || Entity.Counterparty.Id != oldCounterpartyId))
+			{
+				var counterparty = UoW.GetById<Domain.Client.Counterparty>(oldCounterpartyId.Value);
+				_nomenclatureFixedPriceController.DeleteAllFixedPricesFromCounterpartyAndDeliveryPoints(counterparty);
+				UoW.Save(counterparty);
+			}
+
+			if(Entity.Counterparty != null)
+			{
+				_nomenclatureFixedPriceController.AddEmployeeFixedPricesToCounterpartyAndDeliveryPoints(Entity.Counterparty, fixedPrices);
+				UoW.Save(Entity.Counterparty);
+			}
 		}
 
 		public override bool CompareHashName(string hashName)

@@ -12,6 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Price).Column("fixed_price");
 			Map(x => x.MinCount).Column("min_count");
+			Map(x => x.IsEmployeeFixedPrice).Column("is_employee_fixed_price");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

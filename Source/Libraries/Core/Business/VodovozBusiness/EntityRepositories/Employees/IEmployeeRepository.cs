@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
@@ -27,5 +28,6 @@ namespace Vodovoz.EntityRepositories.Employees
 		EmployeeRegistration EmployeeRegistrationDuplicateExists(IUnitOfWorkFactory uowFactory, EmployeeRegistration registration);
 		IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow);
 		string GetDriverPushTokenById(IUnitOfWork unitOfWork, int notifyableEmployeeId);
+		int? GetEmployeeCounterpartyFromDatabase(IUnitOfWorkFactory uowFactory, int employeeId);
 	}
 }
