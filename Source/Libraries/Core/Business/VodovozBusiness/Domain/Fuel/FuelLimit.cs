@@ -31,8 +31,6 @@ namespace Vodovoz.Domain.Fuel
 		private DateTime _createDate;
 		private DateTime? _lastEditDate;
 		private FuelLimitStatus _status;
-		private FuelLimit _transferredFromFuelLimit;
-		private decimal? _transferredAmountLiters;
 
 		public virtual int Id { get; set; }
 
@@ -160,20 +158,6 @@ namespace Vodovoz.Domain.Fuel
 		{
 			get => _status;
 			set => SetField(ref _status, value);
-		}
-
-		[Display(Name = "Перенесено из лимита")]
-		public virtual FuelLimit TransferredFromFuelLimit
-		{
-			get => _transferredFromFuelLimit;
-			set => SetField(ref _transferredFromFuelLimit, value);
-		}
-
-		[Display(Name = "Количетство топлива, которое было перенесено из другого лимита")]
-		public virtual decimal? TransferredAmountLiters
-		{
-			get => _transferredAmountLiters;
-			set => SetField(ref _transferredAmountLiters, value);
 		}
 
 		public virtual string Title => $"Топливный лимит на {Amount} л. №{Id} (Id={LimitId}) Id карты: {CardId}";

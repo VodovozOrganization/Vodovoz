@@ -32,9 +32,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.LastEditDate).Column("last_edit_date");
 			Map(x => x.Status).Column("status");
-			Map(x => x.TransferredAmountLiters).Column("transferred_amount_liters");
-
-			References(x => x.TransferredFromFuelLimit).Column("transferred_from_fuel_limit_id");
 		}
 	}
 }
