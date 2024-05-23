@@ -140,7 +140,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			try
 			{
 				_adminClient.EndWorkShift(_model.CurrentState.OperatorId, EndWorkShiftReason).Wait();
-
+				CleanEndWorkShiftReason();
 			}
 			catch(PacsException ex)
 			{
