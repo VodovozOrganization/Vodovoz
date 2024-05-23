@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 

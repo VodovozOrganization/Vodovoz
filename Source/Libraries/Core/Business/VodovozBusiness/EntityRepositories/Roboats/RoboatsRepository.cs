@@ -8,6 +8,8 @@ using System.Linq;
 using NHibernate.Dialect.Function;
 using NPOI.SS.Formula.Functions;
 using QS.Project.DB;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;

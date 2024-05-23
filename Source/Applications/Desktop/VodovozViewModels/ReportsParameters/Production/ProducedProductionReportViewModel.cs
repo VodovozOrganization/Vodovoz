@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.CommonEnums;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Extensions;

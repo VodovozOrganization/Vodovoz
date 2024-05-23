@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;

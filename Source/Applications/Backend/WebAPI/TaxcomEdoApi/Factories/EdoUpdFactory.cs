@@ -5,6 +5,8 @@ using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TISystems.TTC.Common;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;

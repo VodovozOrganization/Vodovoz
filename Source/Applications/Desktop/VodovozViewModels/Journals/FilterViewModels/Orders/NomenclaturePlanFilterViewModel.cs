@@ -2,6 +2,7 @@
 using QS.Project.Filter;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders

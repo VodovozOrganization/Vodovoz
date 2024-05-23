@@ -3,6 +3,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;

@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix

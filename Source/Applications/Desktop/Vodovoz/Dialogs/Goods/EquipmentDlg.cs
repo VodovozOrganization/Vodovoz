@@ -9,6 +9,7 @@ using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Equipments;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {

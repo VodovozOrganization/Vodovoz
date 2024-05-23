@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Autofac;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;

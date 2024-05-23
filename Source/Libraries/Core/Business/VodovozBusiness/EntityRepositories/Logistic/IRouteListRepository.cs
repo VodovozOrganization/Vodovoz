@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;

@@ -1,7 +1,7 @@
-﻿using QS.DomainModel.Entity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	/// <summary>
 	/// Типы номенклатур

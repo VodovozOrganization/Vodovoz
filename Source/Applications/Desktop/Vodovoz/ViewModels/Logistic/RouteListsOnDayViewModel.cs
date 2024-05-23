@@ -23,6 +23,7 @@ using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

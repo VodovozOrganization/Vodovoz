@@ -80,6 +80,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using QS.Dialog.Gtk;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz

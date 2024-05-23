@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using NLog;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 

@@ -5,6 +5,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Domain
 {

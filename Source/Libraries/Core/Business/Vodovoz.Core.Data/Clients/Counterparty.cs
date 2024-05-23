@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Data.Goods;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Core.Data.Clients
 {

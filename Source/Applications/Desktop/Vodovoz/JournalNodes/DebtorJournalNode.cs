@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.JournalNodes

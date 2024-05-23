@@ -112,7 +112,6 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
-    <Compile Include="Domain\Client\CargoReceiverSource.cs" />
     <Compile Include="Domain\Client\ClientClassification\CounterpartyCompositeClassification.cs" />
     <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
     <Compile Include="Domain\Client\ClientClassification\CounterpartyClassification.cs" />
@@ -127,8 +126,6 @@
     <Compile Include="Domain\Client\ExternalCreatingDeliveryPoint.cs" />
     <Compile Include="Domain\Client\ISupplierPriceNode.cs" />
     <Compile Include="Domain\Client\OrderStatusForSendingUpd.cs" />
-    <Compile Include="Domain\Client\PersonType.cs" />
-    <Compile Include="Domain\Client\ReasonForLeaving.cs" />
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
@@ -141,7 +138,6 @@
     <Compile Include="Domain\Goods\KulerSaleWebSiteNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\LockerRefrigeratorType.cs" />
     <Compile Include="Domain\Goods\MobileAppNomenclatureOnlineCatalog.cs" />
-    <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
     <Compile Include="Domain\Goods\NomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\NomenclatureOnlineCategory.cs" />
     <Compile Include="Domain\Goods\NomenclatureOnlineGroup.cs" />

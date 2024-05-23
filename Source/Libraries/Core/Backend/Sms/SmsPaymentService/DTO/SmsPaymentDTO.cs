@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 

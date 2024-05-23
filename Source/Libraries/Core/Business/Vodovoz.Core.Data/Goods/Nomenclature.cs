@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Core.Data.Goods
+﻿using Vodovoz.Core.Domain.Goods;
+
+namespace Vodovoz.Core.Data.Goods
 {
 	public class Nomenclature
 	{

@@ -1,5 +1,6 @@
 ﻿using QS.Project.Journal;
 using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
