@@ -62,7 +62,7 @@ namespace Vodovoz
 
 			labelAvalilableFuel.Visible = false;
 			label6.Visible = false;
-			hbox6.Visible = false;
+			yspinFuelTicketLiters.Visible = false;
 		}
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)

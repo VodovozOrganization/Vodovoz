@@ -1,4 +1,6 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
+using Grpc.Core.Logging;
+using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using QS.Commands;
 using QS.Dialog;
@@ -18,6 +20,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class PacsOperatorViewModel : WidgetViewModelBase
 	{
+		private readonly ILogger<PacsOperatorViewModel> _logger;
 		private readonly OperatorService _operatorService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IInteractiveService _interactiveService;
@@ -32,12 +35,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private string _breakInfo;
 
 		public PacsOperatorViewModel(
+			ILogger<PacsOperatorViewModel> logger,
 			OperatorService operatorService,
 			IEmployeeService employeeService,
 			IInteractiveService interactiveService,
 			IGuiDispatcher guiDispatcher,
 			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorService = operatorService ?? throw new ArgumentNullException(nameof(operatorService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -210,7 +215,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при начале смены: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при начале смены: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -246,7 +257,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при завершении смены: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при завершении смены: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -264,7 +281,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при смене номера телефона: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при смене номера телефона: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -281,7 +304,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при начале длинного перерыва: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при начале длинного перерыва: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -298,7 +327,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при начале короткого перерыва: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при начале короткого перерыва: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -315,7 +350,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при завершении перерыва: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при завершении перерыва: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
