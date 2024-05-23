@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -84,15 +85,16 @@ namespace Vodovoz.EntityRepositories.Goods
 		
 		public IReadOnlyList<NomenclatureFixedPrice> GetFixedPricesFor19LWater(IUnitOfWork uow)
 		{
-			var result =
-				from fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
-				join nomenclature in uow.Session.Query<Nomenclature>()
-					on fixedPrice.Nomenclature.Id equals nomenclature.Id
-					where nomenclature.Category == NomenclatureCategory.water
-						&& nomenclature.TareVolume == TareVolume.Vol19L
-				select fixedPrice;
+			Nomenclature nomenclatureAlias = null;
 
-			return result.ToList();
+			var result = uow.Session.QueryOver<NomenclatureFixedPrice>()
+				.JoinAlias(fp => fp.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Fetch(SelectMode.Fetch, fp => fp.DeliveryPoint)
+				.Fetch(SelectMode.Fetch, fp => fp.Counterparty);
+
+			return result.List() as List<NomenclatureFixedPrice>;
 		}
 	}
 }
