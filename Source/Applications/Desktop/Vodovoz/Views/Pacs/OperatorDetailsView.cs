@@ -47,7 +47,9 @@ namespace Vodovoz.Views.Pacs
 			buttonStartShortBreak.BindCommand(ViewModel.StartShortBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 
-			frameWorkShifts.Visible = false;
+			textviewWorkShiftEndReason.Binding
+				.AddBinding(ViewModel, vm => vm.EndWorkShiftReason, w => w.Buffer.Text)
+				.InitializeFromSource();
 
 			ybuttonEndWorkshift.BindCommand(ViewModel.EndWorkShiftCommand);
 		}
