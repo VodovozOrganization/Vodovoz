@@ -389,11 +389,22 @@ namespace Pacs.Server.Operators
 
 		private void OnStartWorkShift(StateMachine.Transition transition)
 		{
-			var phoneNumber = (string)transition.Parameters[0];
-			_phoneController.AssignPhone(phoneNumber, OperatorId);
-			OperatorState.PhoneNumber = phoneNumber;
-			OperatorState.WorkShift = OperatorWorkshift.Create(OperatorId, DateTime.Now, _operator.WorkShift);
-			_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
+			try
+			{
+				var phoneNumber = (string)transition.Parameters[0];
+				_phoneController.AssignPhone(phoneNumber, OperatorId);
+				OperatorState.PhoneNumber = phoneNumber;
+				OperatorState.WorkShift = OperatorWorkshift.Create(OperatorId, DateTime.Now, _operator.WorkShift);
+				_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Не удалось начать смену: {ExceptionMessage}, возврат в состояние: {State}", ex.Message, _previuosState.State);
+				if(transition.Destination != _previuosState.State)
+				{
+					ChangeState(_previuosState.State);
+				}
+			}
 		}
 
 		public async Task EndWorkShift(string reason)
