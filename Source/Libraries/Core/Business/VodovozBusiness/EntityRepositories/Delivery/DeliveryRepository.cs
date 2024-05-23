@@ -363,10 +363,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.And(() => oe.Direction == Direction.Deliver)
 				.Select(Projections.Sum(() => nomenclatureAlias.Weight * oe.Count));
 
-			var addresses = uow.Session.QueryOver<RouteListItem>()
+			var addressesLookup = uow.Session.QueryOver<RouteListItem>()
 				.JoinAlias(address => address.Order, () => o)
 				.JoinAlias(() => o.DeliveryPoint, () => deliveryPointAlias)
-				.WhereRestrictionOn(address => address.Id).IsInG(routeListIds)
+				.WhereRestrictionOn(address => address.RouteList.Id).IsInG(routeListIds)
 				.SelectList(list => list
 					.Select(address => address.RouteList.Id).WithAlias(() => addressInfoAlias.RouteListId)
 					.Select(address => address.IndexInRoute).WithAlias(() => addressInfoAlias.IndexInRoute)
@@ -378,7 +378,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 					.Select(Projections.SubQuery(equipmentsSummaryWeight)).WithAlias(() => addressInfoAlias.EquipmentsSummaryWeight)
 				)
 				.TransformUsing(Transformers.AliasToBean<AddressInfoForFastDelivery>())
-				.List<AddressInfoForFastDelivery>();
+				.List<AddressInfoForFastDelivery>()
+				.ToLookup(x => x.RouteListId);
 			
 			var rlsFastDeliveriesCount =
 				routeListFastDeliveriesCount.ToDictionary(x => x.RouteListId);
@@ -404,32 +405,40 @@ namespace Vodovoz.EntityRepositories.Delivery
 					UpdateRemainingTimeForShipmentNewOrder(node);
 					UpdateRouteListBalanceParameter(node);
 				}
+
+				routeListNodes = routeListNodes
+					.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
+					.ToList();
 			}
 			else
 			{
 				foreach(var node in routeListNodes)
 				{
 					UpdateDistanceAndLastCoordinateTimeParameters(node);
+				}
+
+				routeListNodes = routeListNodes
+					.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
+					.ToList();
+
+				foreach(var node in routeListNodes)
+				{
 					UpdateUnClosedFastDeliveriesParameter(node);
 					UpdateRemainingTimeForShipmentNewOrder(node);
 					UpdateRouteListBalanceParameter(node);
 					i++;
-				
+
 					if(node.IsValidRLToFastDelivery)
 					{
 						break;
 					}
 				}
-			
+
 				if(i < routeListNodes.Count)
 				{
 					routeListNodes = routeListNodes.Take(i).ToList();
 				}
 			}
-			
-			routeListNodes = routeListNodes
-				.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
-				.ToList();
 			
 			if(routeListNodes.Any())
 			{
@@ -512,6 +521,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 			void UpdateRemainingTimeForShipmentNewOrder(FastDeliveryVerificationDetailsNode node)
 			{
 				AddressInfoForFastDelivery latestAddress = null;
+
+				var addresses = addressesLookup.Contains(node.RouteListId)
+					? addressesLookup[node.RouteListId]
+					: Array.Empty<AddressInfoForFastDelivery>();
 				
 				var orderedEnRouteAddresses = addresses
 					.Where(x => x.AddressStatus == RouteListItemStatus.EnRoute)
