@@ -1,18 +1,18 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using QS.Views.GtkUI;
-using System;
+using System.ComponentModel;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Presentation.ViewModels.Pacs;
-using Gamma.Utilities;
 
 namespace Vodovoz.Views.Pacs
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class OperatorDetailsView : WidgetViewBase<DashboardOperatorDetailsViewModel>
 	{
 		public OperatorDetailsView()
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()
@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Pacs
 			base.ConfigureWidget();
 
 			labelInfo.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Tittle, w => w.LabelProp)
+				.AddBinding(vm => vm.Title, w => w.LabelProp)
 				.InitializeFromSource();
 
 			treeViewOperatorHistory.ColumnsConfig = FluentColumnsConfig<OperatorState>.Create()
@@ -48,6 +48,8 @@ namespace Vodovoz.Views.Pacs
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 
 			frameWorkShifts.Visible = false;
+
+			ybuttonEndWorkshift.BindCommand(ViewModel.EndWorkShiftCommand);
 		}
 	}
 }
