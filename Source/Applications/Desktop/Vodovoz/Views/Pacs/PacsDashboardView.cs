@@ -67,6 +67,8 @@ namespace Vodovoz.Views.Pacs
 					.AddReadOnlyTextRenderer(x => x.State)
 				.AddColumn("Говорит с").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.ConnectedToCall)
+				.AddColumn("№ Смены оператора")
+					.AddReadOnlyTextRenderer(x => x.Model?.CurrentState?.WorkShift?.Id.ToString() ?? "")
 				.AddColumn("")
 				.Finish();
 			treeViewOperatorsOnWorkshift.Binding.AddSource(ViewModel)
