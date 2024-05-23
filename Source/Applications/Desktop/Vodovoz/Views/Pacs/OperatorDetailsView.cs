@@ -46,6 +46,8 @@ namespace Vodovoz.Views.Pacs
 			buttonStartLongBreak.BindCommand(ViewModel.StartLongBreakCommand);
 			buttonStartShortBreak.BindCommand(ViewModel.StartShortBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
+
+			frameWorkShifts.Visible = false;
 		}
 	}
 }
