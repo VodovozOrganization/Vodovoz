@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -34,12 +35,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		}
 
 		public bool IsInAnyRouteList(IUnitOfWork uow, Car car)
-        {
+		{
 			var rll = uow.Session.QueryOver<RouteList>()
 				.Where(rl => rl.Car == car).Take(1).List();
 
 			return rll.Any();
-        }
+		}
 
 		public IList<CarEvent> GetCarEventsForCostCarExploitation(
 			IUnitOfWork uow,
@@ -67,10 +68,53 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsInG(selectedCarTypeOfUse)
 				.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsInG(selectedCarOwnTypes)
 				.And(() => car == null || car == carEventAlias.Car)
-				.And(() => carEventAlias.EndDate >= startDate)		// Ориентируемся только на дату окончания события
+				.And(() => carEventAlias.EndDate >= startDate)      // Ориентируемся только на дату окончания события
 				.And(() => carEventAlias.EndDate <= endDate)
 				.OrderByAlias(() => carEventAlias.EndDate).Desc()
 				.List<CarEvent>();
+		}
+
+		public IQueryable<CarInsuranceNode> GetActualCarInsuranceData(IUnitOfWork unitOfWork)
+		{
+			var carInsurances =
+				from insurance in unitOfWork.Session.Query<CarInsurance>()
+				join c in unitOfWork.Session.Query<Car>() on insurance.Car.Id equals c.Id into cars
+				from car in cars.DefaultIfEmpty()
+				join cm in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals cm.Id into carModels
+				from carModel in carModels.DefaultIfEmpty()
+				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
+				from driver in drivers.DefaultIfEmpty()
+				join c in unitOfWork.Session.Query<Counterparty>() on insurance.Insurer.Id equals c.Id into counterparties
+				from counterparty in counterparties.DefaultIfEmpty()
+				orderby insurance.EndDate descending
+				group new { Insurance = insurance, Car = car, CarModel = carModel, Driver = driver, Counterparty = counterparty } by new { car.Id, insurance.InsuranceType } into groupedInsurances
+				select new CarInsuranceNode
+				{
+					CarTypeOfUse = groupedInsurances.FirstOrDefault().CarModel.CarTypeOfUse,
+					CarRegNumber = groupedInsurances.FirstOrDefault().Car.RegistrationNumber,
+					DriverGeography = groupedInsurances.FirstOrDefault().Driver.Subdivision.Name,
+					CarInsuranceType = groupedInsurances.FirstOrDefault().Insurance.InsuranceType,
+					StartDate = groupedInsurances.FirstOrDefault().Insurance.StartDate,
+					EndDate = groupedInsurances.FirstOrDefault().Insurance.EndDate,
+					Insurer = groupedInsurances.FirstOrDefault().Counterparty.FullName,
+					InsuranceNumber = groupedInsurances.FirstOrDefault().Insurance.InsuranceNumber,
+					DaysToExpire = (int)(groupedInsurances.FirstOrDefault().Insurance.EndDate - DateTime.Today).TotalDays
+				};
+
+			return carInsurances;
+		}
+
+		public class CarInsuranceNode
+		{
+			public CarTypeOfUse CarTypeOfUse { get; set; }
+			public string CarRegNumber { get; set; }
+			public string DriverGeography { get; set; }
+			public CarInsuranceType CarInsuranceType { get; set; }
+			public DateTime StartDate { get; set; }
+			public DateTime EndDate { get; set; }
+			public string Insurer { get; set; }
+			public string InsuranceNumber { get; set; }
+			public int DaysToExpire { get; set; }
 		}
 	}
 }

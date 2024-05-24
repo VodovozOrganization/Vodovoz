@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using static Vodovoz.EntityRepositories.Logistic.CarRepository;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -22,5 +24,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IEnumerable<int> selectedCarEventTypesIds,
 			IEnumerable<CarTypeOfUse> selectedCarTypeOfUse,
 			IEnumerable<CarOwnType> selectedCarOwnTypes);
+		IQueryable<CarInsuranceNode> GetActualCarInsuranceData(IUnitOfWork unitOfWork);
 	}
 }
