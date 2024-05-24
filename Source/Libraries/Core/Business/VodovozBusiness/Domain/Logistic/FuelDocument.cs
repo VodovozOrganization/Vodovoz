@@ -333,23 +333,6 @@ namespace Vodovoz.Domain.Logistic
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.FuelPaymentType) });
 			}
 
-			if(validationContext.Items.ContainsKey("Reason") && (validationContext.Items["Reason"] as string) == nameof(CreateOperations))
-			{
-				if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository))
-				{
-					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
-				}
-
-				if(Subdivision != null && Fuel != null)
-				{
-					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, Subdivision, Fuel);
-					if(FuelLimitLitersAmount > balance && FuelLimitLitersAmount > 0)
-					{
-						yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
-					}
-				}
-			}
-
 			if(FuelLimitLitersAmount > 0 && FuelCardNumber is null)
 			{
 				yield return new ValidationResult(
