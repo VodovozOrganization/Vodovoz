@@ -1,5 +1,4 @@
-using Core.Infrastructure;
-using Grpc.Core.Logging;
+﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using QS.Commands;

@@ -11,10 +11,8 @@ using QS.Project.Services;
 using QS.Services;
 using System;
 using Vodovoz.Core.Application.Entity;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.ViewModels.Journals.JournalNodes.Pacs;
 
@@ -55,6 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 				.JoinEntityAlias(() => employeeAlias, () => operatorAlias.Id == employeeAlias.Id, JoinType.InnerJoin)
 				.JoinAlias(() => operatorAlias.WorkShift, () => workShiftAlias)
 				.SelectList(list => list
+					.Select(() => operatorAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(Projections.Entity(() => employeeAlias)).WithAlias(() => resultAlias.Operator)
 					.Select(() => workShiftAlias.Name).WithAlias(() => resultAlias.WorkshiftName)
 					.Select(() => operatorAlias.PacsEnabled).WithAlias(() => resultAlias.PacsEnabled)

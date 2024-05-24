@@ -59,6 +59,8 @@ namespace Vodovoz.Views.Pacs
 			treeViewOperatorsOnBreak.RowActivated += OnActivateOperatorOnBreakRow;
 
 			treeViewOperatorsOnWorkshift.ColumnsConfig = FluentColumnsConfig<DashboardOperatorViewModel>.Create()
+				.AddColumn("#").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Model?.Employee?.Id.ToString() ?? "")
 				.AddColumn("Имя").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.Name)
 				.AddColumn("Доб. тел.").HeaderAlignment(0.5f)
@@ -67,7 +69,7 @@ namespace Vodovoz.Views.Pacs
 					.AddReadOnlyTextRenderer(x => x.State)
 				.AddColumn("Говорит с").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.ConnectedToCall)
-				.AddColumn("№ Смены оператора")
+				.AddColumn("№ Смены оператора").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.Model?.CurrentState?.WorkShift?.Id.ToString() ?? "")
 				.AddColumn("")
 				.Finish();
