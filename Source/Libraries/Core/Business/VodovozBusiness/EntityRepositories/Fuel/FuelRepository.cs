@@ -347,14 +347,15 @@ namespace Vodovoz.EntityRepositories.Fuel
 		{
 			var todayDate = DateTime.Today;
 
-			var givedLitersSum = unitOfWork.Session.Query<FuelOperation>()
+			var carFuelOperations = unitOfWork.Session.Query<FuelOperation>()
 				.Where(o =>
 					o.Car.Id == carId
 					&& o.LitersGived > 0
 					&& o.OperationTime >= todayDate
 					&& o.OperationTime < todayDate.AddDays(1))
-				.Select(o => o.LitersGived)
-				.Sum();
+				.ToList();
+
+			var givedLitersSum = carFuelOperations.Sum(o => o.LitersGived);
 
 			return givedLitersSum;
 		}
