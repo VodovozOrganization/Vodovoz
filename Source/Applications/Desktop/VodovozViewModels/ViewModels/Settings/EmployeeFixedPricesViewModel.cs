@@ -74,31 +74,50 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public INamedDomainObject SelectedNomenclature
 		{
 			get => _selectedNomenclature;
-			set => SetField(ref _selectedNomenclature, value);
+			set
+			{
+				if(SetField(ref _selectedNomenclature, value))
+				{
+					OnPropertyChanged(nameof(CanRemoveNomenclature));
+					OnPropertyChanged(nameof(CanAddFixedPrice));
+				}
+			}
 		}
 		
 		public NomenclatureFixedPrice SelectedFixedPrice
 		{
 			get => _selectedFixedPrice;
-			set => SetField(ref _selectedFixedPrice, value);
+			set
+			{
+				if(SetField(ref _selectedFixedPrice, value))
+				{
+					OnPropertyChanged(nameof(CanRemoveFixedPrice));
+				}
+			}
 		}
 		
 		public DelegateCommand SaveEmployeesFixedPricesCommand { get; private set; }
 		public DelegateCommand AddNomenclatureForFixedPriceCommand { get; private set; }
+		public DelegateCommand RemoveNomenclatureForFixedPriceCommand { get; private set; }
 		public DelegateCommand RemoveFixedPriceCommand { get; private set; }
 		public DelegateCommand AddFixedPriceCommand { get; private set; }
 		public IList<INamedDomainObject> Nomenclatures { get; private set; }
 		public IDictionary<int, IList<NomenclatureFixedPrice>> FixedPrices { get; } =
 			new Dictionary<int, IList<NomenclatureFixedPrice>>();
 		
+		public bool CanRemoveNomenclature => CanChangeEmployeesFixedPrices && SelectedNomenclature != null;
+		public bool CanRemoveFixedPrice => CanChangeEmployeesFixedPrices && SelectedFixedPrice != null;
+		public bool CanAddFixedPrice => CanChangeEmployeesFixedPrices && SelectedNomenclature != null;
 		private IList<NomenclatureFixedPrice> DeletedFixedPrices { get; set; }
 		
 		private void InitializeEmployeesFixedPricesSettings()
 		{
 			SaveEmployeesFixedPricesCommand = new DelegateCommand(SaveEmployeesFixedPrices);
 			AddNomenclatureForFixedPriceCommand = new DelegateCommand(AddNomenclatureForFixedPrice);
+			RemoveNomenclatureForFixedPriceCommand = new DelegateCommand(RemoveNomenclatureForFixedPrice);
 			AddFixedPriceCommand = new DelegateCommand(AddFixedPrice);
-			RemoveFixedPriceCommand = new DelegateCommand(RemoveFixedPrice);
+			RemoveFixedPriceCommand = new DelegateCommand(RemoveSelectedFixedPrice);
+			
 			GetNomenclaturesWithFixedPrices();
 			DeletedFixedPrices = new List<NomenclatureFixedPrice>();
 		}
@@ -243,14 +262,25 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					}
 				});
 		}
-
-		private void AddFixedPrice()
+		
+		private void RemoveNomenclatureForFixedPrice()
 		{
-			if(SelectedNomenclature is null)
+			if(!FixedPrices.TryGetValue(SelectedNomenclature.Id, out var fixedPrices))
 			{
 				return;
 			}
 
+			foreach(var fixedPrice in fixedPrices)
+			{
+				RemoveFixedPrice(fixedPrice);
+			}
+
+			FixedPrices.Remove(SelectedNomenclature.Id);
+			Nomenclatures.Remove(SelectedNomenclature);
+		}
+
+		private void AddFixedPrice()
+		{
 			var fixedPrice = NomenclatureFixedPrice.CreateEmployeeFixedPrice(SelectedNomenclature);
 			
 			if(!FixedPrices.TryGetValue(fixedPrice.Nomenclature.Id, out var fixedPrices))
@@ -261,28 +291,28 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			fixedPrices.Add(fixedPrice);
 		}
 
-		private void RemoveFixedPrice()
+		private void RemoveSelectedFixedPrice()
 		{
-			if(SelectedFixedPrice is null)
-			{
-				return;
-			}
-
-			if(!FixedPrices.TryGetValue(SelectedFixedPrice.Nomenclature.Id, out var fixedPrices))
+			RemoveFixedPrice(SelectedFixedPrice);
+		}
+		
+		private void RemoveFixedPrice(NomenclatureFixedPrice fixedPrice)
+		{
+			if(!FixedPrices.TryGetValue(fixedPrice.Nomenclature.Id, out var fixedPrices))
 			{
 				return;
 			}
 			
-			if(SelectedFixedPrice.Id > 0)
+			if(fixedPrice.Id > 0)
 			{
-				DeletedFixedPrices.Add(SelectedFixedPrice);
+				DeletedFixedPrices.Add(fixedPrice);
 			}
 			else
 			{
-				_uow.Session.Evict(SelectedFixedPrice);
+				_uow.Session.Evict(fixedPrice);
 			}
 			
-			fixedPrices.Remove(SelectedFixedPrice);
+			fixedPrices.Remove(fixedPrice);
 		}
 		
 		private void GetNomenclaturesWithFixedPrices()

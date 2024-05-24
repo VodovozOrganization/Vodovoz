@@ -858,7 +858,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					OnPropertyChanged(nameof(CanReadEmployeeDocuments));
 					break;
 				case nameof(Entity.Counterparty):
-					_counterpartyChangedByUser = true;
+					CheckEmployeeCounterparty();
 					break;
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
@@ -1284,8 +1284,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}
 				else
 				{
+					TryRemoveEmployeeFixedPricesFromOldCounterparty();
 					TryAddEmployeeFixedPrices();
 				}
+			}
+			else
+			{
+				TryRemoveEmployeeFixedPricesFromOldCounterparty();
 			}
 
 			_logger.Info("Сохраняем сотрудника...");
@@ -1302,6 +1307,24 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			_logger.Info("Ok");
 			return true;
+		}
+		
+		private void CheckEmployeeCounterparty()
+		{
+			if(Entity.Counterparty is null)
+			{
+				_counterpartyChangedByUser = true;
+				return;
+			}
+			
+			var otherEmployee = _employeeRepository.GetOtherEmployeeInfoWithSameCounterparty(
+				_unitOfWorkFactory, Entity.Id, Entity.Counterparty.Id);
+
+			if(otherEmployee != null)
+			{
+				ShowWarningMessage($"Выбранный клиент {Entity.Counterparty.Name} уже установлен у сотрудника с №{otherEmployee.Id} {otherEmployee.Name}");
+				Entity.Counterparty = null;
+			}
 		}
 
 		private void TryRemoveAllFixedPrices()
@@ -1323,24 +1346,32 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				return;
 			}
 
+			var fixedPrices = _nomenclatureFixedPriceController.GetEmployeesNomenclatureFixedPrices(UoW);
+
+			if(Entity.Counterparty != null)
+			{
+				_nomenclatureFixedPriceController.AddEmployeeFixedPricesToCounterpartyAndDeliveryPoints(Entity.Counterparty, fixedPrices);
+				UoW.Save(Entity.Counterparty);
+			}
+		}
+		
+		private void TryRemoveEmployeeFixedPricesFromOldCounterparty()
+		{
+			if(!_counterpartyChangedByUser)
+			{
+				return;
+			}
+
 			var oldCounterpartyId =
 				Entity.Id > 0
 					? _employeeRepository.GetEmployeeCounterpartyFromDatabase(_unitOfWorkFactory, Entity.Id)
 					: null;
-			
-			var fixedPrices = _nomenclatureFixedPriceController.GetEmployeesNomenclatureFixedPrices(UoW);
 
 			if(oldCounterpartyId.HasValue && (Entity.Counterparty is null || Entity.Counterparty.Id != oldCounterpartyId))
 			{
 				var counterparty = UoW.GetById<Domain.Client.Counterparty>(oldCounterpartyId.Value);
 				_nomenclatureFixedPriceController.DeleteAllFixedPricesFromCounterpartyAndDeliveryPoints(counterparty);
 				UoW.Save(counterparty);
-			}
-
-			if(Entity.Counterparty != null)
-			{
-				_nomenclatureFixedPriceController.AddEmployeeFixedPricesToCounterpartyAndDeliveryPoints(Entity.Counterparty, fixedPrices);
-				UoW.Save(Entity.Counterparty);
 			}
 		}
 

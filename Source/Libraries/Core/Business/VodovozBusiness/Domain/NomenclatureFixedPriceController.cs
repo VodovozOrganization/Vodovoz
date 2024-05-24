@@ -227,9 +227,9 @@ namespace Vodovoz.Domain
 			var i = 0;
 			ProgressBarDisplayable?.Start(text: "Подготовка к добавлению фиксы сотрудников...");
 			
-			var counterpartiesIds = _nomenclatureFixedPriceRepository.GetEmployeeCounterpartiesIds(uow);
-			var deliveryPointsIds = _nomenclatureFixedPriceRepository.GetEmployeeCounterpartiesDeliveryPointsIds(uow);
-			var counterpartiesCount = counterpartiesIds.Count(); 
+			var counterpartiesIds = _nomenclatureFixedPriceRepository.GetWorkingEmployeeCounterpartiesIds(uow);
+			var deliveryPointsIds = _nomenclatureFixedPriceRepository.GetWorkingEmployeeCounterpartiesDeliveryPointsIds(uow);
+			var counterpartiesCount = counterpartiesIds.Count();
 			var deliveryPointsCount = deliveryPointsIds.Count();
 			var summaryCount = counterpartiesCount + deliveryPointsCount;
 			ProgressBarDisplayable?.Start(summaryCount, 0, "Начинаем добавление фиксы сотрудников...");
@@ -251,21 +251,20 @@ namespace Vodovoz.Domain
 					
 					uow.Save(counterpartyFixedPrice);
 					ProgressBarDisplayable?.Update(string.Format(clientsProgress, ++i));
-					
-					var deliveryPointsProgress = $"Добавляем фиксу точкам доставки клиентов, привязанных к сотрудникам... ({{0}}/{summaryCount})";
-					
-					foreach(var deliveryPointId in deliveryPointsIds)
+				}
+				
+				var deliveryPointsProgress = $"Добавляем фиксу точкам доставки клиентов, привязанных к сотрудникам... ({{0}}/{summaryCount})";
+				foreach(var deliveryPointId in deliveryPointsIds)
+				{
+					CheckEmployeeFixedPricesUpdateCancellationRequested(cancellationToken);
+					var deliveryPointFixedPrice = CreateNewNomenclatureFixedPrice(employeeFixedPrice);
+					deliveryPointFixedPrice.DeliveryPoint = new DeliveryPoint
 					{
-						CheckEmployeeFixedPricesUpdateCancellationRequested(cancellationToken);
-						var deliveryPointFixedPrice = CreateNewNomenclatureFixedPrice(employeeFixedPrice);
-						deliveryPointFixedPrice.DeliveryPoint = new DeliveryPoint
-						{
-							Id = deliveryPointId
-						};
+						Id = deliveryPointId
+					};
 						
-						uow.Save(deliveryPointFixedPrice);
-						ProgressBarDisplayable?.Update(string.Format(deliveryPointsProgress, ++i));
-					}
+					uow.Save(deliveryPointFixedPrice);
+					ProgressBarDisplayable?.Update(string.Format(deliveryPointsProgress, ++i));
 				}
 			}
 		}

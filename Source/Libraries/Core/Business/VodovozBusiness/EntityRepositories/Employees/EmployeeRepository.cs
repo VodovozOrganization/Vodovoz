@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Tuple = DocumentFormat.OpenXml.Spreadsheet.Tuple;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
@@ -188,6 +190,23 @@ namespace Vodovoz.EntityRepositories.Employees
 				return (from employee in uow.Session.Query<Employee>()
 						where employee.Id == employeeId
 						select employee.Counterparty.Id)
+					.SingleOrDefault();
+			}
+		}
+
+		public NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
+			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId)
+		{
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				return (from employee in uow.Session.Query<Employee>()
+						where employee.Counterparty.Id == counterpartyId && employee.Id != employeeId
+						let fullName = employee.FullName
+						select new NamedDomainObjectNode
+						{
+							Id = employee.Id,
+							Name = fullName
+						})
 					.SingleOrDefault();
 			}
 		}

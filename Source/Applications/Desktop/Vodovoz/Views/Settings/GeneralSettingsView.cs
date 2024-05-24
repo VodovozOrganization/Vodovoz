@@ -175,6 +175,12 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
 				.InitializeFromSource();
 			
+			btnRemoveNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveNomenclatureForFixedPriceCommand);
+			btnRemoveNomenclatureFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanRemoveNomenclature, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			treeFixedPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureFixedPrice>.Create()
 				.AddColumn("Минимальное\nколичество")
 					.AddNumericRenderer(n => n.MinCount).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
@@ -192,13 +198,13 @@ namespace Vodovoz.Views.Settings
 			btnAddFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddFixedPriceCommand);
 			btnAddFixedPrice.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
-				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
+				.AddBinding(vm => vm.CanAddFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			btnRemoveFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveFixedPriceCommand);
 			btnRemoveFixedPrice.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
-				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
+				.AddBinding(vm => vm.CanRemoveFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -61,23 +62,25 @@ namespace Vodovoz.EntityRepositories.Goods
 			return deliveryPointFixedPrices.ToArray();
 		}
 		
-		public IEnumerable<int> GetEmployeeCounterpartiesIds(IUnitOfWork uow)
+		public IEnumerable<int> GetWorkingEmployeeCounterpartiesIds(IUnitOfWork uow)
 		{
 			var counterpartiesIds =
 				from counterparty in uow.Session.Query<Counterparty>()
 				join employee in uow.Session.Query<Employee>()
 					on counterparty.Id equals employee.Counterparty.Id
+				where employee.Status != EmployeeStatus.IsFired && employee.Status != EmployeeStatus.OnCalculation
 				select counterparty.Id;
 
 			return counterpartiesIds.ToArray();
 		}
 		
-		public IEnumerable<int> GetEmployeeCounterpartiesDeliveryPointsIds(IUnitOfWork uow)
+		public IEnumerable<int> GetWorkingEmployeeCounterpartiesDeliveryPointsIds(IUnitOfWork uow)
 		{
 			var deliveryPointIds =
 				from deliveryPoint in uow.Session.Query<DeliveryPoint>()
 				join employee in uow.Session.Query<Employee>()
 					on deliveryPoint.Counterparty.Id equals employee.Counterparty.Id
+				where employee.Status != EmployeeStatus.IsFired && employee.Status != EmployeeStatus.OnCalculation
 				select deliveryPoint.Id;
 
 			return deliveryPointIds.ToArray();

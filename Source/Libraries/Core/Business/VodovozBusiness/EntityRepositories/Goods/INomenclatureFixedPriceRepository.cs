@@ -10,8 +10,8 @@ namespace Vodovoz.EntityRepositories.Goods
 		IEnumerable<NomenclatureFixedPrice> GetEmployeesNomenclatureFixedPricesByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 		IEnumerable<NomenclatureFixedPrice> GetAllFixedPricesFromEmployeeCounterparties(IUnitOfWork uow);
 		IEnumerable<NomenclatureFixedPrice> GetAllFixedPricesFromEmployeeCounterpartiesDeliveryPoints(IUnitOfWork uow);
-		IEnumerable<int> GetEmployeeCounterpartiesIds(IUnitOfWork uow);
-		IEnumerable<int> GetEmployeeCounterpartiesDeliveryPointsIds(IUnitOfWork uow);
+		IEnumerable<int> GetWorkingEmployeeCounterpartiesIds(IUnitOfWork uow);
+		IEnumerable<int> GetWorkingEmployeeCounterpartiesDeliveryPointsIds(IUnitOfWork uow);
 		IReadOnlyList<NomenclatureFixedPrice> GetFixedPricesFor19LWater(IUnitOfWork uow);
 	}
 }

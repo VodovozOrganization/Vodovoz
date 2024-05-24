@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 
@@ -29,5 +30,7 @@ namespace Vodovoz.EntityRepositories.Employees
 		IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow);
 		string GetDriverPushTokenById(IUnitOfWork unitOfWork, int notifyableEmployeeId);
 		int? GetEmployeeCounterpartyFromDatabase(IUnitOfWorkFactory uowFactory, int employeeId);
+		NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
+			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId);
 	}
 }
