@@ -701,12 +701,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				{
 					SummarizeNotUsedLimitsWithCurrentIfNeed(notUsedFuelLimits);
 
-					if(IsMaxDailyFuelLimitExceededForCar())
-					{
-						IsDocumentSavingInProcess = false;
-						return;
-					}
-
 					UpdateExistingFuelDocumentsWithNotUsedLimits(notUsedFuelLimits);
 
 					await RemoveFuelLimitsFromService(existingLimits.Select(l => l.LimitId), token);
