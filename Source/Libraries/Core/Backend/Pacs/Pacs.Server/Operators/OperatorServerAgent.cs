@@ -263,6 +263,7 @@ namespace Pacs.Server.Operators
 
 		public async Task Connect()
 		{
+			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
 
