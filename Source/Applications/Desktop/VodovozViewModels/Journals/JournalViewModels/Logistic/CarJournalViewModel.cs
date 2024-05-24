@@ -8,11 +8,13 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
@@ -24,6 +26,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly CarJournalFilterViewModel _filterViewModel;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IFileDialogService _fileDialogService;
+		private readonly ICarRepository _carRepository;
 
 		public CarJournalViewModel(
 			CarJournalFilterViewModel filterViewModel,
@@ -33,12 +37,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
+			IFileDialogService fileDialogService,
+			ICarRepository carRepository,
 			Action<CarJournalFilterViewModel> filterConfiguration = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			filterViewModel.Journal = this;
 
 			JournalFilter = filterViewModel;
@@ -176,6 +184,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
 			return result;
+		}
+
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+
+			CreateCarInsurancesReportAction();
+		}
+
+		private void CreateCarInsurancesReportAction()
+		{
+			var selectAction = new JournalAction("Отчёт по страховкам",
+				(selected) => true,
+				(selected) => true,
+				(selected) => CreateCarInsurancesReport()
+			);
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void CreateCarInsurancesReport()
+		{
+			var ins = _carRepository.GetActualCarInsuranceData(UoW).ToList();
 		}
 
 		public override void Dispose()
