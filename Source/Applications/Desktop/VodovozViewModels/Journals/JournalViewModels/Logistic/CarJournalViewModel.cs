@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly CarJournalFilterViewModel _filterViewModel;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarRepository _carRepository;
 
@@ -38,6 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
+			ICarEventSettings carEventSettings,
 			IFileDialogService fileDialogService,
 			ICarRepository carRepository,
 			Action<CarJournalFilterViewModel> filterConfiguration = null)
@@ -46,6 +49,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			filterViewModel.Journal = this;
@@ -192,6 +196,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			base.CreateNodeActions();
 
 			CreateCarInsurancesReportAction();
+			CreateCarTechInspectReportAction();
 		}
 
 		private void CreateCarInsurancesReportAction()
@@ -200,6 +205,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarInsurancesReport()
+			);
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void CreateCarTechInspectReportAction()
+		{
+			var selectAction = new JournalAction("Отчёт по ТО",
+				(selected) => true,
+				(selected) => true,
+				(selected) => CreateCarTechInspectReport()
 			);
 			NodeActionsList.Add(selectAction);
 		}
@@ -218,6 +233,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			}
 
 			CarInsurancesReport.ExportToExcel(result.Path, insurances);
+		}
+
+		private void CreateCarTechInspectReport()
+		{
+			var techInspects = _carRepository.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId).ToList().OrderBy(t => t.LeftUntilTechInspectKm);
+
+			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarTechInspectReport.ReportTitle}");
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			CarTechInspectReport.ExportToExcel(result.Path, techInspects);
 		}
 
 		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)
