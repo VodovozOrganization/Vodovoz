@@ -47,9 +47,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 			worksheet.Column(4).Width = 15;
 			worksheet.Column(5).Width = 15;
 			worksheet.Column(6).Width = 15;
-			worksheet.Column(7).Width = 30;
-			worksheet.Column(8).Width = 20;
-			worksheet.Column(9).Width = 10;
+			worksheet.Column(7).Width = 15;
+			worksheet.Column(8).Width = 30;
+			worksheet.Column(9).Width = 20;
+			worksheet.Column(10).Width = 10;
 		}
 
 		private void AddTableTitleRow(IXLWorksheet worksheet, int rowNumber)
@@ -70,6 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 		{
 			var colNumber = 1;
 			worksheet.Cell(rowNumber, colNumber++).Value = "№ п/п";
+			worksheet.Cell(rowNumber, colNumber++).Value = "Тип авто";
 			worksheet.Cell(rowNumber, colNumber++).Value = "Гос. номер ТС";
 			worksheet.Cell(rowNumber, colNumber++).Value = "География";
 			worksheet.Cell(rowNumber, colNumber++).Value = "Тип страховки";
@@ -95,10 +97,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 		private void AddTableDataRows(IXLWorksheet worksheet, int rowNumber)
 		{
 			var startRowNumber = rowNumber;
-			var colNumber = 1;
 			foreach(var insurance in Items)
 			{
+				var colNumber = 1;
 				worksheet.Cell(rowNumber, colNumber++).Value = rowNumber - startRowNumber + 1;
+				worksheet.Cell(rowNumber, colNumber++).Value = insurance.CarTypeOfUse.GetEnumDisplayName();
 				worksheet.Cell(rowNumber, colNumber++).Value = insurance.CarRegNumber;
 				worksheet.Cell(rowNumber, colNumber++).Value = insurance.DriverGeography;
 				worksheet.Cell(rowNumber, colNumber++).Value = insurance.CarInsuranceType.GetEnumDisplayName();
@@ -110,7 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 				rowNumber++;
 			}
 
-			var tableDataRange = worksheet.Range(startRowNumber, 1, rowNumber - 1, colNumber);
+			var tableDataRange = worksheet.Range(startRowNumber, 1, rowNumber - 1, 10);
 			FormatTableDataCells(tableDataRange);
 		}
 
