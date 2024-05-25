@@ -19,6 +19,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports.Cars;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -205,7 +206,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private void CreateCarInsurancesReport()
 		{
-			var ins = _carRepository.GetActualCarInsurances(UoW).ToList();
+			var insurances = _carRepository.GetActualCarInsurances(UoW).ToList();
+
+			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarInsurancesReport.ReportTitle}");
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			CarInsurancesReport.ExportToExcel(result.Path, insurances);
+		}
+
+		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)
+		{
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{fileName}.xlsx";
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
+			return dialogSettings;
 		}
 
 		public override void Dispose()
