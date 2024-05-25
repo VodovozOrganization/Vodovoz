@@ -74,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<CarEvent>();
 		}
 
-		public IQueryable<CarInsuranceNode> GetActualCarInsuranceData(IUnitOfWork unitOfWork)
+		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork)
 		{
 			var carInsurances =
 				from insurance in unitOfWork.Session.Query<CarInsurance>()
@@ -85,18 +85,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
 				from driver in drivers.DefaultIfEmpty()
 				join c in unitOfWork.Session.Query<Counterparty>() on insurance.Insurer.Id equals c.Id into counterparties
-				from counterparty in counterparties.DefaultIfEmpty()
+				from insurer in counterparties.DefaultIfEmpty()
 				orderby insurance.EndDate descending
-				group new { Insurance = insurance, Car = car, CarModel = carModel, Driver = driver, Counterparty = counterparty } by new { car.Id, insurance.InsuranceType } into groupedInsurances
+				group new { Insurance = insurance, Car = car, CarModel = carModel, Driver = driver, Insurer = insurer } by new { car.Id, insurance.InsuranceType } into groupedInsurances
 				select new CarInsuranceNode
 				{
 					CarTypeOfUse = groupedInsurances.FirstOrDefault().CarModel.CarTypeOfUse,
 					CarRegNumber = groupedInsurances.FirstOrDefault().Car.RegistrationNumber,
-					DriverGeography = groupedInsurances.FirstOrDefault().Driver.Subdivision.Name,
+					DriverGeography =
+						groupedInsurances.FirstOrDefault().Driver != null
+						? groupedInsurances.FirstOrDefault().Driver.Subdivision.GetGeographicGroup().Name
+						: "",
 					CarInsuranceType = groupedInsurances.FirstOrDefault().Insurance.InsuranceType,
 					StartDate = groupedInsurances.FirstOrDefault().Insurance.StartDate,
 					EndDate = groupedInsurances.FirstOrDefault().Insurance.EndDate,
-					Insurer = groupedInsurances.FirstOrDefault().Counterparty.FullName,
+					Insurer =
+						string.IsNullOrWhiteSpace(groupedInsurances.FirstOrDefault().Insurer.FullName)
+						? groupedInsurances.FirstOrDefault().Insurer.Name
+						: groupedInsurances.FirstOrDefault().Insurer.FullName,
 					InsuranceNumber = groupedInsurances.FirstOrDefault().Insurance.InsuranceNumber,
 					DaysToExpire = (int)(groupedInsurances.FirstOrDefault().Insurance.EndDate - DateTime.Today).TotalDays
 				};

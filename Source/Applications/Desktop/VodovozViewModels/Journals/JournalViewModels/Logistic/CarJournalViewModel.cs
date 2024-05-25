@@ -205,7 +205,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private void CreateCarInsurancesReport()
 		{
-			var ins = _carRepository.GetActualCarInsuranceData(UoW).ToList();
+			var ins = _carRepository.GetActualCarInsurances(UoW).ToList();
 		}
 
 		public override void Dispose()
