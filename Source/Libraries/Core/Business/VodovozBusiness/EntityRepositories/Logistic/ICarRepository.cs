@@ -25,5 +25,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IEnumerable<CarTypeOfUse> selectedCarTypeOfUse,
 			IEnumerable<CarOwnType> selectedCarOwnTypes);
 		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork);
+		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId);
 	}
 }
