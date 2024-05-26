@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Cars;
+using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -65,13 +66,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
-			IFuelRepository fuelRepository)
+			IFuelRepository fuelRepository,
+			ICarInsuranceVersionViewModelFactory carInsuranceVersionViewModelFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
+
+			if(carInsuranceVersionViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(carInsuranceVersionViewModelFactory));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -91,6 +99,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FuelCardVersionViewModel = (fuelCardVersionViewModelFactory ?? throw new ArgumentNullException(nameof(fuelCardVersionViewModelFactory)))
 				.CreateFuelCardVersionViewModel(Entity, UoW);
 			FuelCardVersionViewModel.ParentDialog = this;
+
+			OsagoInsuranceVersionViewModel = carInsuranceVersionViewModelFactory.CreateOsagoCarInsuranceVersionViewModel(Entity);
+			KaskoInsuranceVersionViewModel = carInsuranceVersionViewModelFactory.CreateKaskoCarInsuranceVersionViewModel(Entity);
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
@@ -189,6 +200,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 		public FuelCardVersionViewModel FuelCardVersionViewModel { get; }
+		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
+		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
 
 		protected override bool BeforeSave()
 		{
