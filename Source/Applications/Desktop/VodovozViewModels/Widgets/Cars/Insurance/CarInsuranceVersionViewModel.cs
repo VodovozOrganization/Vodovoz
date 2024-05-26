@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			EditCarInsurenceClicked?.Invoke(this, new EditCarInsuranceEventArgs(SelectedCarInsurance.Id));
+			EditCarInsurenceClicked?.Invoke(this, new EditCarInsuranceEventArgs(SelectedCarInsurance));
 		}
 	}
 }

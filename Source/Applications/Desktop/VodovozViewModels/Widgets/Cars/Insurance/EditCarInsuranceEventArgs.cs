@@ -1,14 +1,15 @@
 ﻿using System;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
 	public class EditCarInsuranceEventArgs : EventArgs
 	{
-		public EditCarInsuranceEventArgs(int selectedCarInsuranceId)
+		public EditCarInsuranceEventArgs(CarInsurance selectedCarInsurance)
 		{
-			SelectedCarInsuranceId = selectedCarInsuranceId;
+			SelectedCarInsurance = selectedCarInsurance;
 		}
 
-		public int SelectedCarInsuranceId { get; }
+		public CarInsurance SelectedCarInsurance { get; }
 	}
 }

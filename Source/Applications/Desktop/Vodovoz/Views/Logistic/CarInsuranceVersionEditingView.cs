@@ -1,12 +1,19 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CarInsuranceVersionEditingView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class CarInsuranceVersionEditingView : WidgetViewBase<CarInsuranceVersionEditingViewModel>
 	{
 		public CarInsuranceVersionEditingView()
 		{
-			this.Build();
+			Build();
+		}
+
+		protected override void ConfigureWidget()
+		{
 		}
 	}
 }
