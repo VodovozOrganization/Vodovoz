@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic.Cars
@@ -62,6 +61,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private ArchivingReason? _archivingReason;
 		private int _leftUntilTechInspect;
 		private IncomeChannel _incomeChannel;
+		private bool _isKaskoInsuranceNotRelevant = true;
 
 		public virtual int Id { get; set; }
 
@@ -326,6 +326,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _incomeChannel;
 			set => SetField(ref _incomeChannel, value);
+		}
+
+		[Display(Name = "Страховка Каско не актуальна для данного ТС")]
+		public virtual bool IsKaskoInsuranceNotRelevant
+		{
+			get => _isKaskoInsuranceNotRelevant;
+			set => SetField(ref _isKaskoInsuranceNotRelevant, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.

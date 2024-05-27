@@ -36,6 +36,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.ArchivingReason).Column("archiving_reason");
 			Map(x => x.LeftUntilTechInspect).Column("left_until_tech_inspect");
 			Map(x => x.IncomeChannel).Column("income_channel");
+			Map(x => x.IsKaskoInsuranceNotRelevant).Column("is_kasko_not_relevant");
 
 			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
