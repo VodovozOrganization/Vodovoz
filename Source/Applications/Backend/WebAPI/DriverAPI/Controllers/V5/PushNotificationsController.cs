@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5.Requests;
+using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -336,27 +336,52 @@ namespace DriverAPI.Controllers.V5
 				.Get(
 					unitOfWork,
 					rli => rli.Status == RouteListItemStatus.EnRoute
+						&& rli.AddressTransferType == AddressTransferType.FromHandToHand
 						&& rli.Order.Id == orderId)
 				.FirstOrDefault();
 
-			var previousItemResult = _routeListService.FindPrevious(unitOfWork, targetAddress);
+			if(targetAddress is null)
+			{
+				_logger.LogError("Не найдена цель переноса заказа {OrderId}", orderId);
+				return Problem($"Не найдена цель переноса заказа {orderId}");
+			}
 
 			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
 
 			if(source.IsFailure)
 			{
-				return Problem($"Не найден предыдущий адрес МЛ для {targetAddress.Id}");
+				_logger.LogError("Не найден источник переноса заказа {OrderId}", orderId);
+				return Problem($"Не найден источник переноса заказа {orderId}");
 			}
 
 			var sourceDriverFirebaseToken = source.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
 
-			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+			var previousItemResult = _routeListService.FindPrevious(unitOfWork, targetAddress);
 
-			if(previousItemResult.IsSuccess && source.Value.Id != previousItemResult.Value.Id)
+			if(previousItemResult.IsFailure)
 			{
-				var previousItemDriverFirebaseToken = previousItemResult.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+				_logger.LogError("Не найден предыдущий адрес МЛ заказа {OrderId}", orderId);
+				return Problem($"Не найден предыдущий адрес МЛ заказа {orderId}");
+			}
+
+			var previousItemDriverFirebaseToken = previousItemResult.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+
+			if(previousItemResult.Value.RouteList.Id != source.Value.RouteList.Id)
+			{
 				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
 			}
+
+			if(targetAddress.RouteList.Id == source.Value.RouteList.Id
+				&& previousItemResult.Value.RouteList.Id == source.Value.RouteList.Id)
+			{
+				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+
+				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+
+				return NoContent();
+			}
+
+			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
 
 			await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
 
