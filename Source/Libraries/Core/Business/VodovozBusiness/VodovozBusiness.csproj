@@ -1036,6 +1036,8 @@
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
+    <Compile Include="Tools\Interactive\YesNoCancelQuestion\IYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="Tools\Interactive\YesNoCancelQuestion\YesNoCancelQuestionResult.cs" />
     <Compile Include="Tools\Logistic\DeliveryPriceNode.cs" />
     <Compile Include="Tools\Logistic\DeliveryPriceRow.cs" />
     <Compile Include="Tools\Logistic\DeliveryRuleRow.cs" />
