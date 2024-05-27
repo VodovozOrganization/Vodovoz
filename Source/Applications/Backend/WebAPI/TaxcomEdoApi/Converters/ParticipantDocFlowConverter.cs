@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using Vodovoz.Core.Data.Clients;
+using Vodovoz.Core.Data.Organizations;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
 
 namespace TaxcomEdoApi.Converters
 {
@@ -67,10 +67,6 @@ namespace TaxcomEdoApi.Converters
 		
 		public UchastnikTip ConvertOrganizationToUchastnikTip(Organization org, DateTime? deliveryDate)
 		{
-			var orgVersion = org.OrganizationVersions.SingleOrDefault(
-				x => x.StartDate <= deliveryDate
-					&& (x.EndDate == null || x.EndDate >= deliveryDate));
-			
 			return new UchastnikTip
 			{
 				IdSv = new UchastnikTipIdSv
@@ -79,7 +75,7 @@ namespace TaxcomEdoApi.Converters
 				},
 				Adres = new AdresTip
 				{
-					Item = GetCustomAddress(orgVersion != null ? orgVersion.JurAddress : "Не найден адрес")
+					Item = GetCustomAddress(!string.IsNullOrWhiteSpace(org.JurAddress) ? org.JurAddress : "Не найден адрес")
 				}
 			};
 		}

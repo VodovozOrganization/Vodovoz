@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents

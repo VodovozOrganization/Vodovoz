@@ -2,28 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Data.Goods;
+using Vodovoz.Core.Data.Orders;
 
 namespace TaxcomEdoApi.Converters
 {
 	public class UpdProductConverter : IUpdProductConverter
 	{
-		public FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(IList<OrderItem> orderItems)
+		public FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(
+			IList<OrderItem> orderItems, IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures)
 		{
 			var products = new List<FajlDokumentTablSchFaktSvedTov>();
 
 			for(var i = 0; i < orderItems.Count; i++)
 			{
-				var product = ConvertOrderItemToUpdProduct(orderItems[i], i + 1);
+				var product = ConvertOrderItemToUpdProduct(orderItems[i], counterpartySpecialNomenclatures, i + 1);
 				products.Add(product);
 			}
 
 			return products.ToArray();
 		}
 		
-		private FajlDokumentTablSchFaktSvedTov ConvertOrderItemToUpdProduct(OrderItem orderItem, int row)
+		private FajlDokumentTablSchFaktSvedTov ConvertOrderItemToUpdProduct(
+			OrderItem orderItem, IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures, int row)
 		{
-			var count = Math.Round(orderItem.CurrentCount, orderItem.Nomenclature?.Unit?.Digits ?? 2);
+			var count = Math.Round(orderItem.CurrentCount, orderItem.Nomenclature?.MeasurementUnit?.Digits ?? 2);
 			
 			var product = new FajlDokumentTablSchFaktSvedTov
 			{
@@ -42,11 +45,11 @@ namespace TaxcomEdoApi.Converters
 				StTovUchNal = orderItem.ActualSum,
 				StTovBezNDS = orderItem.SumWithoutVat,
 				StTovBezNDSSpecified = true,
-				OKEI_Tov = orderItem.Nomenclature.Unit.OKEI,
+				OKEI_Tov = orderItem.Nomenclature.MeasurementUnit.OKEI,
 				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
 				{
-					NaimEdIzm = orderItem.Nomenclature.Unit.Name,
-					KodTov = GetProductCode(orderItem.Order, orderItem.Nomenclature.Id)
+					NaimEdIzm = orderItem.Nomenclature.MeasurementUnit.Name,
+					KodTov = GetProductCode(counterpartySpecialNomenclatures, orderItem.Nomenclature.Id)
 				}
 			};
 
@@ -75,9 +78,9 @@ namespace TaxcomEdoApi.Converters
 			return product;
 		}
 
-		private string GetProductCode(Order order, int nomenclatureId)
+		private string GetProductCode(IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures, int nomenclatureId)
 		{
-			var specialNomenclature = order.Client.SpecialNomenclatures.SingleOrDefault(x => x.Nomenclature.Id == nomenclatureId);
+			var specialNomenclature = counterpartySpecialNomenclatures.SingleOrDefault(x => x.NomenclatureId == nomenclatureId);
 
 			return specialNomenclature != null
 				? specialNomenclature.SpecialId.ToString()

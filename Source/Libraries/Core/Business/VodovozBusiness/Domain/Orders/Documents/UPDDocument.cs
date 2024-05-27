@@ -4,6 +4,7 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;

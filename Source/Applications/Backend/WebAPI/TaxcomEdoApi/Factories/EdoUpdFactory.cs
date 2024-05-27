@@ -5,11 +5,9 @@ using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TISystems.TTC.Common;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 
 namespace TaxcomEdoApi.Factories
 {
@@ -38,7 +36,7 @@ namespace TaxcomEdoApi.Factories
 				SvUchDokObor = new FajlSvUchDokObor
 				{
 					IdOtpr = organizationAccountId,
-					IdPol = order.Client.PersonalAccountIdInEdo
+					IdPol = order.Counterparty.PersonalAccountIdInEdo
 				}
 			};
 
@@ -57,7 +55,7 @@ namespace TaxcomEdoApi.Factories
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
 					NomerSchF = order.Id.ToString(),
-					DataSchF = order.DeliveryDate.Value.ToShortDateString(),
+					DataSchF = order.DeliveryDate.ToShortDateString(),
 					KodOKV = "643",
 					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
 					{
@@ -88,13 +86,13 @@ namespace TaxcomEdoApi.Factories
 			//Сведения о покупателе
 			upd.Dokument.SvSchFakt.SvPokup = new[]
 			{
-				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Client)
+				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Counterparty)
 			};
 			
 			//Грузополучатель
 			upd.Dokument.SvSchFakt.GruzPoluch = new[]
 			{
-				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Client, order.DeliveryPoint?.Id)
+				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Counterparty, order.DeliveryPoint?.Id)
 			};
 
 			upd.Dokument.SvSchFakt.DokPodtvOtgr = new[]
@@ -103,13 +101,13 @@ namespace TaxcomEdoApi.Factories
 				{
 					NaimDokOtgr = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 					NomDokOtgr = order.Id.ToString(),
-					DataDokOtgr = order.DeliveryDate.Value.ToShortDateString()
+					DataDokOtgr = order.DeliveryDate.ToShortDateString()
 				}
 			};
 
 			var tekstInfTipList = new List<TekstInfTip>();
 
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(order.Counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
 				tekstInfTipList.Add(
 					new TekstInfTip
@@ -120,7 +118,7 @@ namespace TaxcomEdoApi.Factories
 				);
 			}
 
-			if(order.CounterpartyExternalOrderId != null && order.Client.UseSpecialDocFields)
+			if(order.CounterpartyExternalOrderId != null && order.Counterparty.UseSpecialDocFields)
 			{
 				tekstInfTipList.Add(
 					new TekstInfTip
@@ -144,7 +142,7 @@ namespace TaxcomEdoApi.Factories
 			var taxesSum = orderItems.Sum(x => x.IncludeNDS) ?? 0m;
 			upd.Dokument.TablSchFakt = new FajlDokumentTablSchFakt
 			{
-				SvedTov = _updProductConverter.ConvertOrderItemsToUpdProducts(orderItems),
+				SvedTov = _updProductConverter.ConvertOrderItemsToUpdProducts(orderItems, order.Counterparty.SpecialNomenclatures),
 				VsegoOpl = new FajlDokumentTablSchFaktVsegoOpl
 				{
 					StTovBezNDSVsego = orderItems.Sum(x => x.SumWithoutVat),
@@ -216,17 +214,17 @@ namespace TaxcomEdoApi.Factories
 		{
 			var basis = new OsnovanieTip();
 
-			if(order.Client.UseSpecialDocFields
-				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractName)
-				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractNumber)
-				&& order.Client.SpecialContractDate.HasValue)
+			if(order.Counterparty.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(order.Counterparty.SpecialContractName)
+				&& !string.IsNullOrWhiteSpace(order.Counterparty.SpecialContractNumber)
+				&& order.Counterparty.SpecialContractDate.HasValue)
 			{
-				basis.NaimOsn = order.Client.SpecialContractName;
-				basis.NomOsn = order.Client.SpecialContractNumber;
-				basis.DataOsn = $"{order.Client.SpecialContractDate.Value:dd.MM.yyyy}";
+				basis.NaimOsn = order.Counterparty.SpecialContractName;
+				basis.NomOsn = order.Counterparty.SpecialContractNumber;
+				basis.DataOsn = $"{order.Counterparty.SpecialContractDate.Value:dd.MM.yyyy}";
 				return basis;
 			}
-			if(order.Client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(order.Client.SpecialContractName))
+			if(order.Counterparty.UseSpecialDocFields && !string.IsNullOrWhiteSpace(order.Counterparty.SpecialContractName))
 			{
 				basis.NaimOsn = "Без документа-основания";
 				return basis;

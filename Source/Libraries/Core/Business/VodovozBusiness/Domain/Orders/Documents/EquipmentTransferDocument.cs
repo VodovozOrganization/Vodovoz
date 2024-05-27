@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders.Documents
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Core.Data.Clients;
+using Vodovoz.Core.Data.Organizations;
 
 namespace TaxcomEdoApi.Converters
 {

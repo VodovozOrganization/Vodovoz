@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
 using Taxcom.Client.Api.Entity;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.OrdersWithoutShipment;
 
 namespace TaxcomEdoApi.Factories
 {
 	public class EdoBillFactory : IEdoBillFactory
 	{
-		public NonformalizedDocument CreateBillDocument(Order order, byte[] attachmentFile, string attachmentName, Organization organization)
+		public NonformalizedDocument CreateBillDocument(Order order, byte[] attachmentFile, string attachmentName)
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
@@ -26,15 +25,15 @@ namespace TaxcomEdoApi.Factories
 				{
 					Inn = order.Contract.Organization.INN,
 					Kpp = order.Contract.Organization.KPP,
-					Identifier = organization.TaxcomEdoAccountId,
-					Name = { Organization = organization.FullName }
+					Identifier = order.Contract.Organization.TaxcomEdoAccountId,
+					Name = { Organization = order.Contract.Organization.FullName }
 				},
 				Recipient =
 				{
-					Inn = order.Client.INN,
-					Kpp = order.Client.KPP,
-					Identifier = order.Client.PersonalAccountIdInEdo,
-					Name = { Organization = order.Client.FullName }
+					Inn = order.Counterparty.INN,
+					Kpp = order.Counterparty.KPP,
+					Identifier = order.Counterparty.PersonalAccountIdInEdo,
+					Name = { Organization = order.Counterparty.FullName }
 				},
 				Sum = order.OrderSum
 			};
@@ -42,11 +41,13 @@ namespace TaxcomEdoApi.Factories
 			return nonformalizedDocument;
 		}
 
-		public NonformalizedDocument CreateBillWithoutShipmentForAdvancePaymentDocument(OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePayment, byte[] attachmentFile, string attachmentName, Organization organization)
+		public NonformalizedDocument CreateBillWithoutShipment(
+			OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachmentFile, string attachmentName)
 		{
+			var organization = orderWithoutShipmentInfo.Organization;
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = "Ф-" + orderWithoutShipmentForAdvancePayment.Id.ToString(),
+				Number = "Ф-" + orderWithoutShipmentInfo.Id.ToString(),
 				Type = DocumentType.Account,
 				Attachment = new FileData
 				{
@@ -64,78 +65,12 @@ namespace TaxcomEdoApi.Factories
 				},
 				Recipient =
 				{
-					Inn = orderWithoutShipmentForAdvancePayment.Client.INN,
-					Kpp = orderWithoutShipmentForAdvancePayment.Client.KPP,
-					Identifier = orderWithoutShipmentForAdvancePayment.Client.PersonalAccountIdInEdo,
-					Name = { Organization = orderWithoutShipmentForAdvancePayment.Client.FullName }
+					Inn = orderWithoutShipmentInfo.Counterparty.INN,
+					Kpp = orderWithoutShipmentInfo.Counterparty.KPP,
+					Identifier = orderWithoutShipmentInfo.Counterparty.PersonalAccountIdInEdo,
+					Name = { Organization = orderWithoutShipmentInfo.Counterparty.FullName }
 				},
-				Sum = orderWithoutShipmentForAdvancePayment.ObservableOrderWithoutDeliveryForAdvancePaymentItems.Sum(x => x.Sum)
-			};
-
-			return nonformalizedDocument;
-		}
-
-		public NonformalizedDocument CreateBillWithoutShipmentForDebtDocument(OrderWithoutShipmentForDebt orderWithoutShipmentForDebt, byte[] attachmentFile, string attachmentName, Organization organization)
-		{
-			var nonformalizedDocument = new NonformalizedDocument
-			{
-				Number = "Ф-" + orderWithoutShipmentForDebt.Id.ToString(),
-				Type = DocumentType.Account,
-				Attachment = new FileData
-				{
-					Image = attachmentFile,
-					Name = attachmentName
-				},
-				Date = DateTime.Now,
-				ExternalIdentifier = Guid.NewGuid().ToString(),
-				Sender =
-				{
-					Inn = organization.INN,
-					Kpp = organization.KPP,
-					Identifier = organization.TaxcomEdoAccountId,
-					Name = { Organization = organization.FullName }
-				},
-				Recipient =
-				{
-					Inn = orderWithoutShipmentForDebt.Client.INN,
-					Kpp = orderWithoutShipmentForDebt.Client.KPP,
-					Identifier = orderWithoutShipmentForDebt.Client.PersonalAccountIdInEdo,
-					Name = { Organization = orderWithoutShipmentForDebt.Client.FullName }
-				},
-				Sum = orderWithoutShipmentForDebt.DebtSum
-			};
-
-			return nonformalizedDocument;
-		}
-
-		public NonformalizedDocument CreateBillWithoutShipmentForPaymentDocument(OrderWithoutShipmentForPayment orderWithoutShipmentForPayment, byte[] attachmentFile, string attachmentName, Organization organization)
-		{
-			var nonformalizedDocument = new NonformalizedDocument
-			{
-				Number = "Ф-" + orderWithoutShipmentForPayment.Id.ToString(),
-				Type = DocumentType.Account,
-				Attachment = new FileData
-				{
-					Image = attachmentFile,
-					Name = attachmentName
-				},
-				Date = DateTime.Now,
-				ExternalIdentifier = Guid.NewGuid().ToString(),
-				Sender =
-				{
-					Inn = organization.INN,
-					Kpp = organization.KPP,
-					Identifier = organization.TaxcomEdoAccountId,
-					Name = { Organization = organization.FullName }
-				},
-				Recipient =
-				{
-					Inn = orderWithoutShipmentForPayment.Client.INN,
-					Kpp = orderWithoutShipmentForPayment.Client.KPP,
-					Identifier = orderWithoutShipmentForPayment.Client.PersonalAccountIdInEdo,
-					Name = { Organization = orderWithoutShipmentForPayment.Client.FullName }
-				},
-				Sum = orderWithoutShipmentForPayment.ObservableOrderWithoutDeliveryForPaymentItems.Sum(x => x.Order.OrderSum)
+				Sum = orderWithoutShipmentInfo.Sum
 			};
 
 			return nonformalizedDocument;

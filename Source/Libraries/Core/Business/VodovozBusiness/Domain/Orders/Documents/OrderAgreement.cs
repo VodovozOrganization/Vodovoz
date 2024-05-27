@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;

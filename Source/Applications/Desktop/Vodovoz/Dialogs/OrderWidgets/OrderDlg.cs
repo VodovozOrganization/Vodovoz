@@ -50,6 +50,7 @@ using Vodovoz.Core;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;

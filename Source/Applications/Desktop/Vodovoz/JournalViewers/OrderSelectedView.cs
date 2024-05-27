@@ -13,6 +13,7 @@ using QS.Navigation;
 using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Infrastructure;

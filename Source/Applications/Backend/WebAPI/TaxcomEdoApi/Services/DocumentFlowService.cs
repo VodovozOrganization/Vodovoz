@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Gamma.Utilities;
 using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Converters;
@@ -15,12 +16,12 @@ using Taxcom.Client.Api.Entity.DocFlow;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.HealthChecks;
+using Vodovoz.Core.Data.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
@@ -30,6 +31,8 @@ using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
 using VodovozHealthCheck.Dto;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
+using Order = Vodovoz.Core.Data.Orders.Order;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace TaxcomEdoApi.Services
@@ -94,6 +97,140 @@ namespace TaxcomEdoApi.Services
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
 			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
+		}
+		
+		public void SendBill(Order order, byte[] billAttachment)
+		{
+			if(EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderContainer(order, billAttachment);
+			}
+
+			/*
+			if(action != null && action.IsNeedToResendEdoBill)
+			{
+				action.IsNeedToResendEdoBill = false;
+
+				uow.Save(action);
+				uow.Commit();
+			}
+			*/
+		}
+
+		public void SendBillWithoutShipment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
+		{
+			if(_cashlessOrganizationId == orderWithoutShipmentInfo.Organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForAdvancePayment().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderWithoutShipment(orderWithoutShipmentInfo, attachment);
+			}
+
+			if(_cashlessOrganizationId == orderWithoutShipmentInfo.Organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForDebt().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderWithoutShipmentForDebtContainer(uow, organization, edoContainer);
+			}
+
+			if(_cashlessOrganizationId == orderWithoutShipmentInfo.Organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForPayment().IsSatisfiedBy(edoContainer))
+			{
+				SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
+			};
+		}
+
+		private void SendOrderWithoutShipment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
+		{
+			var documentType = orderWithoutShipmentInfo.Type.GetEnumTitle();
+			_logger.LogInformation("Создаем {OrderWithoutShipmentType} №{OrderWithoutShipmentForPaymentId}",
+				documentType,
+				orderWithoutShipmentInfo.Id
+				);
+			try
+			{
+				var container = new TaxcomContainer
+				{
+					SignMode = DocumentSignMode.UseSpecifiedCertificate
+				};
+
+				/*
+				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForPayment };
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForPayment as IPrintableRDLDocument;
+				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
+				*/
+				var fileName = $"{orderWithoutShipmentInfo.FileName}.pdf";
+				var document = _edoBillFactory.CreateBillWithoutShipment(orderWithoutShipmentInfo, attachment, fileName);
+
+				container.Documents.Add(document);
+				document.AddCertificateForSign(_certificate.Thumbprint);
+				/*
+				var containerRawData = container.ExportToZip();
+
+				edoContainer.Container = containerRawData;
+				edoContainer.MainDocumentId = document.ExternalIdentifier;
+				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
+
+				_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по счету без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForPayment.Id);
+
+				unitOfWork.Save(edoContainer);
+				unitOfWork.Commit();
+				*/
+				_logger.LogInformation("Отправляем контейнер по {OrderWithoutShipmentType} №{OrderWithoutShipmentId}",
+					documentType,
+					orderWithoutShipmentInfo.Id);
+
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка в процессе формирования контейнера {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
+					documentType,
+					orderWithoutShipmentInfo.Id);
+			}
+		}
+
+		private void SendOrderContainer(Order order, byte[] billAttachment)
+		{
+			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", order.Id);
+			try
+			{
+				var container = new TaxcomContainer
+				{
+					SignMode = DocumentSignMode.UseSpecifiedCertificate
+				};
+
+				
+				/*var orderDocumentTypes = new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
+				var printableRdlDocument = edoContainer.Order.OrderDocuments
+					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)
+										&& x.Order.Id == edoContainer.Order.Id) as IPrintableRDLDocument;
+				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);*/
+				var fileName = $"Счёт №{order.Id} от {order.CreationDate:d}.pdf";
+				var document = _edoBillFactory.CreateBillDocument(order, billAttachment, fileName);
+
+				container.Documents.Add(document);
+				document.AddCertificateForSign(_certificate.Thumbprint);
+				
+				/*
+				var containerRawData = container.ExportToZip();
+				
+				edoContainer.Container = containerRawData;
+				edoContainer.MainDocumentId = document.ExternalIdentifier;
+				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
+
+				_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по заказу №{OrderId}",
+					edoContainer.Id,
+					edoContainer.Order.Id);
+
+				unitOfWork.Save(edoContainer);
+				unitOfWork.Commit();
+				*/
+				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки счета", order.Id);
+			}
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
