@@ -1075,7 +1075,7 @@ namespace Vodovoz.Application.Logistics
 			var transferItems = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
 				atdi => atdi.NewAddress.Order.Id == routeListAddress.Order.Id)
-					.OrderBy(atdi => atdi.Document.Id);
+					.OrderBy(atdi => atdi.Id);
 
 			RouteListItem target = null;
 
@@ -1147,7 +1147,7 @@ namespace Vodovoz.Application.Logistics
 			var transferItems = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
 				atdi => atdi.OldAddress.Order.Id == routeListAddress.Order.Id)
-					.OrderByDescending(atdi => atdi.Document.Id);
+					.OrderByDescending(atdi => atdi.Id);
 
 			RouteListItem source = null;
 
