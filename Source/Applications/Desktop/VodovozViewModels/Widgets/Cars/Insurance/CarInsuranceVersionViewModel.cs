@@ -2,7 +2,6 @@
 using QS.DomainModel.Entity;
 using QS.Services;
 using QS.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
@@ -23,9 +22,6 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			AddCarInsuranceCommand = new DelegateCommand(AddCarInsurance, () => CanAddCarInsurance);
 			EditCarInsuranceCommand = new DelegateCommand(EditCarInsurance, () => CanEditCarInsurance);
 		}
-
-		public event EventHandler<AddCarInsuranceEventArgs> AddCarInsurenceClicked;
-		public event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceClicked;
 
 		public DelegateCommand AddCarInsuranceCommand { get; }
 		public DelegateCommand EditCarInsuranceCommand { get; }
@@ -77,7 +73,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			AddCarInsurenceClicked?.Invoke(this, new AddCarInsuranceEventArgs(InsuranceType.Value));
+			//AddCarInsurenceClicked?.Invoke(this, new AddCarInsuranceEventArgs(InsuranceType.Value));
 		}
 
 		private void EditCarInsurance()
@@ -87,7 +83,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			EditCarInsurenceClicked?.Invoke(this, new EditCarInsuranceEventArgs(SelectedCarInsurance));
+			//EditCarInsurenceClicked?.Invoke(this, new EditCarInsuranceEventArgs(SelectedCarInsurance));
 		}
 	}
 }
