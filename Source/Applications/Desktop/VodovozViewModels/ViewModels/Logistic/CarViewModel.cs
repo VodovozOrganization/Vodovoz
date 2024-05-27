@@ -102,6 +102,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			OsagoInsuranceVersionViewModel = carInsuranceVersionViewModelFactory.CreateOsagoCarInsuranceVersionViewModel(Entity);
 			KaskoInsuranceVersionViewModel = carInsuranceVersionViewModelFactory.CreateKaskoCarInsuranceVersionViewModel(Entity);
+			CarInsuranceVersionEditingViewModel = lifetimeScope.Resolve<CarInsuranceVersionEditingViewModel>();
+			CarInsuranceVersionEditingViewModel.ParentDialog = this;
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
@@ -202,6 +204,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public FuelCardVersionViewModel FuelCardVersionViewModel { get; }
 		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
+		public CarInsuranceVersionEditingViewModel CarInsuranceVersionEditingViewModel { get; }
 
 		protected override bool BeforeSave()
 		{

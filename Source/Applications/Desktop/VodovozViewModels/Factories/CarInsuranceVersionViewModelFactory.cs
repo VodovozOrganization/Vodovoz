@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using System;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.ViewModels.Factories
 
 		public CarInsuranceVersionViewModelFactory(ILifetimeScope lifetimeScope)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public CarInsuranceVersionViewModel CreateOsagoCarInsuranceVersionViewModel(Car car)

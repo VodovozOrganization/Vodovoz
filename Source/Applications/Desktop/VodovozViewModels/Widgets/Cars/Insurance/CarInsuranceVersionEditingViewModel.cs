@@ -1,6 +1,8 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -16,7 +18,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		private readonly ICommonServices _commonServices;
 
 		private bool _isWidgetVisible;
-		private CarInsurance _entity;
+		private CarInsurance _insurance;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Counterparty _insurer;
@@ -25,7 +27,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		public CarInsuranceVersionEditingViewModel(
 			ICommonServices commonServices,
-			IUnitOfWorkFactory unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -33,7 +37,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			}
 
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CarInsuranceVersionEditingViewModel));
 
 			SaveInsuranceCommand = new DelegateCommand(SaveInsurance, () => CanSaveInsurance);
@@ -43,6 +48,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public DelegateCommand SaveInsuranceCommand { get; }
 		public DelegateCommand CancelEditingInsuranceCommand { get; }
 		public IUnitOfWork UnitOfWork { get; }
+		public INavigationManager NavigationManager { get; }
+		public ILifetimeScope LifetimeScope { get; }
+		public IEntityEntryViewModel InsurerEntryViewModel { get; private set; }
 
 		public bool IsWidgetVisible
 		{
@@ -51,17 +59,17 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		}
 
 		[PropertyChangedAlso(nameof(CanSaveInsurance))]
-		public CarInsurance Entity
+		public CarInsurance Insurance
 		{
-			get => _entity;
+			get => _insurance;
 			set
 			{
-				if(_entity != null)
+				if(_insurance != null)
 				{
 					throw new InvalidOperationException("Страховка авто уже в процессе изменения");
 				}
 
-				SetField(ref _entity, value);
+				SetField(ref _insurance, value);
 				IsWidgetVisible = true;
 			}
 		}
@@ -107,15 +115,19 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				SetField(ref _parentDialog, value);
 			}
 		}
-		public IEntityEntryViewModel InsurerEntryViewModel { get; private set; }
 
 		public bool CanSaveInsurance =>
-			Entity is null
-			|| Entity.Car is null
+			Insurance is null
+			|| Insurance.Car is null
 			|| StartDate == null
 			|| EndDate == null
 			|| Insurer is null
 			|| string.IsNullOrWhiteSpace(InsuranceNumber);
+
+		private void EditCarInsurance(CarInsurance insurance)
+		{
+			Insurance = insurance ?? throw new ArgumentNullException(nameof(insurance));
+		}
 
 		private void SaveInsurance()
 		{
@@ -126,12 +138,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 			var carInsurance = new CarInsurance
 			{
-				Car = Entity.Car,
+				Car = Insurance.Car,
 				StartDate = StartDate.Value,
 				EndDate = EndDate.Value,
 				Insurer = Insurer,
 				InsuranceNumber = InsuranceNumber,
-				InsuranceType = Entity.InsuranceType
+				InsuranceType = Insurance.InsuranceType
 			};
 
 			if(!_commonServices.ValidationService.Validate(carInsurance))
@@ -139,10 +151,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			Entity.StartDate = StartDate.Value;
-			Entity.EndDate = EndDate.Value;
-			Entity.Insurer = Insurer;
-			Entity.InsuranceNumber = InsuranceNumber;
+			Insurance.StartDate = StartDate.Value;
+			Insurance.EndDate = EndDate.Value;
+			Insurance.Insurer = Insurer;
+			Insurance.InsuranceNumber = InsuranceNumber;
 
 			ClearPropertiesAndHideWidget();
 		}
@@ -154,7 +166,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		private void ClearPropertiesAndHideWidget()
 		{
-			Entity = null;
+			Insurance = null;
 			StartDate = null;
 			EndDate = null;
 			Insurer = null;
