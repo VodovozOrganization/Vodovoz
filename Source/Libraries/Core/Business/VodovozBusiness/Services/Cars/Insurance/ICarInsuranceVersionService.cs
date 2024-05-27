@@ -5,7 +5,9 @@ namespace Vodovoz.Services.Cars.Insurance
 {
 	public interface ICarInsuranceVersionService
 	{
-		event EventHandler<EditCarInsuranceEventArgs> EditCarInsurence;
+		event EventHandler CarInsuranceAdded;
+		event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceSelected;
+		bool IsInsuranceEditingInProgress { get; }
 		void AddNewCarInsurance(CarInsuranceType insuranceType);
 		void EditCarInsurance(CarInsurance insurance);
 		void InsuranceEditingCompleted(CarInsurance insurance);

@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Services;
 using QS.ViewModels;
@@ -11,6 +12,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
 	public class CarInsuranceVersionViewModel : EntityWidgetViewModelBase<Car>
 	{
+		private IInteractiveService _interactiveService;
 		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
 		private CarInsuranceType? _insuranceType;
 		private CarInsurance _selectedCarInsurance;
@@ -25,6 +27,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			AddCarInsuranceCommand = new DelegateCommand(AddCarInsurance, () => CanAddCarInsurance);
 			EditCarInsuranceCommand = new DelegateCommand(EditCarInsurance, () => CanEditCarInsurance);
 			_carInsuranceVersionService = carInsuranceVersionService ?? throw new System.ArgumentNullException(nameof(carInsuranceVersionService));
+
+			_interactiveService = CommonServices.InteractiveService;
+
+			carInsuranceVersionService.CarInsuranceAdded += OnCarInsuranceAdded;
 		}
 
 		public DelegateCommand AddCarInsuranceCommand { get; }
@@ -59,7 +65,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		}
 
 		public IList<CarInsurance> Insurances =>
-			Entity.CarInsurances.Where(o => !InsuranceType.HasValue || o.InsuranceType == InsuranceType.Value)
+			Entity.CarInsurances
+			.Where(o => !InsuranceType.HasValue || o.InsuranceType == InsuranceType.Value)
+			.OrderByDescending(o => o.EndDate)
 			.ToList();
 
 		public bool CanSetInsuranceNotRelevantForCar =>
@@ -72,7 +80,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		private void AddCarInsurance()
 		{
-			if(!InsuranceType.HasValue)
+			if(!InsuranceType.HasValue
+				|| IsInsuranceEditingInProgress()
+				|| IsNewInsuranceAlreadyAdded())
 			{
 				return;
 			}
@@ -82,12 +92,47 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		private void EditCarInsurance()
 		{
-			if(SelectedCarInsurance is null)
+			if(SelectedCarInsurance is null || IsInsuranceEditingInProgress())
 			{
 				return;
 			}
 
 			_carInsuranceVersionService.EditCarInsurance(SelectedCarInsurance);
+		}
+
+		private bool IsNewInsuranceAlreadyAdded()
+		{
+			var isNewInsuranceAdded = Insurances.Count(item => item.Id == 0) > 0;
+
+			if(isNewInsuranceAdded)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					 "Новая страховка уже была добавлена. Сначала сохраните существующие изменения.");
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool IsInsuranceEditingInProgress()
+		{
+			if(_carInsuranceVersionService.IsInsuranceEditingInProgress)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					 "В данный момент уже выполняется редактирование страховки.\nСохраните редактируемую страховку или отмените редактирование");
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private void OnCarInsuranceAdded(object sender, System.EventArgs e)
+		{
+			OnPropertyChanged(nameof(Insurances));
 		}
 	}
 }

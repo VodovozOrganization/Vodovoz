@@ -18,7 +18,6 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
-		private bool _isWidgetVisible;
 		private CarInsurance _insurance;
 		private CarInsuranceType? _insuranceType;
 		private DateTime? _startDate;
@@ -48,7 +47,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			SaveInsuranceCommand = new DelegateCommand(SaveInsurance, () => CanSaveInsurance);
 			CancelEditingInsuranceCommand = new DelegateCommand(CancelEditingInsurance);
 
-			_carInsuranceVersionService.EditCarInsurence += OnInsuranceVersionServiceEditCarInsurence;
+			_carInsuranceVersionService.EditCarInsurenceSelected += OnInsuranceVersionServiceEditCarInsurence;
 		}
 
 		private void OnInsuranceVersionServiceEditCarInsurence(object sender, EditCarInsuranceEventArgs e)
@@ -63,13 +62,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public ILifetimeScope LifetimeScope { get; }
 		public IEntityEntryViewModel InsurerEntryViewModel { get; private set; }
 
-		public bool IsWidgetVisible
-		{
-			get => _isWidgetVisible;
-			set => SetField(ref _isWidgetVisible, value);
-		}
+		public bool IsWidgetVisible => Insurance != null;
 
-		[PropertyChangedAlso(nameof(CanSaveInsurance))]
+		[PropertyChangedAlso(nameof(CanSaveInsurance), nameof(IsWidgetVisible))]
 		public CarInsurance Insurance
 		{
 			get => _insurance;
@@ -82,10 +77,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 				SetField(ref _insurance, value);
 
-				if(_insurance != null)
+				if(_insurance is null)
 				{
-					SetPropertiesAndVisibleWidget();
+					return;
 				}
+
+				SetWidgetProperties();
 			}
 		}
 
@@ -180,31 +177,39 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			Insurance.InsuranceNumber = InsuranceNumber;
 
 			_carInsuranceVersionService.InsuranceEditingCompleted(Insurance);
-			ClearPropertiesAndHideWidget();
+			ClearWidgetProperties();
 		}
 
 		private void CancelEditingInsurance()
 		{
 			_carInsuranceVersionService.InsuranceEditingCancelled();
-			ClearPropertiesAndHideWidget();
+			ClearWidgetProperties();
 		}
 
-		private void SetPropertiesAndVisibleWidget()
+		private void SetWidgetProperties()
 		{
-			InsuranceType = Insurance.InsuranceType;
-
-			if(Insurance.Id > 0)
+			if(Insurance is null)
 			{
-				StartDate = Insurance.StartDate;
-				EndDate = Insurance.EndDate;
-				Insurer = Insurance.Insurer;
-				InsuranceNumber = Insurance.InsuranceNumber;
+				return;
 			}
 
-			IsWidgetVisible = true;
+			InsuranceType = Insurance.InsuranceType;
+
+			if(Insurance.StartDate != default)
+			{
+				StartDate = Insurance.StartDate;
+			}
+
+			if(Insurance.EndDate != default)
+			{
+				EndDate = Insurance.EndDate;
+			}
+
+			Insurer = Insurance.Insurer;
+			InsuranceNumber = Insurance.InsuranceNumber;
 		}
 
-		private void ClearPropertiesAndHideWidget()
+		private void ClearWidgetProperties()
 		{
 			Insurance = null;
 			InsuranceType = null;
@@ -212,8 +217,6 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			EndDate = null;
 			Insurer = null;
 			InsuranceNumber = string.Empty;
-
-			IsWidgetVisible = false;
 		}
 	}
 }

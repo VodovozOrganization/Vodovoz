@@ -7,15 +7,16 @@ namespace Vodovoz.Application.Cars.Insurance
 	public class CarInsuranceVersionService : ICarInsuranceVersionService
 	{
 		private readonly Car _car;
+		private bool _isInsuranceEditingInProgress;
 
 		public CarInsuranceVersionService(Car car)
 		{
 			_car = car ?? throw new System.ArgumentNullException(nameof(car));
 		}
 
-		public event EventHandler<EditCarInsuranceEventArgs> EditCarInsurence;
-
-		public bool IsInsuranceEditingInProgress { get; private set; }
+		public event EventHandler CarInsuranceAdded;
+		public event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceSelected;
+		public bool IsInsuranceEditingInProgress => _isInsuranceEditingInProgress;
 
 		public void AddNewCarInsurance(CarInsuranceType insuranceType)
 		{
@@ -30,13 +31,13 @@ namespace Vodovoz.Application.Cars.Insurance
 
 		public void EditCarInsurance(CarInsurance insurance)
 		{
-			if(IsInsuranceEditingInProgress)
+			if(_isInsuranceEditingInProgress)
 			{
 				return;
 			}
 
 			SetIsInsuranceEditingInProgress();
-			EditCarInsurence?.Invoke(null, new EditCarInsuranceEventArgs(insurance));
+			EditCarInsurenceSelected?.Invoke(this, new EditCarInsuranceEventArgs(insurance));
 		}
 
 		public void InsuranceEditingCompleted(CarInsurance insurance)
@@ -44,6 +45,7 @@ namespace Vodovoz.Application.Cars.Insurance
 			if(insurance.Id == 0)
 			{
 				_car.CarInsurances.Add(insurance);
+				CarInsuranceAdded?.Invoke(this, null);
 			}
 
 			ResetIsInsuranceEditingInProgress();
@@ -56,12 +58,12 @@ namespace Vodovoz.Application.Cars.Insurance
 
 		private void SetIsInsuranceEditingInProgress()
 		{
-			IsInsuranceEditingInProgress = true;
+			_isInsuranceEditingInProgress = true;
 		}
 
 		private void ResetIsInsuranceEditingInProgress()
 		{
-			IsInsuranceEditingInProgress = false;
+			_isInsuranceEditingInProgress = false;
 		}
 	}
 }
