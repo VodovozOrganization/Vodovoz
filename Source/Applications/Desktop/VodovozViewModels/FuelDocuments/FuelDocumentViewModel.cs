@@ -26,10 +26,12 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -53,6 +55,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IUserSettingsService _userSettingsService;
+		private readonly IYesNoCancelQuestionInteractive _yesNoCancelQuestionInteractive;
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
 		private FuelDocument _fuelDocument;
@@ -92,7 +96,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
-			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
@@ -108,6 +115,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -144,7 +153,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
-			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
@@ -160,6 +172,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -197,7 +211,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
-			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
@@ -213,6 +230,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -251,6 +270,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
 			IGuiDispatcher guiDispatcher,
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -268,6 +289,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -628,6 +651,17 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 					if(isNeedToCreateFuelLimitOnServer)
 					{
+						var isGazpromServiceAuthDataNotSet =
+							string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiLogin)
+							|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiPassword)
+							|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiKey);
+
+						if(isGazpromServiceAuthDataNotSet)
+						{
+							ShowErrorMessageInGuiThread("У Вас не указаны данные для авторизации в сервисе Газпром");
+							return;
+						}
+
 						CreateFuelLimitFuelOperationSaveAndClose(_cancellationTokenSource.Token);
 					}
 					else
@@ -731,6 +765,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			});
 		}
 
+		private void ShowErrorMessageInGuiThread(string message)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				ShowErrorMessage(message);
+			});
+		}
+
 		private bool IsMaxDailyFuelLimitExceededForCar()
 		{
 			var todayGivedLiters = _fuelRepository.GetTodayGivedFuelInLiters(UoW, FuelDocument.Car.Id);
@@ -799,12 +841,25 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					$"\"Да\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum} л.\n" +
 					$"\"Нет\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount} л.";
 
-				bool isSummarizeLimits = AskQuestion(questionMessage);
+				var summarizeQuestionResult = _yesNoCancelQuestionInteractive.Question(questionMessage);
 
-				FuelDocument.FuelLimitLitersAmount =
-					isSummarizeLimits
-					? FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum
-					: FuelDocument.FuelLimitLitersAmount;
+				if(summarizeQuestionResult == YesNoCancelQuestionResult.Yes)
+				{
+					FuelDocument.FuelLimitLitersAmount = FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum;
+					return;
+				}
+
+				if(summarizeQuestionResult == YesNoCancelQuestionResult.No)
+				{
+					return;
+				}
+
+				if(summarizeQuestionResult == YesNoCancelQuestionResult.Cancel)
+				{
+					throw new Exception("Выдача топлива отменена пользователем!");
+				}
+
+				throw new InvalidOperationException("Неизвестный результат выбора действия");
 			}
 		}
 

@@ -83,6 +83,7 @@ using QS.Dialog.Gtk;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 
 namespace Vodovoz
 {
@@ -1640,6 +1641,8 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IFuelApiService>(),
 				_lifetimeScope.Resolve<IFuelControlSettings>(),
 				_lifetimeScope.Resolve<IGuiDispatcher>(),
+				_lifetimeScope.Resolve<IUserSettingsService>(),
+				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 				_lifetimeScope
 				));
 		}
@@ -1663,6 +1666,8 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IFuelApiService>(),
 				_lifetimeScope.Resolve<IFuelControlSettings>(),
 				_lifetimeScope.Resolve<IGuiDispatcher>(),
+				_lifetimeScope.Resolve<IUserSettingsService>(),
+				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 				_lifetimeScope
 				));
 		}

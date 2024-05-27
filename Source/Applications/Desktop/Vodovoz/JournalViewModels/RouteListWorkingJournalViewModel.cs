@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Employee;
@@ -39,6 +40,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -465,6 +467,8 @@ namespace Vodovoz.JournalViewModels
 								_lifetimeScope.Resolve<IFuelApiService>(),
 								_lifetimeScope.Resolve<IFuelControlSettings>(),
 								_lifetimeScope.Resolve<IGuiDispatcher>(),
+								_lifetimeScope.Resolve<IUserSettingsService>(),
+								_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 								_lifetimeScope
 							)
 						);
