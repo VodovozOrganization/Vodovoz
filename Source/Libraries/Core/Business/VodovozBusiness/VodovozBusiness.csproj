@@ -58,6 +58,7 @@
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Domain\Logistic\Cars\CarInsurance.cs" />
     <Compile Include="Domain\Logistic\Cars\CarInsuranceType.cs" />
+    <Compile Include="Services\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
     <Compile Include="Services\Cars\Insurance\ICarInsuranceVersionService.cs" />
     <Compile Include="Services\Fuel\IFuelCardVersionService.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequest.cs" />

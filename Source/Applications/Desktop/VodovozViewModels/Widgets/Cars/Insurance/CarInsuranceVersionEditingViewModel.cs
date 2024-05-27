@@ -10,15 +10,17 @@ using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Services.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
 	public class CarInsuranceVersionEditingViewModel : WidgetViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
-
+		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
 		private bool _isWidgetVisible;
 		private CarInsurance _insurance;
+		private CarInsuranceType? _insuranceType;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Counterparty _insurer;
@@ -29,7 +31,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			ICarInsuranceVersionService carInsuranceVersionService)
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -39,10 +42,18 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_carInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CarInsuranceVersionEditingViewModel));
 
 			SaveInsuranceCommand = new DelegateCommand(SaveInsurance, () => CanSaveInsurance);
 			CancelEditingInsuranceCommand = new DelegateCommand(CancelEditingInsurance);
+
+			_carInsuranceVersionService.EditCarInsurence += OnInsuranceVersionServiceEditCarInsurence;
+		}
+
+		private void OnInsuranceVersionServiceEditCarInsurence(object sender, EditCarInsuranceEventArgs e)
+		{
+			Insurance = e.CarInsurance;
 		}
 
 		public DelegateCommand SaveInsuranceCommand { get; }
@@ -64,14 +75,25 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			get => _insurance;
 			set
 			{
-				if(_insurance != null)
+				if(_insurance != null && value != null)
 				{
 					throw new InvalidOperationException("Страховка авто уже в процессе изменения");
 				}
 
 				SetField(ref _insurance, value);
-				IsWidgetVisible = true;
+
+				if(_insurance != null)
+				{
+					SetPropertiesAndVisibleWidget();
+				}
 			}
+		}
+
+		[PropertyChangedAlso(nameof(CanSaveInsurance))]
+		public CarInsuranceType? InsuranceType
+		{
+			get => _insuranceType;
+			set => SetField(ref _insuranceType, value);
 		}
 
 		[PropertyChangedAlso(nameof(CanSaveInsurance))]
@@ -117,12 +139,13 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		}
 
 		public bool CanSaveInsurance =>
-			Insurance is null
-			|| Insurance.Car is null
-			|| StartDate == null
-			|| EndDate == null
-			|| Insurer is null
-			|| string.IsNullOrWhiteSpace(InsuranceNumber);
+			!(Insurance is null)
+			&& !(Insurance.Car is null)
+			&& InsuranceType.HasValue
+			&& StartDate.HasValue
+			&& EndDate.HasValue
+			&& !(Insurer is null)
+			&& !string.IsNullOrWhiteSpace(InsuranceNumber);
 
 		private void EditCarInsurance(CarInsurance insurance)
 		{
@@ -131,7 +154,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		private void SaveInsurance()
 		{
-			if(CanSaveInsurance)
+			if(!CanSaveInsurance)
 			{
 				return;
 			}
@@ -143,7 +166,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				EndDate = EndDate.Value,
 				Insurer = Insurer,
 				InsuranceNumber = InsuranceNumber,
-				InsuranceType = Insurance.InsuranceType
+				InsuranceType = InsuranceType.Value
 			};
 
 			if(!_commonServices.ValidationService.Validate(carInsurance))
@@ -156,17 +179,35 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			Insurance.Insurer = Insurer;
 			Insurance.InsuranceNumber = InsuranceNumber;
 
+			_carInsuranceVersionService.InsuranceEditingCompleted(Insurance);
 			ClearPropertiesAndHideWidget();
 		}
 
 		private void CancelEditingInsurance()
 		{
+			_carInsuranceVersionService.InsuranceEditingCancelled();
 			ClearPropertiesAndHideWidget();
+		}
+
+		private void SetPropertiesAndVisibleWidget()
+		{
+			InsuranceType = Insurance.InsuranceType;
+
+			if(Insurance.Id > 0)
+			{
+				StartDate = Insurance.StartDate;
+				EndDate = Insurance.EndDate;
+				Insurer = Insurance.Insurer;
+				InsuranceNumber = Insurance.InsuranceNumber;
+			}
+
+			IsWidgetVisible = true;
 		}
 
 		private void ClearPropertiesAndHideWidget()
 		{
 			Insurance = null;
+			InsuranceType = null;
 			StartDate = null;
 			EndDate = null;
 			Insurer = null;

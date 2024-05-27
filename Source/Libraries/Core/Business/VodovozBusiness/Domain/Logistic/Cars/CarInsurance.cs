@@ -122,14 +122,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 				{
 					if(InsuranceNumber.Length == _osagoNumberLength)
 					{
-						if(InsuranceNumber.Substring(0, _osagoNumberLettersCount).All(char.IsLetter))
+						if(!InsuranceNumber.Substring(0, _osagoNumberLettersCount).All(char.IsLetter))
 						{
 							yield return new ValidationResult(
 							$"Номер страховки по Осаго должен начинаться с {_osagoNumberLettersCount}-х букв",
 							new[] { nameof(InsuranceNumber) });
 						}
 
-						if(InsuranceNumber.Substring(_osagoNumberLettersCount, _osagoNumberDigitsCount).All(char.IsDigit))
+						if(!InsuranceNumber.Substring(_osagoNumberLettersCount, _osagoNumberDigitsCount).All(char.IsDigit))
 						{
 							yield return new ValidationResult(
 							$"Номер страховки по Осаго должен заканчиваться {_osagoNumberDigitsCount}-ю цифрами",

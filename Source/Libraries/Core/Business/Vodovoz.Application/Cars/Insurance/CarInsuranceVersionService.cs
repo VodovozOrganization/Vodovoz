@@ -1,7 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Services.Cars.Insurance;
-using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 
 namespace Vodovoz.Application.Cars.Insurance
 {
@@ -50,12 +49,17 @@ namespace Vodovoz.Application.Cars.Insurance
 			ResetIsInsuranceEditingInProgress();
 		}
 
-		public void SetIsInsuranceEditingInProgress()
+		public void InsuranceEditingCancelled()
+		{
+			ResetIsInsuranceEditingInProgress();
+		}
+
+		private void SetIsInsuranceEditingInProgress()
 		{
 			IsInsuranceEditingInProgress = true;
 		}
 
-		public void ResetIsInsuranceEditingInProgress()
+		private void ResetIsInsuranceEditingInProgress()
 		{
 			IsInsuranceEditingInProgress = false;
 		}

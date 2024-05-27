@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using System;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Services.Cars.Insurance;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.Factories
@@ -14,20 +15,22 @@ namespace Vodovoz.ViewModels.Factories
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
-		public CarInsuranceVersionViewModel CreateOsagoCarInsuranceVersionViewModel(Car car)
+		public CarInsuranceVersionViewModel CreateOsagoCarInsuranceVersionViewModel(Car car, ICarInsuranceVersionService carInsuranceVersionService)
 		{
 			var viewModel = _lifetimeScope.Resolve<CarInsuranceVersionViewModel>(
-				 new TypedParameter(typeof(Car), car));
+				 new TypedParameter(typeof(Car), car),
+				 new TypedParameter(typeof(ICarInsuranceVersionService), carInsuranceVersionService));
 
 			viewModel.InsuranceType = CarInsuranceType.Osago;
 
 			return viewModel;
 		}
 
-		public CarInsuranceVersionViewModel CreateKaskoCarInsuranceVersionViewModel(Car car)
+		public CarInsuranceVersionViewModel CreateKaskoCarInsuranceVersionViewModel(Car car, ICarInsuranceVersionService carInsuranceVersionService)
 		{
 			var viewModel = _lifetimeScope.Resolve<CarInsuranceVersionViewModel>(
-				 new TypedParameter(typeof(Car), car));
+				 new TypedParameter(typeof(Car), car),
+				 new TypedParameter(typeof(ICarInsuranceVersionService), carInsuranceVersionService));
 
 			viewModel.InsuranceType = CarInsuranceType.Kasko;
 

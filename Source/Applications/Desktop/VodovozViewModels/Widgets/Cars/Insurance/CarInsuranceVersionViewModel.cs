@@ -5,22 +5,26 @@ using QS.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Services.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
 	public class CarInsuranceVersionViewModel : EntityWidgetViewModelBase<Car>
 	{
+		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
 		private CarInsuranceType? _insuranceType;
 		private CarInsurance _selectedCarInsurance;
 		private bool _isInsuranceNotRelevantForCar;
 
 		public CarInsuranceVersionViewModel(
 			Car entity,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			ICarInsuranceVersionService carInsuranceVersionService)
 			: base(entity, commonServices)
 		{
 			AddCarInsuranceCommand = new DelegateCommand(AddCarInsurance, () => CanAddCarInsurance);
 			EditCarInsuranceCommand = new DelegateCommand(EditCarInsurance, () => CanEditCarInsurance);
+			_carInsuranceVersionService = carInsuranceVersionService ?? throw new System.ArgumentNullException(nameof(carInsuranceVersionService));
 		}
 
 		public DelegateCommand AddCarInsuranceCommand { get; }
@@ -73,7 +77,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			//AddCarInsurenceClicked?.Invoke(this, new AddCarInsuranceEventArgs(InsuranceType.Value));
+			_carInsuranceVersionService.AddNewCarInsurance(InsuranceType.Value);
 		}
 
 		private void EditCarInsurance()
@@ -83,7 +87,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			//EditCarInsurenceClicked?.Invoke(this, new EditCarInsuranceEventArgs(SelectedCarInsurance));
+			_carInsuranceVersionService.EditCarInsurance(SelectedCarInsurance);
 		}
 	}
 }

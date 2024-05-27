@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services.Cars.Insurance;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -100,9 +101,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.CreateFuelCardVersionViewModel(Entity, UoW);
 			FuelCardVersionViewModel.ParentDialog = this;
 
-			OsagoInsuranceVersionViewModel = carInsuranceVersionViewModelFactory.CreateOsagoCarInsuranceVersionViewModel(Entity);
-			KaskoInsuranceVersionViewModel = carInsuranceVersionViewModelFactory.CreateKaskoCarInsuranceVersionViewModel(Entity);
-			CarInsuranceVersionEditingViewModel = lifetimeScope.Resolve<CarInsuranceVersionEditingViewModel>();
+			var carInsuranceVersionService =
+				lifetimeScope.Resolve<ICarInsuranceVersionService>(new TypedParameter(typeof(Car), Entity));
+			OsagoInsuranceVersionViewModel =
+				carInsuranceVersionViewModelFactory.CreateOsagoCarInsuranceVersionViewModel(Entity, carInsuranceVersionService);
+			KaskoInsuranceVersionViewModel =
+				carInsuranceVersionViewModelFactory.CreateKaskoCarInsuranceVersionViewModel(Entity, carInsuranceVersionService);
+
+
+			CarInsuranceVersionEditingViewModel = lifetimeScope.Resolve<CarInsuranceVersionEditingViewModel>(
+				 new TypedParameter(typeof(ICarInsuranceVersionService), carInsuranceVersionService));
 			CarInsuranceVersionEditingViewModel.ParentDialog = this;
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(

@@ -18,10 +18,12 @@ namespace Vodovoz.Views.Logistic
 
 		protected override void ConfigureWidget()
 		{
+			Visible = false;
+
 			yenumcomboboxInsuranceType.Sensitive = false;
 			yenumcomboboxInsuranceType.ItemsEnum = typeof(CarInsuranceType);
 			yenumcomboboxInsuranceType.Binding
-				.AddBinding(ViewModel.Insurance, e => e.InsuranceType, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.InsuranceType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			daterangepickerPeriod.Binding
@@ -35,6 +37,15 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ConfigureInsurerEntityEntry();
+
+			ybuttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanSaveInsurance, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSave.BindCommand(ViewModel.SaveInsuranceCommand);
+			ybuttonCancel.BindCommand(ViewModel.CancelEditingInsuranceCommand);
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
 		private void ConfigureInsurerEntityEntry()
@@ -48,6 +59,14 @@ namespace Vodovoz.Views.Logistic
 					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
 				})
 				.Finish();
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.IsWidgetVisible))
+			{
+				Visible = ViewModel.IsWidgetVisible;
+			}
 		}
 	}
 }
