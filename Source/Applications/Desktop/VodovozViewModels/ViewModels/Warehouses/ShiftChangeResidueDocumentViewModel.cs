@@ -10,6 +10,7 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -144,6 +145,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			set => SetField(ref _instancesDiscrepanciesString, value);
 		}
 
+		public bool IncludeCarDefectionAct { get; set; }
+
 		public bool CanCreate => Entity.Id == 0 && CheckCanCreateDocument();
 		public bool CanEdit => Entity.Id > 0 && CheckCanEditDocument();
 		public bool HasAccessToCarStorages { get; private set; }
@@ -169,16 +172,37 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					}
 				}
 
-				var reportInfo = new QS.Report.ReportInfo
+				ReportInfo reportInfo;
+
+				if(IncludeCarDefectionAct && Entity.Car?.CarVersions?.LastOrDefault()?.CarOwnType == CarOwnType.Driver)
 				{
-					Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-					Identifier = "Store.ShiftChangeWarehouse",
-					Parameters = new Dictionary<string, object>
+					reportInfo = new QS.Report.ReportInfo
 					{
-						{ "document_id",  Entity.Id },
+						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
+						Identifier = "Store.ShiftChangeWarehouse",
+						Parameters = new Dictionary<string, object>
+					{
+						{ "document_id", Entity.Id },
+						{ "car_id", Entity.Car?.Id },
+						{ "include_largus_defects_act", Entity.Car != null && Entity.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
+						{ "include_GAZelle_defects_act", Entity.Car != null && Entity.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
 						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
 					}
-				};
+					};
+				}
+				else
+				{
+					reportInfo = new QS.Report.ReportInfo
+					{
+						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
+						Identifier = "Store.ShiftChangeWarehouse",
+						Parameters = new Dictionary<string, object>
+					{
+						{ "document_id", Entity.Id },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
+					}
+					};
+				}
 
 				_reportViewOpener.OpenReport(this, reportInfo);
 			}

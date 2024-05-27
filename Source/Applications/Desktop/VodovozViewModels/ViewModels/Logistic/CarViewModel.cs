@@ -490,6 +490,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
 				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
+				viewModel.IncludeCarDefectionAct = true;
 			});
 		}
 
