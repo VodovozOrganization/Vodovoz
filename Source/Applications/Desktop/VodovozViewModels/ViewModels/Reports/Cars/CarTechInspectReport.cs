@@ -100,11 +100,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 				worksheet.Cell(rowNumber, colNumber++).Value = inspect.CarTypeOfUse.GetEnumDisplayName();
 				worksheet.Cell(rowNumber, colNumber++).Value = inspect.CarRegNumber;
 				worksheet.Cell(rowNumber, colNumber++).Value = inspect.DriverGeography;
-				worksheet.Cell(rowNumber, colNumber++).Value = inspect.LastOdometerValue;
 				worksheet.Cell(rowNumber, colNumber++).Value =
-					inspect.LastOdometerReadDate.HasValue
-					? inspect.LastOdometerReadDate.Value.ToString(_dateFormatString)
-					: "";
+					inspect.LastOdometerReading == null
+					? 0
+					: inspect.LastOdometerReading.Odometer;
+				worksheet.Cell(rowNumber, colNumber++).Value =
+					inspect.LastOdometerReading == null
+					? ""
+					: inspect.LastOdometerReading.StartDate.ToString(_dateFormatString);
 				worksheet.Cell(rowNumber, colNumber++).Value = inspect.UpcomingTechInspectKm;
 				worksheet.Cell(rowNumber, colNumber++).Value = inspect.LeftUntilTechInspectKm;
 				rowNumber++;

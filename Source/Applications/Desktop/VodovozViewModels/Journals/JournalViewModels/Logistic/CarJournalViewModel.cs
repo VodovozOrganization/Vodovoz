@@ -237,7 +237,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private void CreateCarTechInspectReport()
 		{
-			var techInspects = _carRepository.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId).ToList().OrderBy(t => t.LeftUntilTechInspectKm);
+			var techInspects =
+				_carRepository
+				.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId)
+				.ToList();
+				//.OrderBy(t => t.LeftUntilTechInspectKm);
 
 			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarTechInspectReport.ReportTitle}");
 
