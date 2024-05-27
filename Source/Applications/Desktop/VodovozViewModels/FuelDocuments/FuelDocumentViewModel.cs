@@ -659,6 +659,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 						if(isGazpromServiceAuthDataNotSet)
 						{
 							ShowErrorMessageInGuiThread("У Вас не указаны данные для авторизации в сервисе Газпром");
+							IsDocumentSavingInProcess = false;
 							return;
 						}
 
