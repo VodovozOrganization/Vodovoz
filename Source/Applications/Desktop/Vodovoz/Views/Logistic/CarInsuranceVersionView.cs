@@ -38,12 +38,17 @@ namespace Vodovoz.Views.Logistic
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.SelectedCarInsurance, w => w.SelectedRow)
 				.AddBinding(vm => vm.Insurances, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.IsInsurancesSensitive, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yhboxButtons.Binding
+				.AddBinding(ViewModel, vm => vm.IsInsurancesSensitive, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbuttonIsNotRelevantForCar.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanSetInsuranceNotRelevantForCar, w => w.Visible)
-				.AddBinding(vm => vm.IsInsuranceNotRelevantForCar, w => w.Active)
+				.AddBinding(e => e.IsInsuranceNotRelevantForCar, w => w.Active)
 				.InitializeFromSource();
 
 			ybuttonNewVersion.Binding

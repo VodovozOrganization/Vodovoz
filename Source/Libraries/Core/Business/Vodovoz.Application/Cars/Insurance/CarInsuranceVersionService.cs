@@ -16,6 +16,7 @@ namespace Vodovoz.Application.Cars.Insurance
 
 		public event EventHandler CarInsuranceAdded;
 		public event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceSelected;
+		public event EventHandler IsKaskoInsuranceNotRelevantChanged;
 		public bool IsInsuranceEditingInProgress => _isInsuranceEditingInProgress;
 
 		public void AddNewCarInsurance(CarInsuranceType insuranceType)
@@ -38,6 +39,15 @@ namespace Vodovoz.Application.Cars.Insurance
 
 			SetIsInsuranceEditingInProgress();
 			EditCarInsurenceSelected?.Invoke(this, new EditCarInsuranceEventArgs(insurance));
+		}
+
+		public void SetIsKaskoInsuranceNotRelevant(bool isKaskoInsuranceNotRelevant)
+		{
+			if(_car.IsKaskoInsuranceNotRelevant != isKaskoInsuranceNotRelevant)
+			{
+				_car.IsKaskoInsuranceNotRelevant = isKaskoInsuranceNotRelevant;
+				IsKaskoInsuranceNotRelevantChanged?.Invoke(this, null);
+			}
 		}
 
 		public void InsuranceEditingCompleted(CarInsurance insurance)

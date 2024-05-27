@@ -3,6 +3,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Services;
 using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
@@ -30,13 +31,17 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 			_interactiveService = CommonServices.InteractiveService;
 
-			carInsuranceVersionService.CarInsuranceAdded += OnCarInsuranceAdded;
+			IsInsuranceNotRelevantForCar = Entity.IsKaskoInsuranceNotRelevant;
+
+			_carInsuranceVersionService.CarInsuranceAdded += OnCarInsuranceAdded;
+			_carInsuranceVersionService.IsKaskoInsuranceNotRelevantChanged += OnIsKaskoInsuranceNotRelevantChanged;
 		}
 
 		public DelegateCommand AddCarInsuranceCommand { get; }
 		public DelegateCommand EditCarInsuranceCommand { get; }
+		public DelegateCommand SetIsKaskoInsuranceNotRelevantCommand { get; }
 
-		[PropertyChangedAlso(nameof(CanAddCarInsurance))]
+		[PropertyChangedAlso(nameof(CanAddCarInsurance), nameof(IsInsurancesSensitive))]
 		public CarInsuranceType? InsuranceType
 		{
 			get => _insuranceType;
@@ -58,10 +63,19 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			set => SetField(ref _selectedCarInsurance, value);
 		}
 
+		[PropertyChangedAlso(nameof(IsInsurancesSensitive))]
 		public bool IsInsuranceNotRelevantForCar
 		{
 			get => _isInsuranceNotRelevantForCar;
-			set => SetField(ref _isInsuranceNotRelevantForCar, value);
+			set
+			{
+				if(!SetField(ref _isInsuranceNotRelevantForCar, value))
+				{
+					return;
+				}
+
+				SetIsKaskoInsuranceNotRelevant();
+			}
 		}
 
 		public IList<CarInsurance> Insurances =>
@@ -74,6 +88,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			PermissionResult.CanUpdate
 			&& InsuranceType.HasValue
 			&& InsuranceType.Value == CarInsuranceType.Kasko;
+
+		public bool IsInsurancesSensitive =>
+			InsuranceType.HasValue
+			&& (InsuranceType != CarInsuranceType.Kasko || !IsInsuranceNotRelevantForCar);
+
 
 		public bool CanAddCarInsurance => PermissionResult.CanUpdate && InsuranceType.HasValue;
 		public bool CanEditCarInsurance => PermissionResult.CanUpdate && SelectedCarInsurance != null;
@@ -98,6 +117,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			}
 
 			_carInsuranceVersionService.EditCarInsurance(SelectedCarInsurance);
+		}
+
+		private void SetIsKaskoInsuranceNotRelevant()
+		{
+			_carInsuranceVersionService.SetIsKaskoInsuranceNotRelevant(IsInsuranceNotRelevantForCar);
 		}
 
 		private bool IsNewInsuranceAlreadyAdded()
@@ -130,9 +154,17 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			return false;
 		}
 
-		private void OnCarInsuranceAdded(object sender, System.EventArgs e)
+		private void OnCarInsuranceAdded(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(Insurances));
+		}
+
+		private void OnIsKaskoInsuranceNotRelevantChanged(object sender, EventArgs e)
+		{
+			if(IsInsuranceNotRelevantForCar != Entity.IsKaskoInsuranceNotRelevant)
+			{
+				IsInsuranceNotRelevantForCar = Entity.IsKaskoInsuranceNotRelevant;
+			}
 		}
 	}
 }
