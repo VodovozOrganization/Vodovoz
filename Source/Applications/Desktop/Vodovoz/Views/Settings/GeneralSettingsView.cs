@@ -97,6 +97,8 @@ namespace Vodovoz.Views.Settings
 			frameTechInspect.Sensitive = ViewModel.CanEditUpcomingTechInspectSetting;
 			ybuttonSaveUpcomingTechInspectSettings.Clicked += (s, e) => ViewModel.SaveUpcomingTechInspectCommand.Execute();
 
+			ConfigureFastDeliveryLates();
+
 			#endregion Вкладка Логистика
 
 			#region Вкладка Рекламации
@@ -139,6 +141,33 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
 			#endregion Вкладка Склад
+		}
+
+		private void ConfigureFastDeliveryLates()
+		{
+			frameFastDeliveryIntervalFrom.Sensitive = ViewModel.CanEditFastDeliveryIntervalFromSetting;
+
+			yrbtnFastDeliveryIntervalFromOrderCreated.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsIntervalFromOrderCreated, w => w.Active)
+				.InitializeFromSource();
+
+			yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsIntervalFromAddedInFirstRouteList, w => w.Active)
+				.InitializeFromSource();
+
+			yrbtnFastDeliveryIntervalFromRouteListItemTransfered.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsIntervalFromRouteListItemTransfered, w => w.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveFastDeliveryIntervalFrom.Clicked += (s, e) => ViewModel.SaveFastDeliveryIntervalFromCommand.Execute();
+
+			ytableframeFastDeliveryMaximumPermissibleLate.Sensitive = ViewModel.CanEditFastDeliveryIntervalFromSetting;
+
+			yspinbuttonFastDeliveryMaximumPermissibleLate.Binding
+				.AddBinding(ViewModel, vm => vm.FastDeliveryMaximumPermissibleLateMinutes, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveFastDeliveryMaximumPermissibleLate.Clicked += (s, e) => ViewModel.SaveFastDeliveryMaximumPermissibleLateCommand.Execute();
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)

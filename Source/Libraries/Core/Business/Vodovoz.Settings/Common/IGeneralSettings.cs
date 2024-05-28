@@ -50,5 +50,11 @@ namespace Vodovoz.Settings.Common
 		void UpdateBillAdditionalInfo(string value);
 		string GetCarLoadDocumentInfoString { get; }
 		void UpdateCarLoadDocumentInfoString(string value);
+
+		FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom { get; }
+		void UpdateFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum value);
+
+		int FastDeliveryMaximumPermissibleLateMinutes { get; }
+		void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value);
 	}
 }
