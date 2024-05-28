@@ -10,8 +10,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 	{
 		public static string ReportTitle => "Контроль страховок";
 
+		private const int _columnsCount = 10;
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly XLColor _headersBgColor = XLColor.FromColor(Color.FromArgb(170, 200, 140));
+		private readonly XLColor _noCarInsuranceBgColor = XLColor.FromColor(Color.FromArgb(200, 50, 50));
 
 		private CarInsurancesReport() { }
 
@@ -87,8 +89,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 
 		private void FormatTableHeaderCells(IXLRange cellsRange)
 		{
-			cellsRange.AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = _headersBgColor;
-			cellsRange.AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = _headersBgColor;
+			FillCellBackground(cellsRange, _headersBgColor);
+
 			cellsRange.Cells().Style.Font.Bold = true;
 			cellsRange.Cells().Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 			cellsRange.Cells().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -97,23 +99,36 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 		private void AddTableDataRows(IXLWorksheet worksheet, int rowNumber)
 		{
 			var startRowNumber = rowNumber;
-			foreach(var insurance in Items)
+			foreach(var item in Items)
 			{
+				var isCarHasInsurance = !(item.LastInsurance is null);
 				var colNumber = 1;
 				worksheet.Cell(rowNumber, colNumber++).Value = rowNumber - startRowNumber + 1;
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.CarTypeOfUse.GetEnumDisplayName();
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.CarRegNumber;
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.DriverGeography;
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.CarInsuranceType.GetEnumDisplayName();
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.StartDate.ToString(_dateFormatString);
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.EndDate.ToString(_dateFormatString);
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.Insurer;
-				worksheet.Cell(rowNumber, colNumber++).Value = insurance.InsuranceNumber;
-				worksheet.Cell(rowNumber, colNumber).Value = insurance.DaysToExpire;
+				worksheet.Cell(rowNumber, colNumber++).Value = item.CarTypeOfUse.GetEnumDisplayName();
+				worksheet.Cell(rowNumber, colNumber++).Value = item.CarRegNumber;
+				worksheet.Cell(rowNumber, colNumber++).Value = item.DriverGeography;
+				worksheet.Cell(rowNumber, colNumber++).Value = item.InsuranceType.GetEnumDisplayName();
+
+				if(isCarHasInsurance)
+				{
+					worksheet.Cell(rowNumber, colNumber++).Value = item.LastInsurance.StartDate.ToString(_dateFormatString);
+					worksheet.Cell(rowNumber, colNumber++).Value = item.LastInsurance.EndDate.ToString(_dateFormatString);
+					worksheet.Cell(rowNumber, colNumber++).Value = item.LastInsurance.Insurer.Name;
+					worksheet.Cell(rowNumber, colNumber++).Value = item.LastInsurance.InsuranceNumber;
+				}
+
+				worksheet.Cell(rowNumber, _columnsCount).Value = item.DaysToExpire;
+
+				if(!isCarHasInsurance)
+				{
+					var insuranceDataRange = worksheet.Range(rowNumber, 1, rowNumber, _columnsCount);
+					FillCellBackground(insuranceDataRange, _noCarInsuranceBgColor);
+				}
+
 				rowNumber++;
 			}
 
-			var tableDataRange = worksheet.Range(startRowNumber, 1, rowNumber - 1, 10);
+			var tableDataRange = worksheet.Range(startRowNumber, 1, rowNumber - 1, _columnsCount);
 			FormatTableDataCells(tableDataRange);
 		}
 
@@ -121,6 +136,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Cars
 		{
 			cellsRange.Cells().Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 			cellsRange.Cells().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+		}
+
+		private void FillCellBackground(IXLRange cellsRange, XLColor color)
+		{
+			cellsRange.AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = color;
+			cellsRange.AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = color;
 		}
 
 		public static void ExportToExcel(string path, IEnumerable<CarInsuranceNode> items)

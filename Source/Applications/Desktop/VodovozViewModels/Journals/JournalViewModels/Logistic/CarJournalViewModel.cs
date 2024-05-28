@@ -1,6 +1,5 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -221,7 +220,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private void CreateCarInsurancesReport()
 		{
-			var insurances = _carRepository.GetActualCarInsurances(UoW).ToList();
+			var osagoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Osago).ToList();
+			var kaskoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Kasko).ToList();
+			var insurances = osagoInsurances
+				.Union(kaskoInsurances.Where(ins => !ins.IsKaskoNotRelevant))
+				.OrderByDescending(ins => ins.LastInsurance is null)
+				.ThenBy(ins => ins.DaysToExpire)
+				.ToList();
 
 			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarInsurancesReport.ReportTitle}");
 
@@ -240,8 +245,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var techInspects =
 				_carRepository
 				.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId)
+				.OrderBy(ti => ti.LeftUntilTechInspectKm)
 				.ToList();
-				//.OrderBy(t => t.LeftUntilTechInspectKm);
 
 			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarTechInspectReport.ReportTitle}");
 

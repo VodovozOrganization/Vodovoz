@@ -4,7 +4,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -74,37 +73,34 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<CarEvent>();
 		}
 
-		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork)
+		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType)
 		{
 			var carInsurances =
-				from insurance in unitOfWork.Session.Query<CarInsurance>()
-				join c in unitOfWork.Session.Query<Car>() on insurance.Car.Id equals c.Id into cars
-				from car in cars.DefaultIfEmpty()
+				from car in unitOfWork.Session.Query<Car>()
+				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
 				join cm in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals cm.Id into carModels
 				from carModel in carModels.DefaultIfEmpty()
-				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
-				from driver in drivers.DefaultIfEmpty()
-				join c in unitOfWork.Session.Query<Counterparty>() on insurance.Insurer.Id equals c.Id into counterparties
-				from insurer in counterparties.DefaultIfEmpty()
-				orderby insurance.EndDate descending
-				group new { Insurance = insurance, Car = car, CarModel = carModel, Driver = driver, Insurer = insurer } by new { car.Id, insurance.InsuranceType } into groupedInsurances
+				where
+				!car.IsArchive
+				&& carVersion.StartDate <= DateTime.Now
+				&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
+				&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
+
 				select new CarInsuranceNode
 				{
-					CarTypeOfUse = groupedInsurances.FirstOrDefault().CarModel.CarTypeOfUse,
-					CarRegNumber = groupedInsurances.FirstOrDefault().Car.RegistrationNumber,
+					CarTypeOfUse = carModel.CarTypeOfUse,
+					CarRegNumber = car.RegistrationNumber,
 					DriverGeography =
-						groupedInsurances.FirstOrDefault().Driver != null
-						? groupedInsurances.FirstOrDefault().Driver.Subdivision.GetGeographicGroup().Name
+						car.Driver != null && car.Driver.Subdivision != null
+						? car.Driver.Subdivision.GetGeographicGroup().Name
 						: "",
-					CarInsuranceType = groupedInsurances.FirstOrDefault().Insurance.InsuranceType,
-					StartDate = groupedInsurances.FirstOrDefault().Insurance.StartDate,
-					EndDate = groupedInsurances.FirstOrDefault().Insurance.EndDate,
-					Insurer =
-						string.IsNullOrWhiteSpace(groupedInsurances.FirstOrDefault().Insurer.FullName)
-						? groupedInsurances.FirstOrDefault().Insurer.Name
-						: groupedInsurances.FirstOrDefault().Insurer.FullName,
-					InsuranceNumber = groupedInsurances.FirstOrDefault().Insurance.InsuranceNumber,
-					DaysToExpire = (int)(groupedInsurances.FirstOrDefault().Insurance.EndDate - DateTime.Today).TotalDays
+					InsuranceType = insuranceType,
+					LastInsurance =
+						car.CarInsurances
+						.Where(i => i.InsuranceType == insuranceType)
+						.OrderByDescending(i => i.EndDate)
+						.FirstOrDefault(),
+					IsKaskoNotRelevant = car.IsKaskoInsuranceNotRelevant
 				};
 
 			return carInsurances;
@@ -152,12 +148,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			public CarTypeOfUse CarTypeOfUse { get; set; }
 			public string CarRegNumber { get; set; }
 			public string DriverGeography { get; set; }
-			public CarInsuranceType CarInsuranceType { get; set; }
-			public DateTime StartDate { get; set; }
-			public DateTime EndDate { get; set; }
-			public string Insurer { get; set; }
-			public string InsuranceNumber { get; set; }
-			public int DaysToExpire { get; set; }
+			public CarInsuranceType InsuranceType { get; set; }
+			public CarInsurance LastInsurance { get; set; }
+			public bool IsKaskoNotRelevant { get; set; }
+
+			public int DaysToExpire =>
+				LastInsurance is null
+				? 0
+				: (int)(LastInsurance.EndDate - DateTime.Today).TotalDays;
 		}
 
 		public class CarTechInspectNode
@@ -171,8 +169,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			public int LeftUntilTechInspectKm { get; set; }
 			public int UpcomingTechInspectKm =>
 				LastTechInspectOdometer.HasValue
-				? LastTechInspectOdometer.Value + LeftUntilTechInspectKm
-				: LeftUntilTechInspectKm;
+				? LastTechInspectOdometer.Value + TeсhInspectInterval
+				: TeсhInspectInterval;
 		}
 	}
 }
