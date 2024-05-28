@@ -4,15 +4,16 @@ using Gamma.Utilities;
 using Gtk;
 using Microsoft.Extensions.Logging;
 using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
 using QS.Utilities.Debug;
 using QS.Utilities.Extensions;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -42,6 +43,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
@@ -60,27 +62,12 @@ using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using QS.Utilities.Debug;
-using Vodovoz.Extensions;
-using QS.Navigation;
-using Vodovoz.ViewModels.Employees;
-using Microsoft.Extensions.Logging;
-using Vodovoz.ViewModels.Logistic;
-using QS.Services;
-using QS.Dialog;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Domain.Orders;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using QS.Dialog.Gtk;
-using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz
 {
@@ -311,6 +298,7 @@ namespace Vodovoz
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
+			routeListAddressesView.BottlesReturnedEdited += OnBottlesReturnedEdited;
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			ReloadReturnedToWarehouse();
@@ -393,11 +381,29 @@ namespace Vodovoz
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
-			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
-
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private void OnBottlesReturnedEdited(object sender, int bottlesReturned)
+		{
+			var node = routeListAddressesView.GetSelectedRouteListItem();
+			node.BottlesReturned = bottlesReturned;
+			CreateBottlesReturnFreeBalanceOperations(node);
+		}
+
+		private void CreateBottlesReturnFreeBalanceOperations(RouteListItem node)
+		{
+			if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
+			{
+				_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+
+			ReloadDiscrepancies();
 		}
 
 		private IEntityEntryViewModel BuildCarEntryViewModel()
@@ -449,22 +455,6 @@ namespace Vodovoz
 			var hasStatusForCloseAdvance = routeListStatusesForCloseAdvance.Contains(Entity.Status);
 
 			ybuttonCashChangeReturn.Sensitive = hasUnclosedAdvances && hasStatusForCloseAdvance;
-		}
-
-		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(RouteListItem.BottlesReturned))
-			{
-				var node = routeListAddressesView.GetSelectedRouteListItem();
-
-				if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
-				{
-					_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
-				}
-
-				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
-					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
-			}
 		}
 
 		private void UpdateSensitivity()
@@ -812,6 +802,8 @@ namespace Vodovoz
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
 				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id],
 				isFromRouteListClosingUndelivery: isFromRouteListClosingNewUndelivery);
+
+			CreateBottlesReturnFreeBalanceOperations(node);
 
 			ReloadDiscrepancies();
 
@@ -1526,6 +1518,7 @@ namespace Vodovoz
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
+			routeListAddressesView.BottlesReturnedEdited -= OnBottlesReturnedEdited;
 			base.Destroy();
 		}
 
