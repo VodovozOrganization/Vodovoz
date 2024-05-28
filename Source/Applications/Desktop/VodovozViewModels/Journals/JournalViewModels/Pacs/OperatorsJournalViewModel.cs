@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 			VisibleDeleteAction = false;
 
 			UpdateOnChanges(typeof(Operator));
-			operatorFilterViewModel.OnFiltered += OnFilterFiltered;
+			_operatorFilterViewModel.OnFiltered += OnFilterFiltered;
 		}
 
 		private void OnFilterFiltered(object sender, EventArgs e)
@@ -108,6 +108,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 		protected override void EditEntityDialog(OperatorNode node)
 		{
 			NavigationManager.OpenViewModel<PacsOperatorReferenceBookViewModel, IEntityIdentifier>(this, EntityIdentifier.OpenEntity(node.Operator.Id));
+		}
+
+		public override void Dispose()
+		{
+			if(_operatorFilterViewModel != null)
+			{
+				_operatorFilterViewModel.OnFiltered += OnFilterFiltered;
+			}
+
+			base.Dispose();
 		}
 	}
 }
