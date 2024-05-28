@@ -195,10 +195,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
 						Identifier = "Store.ShiftChangeWarehouse",
 						Parameters = new Dictionary<string, object>
-					{
-						{ "document_id", Entity.Id },
-						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
-					}
+						{
+							{ "document_id", Entity.Id },
+							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
+						}
 					};
 				}
 
