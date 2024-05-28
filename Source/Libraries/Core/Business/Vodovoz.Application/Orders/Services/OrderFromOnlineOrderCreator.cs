@@ -8,6 +8,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -18,12 +19,14 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrderFromOnlineOrderCreator(
 			IOrderSettings orderSettings,
 			INomenclatureRepository nomenclatureRepository,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			ICounterpartyContractFactory counterpartyContractFactory)
+			ICounterpartyContractFactory counterpartyContractFactory,
+			INomenclatureSettings nomenclatureSettings)
 		{
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -31,6 +34,7 @@ namespace Vodovoz.Application.Orders.Services
 				counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			_counterpartyContractFactory =
 				counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
 		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
@@ -99,10 +103,10 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void AddOrderItems(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
 		{
-			AddNomenclaturesFromManualCreationOrder(order, onlineOrderItems);
+			AddNomenclatures(order, onlineOrderItems, manualCreation);
 		}
 
-		private void AddNomenclaturesFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
+		private void AddNomenclatures(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
 		{
 			var onlineOrderPromoSets = onlineOrderItems
 				.Where(x => x.PromoSet != null)
@@ -112,11 +116,19 @@ namespace Vodovoz.Application.Orders.Services
 				onlineOrderItems
 					.Where(x => x.PromoSet is null);
 
-			AddPromoSetFromManualCreationOrder(order, onlineOrderPromoSets);
-			AddOtherItemsFromManualCreationOrder(order, otherItems);
+			TryAddPromoSets(order, onlineOrderPromoSets);
+
+			if(manualCreation)
+			{
+				TryAddOtherItemsFromManualCreationOrder(order, otherItems);
+			}
+			else
+			{
+				TryAddOtherItemsFromAutoCreationOrder(order, otherItems);
+			}
 		}
 
-		private void AddPromoSetFromManualCreationOrder(Order order, ILookup<int?, OnlineOrderItem> onlineOrderPromoSets)
+		private void TryAddPromoSets(Order order, ILookup<int?, OnlineOrderItem> onlineOrderPromoSets)
 		{
 			var addedPromoSetsForNewClients = new Dictionary<int, bool>();
 			
@@ -163,42 +175,39 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 		
-		private void AddOtherItemsFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> otherItems)
+		private void TryAddOtherItemsFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> otherItems)
 		{
 			foreach(var onlineOrderItem in otherItems)
 			{
-				TryAddNomenclature(order, onlineOrderItem);
+				if(onlineOrderItem.Nomenclature is null)
+				{
+					continue;
+				}
+				
+				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
+				{
+					continue;
+				}
+				
+				AddNomenclature(order, onlineOrderItem);
 			}
 		}
 		
-		private void AddNomenclaturesFromAutoCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
+		private void TryAddOtherItemsFromAutoCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
 		{
 			foreach(var onlineOrderItem in onlineOrderItems)
 			{
-				if(onlineOrderItem.PromoSet != null)
+				if(onlineOrderItem.Nomenclature is null)
 				{
-					order.AddNomenclature(
-						onlineOrderItem.Nomenclature,
-						onlineOrderItem.Count,
-						onlineOrderItem.GetDiscount,
-						onlineOrderItem.IsDiscountInMoney,
-						null,
-						onlineOrderItem.PromoSet);
+					continue;
 				}
-				else
-				{
-					TryAddNomenclature(order, onlineOrderItem);
-				}
+				
+				AddNomenclature(order, onlineOrderItem);
 			}
 		}
 
-		private void TryAddNomenclature(Order order, Product onlineOrderItem)
+		private void AddNomenclature(Order order, Product onlineOrderItem)
 		{
-			if(onlineOrderItem.Nomenclature is null)
-			{
-				return;
-			}
-
 			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
 		}
 

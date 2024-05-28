@@ -49,6 +49,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				AbortOpening("Ваш пользователь не привязан к сотруднику. Дальнейшая работа не возможна");
 			}
 
+			TabName = Entity.ToString();
+
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
