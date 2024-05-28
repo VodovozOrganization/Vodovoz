@@ -1562,7 +1562,7 @@ namespace Vodovoz
 				(double)Entity.DeliveryPoint.Longitude.Value,
 				isGetClosestByRoute: false,
 				Entity.GetAllGoodsToDeliver(),
-				Entity
+				Entity.DeliveryPoint.District.TariffZone.Id
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
@@ -2511,7 +2511,7 @@ namespace Vodovoz
 					(double)Entity.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
 					Entity.GetAllGoodsToDeliver(),
-					Entity
+					Entity.DeliveryPoint.District.TariffZone.Id
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -26,11 +27,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 		District GetAccurateDistrict(IUnitOfWork uow, decimal latitude, decimal longitude);
 
 		FastDeliveryAvailabilityHistory GetRouteListsForFastDelivery(
-			IUnitOfWork uow, 
-			double latitude, 
+			IUnitOfWork uow,
+			double latitude,
 			double longitude,
 			bool isGetClosestByRoute,
 			IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
+			int? tariffZoneId,
+			bool isRequestFromDesktopApp = true,
 			Order fastDeliveryOrder = null);
 
 		void UpdateFastDeliveryMaxDistanceParameter(double value);
