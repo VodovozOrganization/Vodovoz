@@ -8,6 +8,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Content Remove="appsettings.Development.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="appsettings.Development.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.14" />
@@ -26,6 +36,7 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
     </ItemGroup>
 
 </Project>
