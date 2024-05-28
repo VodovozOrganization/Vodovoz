@@ -222,7 +222,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gtk.Frame frameVodovozEmployeeFixedPrices;
 
-		private global::Gtk.Alignment GtkAlignment22;
+		private global::Gtk.Alignment GtkAlignmentEmployeeFixedPrices;
 
 		private global::Gamma.GtkWidgets.yVBox vboxEmployeeFixedPrices;
 
@@ -1234,19 +1234,19 @@ namespace Vodovoz.Views.Settings
 			this.GtkLabel30.UseMarkup = true;
 			this.frameBillAdditionaInfo.LabelWidget = this.GtkLabel30;
 			this.yvboxOrders.Add(this.frameBillAdditionaInfo);
-			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.frameBillAdditionaInfo]));
-			w77.Position = 3;
-			w77.Expand = false;
-			w77.Fill = false;
+			global::Gtk.Box.BoxChild w92 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.frameBillAdditionaInfo]));
+			w92.Position = 3;
+			w92.Expand = false;
+			w92.Fill = false;
 			// Container child yvboxOrders.Gtk.Box+BoxChild
 			this.frameVodovozEmployeeFixedPrices = new global::Gtk.Frame();
 			this.frameVodovozEmployeeFixedPrices.Name = "frameVodovozEmployeeFixedPrices";
 			// Container child frameVodovozEmployeeFixedPrices.Gtk.Container+ContainerChild
-			this.GtkAlignment22 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment22.Name = "GtkAlignment22";
-			this.GtkAlignment22.LeftPadding = ((uint)(12));
-			this.GtkAlignment22.TopPadding = ((uint)(6));
-			// Container child GtkAlignment22.Gtk.Container+ContainerChild
+			this.GtkAlignmentEmployeeFixedPrices = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignmentEmployeeFixedPrices.Name = "GtkAlignmentEmployeeFixedPrices";
+			this.GtkAlignmentEmployeeFixedPrices.LeftPadding = ((uint)(12));
+			this.GtkAlignmentEmployeeFixedPrices.TopPadding = ((uint)(6));
+			// Container child GtkAlignmentEmployeeFixedPrices.Gtk.Container+ContainerChild
 			this.vboxEmployeeFixedPrices = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxEmployeeFixedPrices.Name = "vboxEmployeeFixedPrices";
 			this.vboxEmployeeFixedPrices.Spacing = 6;
@@ -1261,15 +1261,15 @@ namespace Vodovoz.Views.Settings
 			this.btnSaveEmployeesFixedPrices.UseUnderline = true;
 			this.btnSaveEmployeesFixedPrices.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			this.hboxHandlingFrameEmployeesFixedPrices.Add(this.btnSaveEmployeesFixedPrices);
-			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingFrameEmployeesFixedPrices[this.btnSaveEmployeesFixedPrices]));
-			w78.Position = 0;
-			w78.Expand = false;
-			w78.Fill = false;
+			global::Gtk.Box.BoxChild w93 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingFrameEmployeesFixedPrices[this.btnSaveEmployeesFixedPrices]));
+			w93.Position = 0;
+			w93.Expand = false;
+			w93.Fill = false;
 			this.vboxEmployeeFixedPrices.Add(this.hboxHandlingFrameEmployeesFixedPrices);
-			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.vboxEmployeeFixedPrices[this.hboxHandlingFrameEmployeesFixedPrices]));
-			w79.Position = 0;
-			w79.Expand = false;
-			w79.Fill = false;
+			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.vboxEmployeeFixedPrices[this.hboxHandlingFrameEmployeesFixedPrices]));
+			w94.Position = 0;
+			w94.Expand = false;
+			w94.Fill = false;
 			// Container child vboxEmployeeFixedPrices.Gtk.Box+BoxChild
 			this.hboxEmployeesFixedPricesData = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxEmployeesFixedPricesData.Name = "hboxEmployeesFixedPricesData";
@@ -1288,8 +1288,8 @@ namespace Vodovoz.Views.Settings
 			this.treeNomenclatures.Name = "treeNomenclatures";
 			this.GtkScrolledWindow.Add(this.treeNomenclatures);
 			this.vboxNomenclatures.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatures[this.GtkScrolledWindow]));
-			w81.Position = 0;
+			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatures[this.GtkScrolledWindow]));
+			w96.Position = 0;
 			// Container child vboxNomenclatures.Gtk.Box+BoxChild
 			this.hboxHandlingNomenclatures = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxHandlingNomenclatures.Name = "hboxHandlingNomenclatures";
@@ -1301,10 +1301,10 @@ namespace Vodovoz.Views.Settings
 			this.btnAddNomenclatureFixedPrice.UseUnderline = true;
 			this.btnAddNomenclatureFixedPrice.Label = global::Mono.Unix.Catalog.GetString("Добавить номенклатуру");
 			this.hboxHandlingNomenclatures.Add(this.btnAddNomenclatureFixedPrice);
-			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingNomenclatures[this.btnAddNomenclatureFixedPrice]));
-			w82.Position = 0;
-			w82.Expand = false;
-			w82.Fill = false;
+			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingNomenclatures[this.btnAddNomenclatureFixedPrice]));
+			w97.Position = 0;
+			w97.Expand = false;
+			w97.Fill = false;
 			// Container child hboxHandlingNomenclatures.Gtk.Box+BoxChild
 			this.btnRemoveNomenclatureFixedPrice = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemoveNomenclatureFixedPrice.CanFocus = true;
@@ -1312,18 +1312,18 @@ namespace Vodovoz.Views.Settings
 			this.btnRemoveNomenclatureFixedPrice.UseUnderline = true;
 			this.btnRemoveNomenclatureFixedPrice.Label = global::Mono.Unix.Catalog.GetString("Удалить номенклатуру");
 			this.hboxHandlingNomenclatures.Add(this.btnRemoveNomenclatureFixedPrice);
-			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingNomenclatures[this.btnRemoveNomenclatureFixedPrice]));
-			w83.Position = 1;
-			w83.Expand = false;
-			w83.Fill = false;
+			global::Gtk.Box.BoxChild w98 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingNomenclatures[this.btnRemoveNomenclatureFixedPrice]));
+			w98.Position = 1;
+			w98.Expand = false;
+			w98.Fill = false;
 			this.vboxNomenclatures.Add(this.hboxHandlingNomenclatures);
-			global::Gtk.Box.BoxChild w84 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatures[this.hboxHandlingNomenclatures]));
-			w84.Position = 1;
-			w84.Expand = false;
-			w84.Fill = false;
+			global::Gtk.Box.BoxChild w99 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatures[this.hboxHandlingNomenclatures]));
+			w99.Position = 1;
+			w99.Expand = false;
+			w99.Fill = false;
 			this.hboxEmployeesFixedPricesData.Add(this.vboxNomenclatures);
-			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.hboxEmployeesFixedPricesData[this.vboxNomenclatures]));
-			w85.Position = 0;
+			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.hboxEmployeesFixedPricesData[this.vboxNomenclatures]));
+			w100.Position = 0;
 			// Container child hboxEmployeesFixedPricesData.Gtk.Box+BoxChild
 			this.vboxFixedPrices = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxFixedPrices.Name = "vboxFixedPrices";
@@ -1338,8 +1338,8 @@ namespace Vodovoz.Views.Settings
 			this.treeFixedPrices.Name = "treeFixedPrices";
 			this.GtkScrolledWindow2.Add(this.treeFixedPrices);
 			this.vboxFixedPrices.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.GtkScrolledWindow2]));
-			w87.Position = 0;
+			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.GtkScrolledWindow2]));
+			w102.Position = 0;
 			// Container child vboxFixedPrices.Gtk.Box+BoxChild
 			this.hboxHandlingFixedPrices = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxHandlingFixedPrices.Name = "hboxHandlingFixedPrices";
@@ -1351,10 +1351,10 @@ namespace Vodovoz.Views.Settings
 			this.btnAddFixedPrice.UseUnderline = true;
 			this.btnAddFixedPrice.Label = global::Mono.Unix.Catalog.GetString("Добавить фиксу");
 			this.hboxHandlingFixedPrices.Add(this.btnAddFixedPrice);
-			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingFixedPrices[this.btnAddFixedPrice]));
-			w88.Position = 0;
-			w88.Expand = false;
-			w88.Fill = false;
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingFixedPrices[this.btnAddFixedPrice]));
+			w103.Position = 0;
+			w103.Expand = false;
+			w103.Fill = false;
 			// Container child hboxHandlingFixedPrices.Gtk.Box+BoxChild
 			this.btnRemoveFixedPrice = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemoveFixedPrice.CanFocus = true;
@@ -1362,38 +1362,38 @@ namespace Vodovoz.Views.Settings
 			this.btnRemoveFixedPrice.UseUnderline = true;
 			this.btnRemoveFixedPrice.Label = global::Mono.Unix.Catalog.GetString("Удалить фиксу");
 			this.hboxHandlingFixedPrices.Add(this.btnRemoveFixedPrice);
-			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingFixedPrices[this.btnRemoveFixedPrice]));
-			w89.Position = 1;
-			w89.Expand = false;
-			w89.Fill = false;
+			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.hboxHandlingFixedPrices[this.btnRemoveFixedPrice]));
+			w104.Position = 1;
+			w104.Expand = false;
+			w104.Fill = false;
 			this.vboxFixedPrices.Add(this.hboxHandlingFixedPrices);
-			global::Gtk.Box.BoxChild w90 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.hboxHandlingFixedPrices]));
-			w90.Position = 1;
-			w90.Expand = false;
-			w90.Fill = false;
+			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.hboxHandlingFixedPrices]));
+			w105.Position = 1;
+			w105.Expand = false;
+			w105.Fill = false;
 			this.hboxEmployeesFixedPricesData.Add(this.vboxFixedPrices);
-			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hboxEmployeesFixedPricesData[this.vboxFixedPrices]));
-			w91.Position = 1;
+			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.hboxEmployeesFixedPricesData[this.vboxFixedPrices]));
+			w106.Position = 1;
 			this.vboxEmployeeFixedPrices.Add(this.hboxEmployeesFixedPricesData);
-			global::Gtk.Box.BoxChild w92 = ((global::Gtk.Box.BoxChild)(this.vboxEmployeeFixedPrices[this.hboxEmployeesFixedPricesData]));
-			w92.Position = 1;
-			this.GtkAlignment22.Add(this.vboxEmployeeFixedPrices);
-			this.frameVodovozEmployeeFixedPrices.Add(this.GtkAlignment22);
+			global::Gtk.Box.BoxChild w107 = ((global::Gtk.Box.BoxChild)(this.vboxEmployeeFixedPrices[this.hboxEmployeesFixedPricesData]));
+			w107.Position = 1;
+			this.GtkAlignmentEmployeeFixedPrices.Add(this.vboxEmployeeFixedPrices);
+			this.frameVodovozEmployeeFixedPrices.Add(this.GtkAlignmentEmployeeFixedPrices);
 			this.GtkLabelVodovozEmployeeFixedPrices = new global::Gtk.Label();
 			this.GtkLabelVodovozEmployeeFixedPrices.Name = "GtkLabelVodovozEmployeeFixedPrices";
 			this.GtkLabelVodovozEmployeeFixedPrices.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Стоимость воды для сотрудников</b>");
 			this.GtkLabelVodovozEmployeeFixedPrices.UseMarkup = true;
 			this.frameVodovozEmployeeFixedPrices.LabelWidget = this.GtkLabelVodovozEmployeeFixedPrices;
 			this.yvboxOrders.Add(this.frameVodovozEmployeeFixedPrices);
-			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.frameVodovozEmployeeFixedPrices]));
-			w95.Position = 4;
-			w95.Expand = false;
-			w95.Fill = false;
+			global::Gtk.Box.BoxChild w110 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.frameVodovozEmployeeFixedPrices]));
+			w110.Position = 4;
+			w110.Expand = false;
+			w110.Fill = false;
 			this.yhboxOrders.Add(this.yvboxOrders);
-			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.yhboxOrders[this.yvboxOrders]));
-			w96.Position = 0;
-			w96.Expand = false;
-			w96.Fill = false;
+			global::Gtk.Box.BoxChild w111 = ((global::Gtk.Box.BoxChild)(this.yhboxOrders[this.yvboxOrders]));
+			w111.Position = 0;
+			w111.Expand = false;
+			w111.Fill = false;
 			// Container child yhboxOrders.Gtk.Box+BoxChild
 			this.yvboxAlternativePrices = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxAlternativePrices.Name = "yvboxAlternativePrices";
@@ -1405,18 +1405,18 @@ namespace Vodovoz.Views.Settings
 			this.alternativePriceSubdivisionsView.Events = ((global::Gdk.EventMask)(256));
 			this.alternativePriceSubdivisionsView.Name = "alternativePriceSubdivisionsView";
 			this.yvboxAlternativePrices.Add(this.alternativePriceSubdivisionsView);
-			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.yvboxAlternativePrices[this.alternativePriceSubdivisionsView]));
-			w97.Position = 0;
-			w97.Expand = false;
-			w97.Fill = false;
+			global::Gtk.Box.BoxChild w112 = ((global::Gtk.Box.BoxChild)(this.yvboxAlternativePrices[this.alternativePriceSubdivisionsView]));
+			w112.Position = 0;
+			w112.Expand = false;
+			w112.Fill = false;
 			this.yhboxOrders.Add(this.yvboxAlternativePrices);
-			global::Gtk.Box.BoxChild w98 = ((global::Gtk.Box.BoxChild)(this.yhboxOrders[this.yvboxAlternativePrices]));
-			w98.Position = 1;
-			w98.Expand = false;
-			w98.Fill = false;
+			global::Gtk.Box.BoxChild w113 = ((global::Gtk.Box.BoxChild)(this.yhboxOrders[this.yvboxAlternativePrices]));
+			w113.Position = 1;
+			w113.Expand = false;
+			w113.Fill = false;
 			this.ynotebookData.Add(this.yhboxOrders);
-			global::Gtk.Notebook.NotebookChild w99 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookData[this.yhboxOrders]));
-			w99.Position = 2;
+			global::Gtk.Notebook.NotebookChild w114 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookData[this.yhboxOrders]));
+			w114.Position = 2;
 			// Notebook tab
 			this.labelOrders = new global::Gtk.Label();
 			this.labelOrders.Name = "labelOrders";
@@ -1438,18 +1438,18 @@ namespace Vodovoz.Views.Settings
 			this.warehousesForPricesAndStocksIntegrationsView.Events = ((global::Gdk.EventMask)(256));
 			this.warehousesForPricesAndStocksIntegrationsView.Name = "warehousesForPricesAndStocksIntegrationsView";
 			this.yvboxWarehouse.Add(this.warehousesForPricesAndStocksIntegrationsView);
-			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.yvboxWarehouse[this.warehousesForPricesAndStocksIntegrationsView]));
-			w100.Position = 0;
-			w100.Expand = false;
-			w100.Fill = false;
+			global::Gtk.Box.BoxChild w115 = ((global::Gtk.Box.BoxChild)(this.yvboxWarehouse[this.warehousesForPricesAndStocksIntegrationsView]));
+			w115.Position = 0;
+			w115.Expand = false;
+			w115.Fill = false;
 			this.yhboxWarehouse.Add(this.yvboxWarehouse);
-			global::Gtk.Box.BoxChild w101 = ((global::Gtk.Box.BoxChild)(this.yhboxWarehouse[this.yvboxWarehouse]));
-			w101.Position = 0;
-			w101.Expand = false;
-			w101.Fill = false;
+			global::Gtk.Box.BoxChild w116 = ((global::Gtk.Box.BoxChild)(this.yhboxWarehouse[this.yvboxWarehouse]));
+			w116.Position = 0;
+			w116.Expand = false;
+			w116.Fill = false;
 			this.ynotebookData.Add(this.yhboxWarehouse);
-			global::Gtk.Notebook.NotebookChild w102 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookData[this.yhboxWarehouse]));
-			w102.Position = 3;
+			global::Gtk.Notebook.NotebookChild w117 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookData[this.yhboxWarehouse]));
+			w117.Position = 3;
 			// Notebook tab
 			this.labelWarehouse = new global::Gtk.Label();
 			this.labelWarehouse.Name = "labelWarehouse";
@@ -1457,8 +1457,8 @@ namespace Vodovoz.Views.Settings
 			this.ynotebookData.SetTabLabel(this.yhboxWarehouse, this.labelWarehouse);
 			this.labelWarehouse.ShowAll();
 			this.yvboxMain.Add(this.ynotebookData);
-			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ynotebookData]));
-			w103.Position = 1;
+			global::Gtk.Box.BoxChild w118 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ynotebookData]));
+			w118.Position = 1;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

@@ -78,8 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_generalSettingsSettings =
-				generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 
 			TabName = "Общие настройки";
 
@@ -118,7 +117,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			InitializeEmployeesFixedPricesViewModel();
 
-			_carLoadDocumentInfoString = _generalSettingsSettings.GetCarLoadDocumentInfoString;
+			_carLoadDocumentInfoString = _generalSettings.GetCarLoadDocumentInfoString;
 			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
 			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
 
