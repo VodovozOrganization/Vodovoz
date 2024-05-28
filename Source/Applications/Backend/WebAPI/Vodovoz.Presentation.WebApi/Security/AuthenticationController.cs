@@ -163,11 +163,12 @@ namespace Vodovoz.Presentation.WebApi.Security
 
 				if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))
 				{
-					await _firebaseCloudMessagingService
-						.SendMessage(
-							externalApplicationUser.Token,
-							"Веселый водовоз",
-							"Ваша сессия для этого приложения была завершена.");
+					// Отключено до реализации задачи 4898
+					//await _firebaseCloudMessagingService
+					//	.SendMessage(
+					//		externalApplicationUser.Token,
+					//		"Веселый водовоз",
+					//		"Ваша сессия для этого приложения была завершена.");
 				}
 
 				externalApplicationUser.SessionKey = activeSessionKey;
