@@ -139,11 +139,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				{
 					if(!Save())
 					{
-						return;
-					}
-					else
-					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
+						return;
 					}
 				}
 
