@@ -10,6 +10,12 @@ namespace Vodovoz.ViewWidgets.Reports
 	[ToolboxItem(true)]
 	public partial class IncludeExludeFiltersView : WidgetViewBase<IncludeExludeFiltersViewModel>
 	{
+		[Obsolete("Не использовать, только для дизайнера!!")]
+		public IncludeExludeFiltersView()
+		{
+			
+		}
+
 		public IncludeExludeFiltersView(IncludeExludeFiltersViewModel viewModel)
 			: base(viewModel)
 		{
