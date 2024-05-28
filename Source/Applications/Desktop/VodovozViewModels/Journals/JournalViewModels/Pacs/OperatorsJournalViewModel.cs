@@ -43,14 +43,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 				throw new ArgumentNullException(nameof(entityNotifier));
 			}
 
-			JournalFilter = operatorFilterViewModel ?? throw new ArgumentNullException(nameof(operatorFilterViewModel));
+			_operatorFilterViewModel = operatorFilterViewModel ?? throw new ArgumentNullException(nameof(operatorFilterViewModel));
+
+			JournalFilter = operatorFilterViewModel;
 
 			Title = "Операторы";
 
 			VisibleDeleteAction = false;
 
 			UpdateOnChanges(typeof(Operator));
-			_operatorFilterViewModel = operatorFilterViewModel;
+			operatorFilterViewModel.OnFiltered += OnFilterFiltered;
+		}
+
+		private void OnFilterFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected override IQueryOver<Operator> ItemsQuery(IUnitOfWork uow)
