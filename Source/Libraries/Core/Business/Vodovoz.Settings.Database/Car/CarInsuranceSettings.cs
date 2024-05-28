@@ -1,8 +1,9 @@
 ﻿using System;
+using Vodovoz.Settings.Car;
 
 namespace Vodovoz.Settings.Database.Car
 {
-	public class CarInsuranceSettings
+	public class CarInsuranceSettings : ICarInsuranceSettings
 	{
 		private readonly string _parametersPrefix = "CarInsurance.";
 		private readonly ISettingsController _settingsController;
