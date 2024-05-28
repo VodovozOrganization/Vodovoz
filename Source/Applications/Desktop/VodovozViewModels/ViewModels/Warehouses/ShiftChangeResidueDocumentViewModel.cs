@@ -179,13 +179,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
 						Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct",
 						Parameters = new Dictionary<string, object>
-					{
-						{ "document_id", Entity.Id },
-						{ "car_id", Entity.Car?.Id },
-						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
-						{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
-						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
-					}
+						{
+							{ "document_id", Entity.Id },
+							{ "car_id", Entity.Car?.Id },
+							{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
+							{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
+							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
+						}
 					};
 				}
 				else

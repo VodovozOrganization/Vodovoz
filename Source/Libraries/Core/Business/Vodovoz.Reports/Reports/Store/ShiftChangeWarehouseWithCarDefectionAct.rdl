@@ -2060,7 +2060,7 @@ WHERE c.id = @car_id;</CommandText>
             <Width>345.46pt</Width>
             <Value>Подпись Принимающего ___________________________________</Value>
             <ZIndex>1</ZIndex>
-            <Left>17.9pt</Left>
+            <Left>74.7pt</Left>
             <Top>546.5pt</Top>
           </Textbox>
           <Textbox Name="Textbox88">
@@ -2068,7 +2068,7 @@ WHERE c.id = @car_id;</CommandText>
             <Width>318.36pt</Width>
             <Value>Подпись начальник тр. отдела _________________________</Value>
             <ZIndex>1</ZIndex>
-            <Left>18.0pt</Left>
+            <Left>74.8pt</Left>
             <Top>566.1pt</Top>
           </Textbox>
           <Textbox Name="Textbox92">
@@ -2105,7 +2105,7 @@ WHERE c.id = @car_id;</CommandText>
         </Visibility>
       </List>
     </ReportItems>
-    <Height>402.5pt</Height>
+    <Height>399.9pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
