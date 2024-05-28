@@ -11,7 +11,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Tuple = DocumentFormat.OpenXml.Spreadsheet.Tuple;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
