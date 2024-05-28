@@ -209,7 +209,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(InventoryDocument), "акта инвентаризации"))
 				{
-					Save();
+					if(!Save())
+					{
+						return;
+					}
 				}
 
 				var reportInfo = new QS.Report.ReportInfo {
