@@ -20,6 +20,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.Settings.Fuel;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -29,6 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private const int _billAdditionalInfoMaxLength = 140;
 
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
@@ -66,8 +68,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _isIntervalFromRouteListItemTransfered;
 		private int _fastDeliveryMaximumPermissibleLateMinutes;
 
+		private int _largusMaxDailyFuelLimit;
+		private int _truckMaxDailyFuelLimit;
+		private int _gazelleMaxDailyFuelLimit;
+		private int _loaderMaxDailyFuelLimit;
+
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettings,
+			IFuelControlSettings fuelControlSettings,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -79,6 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 
 			TabName = "Общие настройки";
 
@@ -132,6 +141,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			_fastDeliveryMaximumPermissibleLateMinutes = _generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
 			SaveFastDeliveryMaximumPermissibleLateCommand = new DelegateCommand(SaveFastDeliveryMaximumPermissibleLate, () => CanEditFastDeliveryIntervalFromSetting);
+
+			_largusMaxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
+			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
+			_gazelleMaxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
+			_loaderMaxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+			CanEditDailyFuelLimitsSetting =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
+			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 		}
 
 		#region RouteListPrintedFormPhones
@@ -503,6 +520,46 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
+		#endregion
+
+		#region Настройка максимальных суточных лимитов для авто
+
+		public int LargusMaxDailyFuelLimit
+		{
+			get => _largusMaxDailyFuelLimit;
+			set => SetField(ref _largusMaxDailyFuelLimit, value);
+		}
+
+		public int TruckMaxDailyFuelLimit
+		{
+			get => _truckMaxDailyFuelLimit;
+			set => SetField(ref _truckMaxDailyFuelLimit, value);
+		}
+
+		public int GazelleMaxDailyFuelLimit
+		{
+			get => _gazelleMaxDailyFuelLimit;
+			set => SetField(ref _gazelleMaxDailyFuelLimit, value);
+		}
+
+		public int LoaderMaxDailyFuelLimit
+		{
+			get => _loaderMaxDailyFuelLimit;
+			set => SetField(ref _loaderMaxDailyFuelLimit, value);
+		}
+
+		public DelegateCommand SaveDailyFuelLimitsCommand { get; }
+		public bool CanEditDailyFuelLimitsSetting { get; }
+
+		private void SaveDailyFuelLimits()
+		{
+			_fuelControlSettings.SetLargusMaxDailyFuelLimit(LargusMaxDailyFuelLimit);
+			_fuelControlSettings.SetTruckMaxDailyFuelLimit(TruckMaxDailyFuelLimit);
+			_fuelControlSettings.SetGAZelleMaxDailyFuelLimit(GazelleMaxDailyFuelLimit);
+			_fuelControlSettings.SetLoaderMaxDailyFuelLimit(LoaderMaxDailyFuelLimit);
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
 		#endregion
 
 		private void InitializeSettingsViewModels()

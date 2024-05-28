@@ -10,5 +10,8 @@ namespace Vodovoz.Services.Fuel
 	{
 		Task<(string SessionId, DateTime SessionExpirationDate)> Login(string login, string password, string apiKey, CancellationToken cancellationToken);
 		Task<IEnumerable<FuelCard>> GetFuelCardsData(CancellationToken cancellationToken);
+		Task<IEnumerable<FuelLimit>> GetFuelLimitsByCardId(string cardId, CancellationToken cancellationToken);
+		Task<bool> RemoveFuelLimitById(string limitId, CancellationToken cancellationToken);
+		Task<IEnumerable<string>> SetFuelLimit(FuelLimit fuelLimit, CancellationToken cancellationToken);
 	}
 }

@@ -1,7 +1,7 @@
-using System;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.Views;
+using System;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Settings;
 
@@ -103,6 +103,8 @@ namespace Vodovoz.Views.Settings
 
 			ConfigureFastDeliveryLates();
 
+			ConfigureMaxDailyFuelLimits();
+
 			#endregion Вкладка Логистика
 
 			#region Вкладка Рекламации
@@ -133,7 +135,7 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
-			
+
 			#endregion Вкладка Заказы
 
 			#region Вкладка Склад
@@ -159,7 +161,7 @@ namespace Vodovoz.Views.Settings
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
 				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			treeNomenclatures.ColumnsConfig = FluentColumnsConfig<INamedDomainObject>.Create()
 				.AddColumn("Номенклатура").AddTextRenderer(n => n.Name)
 				.Finish();
@@ -170,19 +172,19 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.Nomenclatures, w => w.ItemsDataSource)
 				.InitializeFromSource();
 			treeNomenclatures.Selection.Changed += OnNomenclaturesSelectionChanged;
-			
+
 			btnAddNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddNomenclatureForFixedPriceCommand);
 			btnAddNomenclatureFixedPrice.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
 				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			btnRemoveNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveNomenclatureForFixedPriceCommand);
 			btnRemoveNomenclatureFixedPrice.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
 				.AddBinding(vm => vm.CanRemoveNomenclature, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			treeFixedPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureFixedPrice>.Create()
 				.AddColumn("Минимальное\nколичество")
 					.AddNumericRenderer(n => n.MinCount).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
@@ -191,18 +193,18 @@ namespace Vodovoz.Views.Settings
 					.AddNumericRenderer(n => n.Price).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
 					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
 				.Finish();
-			
+
 			treeFixedPrices.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
 				.AddBinding(vm => vm.SelectedFixedPrice, w => w.SelectedRow)
 				.InitializeFromSource();
-			
+
 			btnAddFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddFixedPriceCommand);
 			btnAddFixedPrice.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
 				.AddBinding(vm => vm.CanAddFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			btnRemoveFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveFixedPriceCommand);
 			btnRemoveFixedPrice.Binding
 				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
@@ -217,7 +219,7 @@ namespace Vodovoz.Views.Settings
 			{
 				return;
 			}
-			
+
 			if(ViewModel.EmployeeFixedPricesViewModel.FixedPrices.TryGetValue(selectedNomenclature.Id, out var fixedPrices))
 			{
 				//Вызываем отложенную инициализацию списка фиксы для номенклатуры, чтобы при изменении любого параметра у первой и перехода
@@ -251,6 +253,29 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveFastDeliveryMaximumPermissibleLate.Clicked += (s, e) => ViewModel.SaveFastDeliveryMaximumPermissibleLateCommand.Execute();
+		}
+
+		private void ConfigureMaxDailyFuelLimits()
+		{
+			frameMaxDailyFuelLimits.Sensitive = ViewModel.CanEditDailyFuelLimitsSetting;
+
+			yspinbuttonLargusMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.LargusMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonGazelleMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.GazelleMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonTruckMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.TruckMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonLoaderMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
