@@ -141,6 +141,10 @@ namespace Vodovoz.ViewModels.Warehouses
 					{
 						return;
 					}
+					else
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
+					}
 				}
 
 				var reportInfo = new QS.Report.ReportInfo
