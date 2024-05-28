@@ -305,5 +305,10 @@ namespace Vodovoz.Domain.Orders
 			Order = order;
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
+
+		public override string ToString()
+		{
+			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
+		}
 	}
 }
