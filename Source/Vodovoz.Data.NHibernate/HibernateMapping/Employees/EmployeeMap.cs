@@ -56,6 +56,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			References(x => x.DefaultForwarder).Column("default_forwarder_id");
 			References(x => x.OrganisationForSalary).Column("organisation_for_salary_id");
 			References(x => x.Post).Column("employees_posts_id");
+			References(x => x.Counterparty).Column("counterparty_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");

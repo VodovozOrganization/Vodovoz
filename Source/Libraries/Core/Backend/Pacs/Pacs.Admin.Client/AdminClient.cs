@@ -49,6 +49,7 @@ namespace Pacs.Admin.Client
 				{ nameof(GetSettings), $"{_pacsSettings.AdministratorApiUrl}/{_settingsUrl}/get" },
 				{ nameof(StartBreak), $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/startbreak" },
 				{ nameof(EndBreak), $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/endbreak" },
+				{ nameof(EndWorkShift), $"{_pacsSettings.OperatorApiUrl}/{_adminCommandsUrl}/endworkshift" }
 			};
 		}
 
@@ -156,6 +157,43 @@ namespace Pacs.Admin.Client
 			{
 				var response = await _httpClient.PostAsJsonAsync(
 					_endpointsUrl[nameof(EndBreak)],
+					payload,
+					new Dictionary<string, string>
+					{
+						{ "ApiKey",  _pacsSettings.OperatorApiKey }
+					});
+
+				var operatorResult = await response.Content.ReadFromJsonAsync<OperatorResult>(_jsonSerializerOptions);
+
+				if(response.IsSuccessStatusCode && operatorResult.Result == Result.Success)
+				{
+					return operatorResult.OperatorState;
+				}
+				else
+				{
+					throw new PacsException(operatorResult.FailureDescription);
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при выводе администратором с перерыва оператора {OperatorId}", operatorId);
+				throw;
+			}
+		}
+
+		public async Task<OperatorStateEvent> EndWorkShift(int operatorId, string reason, CancellationToken cancellationToken = default)
+		{
+			var payload = new AdminEndWorkShift
+			{
+				OperatorId = operatorId,
+				AdminId = _adminProvider.AdministratorId.Value,
+				Reason = reason
+			};
+
+			try
+			{
+				var response = await _httpClient.PostAsJsonAsync(
+					_endpointsUrl[nameof(EndWorkShift)],
 					payload,
 					new Dictionary<string, string>
 					{

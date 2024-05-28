@@ -51,13 +51,16 @@ using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
@@ -1613,6 +1616,13 @@ namespace Vodovoz
 			if(fd == null) {
 				return;
 			}
+
+			if(fd.FuelLimitLitersAmount > 0 || fd.FuelLimit != null)
+			{
+				MessageDialogHelper.RunErrorDialog("Нельзя удалить талоны по которым выдавались топливные лимиты");
+				return;
+			}
+
 			Entity.ObservableFuelDocuments.Remove(fd);
 		}
 
@@ -1632,6 +1642,11 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IFuelControlSettings>(),
+				_lifetimeScope.Resolve<IGuiDispatcher>(),
+				_lifetimeScope.Resolve<IUserSettingsService>(),
+				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 				_lifetimeScope
 				));
 		}
@@ -1652,6 +1667,11 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IFuelControlSettings>(),
+				_lifetimeScope.Resolve<IGuiDispatcher>(),
+				_lifetimeScope.Resolve<IUserSettingsService>(),
+				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 				_lifetimeScope
 				));
 		}
