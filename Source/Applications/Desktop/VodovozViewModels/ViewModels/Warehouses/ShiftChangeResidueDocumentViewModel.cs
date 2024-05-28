@@ -177,7 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					reportInfo = new QS.Report.ReportInfo
 					{
 						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-						Identifier = "Store.ShiftChangeWarehouse",
+						Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct",
 						Parameters = new Dictionary<string, object>
 					{
 						{ "document_id", Entity.Id },
