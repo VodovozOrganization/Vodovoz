@@ -97,28 +97,6 @@ namespace Vodovoz.Views.Settings
 			frameTechInspect.Sensitive = ViewModel.CanEditUpcomingTechInspectSetting;
 			ybuttonSaveUpcomingTechInspectSettings.Clicked += (s, e) => ViewModel.SaveUpcomingTechInspectCommand.Execute();
 
-			#region Настройка значений максимальных суточных лимитов на топливо для авто
-			frameMaxDailyFuelLimits.Sensitive = ViewModel.CanEditDailyFuelLimitsSetting;
-
-			yspinbuttonLargusMaxDailyFuelLimit.Binding
-				.AddBinding(ViewModel, vm => vm.LargusMaxDailyFuelLimit, w => w.ValueAsInt)
-				.InitializeFromSource();
-
-			yspinbuttonGazelleMaxDailyFuelLimit.Binding
-				.AddBinding(ViewModel, vm => vm.GazelleMaxDailyFuelLimit, w => w.ValueAsInt)
-				.InitializeFromSource();
-
-			yspinbuttonTruckMaxDailyFuelLimit.Binding
-				.AddBinding(ViewModel, vm => vm.TruckMaxDailyFuelLimit, w => w.ValueAsInt)
-				.InitializeFromSource();
-
-			yspinbuttonLoaderMaxDailyFuelLimit.Binding
-				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
-				.InitializeFromSource();
-
-			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
-			#endregion
-
 			#endregion Вкладка Логистика
 
 			#region Вкладка Рекламации
