@@ -14,12 +14,14 @@ using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.ViewModels.Pacs;
+using Vodovoz.Presentation.ViewModels.Pacs.Journals;
 using Vodovoz.ViewModels.Journals.JournalNodes.Pacs;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 {
 	public class OperatorsJournalViewModel : EntityJournalViewModelBase<Operator, PacsOperatorReferenceBookViewModel, OperatorNode>
 	{
+		private readonly OperatorFilterViewModel _operatorFilterViewModel;
 
 		public OperatorsJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -27,19 +29,35 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
 			IDeleteEntityService deleteEntityService,
-			IEntityChangeWatcher entityNotifier
-		) : base(uowFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService, deleteEntityService: deleteEntityService)
+			IEntityChangeWatcher entityNotifier,
+			OperatorFilterViewModel operatorFilterViewModel)
+			: base(
+				  uowFactory,
+				  interactiveService,
+				  navigationManager,
+				  deleteEntityService,
+				  currentPermissionService)
 		{
 			if(entityNotifier is null)
 			{
 				throw new ArgumentNullException(nameof(entityNotifier));
 			}
 
+			_operatorFilterViewModel = operatorFilterViewModel ?? throw new ArgumentNullException(nameof(operatorFilterViewModel));
+
+			JournalFilter = operatorFilterViewModel;
+
 			Title = "Операторы";
 
 			VisibleDeleteAction = false;
 
 			UpdateOnChanges(typeof(Operator));
+			_operatorFilterViewModel.OnFiltered += OnFilterFiltered;
+		}
+
+		private void OnFilterFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected override IQueryOver<Operator> ItemsQuery(IUnitOfWork uow)
@@ -56,17 +74,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 					.Select(() => operatorAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(Projections.Entity(() => employeeAlias)).WithAlias(() => resultAlias.Operator)
 					.Select(() => workShiftAlias.Name).WithAlias(() => resultAlias.WorkshiftName)
-					.Select(() => operatorAlias.PacsEnabled).WithAlias(() => resultAlias.PacsEnabled)
-				)
+					.Select(() => operatorAlias.PacsEnabled).WithAlias(() => resultAlias.PacsEnabled))
 				.TransformUsing(Transformers.AliasToBean<OperatorNode>());
+
+			if(_operatorFilterViewModel.OperatorIsWorkingFilteringMode != OperatorFilterViewModel.OperatorIsWorkingFilteringModeEnum.All)
+			{
+				switch(_operatorFilterViewModel.OperatorIsWorkingFilteringMode)
+				{
+					case OperatorFilterViewModel.OperatorIsWorkingFilteringModeEnum.Enabled:
+						query.Where(() => operatorAlias.PacsEnabled);
+						break;
+					case OperatorFilterViewModel.OperatorIsWorkingFilteringModeEnum.Disabled:
+						query.Where(() => !operatorAlias.PacsEnabled);
+						break;
+				}
+			}
 
 			query.Where(GetSearchCriterion(
 				() => operatorAlias.Id,
 				() => employeeAlias.LastName,
 				() => employeeAlias.Name,
 				() => employeeAlias.Patronymic,
-				() => workShiftAlias.Name
-			));
+				() => workShiftAlias.Name));
 
 			return query;
 		}
@@ -79,6 +108,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 		protected override void EditEntityDialog(OperatorNode node)
 		{
 			NavigationManager.OpenViewModel<PacsOperatorReferenceBookViewModel, IEntityIdentifier>(this, EntityIdentifier.OpenEntity(node.Operator.Id));
+		}
+
+		public override void Dispose()
+		{
+			if(_operatorFilterViewModel != null)
+			{
+				_operatorFilterViewModel.OnFiltered += OnFilterFiltered;
+			}
+
+			base.Dispose();
 		}
 	}
 }
