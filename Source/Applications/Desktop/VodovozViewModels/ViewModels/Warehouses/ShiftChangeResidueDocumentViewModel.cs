@@ -164,7 +164,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи остатков"))
 				{
-					if(Save())
+					if(!Save())
 					{
 						return;
 					}
