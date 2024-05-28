@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -144,8 +144,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			get => _instancesDiscrepanciesString;
 			set => SetField(ref _instancesDiscrepanciesString, value);
 		}
-
-		public bool IncludeCarDefectionAct { get; set; }
 
 		public bool CanCreate => Entity.Id == 0 && CheckCanCreateDocument();
 		public bool CanEdit => Entity.Id > 0 && CheckCanEditDocument();
