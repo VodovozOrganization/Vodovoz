@@ -2082,6 +2082,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorFilterView.cs" />
     <Compile Include="Views\Pacs\OperatorFilterView.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReportParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.Reports.CarIsNotAtLineReportParametersView.cs" />
     <Compile Include="Views\Logistic\CarInsuranceVersionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionView.cs" />
     <Compile Include="Views\Logistic\CarInsuranceVersionEditingView.cs" />
@@ -2094,6 +2096,7 @@
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ReportsParameters\Fuel\" />
+    <Folder Include="Logistic\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
