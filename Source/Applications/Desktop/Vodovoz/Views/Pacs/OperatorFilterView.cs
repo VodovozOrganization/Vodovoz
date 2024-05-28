@@ -58,5 +58,15 @@ namespace Vodovoz.Views.Pacs
 				}
 			}
 		}
+
+		public override void Destroy()
+		{
+			foreach(yRadioButton radioButton in yradiobuttonAll.Group)
+			{
+				radioButton.Toggled -= OnOperatorIsWorkingRadioButtonToggled;
+			}
+
+			base.Destroy();
+		}
 	}
 }
