@@ -1,5 +1,6 @@
 ﻿using EventsApi.Library.Models;
 using EventsApi.Library.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Interfaces.Employees;
@@ -8,10 +9,10 @@ using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics.Cars;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
+using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Settings.Database.Employee;
 using Vodovoz.Settings.Employee;
+using Vodovoz;
 
 namespace EventsApi.Library
 {
@@ -38,12 +39,14 @@ namespace EventsApi.Library
 		/// </summary>
 		/// <param name="services"></param>
 		/// <returns></returns>
-		public static IServiceCollection AddWarehouseEventsDependencies(this IServiceCollection services)
+		public static IServiceCollection AddWarehouseEventsDependencies(this IServiceCollection services, IConfiguration configuration)
 		{
 			services
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Приложение для сканирования событий(склад)"))
 				.AddLogisticsEventsDependencies()
-				.AddScoped<ILogisticsEventsService, WarehouseEventsService>();
+				.AddScoped<ILogisticsEventsService, WarehouseEventsService>()
+				.AddFirebaseCloudMessaging(configuration)
+				.ConfigureBusinessOptions(configuration);
 
 			return services;
 		}
