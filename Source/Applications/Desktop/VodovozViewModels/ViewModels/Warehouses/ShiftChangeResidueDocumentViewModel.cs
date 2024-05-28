@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -174,7 +174,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 				ReportInfo reportInfo;
 
-				if(IncludeCarDefectionAct && Entity.Car?.CarVersions?.LastOrDefault()?.CarOwnType == CarOwnType.Driver)
+				if(Entity.Car != null && (Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle))
 				{
 					reportInfo = new QS.Report.ReportInfo
 					{
@@ -184,8 +184,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					{
 						{ "document_id", Entity.Id },
 						{ "car_id", Entity.Car?.Id },
-						{ "include_largus_defects_act", Entity.Car != null && Entity.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
-						{ "include_GAZelle_defects_act", Entity.Car != null && Entity.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
+						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
+						{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
 						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
 					}
 					};
