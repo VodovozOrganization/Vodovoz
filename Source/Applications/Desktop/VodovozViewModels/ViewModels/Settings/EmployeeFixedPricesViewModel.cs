@@ -272,7 +272,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			foreach(var fixedPrice in fixedPrices)
 			{
-				RemoveFixedPrice(fixedPrice);
+				UpdateRemovedFixedPrices(fixedPrice);
 			}
 
 			FixedPrices.Remove(SelectedNomenclature.Id);
@@ -293,16 +293,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void RemoveSelectedFixedPrice()
 		{
-			RemoveFixedPrice(SelectedFixedPrice);
-		}
-		
-		private void RemoveFixedPrice(NomenclatureFixedPrice fixedPrice)
-		{
-			if(!FixedPrices.TryGetValue(fixedPrice.Nomenclature.Id, out var fixedPrices))
+			if(!FixedPrices.TryGetValue(SelectedFixedPrice.Nomenclature.Id, out var fixedPrices))
 			{
 				return;
 			}
 			
+			UpdateRemovedFixedPrices(SelectedFixedPrice);
+			fixedPrices.Remove(SelectedFixedPrice);
+		}
+
+		private void UpdateRemovedFixedPrices(NomenclatureFixedPrice fixedPrice)
+		{
 			if(fixedPrice.Id > 0)
 			{
 				DeletedFixedPrices.Add(fixedPrice);
@@ -311,8 +312,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			{
 				_uow.Session.Evict(fixedPrice);
 			}
-			
-			fixedPrices.Remove(fixedPrice);
 		}
 		
 		private void GetNomenclaturesWithFixedPrices()

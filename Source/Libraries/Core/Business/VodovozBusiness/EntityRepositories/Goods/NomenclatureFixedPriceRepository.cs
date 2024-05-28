@@ -17,6 +17,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		{
 			var result = from fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
 				where fixedPrice.IsEmployeeFixedPrice
+				orderby fixedPrice.Nomenclature.Id
 				select fixedPrice;
 			
 			return result.ToArray();

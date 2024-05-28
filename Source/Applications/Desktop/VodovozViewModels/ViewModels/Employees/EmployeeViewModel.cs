@@ -1262,20 +1262,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 
 			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _wageSettings, CommonServices.InteractiveService);
-
-			UoWGeneric.Save(Entity);
-
-			#region Попытка сохранить логин для нового юзера
 			
-			if(!TrySaveNewUser())
-			{
-				return false;
-			}
-
-			#endregion
-
-			_terminalManagementViewModel?.SaveChanges();
-
 			if(Entity.Counterparty != null)
 			{
 				if(Entity.Status == EmployeeStatus.OnCalculation || Entity.Status == EmployeeStatus.IsFired)
@@ -1292,6 +1279,19 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				TryRemoveEmployeeFixedPricesFromOldCounterparty();
 			}
+
+			UoWGeneric.Save(Entity);
+
+			#region Попытка сохранить логин для нового юзера
+			
+			if(!TrySaveNewUser())
+			{
+				return false;
+			}
+
+			#endregion
+
+			_terminalManagementViewModel?.SaveChanges();
 
 			_logger.Info("Сохраняем сотрудника...");
 			try

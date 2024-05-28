@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Tuple = DocumentFormat.OpenXml.Spreadsheet.Tuple;
@@ -187,10 +188,15 @@ namespace Vodovoz.EntityRepositories.Employees
 		{
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{
-				return (from employee in uow.Session.Query<Employee>()
+				var oldEmployeeCounterparty = (from employee in uow.Session.Query<Employee>()
+						join counterparty in uow.Session.Query<Counterparty>()
+							on employee.Counterparty.Id equals counterparty.Id into oldCounterparties
+						from oldCounterparty in oldCounterparties.DefaultIfEmpty()
 						where employee.Id == employeeId
-						select employee.Counterparty.Id)
+						select oldCounterparty)
 					.SingleOrDefault();
+				
+				return oldEmployeeCounterparty?.Id;
 			}
 		}
 
