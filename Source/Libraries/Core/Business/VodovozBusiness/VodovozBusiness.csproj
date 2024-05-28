@@ -73,6 +73,11 @@
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
     <Compile Include="Domain\Sale\WeekDayName.cs" />
     <Compile Include="Domain\Logistic\RouteListStatus.cs" />
+    <Compile Include="EntityRepositories\Nodes\AddressInfoForFastDelivery.cs" />
+    <Compile Include="EntityRepositories\Nodes\FastDeliveryVerificationDetailsNode.cs" />
+    <Compile Include="EntityRepositories\Nodes\FastDeliveryVerificationParameter.cs" />
+    <Compile Include="EntityRepositories\Nodes\RouteListFastDeliveriesCountNode.cs" />
+    <Compile Include="EntityRepositories\Nodes\RouteListNomenclatureAmount.cs" />
     <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />

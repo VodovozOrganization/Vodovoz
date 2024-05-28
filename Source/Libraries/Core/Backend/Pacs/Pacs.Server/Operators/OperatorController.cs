@@ -292,6 +292,38 @@ namespace Pacs.Server.Operators
 			}
 		}
 
+		public async Task<OperatorResult> AdminEndWorkShift(int adminId, string reason)
+		{
+			try
+			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
+				await CheckConnection();
+
+				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndWorkShift))
+				{
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить смену");
+				}
+
+				if(reason.IsNullOrWhiteSpace())
+				{
+					return new OperatorResult(GetResultContent(), "Основание должно быть заполнено");
+				}
+
+				await _operatorAgent.AdminEndWorkShift(adminId, reason);
+				return new OperatorResult(GetResultContent());
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке администратором {AdminId} завершить смену оператора {OperatorId}.",
+					adminId, _operatorAgent.OperatorId);
+				return new OperatorResult(GetResultContent(), ex.Message);
+			}
+		}
+
 		public async Task<OperatorResult> ChangePhone(string phoneNumber)
 		{
 			try
