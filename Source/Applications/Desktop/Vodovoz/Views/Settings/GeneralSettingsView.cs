@@ -1,4 +1,8 @@
-﻿using QS.Views;
+using System;
+using Gamma.ColumnConfig;
+using QS.DomainModel.Entity;
+using QS.Views;
+using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Settings;
 
 namespace Vodovoz.Views.Settings
@@ -127,6 +131,9 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
+
+			ConfigureEmployeesFixedPrices();
+			
 			#endregion Вкладка Заказы
 
 			#region Вкладка Склад
@@ -141,6 +148,82 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
 			#endregion Вкладка Склад
+		}
+
+		private void ConfigureEmployeesFixedPrices()
+		{
+			//Чтобы помещалось 4 строчки без полосы прокрутки
+			frameVodovozEmployeeFixedPrices.HeightRequest = 200;
+			btnSaveEmployeesFixedPrices.BindCommand(ViewModel.EmployeeFixedPricesViewModel.SaveEmployeesFixedPricesCommand);
+			btnSaveEmployeesFixedPrices.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			treeNomenclatures.ColumnsConfig = FluentColumnsConfig<INamedDomainObject>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(n => n.Name)
+				.Finish();
+
+			treeNomenclatures.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.SelectedNomenclature, w => w.SelectedRow)
+				.AddBinding(vm => vm.Nomenclatures, w => w.ItemsDataSource)
+				.InitializeFromSource();
+			treeNomenclatures.Selection.Changed += OnNomenclaturesSelectionChanged;
+			
+			btnAddNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddNomenclatureForFixedPriceCommand);
+			btnAddNomenclatureFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnRemoveNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveNomenclatureForFixedPriceCommand);
+			btnRemoveNomenclatureFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanRemoveNomenclature, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			treeFixedPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureFixedPrice>.Create()
+				.AddColumn("Минимальное\nколичество")
+					.AddNumericRenderer(n => n.MinCount).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.AddColumn("Фиксированная\nцена")
+					.AddNumericRenderer(n => n.Price).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.Finish();
+			
+			treeFixedPrices.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.SelectedFixedPrice, w => w.SelectedRow)
+				.InitializeFromSource();
+			
+			btnAddFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddFixedPriceCommand);
+			btnAddFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanAddFixedPrice, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnRemoveFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveFixedPriceCommand);
+			btnRemoveFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanRemoveFixedPrice, w => w.Sensitive)
+				.InitializeFromSource();
+		}
+
+		private void OnNomenclaturesSelectionChanged(object sender, EventArgs e)
+		{
+			var selectedNomenclature = ViewModel.EmployeeFixedPricesViewModel.SelectedNomenclature;
+			if(selectedNomenclature is null)
+			{
+				return;
+			}
+			
+			if(ViewModel.EmployeeFixedPricesViewModel.FixedPrices.TryGetValue(selectedNomenclature.Id, out var fixedPrices))
+			{
+				//Вызываем отложенную инициализацию списка фиксы для номенклатуры, чтобы при изменении любого параметра у первой и перехода
+				//к другой номенклатуре это значение не применилось к последней
+				Gtk.Application.Invoke((s, args) => treeFixedPrices.ItemsDataSource = fixedPrices);
+			}
 		}
 
 		private void ConfigureFastDeliveryLates()
@@ -191,6 +274,12 @@ namespace Vodovoz.Views.Settings
 			{
 				ynotebookData.CurrentPage = 3;
 			}
+		}
+
+		public override void Destroy()
+		{
+			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;
+			base.Destroy();
 		}
 	}
 }

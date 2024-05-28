@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -56,6 +56,9 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
+    <Compile Include="Permissions\Settings.cs" />
     <Compile Include="Domain\Fuel\FuelLimit.cs" />
     <Compile Include="Domain\Fuel\FuelLimitPeriodUnit.cs" />
     <Compile Include="Domain\Fuel\FuelLimitStatus.cs" />

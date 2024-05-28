@@ -5,8 +5,21 @@ using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
+using QS.DomainModel.Entity;
+using QS.Project.Journal;
+using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.Settings.Fuel;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
@@ -20,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private ILifetimeScope _lifetimeScope;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
@@ -65,13 +79,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			INavigationManager navigation = null) : base(commonServices?.InteractiveService, navigation)
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigation) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_generalSettings =
-				generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 
 			TabName = "Общие настройки";
@@ -109,6 +124,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.Documents.CanEditBillAdditionalInfo);
 			SaveBillAdditionalInfoCommand = new DelegateCommand(SaveBillAdditionalInfo, () => CanSaveBillAdditionalInfo);
 
+			InitializeEmployeesFixedPricesViewModel();
+
 			_carLoadDocumentInfoString = _generalSettings.GetCarLoadDocumentInfoString;
 			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
 			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
@@ -143,6 +160,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public SubdivisionSettingsViewModel ComplaintsSubdivisionSettingsViewModel { get; private set; }
 
 		public NamedDomainEntitiesSettingsViewModelBase WarehousesForPricesAndStocksIntegrationViewModel { get; private set; }
+		public EmployeeFixedPricesViewModel EmployeeFixedPricesViewModel { get; private set; }
 
 		public string RouteListPrintedFormPhones
 		{
@@ -375,7 +393,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#endregion
 
-
 		#region BillAdditionalInfo
 
 		public string BillAdditionalInfo
@@ -398,6 +415,16 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			_generalSettings.UpdateBillAdditionalInfo(BillAdditionalInfo);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region Фикса для сотрудников
+
+		private void InitializeEmployeesFixedPricesViewModel()
+		{
+			EmployeeFixedPricesViewModel =
+				_lifetimeScope.Resolve<EmployeeFixedPricesViewModel>(new TypedParameter(typeof(DialogViewModelBase), this));
 		}
 
 		#endregion
@@ -608,6 +635,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					$"Сохранение недоступно!" +
 					$"\nМаксимально допустимая длина строки составляет {maxLength} символов." +
 					$"\nВы ввели {currentLength} символов.");
+		}
+
+		public override void Dispose()
+		{
+			EmployeeFixedPricesViewModel.Dispose();
+			base.Dispose();
 		}
 	}
 }
