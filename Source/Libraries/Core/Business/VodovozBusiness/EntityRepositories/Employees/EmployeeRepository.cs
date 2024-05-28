@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
@@ -179,6 +181,39 @@ namespace Vodovoz.EntityRepositories.Employees
 					   && externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
 					select externalUser.Token)
 					.FirstOrDefault();
+		}
+
+		public int? GetEmployeeCounterpartyFromDatabase(IUnitOfWorkFactory uowFactory, int employeeId)
+		{
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				var oldEmployeeCounterparty = (from employee in uow.Session.Query<Employee>()
+						join counterparty in uow.Session.Query<Counterparty>()
+							on employee.Counterparty.Id equals counterparty.Id into oldCounterparties
+						from oldCounterparty in oldCounterparties.DefaultIfEmpty()
+						where employee.Id == employeeId
+						select oldCounterparty)
+					.SingleOrDefault();
+				
+				return oldEmployeeCounterparty?.Id;
+			}
+		}
+
+		public NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
+			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId)
+		{
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				return (from employee in uow.Session.Query<Employee>()
+						where employee.Counterparty.Id == counterpartyId && employee.Id != employeeId
+						let fullName = employee.FullName
+						select new NamedDomainObjectNode
+						{
+							Id = employee.Id,
+							Name = fullName
+						})
+					.SingleOrDefault();
+			}
 		}
 	}
 }

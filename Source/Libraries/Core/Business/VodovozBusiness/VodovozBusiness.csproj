@@ -56,6 +56,9 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
+    <Compile Include="Permissions\Settings.cs" />
     <Compile Include="Services\Fuel\IFuelCardVersionService.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequest.cs" />
     <Compile Include="Domain\Fuel\FuelApiRequestFunction.cs" />
