@@ -1,12 +1,17 @@
-﻿using System;
+﻿using QS.Views.Dialog;
+using System.ComponentModel;
+using Vodovoz.Presentation.ViewModels.Logistic.Reports;
+
 namespace Vodovoz.Logistic.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CarIsNotAtLineReportParametersView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class CarIsNotAtLineReportParametersView
+		: DialogViewBase<CarIsNotAtLineReportParametersViewModel>
 	{
-		public CarIsNotAtLineReportParametersView()
+		public CarIsNotAtLineReportParametersView(CarIsNotAtLineReportParametersViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }
