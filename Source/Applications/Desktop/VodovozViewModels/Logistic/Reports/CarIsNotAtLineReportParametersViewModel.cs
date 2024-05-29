@@ -17,6 +17,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		private CarIsNotAtLineReport _report;
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
+		private readonly IUnitOfWork _uUnitOfWork;
 
 		public CarIsNotAtLineReportParametersViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -24,6 +25,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			INavigationManager navigation)
 			: base(navigation)
 		{
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -31,7 +34,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			Title = "Отчёт по простою";
 
-			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
+			_uUnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Date = DateTime.Today;
 			CountDays = 4;
@@ -40,19 +43,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			var includeExludeFilterGroupViewModel = new IncludeExludeFilterGroupViewModel();
 
-			includeExludeFilterGroupViewModel.InitializeFor(UnitOfWork, _carEventRepository);
+			includeExludeFilterGroupViewModel.InitializeFor(_uUnitOfWork, _carEventRepository);
 			includeExludeFilterGroupViewModel.RefreshFilteredElementsCommand.Execute();
 
 			IncludeExludeFilterGroupViewModel = includeExludeFilterGroupViewModel;
 
-			_carEventRepository = carEventRepository;
 		}
 
 		public IncludeExludeFilterGroupViewModel IncludeExludeFilterGroupViewModel { get; }
 
 		public DelegateCommand GenerateReportCommand { get; }
 
-		public IUnitOfWork UnitOfWork { get; }
 
 		public DateTime Date
 		{
