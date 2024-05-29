@@ -15,6 +15,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public bool IsUpcomingTechInspect { get; set; }
 		public bool IsOsagoInsuranceExpires { get; set; }
 		public bool IsKaskoInsuranceExpires { get; set; }
-		public bool IsCarInsuranceExpires { get; set; }
+		public bool IsShowBackgroundColorNotification =>
+			IsUpcomingTechInspect || IsOsagoInsuranceExpires || IsKaskoInsuranceExpires;
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -128,57 +129,53 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			#region Проверка наличия и окончания срока действия страховки
 
-			var isComapnyOrRaskatCarRestriction = Restrictions.Disjunction()
-				.Add(isCompanyCarRestriction)
-				.Add(isRaskatCarRestriction);
-
-			var lastOgagoInsaranceDateSubquery = QueryOver.Of<CarInsurance>()
+			var osagoMaxEndDateSubquery = QueryOver.Of<CarInsurance>()
 				.Where(ins => ins.Car.Id == carAlias.Id && ins.InsuranceType == CarInsuranceType.Osago)
-				.Select(ins => ins.EndDate)
-				.OrderBy(ins => ins.EndDate)
-				.Desc
-				.Take(1);
+				.Select(Projections.Max<CarInsurance>(ins => ins.EndDate));
 
-			var lastKaskoInsaranceDateSubquery = QueryOver.Of<CarInsurance>()
+			var kaskoMaxEndDateSubquery = QueryOver.Of<CarInsurance>()
 				.Where(ins => ins.Car.Id == carAlias.Id && ins.InsuranceType == CarInsuranceType.Kasko)
-				.Select(ins => ins.EndDate)
-				.OrderBy(ins => ins.EndDate)
-				.Desc
-				.Take(1);
+				.Select(Projections.Max<CarInsurance>(ins => ins.EndDate));
 
-			var isOsagoInsuranceExpiresRestriction = Restrictions.Le(
-				Projections.SubQuery(lastOgagoInsaranceDateSubquery),
-				DateTime.Today.AddDays(_carInsuranceSettings.OsagoEndingNotifyDaysBefore));
+			var osagoMaxEndDateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
+				NHibernateUtil.DateTime,
+				Projections.SubQuery(osagoMaxEndDateSubquery),
+				Projections.Constant(DateTime.MinValue.ToShortDateString())
+				);
 
-			var isKaskoInsuranceExpiresRestriction = Restrictions.Le(
-				Projections.SubQuery(lastKaskoInsaranceDateSubquery),
-				DateTime.Today.AddDays(_carInsuranceSettings.OsagoEndingNotifyDaysBefore));
+			var kaskoMaxEndDateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
+				NHibernateUtil.DateTime,
+				Projections.SubQuery(kaskoMaxEndDateSubquery),
+				Projections.Constant(DateTime.MinValue.ToShortDateString())
+				);
 
-			var isCarCompanyOrRaskatAndOsagoExpiresRestriction = Restrictions.Conjunction()
-				.Add(isComapnyOrRaskatCarRestriction)
-				.Add(isOsagoInsuranceExpiresRestriction);
+			var isOsagoExpiresRestriction = Restrictions.Conjunction()
+				.Add(Restrictions.Disjunction()
+					.Add(isCompanyCarRestriction)
+					.Add(isRaskatCarRestriction))
+				.Add(Restrictions.Le(
+					osagoMaxEndDateProjection,
+					DateTime.Today.AddDays(_carInsuranceSettings.OsagoEndingNotifyDaysBefore)));
 
-			var isCarCompanyOrRaskatAndKaskoExpiresRestriction = Restrictions.Conjunction()
-				.Add(isComapnyOrRaskatCarRestriction)
-				.Add(isKaskoInsuranceExpiresRestriction)
+			var isKaskoExpiresRestriction = Restrictions.Conjunction()
+				.Add(Restrictions.Disjunction()
+					.Add(isCompanyCarRestriction)
+					.Add(isRaskatCarRestriction))
+				.Add(Restrictions.Le(
+					kaskoMaxEndDateProjection,
+					DateTime.Today.AddDays(_carInsuranceSettings.KaskoEndingNotifyDaysBefore)))
 				.Add(() => !carAlias.IsKaskoInsuranceNotRelevant);
 
-			var isCarCompanyOrRaskatAndOsagoExpiresProjection = Projections.Conditional(
-				isCarCompanyOrRaskatAndOsagoExpiresRestriction,
+			var isOsagoExpiresProjection = Projections.Conditional(
+				isOsagoExpiresRestriction,
 				Projections.Constant(true),
 				Projections.Constant(false)
 				);
 
-			var isCarCompanyOrRaskatAndKaskoExpiresProjection = Projections.Conditional(
-				isCarCompanyOrRaskatAndKaskoExpiresRestriction,
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
-
-			var isCarInsuranceExpiresProjection = Projections.Conditional(
-				Restrictions.Disjunction()
-					.Add(isCarCompanyOrRaskatAndOsagoExpiresRestriction)
-					.Add(isCarCompanyOrRaskatAndKaskoExpiresRestriction),
+			var isKaskoExpiresProjection = Projections.Conditional(
+				isKaskoExpiresRestriction,
 				Projections.Constant(true),
 				Projections.Constant(false)
 				);
@@ -241,16 +238,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
 					.Select(c => c.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
 					.Select(upcomingTechInspectProjection).WithAlias(() => carJournalNodeAlias.IsUpcomingTechInspect)
-					.Select(isCarCompanyOrRaskatAndOsagoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsOsagoInsuranceExpires)
-					.Select(isCarCompanyOrRaskatAndKaskoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsKaskoInsuranceExpires)
-					.Select(isCarInsuranceExpiresProjection).WithAlias(() => carJournalNodeAlias.IsCarInsuranceExpires)
+					.Select(isOsagoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsOsagoInsuranceExpires)
+					.Select(isKaskoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsKaskoInsuranceExpires)
 					.Select(CustomProjections.Concat_WS(" ",
 						Projections.Property(() => driverAlias.LastName),
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName))
 				.OrderByAlias(() => carJournalNodeAlias.IsUpcomingTechInspect).Desc
-				.ThenByAlias(() => carJournalNodeAlias.IsCarInsuranceExpires).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
