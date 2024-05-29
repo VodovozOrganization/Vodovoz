@@ -25,10 +25,10 @@ namespace Vodovoz.Presentation.Views
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Presentation.Views.IncludeExludeFilterGroupsView
+			// Widget Vodovoz.Presentation.Views.IncludeExcludeFilterGroupsView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.Presentation.Views.IncludeExludeFilterGroupsView";
-			// Container child Vodovoz.Presentation.Views.IncludeExludeFilterGroupsView.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.Presentation.Views.IncludeExcludeFilterGroupsView";
+			// Container child Vodovoz.Presentation.Views.IncludeExcludeFilterGroupsView.Gtk.Container+ContainerChild
 			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox1.Name = "yhbox1";
 			this.yhbox1.Spacing = 6;

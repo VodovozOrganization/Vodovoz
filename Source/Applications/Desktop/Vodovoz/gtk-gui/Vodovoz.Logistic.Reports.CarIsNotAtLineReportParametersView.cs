@@ -22,7 +22,7 @@ namespace Vodovoz.Logistic.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabelincludeexludefilters;
 
-		private global::Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView includeexludefilters;
+		private global::Vodovoz.Presentation.Views.IncludeExcludeFilterGroupView includeexcludefiltergroupview1;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonGenerate;
 
@@ -119,14 +119,12 @@ namespace Vodovoz.Logistic.Reports
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.includeexludefilters = new global::Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView();
-			this.includeexludefilters.Events = ((global::Gdk.EventMask)(256));
-			this.includeexludefilters.Name = "includeexludefilters";
-			this.vbox1.Add(this.includeexludefilters);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.includeexludefilters]));
+			this.includeexcludefiltergroupview1 = new global::Vodovoz.Presentation.Views.IncludeExcludeFilterGroupView();
+			this.includeexcludefiltergroupview1.Events = ((global::Gdk.EventMask)(256));
+			this.includeexcludefiltergroupview1.Name = "includeexcludefiltergroupview1";
+			this.vbox1.Add(this.includeexcludefiltergroupview1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.includeexcludefiltergroupview1]));
 			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ybuttonGenerate = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonGenerate.CanFocus = true;
