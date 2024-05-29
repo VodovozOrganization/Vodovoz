@@ -6,12 +6,12 @@ using Vodovoz.Presentation.ViewModels.Common;
 namespace Vodovoz.Presentation.Views
 {
 	[ToolboxItem(true)]
-	public partial class IncludeExcludeFilterGroupsView : WidgetViewBase<IncludeExludeFiltersViewModel>
+	public partial class IncludeExcludeFilterGroupsView : WidgetViewBase<IncludeExcludeFilterGroupsViewModel>
 	{
 		[Obsolete("Не использовать, только для дизайнера!!")]
 		public IncludeExcludeFilterGroupsView() { }
 
-		public IncludeExcludeFilterGroupsView(IncludeExludeFiltersViewModel viewModel)
+		public IncludeExcludeFilterGroupsView(IncludeExcludeFilterGroupsViewModel viewModel)
 			: base(viewModel)
 		{
 			Build();

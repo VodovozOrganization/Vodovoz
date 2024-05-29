@@ -1,10 +1,11 @@
 ﻿using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.Presentation.Views
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class IncludeExcludeFilterGroupView : WidgetViewBase<IncludeExludeFilterGroupViewModel>
 	{
 		[Obsolete("Не использовать, только для дизайнера!!")]

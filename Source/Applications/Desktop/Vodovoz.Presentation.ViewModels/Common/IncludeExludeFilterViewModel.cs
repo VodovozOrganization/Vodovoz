@@ -1,9 +1,17 @@
-﻿using QS.Commands;
+﻿using NHibernate.Linq;
+using NHibernate.Util;
+using QS.Commands;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Extensions;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Presentation.ViewModels.Common
 {
@@ -11,10 +19,17 @@ namespace Vodovoz.Presentation.ViewModels.Common
 	{
 		public const string defaultIncludePrefix = "_include";
 		public const string defaultExcludePrefix = "_exclude";
+		private const int _defaultLimit = 200;
 
 		private string _title;
+		private string _currentSearchString;
+		private bool _showArchived;
+
+		private IncludeExcludeFilter _filter;
 
 		private Func<IncludeExludeFilterGroupViewModel, IDictionary<string, object>> _getReportParametersFunc;
+		
+		public event Action<object, EventArgs> FilteredElementsChanged;
 
 		public IncludeExludeFilterGroupViewModel()
 		{
@@ -28,11 +43,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			RefreshFilteredElementsCommand = new DelegateCommand(RefreshFilteredElements);
 		}
 
-		public virtual GenericObservableList<IncludeExcludeElement> FilteredElements { get; } = new GenericObservableList<IncludeExcludeElement>();
-
-		public GenericObservableList<IncludeExcludeElement> IncludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
-
-		public GenericObservableList<IncludeExcludeElement> ExcludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
+		public EventHandler SelectionChanged;
 
 		public DelegateCommand RefreshFilteredElementsCommand { get; }
 
@@ -40,13 +51,42 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public DelegateCommand ClearIncludesCommand { get; }
 
+		public virtual GenericObservableList<IncludeExcludeElement> FilteredElements { get; } = new GenericObservableList<IncludeExcludeElement>();
+
+		public GenericObservableList<IncludeExcludeElement> IncludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
+
+		public GenericObservableList<IncludeExcludeElement> ExcludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
+
+		public Type Type { get; set; }
+
+		public string CurrentSearchString
+		{
+			get => _currentSearchString;
+			set
+			{
+				if(SetField(ref _currentSearchString, value))
+				{
+					UpdateFilteredElements();
+				}
+			}
+		}
+
+		public bool ShowArchived
+		{
+			get => _showArchived;
+			set
+			{
+				if(SetField(ref _showArchived, value))
+				{
+					UpdateFilteredElements();
+				}
+			}
+		}
+
 		public int IncludedCount => IncludedElements.Count;
 
 		public int ExcludedCount => ExcludedElements.Count;
 
-		public Type Type { get; set; }
-
-		public EventHandler SelectionChanged;
 
 		public Func<IncludeExludeFilterGroupViewModel, IDictionary<string, object>> GetReportParametersFunc
 		{
@@ -62,6 +102,83 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public virtual IDictionary<string, object> GetReportParameters()
 			=> GetReportParametersFunc.Invoke(this);
+
+		public void InitializeFor<TEntity>(
+			IUnitOfWork unitOfWork,
+			IGenericRepository<TEntity> repository,
+			Action<IncludeExcludeEntityFilter<TEntity>> includeExcludeFilter = null)
+			where TEntity : class, IDomainObject
+		{
+			Title = typeof(TEntity).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();
+
+			var newFilter = new IncludeExcludeEntityFilter<TEntity>
+			{
+				Title = Title,
+				Type = typeof(TEntity)
+			};
+
+			newFilter.RefreshFunc = (IncludeExcludeEntityFilter<TEntity> filter) =>
+			{
+				var isArchivable = typeof(IArchivable).IsAssignableFrom(typeof(TEntity));
+
+				var isNamed = typeof(INamed).IsAssignableFrom(typeof(TEntity));
+
+				var isTitled = typeof(ITitled).IsAssignableFrom(typeof(TEntity));
+
+				Expression<Func<TEntity, bool>> specificationExpression = null;
+
+				if(isArchivable)
+				{
+					Expression<Func<TEntity, bool>> isArchiveSpec = entity => ShowArchived || !((IArchivable)entity).IsArchive;
+
+					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+				}
+
+				if(isNamed)
+				{
+					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(CurrentSearchString)
+						|| ((INamed)entity).Name.ToLower().Like($"%{CurrentSearchString.ToLower()}%");
+
+					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+				}
+
+				if(isTitled)
+				{
+					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(CurrentSearchString)
+						|| ((ITitled)entity).Title.ToLower().Like($"%{CurrentSearchString.ToLower()}%");
+
+					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+				}
+
+				if(filter.Specification != null)
+				{
+					specificationExpression = specificationExpression.CombineWith(filter.Specification);
+				}
+
+				var elementsToAdd = repository.Get(
+						unitOfWork,
+						specificationExpression,
+						limit: _defaultLimit)
+					.Select(x => new IncludeExcludeElement<int, TEntity>
+					{
+						Id = x.Id,
+						Title = isNamed ? (x as INamed).Name : x.GetTitle(),
+					});
+
+				filter.FilteredElements.Clear();
+
+				foreach(var element in elementsToAdd)
+				{
+					filter.FilteredElements.Add(element);
+				}
+			};
+
+			includeExcludeFilter?.Invoke(newFilter);
+
+			newFilter.SelectionChanged = SelectionChanged;
+
+			_filter = newFilter;
+		}
 
 		public virtual void RefreshFilteredElements()
 		{
@@ -172,6 +289,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 					ExcludedElements[i] = replacement;
 				}
 			}
+		}
+
+		private void UpdateFilteredElements()
+		{
+			RefreshFilteredElements();
+
+			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnElementUnExcluded(IncludeExcludeElement sender, EventArgs eventArgs)
