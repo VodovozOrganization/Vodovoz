@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,6 +68,10 @@ namespace DatabaseServiceWorker
 						.ConfigureTextInspectWorker(hostContext)
 						.AddFuelTransactionsControlWorker(hostContext)
 						.ConfigureZabbixSender(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
+						.ConfigureZabbixSender(nameof(PowerBiExportWorker))
+						.ConfigureZabbixSender(nameof(TechInspectWorker))
+						.ConfigureZabbixSender(nameof(FuelTransactionsControlWorker))
+						.ConfigureZabbixSender(nameof(MonitoringArchivingWorker))
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

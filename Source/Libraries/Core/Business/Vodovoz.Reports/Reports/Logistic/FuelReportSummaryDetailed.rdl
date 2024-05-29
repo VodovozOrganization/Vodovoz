@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -6139,7 +6139,7 @@ WITH fuel_operations_data as
 	fuel_documents.car_id as car_id,
 	fuel_documents.driver_id as driver_id,
     fuel_documents.date AS date,
-    fuel_documents.fuel_limits AS liters_limits,
+    fuel_documents.gived_fuel_limits_amount AS liters_limits,
     IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
@@ -6150,7 +6150,7 @@ WITH fuel_operations_data as
     fuel_documents.fuel_card AS fuel_card_number,
     IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
     IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-    IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_limits,0) AS liters_payed
+    IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.gived_fuel_limits_amount,0) AS liters_payed
 FROM
 fuel_documents
 LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id

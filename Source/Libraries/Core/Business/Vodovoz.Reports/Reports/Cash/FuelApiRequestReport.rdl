@@ -32,7 +32,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table1" >
+      <Table Name="Table1">
         <DataSetName>Requests</DataSetName>
         <NoRows>Данные отсутствуют!</NoRows>
         <Style>
@@ -300,7 +300,7 @@
         <Left>0.0pt</Left>
         <Top>157.1pt</Top>
       </Table>
-      <Textbox Name="Textbox12" >
+      <Textbox Name="Textbox12">
         <Height>18.02pt</Height>
         <Width>814.65pt</Width>
         <Value>Список всех запросов</Value>
@@ -315,7 +315,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox15" >
+      <Textbox Name="Textbox15">
         <Height>18.02pt</Height>
         <Width>814.65pt</Width>
         <Value>Суммарная информация по запросам</Value>
@@ -330,7 +330,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>Requests_Summary</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -559,7 +559,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Requests">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -571,8 +571,8 @@ CASE far.request_function
 	WHEN 'FuelCardsData' THEN 'Список топливных карт'
 	WHEN 'FuelCardDetails' THEN 'Подробная информация по карте'
 	WHEN 'FuelCardsLimitsData' THEN 'Список топливных лимитов по карте'
-	WHEN 'FuelCardsLimitsDelete' THEN 'Удаление топливных лимитов по карте'
-	WHEN 'FuelCardsLimitCreate' THEN 'Создания топливного лимита'
+	WHEN 'FuelCardsLimitsDelete' THEN 'Удаление топливного лимита по карте'
+	WHEN 'FuelCardsLimitCreate' THEN 'Создание топливного лимита'
 	WHEN 'TransactionsData' THEN 'Список транзакций'
 END as request,
 CASE far.response_result 
@@ -586,7 +586,8 @@ LEFT JOIN users u ON far.author_id = u.id
 WHERE
 far.request_date_time &gt;= @start_date
 AND far.request_date_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
-AND (@user_id = 0 OR far.author_id = @user_id);</CommandText>
+AND (@user_id = 0 OR far.author_id = @user_id)
+AND (@response_result = '0' OR far.response_result = @response_result);</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -597,9 +598,12 @@ AND (@user_id = 0 OR far.author_id = @user_id);</CommandText>
           <QueryParameter Name="user_id">
             <Value>={?user_id}</Value>
           </QueryParameter>
+          <QueryParameter Name="response_result">
+            <Value>={?response_result}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date_time">
           <DataField>date_time</DataField>
           <TypeName>System.String</TypeName>
@@ -622,7 +626,7 @@ AND (@user_id = 0 OR far.author_id = @user_id);</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Requests_Summary" >
+    <DataSet Name="Requests_Summary">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
@@ -636,6 +640,7 @@ WHERE
 far.request_date_time &gt;= @start_date
 AND far.request_date_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
 AND (@user_id = 0 OR far.author_id = @user_id)
+AND (@response_result = '0' OR far.response_result = @response_result)
 GROUP BY far.author_id) t
 LEFT JOIN users u ON t.user_id = u.id
 ORDER BY t.requests_count DESC;</CommandText>
@@ -648,6 +653,9 @@ ORDER BY t.requests_count DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="user_id">
             <Value>={?user_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="response_result">
+            <Value>={?response_result}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -691,6 +699,13 @@ ORDER BY t.requests_count DESC;</CommandText>
     </ReportParameter>
     <ReportParameter Name="user_id">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="response_result">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

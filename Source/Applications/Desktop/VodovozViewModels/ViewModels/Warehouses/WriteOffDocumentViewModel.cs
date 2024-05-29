@@ -137,7 +137,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			{
 				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(WriteOffDocument), "акта выбраковки"))
 				{
-					Save();
+					if(!Save())
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
+						return;
+					}
 				}
 
 				var reportInfo = new QS.Report.ReportInfo

@@ -16,7 +16,9 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Fuel;
@@ -31,6 +33,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -40,7 +43,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListsWageController _routeListsWageController;
 		private readonly ILogger<CarViewModel> _logger;
 		private bool _canChangeBottlesFromAddress;
-		private DelegateCommand _addGeoGroupCommand;
 
 		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
 
@@ -65,7 +67,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
-			IFuelRepository fuelRepository)
+			IFuelRepository fuelRepository,
+			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
+			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -103,16 +108,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanViewFuelCard =
 				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
 
-			CarModelViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-				.ForProperty(x => x.CarModel)
+			CarModelViewModel = carModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.CarModel)
 				.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
 				.UseViewModelDialog<CarModelViewModel>()
 				.Finish();
 
 			CarModelViewModel.ChangedByUser += OnCarModelViewModelChangedByUser;
 
-			DriverViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-			.ForProperty(x => x.Driver)
+			DriverViewModel = driverEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.Driver)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Category = EmployeeCategory.driver;
@@ -123,8 +132,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			DriverViewModel.ChangedByUser += OnDriverViewModelChangedByUser;
 
-			FuelTypeViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-				.ForProperty(x => x.FuelType)
+			FuelTypeViewModel = fuelTypeEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.FuelType)
 				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
@@ -142,6 +153,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnDriverChanged();
 
 			ConfigureTechInspectInfo();
+
+			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
+			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -414,18 +428,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Add GeoGroup
 
-		public DelegateCommand AddGeoGroupCommand
-		{
-			get
-			{
-				if(_addGeoGroupCommand == null)
-				{
-					_addGeoGroupCommand = new DelegateCommand(AddGeoGroup);
-				}
-
-				return _addGeoGroupCommand;
-			}
-		}
+		public DelegateCommand AddGeoGroupCommand { get; }
+		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
 
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
@@ -479,6 +483,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#endregion Add GeoGroup
+
+		private void CreateCarAcceptanceCertificate()
+		{
+			NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave, viewModel =>
+			{
+				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
+				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
+			});
+		}
 
 		public override void Dispose()
 		{
