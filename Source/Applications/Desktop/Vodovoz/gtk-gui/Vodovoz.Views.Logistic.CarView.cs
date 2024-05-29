@@ -1133,12 +1133,12 @@ namespace Vodovoz.Views.Logistic
 			this.yhbox3.Spacing = 6;
 			// Container child yhbox3.Gtk.Box+BoxChild
 			this.carinsuranceversionviewOsago = new global::Vodovoz.Views.Logistic.CarInsuranceVersionView();
+			this.carinsuranceversionviewOsago.HeightRequest = 180;
 			this.carinsuranceversionviewOsago.Events = ((global::Gdk.EventMask)(256));
 			this.carinsuranceversionviewOsago.Name = "carinsuranceversionviewOsago";
 			this.yhbox3.Add(this.carinsuranceversionviewOsago);
 			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.carinsuranceversionviewOsago]));
 			w74.Position = 0;
-			w74.Expand = false;
 			// Container child yhbox3.Gtk.Box+BoxChild
 			this.ylabelKasko = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelKasko.Name = "ylabelKasko";
@@ -1152,13 +1152,13 @@ namespace Vodovoz.Views.Logistic
 			w75.Fill = false;
 			// Container child yhbox3.Gtk.Box+BoxChild
 			this.carinsuranceversionviewKasko = new global::Vodovoz.Views.Logistic.CarInsuranceVersionView();
+			this.carinsuranceversionviewKasko.HeightRequest = 180;
 			this.carinsuranceversionviewKasko.Events = ((global::Gdk.EventMask)(256));
 			this.carinsuranceversionviewKasko.Name = "carinsuranceversionviewKasko";
 			this.yhbox3.Add(this.carinsuranceversionviewKasko);
 			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.carinsuranceversionviewKasko]));
 			w76.Position = 2;
 			w76.Expand = false;
-			w76.Fill = false;
 			this.tableCarData.Add(this.yhbox3);
 			global::Gtk.Table.TableChild w77 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yhbox3]));
 			w77.TopAttach = ((uint)(11));
