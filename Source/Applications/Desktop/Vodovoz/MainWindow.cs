@@ -387,4 +387,9 @@ public partial class MainWindow : Gtk.Window
 
 		base.OnDestroyed();
 	}
+
+	protected void OnAction89Activated(object sender, EventArgs e)
+	{
+		///Новый отчект тут
+	}
 }

@@ -125,6 +125,8 @@ namespace Vodovoz.Logistic.Reports
 			this.vbox1.Add(this.includeexcludefiltergroupview1);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.includeexcludefiltergroupview1]));
 			w9.Position = 3;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ybuttonGenerate = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonGenerate.CanFocus = true;
