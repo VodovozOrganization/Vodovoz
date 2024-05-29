@@ -197,6 +197,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			BeforeRefreshFilteredElements();
 
+			_filter.RefreshFilteredElementsCommand.Execute();
+
+			foreach(var element in _filter.FilteredElements)
+			{
+				FilteredElements.Add(element);
+			}
+
 			AfterRefreshFilteredElements();
 		}
 

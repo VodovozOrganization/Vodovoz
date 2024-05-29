@@ -67,7 +67,6 @@ namespace Vodovoz.Presentation.Views
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			throw new NotImplementedException();
 		}
 
 		private void ReBindElementsList()

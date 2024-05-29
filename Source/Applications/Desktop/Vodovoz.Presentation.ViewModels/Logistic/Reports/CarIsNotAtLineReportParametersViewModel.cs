@@ -3,6 +3,10 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using System.Linq;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -12,9 +16,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private int _countDays;
 
 		private CarIsNotAtLineReport _report;
+		private readonly IGenericRepository<CarEvent> _carEventRepository;
 
 		public CarIsNotAtLineReportParametersViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IGenericRepository<CarEvent> carEventRepository,
 			INavigationManager navigation)
 			: base(navigation)
 		{
@@ -31,9 +37,21 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			CountDays = 4;
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+
+			var includeExludeFilterGroupViewModel = new IncludeExludeFilterGroupViewModel();
+
+			includeExludeFilterGroupViewModel.InitializeFor(UnitOfWork, _carEventRepository);
+			includeExludeFilterGroupViewModel.RefreshFilteredElementsCommand.Execute();
+
+			IncludeExludeFilterGroupViewModel = includeExludeFilterGroupViewModel;
+
+			_carEventRepository = carEventRepository;
 		}
 
+		public IncludeExludeFilterGroupViewModel IncludeExludeFilterGroupViewModel { get; }
+
 		public DelegateCommand GenerateReportCommand { get; }
+
 		public IUnitOfWork UnitOfWork { get; }
 
 		public DateTime Date
@@ -50,7 +68,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		private void GenerateReport()
 		{
-			_report = CarIsNotAtLineReport.Generate();
+			_report = CarIsNotAtLineReport.Generate(
+				Date,
+				CountDays,
+				IncludeExludeFilterGroupViewModel.IncludedElements.Select(e => e.Number),
+				IncludeExludeFilterGroupViewModel.ExcludedElements.Select(e => e.Number));
 		}
 
 		private void ExportReport()

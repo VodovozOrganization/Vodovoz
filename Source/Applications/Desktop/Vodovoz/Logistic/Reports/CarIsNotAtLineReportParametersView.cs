@@ -1,9 +1,5 @@
 ﻿using QS.Views.Dialog;
-using System;
 using System.ComponentModel;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
 
 namespace Vodovoz.Logistic.Reports
@@ -12,15 +8,10 @@ namespace Vodovoz.Logistic.Reports
 	public partial class CarIsNotAtLineReportParametersView
 		: DialogViewBase<CarIsNotAtLineReportParametersViewModel>
 	{
-		private readonly IGenericRepository<CarEvent> _carEventRepository;
-
 		public CarIsNotAtLineReportParametersView(
-			CarIsNotAtLineReportParametersViewModel viewModel,
-			IGenericRepository<CarEvent> carEventRepository)
+			CarIsNotAtLineReportParametersViewModel viewModel)
 			: base(viewModel)
 		{
-			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
-
 			Build();
 
 			Initialize();
@@ -36,12 +27,8 @@ namespace Vodovoz.Logistic.Reports
 				.AddBinding(ViewModel, vm => vm.CountDays, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			var includeExludeFilterGroupViewModel = new IncludeExludeFilterGroupViewModel();
-
-			includeExludeFilterGroupViewModel.InitializeFor(ViewModel.UnitOfWork, _carEventRepository);
-
 			vbox1.Remove(includeexcludefiltergroupview1);
-			includeexcludefiltergroupview1 = new Presentation.Views.IncludeExcludeFilterGroupView(includeExludeFilterGroupViewModel);
+			includeexcludefiltergroupview1 = new Presentation.Views.IncludeExcludeFilterGroupView(ViewModel.IncludeExludeFilterGroupViewModel);
 			includeexcludefiltergroupview1.Show();
 			vbox1.Add(includeexcludefiltergroupview1);
 
