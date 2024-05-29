@@ -16,13 +16,13 @@
 		/// Обновить значение дней, за которые будет появляться уведомление об окончании ОСАГО
 		/// </summary>
 		/// <param name="value"></param>
-		void SetOsagoEndingNotifyDaysBefore(string value);
+		void SetOsagoEndingNotifyDaysBefore(int value);
 
 
 		/// <summary>
 		/// Обновить значение дней, за которые будет появляться уведомление об окончании КАСКО
 		/// </summary>
 		/// <param name="value"></param>
-		void SetKaskoEndingNotifyDaysBefore(string value);
+		void SetKaskoEndingNotifyDaysBefore(int value);
 	}
 }

@@ -101,6 +101,8 @@ namespace Vodovoz.Views.Settings
 			frameTechInspect.Sensitive = ViewModel.CanEditUpcomingTechInspectSetting;
 			ybuttonSaveUpcomingTechInspectSettings.Clicked += (s, e) => ViewModel.SaveUpcomingTechInspectCommand.Execute();
 
+			ConfigureInsuranceNotificationsSettings();
+
 			ConfigureFastDeliveryLates();
 
 			ConfigureMaxDailyFuelLimits();
@@ -276,6 +278,21 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
+		}
+
+		private void ConfigureInsuranceNotificationsSettings()
+		{
+			frameInsurancesNotificationsSettings.Sensitive = ViewModel.CanEditInsuranceNotificationsSettings;
+
+			yspinbuttonKaskoNotificationDays.Binding
+				.AddBinding(ViewModel, vm => vm.KaskoEndingNotifyDaysBefore, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonOsagoNotificationDays.Binding
+				.AddBinding(ViewModel, vm => vm.OsagoEndingNotifyDaysBefore, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveInsurancesNotificationsSettings.BindCommand(ViewModel.SaveInsuranceNotificationsSettingsCommand);
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)

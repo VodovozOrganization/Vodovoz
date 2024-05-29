@@ -19,14 +19,14 @@ namespace Vodovoz.Settings.Database.Car
 		public int KaskoEndingNotifyDaysBefore =>
 			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(KaskoEndingNotifyDaysBefore)}");
 
-		public void SetOsagoEndingNotifyDaysBefore(string value)
+		public void SetOsagoEndingNotifyDaysBefore(int value)
 		{
-			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(OsagoEndingNotifyDaysBefore)}", value);
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(OsagoEndingNotifyDaysBefore)}", value.ToString());
 		}
 
-		public void SetKaskoEndingNotifyDaysBefore(string value)
+		public void SetKaskoEndingNotifyDaysBefore(int value)
 		{
-			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(KaskoEndingNotifyDaysBefore)}", value);
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(KaskoEndingNotifyDaysBefore)}", value.ToString());
 		}
 	}
 }
