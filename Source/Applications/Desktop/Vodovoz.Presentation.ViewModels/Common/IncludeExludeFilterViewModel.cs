@@ -17,19 +17,21 @@ namespace Vodovoz.Presentation.ViewModels.Common
 {
 	public class IncludeExludeFilterGroupViewModel : WidgetViewModelBase
 	{
+		private readonly GenericObservableList<IncludeExcludeElement> _emptyElements = new GenericObservableList<IncludeExcludeElement>();
+
 		public const string defaultIncludePrefix = "_include";
 		public const string defaultExcludePrefix = "_exclude";
 		private const int _defaultLimit = 200;
 
 		private string _title;
-		private string _currentSearchString;
 		private bool _showArchived;
 
 		private IncludeExcludeFilter _filter;
 
 		private Func<IncludeExludeFilterGroupViewModel, IDictionary<string, object>> _getReportParametersFunc;
-		
+
 		public event Action<object, EventArgs> FilteredElementsChanged;
+		public event Action<object, SearchStringChangedEventArgs> SearchStringChanged;
 
 		public IncludeExludeFilterGroupViewModel()
 		{
@@ -41,9 +43,14 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			ClearExcludesCommand = new DelegateCommand(ClearExcludes);
 			ClearIncludesCommand = new DelegateCommand(ClearIncludes);
 			RefreshFilteredElementsCommand = new DelegateCommand(RefreshFilteredElements);
+			ClearSearchStringCommand = new DelegateCommand(ClearSearchString);
+			RaiseSelectionChangedCommand = new DelegateCommand(RaiseSelectionChanged);
 		}
 
+		public bool WithExcludes { get; set; } = true;
+
 		public EventHandler SelectionChanged;
+		private string _searchString;
 
 		public DelegateCommand RefreshFilteredElementsCommand { get; }
 
@@ -51,25 +58,19 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public DelegateCommand ClearIncludesCommand { get; }
 
+		public DelegateCommand ClearSearchStringCommand { get; }
+		
+		public DelegateCommand RaiseSelectionChangedCommand { get; }
+
 		public virtual GenericObservableList<IncludeExcludeElement> FilteredElements { get; } = new GenericObservableList<IncludeExcludeElement>();
 
 		public GenericObservableList<IncludeExcludeElement> IncludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
 
 		public GenericObservableList<IncludeExcludeElement> ExcludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
 
-		public Type Type { get; set; }
+		public GenericObservableList<IncludeExcludeElement> Elements => FilteredElements ?? _emptyElements;
 
-		public string CurrentSearchString
-		{
-			get => _currentSearchString;
-			set
-			{
-				if(SetField(ref _currentSearchString, value))
-				{
-					UpdateFilteredElements();
-				}
-			}
-		}
+		public Type Type { get; set; }
 
 		public bool ShowArchived
 		{
@@ -83,6 +84,24 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
+		public string Title
+		{
+			get => _title;
+			set => SetField(ref _title, value);
+		}
+
+		public string SearchString
+		{
+			get => _searchString;
+			set
+			{
+				if(SetField(ref _searchString, value))
+				{
+					SearchStringChanged?.Invoke(this, new SearchStringChangedEventArgs(value));
+				}
+			}
+		}
+
 		public int IncludedCount => IncludedElements.Count;
 
 		public int ExcludedCount => ExcludedElements.Count;
@@ -92,12 +111,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			get => _getReportParametersFunc;
 			set => _getReportParametersFunc = value;
-		}
-
-		public string Title
-		{
-			get => _title;
-			set => SetField(ref _title, value);
 		}
 
 		public virtual IDictionary<string, object> GetReportParameters()
@@ -136,16 +149,16 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 				if(isNamed)
 				{
-					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(CurrentSearchString)
-						|| ((INamed)entity).Name.ToLower().Like($"%{CurrentSearchString.ToLower()}%");
+					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(SearchString)
+						|| ((INamed)entity).Name.ToLower().Like($"%{SearchString.ToLower()}%");
 
 					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
 				}
 
 				if(isTitled)
 				{
-					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(CurrentSearchString)
-						|| ((ITitled)entity).Title.ToLower().Like($"%{CurrentSearchString.ToLower()}%");
+					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(SearchString)
+						|| ((ITitled)entity).Title.ToLower().Like($"%{SearchString.ToLower()}%");
 
 					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
 				}
@@ -186,6 +199,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			AfterRefreshFilteredElements();
 		}
+
 		protected void BeforeRefreshFilteredElements()
 		{
 			UnsubscribeFromElements(FilteredElements);
@@ -397,6 +411,16 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 
 			return result;
+		}
+
+		private void RaiseSelectionChanged()
+		{
+			SelectionChanged?.Invoke(this, null);
+		}
+
+		private void ClearSearchString()
+		{
+			SearchString = string.Empty;
 		}
 
 		public void Dispose()

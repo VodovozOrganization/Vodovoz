@@ -1,4 +1,6 @@
-﻿using QS.Views.GtkUI;
+﻿using Gamma.Binding;
+using Gtk;
+using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -21,7 +23,95 @@ namespace Vodovoz.Presentation.Views
 
 		private void Initialize()
 		{
-			
+			ybuttonClearExcludes.Binding.AddBinding(ViewModel, vm => vm.WithExcludes, w => w.Visible).InitializeFromSource();
+
+			ybuttonClearExcludes.Clicked += (s, e) =>
+			{
+				ytreeviewElements.QueueDraw();
+			};
+
+			ybuttonClearIncludes.Clicked += (s, e) =>
+			{
+				ytreeviewElements.QueueDraw();
+			};
+
+			yentrySearch.Binding
+				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
+				.InitializeFromSource();
+
+			yentrySearch.KeyReleaseEvent += (s, e) =>
+			{
+				if(e.Event.Key == Gdk.Key.Return
+					&& ViewModel.SearchString != ViewModel.SearchString)
+				{
+					ViewModel.SearchString = ViewModel.SearchString;
+				}
+			};
+
+			ybuttonSearchClear.Clicked += (s, e) => ViewModel.ClearSearchStringCommand.Execute();
+
+			ycheckbuttonShowArchive.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArchived, w => w.Active)
+				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			ViewModel.FilteredElementsChanged += (s, e) => ReBindElementsList();
+
+			ytreeviewElements.Binding
+				.AddBinding(ViewModel, vm => vm.Elements, w => w.ItemsDataSource)
+				.InitializeFromSource();
+
+			ReBindElementsList();
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void ReBindElementsList()
+		{
+			var recursiveModel = new RecursiveTreeModel<IncludeExcludeElement>(
+				ViewModel.Elements,
+				x => x.Parent,
+				x => x.Children);
+
+			ytreeviewElements.YTreeModel = recursiveModel;
+
+			var columnConfig = ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>();
+
+			columnConfig
+				.AddColumn("\t✔️")
+					.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled);
+
+			if(ViewModel.WithExcludes)
+			{
+				columnConfig.AddColumn("X").AddToggleRenderer(x => x.Exclude).ToggledEvent(OnElementCheckboxToggled);
+			}
+
+			columnConfig
+				.AddColumn("").AddTextRenderer(x => x.Title ?? "")
+					.AddSetter((cell, node) =>
+					{
+						if(cell == null)
+						{
+							return;
+						}
+
+						if(!string.IsNullOrWhiteSpace(ViewModel.SearchString))
+						{
+							cell.Markup = node.Title.Replace(ViewModel.SearchString, $"<b>{ViewModel.SearchString}</b>");
+						}
+					});
+
+			columnConfig.Finish();
+		}
+
+		private void OnElementCheckboxToggled(object o, ToggledArgs args)
+		{
+			Gtk.Application.Invoke((s, a) => ViewModel.RaiseSelectionChangedCommand.Execute());
+			ytreeviewElements.QueueDraw();
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using QS.Views.Dialog;
+using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Logistic;
@@ -18,10 +19,11 @@ namespace Vodovoz.Logistic.Reports
 			IGenericRepository<CarEvent> carEventRepository)
 			: base(viewModel)
 		{
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+
 			Build();
 
 			Initialize();
-			_carEventRepository = carEventRepository;
 		}
 
 		private void Initialize()
@@ -38,7 +40,10 @@ namespace Vodovoz.Logistic.Reports
 
 			includeExludeFilterGroupViewModel.InitializeFor(ViewModel.UnitOfWork, _carEventRepository);
 
+			vbox1.Remove(includeexcludefiltergroupview1);
 			includeexcludefiltergroupview1 = new Presentation.Views.IncludeExcludeFilterGroupView(includeExludeFilterGroupViewModel);
+			includeexcludefiltergroupview1.Show();
+			vbox1.Add(includeexcludefiltergroupview1);
 
 			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
 		}

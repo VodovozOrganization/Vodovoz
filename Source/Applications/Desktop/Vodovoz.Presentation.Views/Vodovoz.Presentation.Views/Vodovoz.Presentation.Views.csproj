@@ -67,9 +67,17 @@
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.IncludeExcludeFilterGroupsView.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
+      <Project>{BD514659-1394-4BBA-94C5-1BEE5C72C7D6}</Project>
+      <Name>System.Data.Bindings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
       <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
       <Name>Gamma.Binding</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
+      <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">
       <Project>{5EF2A7DA-3886-4809-95DF-880BD783A211}</Project>
