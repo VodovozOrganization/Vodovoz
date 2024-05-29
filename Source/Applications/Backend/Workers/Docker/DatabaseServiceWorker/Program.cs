@@ -67,6 +67,7 @@ namespace DatabaseServiceWorker
 						.ConfigurePowerBiExportWorker(hostContext)
 						.ConfigureTextInspectWorker(hostContext)
 						.AddFuelTransactionsControlWorker(hostContext)
+						.ConfigureZabbixSender(nameof(TechInspectWorker))
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
