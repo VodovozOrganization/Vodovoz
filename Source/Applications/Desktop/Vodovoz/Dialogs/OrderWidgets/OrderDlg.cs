@@ -597,8 +597,7 @@ namespace Vodovoz
 
 			_previousDeliveryDate = Entity.DeliveryDate;
 
-			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
+			_nomenclatureFixedPriceProvider = _lifetimeScope.Resolve<INomenclatureFixedPriceProvider>();
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
@@ -1562,7 +1561,7 @@ namespace Vodovoz
 				(double)Entity.DeliveryPoint.Longitude.Value,
 				isGetClosestByRoute: false,
 				Entity.GetAllGoodsToDeliver(),
-				Entity
+				Entity.DeliveryPoint.District.TariffZone.Id
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
@@ -2511,7 +2510,7 @@ namespace Vodovoz
 					(double)Entity.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
 					Entity.GetAllGoodsToDeliver(),
-					Entity
+					Entity.DeliveryPoint.District.TariffZone.Id
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);

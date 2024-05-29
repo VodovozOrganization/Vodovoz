@@ -337,12 +337,14 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, который требуется открыть</param>
 		private void OpenOrder(Order order)
 		{
-			if(CommonServices.InteractiveService.Question("Требуется сохранить изменения. Продолжить?"))
+			//просто открываем заказ, если не выявятся ошибки в процессе работы, снести комментарии
+			_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
+			/*if(CommonServices.InteractiveService.Question("Требуется сохранить изменения. Продолжить?"))
 			{
-				UoW.Save();
+				UoW.Save(Entity);
 				UoW.Commit();
 				_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
-			}
+			}*/
 		}
 
 		private void RefreshParentUndeliveryDetalizationObjects()

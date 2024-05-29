@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Users
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
+		private readonly INomenclatureFixedPriceRepository _nomenclatureFixedPriceRepository;
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private ILifetimeScope _lifetimeScope;
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Users
 			ISubdivisionSettings subdivisionSettings,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			INomenclaturePricesRepository nomenclatureFixedPriceRepository,
+			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository,
 			IFuelApiService fuelApiService,
 			IGuiDispatcher guiDispatcher)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels.Users
 								var fixedPrices = _nomenclatureFixedPriceRepository.GetFixedPricesFor19LWater(uow);
 								UpdateProgress($"Получили данные, которые нужно обновить. Всего {fixedPrices.Count} объектов");
 
-								for(int i = 0; i < fixedPrices.Count; i++)
+								for(var i = 0; i < fixedPrices.Count; i++)
 								{
 									fixedPrices[i].Price += IncrementFixedPrices;
 									uow.Save(fixedPrices[i]);

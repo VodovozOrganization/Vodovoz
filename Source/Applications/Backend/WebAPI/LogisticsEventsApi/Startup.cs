@@ -1,10 +1,7 @@
-﻿using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using EventsApi.Library;
+﻿using EventsApi.Library;
+using FirebaseAdmin;
 using LogisticsEventsApi.Data;
 using LogisticsEventsApi.HealthChecks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -12,32 +9,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
-using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
-using System.Text;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Settings.Database;
+using Vodovoz.Presentation.WebApi;
 using VodovozHealthCheck;
 
 namespace LogisticsEventsApi
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = nameof(NLog);
-		public static readonly string[] AccessedRoles =
-			{
-				ApplicationUserRole.WarehousePicker.ToString(),
-				ApplicationUserRole.WarehouseDriver.ToString()
-			};
-		
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -49,17 +34,16 @@ namespace LogisticsEventsApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "LogisticsEventsApi", Version = "v1" }); });
-			
-			services.AddLogging(
-				logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
-				});
 
-			services.AddWarehouseEventsDependencies();
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo
+				{
+					Title = "LogisticsEventsApi", Version = "v1"
+				});
+			});
+
+			services.AddWarehouseEventsDependencies(Configuration);
 
 			//закомментил пока нет зарегистрированных пользователей
 			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
@@ -82,35 +66,26 @@ namespace LogisticsEventsApi
 
 			services.AddDbContext<ApplicationDbContext>((provider, options) =>
 			{
-				var connectionStringBuilder =  provider.GetRequiredService<MySqlConnectionStringBuilder>();
+				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
 				options.UseMySql(connectionStringBuilder.ConnectionString, ServerVersion.AutoDetect(connectionStringBuilder.ConnectionString));
 			});
 
 			// Аутентификация
-			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+			services
+				.AddDefaultIdentity<IdentityUser>(options
+					=> options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
-			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-				.AddJwtBearer(cfg =>
-				{
-					cfg.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuer = false,
-						ValidIssuer = Configuration.GetValue<string>("SecurityToken:Issuer"),
-						ValidateAudience = false,
-						ValidAudience =	Configuration.GetValue<string>("SecurityToken:Audience"),
-						ValidateIssuerSigningKey = true,
-						IssuerSigningKey =
-							new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("SecurityToken:Key")
-						))
-					};
-				});
+			services.AddSecurity(Configuration)
+				.AddOnlyOneSessionRestriction();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetRequiredService<FirebaseApp>();
+
 			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
