@@ -7,7 +7,6 @@ namespace Vodovoz.Zabbix.Sender
 {
 	public class VodovozZabbixSender : IZabbixSender
 	{
-		private readonly ZabbixAsyncSender _sender;
 		private readonly string _workerName;
 		private readonly IMetricSettings _metricSettings;
 
@@ -15,12 +14,13 @@ namespace Vodovoz.Zabbix.Sender
 		{
 			_workerName = workerName ?? throw new ArgumentNullException(nameof(workerName));
 			_metricSettings = metricSettings?? throw new ArgumentNullException(nameof(metricSettings));
-			_sender = new ZabbixAsyncSender(metricSettings.ZabbixHost);
 		}
 
-		public async Task SendIsHealthyAsync(bool isHealthy)
+		public async Task<bool> SendIsHealthyAsync(bool isHealthy)
 		{
-			var response = await _sender.Send(_workerName, _metricSettings.ZabbixHealthMetricName, isHealthy.ToString());
+			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixServer /*"192.168.133.129"*/);
+			var response = await sender.Send("Vod Northlake" /*= это ZabbixHost*/, _workerName,  isHealthy.ToString());
+			return response.IsSuccess;			
 		}
 	}
 }

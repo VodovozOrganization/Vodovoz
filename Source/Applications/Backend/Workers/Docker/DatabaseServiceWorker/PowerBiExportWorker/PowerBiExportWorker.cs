@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -17,16 +18,18 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<PowerBiExportWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<PowerBiExportOptions> _options;
+		private readonly IZabbixSender _zabbixSender;
 
 		public PowerBiExportWorker(
 			ILogger<PowerBiExportWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOptions<PowerBiExportOptions> options)
+			IOptions<PowerBiExportOptions> options,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			Interval = _options.Value.Interval;
 		}
 
@@ -64,6 +67,7 @@ namespace DatabaseServiceWorker
 			try
 			{
 				ReadFromDbAndExportToFile();
+				await _zabbixSender.SendIsHealthyAsync(true);
 			}
 			catch(Exception e)
 			{

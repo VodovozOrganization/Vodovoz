@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Tools;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -12,12 +13,14 @@ namespace DatabaseServiceWorker
 		private const int _delayInMinutes = 20;
 		private readonly ILogger<MonitoringArchivingWorker> _logger;
 		private readonly IDataArchiver _archiver;
+		private readonly IZabbixSender _zabbixSender;
 		private bool _workInProgress;
 
-		public MonitoringArchivingWorker(ILogger<MonitoringArchivingWorker> logger, IDataArchiver archiver)
+		public MonitoringArchivingWorker(ILogger<MonitoringArchivingWorker> logger, IDataArchiver archiver, IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_archiver = archiver ?? throw new ArgumentNullException(nameof(archiver));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,6 +43,7 @@ namespace DatabaseServiceWorker
 						ArchiveMonitoring();
 						ArchiveTrackPoints();
 						DeleteDistanceCache();
+						await _zabbixSender.SendIsHealthyAsync(true);
 					}
 					catch(Exception e)
 					{
