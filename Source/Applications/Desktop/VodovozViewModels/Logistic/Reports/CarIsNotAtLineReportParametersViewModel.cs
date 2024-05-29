@@ -54,7 +54,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		public DelegateCommand GenerateReportCommand { get; }
 
-
 		public DateTime Date
 		{
 			get => _date;
@@ -72,8 +71,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			_report = CarIsNotAtLineReport.Generate(
 				Date,
 				CountDays,
-				IncludeExludeFilterGroupViewModel.IncludedElements.Select(e => e.Number),
-				IncludeExludeFilterGroupViewModel.ExcludedElements.Select(e => e.Number));
+				IncludeExludeFilterGroupViewModel.IncludedElements.Select(e => int.Parse(e.Number)),
+				IncludeExludeFilterGroupViewModel.ExcludedElements.Select(e => int.Parse(e.Number)));
 		}
 
 		private void ExportReport()
