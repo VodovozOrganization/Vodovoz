@@ -4,7 +4,6 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -34,13 +33,14 @@ namespace Vodovoz.Domain.Logistic
 		private FuelPaymentType? _fuelPaymentType;
 		private decimal _literCost;
 		private FuelType _fuel;
-		private int _fuelLimits;
+		private decimal _fuelLimitsLitersAmount;
 		private Expense _fuelCashExpense;
 		private Employee _author;
 		private Employee _lastEditor;
 		private DateTime _lastEditDate;
 		private Subdivision _subdivision;
-		string _fuelCardNumber;
+		private string _fuelCardNumber;
+		private FuelLimit _fuelLimit;
 
 		public virtual int Id { get; set; }
 
@@ -115,10 +115,10 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Литры выданные лимитами")]
-		public virtual int FuelLimits
+		public virtual decimal FuelLimitLitersAmount
 		{
-			get => _fuelLimits;
-			set => SetField(ref _fuelLimits, value);
+			get => _fuelLimitsLitersAmount;
+			set => SetField(ref _fuelLimitsLitersAmount, value);
 		}
 
 		[Display(Name = "Оплата топлива")]
@@ -161,6 +161,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _fuelCardNumber;
 			set => SetField(ref _fuelCardNumber, value);
+		}
+
+		[Display(Name = "Лимит по топливу")]
+		public virtual FuelLimit FuelLimit
+		{
+			get => _fuelLimit;
+			set => SetField(ref _fuelLimit, value);
 		}
 
 		public virtual decimal PayedLiters
@@ -207,7 +214,6 @@ namespace Vodovoz.Domain.Logistic
 			try
 			{
 				CreateFuelOperation();
-				CreateFuelExpenseOperation();
 				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelFinancialExpenseCategoryId, organizationRepository);
 			}
 			catch(Exception ex)
@@ -229,7 +235,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			FuelOperation.PayedLiters = Math.Round(PayedForFuel.Value / LiterCost, 2, MidpointRounding.AwayFromZero);
-			FuelOperation.LitersGived = FuelLimits + FuelOperation.PayedLiters;
+			FuelOperation.LitersGived = FuelLimitLitersAmount + FuelOperation.PayedLiters;
 		}
 
 		private void CreateFuelOperation()
@@ -249,33 +255,10 @@ namespace Vodovoz.Domain.Logistic
 				Driver = activeCarVersion.IsCompanyCar ? null : Driver,
 				Car = activeCarVersion.IsCompanyCar ? Car : null,
 				Fuel = Fuel,
-				LitersGived = FuelLimits + litersPaid,
+				LitersGived = FuelLimitLitersAmount + litersPaid,
 				LitersOutlayed = 0,
 				PayedLiters = litersPaid,
 				OperationTime = Date
-			};
-		}
-
-		private void CreateFuelExpenseOperation()
-		{
-			if(FuelLimits <= 0)
-			{
-				return;
-			}
-
-			if(FuelExpenseOperation != null)
-			{
-				_logger.Warn("Попытка создания операции списания топлива при уже имеющейся операции");
-				return;
-			}
-
-			FuelExpenseOperation = new FuelExpenseOperation()
-			{
-				FuelDocument = this,
-				FuelType = Fuel,
-				FuelLiters = FuelLimits,
-				RelatedToSubdivision = Subdivision,
-				СreationTime = Date
 			};
 		}
 
@@ -316,14 +299,19 @@ namespace Vodovoz.Domain.Logistic
 			Fuel = rl.Car.FuelType;
 			LiterCost = rl.Car.FuelType.Cost;
 			RouteList = rl;
-			FuelCardNumber = rl.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber;
+			SetFuelCardNumberByDocumentDate();
+		}
+
+		public virtual void SetFuelCardNumberByDocumentDate()
+		{
+			FuelCardNumber = Car?.GetActiveFuelCardVersionOnDate(Date)?.FuelCard?.CardNumber;
 		}
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Subdivision == null)
+			if(Subdivision == null && PayedForFuel > 0m)
 			{
 				yield return new ValidationResult("Необходимо выбрать кассу, с которой будет списываться топливо");
 			}
@@ -333,7 +321,7 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Топливо должно быть заполнено");
 			}
 
-			if(FuelLimits <= 0 && PayedLiters <= 0)
+			if(FuelLimitLitersAmount <= 0 && PayedLiters <= 0)
 			{
 				yield return new ValidationResult("Не указано сколько топлива выдается.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.PayedLiters) });
@@ -345,21 +333,25 @@ namespace Vodovoz.Domain.Logistic
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.FuelPaymentType) });
 			}
 
-			if(validationContext.Items.ContainsKey("Reason") && (validationContext.Items["Reason"] as string) == nameof(CreateOperations))
+			if(FuelLimitLitersAmount > 0 && FuelCardNumber is null)
 			{
-				if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository))
-				{
-					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
-				}
+				yield return new ValidationResult(
+					"При выдаче топливных лимитов у авто должна быть указана топливная карта",
+					new[] { nameof(FuelCardNumber) });
+			}
 
-				if(Subdivision != null && Fuel != null)
-				{
-					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, Subdivision, Fuel);
-					if(FuelLimits > balance && FuelLimits > 0)
-					{
-						yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
-					}
-				}
+			if(FuelLimitLitersAmount > 0 && PayedForFuel.HasValue && PayedForFuel.Value > 0)
+			{
+				yield return new ValidationResult(
+					"Нельзя выдавать топливо лимитами и деньгами одновременно",
+					new[] { nameof(FuelLimitLitersAmount), nameof(PayedForFuel) });
+			}
+
+			if(Id > 0 && FuelLimitLitersAmount > 0)
+			{
+				yield return new ValidationResult(
+					"Нельзя вносить изменения в документ по которому уже выдано топливо лимитами",
+					new[] { nameof(FuelLimitLitersAmount) });
 			}
 		}
 

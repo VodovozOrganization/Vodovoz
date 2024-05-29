@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -150,6 +150,7 @@ using FuelControl.Library;
 using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Application.Cars.Insurance;
 using Vodovoz.Services.Cars.Insurance;
 
@@ -210,6 +211,7 @@ namespace Vodovoz
 
 					//GtkUI
 					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
+					builder.RegisterType<GtkYesNoCancelQuestionInteractive>().As<IYesNoCancelQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.RegisterType<DeleteEntityGUIService>().AsSelf().As<IDeleteEntityService>();

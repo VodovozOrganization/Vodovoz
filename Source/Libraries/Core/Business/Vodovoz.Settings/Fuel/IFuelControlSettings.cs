@@ -40,6 +40,61 @@ namespace Vodovoz.Settings.Fuel
 		DateTime FuelTransactionsPerMonthLastUpdateDate { get; }
 
 		/// <summary>
+		/// Id типа продукта "Топливо" в сервисе Газпромнефть
+		/// </summary>
+		string FuelProductTypeId { get; }
+
+		/// <summary>
+		/// Id единицы измерения при выдаче лимита литрами
+		/// </summary>
+		string LiterUnitId { get; }
+
+		/// <summary>
+		/// Id валюты Рубль при выдаче лимита деньгами
+		/// </summary>
+		string RubleCurrencyId { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Фургон, л.
+		/// </summary>
+		int LargusMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Фура, л.
+		/// </summary>
+		int TruckMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Грузовой, л.
+		/// </summary>
+		int GAZelleMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Погрузчик, л.
+		/// </summary>
+		int LoaderMaxDailyFuelLimit { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Фургон
+		/// </summary>
+		int LargusFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Грузовной
+		/// </summary>
+		int GAZelleFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Фура
+		/// </summary>
+		int TruckFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Погрузчик
+		/// </summary>
+		int LoaderFuelLimitMaxTransactionsCount { get; }
+
+		/// <summary>
 		/// Обновление даты на которую были успешно получены данные по транзакциям за день
 		/// </summary>
 		/// <param name="value"></param>
@@ -50,5 +105,25 @@ namespace Vodovoz.Settings.Fuel
 		/// </summary>
 		/// <param name="value"></param>
 		void SetFuelTransactionsPerMonthLastUpdateDate(string value);
+
+		/// <summary>
+		/// Установка значения максимального суточного лимита на топливо для авто типа Фургон
+		/// </summary>
+		void SetLargusMaxDailyFuelLimit(int value);
+
+		/// <summary>
+		/// Установка значения максимального суточного лимита на топливо для авто типа Фура
+		/// </summary>
+		void SetTruckMaxDailyFuelLimit(int value);
+
+		/// <summary>
+		/// Установка значения максимального суточного лимита на топливо для авто типа Грузовой
+		/// </summary>
+		void SetGAZelleMaxDailyFuelLimit(int value);
+
+		/// <summary>
+		/// Установка значения максимального суточного лимита на топливо для авто типа Погрузчик
+		/// </summary>
+		void SetLoaderMaxDailyFuelLimit(int value);
 	}
 }

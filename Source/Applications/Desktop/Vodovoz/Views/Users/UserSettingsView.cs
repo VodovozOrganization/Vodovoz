@@ -142,6 +142,7 @@ namespace Vodovoz.Views.Users
 
 			#region Обновление фиксы
 
+			lblUpdateFixedPricesTitle.LabelProp = @"<b>Обновление фиксы 19л воды</b>";
 			btnUpdateFixedPrices.Clicked += (sender, args) => UpdateFixedPrices();
 			btnUpdateFixedPrices.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanUpdateFixedPrices && !vm.IsFixedPricesUpdating, w => w.Sensitive)
@@ -188,7 +189,7 @@ namespace Vodovoz.Views.Users
 			}
 			if(!ViewModel.InteractiveService.Question(
 				"Вы уверены, что хотите обновить всю фиксу контрагентов и точек доставки для 19л воды?\n" +
-					"Обновление займет больше 5мин"))
+					"Обновление может занять больше 5мин"))
 			{
 				return;
 			}
