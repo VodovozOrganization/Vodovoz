@@ -4,6 +4,6 @@ namespace Vodovoz.Zabbix.Sender
 {
 	public interface IZabbixSender
 	{
-		Task SendIsHealthyAsync(bool isHealthy);
+		Task<bool> SendIsHealthyAsync(bool isHealthy);
 	}
 }
