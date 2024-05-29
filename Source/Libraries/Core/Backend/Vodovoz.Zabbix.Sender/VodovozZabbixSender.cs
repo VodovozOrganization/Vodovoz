@@ -16,7 +16,7 @@ namespace Vodovoz.Zabbix.Sender
 			_metricSettings = metricSettings?? throw new ArgumentNullException(nameof(metricSettings));
 		}
 
-		public async Task<bool> SendIsHealthyAsync(bool isHealthy)
+		public async Task<bool> SendIsHealthyAsync(bool isHealthy = true)
 		{
 			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixServer /*"192.168.133.129"*/);
 			var response = await sender.Send("Vod Northlake" /*= это ZabbixHost*/, _workerName,  isHealthy.ToString());

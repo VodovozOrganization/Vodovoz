@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Settings.Metrics;
-using Vodovoz.Zabbix.Sender;
 
-namespace DatabaseServiceWorker
+namespace Vodovoz.Zabbix.Sender
 {
 	public static class DependencyInjection
 	{

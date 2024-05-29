@@ -4,23 +4,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Extensions.Logging;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
 using System;
-using System.Reflection;
 using System.Text.Json;
-using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Settings.Database;
+using Vodovoz.Zabbix.Sender;
 
 namespace ExternalCounterpartyAssignNotifier
 {
@@ -44,6 +36,8 @@ namespace ExternalCounterpartyAssignNotifier
 						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					})
 
+					.ConfigureZabbixSender(nameof(ExternalCounterpartyAssignNotifier))
+
 					.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 						typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -64,10 +58,13 @@ namespace ExternalCounterpartyAssignNotifier
 					{
 						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 					})
+
 					.AddHttpClient<INotificationService, NotificationService>(client =>
 					{
 						client.Timeout = TimeSpan.FromSeconds(15);
-					});
+					})
+
+					;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

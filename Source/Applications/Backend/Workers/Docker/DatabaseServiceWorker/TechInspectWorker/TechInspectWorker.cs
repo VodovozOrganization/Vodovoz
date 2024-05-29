@@ -73,7 +73,7 @@ namespace DatabaseServiceWorker
 			try
 			{
 				UpdateLeftUntilTechInspect(DateTime.Now, _carEventSettings.TechInspectCarEventTypeId);
-				await _zabbixSender.SendIsHealthyAsync(true);
+				await _zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception e)
 			{

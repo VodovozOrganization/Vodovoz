@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -14,6 +14,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -23,6 +24,7 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<PowerBiExportWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<PowerBiExportOptions> _options;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
@@ -34,6 +36,8 @@ namespace DatabaseServiceWorker
 			ILogger<PowerBiExportWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptions<PowerBiExportOptions> options,
+			IZabbixSender zabbixSender)
+			IOptions<PowerBiExportOptions> options,
 			INomenclatureSettings nomenclatureSettings,
 			IGeneralSettings generalSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
@@ -44,12 +48,7 @@ namespace DatabaseServiceWorker
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
-			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			Interval = _options.Value.Interval;
 		}
 
@@ -87,6 +86,7 @@ namespace DatabaseServiceWorker
 			try
 			{
 				ReadFromDbAndExportToFile(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception e)
 			{

@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -73,6 +74,11 @@ namespace DatabaseServiceWorker
 						.AddSingleton<IScheduleRestrictionRepository, ScheduleRestrictionRepository>()
 						;					
 						.ConfigureZabbixSender(nameof(TechInspectWorker))
+						.ConfigureZabbixSender(nameof(PowerBiExportWorker))
+						.ConfigureZabbixSender(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
+						.ConfigureZabbixSender(nameof(FuelTransactionsControlWorker))
+						.ConfigureZabbixSender(nameof(MonitoringArchivingWorker))
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
