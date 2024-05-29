@@ -1170,7 +1170,6 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.yhboxInsurances[this.ylabelKasko]));
 			w77.Position = 1;
 			w77.Expand = false;
-			w77.Fill = false;
 			// Container child yhboxInsurances.Gtk.Box+BoxChild
 			this.carinsuranceversionviewKasko = new global::Vodovoz.Views.Logistic.CarInsuranceVersionView();
 			this.carinsuranceversionviewKasko.HeightRequest = 180;
@@ -1180,7 +1179,6 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.yhboxInsurances[this.carinsuranceversionviewKasko]));
 			w78.Position = 2;
 			w78.Expand = false;
-			w78.Fill = false;
 			this.tableCarData.Add(this.yhboxInsurances);
 			global::Gtk.Table.TableChild w79 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yhboxInsurances]));
 			w79.TopAttach = ((uint)(11));

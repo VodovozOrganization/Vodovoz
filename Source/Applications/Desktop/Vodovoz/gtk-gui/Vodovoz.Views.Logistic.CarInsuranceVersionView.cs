@@ -44,6 +44,7 @@ namespace Vodovoz.Views.Logistic
 			w2.Position = 0;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hboxControls = new global::Gtk.HBox();
+			this.hboxControls.HeightRequest = 30;
 			this.hboxControls.Name = "hboxControls";
 			this.hboxControls.Spacing = 6;
 			// Container child hboxControls.Gtk.Box+BoxChild
