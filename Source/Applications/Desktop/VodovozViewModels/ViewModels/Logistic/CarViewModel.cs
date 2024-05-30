@@ -509,22 +509,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private CarInsuranceVersionViewModel CreateOsagoCarInsuranceVersionViewModel()
 		{
-			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>(
-			new TypedParameter(typeof(Car), Entity),
-				 new TypedParameter(typeof(ICarInsuranceVersionService), _carInsuranceVersionService));
+			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>();
 
-			viewModel.InsuranceType = CarInsuranceType.Osago;
+			viewModel.Initialize(
+				_carInsuranceVersionService,
+				Entity,
+				CarInsuranceType.Osago,
+				Entity.IsKaskoInsuranceNotRelevant);
 
 			return viewModel;
 		}
 
 		private CarInsuranceVersionViewModel CreateKaskoCarInsuranceVersionViewModel()
 		{
-			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>(
-				 new TypedParameter(typeof(Car), Entity),
-				 new TypedParameter(typeof(ICarInsuranceVersionService), _carInsuranceVersionService));
+			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>();
 
-			viewModel.InsuranceType = CarInsuranceType.Kasko;
+			viewModel.Initialize(
+				_carInsuranceVersionService,
+				Entity,
+				CarInsuranceType.Kasko,
+				Entity.IsKaskoInsuranceNotRelevant);
 
 			return viewModel;
 		}
