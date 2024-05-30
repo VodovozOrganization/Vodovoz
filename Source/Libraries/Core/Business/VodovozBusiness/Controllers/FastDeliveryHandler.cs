@@ -85,7 +85,7 @@ namespace Vodovoz.Controllers
 					(double)order.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
 					order.GetAllGoodsToDeliver(),
-					order
+					order.DeliveryPoint.District.TariffZone.Id
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);

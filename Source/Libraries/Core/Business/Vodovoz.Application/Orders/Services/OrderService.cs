@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -173,9 +173,9 @@ namespace Vodovoz.Application.Orders.Services
 
 		/// <summary>
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
-		/// Возвращает сохраненный заказ
+		/// Возвращает данные по заказу
 		/// </summary>
-		public Order CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
+		public (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
 		{
 			if(roboatsOrderArgs is null)
 			{
@@ -188,7 +188,8 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private Order CreateIncompleteOrder(IUnitOfWorkGeneric<Order> unitOfWork, RoboatsOrderArgs roboatsOrderArgs)
+		private (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(
+			IUnitOfWorkGeneric<Order> unitOfWork, RoboatsOrderArgs roboatsOrderArgs)
 		{
 			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
@@ -198,24 +199,24 @@ namespace Vodovoz.Application.Orders.Services
 
 			var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
 			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-			return order;
+			return (order.Id, order.Author.Id, order.OrderStatus);
 		}
 
 		/// <summary>
 		/// Подтверждение заказа
 		/// </summary>
 		/// <param name="orderId">номер заказа</param>
-		/// <param name="roboatsEmployee">Id сотрудника</param>
-		/// <returns>подтвержденный заказ</returns>
-		public Order AcceptOrder(int orderId, int roboatsEmployee)
+		/// <param name="roboatsEmployeeId">Id сотрудника</param>
+		/// <returns>Данные по заказу(номер заказа, номер автора, статус заказа)</returns>
+		public (int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId)
 		{
 			using(var unitOfWork = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
 			{
 				var order = unitOfWork.Root;
-				var employee = unitOfWork.GetById<Employee>(roboatsEmployee);
+				var employee = unitOfWork.GetById<Employee>(roboatsEmployeeId);
 				order.AcceptOrder(employee, _callTaskWorker);
 				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
-				return order;
+				return  (order.Id, order.Author.Id, order.OrderStatus);
 			}
 		}
 
@@ -319,42 +320,6 @@ namespace Vodovoz.Application.Orders.Services
 			var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
 			uow.Save(notification);
 			uow.Commit();
-			
-			/*using(var transaction = uow.Session.BeginTransaction())
-			{
-				try
-				{
-					var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
-					
-					if(acceptResult.IsFailure)
-					{
-						return 0;
-					}
-
-					onlineOrder.SetOrderPerformed(order, employee);
-					uow.Save(onlineOrder);
-					var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
-					uow.Save(notification);
-					transaction.Commit();
-					GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)uow);
-				}
-				catch(Exception e)
-				{
-					if(!transaction.WasCommitted
-						&& !transaction.WasRolledBack
-						&& transaction.IsActive
-						&& uow.Session.Connection.State == ConnectionState.Open)
-					{
-						try
-						{
-							transaction.Rollback();
-						}
-						catch { }
-					}
-
-					return 0;
-				}
-			}*/
 			
 			return order.Id;
 		}

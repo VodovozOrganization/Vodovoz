@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
+	[HistoryTrace]
 	public class OnlineOrderItem : Product, IDomainObject
 	{
 		private int? _nomenclatureId;

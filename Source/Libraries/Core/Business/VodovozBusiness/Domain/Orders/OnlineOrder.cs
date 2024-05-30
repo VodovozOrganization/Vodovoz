@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -14,12 +15,14 @@ namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Онлайн заказы",
-		Nominative = "Онлайн заказ",
+		Nominative = OnlineOrderName,
 		Prepositional = "Онлайн заказе",
 		PrepositionalPlural = "Онлайн заказах"
 	)]
+	[HistoryTrace]
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
+		public const string OnlineOrderName = "Онлайн заказ";
 		private DateTime _version;
 		private DateTime _created;
 		private Source _source;

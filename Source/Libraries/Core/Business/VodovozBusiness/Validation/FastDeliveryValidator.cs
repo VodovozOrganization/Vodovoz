@@ -2,11 +2,19 @@
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Errors;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Validation
 {
 	public class FastDeliveryValidator : IFastDeliveryValidator
 	{
+		private readonly IGeneralSettings _generalSettings;
+
+		public FastDeliveryValidator(IGeneralSettings generalSettings)
+		{
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+		}
+		
 		public Result ValidateOrder(Order order)
 		{
 			if(!order.DeliveryDate.HasValue || order.DeliveryDate.Value.Date != DateTime.Now.Date)
@@ -46,9 +54,24 @@ namespace Vodovoz.Validation
 				return Result.Failure(Errors.Logistics.TariffZone.FastDelivery.CreateFastDeliveryIsUnavailableAtCurrentTimeError(district.TariffZone.FastDeliveryTimeFrom));
 			}
 
-			if(order.Total19LBottlesToDeliver == 0)
+			var total19LBottlesToDeliver = order.Total19LBottlesToDeliver;
+			
+			if(total19LBottlesToDeliver == 0)
 			{
 				return Result.Failure(Errors.Orders.Order.FastDelivery.Water19LIsMissing);
+			}
+			
+			var isFastDelivery19LBottlesLimitActive = _generalSettings.IsFastDelivery19LBottlesLimitActive;
+
+			if(isFastDelivery19LBottlesLimitActive)
+			{
+				var fastDelivery19LBottlesLimitCount = _generalSettings.FastDelivery19LBottlesLimitCount;
+
+				if(total19LBottlesToDeliver > fastDelivery19LBottlesLimitCount)
+				{
+					return Result.Failure(Errors.Orders.Order.FastDelivery19LBottlesLimitError(
+						total19LBottlesToDeliver, fastDelivery19LBottlesLimitCount));
+				}
 			}
 
 			return Result.Success();

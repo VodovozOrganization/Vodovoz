@@ -6,17 +6,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using NLog.Web;
 using QS.Services;
 
 namespace CustomerOrdersApi
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = nameof(NLog);
-		
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -28,43 +24,18 @@ namespace CustomerOrdersApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerOrdersApi", Version = "v1" }); });
-
-			services.AddLogging(
-				logging =>
+			services.AddSwaggerGen(c =>
 				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+					c.SwaggerDoc("v1", new OpenApiInfo
+					{
+						Title = "CustomerOrdersApi", Version = "v1"
+					});
 				})
 				
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
-				.AddCustomerOrdersApiLibrary();
-
-				/*configurator.ReceiveEndpoint("online-orders", x =>
-				{
-					x.ConfigureConsumeTopology = false;
-
-					x.Bind<OnlineOrderInfoDto>(s =>
-					{
-						s.RoutingKey = "False";
-						s.ExchangeType = ExchangeType.Direct;
-					});
-				});
-
-				configurator.ReceiveEndpoint("online-orders-fault", x =>
-				{
-					x.ConfigureConsumeTopology = false;
-
-					x.Bind<OnlineOrderInfoDto>(s =>
-					{
-						s.RoutingKey = "True";
-						s.ExchangeType = ExchangeType.Direct;
-					});
-				});*/
-				
-			services.AddHttpClient();
+				.AddCustomerOrdersApiLibrary()
+				.AddHttpClient();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Domain.Orders
 {
+	[HistoryTrace]
 	public class OnlineFreeRentPackage : PropertyChangedBase, IDomainObject
 	{
 		private int? _freeRentPackageId;

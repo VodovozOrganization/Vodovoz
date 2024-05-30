@@ -330,7 +330,6 @@ namespace Vodovoz
 
 					builder.RegisterAssemblyTypes(
 							Assembly.GetExecutingAssembly(),
-							//Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
 							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
 						.Where(t => t.Name.EndsWith("Factory")
 							&& t.GetInterfaces()
@@ -349,16 +348,6 @@ namespace Vodovoz
 					#endregion
 
 					#region Controllers
-
-					/*builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
-						.Where(t => (t.Name.EndsWith("Controller") || t.Name.EndsWith("Handler"))
-							&& t.GetInterfaces()
-								.Where(i => i.Name == $"I{t.Name}")
-								.FirstOrDefault() != null)
-						.As((s) => s.GetTypeInfo()
-							.GetInterfaces()
-							.Where(i => i.Name == $"I{s.Name}")
-							.First());*/
 
 					builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
 					builder.RegisterType<StringHandler>().As<IStringHandler>();
@@ -408,28 +397,6 @@ namespace Vodovoz
 					builder.Register(context => CallTaskSingletonFactory.GetInstance()).As<ICallTaskFactory>();
 
 					builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
-
-					#endregion
-
-					#region Репозитории
-
-					/*builder.RegisterGeneric(typeof(GenericRepository<>))
-						.As(typeof(IGenericRepository<>))
-						.InstancePerLifetimeScope();*/
-					
-					/*builder.RegisterAssemblyTypes(
-						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),
-						Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder))
-						)
-						.Where(t => t.Name.EndsWith("Repository")
-							&& t.GetInterfaces()
-								.Where(i => i.Name == $"I{t.Name}")
-								.FirstOrDefault() != null)
-						.As((s) => s.GetTypeInfo()
-							.GetInterfaces()
-							.Where(i => i.Name == $"I{s.Name}")
-							.First())
-						.SingleInstance();*/
 
 					#endregion
 

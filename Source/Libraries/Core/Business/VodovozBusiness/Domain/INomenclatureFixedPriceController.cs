@@ -10,14 +10,12 @@ namespace Vodovoz.Domain
         bool ContainsFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal bottlesCount);
 
 		void AddFixedPrice(
-			IUnitOfWork uow,
 			DeliveryPoint deliveryPoint,
 			Nomenclature nomenclature,
 			decimal fixedPrice = 0,
 			int minCount = 0);
 
 		void AddFixedPrice(
-			IUnitOfWork uow,
 			Counterparty counterparty,
 			Nomenclature nomenclature,
 			decimal fixedPrice = 0,

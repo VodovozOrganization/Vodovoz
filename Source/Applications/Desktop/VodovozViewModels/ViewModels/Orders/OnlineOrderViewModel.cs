@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreatePropertyChangeRelations();
 			GetOnlineOrderItems();
 			ConfigureEntryViewModels();
-			ValidateOnlineOrder();
+			TryValidateOnlineOrder();
 		}
 
 		public DelegateCommand GetToWorkCommand { get; private set; }
@@ -83,11 +83,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
 		public bool CanGetToWork => Entity.EmployeeWorkWith is null;
 		public bool CanCreateOrder =>
-			OrderIsNullAndOnlineOrderNotCanceledStatus
-				&& Entity.EmployeeWorkWith != null
-				&& Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
+			OrderIsNullAndOnlineOrderNotCanceledStatus && CurrentEmployeeIsEmployeeWorkWith;
 		public bool CanCancelOnlineOrder =>
-			OrderIsNullAndOnlineOrderNotCanceledStatus && !_orderCreatingState;
+			OrderIsNullAndOnlineOrderNotCanceledStatus
+			&& !_orderCreatingState
+			&& CurrentEmployeeIsEmployeeWorkWith;
 		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
@@ -99,7 +99,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowPromoItems => OnlineOrderPromoItems.Any();
 		public bool CanShowRentPackages => OnlineRentPackages.Any();
 		public bool CanShowCancellationReason => Entity.OnlineOrderCancellationReason != null;
-		public bool CanOpenExternalCounterpartyMatching => HasEmptyCounterpartyAndNotNullDataForMatching;
+		public bool CanOpenExternalCounterpartyMatching =>
+			HasEmptyCounterpartyAndNotNullDataForMatching && CurrentEmployeeIsEmployeeWorkWith;
 		public bool HasEmptyCounterpartyAndNotNullDataForMatching =>
 			Entity.Counterparty is null
 			&& Entity.ExternalCounterpartyId.HasValue
@@ -169,6 +170,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string ValidationErrors { get; private set; }
 		
 		public IEntityEntryViewModel CancellationReasonViewModel { get; private set; }
+		
+		private bool CurrentEmployeeIsEmployeeWorkWith =>
+			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
 			Entity.Order is null && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
 		
@@ -333,8 +337,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				.Finish();
 		}
 		
-		private void ValidateOnlineOrder()
+		private void TryValidateOnlineOrder()
 		{
+			if(Entity.OnlineOrderStatus != OnlineOrderStatus.New)
+			{
+				return;
+			}
+			
 			var result = _onlineOrderValidator.ValidateOnlineOrder(Entity);
 
 			if(result.IsFailure)

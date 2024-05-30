@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -589,8 +589,8 @@ namespace Vodovoz
 
 			_previousDeliveryDate = Entity.DeliveryDate;
 
-			_nomenclatureFixedPriceProvider = _lifetimeScope.Resolve<INomenclatureFixedPriceProvider>();
-			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
+			_nomenclatureFixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
+			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
@@ -2470,7 +2470,6 @@ namespace Vodovoz
 			
 			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
 			
-			//TODO проверить работу проверки доступности быстрой доставки
 			if(fastDeliveryResult.IsFailure)
 			{
 				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing)))
