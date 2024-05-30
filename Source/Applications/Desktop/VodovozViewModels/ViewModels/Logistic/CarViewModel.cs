@@ -54,6 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -73,17 +74,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
-			ICarInsuranceVersionViewModelFactory carInsuranceVersionViewModelFactory)
+			ICarInsuranceVersionService carInsuranceVersionService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
-			if(carInsuranceVersionViewModelFactory is null)
-			{
-				throw new ArgumentNullException(nameof(carInsuranceVersionViewModelFactory));
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -92,6 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_carInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
 
 			TabName = "Автомобиль";
 
@@ -106,17 +103,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.CreateFuelCardVersionViewModel(Entity, UoW);
 			FuelCardVersionViewModel.ParentDialog = this;
 
-			var carInsuranceVersionService =
-				lifetimeScope.Resolve<ICarInsuranceVersionService>(new TypedParameter(typeof(Car), Entity));
-			OsagoInsuranceVersionViewModel =
-				carInsuranceVersionViewModelFactory.CreateOsagoCarInsuranceVersionViewModel(Entity, carInsuranceVersionService);
-			KaskoInsuranceVersionViewModel =
-				carInsuranceVersionViewModelFactory.CreateKaskoCarInsuranceVersionViewModel(Entity, carInsuranceVersionService);
-
-
-			CarInsuranceVersionEditingViewModel = lifetimeScope.Resolve<CarInsuranceVersionEditingViewModel>(
-				 new TypedParameter(typeof(ICarInsuranceVersionService), carInsuranceVersionService));
-			CarInsuranceVersionEditingViewModel.ParentDialog = this;
+			_carInsuranceVersionService.Car = Entity;
+			OsagoInsuranceVersionViewModel = CreateOsagoCarInsuranceVersionViewModel();
+			KaskoInsuranceVersionViewModel = CreateKaskoCarInsuranceVersionViewModel();
+			CarInsuranceVersionEditingViewModel = CreateCarInsuranceEditingViewModel();
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
@@ -515,6 +505,37 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
 				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
 			});
+		}
+
+		private CarInsuranceVersionViewModel CreateOsagoCarInsuranceVersionViewModel()
+		{
+			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>(
+			new TypedParameter(typeof(Car), Entity),
+				 new TypedParameter(typeof(ICarInsuranceVersionService), _carInsuranceVersionService));
+
+			viewModel.InsuranceType = CarInsuranceType.Osago;
+
+			return viewModel;
+		}
+
+		private CarInsuranceVersionViewModel CreateKaskoCarInsuranceVersionViewModel()
+		{
+			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>(
+				 new TypedParameter(typeof(Car), Entity),
+				 new TypedParameter(typeof(ICarInsuranceVersionService), _carInsuranceVersionService));
+
+			viewModel.InsuranceType = CarInsuranceType.Kasko;
+
+			return viewModel;
+		}
+
+		private CarInsuranceVersionEditingViewModel CreateCarInsuranceEditingViewModel()
+		{
+			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionEditingViewModel>(
+				 new TypedParameter(typeof(ICarInsuranceVersionService), _carInsuranceVersionService));
+			viewModel.ParentDialog = this;
+
+			return viewModel;
 		}
 
 		public override void Dispose()

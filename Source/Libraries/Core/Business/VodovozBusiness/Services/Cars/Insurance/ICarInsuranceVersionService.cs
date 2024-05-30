@@ -8,6 +8,7 @@ namespace Vodovoz.Services.Cars.Insurance
 		event EventHandler CarInsuranceAdded;
 		event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceSelected;
 		event EventHandler IsKaskoInsuranceNotRelevantChanged;
+		Car Car { get; set; }
 		bool IsInsuranceEditingInProgress { get; }
 		void AddNewCarInsurance(CarInsuranceType insuranceType);
 		void EditCarInsurance(CarInsurance insurance);

@@ -6,24 +6,35 @@ namespace Vodovoz.Application.Cars.Insurance
 {
 	public class CarInsuranceVersionService : ICarInsuranceVersionService
 	{
-		private readonly Car _car;
 		private bool _isInsuranceEditingInProgress;
-
-		public CarInsuranceVersionService(Car car)
-		{
-			_car = car ?? throw new System.ArgumentNullException(nameof(car));
-		}
+		private Car _car;
 
 		public event EventHandler CarInsuranceAdded;
 		public event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceSelected;
 		public event EventHandler IsKaskoInsuranceNotRelevantChanged;
+
+		public Car Car {
+			get => _car;
+			set
+			{
+				if(_car is null)
+				{
+					_car = value;
+					return;
+				}
+
+				throw new InvalidOperationException($"$Свойство {nameof(Car)} уже установлено");
+			}
+		}
 		public bool IsInsuranceEditingInProgress => _isInsuranceEditingInProgress;
 
 		public void AddNewCarInsurance(CarInsuranceType insuranceType)
 		{
+			ThrowExceptionIfCarIsNull();
+
 			var insurance = new CarInsurance
 			{
-				Car = _car,
+				Car = Car,
 				InsuranceType = insuranceType
 			};
 
@@ -43,18 +54,22 @@ namespace Vodovoz.Application.Cars.Insurance
 
 		public void SetIsKaskoInsuranceNotRelevant(bool isKaskoInsuranceNotRelevant)
 		{
-			if(_car.IsKaskoInsuranceNotRelevant != isKaskoInsuranceNotRelevant)
+			ThrowExceptionIfCarIsNull();
+
+			if(Car.IsKaskoInsuranceNotRelevant != isKaskoInsuranceNotRelevant)
 			{
-				_car.IsKaskoInsuranceNotRelevant = isKaskoInsuranceNotRelevant;
+				Car.IsKaskoInsuranceNotRelevant = isKaskoInsuranceNotRelevant;
 				IsKaskoInsuranceNotRelevantChanged?.Invoke(this, null);
 			}
 		}
 
 		public void InsuranceEditingCompleted(CarInsurance insurance)
 		{
+			ThrowExceptionIfCarIsNull();
+
 			if(insurance.Id == 0)
 			{
-				_car.CarInsurances.Add(insurance);
+				Car.CarInsurances.Add(insurance);
 				CarInsuranceAdded?.Invoke(this, null);
 			}
 
@@ -74,6 +89,14 @@ namespace Vodovoz.Application.Cars.Insurance
 		private void ResetIsInsuranceEditingInProgress()
 		{
 			_isInsuranceEditingInProgress = false;
+		}
+
+		private void ThrowExceptionIfCarIsNull()
+		{
+			if(Car is null)
+			{
+				throw new InvalidOperationException($"Свойство {nameof(Car)} не должно быть null");
+			}
 		}
 	}
 }
