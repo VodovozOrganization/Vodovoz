@@ -386,6 +386,7 @@
     <DataSet Name="data">
       <Query >
         <DataSourceName>DS</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
 	pc.entry_id as call_id,
 	pc.from_number,
