@@ -14,6 +14,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
+using QS.HistoryLog;
+using Vodovoz.Tools.Orders;
 
 
 namespace FastDeliveryLateWorker
@@ -52,6 +54,7 @@ namespace FastDeliveryLateWorker
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
+						.AddStaticHistoryTracker()
 						.AddHostedService<FastDeliveryLateWorker>()
 						.ConfigureFastDeliveryLateOptions(hostContext)
 						.AddSingleton<IDeliveryRepository, DeliveryRepository>()
@@ -60,6 +63,7 @@ namespace FastDeliveryLateWorker
 						.AddSingleton<IOrderSettings, OrderSettings>()
 						.AddSingleton<IEmailService, EmailService>()
 						.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						.AddScoped<OrderStateKey>()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

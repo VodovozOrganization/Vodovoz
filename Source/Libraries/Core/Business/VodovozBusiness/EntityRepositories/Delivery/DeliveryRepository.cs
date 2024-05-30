@@ -698,7 +698,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => orderAlias.DeliveryDate >= fromDateTime)
-				.And(()=> routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+				.And(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
 				.WithSubquery.WhereNotExists(alreadyExistsComplaintSubquery)
 				;
 
