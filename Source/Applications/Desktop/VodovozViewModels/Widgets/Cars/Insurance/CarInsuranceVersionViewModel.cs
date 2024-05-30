@@ -11,45 +11,70 @@ using Vodovoz.Services.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
-	public class CarInsuranceVersionViewModel : EntityWidgetViewModelBase<Car>
+	public class CarInsuranceVersionViewModel : WidgetViewModelBase, IDisposable
 	{
-		private IInteractiveService _interactiveService;
-		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
+		private readonly ICommonServices _commonServices;
+		private readonly IInteractiveService _interactiveService;
+
+		private Car _car;
+		private ICarInsuranceVersionService _carInsuranceVersionService;
 		private CarInsuranceType? _insuranceType;
 		private CarInsurance _selectedCarInsurance;
 		private bool _isInsuranceNotRelevantForCar;
 
-		public CarInsuranceVersionViewModel(
-			Car entity,
-			ICommonServices commonServices,
-			ICarInsuranceVersionService carInsuranceVersionService)
-			: base(entity, commonServices)
+		public CarInsuranceVersionViewModel(ICommonServices commonServices)
 		{
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = commonServices.InteractiveService;
+
 			AddCarInsuranceCommand = new DelegateCommand(AddCarInsurance, () => CanAddCarInsurance);
 			EditCarInsuranceCommand = new DelegateCommand(EditCarInsurance, () => CanEditCarInsurance);
-			_carInsuranceVersionService = carInsuranceVersionService ?? throw new System.ArgumentNullException(nameof(carInsuranceVersionService));
-
-			_interactiveService = CommonServices.InteractiveService;
-
-			IsInsuranceNotRelevantForCar = Entity.IsKaskoInsuranceNotRelevant;
-
-			_carInsuranceVersionService.CarInsuranceAdded += OnCarInsuranceAdded;
-			_carInsuranceVersionService.IsKaskoInsuranceNotRelevantChanged += OnIsKaskoInsuranceNotRelevantChanged;
 		}
 
 		public DelegateCommand AddCarInsuranceCommand { get; }
 		public DelegateCommand EditCarInsuranceCommand { get; }
 		public DelegateCommand SetIsKaskoInsuranceNotRelevantCommand { get; }
 
+		public Car Car
+		{
+			get => _car;
+			private set
+			{
+				if(_car != null)
+				{
+					throw new InvalidOperationException($"Свойство {nameof(Car)} уже установлено");
+				}
+
+				SetField(ref _car, value);
+			}
+		}
+
+		public ICarInsuranceVersionService CarInsuranceVersionService
+		{
+			get => _carInsuranceVersionService;
+			private set
+			{
+				if(_carInsuranceVersionService != null)
+				{
+					throw new InvalidOperationException($"Свойство {nameof(CarInsuranceVersionService)} уже установлено");
+				}
+
+				SetField(ref _carInsuranceVersionService, value);
+
+				_carInsuranceVersionService.CarInsuranceAdded += OnCarInsuranceAdded;
+				_carInsuranceVersionService.IsKaskoInsuranceNotRelevantChanged += OnIsKaskoInsuranceNotRelevantChanged;
+			}
+		}
+
 		[PropertyChangedAlso(nameof(CanAddCarInsurance), nameof(IsInsurancesSensitive))]
 		public CarInsuranceType? InsuranceType
 		{
 			get => _insuranceType;
-			set
+			private set
 			{
 				if(_insuranceType != null)
 				{
-					return;
+					throw new InvalidOperationException($"Свойство {nameof(InsuranceType)} уже установлено");
 				}
 
 				SetField(ref _insuranceType, value);
@@ -67,7 +92,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public bool IsInsuranceNotRelevantForCar
 		{
 			get => _isInsuranceNotRelevantForCar;
-			set
+			private set
 			{
 				if(!SetField(ref _isInsuranceNotRelevantForCar, value))
 				{
@@ -79,23 +104,53 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		}
 
 		public IList<CarInsurance> Insurances =>
-			Entity.CarInsurances
+			Car.CarInsurances
 			.Where(o => !InsuranceType.HasValue || o.InsuranceType == InsuranceType.Value)
 			.OrderByDescending(o => o.EndDate)
 			.ToList();
 
+		public bool IsUserCanEditCarEntity =>
+			_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
 		public bool CanSetInsuranceNotRelevantForCar =>
-			PermissionResult.CanUpdate
+			IsUserCanEditCarEntity
+			&& Car != null
+			&& CarInsuranceVersionService != null
 			&& InsuranceType.HasValue
 			&& InsuranceType.Value == CarInsuranceType.Kasko;
 
 		public bool IsInsurancesSensitive =>
-			InsuranceType.HasValue
+			Car != null
+			&& CarInsuranceVersionService != null
+			&& InsuranceType.HasValue
 			&& (InsuranceType != CarInsuranceType.Kasko || !IsInsuranceNotRelevantForCar);
 
 
-		public bool CanAddCarInsurance => PermissionResult.CanUpdate && InsuranceType.HasValue;
-		public bool CanEditCarInsurance => PermissionResult.CanUpdate && SelectedCarInsurance != null;
+		public bool CanAddCarInsurance => IsUserCanEditCarEntity && InsuranceType.HasValue;
+		public bool CanEditCarInsurance => IsUserCanEditCarEntity && SelectedCarInsurance != null;
+
+		public void Initialize(
+			ICarInsuranceVersionService carInsuranceVersionService,
+			Car car,
+			CarInsuranceType insuranceType,
+			bool isInsuranceNotRelevantForCar)
+		{
+			if(carInsuranceVersionService is null)
+			{
+				throw new ArgumentNullException(nameof(carInsuranceVersionService));
+			}
+
+			if(car is null)
+			{
+				throw new ArgumentNullException(nameof(car));
+			}
+
+			CarInsuranceVersionService = carInsuranceVersionService;
+			Car = car;
+			InsuranceType = insuranceType;
+			IsInsuranceNotRelevantForCar = isInsuranceNotRelevantForCar;
+
+		}
 
 		private void AddCarInsurance()
 		{
@@ -106,7 +161,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			_carInsuranceVersionService.AddNewCarInsurance(InsuranceType.Value);
+			CarInsuranceVersionService.AddNewCarInsurance(InsuranceType.Value);
 		}
 
 		private void EditCarInsurance()
@@ -116,12 +171,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			_carInsuranceVersionService.EditCarInsurance(SelectedCarInsurance);
+			CarInsuranceVersionService.EditCarInsurance(SelectedCarInsurance);
 		}
 
 		private void SetIsKaskoInsuranceNotRelevant()
 		{
-			_carInsuranceVersionService.SetIsKaskoInsuranceNotRelevant(IsInsuranceNotRelevantForCar);
+			CarInsuranceVersionService.SetIsKaskoInsuranceNotRelevant(IsInsuranceNotRelevantForCar);
 		}
 
 		private bool IsNewInsuranceAlreadyAdded()
@@ -142,7 +197,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		private bool IsInsuranceEditingInProgress()
 		{
-			if(_carInsuranceVersionService.IsInsuranceEditingInProgress)
+			if(CarInsuranceVersionService.IsInsuranceEditingInProgress)
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -161,10 +216,16 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		private void OnIsKaskoInsuranceNotRelevantChanged(object sender, EventArgs e)
 		{
-			if(IsInsuranceNotRelevantForCar != Entity.IsKaskoInsuranceNotRelevant)
+			if(IsInsuranceNotRelevantForCar != Car.IsKaskoInsuranceNotRelevant)
 			{
-				IsInsuranceNotRelevantForCar = Entity.IsKaskoInsuranceNotRelevant;
+				IsInsuranceNotRelevantForCar = Car.IsKaskoInsuranceNotRelevant;
 			}
+		}
+
+		public void Dispose()
+		{
+			_carInsuranceVersionService.CarInsuranceAdded -= OnCarInsuranceAdded;
+			_carInsuranceVersionService.IsKaskoInsuranceNotRelevantChanged -= OnIsKaskoInsuranceNotRelevantChanged;
 		}
 	}
 }
