@@ -81,23 +81,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			.Where(ins => ins.InsuranceType == insuranceType)
 			.ToList();
 
-		private bool IsNewInsuranceAlreadyAdded(CarInsuranceType insuranceType)
-		{
-			var isNewInsuranceAdded = Car.CarInsurances
-				.Where(ins => ins.InsuranceType == insuranceType)
-				.Count(item => item.Id == 0) > 0;
-
-			if(isNewInsuranceAdded)
-			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					 "Новая страховка уже была добавлена. Сначала сохраните существующие изменения.");
-
-				return true;
-			}
-
-			return false;
-		}
+		private bool IsNewInsuranceAlreadyAdded(CarInsuranceType insuranceType) =>
+			Car.CarInsurances
+			.Where(ins => ins.InsuranceType == insuranceType)
+			.Count(item => item.Id == 0) > 0;
 
 		public void Initialize(Car car, DialogViewModelBase parentDialog)
 		{
@@ -164,6 +151,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 			if(IsNewInsuranceAlreadyAdded(newInsuranceType))
 			{
+				_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						 "Новая страховка уже была добавлена. Сначала сохраните существующие изменения.");
+
 				return;
 			}
 
