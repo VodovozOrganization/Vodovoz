@@ -1320,7 +1320,11 @@ namespace Vodovoz.EntityRepositories.Orders
 					? OnlineOrderPaymentStatus.Paid
 					: OnlineOrderPaymentStatus.UnPaid
 					
-				let deliveryScheduleString = order.IsFastDelivery ? DeliverySchedule.FastDelivery : deliverySchedule.DeliveryTime
+				let deliveryScheduleString = order.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: deliverySchedule != null
+						? deliverySchedule.DeliveryTime
+						: null
 
 				select new OrderDto
 				{
