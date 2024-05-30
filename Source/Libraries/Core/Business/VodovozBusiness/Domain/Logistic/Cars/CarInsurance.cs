@@ -74,7 +74,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Car == null)
+			if(Car is null)
 			{
 				yield return new ValidationResult(
 					"Автомобиль должен быть указан",
