@@ -35,12 +35,13 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public DelegateCommand EditCarInsuranceCommand { get; }
 		public DelegateCommand SetIsKaskoInsuranceNotRelevantCommand { get; }
 
+		[PropertyChangedAlso(nameof(IsInsurancesSensitive), nameof(CanSetInsuranceNotRelevantForCar))]
 		public Car Car
 		{
 			get => _car;
 			private set
 			{
-				if(_car != null)
+				if(!(_car is null))
 				{
 					throw new InvalidOperationException($"Свойство {nameof(Car)} уже установлено");
 				}
@@ -54,7 +55,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			get => _carInsuranceVersionService;
 			private set
 			{
-				if(_carInsuranceVersionService != null)
+				if(!(_carInsuranceVersionService is null))
 				{
 					throw new InvalidOperationException($"Свойство {nameof(CarInsuranceVersionService)} уже установлено");
 				}
@@ -72,7 +73,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			get => _insuranceType;
 			private set
 			{
-				if(_insuranceType != null)
+				if(!(_insuranceType is null))
 				{
 					throw new InvalidOperationException($"Свойство {nameof(InsuranceType)} уже установлено");
 				}
@@ -104,7 +105,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		}
 
 		public IList<CarInsurance> Insurances =>
-			Car.CarInsurances
+			Car?.CarInsurances
 			.Where(o => !InsuranceType.HasValue || o.InsuranceType == InsuranceType.Value)
 			.OrderByDescending(o => o.EndDate)
 			.ToList();
@@ -114,14 +115,14 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		public bool CanSetInsuranceNotRelevantForCar =>
 			IsUserCanEditCarEntity
-			&& Car != null
-			&& CarInsuranceVersionService != null
+			&& !(Car is null)
+			&& !(CarInsuranceVersionService is null)
 			&& InsuranceType.HasValue
 			&& InsuranceType.Value == CarInsuranceType.Kasko;
 
 		public bool IsInsurancesSensitive =>
-			Car != null
-			&& CarInsuranceVersionService != null
+			!(Car is null)
+			&& !(CarInsuranceVersionService is null)
 			&& InsuranceType.HasValue
 			&& (InsuranceType != CarInsuranceType.Kasko || !IsInsuranceNotRelevantForCar);
 
@@ -135,18 +136,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			CarInsuranceType insuranceType,
 			bool isInsuranceNotRelevantForCar)
 		{
-			if(carInsuranceVersionService is null)
-			{
-				throw new ArgumentNullException(nameof(carInsuranceVersionService));
-			}
-
-			if(car is null)
-			{
-				throw new ArgumentNullException(nameof(car));
-			}
-
-			CarInsuranceVersionService = carInsuranceVersionService;
-			Car = car;
+			CarInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
+			Car = car ?? throw new ArgumentNullException(nameof(car));
 			InsuranceType = insuranceType;
 			IsInsuranceNotRelevantForCar = isInsuranceNotRelevantForCar;
 

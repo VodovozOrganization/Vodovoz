@@ -17,21 +17,20 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 	public class CarInsuranceVersionEditingViewModel : WidgetViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
-		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
 		private CarInsurance _insurance;
 		private CarInsuranceType? _insuranceType;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Counterparty _insurer;
 		private string _insuranceNumber;
+		private ICarInsuranceVersionService _carInsuranceVersionService;
 		private DialogViewModelBase _parentDialog;
 
 		public CarInsuranceVersionEditingViewModel(
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope,
-			ICarInsuranceVersionService carInsuranceVersionService)
+			ILifetimeScope lifetimeScope)
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -41,13 +40,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_carInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
+
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CarInsuranceVersionEditingViewModel));
 
 			SaveInsuranceCommand = new DelegateCommand(SaveInsurance, () => CanSaveInsurance);
 			CancelEditingInsuranceCommand = new DelegateCommand(CancelEditingInsurance);
-
-			_carInsuranceVersionService.EditCarInsurenceSelected += OnInsuranceVersionServiceEditCarInsurence;
 		}
 
 		private void OnInsuranceVersionServiceEditCarInsurence(object sender, EditCarInsuranceEventArgs e)
@@ -63,6 +60,23 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public IEntityEntryViewModel InsurerEntryViewModel { get; private set; }
 
 		public bool IsWidgetVisible => Insurance != null;
+
+		[PropertyChangedAlso(nameof(CanSaveInsurance))]
+		public ICarInsuranceVersionService CarInsuranceVersionService
+		{
+			get => _carInsuranceVersionService;
+			private set
+			{
+				if(!(_carInsuranceVersionService is null))
+				{
+					throw new InvalidOperationException($"Свойство {nameof(CarInsuranceVersionService)} уже установлено");
+				}
+
+				SetField(ref _carInsuranceVersionService, value);
+
+				_carInsuranceVersionService.EditCarInsurenceSelected += OnInsuranceVersionServiceEditCarInsurence;
+			}
+		}
 
 		[PropertyChangedAlso(nameof(CanSaveInsurance), nameof(IsWidgetVisible))]
 		public CarInsurance Insurance
@@ -124,9 +138,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public DialogViewModelBase ParentDialog
 		{
 			get => _parentDialog;
-			set
+			private set
 			{
-				if(_parentDialog != null)
+				if(!(_parentDialog is null))
 				{
 					return;
 				}
@@ -137,12 +151,21 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 		public bool CanSaveInsurance =>
 			!(Insurance is null)
+			&& !(CarInsuranceVersionService is null)
 			&& !(Insurance.Car is null)
 			&& InsuranceType.HasValue
 			&& StartDate.HasValue
 			&& EndDate.HasValue
 			&& !(Insurer is null)
 			&& !string.IsNullOrWhiteSpace(InsuranceNumber);
+
+		public void Initialize(
+			ICarInsuranceVersionService carInsuranceVersionService,
+			DialogViewModelBase parentDialog)
+		{
+			CarInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
+			ParentDialog = parentDialog ?? throw new ArgumentNullException(nameof(parentDialog));
+		}
 
 		private void EditCarInsurance(CarInsurance insurance)
 		{

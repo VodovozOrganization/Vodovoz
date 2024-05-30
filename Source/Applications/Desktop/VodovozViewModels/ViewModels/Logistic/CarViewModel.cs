@@ -74,6 +74,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
+			CarInsuranceVersionViewModel osagoInsuranceVersionViewModel,
+			CarInsuranceVersionViewModel kaskoInsuranceVersionViewModel,
+			CarInsuranceVersionEditingViewModel carInsuranceVersionEditingViewModel,
 			ICarInsuranceVersionService carInsuranceVersionService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -90,6 +93,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_carInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
 
+			OsagoInsuranceVersionViewModel = osagoInsuranceVersionViewModel ?? throw new ArgumentNullException(nameof(osagoInsuranceVersionViewModel));
+			KaskoInsuranceVersionViewModel = kaskoInsuranceVersionViewModel ?? throw new ArgumentNullException(nameof(kaskoInsuranceVersionViewModel));
+			CarInsuranceVersionEditingViewModel = carInsuranceVersionEditingViewModel ?? throw new ArgumentNullException(nameof(carInsuranceVersionEditingViewModel));
+
 			TabName = "Автомобиль";
 
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
@@ -104,9 +111,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FuelCardVersionViewModel.ParentDialog = this;
 
 			_carInsuranceVersionService.Car = Entity;
-			OsagoInsuranceVersionViewModel = CreateOsagoCarInsuranceVersionViewModel();
-			KaskoInsuranceVersionViewModel = CreateKaskoCarInsuranceVersionViewModel();
-			CarInsuranceVersionEditingViewModel = CreateCarInsuranceEditingViewModel();
+			InitializeCarInsurancesWidgets();
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
@@ -507,39 +512,36 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			});
 		}
 
-		private CarInsuranceVersionViewModel CreateOsagoCarInsuranceVersionViewModel()
+		private void InitializeCarInsurancesWidgets()
 		{
-			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>();
+			InitializeOsagoCarInsuranceVersionViewModel();
+			InitializeKaskoCarInsuranceVersionViewModel();
+			InitializeCarInsuranceEditingViewModel();
+		}
 
-			viewModel.Initialize(
+		private void InitializeOsagoCarInsuranceVersionViewModel()
+		{
+			OsagoInsuranceVersionViewModel.Initialize(
 				_carInsuranceVersionService,
 				Entity,
 				CarInsuranceType.Osago,
 				Entity.IsKaskoInsuranceNotRelevant);
-
-			return viewModel;
 		}
 
-		private CarInsuranceVersionViewModel CreateKaskoCarInsuranceVersionViewModel()
+		private void InitializeKaskoCarInsuranceVersionViewModel()
 		{
-			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionViewModel>();
-
-			viewModel.Initialize(
+			KaskoInsuranceVersionViewModel.Initialize(
 				_carInsuranceVersionService,
 				Entity,
 				CarInsuranceType.Kasko,
 				Entity.IsKaskoInsuranceNotRelevant);
-
-			return viewModel;
 		}
 
-		private CarInsuranceVersionEditingViewModel CreateCarInsuranceEditingViewModel()
+		private void InitializeCarInsuranceEditingViewModel()
 		{
-			var viewModel = LifetimeScope.Resolve<CarInsuranceVersionEditingViewModel>(
-				 new TypedParameter(typeof(ICarInsuranceVersionService), _carInsuranceVersionService));
-			viewModel.ParentDialog = this;
-
-			return viewModel;
+			CarInsuranceVersionEditingViewModel.Initialize(
+				_carInsuranceVersionService,
+				this);
 		}
 
 		public override void Dispose()
