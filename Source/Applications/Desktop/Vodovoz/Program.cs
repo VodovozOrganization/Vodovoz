@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -151,8 +151,6 @@ using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
-using Vodovoz.Application.Cars.Insurance;
-using Vodovoz.Services.Cars.Insurance;
 
 namespace Vodovoz
 {
@@ -727,7 +725,6 @@ namespace Vodovoz
 						.AddBusiness(hostingContext.Configuration)
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
-						.AddScoped<ICarInsuranceVersionService, CarInsuranceVersionService>()
 						.AddFuelControl(hostingContext)
 
 						//Messages

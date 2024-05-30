@@ -25,7 +25,6 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Services.Cars.Insurance;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -54,7 +53,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly ICarInsuranceVersionService _carInsuranceVersionService;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
