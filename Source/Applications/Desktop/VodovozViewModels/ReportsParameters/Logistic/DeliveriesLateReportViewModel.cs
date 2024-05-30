@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 {
@@ -18,11 +19,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		private bool _allOrderSelectMode;
 		private bool _isWithoutFastSelect;
 		private IInteractiveService _interactiveService;
+		private readonly IGeneralSettings _generalSettings;
 
-		public DeliveriesLateReportViewModel(RdlViewerViewModel rdlViewerViewModel, IUnitOfWorkFactory uowFactory, IInteractiveService interactiveService)
+		public DeliveriesLateReportViewModel(RdlViewerViewModel rdlViewerViewModel, IUnitOfWorkFactory uowFactory, IInteractiveService interactiveService, IGeneralSettings generalSettings)
 			: base(rdlViewerViewModel)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_uow = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot(Title);
 
 			Title = "Отчет по опозданиям";
@@ -86,6 +89,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			{
 				config.RefreshFilteredElements();
 			});
+
+			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
 		}
 
 		protected override Dictionary<string, object> Parameters
@@ -113,6 +118,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			}
 		}
 
+		private void SetFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum fastDeliveryIntervalFrom)
+		{
+			switch(fastDeliveryIntervalFrom)
+			{
+				case FastDeliveryIntervalFromEnum.OrderCreated:
+					IsIntervalFromOrderCreated = true;
+					break;
+				case FastDeliveryIntervalFromEnum.AddedInFirstRouteList:
+					IsIntervalFromFirstAddress = true;
+					break;
+				case FastDeliveryIntervalFromEnum.RouteListItemTransfered:
+					IsIntervalFromTransferTime = true;
+					break;
+			}
+		}
+
 		[PropertyChangedAlso(nameof(IsIntervalVisible))]
 		public bool IsOnlyFastSelect
 		{
@@ -136,6 +157,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 
 		public bool IsIntervalVisible => IsOnlyFastSelect || AllOrderSelect;
 
+		public bool IsIntervalFromOrderCreated { get; set; }
 		public bool IsIntervalFromFirstAddress { get; set; }
 		public bool IsIntervalFromTransferTime { get; set; }
 
