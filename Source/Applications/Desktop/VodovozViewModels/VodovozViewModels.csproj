@@ -250,7 +250,10 @@
     <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalViewModel.cs" />
     <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonViewModel.cs" />
     <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffViewModel.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.CarReceptionRow.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.CarTransferRow.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.Row.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReportParametersViewModel.cs" />
     <Compile Include="Logistic\RouteListCreateViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />

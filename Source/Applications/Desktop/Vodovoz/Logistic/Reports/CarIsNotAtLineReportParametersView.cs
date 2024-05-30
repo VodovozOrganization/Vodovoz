@@ -32,7 +32,7 @@ namespace Vodovoz.Logistic.Reports
 			includeexcludefiltergroupview1.Show();
 			vbox1.Add(includeexcludefiltergroupview1);
 
-			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
+			ybuttonGenerate.BindCommand(ViewModel.GenerateAndSaveReportCommand);
 		}
 	}
 }
