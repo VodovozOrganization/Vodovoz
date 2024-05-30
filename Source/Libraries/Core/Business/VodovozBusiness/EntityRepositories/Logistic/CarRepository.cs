@@ -10,7 +10,7 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
-	public class CarRepository : ICarRepository
+	public partial class CarRepository : ICarRepository
 	{
 		public Car GetCarByDriver(IUnitOfWork uow, Employee driver)
 		{
@@ -141,36 +141,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				};
 
 			return carTechInspects;
-		}
-
-		public class CarInsuranceNode
-		{
-			public CarTypeOfUse CarTypeOfUse { get; set; }
-			public string CarRegNumber { get; set; }
-			public string DriverGeography { get; set; }
-			public CarInsuranceType InsuranceType { get; set; }
-			public CarInsurance LastInsurance { get; set; }
-			public bool IsKaskoNotRelevant { get; set; }
-
-			public int DaysToExpire =>
-				LastInsurance is null
-				? 0
-				: (int)(LastInsurance.EndDate - DateTime.Today).TotalDays;
-		}
-
-		public class CarTechInspectNode
-		{
-			public CarTypeOfUse CarTypeOfUse { get; set; }
-			public string CarRegNumber { get; set; }
-			public string DriverGeography { get; set; }
-			public OdometerReading LastOdometerReading { get; set; }
-			public int? LastTechInspectOdometer { get; set; }
-			public int TeсhInspectInterval { get; set; }
-			public int LeftUntilTechInspectKm { get; set; }
-			public int UpcomingTechInspectKm =>
-				LastTechInspectOdometer.HasValue
-				? LastTechInspectOdometer.Value + TeсhInspectInterval
-				: TeсhInspectInterval;
 		}
 	}
 }
