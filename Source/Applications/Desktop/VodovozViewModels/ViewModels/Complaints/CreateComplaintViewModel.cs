@@ -300,8 +300,18 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			var canCreateDuplicateComplaints = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanCreateDuplicateComplaints);
 			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday();
+
+			if(hasСounterpartyDuplicateToday && !canCreateDuplicateComplaints)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"Рекламация с данным контрагентом уже создавалась сегодня, у вас нет прав на создание дубликатов рекламаций.");
+
+				return false;
+			}
+
 			var canSaveDuplicate = !hasСounterpartyDuplicateToday
-				|| (canCreateDuplicateComplaints && CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"));
+				|| (canCreateDuplicateComplaints && CommonServices.InteractiveService.Question(
+					"Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"));
 
 			return canSaveDuplicate; 
 		}
