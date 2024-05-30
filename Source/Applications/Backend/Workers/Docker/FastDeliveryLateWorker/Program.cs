@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
 
@@ -57,6 +58,7 @@ namespace FastDeliveryLateWorker
 						.AddSingleton<IOrderRepository, OrderRepository>()
 						.AddSingleton<IEmployeeRepository, EmployeeRepository>()
 						.AddSingleton<IOrderSettings, OrderSettings>()
+						.AddSingleton<IEmailService, EmailService>()
 						.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 
