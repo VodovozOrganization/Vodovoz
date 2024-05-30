@@ -16,12 +16,15 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -30,6 +33,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -39,7 +43,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListsWageController _routeListsWageController;
 		private readonly ILogger<CarViewModel> _logger;
 		private bool _canChangeBottlesFromAddress;
-		private DelegateCommand _addGeoGroupCommand;
 
 		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
 
@@ -48,6 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _isNeedToUpdateCarInfoInDriverEntity;
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
+		private readonly IFuelRepository _fuelRepository;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -57,11 +61,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
+			IFuelCardVersionViewModelFactory fuelCardVersionViewModelFactory,
 			IRouteListsWageController routeListsWageController,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			ICarEventRepository carEventRepository,
-			ICarEventSettings carEventSettings)
+			ICarEventSettings carEventSettings,
+			IFuelRepository fuelRepository,
+			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
+			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -73,6 +82,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+
 			TabName = "Автомобиль";
 
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
@@ -82,6 +93,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
 
+			FuelCardVersionViewModel = (fuelCardVersionViewModelFactory ?? throw new ArgumentNullException(nameof(fuelCardVersionViewModelFactory)))
+				.CreateFuelCardVersionViewModel(Entity, UoW);
+			FuelCardVersionViewModel.ParentDialog = this;
+
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
 				commonServices.UserService.CurrentUserId);
@@ -90,17 +105,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
 			CanEditFuelCardNumber =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+			CanViewFuelCard =
+				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
 
-			CarModelViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-				.ForProperty(x => x.CarModel)
+			CarModelViewModel = carModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.CarModel)
 				.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
 				.UseViewModelDialog<CarModelViewModel>()
 				.Finish();
 
 			CarModelViewModel.ChangedByUser += OnCarModelViewModelChangedByUser;
 
-			DriverViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-			.ForProperty(x => x.Driver)
+			DriverViewModel = driverEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.Driver)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Category = EmployeeCategory.driver;
@@ -111,8 +132,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			DriverViewModel.ChangedByUser += OnDriverViewModelChangedByUser;
 
-			FuelTypeViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
-				.ForProperty(x => x.FuelType)
+			FuelTypeViewModel = fuelTypeEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.FuelType)
 				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
@@ -130,6 +153,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnDriverChanged();
 
 			ConfigureTechInspectInfo();
+
+			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
+			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -167,6 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }
+		public bool CanViewFuelCard { get; }
 
 		public IEntityEntryViewModel CarModelViewModel { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
@@ -175,9 +202,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
+		public FuelCardVersionViewModel FuelCardVersionViewModel { get; }
 
 		protected override bool BeforeSave()
 		{
+			if(!SetOtherCarsFuelCardVersionEndDateIfNeed())
+			{
+				return false;
+			}
+
 			var result = base.BeforeSave();
 
 			UpdateArchivingDate();
@@ -253,6 +286,55 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					}
 				}
 			}
+		}
+
+		private bool SetOtherCarsFuelCardVersionEndDateIfNeed()
+		{
+			var newFuelCardVersion = Entity.FuelCardVersions.Where(v => v.Id == 0).FirstOrDefault();
+
+			if(newFuelCardVersion is null)
+			{
+				return true;
+			}
+
+			var activeVersionsOnDateHavingFuelCard =
+				_fuelRepository.GetActiveVersionsOnDateHavingFuelCard(UoW, newFuelCardVersion.StartDate, newFuelCardVersion.FuelCard.Id);
+
+			if(!activeVersionsOnDateHavingFuelCard.Any())
+			{
+				return true;
+			}
+
+			var activeVersionsOnDateHavingFuelCardAndEndDate =
+				activeVersionsOnDateHavingFuelCard.Where(v => v.EndDate != null || v.StartDate == newFuelCardVersion.StartDate);
+
+			if(activeVersionsOnDateHavingFuelCardAndEndDate.Any())
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					QS.Dialog.ImportanceLevel.Error,
+					$"Создать новую версию топливной карты с указанной датой начала {newFuelCardVersion.StartDate:dd.MM.yyyy} невозможно.\n" +
+					$"На указанную дату карта активна у авто: {string.Join(", ", activeVersionsOnDateHavingFuelCardAndEndDate.Select(v => v.Car.RegistrationNumber))}");
+
+				return false;
+			}
+
+			var confirmationResult = CommonServices.InteractiveService.Question(
+				$"В данный момент указанная топливная карта установлена в активной версии топливных карт авто:\n" +
+				$"{string.Join(", ", activeVersionsOnDateHavingFuelCard.Select(v => v.Car.RegistrationNumber))}\n" +
+				$"Установить у перечисленных авто дату окончания действия версии топливной карты?");
+
+			if(!confirmationResult)
+			{
+				return false;
+			}
+
+			foreach(var version in activeVersionsOnDateHavingFuelCard)
+			{
+				version.EndDate = newFuelCardVersion.StartDate.AddMilliseconds(-1);
+				UoW.Save(version);
+			}
+
+			return true;
 		}
 
 		private void UpdateArchivingDate()
@@ -346,18 +428,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Add GeoGroup
 
-		public DelegateCommand AddGeoGroupCommand
-		{
-			get
-			{
-				if(_addGeoGroupCommand == null)
-				{
-					_addGeoGroupCommand = new DelegateCommand(AddGeoGroup);
-				}
-
-				return _addGeoGroupCommand;
-			}
-		}
+		public DelegateCommand AddGeoGroupCommand { get; }
+		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
 
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
@@ -375,7 +447,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(
 				this,
 				OpenPageOptions.AsSlave,
-				viewModel => 
+				viewModel =>
 				{
 					viewModel.SelectionMode = JournalSelectionMode.Multiple;
 					viewModel.DisableChangeEntityActions();
@@ -411,6 +483,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#endregion Add GeoGroup
+
+		private void CreateCarAcceptanceCertificate()
+		{
+			NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave, viewModel =>
+			{
+				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
+				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
+			});
+		}
 
 		public override void Dispose()
 		{

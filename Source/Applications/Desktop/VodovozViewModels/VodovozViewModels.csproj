@@ -124,7 +124,9 @@
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
     <Compile Include="Extensions\ClosedXmlReportExtensions.cs" />
     <Compile Include="Factories\DialogSettingsFactory.cs" />
+    <Compile Include="Factories\FuelCardVersionViewModelFactory.cs" />
     <Compile Include="Factories\IDialogSettingsFactory.cs" />
+    <Compile Include="Factories\IFuelCardVersionViewModelFactory.cs" />
     <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
@@ -139,10 +141,14 @@
     <Compile Include="Factories\UndeliveredOrderViewModelFactory.cs" />
     <Compile Include="FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="Infrastructure\IEventsQrPlacer.cs" />
+    <Compile Include="Fuel\FuelCards\FuelCardJournalFilterViewModel.cs" />
+    <Compile Include="Fuel\FuelCards\FuelCardJournalViewModel.cs" />
+    <Compile Include="Fuel\FuelCards\FuelCardViewModel.cs" />
     <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
     <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSetSelectionChanged.cs" />
+    <Compile Include="Infrastructure\Services\Fuel\FuelApiService.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\PayoutRequestJournalFilterViewModel.PayoutDocumentsSortOrder.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.DateFilterType.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\ExternalCounterpartiesMatchingJournalFilterViewModel.cs" />
@@ -235,6 +241,13 @@
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriverNode.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriversSortOrder.cs" />
     <Compile Include="Logistic\DriversStopLists\DriverStopListRemovalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalFilterViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalNode.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalFilterViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffViewModel.cs" />
     <Compile Include="Logistic\RouteListCreateViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
     <Compile Include="Logistic\RouteListKeepingItemNode.cs" />
@@ -247,6 +260,7 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
+    <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.IntervalSelectMode.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.OrderSelectMode.cs" />
@@ -746,6 +760,7 @@
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
+    <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\NamedDomainEntitiesSettingsViewModelBase.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
@@ -815,6 +830,7 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\Cars\FuelCardVersionViewModel.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.CarModelSelectableNode.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
@@ -979,6 +995,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
       <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
       <Name>EdoService.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
+      <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
+      <Name>FuelControl.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>

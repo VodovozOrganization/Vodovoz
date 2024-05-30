@@ -18,6 +18,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -271,5 +272,24 @@ public partial class MainWindow
 			OpenPageOptions.IgnoreHash);
 	}
 
+	#endregion
+
+	#region ТРО
+	/// <summary>
+	/// Пробег без МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void OnActionMileageWriteOffJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MileageWriteOffJournalViewModel, Action<MileageWriteOffJournalFilterViewModel>>(
+			   null,
+			   filter =>
+			   {
+				   filter.WriteOffDateFrom = DateTime.Today.AddMonths(-1);
+				   filter.WriteOffDateTo = DateTime.Today;
+			   },
+			   OpenPageOptions.IgnoreHash);
+	}
 	#endregion
 }

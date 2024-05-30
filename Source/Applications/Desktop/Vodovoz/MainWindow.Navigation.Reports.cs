@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
@@ -1358,6 +1359,16 @@ public partial class MainWindow
 	protected void OnAction74Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
+	}
+
+	/// <summary>
+	/// Отчет по запросам к API Газпром-нефть
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelApiRequestReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FuelApiRequestReportViewModel));
 	}
 
 	#endregion Касса

@@ -21,6 +21,7 @@ namespace Vodovoz.Views.ReportsParameters.Logistic
 				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
 				.InitializeFromSource();
 			
+			ycheckIntervalFromCreateTime.Binding.AddBinding(ViewModel, vm => vm.IsIntervalFromOrderCreated, w => w.Active).InitializeFromSource();
 			ycheckIntervalFromFirstAddress.Binding.AddBinding(ViewModel, vm => vm.IsIntervalFromFirstAddress, w => w.Active).InitializeFromSource();
 			ycheckIntervalFromTransferTime.Binding.AddBinding(ViewModel, vm => vm.IsIntervalFromTransferTime, w => w.Active).InitializeFromSource();
 

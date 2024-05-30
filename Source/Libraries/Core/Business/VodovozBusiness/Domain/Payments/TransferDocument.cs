@@ -16,7 +16,9 @@ namespace Vodovoz.Domain.Payments
 			[ItemTitle("Аккредитив")]
 			ApplicationOfCredit,
 			[ItemTitle("Инкассовое поручение")]
-			IncassDraft
+			IncassDraft,
+			[ItemTitle("Платежный ордер")]
+			PaymentOrder
 		}
 
 		public TransferDocumentType docType;
@@ -206,8 +208,10 @@ namespace Vodovoz.Domain.Payments
 					return TransferDocumentType.ApplicationOfCredit;
 				case "Инкассовое поручение":
 					return TransferDocumentType.IncassDraft;
+				case "Платежный ордер":
+					return TransferDocumentType.PaymentOrder;
 				default:
-					throw new NotSupportedException($"Тип банковского документа {type} неизвестен.");
+					throw new NotSupportedException($"Тип банковского документа \"{type}\" неизвестен. Обратитесь в РПО.");
 			}
 		}
 	}

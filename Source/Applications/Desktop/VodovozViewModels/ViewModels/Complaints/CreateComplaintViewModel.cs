@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -75,7 +76,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 
 			Entity.ComplaintType = ComplaintType.Client;
-			Entity.SetStatus(ComplaintStatuses.Checking);
+			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
 
@@ -90,6 +91,8 @@ namespace Vodovoz.ViewModels.Complaints
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			CanEditComplaintClassification = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
 		}
 
 		public CreateComplaintViewModel(Counterparty client,
@@ -210,6 +213,8 @@ namespace Vodovoz.ViewModels.Complaints
 		//так как диалог только для создания рекламации
 		public bool CanEdit => PermissionResult.CanCreate;
 
+		public bool CanEditComplaintClassification { get; }
+
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
 		private List<ComplaintSource> complaintSources;
@@ -284,13 +289,21 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		public void CheckAndSave()
+		protected override bool BeforeSave()
 		{
-			if (!HasСounterpartyDuplicateToday() ||
-				CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
-			{
-				SaveAndClose();
-			}
+			var canSave = CheckForDuplicates();
+
+			return canSave;
+		}
+
+		private bool CheckForDuplicates()
+		{
+			var canCreateDuplicateComplaints = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanCreateDuplicateComplaints);
+			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday();
+			var canSaveDuplicate = !hasСounterpartyDuplicateToday
+				|| (canCreateDuplicateComplaints && CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"));
+
+			return canSaveDuplicate; 
 		}
 
 		private bool HasСounterpartyDuplicateToday()

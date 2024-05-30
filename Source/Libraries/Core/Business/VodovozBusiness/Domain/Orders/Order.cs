@@ -1846,6 +1846,9 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
+		public virtual bool IsUndeliveredStatus => OrderStatus ==
+			OrderStatus.Canceled || OrderStatus == OrderStatus.DeliveryCanceled || OrderStatus == OrderStatus.NotDelivered;
+		
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
 		public override string ToString() => IsLoadedFrom1C ? string.Format("Заказ №{0}({1})", Id, Code1c) : string.Format("Заказ №{0}", Id);
@@ -3297,7 +3300,8 @@ namespace Vodovoz.Domain.Orders
 
 		private void SendUpdToEmailOnFinishIfNeeded()
 		{
-			var emailSendUpdResult = _emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _deliveryScheduleSettings);
+			var emailSendUpdResult =
+				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
 
 			if(emailSendUpdResult.IsSuccess)
 			{

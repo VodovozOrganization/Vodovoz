@@ -45,5 +45,17 @@ namespace Pacs.Operators.Server
 
 			return result;
 		}
+
+		[HttpPost]
+		[Route("endworkshift")]
+		public async Task<OperatorResult> EndWorkShift([FromBody] AdminEndWorkShift command)
+		{
+			_logger.LogTrace("Завершение смены оператора {OperatorId} вызванное командой администратора {AdminId}",
+				command.OperatorId, command.AdminId);
+			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var result = await controller.AdminEndWorkShift(command.AdminId, command.Reason);
+
+			return result;
+		}
 	}
 }

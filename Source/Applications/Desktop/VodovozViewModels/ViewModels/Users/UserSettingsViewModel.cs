@@ -12,11 +12,14 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -29,7 +32,9 @@ namespace Vodovoz.ViewModels.Users
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
+		private readonly INomenclatureFixedPriceRepository _nomenclatureFixedPriceRepository;
+		private readonly IFuelApiService _fuelApiService;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private ILifetimeScope _lifetimeScope;
 		private DelegateCommand _updateFixedPricesCommand;
 		private bool _sortingSettingsUpdated;
@@ -41,6 +46,8 @@ namespace Vodovoz.ViewModels.Users
 		private readonly WarehousesUserSelectionViewModel _warehousesUserSelectionViewModel;
 		private bool _isWarehousesForNotificationsListChanged = false;
 
+		private CancellationTokenSource _cancellationTokenSource;
+
 		public UserSettingsViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -51,7 +58,9 @@ namespace Vodovoz.ViewModels.Users
 			ISubdivisionSettings subdivisionSettings,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			INomenclaturePricesRepository nomenclatureFixedPriceRepository)
+			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository,
+			IFuelApiService fuelApiService,
+			IGuiDispatcher guiDispatcher)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -65,11 +74,13 @@ namespace Vodovoz.ViewModels.Users
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			InteractiveService = commonServices.InteractiveService;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
-			
+
 			SetPermissions();
 
 			if(UserIsCashier)
@@ -86,13 +97,15 @@ namespace Vodovoz.ViewModels.Users
 			_warehousesUserSelectionViewModel.ObservableWarehouses.ListContentChanged += OnWarehousesToNotifyListContentChanged;
 
 			SubdivisionViewModel = BuildSubdivisionViewModel();
+
+			FuelControlApiLoginCommand = new DelegateCommand(async () => await FuelControlApiLogin(), () => Entity.IsUserHasAuthDataForFuelControlApi);
 		}
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
 		{
 			_isWarehousesForNotificationsListChanged = true;
 
-			Entity.MovementDocumentsNotificationUserSelectedWarehouses = 
+			Entity.MovementDocumentsNotificationUserSelectedWarehouses =
 				WarehousesUserSelectionViewModel.ObservableWarehouses
 				.Select(w => w.WarehouseId)
 				.ToList();
@@ -134,20 +147,22 @@ namespace Vodovoz.ViewModels.Users
 			get => _progressFraction;
 			private set => SetField(ref _progressFraction, value);
 		}
-		
+
 		public IInteractiveService InteractiveService { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public bool IsUserFromOkk => _subdivisionSettings.GetOkkId()
-		                             == _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
+									 == _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
 
 		public bool IsUserFromRetail { get; private set; }
-		public bool UserIsCashier { get; private set; } 
+		public bool UserIsCashier { get; private set; }
 		public bool CanUpdateFixedPrices { get; private set; }
 
 		public IList<CashSubdivisionSortingSettings> SubdivisionSortingSettings => Entity.ObservableCashSubdivisionSortingSettings;
 
 		public WarehousesUserSelectionViewModel WarehousesUserSelectionViewModel => _warehousesUserSelectionViewModel;
+
+		public DelegateCommand FuelControlApiLoginCommand { get; }
 
 		public DelegateCommand UpdateFixedPricesCommand => _updateFixedPricesCommand ?? (_updateFixedPricesCommand = new DelegateCommand(
 					() =>
@@ -160,13 +175,13 @@ namespace Vodovoz.ViewModels.Users
 							{
 								var fixedPrices = _nomenclatureFixedPriceRepository.GetFixedPricesFor19LWater(uow);
 								UpdateProgress($"Получили данные, которые нужно обновить. Всего {fixedPrices.Count} объектов");
-								
-								for(int i = 0; i < fixedPrices.Count; i++)
+
+								for(var i = 0; i < fixedPrices.Count; i++)
 								{
 									fixedPrices[i].Price += IncrementFixedPrices;
 									uow.Save(fixedPrices[i]);
 								}
-								
+
 								UpdateProgress($"Получили данные, которые нужно обновить. Всего {fixedPrices.Count} объектов. " +
 									"Обновляем фиксу с записью в историю изменений...");
 								uow.Commit();
@@ -227,16 +242,16 @@ namespace Vodovoz.ViewModels.Users
 
 			return !IsFixedPricesUpdating;
 		}
-		
+
 		public void UpdateIndices() => Entity.UpdateCashSortingIndices();
-		
+
 		private void SetPermissions()
 		{
 			CanUpdateFixedPrices = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_update_fixed_prices_for_19l_water");
 			IsUserFromRetail = CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			UserIsCashier = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 		}
-		
+
 		private void UpdateProgress(string message)
 		{
 			ProgressMessage = message;
@@ -248,6 +263,51 @@ namespace Vodovoz.ViewModels.Users
 			var availableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser).ToList();
 
 			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions);
+		}
+
+		private async Task FuelControlApiLogin()
+		{
+			if(_cancellationTokenSource != null)
+			{
+				return;
+			}
+
+			Entity.FuelControlApiSessionId = string.Empty;
+			Entity.FuelControlApiSessionExpirationDate = null;
+
+			_cancellationTokenSource = new CancellationTokenSource();
+
+			try
+			{
+				var session = await _fuelApiService.Login(
+					Entity.FuelControlApiLogin,
+					Entity.FuelControlApiPassword,
+					Entity.FuelControlApiKey,
+					_cancellationTokenSource.Token);
+
+				Entity.FuelControlApiSessionId = session.SessionId;
+				Entity.FuelControlApiSessionExpirationDate = session.SessionExpirationDate;
+
+				ShowMessageInGuiThread(ImportanceLevel.Info,
+					"Новое значение Id сессии получено. Старый Id больше не действует.\nЧтобы новое значение было сохранено обязательно нажмите на кнопку \"Сохранить\"");
+			}
+			catch(Exception ex)
+			{
+				ShowMessageInGuiThread(ImportanceLevel.Error, ex.Message);
+			}
+			finally
+			{
+				_cancellationTokenSource?.Dispose();
+				_cancellationTokenSource = null;
+			}
+		}
+
+		private void ShowMessageInGuiThread(ImportanceLevel level, string message)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				CommonServices.InteractiveService.ShowMessage(level, message);
+			});
 		}
 
 		public override void Dispose()

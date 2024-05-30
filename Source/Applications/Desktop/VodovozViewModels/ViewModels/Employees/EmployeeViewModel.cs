@@ -22,12 +22,14 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
@@ -67,8 +69,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageSettings _wageSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
+		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
-		private ILifetimeScope _lifetimeScope;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
@@ -87,6 +89,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DateTime? _selectedRegistrationDate;
 		private EmployeeRegistrationVersion _selectedRegistrationVersion;
 		private bool _showWarehouseAppCredentials;
+		private bool _counterpartyChangedByUser;
+		private bool _statusChangedByUser;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
 		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
@@ -130,6 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
+			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -152,11 +157,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			
+			_nomenclatureFixedPriceController =
+				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
+
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(validationContextFactory == null)
@@ -166,7 +173,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			ConfigureValidationContext(validationContextFactory);
 
-			PhonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
 			
 			if(Entity.Id == 0)
 			{
@@ -205,12 +212,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			InitializeSubdivisionEntryViewModel();
 		}
 
+		public ILifetimeScope LifetimeScope { get; private set; }
 		public ExternalApplicationUser DriverAppUser { get; private set; }
 		public ExternalApplicationUser WarehouseAppUser { get; private set; }
 
 		private void InitializeSubdivisionEntryViewModel()
 		{
-			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			var subdivisionEntryViewModelBuilder =
+				new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, LifetimeScope);
 
 			var canSetOnlyLogisticsSubdivision = CanManageDriversAndForwarders && !CanManageOfficeWorkers;
 
@@ -253,6 +262,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public ICommonServices CommonServices { get; }
 		public IUnitOfWork UoW => UoWGeneric;
 		public Employee Entity => UoWGeneric.Root;
+		public bool CanCopyId => Entity.Id != 0;
 		public IUnitOfWorkGeneric<Employee> UoWGeneric { get; }
 		public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
@@ -847,6 +857,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					UpdateDocumentsPermissions();
 					OnPropertyChanged(nameof(CanReadEmployeeDocuments));
 					break;
+				case nameof(Entity.Counterparty):
+					CheckEmployeeCounterparty();
+					break;
+				case nameof(Entity.Status):
+					_statusChangedByUser = true;
+					break;
 				default:
 					break;
 			}
@@ -1246,6 +1262,23 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 
 			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _wageSettings, CommonServices.InteractiveService);
+			
+			if(Entity.Counterparty != null)
+			{
+				if(Entity.Status == EmployeeStatus.OnCalculation || Entity.Status == EmployeeStatus.IsFired)
+				{
+					TryRemoveAllFixedPrices();
+				}
+				else
+				{
+					TryRemoveEmployeeFixedPricesFromOldCounterparty();
+					TryAddEmployeeFixedPrices();
+				}
+			}
+			else
+			{
+				TryRemoveEmployeeFixedPricesFromOldCounterparty();
+			}
 
 			UoWGeneric.Save(Entity);
 
@@ -1275,6 +1308,74 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_logger.Info("Ok");
 			return true;
 		}
+		
+		private void CheckEmployeeCounterparty()
+		{
+			if(Entity.Counterparty is null)
+			{
+				_counterpartyChangedByUser = true;
+				return;
+			}
+			
+			var otherEmployee = _employeeRepository.GetOtherEmployeeInfoWithSameCounterparty(
+				_unitOfWorkFactory, Entity.Id, Entity.Counterparty.Id);
+
+			if(otherEmployee != null)
+			{
+				ShowWarningMessage($"Выбранный клиент {Entity.Counterparty.Name} уже установлен у сотрудника с №{otherEmployee.Id} {otherEmployee.Name}");
+				Entity.Counterparty = null;
+			}
+			
+			_counterpartyChangedByUser = true;
+		}
+
+		private void TryRemoveAllFixedPrices()
+		{
+			if(!_statusChangedByUser)
+			{
+				return;
+			}
+
+			var counterparty = Entity.Counterparty;
+			_nomenclatureFixedPriceController.DeleteAllFixedPricesFromCounterpartyAndDeliveryPoints(counterparty);
+			UoW.Save(counterparty);
+		}
+
+		private void TryAddEmployeeFixedPrices()
+		{
+			if(!_counterpartyChangedByUser && !_statusChangedByUser)
+			{
+				return;
+			}
+
+			var fixedPrices = _nomenclatureFixedPriceController.GetEmployeesNomenclatureFixedPrices(UoW);
+
+			if(Entity.Counterparty != null)
+			{
+				_nomenclatureFixedPriceController.AddEmployeeFixedPricesToCounterpartyAndDeliveryPoints(Entity.Counterparty, fixedPrices);
+				UoW.Save(Entity.Counterparty);
+			}
+		}
+		
+		private void TryRemoveEmployeeFixedPricesFromOldCounterparty()
+		{
+			if(!_counterpartyChangedByUser)
+			{
+				return;
+			}
+
+			var oldCounterpartyId =
+				Entity.Id > 0
+					? _employeeRepository.GetEmployeeCounterpartyFromDatabase(_unitOfWorkFactory, Entity.Id)
+					: null;
+
+			if(oldCounterpartyId.HasValue && (Entity.Counterparty is null || Entity.Counterparty.Id != oldCounterpartyId))
+			{
+				var counterparty = UoW.GetById<Domain.Client.Counterparty>(oldCounterpartyId.Value);
+				_nomenclatureFixedPriceController.DeleteAllFixedPricesFromCounterpartyAndDeliveryPoints(counterparty);
+				UoW.Save(counterparty);
+			}
+		}
 
 		public override bool CompareHashName(string hashName)
 		{
@@ -1283,7 +1384,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 			return GenerateHashName(Entity.Id) == hashName;
 		}
-		
+
 		private string GenerateHashName(int id)
 		{
 			return DomainHelper.GenerateDialogHashName(typeof(Employee), id);
@@ -1292,7 +1393,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public override void Dispose()
 		{
 			UoW?.Dispose();
-			_lifetimeScope = null;
+			LifetimeScope = null;
 			base.Dispose();
 		}
 	}

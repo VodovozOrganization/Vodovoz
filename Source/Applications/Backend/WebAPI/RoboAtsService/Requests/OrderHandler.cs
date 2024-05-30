@@ -355,6 +355,8 @@ namespace RoboatsService.Requests
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Ошибка при подтверждении заказа роботом");
+
 				if(ex is AggregateException aggregateException && aggregateException.InnerException != null)
 				{
 					ex = aggregateException.InnerException;

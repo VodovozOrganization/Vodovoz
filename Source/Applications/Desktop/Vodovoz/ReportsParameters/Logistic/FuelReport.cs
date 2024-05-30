@@ -67,6 +67,9 @@ namespace Vodovoz.Reports
 			var carModelSelectionFilterView = new CarModelSelectionFilterView(_carModelSelectionFilterViewModel);
 			yhboxCarModelContainer.Add(carModelSelectionFilterView);
 			carModelSelectionFilterView.Show();
+
+			radioDriver.Visible = false;
+			radioCar.Active = true;
 		}
 
 		public Car Car 

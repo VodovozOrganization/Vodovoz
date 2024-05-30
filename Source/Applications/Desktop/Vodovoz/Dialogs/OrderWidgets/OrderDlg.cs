@@ -489,6 +489,8 @@ namespace Vodovoz
 
 		public void CopyOrderFrom(int orderId)
 		{
+			Entity.IsCopiedFromUndelivery = true;
+
 			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
@@ -499,8 +501,9 @@ namespace Vodovoz
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
+			
+			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 
-			Entity.IsCopiedFromUndelivery = true;
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
@@ -586,9 +589,8 @@ namespace Vodovoz
 
 			_previousDeliveryDate = Entity.DeliveryDate;
 
-			_nomenclatureFixedPriceController =
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
-			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
+			_nomenclatureFixedPriceProvider = _lifetimeScope.Resolve<INomenclatureFixedPriceProvider>();
+			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
@@ -1210,7 +1212,10 @@ namespace Vodovoz
 							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
 
-						_orderService.CheckAndAddBottlesToReferrerByReferFriendPromo(UoW, Entity, _canChangeDiscountValue);
+						if(!Entity.IsCopiedFromUndelivery)
+						{
+							_orderService.CheckAndAddBottlesToReferrerByReferFriendPromo(UoW, Entity, _canChangeDiscountValue);
+						}
 					}
 					UpdateAvailableEnumSignatureTypes();
 					UpdateOrderAddressTypeWithUI();
@@ -1548,7 +1553,7 @@ namespace Vodovoz
 				(double)Entity.DeliveryPoint.Longitude.Value,
 				isGetClosestByRoute: false,
 				Entity.GetAllGoodsToDeliver(),
-				Entity
+				Entity.DeliveryPoint.District.TariffZone.Id
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);

@@ -3,8 +3,10 @@ using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Views.Dialog;
+using System;
 using System.ComponentModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 using static Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis.PaymentsDiscrepanciesAnalysisViewModel;
@@ -110,6 +112,17 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel, vm => vm.PaymentsTotalSum1C, w => w.Text)
 				.InitializeFromSource();
 
+			speciallistcomboboxPaymentStatus.ShowSpecialStateAll = true;
+			speciallistcomboboxPaymentStatus.SetRenderTextFunc<OrderPaymentStatus?>(x => x.GetEnumTitle());
+			speciallistcomboboxPaymentStatus.ItemsList = Enum.GetValues(typeof(OrderPaymentStatus));
+			speciallistcomboboxPaymentStatus.Binding
+				.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ycheckbuttonHideUnregisteredCounterparties.Binding
+				.AddBinding(ViewModel, vm => vm.HideUnregisteredCounterparties, w => w.Active)
+				.InitializeFromSource();
+
 			ConfigureFileChooser();
 			ConfigureOrdersTree();
 			ConfigurePaymentsTree();
@@ -173,6 +186,8 @@ namespace Vodovoz.Views.Payments
 					.AddNumericRenderer(n => n.PaymentNum)
 				.AddColumn("Дата платежа")
 					.AddTextRenderer(n => n.PaymentDate.ToShortDateString())
+				.AddColumn("Плательщик")
+					.AddTextRenderer(n => n.PayerName)
 				.AddColumn("Сумма по акту")
 					.AddNumericRenderer(n => n.DocumentPaymentSum)
 				.AddColumn("Сумма по ДВ")
@@ -184,7 +199,7 @@ namespace Vodovoz.Views.Payments
 					{
 						spin.ForegroundGdk = _primaryTextColor;
 
-						if(node.CounterpartyInn != ViewModel.SelectedClient.INN)
+						if(ViewModel.SelectedClient != null && node.CounterpartyInn != ViewModel.SelectedClient.INN)
 						{
 							spin.ForegroundGdk = _dangerTextColor;
 						}

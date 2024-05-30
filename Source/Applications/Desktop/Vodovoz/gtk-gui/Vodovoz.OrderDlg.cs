@@ -1390,9 +1390,8 @@ namespace Vodovoz
 			this.pickerDeliveryDate.Events = ((global::Gdk.EventMask)(256));
 			this.pickerDeliveryDate.Name = "pickerDeliveryDate";
 			this.pickerDeliveryDate.HideCalendarButton = false;
-			this.pickerDeliveryDate.Date = new global::System.DateTime(0);
-			this.pickerDeliveryDate.IsEditable = false;
-			this.pickerDeliveryDate.AutoSeparation = false;
+			this.pickerDeliveryDate.IsEditable = true;
+			this.pickerDeliveryDate.AutoSeparation = true;
 			this.table1.Add(this.pickerDeliveryDate);
 			global::Gtk.Table.TableChild w72 = ((global::Gtk.Table.TableChild)(this.table1[this.pickerDeliveryDate]));
 			w72.TopAttach = ((uint)(10));

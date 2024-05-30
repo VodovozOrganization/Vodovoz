@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -422,7 +422,11 @@
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
+    <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\InnerPhonesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\MileageWriteOffJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\MileageWriteOffReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OperatorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
     <Compile Include="MessagesHostedService.cs" />
@@ -2060,11 +2064,30 @@
     <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
     <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
+    <Compile Include="Views\Fuel\FuelCardView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Fuel.FuelCardView.cs" />
+    <Compile Include="Filters\GtkViews\FuelCardJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FuelCardJournalFilterView.cs" />
+    <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Fuel.FuelApiRequestReportView.cs" />
+    <Compile Include="Filters\GtkViews\MileageWriteOffJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.MileageWriteOffJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\MileageWriteOffReasonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.MileageWriteOffReasonJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\MileageWriteOffView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.MileageWriteOffView.cs" />
+    <Compile Include="Views\Logistic\MileageWriteOffReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.MileageWriteOffReasonView.cs" />
+    <Compile Include="Views\Logistic\FuelCardVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorFilterView.cs" />
+    <Compile Include="Views\Pacs\OperatorFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="ReportsParameters\Fuel\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2458,6 +2481,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
       <Project>{eb928475-6d2b-4fef-a314-d75bccef3ad0}</Project>
       <Name>EdoService.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
+      <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
+      <Name>FuelControl.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>

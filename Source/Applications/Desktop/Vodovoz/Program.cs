@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -143,6 +143,19 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
+using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Domain.Sms;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Tools.Orders;
+using MassTransit;
+using Vodovoz.ViewModels.Infrastructure;
+using FuelControl.Library;
+using Vodovoz.Services.Fuel;
+using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
+using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 
 namespace Vodovoz
 {
@@ -201,6 +214,7 @@ namespace Vodovoz
 
 					//GtkUI
 					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
+					builder.RegisterType<GtkYesNoCancelQuestionInteractive>().As<IYesNoCancelQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.RegisterType<DeleteEntityGUIService>().AsSelf().As<IDeleteEntityService>();
@@ -717,6 +731,9 @@ namespace Vodovoz
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
 						.AddCoreDataRepositories()
+						.AddScoped<IFuelApiService, FuelApiService>()
+						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
+						.AddFuelControl(hostingContext)
 
 						//Messages
 						.AddSingleton<MessagesHostedService>()

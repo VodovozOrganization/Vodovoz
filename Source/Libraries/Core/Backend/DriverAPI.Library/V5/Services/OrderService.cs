@@ -723,6 +723,8 @@ namespace DriverAPI.Library.V5.Services
 						$"По причине {reason}"
 				};
 
+				complaint.SetStatus(ComplaintStatuses.InProcess);
+
 				_uow.Save(complaint);
 			}
 		}

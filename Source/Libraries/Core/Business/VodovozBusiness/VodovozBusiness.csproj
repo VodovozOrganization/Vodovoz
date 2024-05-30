@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,14 +59,37 @@
     <Compile Include="Domain\Orders\OnlineOrderStatusUpdatedNotification.cs" />
     <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
+    <Compile Include="Permissions\Settings.cs" />
+    <Compile Include="Domain\Fuel\FuelLimit.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitPeriodUnit.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitStatus.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitTermType.cs" />
+    <Compile Include="Domain\Fuel\FuelLimitUnit.cs" />
+    <Compile Include="Permissions\Logistic.Fuel.cs" />
+    <Compile Include="Services\Fuel\IFuelCardVersionService.cs" />
+    <Compile Include="Domain\Fuel\FuelApiRequest.cs" />
+    <Compile Include="Domain\Fuel\FuelApiRequestFunction.cs" />
+    <Compile Include="Domain\Fuel\FuelApiResponseResult.cs" />
+    <Compile Include="Domain\Fuel\FuelCard.cs" />
+    <Compile Include="Domain\Fuel\FuelTransaction.cs" />
     <Compile Include="Domain\Logistic\Cars\ArchivingReason.cs" />
     <Compile Include="Domain\Logistic\Cars\CarTypeOfUse.cs" />
     <Compile Include="Domain\Logistic\Cars\IncomeChannel.cs" />
+    <Compile Include="Domain\Logistic\Cars\FuelCardVersion.cs" />
     <Compile Include="Domain\Logistic\DriverTerminalCondition.cs" />
     <Compile Include="Domain\Logistic\RouteListControlNotLoadedNode.cs" />
+    <Compile Include="Domain\Logistic\Cars\MileageWriteOff.cs" />
+    <Compile Include="Domain\Logistic\Cars\MileageWriteOffReason.cs" />
     <Compile Include="Domain\Logistic\RouteListItemStatus.cs" />
     <Compile Include="Domain\Sale\WeekDayName.cs" />
     <Compile Include="Domain\Logistic\RouteListStatus.cs" />
+    <Compile Include="EntityRepositories\Nodes\AddressInfoForFastDelivery.cs" />
+    <Compile Include="EntityRepositories\Nodes\FastDeliveryVerificationDetailsNode.cs" />
+    <Compile Include="EntityRepositories\Nodes\FastDeliveryVerificationParameter.cs" />
+    <Compile Include="EntityRepositories\Nodes\RouteListFastDeliveriesCountNode.cs" />
+    <Compile Include="EntityRepositories\Nodes\RouteListNomenclatureAmount.cs" />
     <Compile Include="Errors\Common\DriverApiClient.cs" />
     <Compile Include="Errors\Email\Email.cs" />
     <Compile Include="Domain\Employees\FineTypes.cs" />
@@ -88,6 +111,7 @@
     <Compile Include="Domain\Orders\UndeliveryDiscussionStatus.cs" />
     <Compile Include="Domain\Orders\UndeliveryDiscussion.cs" />
     <Compile Include="Domain\Sms\ISmsNotifier.cs" />
+    <Compile Include="Permissions\Complaint.cs" />
     <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
@@ -1019,6 +1043,7 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
+    <Compile Include="Services\Fuel\IFuelApiService.cs" />
     <Compile Include="Services\IUserSettingsService.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
@@ -1035,6 +1060,8 @@
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
+    <Compile Include="Tools\Interactive\YesNoCancelQuestion\IYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="Tools\Interactive\YesNoCancelQuestion\YesNoCancelQuestionResult.cs" />
     <Compile Include="Tools\Logistic\DeliveryPriceNode.cs" />
     <Compile Include="Tools\Logistic\DeliveryPriceRow.cs" />
     <Compile Include="Tools\Logistic\DeliveryRuleRow.cs" />
