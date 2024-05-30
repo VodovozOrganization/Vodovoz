@@ -304,14 +304,14 @@ namespace Vodovoz.ViewModels.Complaints
 			if(hasСounterpartyDuplicateToday && !canCreateDuplicateComplaints)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Рекламация с данным контрагентом уже создавалась сегодня, у вас нет прав на создание дубликатов рекламаций.");
+					"Рекламация с данным заказом уже создавался сегодня, у вас нет прав на создание дубликатов рекламаций.");
 
 				return false;
 			}
 
 			var canSaveDuplicate = !hasСounterpartyDuplicateToday
 				|| (canCreateDuplicateComplaints && CommonServices.InteractiveService.Question(
-					"Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"));
+					"Рекламация с данным заказом уже создавался сегодня, создать ещё одну?"));
 
 			return canSaveDuplicate; 
 		}
@@ -322,7 +322,7 @@ namespace Vodovoz.ViewModels.Complaints
 				return false;
 			}
 			return UoW.Session.QueryOver<Complaint>()
-				.Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
+				.Where(i => i.Order.Id == Entity.Order.Id)
 				.And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
 				.RowCount() > 0;
 		}
