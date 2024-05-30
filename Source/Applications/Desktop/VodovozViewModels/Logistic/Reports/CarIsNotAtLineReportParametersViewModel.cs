@@ -38,6 +38,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IGenericRepository<RouteList> routeListRepository,
 			IGenericRepository<CarEvent> carEventRepository,
 			IGenericRepository<Car> carRepository,
+			IncludeExludeFilterGroupViewModel includeExludeFilterGroupViewModel,
 			IInteractiveService interactiveService,
 			INavigationManager navigation)
 			: base(navigation)
@@ -63,8 +64,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			Date = DateTime.Today;
 			CountDays = 4;
-
-			var includeExludeFilterGroupViewModel = new IncludeExludeFilterGroupViewModel();
 
 			includeExludeFilterGroupViewModel.InitializeFor(_uUnitOfWork, _carEventRepository);
 			includeExludeFilterGroupViewModel.RefreshFilteredElementsCommand.Execute();
