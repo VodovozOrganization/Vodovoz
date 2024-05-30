@@ -1325,6 +1325,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				ShowWarningMessage($"Выбранный клиент {Entity.Counterparty.Name} уже установлен у сотрудника с №{otherEmployee.Id} {otherEmployee.Name}");
 				Entity.Counterparty = null;
 			}
+			
+			_counterpartyChangedByUser = true;
 		}
 
 		private void TryRemoveAllFixedPrices()
