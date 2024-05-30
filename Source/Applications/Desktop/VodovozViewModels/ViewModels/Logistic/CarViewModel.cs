@@ -74,15 +74,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
-			CarInsuranceVersionViewModel osagoInsuranceVersionViewModel,
-			CarInsuranceVersionViewModel kaskoInsuranceVersionViewModel,
-			CarInsuranceVersionEditingViewModel carInsuranceVersionEditingViewModel,
-			ICarInsuranceVersionService carInsuranceVersionService)
+			CarInsuranceManagementViewModel insuranceManagementViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			if(insuranceManagementViewModel is null)
+			{
+				throw new ArgumentNullException(nameof(insuranceManagementViewModel));
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -91,11 +93,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_carInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
-
-			OsagoInsuranceVersionViewModel = osagoInsuranceVersionViewModel ?? throw new ArgumentNullException(nameof(osagoInsuranceVersionViewModel));
-			KaskoInsuranceVersionViewModel = kaskoInsuranceVersionViewModel ?? throw new ArgumentNullException(nameof(kaskoInsuranceVersionViewModel));
-			CarInsuranceVersionEditingViewModel = carInsuranceVersionEditingViewModel ?? throw new ArgumentNullException(nameof(carInsuranceVersionEditingViewModel));
 
 			TabName = "Автомобиль";
 
@@ -106,12 +103,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
 
+			insuranceManagementViewModel.Initialize(Entity, this);
+			OsagoInsuranceVersionViewModel = insuranceManagementViewModel.OsagoInsuranceVersionViewModel;
+			KaskoInsuranceVersionViewModel = insuranceManagementViewModel.KaskoInsuranceVersionViewModel;
+			CarInsuranceVersionEditingViewModel = insuranceManagementViewModel.CarInsuranceVersionEditingViewModel;
+
 			FuelCardVersionViewModel = (fuelCardVersionViewModelFactory ?? throw new ArgumentNullException(nameof(fuelCardVersionViewModelFactory)))
 				.CreateFuelCardVersionViewModel(Entity, UoW);
 			FuelCardVersionViewModel.ParentDialog = this;
-
-			_carInsuranceVersionService.Car = Entity;
-			InitializeCarInsurancesWidgets();
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
@@ -510,38 +509,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
 				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
 			});
-		}
-
-		private void InitializeCarInsurancesWidgets()
-		{
-			InitializeOsagoCarInsuranceVersionViewModel();
-			InitializeKaskoCarInsuranceVersionViewModel();
-			InitializeCarInsuranceEditingViewModel();
-		}
-
-		private void InitializeOsagoCarInsuranceVersionViewModel()
-		{
-			OsagoInsuranceVersionViewModel.Initialize(
-				_carInsuranceVersionService,
-				Entity,
-				CarInsuranceType.Osago,
-				Entity.IsKaskoInsuranceNotRelevant);
-		}
-
-		private void InitializeKaskoCarInsuranceVersionViewModel()
-		{
-			KaskoInsuranceVersionViewModel.Initialize(
-				_carInsuranceVersionService,
-				Entity,
-				CarInsuranceType.Kasko,
-				Entity.IsKaskoInsuranceNotRelevant);
-		}
-
-		private void InitializeCarInsuranceEditingViewModel()
-		{
-			CarInsuranceVersionEditingViewModel.Initialize(
-				_carInsuranceVersionService,
-				this);
 		}
 
 		public override void Dispose()

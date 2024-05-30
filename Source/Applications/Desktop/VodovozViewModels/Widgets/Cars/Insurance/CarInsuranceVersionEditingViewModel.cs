@@ -10,21 +10,20 @@ using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Services.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
 	public class CarInsuranceVersionEditingViewModel : WidgetViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
-		private CarInsurance _insurance;
+		private CarInsurance _carInsurance;
 		private CarInsuranceType? _insuranceType;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Counterparty _insurer;
 		private string _insuranceNumber;
-		private ICarInsuranceVersionService _carInsuranceVersionService;
 		private DialogViewModelBase _parentDialog;
+		private bool _isWidgetVisible;
 
 		public CarInsuranceVersionEditingViewModel(
 			ICommonServices commonServices,
@@ -47,10 +46,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			CancelEditingInsuranceCommand = new DelegateCommand(CancelEditingInsurance);
 		}
 
-		private void OnInsuranceVersionServiceEditCarInsurence(object sender, EditCarInsuranceEventArgs e)
-		{
-			Insurance = e.CarInsurance;
-		}
+		public event EventHandler<CarInsuranceEditingCompetedEventArgs> CarInsuranceEditingCompeted;
+		public event EventHandler CarInsuranceEditingCancelled;
 
 		public DelegateCommand SaveInsuranceCommand { get; }
 		public DelegateCommand CancelEditingInsuranceCommand { get; }
@@ -59,45 +56,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public ILifetimeScope LifetimeScope { get; }
 		public IEntityEntryViewModel InsurerEntryViewModel { get; private set; }
 
-		public bool IsWidgetVisible => Insurance != null;
-
-		[PropertyChangedAlso(nameof(CanSaveInsurance))]
-		public ICarInsuranceVersionService CarInsuranceVersionService
+		public bool IsWidgetVisible
 		{
-			get => _carInsuranceVersionService;
-			private set
-			{
-				if(!(_carInsuranceVersionService is null))
-				{
-					throw new InvalidOperationException($"Свойство {nameof(CarInsuranceVersionService)} уже установлено");
-				}
-
-				SetField(ref _carInsuranceVersionService, value);
-
-				_carInsuranceVersionService.EditCarInsurenceSelected += OnInsuranceVersionServiceEditCarInsurence;
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanSaveInsurance), nameof(IsWidgetVisible))]
-		public CarInsurance Insurance
-		{
-			get => _insurance;
-			set
-			{
-				if(_insurance != null && value != null)
-				{
-					throw new InvalidOperationException("Страховка авто уже в процессе изменения");
-				}
-
-				SetField(ref _insurance, value);
-
-				if(_insurance is null)
-				{
-					return;
-				}
-
-				SetWidgetProperties();
-			}
+			get => _isWidgetVisible;
+			set => SetField(ref _isWidgetVisible, value);
 		}
 
 		[PropertyChangedAlso(nameof(CanSaveInsurance))]
@@ -138,7 +100,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public DialogViewModelBase ParentDialog
 		{
 			get => _parentDialog;
-			private set
+			set
 			{
 				if(!(_parentDialog is null))
 				{
@@ -150,27 +112,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		}
 
 		public bool CanSaveInsurance =>
-			!(Insurance is null)
-			&& !(CarInsuranceVersionService is null)
-			&& !(Insurance.Car is null)
-			&& InsuranceType.HasValue
+			InsuranceType.HasValue
 			&& StartDate.HasValue
 			&& EndDate.HasValue
 			&& !(Insurer is null)
 			&& !string.IsNullOrWhiteSpace(InsuranceNumber);
-
-		public void Initialize(
-			ICarInsuranceVersionService carInsuranceVersionService,
-			DialogViewModelBase parentDialog)
-		{
-			CarInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
-			ParentDialog = parentDialog ?? throw new ArgumentNullException(nameof(parentDialog));
-		}
-
-		private void EditCarInsurance(CarInsurance insurance)
-		{
-			Insurance = insurance ?? throw new ArgumentNullException(nameof(insurance));
-		}
 
 		private void SaveInsurance()
 		{
@@ -181,7 +127,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 
 			var carInsurance = new CarInsurance
 			{
-				Car = Insurance.Car,
+				Car = _carInsurance.Car,
 				StartDate = StartDate.Value,
 				EndDate = EndDate.Value,
 				Insurer = Insurer,
@@ -194,47 +140,55 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 				return;
 			}
 
-			Insurance.StartDate = StartDate.Value;
-			Insurance.EndDate = EndDate.Value;
-			Insurance.Insurer = Insurer;
-			Insurance.InsuranceNumber = InsuranceNumber;
+			_carInsurance.StartDate = StartDate.Value;
+			_carInsurance.StartDate = StartDate.Value;
+			_carInsurance.EndDate = EndDate.Value;
+			_carInsurance.Insurer = Insurer;
+			_carInsurance.InsuranceNumber = InsuranceNumber;
+			_carInsurance.InsuranceType = InsuranceType.Value;
 
-			_carInsuranceVersionService.InsuranceEditingCompleted(Insurance);
+			CarInsuranceEditingCompeted?.Invoke(this, new CarInsuranceEditingCompetedEventArgs(_carInsurance));
 			ClearWidgetProperties();
 		}
 
 		private void CancelEditingInsurance()
 		{
-			_carInsuranceVersionService.InsuranceEditingCancelled();
+			CarInsuranceEditingCancelled?.Invoke(this, EventArgs.Empty);
 			ClearWidgetProperties();
 		}
 
-		private void SetWidgetProperties()
+		public void SetWidgetProperties(CarInsurance insurance)
 		{
-			if(Insurance is null)
+			if(insurance is null)
 			{
 				return;
 			}
 
-			InsuranceType = Insurance.InsuranceType;
-
-			if(Insurance.StartDate != default)
+			if(!(_carInsurance is null))
 			{
-				StartDate = Insurance.StartDate;
+				throw new InvalidOperationException("Страховка уже в процессе редактирования");
 			}
 
-			if(Insurance.EndDate != default)
+			_carInsurance = insurance;
+			InsuranceType = insurance.InsuranceType;
+
+			if(insurance.StartDate != default)
 			{
-				EndDate = Insurance.EndDate;
+				StartDate = insurance.StartDate;
 			}
 
-			Insurer = Insurance.Insurer;
-			InsuranceNumber = Insurance.InsuranceNumber;
+			if(insurance.EndDate != default)
+			{
+				EndDate = insurance.EndDate;
+			}
+
+			Insurer = insurance.Insurer;
+			InsuranceNumber = insurance.InsuranceNumber;
 		}
 
 		private void ClearWidgetProperties()
 		{
-			Insurance = null;
+			_carInsurance = null;
 			InsuranceType = null;
 			StartDate = null;
 			EndDate = null;

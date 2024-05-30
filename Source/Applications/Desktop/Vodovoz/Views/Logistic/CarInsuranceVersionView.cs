@@ -47,9 +47,11 @@ namespace Vodovoz.Views.Logistic
 
 			ycheckbuttonIsNotRelevantForCar.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanSetInsuranceNotRelevantForCar, w => w.Visible)
+				.AddBinding(vm => vm.CanChangeInsuranceNotRelevantForCar, w => w.Visible)
 				.AddBinding(e => e.IsInsuranceNotRelevantForCar, w => w.Active)
 				.InitializeFromSource();
+
+			ycheckbuttonIsNotRelevantForCar.Clicked += (sender, e) => ViewModel.ChangeIsKaskoNotRelevantCommand.Execute();
 
 			ybuttonNewVersion.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddCarInsurance, w => w.Sensitive)

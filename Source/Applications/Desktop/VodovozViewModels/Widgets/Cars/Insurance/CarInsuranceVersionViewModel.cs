@@ -1,77 +1,43 @@
 ﻿using QS.Commands;
-using QS.Dialog;
 using QS.DomainModel.Entity;
-using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Services.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 {
-	public class CarInsuranceVersionViewModel : WidgetViewModelBase, IDisposable
+	public class CarInsuranceVersionViewModel : WidgetViewModelBase
 	{
-		private readonly ICommonServices _commonServices;
-		private readonly IInteractiveService _interactiveService;
-
 		private Car _car;
-		private ICarInsuranceVersionService _carInsuranceVersionService;
 		private CarInsuranceType? _insuranceType;
 		private CarInsurance _selectedCarInsurance;
 		private bool _isInsuranceNotRelevantForCar;
+		private IList<CarInsurance> _insurances = new List<CarInsurance>();
 
-		public CarInsuranceVersionViewModel(ICommonServices commonServices)
+		public CarInsuranceVersionViewModel()
 		{
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_interactiveService = commonServices.InteractiveService;
-
-			AddCarInsuranceCommand = new DelegateCommand(AddCarInsurance, () => CanAddCarInsurance);
-			EditCarInsuranceCommand = new DelegateCommand(EditCarInsurance, () => CanEditCarInsurance);
+			AddCarInsuranceCommand = new DelegateCommand(OnAddCarInsuranceClicked, () => CanAddCarInsurance);
+			EditCarInsuranceCommand = new DelegateCommand(OnEditCarInsuranceClicked, () => CanEditCarInsurance);
+			ChangeIsKaskoNotRelevantCommand = new DelegateCommand(OnChangeIsKaskoNotRelevantClicked, () => CanChangeInsuranceNotRelevantForCar);
 		}
+
+		public event EventHandler<AddCarInsuranceEventArgs> AddCarInsuranceClicked;
+		public event EventHandler<EditCarInsuranceEventArgs> EditCarInsurenceClicked;
+		public event EventHandler<ChangeIsKaskoNotRelevantClickedEventArgs> ChangeIsKaskoNotRelevantClicked;
 
 		public DelegateCommand AddCarInsuranceCommand { get; }
 		public DelegateCommand EditCarInsuranceCommand { get; }
-		public DelegateCommand SetIsKaskoInsuranceNotRelevantCommand { get; }
+		public DelegateCommand ChangeIsKaskoNotRelevantCommand { get; }
 
-		[PropertyChangedAlso(nameof(IsInsurancesSensitive), nameof(CanSetInsuranceNotRelevantForCar))]
-		public Car Car
-		{
-			get => _car;
-			private set
-			{
-				if(!(_car is null))
-				{
-					throw new InvalidOperationException($"Свойство {nameof(Car)} уже установлено");
-				}
-
-				SetField(ref _car, value);
-			}
-		}
-
-		public ICarInsuranceVersionService CarInsuranceVersionService
-		{
-			get => _carInsuranceVersionService;
-			private set
-			{
-				if(!(_carInsuranceVersionService is null))
-				{
-					throw new InvalidOperationException($"Свойство {nameof(CarInsuranceVersionService)} уже установлено");
-				}
-
-				SetField(ref _carInsuranceVersionService, value);
-
-				_carInsuranceVersionService.CarInsuranceAdded += OnCarInsuranceAdded;
-				_carInsuranceVersionService.IsKaskoInsuranceNotRelevantChanged += OnIsKaskoInsuranceNotRelevantChanged;
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanAddCarInsurance), nameof(IsInsurancesSensitive))]
+		[PropertyChangedAlso(
+			nameof(CanAddCarInsurance),
+			nameof(CanChangeInsuranceNotRelevantForCar),
+			nameof(IsInsurancesSensitive))]
 		public CarInsuranceType? InsuranceType
 		{
 			get => _insuranceType;
-			private set
+			set
 			{
 				if(!(_insuranceType is null))
 				{
@@ -93,130 +59,57 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 		public bool IsInsuranceNotRelevantForCar
 		{
 			get => _isInsuranceNotRelevantForCar;
-			private set
-			{
-				if(!SetField(ref _isInsuranceNotRelevantForCar, value))
-				{
-					return;
-				}
-
-				SetIsKaskoInsuranceNotRelevant();
-			}
+			set => SetField(ref _isInsuranceNotRelevantForCar, value);
 		}
 
-		public IList<CarInsurance> Insurances =>
-			Car?.CarInsurances
-			.Where(o => !InsuranceType.HasValue || o.InsuranceType == InsuranceType.Value)
-			.OrderByDescending(o => o.EndDate)
-			.ToList();
+		public IList<CarInsurance> Insurances
+		{
+			get => _insurances;
+			set => SetField(ref _insurances, value);
+		}
 
-		public bool IsUserCanEditCarEntity =>
-			_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+		public bool CanAddCarInsurance =>
+			InsuranceType.HasValue;
 
-		public bool CanSetInsuranceNotRelevantForCar =>
-			IsUserCanEditCarEntity
-			&& !(Car is null)
-			&& !(CarInsuranceVersionService is null)
-			&& InsuranceType.HasValue
+		public bool CanEditCarInsurance =>
+			!(SelectedCarInsurance is null);
+
+		public bool CanChangeInsuranceNotRelevantForCar =>
+			InsuranceType.HasValue
 			&& InsuranceType.Value == CarInsuranceType.Kasko;
 
 		public bool IsInsurancesSensitive =>
-			!(Car is null)
-			&& !(CarInsuranceVersionService is null)
-			&& InsuranceType.HasValue
+			InsuranceType.HasValue
 			&& (InsuranceType != CarInsuranceType.Kasko || !IsInsuranceNotRelevantForCar);
 
-
-		public bool CanAddCarInsurance => IsUserCanEditCarEntity && InsuranceType.HasValue;
-		public bool CanEditCarInsurance => IsUserCanEditCarEntity && SelectedCarInsurance != null;
-
-		public void Initialize(
-			ICarInsuranceVersionService carInsuranceVersionService,
-			Car car,
-			CarInsuranceType insuranceType,
-			bool isInsuranceNotRelevantForCar)
+		private void OnAddCarInsuranceClicked()
 		{
-			CarInsuranceVersionService = carInsuranceVersionService ?? throw new ArgumentNullException(nameof(carInsuranceVersionService));
-			Car = car ?? throw new ArgumentNullException(nameof(car));
-			InsuranceType = insuranceType;
-			IsInsuranceNotRelevantForCar = isInsuranceNotRelevantForCar;
-
-		}
-
-		private void AddCarInsurance()
-		{
-			if(!InsuranceType.HasValue
-				|| IsInsuranceEditingInProgress()
-				|| IsNewInsuranceAlreadyAdded())
+			if(!CanAddCarInsurance)
 			{
 				return;
 			}
 
-			CarInsuranceVersionService.AddNewCarInsurance(InsuranceType.Value);
+			AddCarInsuranceClicked?.Invoke(this, new AddCarInsuranceEventArgs(InsuranceType.Value));
 		}
 
-		private void EditCarInsurance()
+		private void OnEditCarInsuranceClicked()
 		{
-			if(SelectedCarInsurance is null || IsInsuranceEditingInProgress())
+			if(!CanEditCarInsurance)
 			{
 				return;
 			}
 
-			CarInsuranceVersionService.EditCarInsurance(SelectedCarInsurance);
+			EditCarInsurenceClicked?.Invoke(this, new EditCarInsuranceEventArgs(SelectedCarInsurance));
 		}
 
-		private void SetIsKaskoInsuranceNotRelevant()
+		private void OnChangeIsKaskoNotRelevantClicked()
 		{
-			CarInsuranceVersionService.SetIsKaskoInsuranceNotRelevant(IsInsuranceNotRelevantForCar);
-		}
-
-		private bool IsNewInsuranceAlreadyAdded()
-		{
-			var isNewInsuranceAdded = Insurances.Count(item => item.Id == 0) > 0;
-
-			if(isNewInsuranceAdded)
+			if(!CanChangeInsuranceNotRelevantForCar)
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					 "Новая страховка уже была добавлена. Сначала сохраните существующие изменения.");
-
-				return true;
+				return;
 			}
 
-			return false;
-		}
-
-		private bool IsInsuranceEditingInProgress()
-		{
-			if(CarInsuranceVersionService.IsInsuranceEditingInProgress)
-			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					 "В данный момент уже выполняется редактирование страховки.\nСохраните редактируемую страховку или отмените редактирование");
-
-				return true;
-			}
-
-			return false;
-		}
-
-		private void OnCarInsuranceAdded(object sender, EventArgs e)
-		{
-			OnPropertyChanged(nameof(Insurances));
-		}
-
-		private void OnIsKaskoInsuranceNotRelevantChanged(object sender, EventArgs e)
-		{
-			if(IsInsuranceNotRelevantForCar != Car.IsKaskoInsuranceNotRelevant)
-			{
-				IsInsuranceNotRelevantForCar = Car.IsKaskoInsuranceNotRelevant;
-			}
-		}
-
-		public void Dispose()
-		{
-			_carInsuranceVersionService.CarInsuranceAdded -= OnCarInsuranceAdded;
-			_carInsuranceVersionService.IsKaskoInsuranceNotRelevantChanged -= OnIsKaskoInsuranceNotRelevantChanged;
+			ChangeIsKaskoNotRelevantClicked?.Invoke(this, new ChangeIsKaskoNotRelevantClickedEventArgs(IsInsuranceNotRelevantForCar));
 		}
 	}
 }
