@@ -26,12 +26,11 @@ namespace Vodovoz.Application.Cars.Insurance
 				throw new InvalidOperationException($"$Свойство {nameof(Car)} уже установлено");
 			}
 		}
+
 		public bool IsInsuranceEditingInProgress => _isInsuranceEditingInProgress;
 
 		public void AddNewCarInsurance(CarInsuranceType insuranceType)
 		{
-			ThrowExceptionIfCarIsNull();
-
 			var insurance = new CarInsurance
 			{
 				Car = Car,
@@ -54,8 +53,6 @@ namespace Vodovoz.Application.Cars.Insurance
 
 		public void SetIsKaskoInsuranceNotRelevant(bool isKaskoInsuranceNotRelevant)
 		{
-			ThrowExceptionIfCarIsNull();
-
 			if(Car.IsKaskoInsuranceNotRelevant != isKaskoInsuranceNotRelevant)
 			{
 				Car.IsKaskoInsuranceNotRelevant = isKaskoInsuranceNotRelevant;
@@ -65,8 +62,6 @@ namespace Vodovoz.Application.Cars.Insurance
 
 		public void InsuranceEditingCompleted(CarInsurance insurance)
 		{
-			ThrowExceptionIfCarIsNull();
-
 			if(insurance.Id == 0)
 			{
 				Car.CarInsurances.Add(insurance);
@@ -89,14 +84,6 @@ namespace Vodovoz.Application.Cars.Insurance
 		private void ResetIsInsuranceEditingInProgress()
 		{
 			_isInsuranceEditingInProgress = false;
-		}
-
-		private void ThrowExceptionIfCarIsNull()
-		{
-			if(Car is null)
-			{
-				throw new InvalidOperationException($"Свойство {nameof(Car)} не должно быть null");
-			}
 		}
 	}
 }
