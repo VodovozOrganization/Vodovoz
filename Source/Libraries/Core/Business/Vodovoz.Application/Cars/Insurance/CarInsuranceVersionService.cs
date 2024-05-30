@@ -23,7 +23,7 @@ namespace Vodovoz.Application.Cars.Insurance
 					return;
 				}
 
-				throw new InvalidOperationException($"$Свойство {nameof(Car)} уже установлено");
+				throw new InvalidOperationException($"Свойство {nameof(Car)} уже установлено");
 			}
 		}
 
