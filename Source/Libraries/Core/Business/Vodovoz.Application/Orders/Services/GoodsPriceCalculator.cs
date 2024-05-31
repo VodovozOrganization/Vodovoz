@@ -45,8 +45,8 @@ namespace Vodovoz.Application.Orders.Services
 		private decimal GetTotalWater19LCount(IEnumerable<Product> products, bool doNotCalculateWaterFromPromoSets = false)
 		{
 			var water19L = doNotCalculateWaterFromPromoSets
-				? products.Where(x => x.Nomenclature.IsWater19L && x.PromoSet == null)
-				: products.Where(x => x.Nomenclature.IsWater19L);
+				? products.Where(x => x.Nomenclature != null && x.Nomenclature.IsWater19L && x.PromoSet == null)
+				: products.Where(x => x.Nomenclature != null && x.Nomenclature.IsWater19L);
 			
 			return (int)water19L.Sum(x => x.Count);
 		}

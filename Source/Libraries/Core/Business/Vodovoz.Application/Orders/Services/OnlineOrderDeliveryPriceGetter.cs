@@ -26,7 +26,7 @@ namespace Vodovoz.Application.Orders.Services
 			var isDeliveryForFree =
 				onlineOrder.IsSelfDelivery
 				|| (onlineOrder.DeliveryPoint != null && onlineOrder.DeliveryPoint.AlwaysFreeDelivery)
-				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature.Id != _paidDeliveryId);
+				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature != null && n.Nomenclature.Id != _paidDeliveryId);
 			
 			if(isDeliveryForFree)
 			{
