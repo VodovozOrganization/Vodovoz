@@ -943,7 +943,7 @@ WHERE c.id = @car_id;</CommandText>
         <Width>262.79pt</Width>
         <Value>Подпись передающего</Value>
         <ZIndex>0</ZIndex>
-        <Left>85.9pt</Left>
+        <Left>63.5pt</Left>
         <Top>363.4pt</Top>
         <Style>
           <BorderStyle />
@@ -957,7 +957,7 @@ WHERE c.id = @car_id;</CommandText>
         <Width>277.71pt</Width>
         <Value>Подпись принимающего</Value>
         <ZIndex>0</ZIndex>
-        <Left>355.5pt</Left>
+        <Left>406.7pt</Left>
         <Top>363.2pt</Top>
         <Style>
           <BorderStyle />
@@ -971,7 +971,7 @@ WHERE c.id = @car_id;</CommandText>
         <Width>107.73pt</Width>
         <Value></Value>
         <ZIndex>0</ZIndex>
-        <Left>116.2pt</Left>
+        <Left>37.0pt</Left>
         <Top>384.6pt</Top>
         <Style>
           <BorderStyle>
@@ -984,11 +984,11 @@ WHERE c.id = @car_id;</CommandText>
       </Textbox>
       <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>11.25pt</Height>
-        <Width>107.73pt</Width>
+        <Width>210pt</Width>
         <Value>="("+{?sender_fio}+")"</Value>
         <ZIndex>0</ZIndex>
-        <Left>231.40pt</Left>
-        <Top>384.20pt</Top>
+        <Left>157.8pt</Left>
+        <Top>384.2pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -997,7 +997,7 @@ WHERE c.id = @car_id;</CommandText>
           <BorderWidth />
           <TextAlign>Center</TextAlign>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>11.25pt</Height>
@@ -1017,11 +1017,11 @@ WHERE c.id = @car_id;</CommandText>
       </Textbox>
       <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>11.25pt</Height>
-        <Width>107.73pt</Width>
+        <Width>210pt</Width>
         <Value>="("+{?receiver_fio}+")"</Value>
         <ZIndex>0</ZIndex>
         <Left>497.4pt</Left>
-        <Top>384.0pt</Top>
+        <Top>384.4pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -1030,7 +1030,7 @@ WHERE c.id = @car_id;</CommandText>
           <BorderWidth />
           <TextAlign>Center</TextAlign>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Table Name="Table2">
         <DataSetName>InstanceData</DataSetName>
@@ -1702,178 +1702,6 @@ WHERE c.id = @car_id;</CommandText>
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox72" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.75pt</Height>
-            <Width>262.79pt</Width>
-            <Value>Подпись передающего</Value>
-            <ZIndex>0</ZIndex>
-            <Left>96.7pt</Left>
-            <Top>466.6pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox73" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.75pt</Height>
-            <Width>277.71pt</Width>
-            <Value>Подпись принимающего</Value>
-            <ZIndex>0</ZIndex>
-            <Left>366.3pt</Left>
-            <Top>466.4pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox111" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
-            <Value></Value>
-            <ZIndex>0</ZIndex>
-            <Left>127.0pt</Left>
-            <Top>487.8pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox112" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
-            <Value>="("+{?sender_fio}+")"</Value>
-            <ZIndex>0</ZIndex>
-            <Left>242.2pt</Left>
-            <Top>487.4pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-            <CanGrow >true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox115" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
-            <Value></Value>
-            <ZIndex>0</ZIndex>
-            <Left>393.0pt</Left>
-            <Top>487.6pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox116" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
-            <Value>="("+{?receiver_fio}+")"</Value>
-            <ZIndex>0</ZIndex>
-            <Left>508.2pt</Left>
-            <Top>487.2pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-            <CanGrow >true</CanGrow>
-          </Textbox>
-          <Textbox Name="Textbox119" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.75pt</Height>
-            <Width>277.71pt</Width>
-            <Value>Подпись механика</Value>
-            <ZIndex>0</ZIndex>
-            <Left>367.2pt</Left>
-            <Top>504.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox120" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
-            <Value></Value>
-            <ZIndex>0</ZIndex>
-            <Left>392.7pt</Left>
-            <Top>524.4pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox121" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
-            <Value></Value>
-            <ZIndex>0</ZIndex>
-            <Left>507.9pt</Left>
-            <Top>524.0pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox122" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.75pt</Height>
-            <Width>9.92pt</Width>
-            <Value>(</Value>
-            <ZIndex>0</ZIndex>
-            <Left>499.7pt</Left>
-            <Top>523.7pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>None</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox123" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.75pt</Height>
-            <Width>9.92pt</Width>
-            <Value>)</Value>
-            <ZIndex>0</ZIndex>
-            <Left>615.3pt</Left>
-            <Top>523.6pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>None</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>86.52pt</Width>
@@ -1897,6 +1725,178 @@ WHERE c.id = @car_id;</CommandText>
             <ZIndex>1</ZIndex>
             <Left>510.80pt</Left>
             <Top>32.30pt</Top>
+          </Textbox>
+          <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>262.79pt</Width>
+            <Value>Подпись передающего</Value>
+            <ZIndex>0</ZIndex>
+            <Left>69.5pt</Left>
+            <Top>467.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox62" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>277.71pt</Width>
+            <Value>Подпись принимающего</Value>
+            <ZIndex>0</ZIndex>
+            <Left>412.7pt</Left>
+            <Top>467.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox63" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>107.73pt</Width>
+            <Value></Value>
+            <ZIndex>0</ZIndex>
+            <Left>43.0pt</Left>
+            <Top>488.4pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox64" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>210pt</Width>
+            <Value>="("+{?sender_fio}+")"</Value>
+            <ZIndex>0</ZIndex>
+            <Left>163.8pt</Left>
+            <Top>488.0pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox72" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>107.73pt</Width>
+            <Value></Value>
+            <ZIndex>0</ZIndex>
+            <Left>388.2pt</Left>
+            <Top>488.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox73" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>210pt</Width>
+            <Value>="("+{?receiver_fio}+")"</Value>
+            <ZIndex>0</ZIndex>
+            <Left>503.4pt</Left>
+            <Top>488.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox100" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>277.71pt</Width>
+            <Value>Подпись механика</Value>
+            <ZIndex>0</ZIndex>
+            <Left>362.4pt</Left>
+            <Top>505.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox101" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>107.73pt</Width>
+            <Value></Value>
+            <ZIndex>0</ZIndex>
+            <Left>387.9pt</Left>
+            <Top>525.0pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox104" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>107.73pt</Width>
+            <Value></Value>
+            <ZIndex>0</ZIndex>
+            <Left>503.1pt</Left>
+            <Top>525.0pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox105" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>9.92pt</Width>
+            <Value>(</Value>
+            <ZIndex>0</ZIndex>
+            <Left>494.9pt</Left>
+            <Top>524.3pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>None</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox111" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>9.92pt</Width>
+            <Value>)</Value>
+            <ZIndex>0</ZIndex>
+            <Left>610.5pt</Left>
+            <Top>524.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>None</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
           </Textbox>
         </ReportItems>
         <DataSetName>Empty</DataSetName>
@@ -2158,7 +2158,7 @@ WHERE c.id = @car_id;</CommandText>
             <Top>39.10pt</Top>
             <Style>
               <BorderStyle>
-                <Bottom >Solid</Bottom>
+                <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
@@ -2183,8 +2183,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>262.79pt</Width>
             <Value>Подпись передающего</Value>
             <ZIndex>0</ZIndex>
-            <Left>109.7pt</Left>
-            <Top>513.0pt</Top>
+            <Left>70.3pt</Left>
+            <Top>514.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2197,8 +2197,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>277.71pt</Width>
             <Value>Подпись принимающего</Value>
             <ZIndex>0</ZIndex>
-            <Left>379.3pt</Left>
-            <Top>512.8pt</Top>
+            <Left>413.5pt</Left>
+            <Top>514.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2211,8 +2211,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>107.73pt</Width>
             <Value></Value>
             <ZIndex>0</ZIndex>
-            <Left>140.0pt</Left>
-            <Top>534.2pt</Top>
+            <Left>43.8pt</Left>
+            <Top>535.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2224,11 +2224,11 @@ WHERE c.id = @car_id;</CommandText>
           </Textbox>
           <Textbox Name="Textbox99" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
+            <Width>210pt</Width>
             <Value>="("+{?sender_fio}+")"</Value>
             <ZIndex>0</ZIndex>
-            <Left>255.20pt</Left>
-            <Top>533.80pt</Top>
+            <Left>164.6pt</Left>
+            <Top>535.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2237,15 +2237,15 @@ WHERE c.id = @car_id;</CommandText>
               <BorderWidth />
               <TextAlign>Center</TextAlign>
             </Style>
-            <CanGrow >true</CanGrow>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox102" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>107.73pt</Width>
             <Value></Value>
             <ZIndex>0</ZIndex>
-            <Left>406.0pt</Left>
-            <Top>534.0pt</Top>
+            <Left>389.0pt</Left>
+            <Top>535.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2257,11 +2257,11 @@ WHERE c.id = @car_id;</CommandText>
           </Textbox>
           <Textbox Name="Textbox103" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
-            <Width>107.73pt</Width>
+            <Width>210pt</Width>
             <Value>="("+{?receiver_fio}+")"</Value>
             <ZIndex>0</ZIndex>
-            <Left>521.2pt</Left>
-            <Top>533.6pt</Top>
+            <Left>504.2pt</Left>
+            <Top>535.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2270,15 +2270,15 @@ WHERE c.id = @car_id;</CommandText>
               <BorderWidth />
               <TextAlign>Center</TextAlign>
             </Style>
-            <CanGrow >true</CanGrow>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox106" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.75pt</Height>
             <Width>277.71pt</Width>
             <Value>Подпись механика</Value>
             <ZIndex>0</ZIndex>
-            <Left>380.2pt</Left>
-            <Top>551.2pt</Top>
+            <Left>363.2pt</Left>
+            <Top>552.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2291,8 +2291,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>107.73pt</Width>
             <Value></Value>
             <ZIndex>0</ZIndex>
-            <Left>405.7pt</Left>
-            <Top>570.8pt</Top>
+            <Left>388.7pt</Left>
+            <Top>572.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2307,8 +2307,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>107.73pt</Width>
             <Value></Value>
             <ZIndex>0</ZIndex>
-            <Left>520.9pt</Left>
-            <Top>570.4pt</Top>
+            <Left>503.9pt</Left>
+            <Top>572.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2323,8 +2323,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>9.92pt</Width>
             <Value>(</Value>
             <ZIndex>0</ZIndex>
-            <Left>512.7pt</Left>
-            <Top>570.1pt</Top>
+            <Left>495.7pt</Left>
+            <Top>571.7pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>None</Bottom>
@@ -2339,8 +2339,8 @@ WHERE c.id = @car_id;</CommandText>
             <Width>9.92pt</Width>
             <Value>)</Value>
             <ZIndex>0</ZIndex>
-            <Left>628.3pt</Left>
-            <Top>570.0pt</Top>
+            <Left>611.3pt</Left>
+            <Top>571.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>None</Bottom>
@@ -2392,7 +2392,7 @@ WHERE c.id = @car_id;</CommandText>
         <Value></Value>
         <ZIndex>0</ZIndex>
         <Left>497.1pt</Left>
-        <Top>420.8pt</Top>
+        <Top>421.2pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -2435,7 +2435,7 @@ WHERE c.id = @car_id;</CommandText>
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>443.3pt</Height>
+    <Height>439.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
