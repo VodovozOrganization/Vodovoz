@@ -152,8 +152,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.Insurance
 			if(IsNewInsuranceAlreadyAdded(newInsuranceType))
 			{
 				_interactiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						 "Новая страховка уже была добавлена. Сначала сохраните существующие изменения.");
+					ImportanceLevel.Warning,
+					"Новая страховка уже была добавлена. Сначала сохраните существующие изменения.");
 
 				return;
 			}
