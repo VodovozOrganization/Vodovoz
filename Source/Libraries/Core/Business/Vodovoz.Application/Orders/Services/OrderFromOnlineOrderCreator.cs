@@ -95,9 +95,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			//TODO проверка доступности быстрой доставки, если заказ с быстрой доставкой
 			//скорее всего достаточно будет одной проверки при подтверждении заказа
-			
-			AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
-			AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
+
+			if(order.Client != null)
+			{
+				AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
+				AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
+			}
 			
 			return order;
 		}

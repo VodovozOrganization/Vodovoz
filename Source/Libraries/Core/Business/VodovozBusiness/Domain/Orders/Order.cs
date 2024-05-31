@@ -4056,6 +4056,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateDocuments()
 		{
+			if(Client is null)
+			{
+				return;
+			}
+			
 			CheckAndCreateDocuments(_emailService.GetRequirementDocTypes(this));
 		}
 
