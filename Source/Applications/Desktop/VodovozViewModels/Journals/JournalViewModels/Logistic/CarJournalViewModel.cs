@@ -1,6 +1,5 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -8,14 +7,17 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
@@ -24,6 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly CarJournalFilterViewModel _filterViewModel;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IFileDialogService _fileDialogService;
 
 		public CarJournalViewModel(
 			CarJournalFilterViewModel filterViewModel,
@@ -33,12 +36,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
+			IFileDialogService fileDialogService,
 			Action<CarJournalFilterViewModel> filterConfiguration = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_fileDialogService = fileDialogService;
 			filterViewModel.Journal = this;
 
 			JournalFilter = filterViewModel;
@@ -76,6 +81,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarVersion currentCarVersion = null;
 			Employee driverAlias = null;
 			CarManufacturer carManufacturerAlias = null;
+			Organization organizationAlias = null;
 
 			var query = uow.Session.QueryOver<Car>(() => carAlias)
 				.Inner.JoinAlias(c => c.CarModel, () => carModelAlias)
@@ -84,7 +90,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					() => currentCarVersion.Car.Id == carAlias.Id
 						&& currentCarVersion.StartDate <= currentDateTime
 						&& (currentCarVersion.EndDate == null || currentCarVersion.EndDate >= currentDateTime))
-				.Left.JoinAlias(c => c.Driver, () => driverAlias);
+				.Left.JoinAlias(c => c.Driver, () => driverAlias)
+				.Left.JoinAlias(() => currentCarVersion.CarOwnerOrganization, () => organizationAlias);
 
 			#region Проверка приближающегося ТО
 
@@ -161,6 +168,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var result = query
 				.SelectList(list => list
 					.Select(c => c.Id).WithAlias(() => carJournalNodeAlias.Id)
+					.Select(() => organizationAlias.Name).WithAlias(() => carJournalNodeAlias.CarOwner)
 					.Select(() => carManufacturerAlias.Name).WithAlias(() => carJournalNodeAlias.ManufacturerName)
 					.Select(() => carModelAlias.Name).WithAlias(() => carJournalNodeAlias.ModelName)
 					.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
@@ -176,6 +184,50 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
 			return result;
+		}
+
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+			ExportJournalItemsToExcelAction();
+		}
+
+		private void ExportJournalItemsToExcelAction()
+		{
+			var selectAction = new JournalAction("Экспорт в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) => ExportJournalItemsToExcel()
+			);
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void ExportJournalItemsToExcel()
+		{
+			var journalItems = ItemsQuery(UoW).List<CarJournalNode>();
+
+			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarJournalItemsReport.ReportTitle}");
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+		}
+
+		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)
+		{
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{fileName}.xlsx";
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
+			return dialogSettings;
 		}
 
 		public override void Dispose()

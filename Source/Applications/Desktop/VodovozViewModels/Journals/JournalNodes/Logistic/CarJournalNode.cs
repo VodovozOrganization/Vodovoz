@@ -7,6 +7,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 	{
 		public override string Title => $"{ManufacturerName} {ModelName} ({RegistrationNumber}) {DriverName}";
 
+		public string CarOwner { get; set; }
 		public string ModelName { get; set; }
 		public string ManufacturerName { get; set; }
 		public string RegistrationNumber { get; set; }
