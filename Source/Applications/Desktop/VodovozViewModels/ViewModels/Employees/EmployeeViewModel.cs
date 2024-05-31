@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageSettings _wageSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
-		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
@@ -134,7 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
+			INomenclatureFixedPriceController nomenclatureFixedPriceController,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
