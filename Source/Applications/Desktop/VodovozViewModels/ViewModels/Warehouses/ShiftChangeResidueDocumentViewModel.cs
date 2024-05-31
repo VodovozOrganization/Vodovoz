@@ -185,7 +185,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							{ "car_id", Entity.Car?.Id },
 							{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
 							{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
-							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
+							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
+							{ "sender_fio", Entity.Sender.FullName },
+							{ "receiver_fio", Entity.Receiver.FullName },
 						}
 					};
 				}
