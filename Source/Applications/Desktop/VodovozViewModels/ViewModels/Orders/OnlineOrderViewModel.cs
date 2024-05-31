@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
@@ -272,6 +272,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 									}
 								});
 						}
+					}
+					else
+					{
+						ShowMessage("Не найден запрос на ручное сопоставление клиента из внешних источников");
 					}
 				});
 		}
