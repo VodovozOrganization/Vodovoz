@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -98,6 +99,11 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(order.Client != null)
 			{
+				if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
+				{
+					order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
+				}
+				
 				AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
 				AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
 			}
