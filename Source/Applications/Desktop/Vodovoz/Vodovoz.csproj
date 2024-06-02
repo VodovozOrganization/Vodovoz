@@ -2074,6 +2074,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorFilterView.cs" />
     <Compile Include="Views\Pacs\OperatorFilterView.cs" />
+    <Compile Include="Views\Logistic\CarVersionEditingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionEditingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
