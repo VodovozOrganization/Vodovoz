@@ -3874,7 +3874,7 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
+			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker, needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 			if(routeListItem != null)
