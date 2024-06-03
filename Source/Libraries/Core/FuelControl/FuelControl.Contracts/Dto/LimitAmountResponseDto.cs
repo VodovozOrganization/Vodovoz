@@ -17,12 +17,12 @@ namespace FuelControl.Contracts.Dto
 		/// Суммарное количество ограничения
 		/// </summary>
 		[JsonPropertyName("value")]
-		public int Value { get; set; }
+		public decimal Value { get; set; }
 
 		/// <summary>
 		/// Использованное количество ограничения
 		/// </summary>
 		[JsonPropertyName("used")]
-		public int Used { get; set; }
+		public decimal Used { get; set; }
 	}
 }
