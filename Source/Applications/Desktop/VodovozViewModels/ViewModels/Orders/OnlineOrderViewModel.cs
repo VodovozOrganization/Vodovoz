@@ -159,6 +159,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Entity.Trifle is null
 				? "Сдача с не указана"
 				: Entity.Trifle.ToString();
+		
+		public string CallBeforeArrivalMinutes =>
+			!Entity.CallBeforeArrivalMinutes.HasValue
+				? "Отзвон за не указан"
+				: $"{ Entity.CallBeforeArrivalMinutes }мин.";
 
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();

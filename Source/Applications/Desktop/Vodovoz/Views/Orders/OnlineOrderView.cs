@@ -193,6 +193,10 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.ContactPhone, w => w.LabelProp)
 				.InitializeFromSource();
 			
+			lblCallBeforeArrivalMinutes.Binding
+				.AddBinding(ViewModel, vm => vm.CallBeforeArrivalMinutes, w => w.LabelProp)
+				.InitializeFromSource();
+			
 			cancellationReasonEntry.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditCancellationReason, w => w.Sensitive)
 				.InitializeFromSource();
