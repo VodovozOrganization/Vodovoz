@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			CarVersionsEditingViewModel = carVersionsEditingViewModel ?? throw new ArgumentNullException(nameof(carVersionsEditingViewModel));
 
 			CarVersionsViewModel.AddNewVersionClicked += OnAddNewVersionClicked;
-			CarVersionsViewModel.EditStartDateClicked += OnEditStartDateClicked;
+			CarVersionsViewModel.ChangeStartDateClicked += OnEditStartDateClicked;
 			CarVersionsViewModel.EditCarOwnerClicked += OnEditCarOwnerClicked;
 		}
 
@@ -94,6 +94,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			&& (CanEdit || selectedCarVersion.Id == 0)
 			&& IsValidDateForVersionStartDateChange(selectedCarVersion, selectedDate.Value);
 
+		public bool CanEditCarOwner(CarVersion selectedCarVersion) =>
+			selectedCarVersion != null
+			&& (CanEdit || selectedCarVersion.Id == 0);
+
 		public void Initialize(Car car, DialogViewModelBase parentDialog)
 		{
 			Car = car ?? throw new ArgumentNullException(nameof(car));
@@ -107,6 +111,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			CarVersionsViewModel.Initialize(
 				CanAddNewVersion,
 				CanChangeVersionDate,
+				CanEditCarOwner,
 				Car.Id == 0,
 				CanRead);
 
@@ -329,7 +334,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			CreateAndAddVersion(startDate);
 		}
 
-		private void OnEditStartDateClicked(object sender, EditStartDateEventArgs e)
+		private void OnEditStartDateClicked(object sender, ChangeStartDateEventArgs e)
 		{
 			ChangeVersionStartDate(e.CarVersion, e.StartDate);
 		}
@@ -344,7 +349,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			if(!(CarVersionsViewModel is null))
 			{
 				CarVersionsViewModel.AddNewVersionClicked -= OnAddNewVersionClicked;
-				CarVersionsViewModel.EditStartDateClicked -= OnEditStartDateClicked;
+				CarVersionsViewModel.ChangeStartDateClicked -= OnEditStartDateClicked;
 				CarVersionsViewModel.EditCarOwnerClicked -= OnEditCarOwnerClicked;
 			}
 		}

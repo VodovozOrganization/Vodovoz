@@ -1,4 +1,5 @@
-﻿using QS.ViewModels;
+﻿using QS.Commands;
+using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -13,11 +14,23 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		private bool _isNewCar;
 		private bool _isWidgetVisible;
 		Func<DateTime?, bool> _canAddNewVersionFunc;
-		Func<DateTime?, CarVersion, bool> _canChangeVersionDateFunc;
+		Func<DateTime?, CarVersion, bool> _canChangeVersionStartDateFunc;
+		Func<CarVersion, bool> _canEditCarOwnerFunc;
+
+		public CarVersionsViewModel()
+		{
+			AddNewVersionCommand = new DelegateCommand(AddNewCarVersion, () => CanAddNewVersion);
+			ChangeStartDateCommand = new DelegateCommand(ChangeVersionStartDate, () => CanChangeVersionStartDate);
+			EditCarOwnerCommand = new DelegateCommand(EditCarOwner, () => CanEditCarOwner);
+		}
 
 		public event EventHandler<AddNewVersionEventArgs> AddNewVersionClicked;
-		public event EventHandler<EditStartDateEventArgs> EditStartDateClicked;
+		public event EventHandler<ChangeStartDateEventArgs> ChangeStartDateClicked;
 		public event EventHandler<EditCarOwnerEventArgs> EditCarOwnerClicked;
+
+		public DelegateCommand AddNewVersionCommand;
+		public DelegateCommand ChangeStartDateCommand;
+		public DelegateCommand EditCarOwnerCommand;
 
 		public IList<CarVersion> CarVersions
 		{
@@ -32,8 +45,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			{
 				if(SetField(ref _selectedDate, value))
 				{
-					OnPropertyChanged(nameof(CanAddNewVersion));
-					OnPropertyChanged(nameof(CanChangeVersionDate));
+					UpdateAccessibilityProperties();
 				}
 			}
 		}
@@ -45,7 +57,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			{
 				if(SetField(ref _selectedCarVersion, value))
 				{
-					OnPropertyChanged(nameof(CanChangeVersionDate));
+					UpdateAccessibilityProperties();
 				}
 			}
 		}
@@ -65,23 +77,30 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		public bool CanAddNewVersion =>
 			_canAddNewVersionFunc?.Invoke(SelectedDate) ?? false;
 
-		public bool CanChangeVersionDate =>
-			_canChangeVersionDateFunc?.Invoke(SelectedDate, SelectedCarVersion) ?? false;
+		public bool CanChangeVersionStartDate =>
+			_canChangeVersionStartDateFunc?.Invoke(SelectedDate, SelectedCarVersion) ?? false;
+
+		public bool CanEditCarOwner =>
+			_canEditCarOwnerFunc?.Invoke(SelectedCarVersion) ?? false;
 
 		public void Initialize(
 			Func<DateTime?, bool> canAddNewVersionFunc,
 			Func<DateTime?, CarVersion, bool> canChangeVersionDateFunc,
+			Func<CarVersion, bool> canEditCarOwnerFunc,
 			bool isNewCar,
 			bool isWidgetVisible)
 		{
 			if(!(_canAddNewVersionFunc is null)
-				|| !(_canChangeVersionDateFunc is null))
+				|| !(_canChangeVersionStartDateFunc is null)
+				|| !(_canEditCarOwnerFunc is null))
 			{
 				throw new InvalidOperationException($"Инициализация виджета уже была выполнена");
 			}
 
 			_canAddNewVersionFunc = canAddNewVersionFunc ?? throw new ArgumentNullException(nameof(canAddNewVersionFunc));
-			_canChangeVersionDateFunc = canChangeVersionDateFunc ?? throw new ArgumentNullException(nameof(canChangeVersionDateFunc));
+			_canChangeVersionStartDateFunc = canChangeVersionDateFunc ?? throw new ArgumentNullException(nameof(canChangeVersionDateFunc));
+			_canEditCarOwnerFunc = canEditCarOwnerFunc ?? throw new ArgumentNullException(nameof(canEditCarOwnerFunc));
+
 			IsNewCar = isNewCar;
 			IsWidgetVisible = isWidgetVisible;
 
@@ -93,28 +112,45 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 		public void AddNewCarVersion()
 		{
-			if(SelectedDate == null)
+			if(SelectedDate is null || !CanAddNewVersion)
 			{
 				return;
 			}
 
 			AddNewVersionClicked?.Invoke(this, new AddNewVersionEventArgs(SelectedDate.Value));
 
-			OnPropertyChanged(nameof(CanAddNewVersion));
-			OnPropertyChanged(nameof(CanChangeVersionDate));
+			UpdateAccessibilityProperties();
 		}
 
 		public void ChangeVersionStartDate()
 		{
-			if(SelectedDate == null || SelectedCarVersion == null)
+			if(!SelectedDate.HasValue || SelectedCarVersion is null || !CanChangeVersionStartDate)
 			{
 				return;
 			}
 
-			EditStartDateClicked?.Invoke(this, new EditStartDateEventArgs(SelectedCarVersion, SelectedDate.Value));
+			ChangeStartDateClicked?.Invoke(this, new ChangeStartDateEventArgs(SelectedCarVersion, SelectedDate.Value));
 
+			UpdateAccessibilityProperties();
+		}
+
+		public void EditCarOwner()
+		{
+			if(SelectedCarVersion is null || !CanEditCarOwner)
+			{
+				return;
+			}
+
+			EditCarOwnerClicked?.Invoke(this, new EditCarOwnerEventArgs(SelectedCarVersion));
+
+			UpdateAccessibilityProperties();
+		}
+
+		private void UpdateAccessibilityProperties()
+		{
 			OnPropertyChanged(nameof(CanAddNewVersion));
-			OnPropertyChanged(nameof(CanChangeVersionDate));
+			OnPropertyChanged(nameof(CanChangeVersionStartDate));
+			OnPropertyChanged(nameof(CanEditCarOwner));
 		}
 	}
 
@@ -128,9 +164,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		public DateTime StartDateTime { get; }
 	}
 
-	public class EditStartDateEventArgs : EventArgs
+	public class ChangeStartDateEventArgs : EventArgs
 	{
-		public EditStartDateEventArgs(CarVersion carVersion, DateTime startDate)
+		public ChangeStartDateEventArgs(CarVersion carVersion, DateTime startDate)
 		{
 			CarVersion = carVersion;
 			StartDate = startDate;
