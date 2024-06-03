@@ -494,9 +494,11 @@ namespace Vodovoz.ViewModels.Widgets
 				}
 
 				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
-				address.BottlesReturned = 0;
-
-				UoW.Save(address);
+				if(address != null)
+				{
+					address.BottlesReturned = 0;
+					UoW.Save(address);
+				}
 			}));
 
 		public DelegateCommand NewOrderCommand => _newOrderSelectCommand ?? (_newOrderSelectCommand = new DelegateCommand(
