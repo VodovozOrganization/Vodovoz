@@ -146,7 +146,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			UpdateAccessibilityProperties();
 		}
 
-		private void UpdateAccessibilityProperties()
+		public void UpdateAccessibilityProperties()
 		{
 			OnPropertyChanged(nameof(CanAddNewVersion));
 			OnPropertyChanged(nameof(CanChangeVersionStartDate));

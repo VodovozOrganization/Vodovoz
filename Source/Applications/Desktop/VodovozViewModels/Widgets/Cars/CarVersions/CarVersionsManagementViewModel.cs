@@ -26,20 +26,23 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			ICommonServices commonServices,
 			IRouteListRepository routeListRepository,
 			CarVersionsViewModel carVersionsViewModel,
-			CarVersionsEditingViewModel carVersionsEditingViewModel)
+			CarVersionEditingViewModel carVersionsEditingViewModel)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			CarVersionsViewModel = carVersionsViewModel ?? throw new ArgumentNullException(nameof(carVersionsViewModel));
-			CarVersionsEditingViewModel = carVersionsEditingViewModel ?? throw new ArgumentNullException(nameof(carVersionsEditingViewModel));
+			CarVersionEditingViewModel = carVersionsEditingViewModel ?? throw new ArgumentNullException(nameof(carVersionsEditingViewModel));
 
 			CarVersionsViewModel.AddNewVersionClicked += OnAddNewVersionClicked;
 			CarVersionsViewModel.ChangeStartDateClicked += OnEditStartDateClicked;
 			CarVersionsViewModel.EditCarOwnerClicked += OnEditCarOwnerClicked;
+
+			CarVersionEditingViewModel.SaveCarVersionClicked += OnSaveCarVersionClicked;
+			CarVersionEditingViewModel.CancelEditingClicked += OnCancelEditingClicked;
 		}
 
 		public CarVersionsViewModel CarVersionsViewModel { get; }
-		public CarVersionsEditingViewModel CarVersionsEditingViewModel { get; }
+		public CarVersionEditingViewModel CarVersionEditingViewModel { get; }
 
 		public bool IsNewCar => !(Car is null) && Car.Id == 0;
 
@@ -51,6 +54,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			|| _commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version");
 		public virtual bool CanEdit =>
 			_commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version_date");
+		public bool IsInsuranceEditingInProgress => CarVersionEditingViewModel.IsWidgetVisible;
 
 		public Car Car
 		{
@@ -86,17 +90,20 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			&& selectedDate.HasValue
 			&& !(Car is null)
 			&& Car.CarVersions.All(x => x.Id != 0)
+			&& !IsInsuranceEditingInProgress
 			&& IsValidDateForNewCarVersion(selectedDate.Value);
 
 		public bool CanChangeVersionDate(DateTime? selectedDate, CarVersion selectedCarVersion) =>
 			selectedDate.HasValue
 			&& selectedCarVersion != null
 			&& (CanEdit || selectedCarVersion.Id == 0)
+			&& !IsInsuranceEditingInProgress
 			&& IsValidDateForVersionStartDateChange(selectedCarVersion, selectedDate.Value);
 
 		public bool CanEditCarOwner(CarVersion selectedCarVersion) =>
 			selectedCarVersion != null
-			&& (CanEdit || selectedCarVersion.Id == 0);
+			&& (CanEdit || selectedCarVersion.Id == 0)
+			&& !IsInsuranceEditingInProgress;
 
 		public void Initialize(Car car, DialogViewModelBase parentDialog)
 		{
@@ -104,6 +111,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			ParentDialog = parentDialog ?? throw new ArgumentNullException(nameof(parentDialog));
 
 			InitializeCarVersionsViewModel();
+			CarVersionEditingViewModel.ParentDialog = parentDialog;
 		}
 
 		private void InitializeCarVersionsViewModel()
@@ -131,7 +139,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		///  Создаёт и добавляет новую версию автомобиля в список версий.
 		/// </summary>
 		/// <param name="startDate">Дата начала действия новой версии. Если равно null, берётся текущая дата</param>
-		public void CreateAndAddVersion(DateTime? startDate = null)
+		private void CreateAndAddVersion(DateTime? startDate = null)
 		{
 			if(startDate == null)
 			{
@@ -158,7 +166,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		/// 	Дата начала действия новой версии. Должна быть минимум на день позже, чем дата начала действия предыдущей версии.
 		/// 	Время должно равняться 00:00:00
 		///  </param>
-		public void AddNewVersion(CarVersion newCarVersion, DateTime startDate)
+		private void AddNewVersion(CarVersion newCarVersion, DateTime startDate)
 		{
 			if(newCarVersion == null)
 			{
@@ -187,10 +195,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 			newCarVersion.StartDate = startDate;
 			Car.ObservableCarVersions.Insert(0, newCarVersion);
+			CarVersionsViewModel.SelectedCarVersion = newCarVersion;
+			EditCarVersion(newCarVersion);
 			RefreshCarVersionsList();
 		}
 
-		public void ChangeVersionStartDate(CarVersion version, DateTime newStartDate)
+		private void ChangeVersionStartDate(CarVersion version, DateTime newStartDate)
 		{
 			if(version == null)
 			{
@@ -210,6 +220,22 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			version.StartDate = newStartDate;
 		}
 
+		private void EditCarVersion(CarVersion selectedCarVersion)
+		{
+			var availableCarOwnTypes = new List<CarOwnType>();
+
+			if(selectedCarVersion.Id > 0)
+			{
+				availableCarOwnTypes.Add(selectedCarVersion.CarOwnType);
+			}
+			else
+			{
+				availableCarOwnTypes = GetAvailableCarOwnTypesForVersion(selectedCarVersion).ToList();
+			}
+
+			CarVersionEditingViewModel.SetWidgetProperties(selectedCarVersion, availableCarOwnTypes);
+		}
+
 		/// <summary>
 		/// Возвращает список доступных принадлежностей для версии, основываясь на более старой версии отностиельно переданной
 		/// </summary>
@@ -218,7 +244,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		///		Если равна null, то подбирает доступные принадлежности как для новой версии
 		/// </param>
 		/// <returns>Список доступных принадлежностей</returns>
-		public IList<CarOwnType> GetAvailableCarOwnTypesForVersion(CarVersion version = null)
+		private IList<CarOwnType> GetAvailableCarOwnTypesForVersion(CarVersion version = null)
 		{
 			if(version != null && !Car.CarVersions.Contains(version))
 			{
@@ -245,7 +271,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			return list;
 		}
 
-		public bool IsValidDateForVersionStartDateChange(CarVersion version, DateTime newStartDate)
+		private bool IsValidDateForVersionStartDateChange(CarVersion version, DateTime newStartDate)
 		{
 			if(version == null)
 			{
@@ -263,7 +289,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			return previousVersion == null || newStartDate > previousVersion.StartDate;
 		}
 
-		public bool IsValidDateForNewCarVersion(DateTime dateTime)
+		private bool IsValidDateForNewCarVersion(DateTime dateTime)
 		{
 			return Car.CarVersions.All(x => x.StartDate < dateTime);
 		}
@@ -341,7 +367,23 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 		private void OnEditCarOwnerClicked(object sender, EditCarOwnerEventArgs e)
 		{
-			throw new NotImplementedException();
+			var selectedCarVersion = e.CarVersion;
+			if(selectedCarVersion is null)
+			{
+				return;
+			}
+
+			EditCarVersion(selectedCarVersion);
+		}
+
+		private void OnSaveCarVersionClicked(object sender, EventArgs e)
+		{
+			CarVersionsViewModel.UpdateAccessibilityProperties();
+		}
+
+		private void OnCancelEditingClicked(object sender, EventArgs e)
+		{
+			CarVersionsViewModel.UpdateAccessibilityProperties();
 		}
 
 		public void Dispose()

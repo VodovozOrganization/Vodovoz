@@ -93,6 +93,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
 			CarVersionsViewModel = _carVersionsManagementViewModel.CarVersionsViewModel;
+			CarVersionEditingViewModel = _carVersionsManagementViewModel.CarVersionEditingViewModel;
 
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
@@ -205,6 +206,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
+		public CarVersionEditingViewModel CarVersionEditingViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 		public FuelCardVersionViewModel FuelCardVersionViewModel { get; }
 
