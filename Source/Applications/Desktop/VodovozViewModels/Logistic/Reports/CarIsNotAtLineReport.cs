@@ -17,6 +17,15 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 	{
 		private const string _defaultDateTimeFormat = "dd.MM.yyyy";
 
+		private const int _logisticsSubdivisionSefiyskaya = 13;
+		private const int _logisticsSubdivisionBugri = 51;
+		
+		private const int _logisticsEventTransferId = 11;
+		private const int _logisticsEventRecieveId = 40;
+
+		private const string _northGeoGroupTitle = "север";
+		private const string _southGeoGroupTitle = "ЮГ";
+
 		private CarIsNotAtLineReport(
 			DateTime date,
 			int countDays,
@@ -126,6 +135,21 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.Where(e => carIds.Contains(e.Car.Id))
 				.ToArray();
 
+			var notTransferRecieveEvents = filteredEvents
+				.Where(ce => ce.CarEventType.Id != _logisticsEventTransferId
+					&& ce.CarEventType.Id != _logisticsEventRecieveId)
+				.ToArray();
+
+			var filteredTransferEvents = events
+				.Where(e => carIds.Contains(e.Car.Id)
+					&& e.CarEventType.Id == _logisticsEventTransferId)
+				.ToArray();
+
+			var filteredRecieveEvents = events
+				.Where(e => carIds.Contains(e.Car.Id)
+					&& e.CarEventType.Id == _logisticsEventRecieveId)
+				.ToArray();
+
 			if(!filteredEvents.Any())
 			{
 				return Result.Failure<CarIsNotAtLineReport>(new Error("DataNotFound", "Нет данных для отчета"));
@@ -135,7 +159,10 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var carTransferRows = new List<CarTransferRow>();
 			var carReceptionRows = new List<CarReceptionRow>();
 
-			var carsModels = filteredEvents.Select(fe => fe.Car.CarModel.Id).Distinct().ToArray();
+			var carsModels = filteredEvents
+				.Select(fe => fe.Car.CarModel.Id)
+				.Distinct()
+				.ToArray();
 
 			var eventsGrouppedByCarModel = filteredEvents.GroupBy(fe => fe.Car.CarModel.Id);
 
@@ -151,41 +178,53 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				", из них " +
 				string.Join(", ", summaryByCarModel);
 
-			for(var i = 0; i < filteredEvents.Length; i++)
+			for(var i = 0; i < notTransferRecieveEvents.Length; i++)
 			{
 				rows.Add(new Row
 				{
 					Id = i + 1,
-					RegistationNumber = filteredEvents[i].Car.RegistrationNumber,
-					DowntimeStartedAt = carsWithLastRouteLists.First(cwlrl => cwlrl.car.Id == filteredEvents[i].Car.Id).lastRouteListDate.Value,
+					RegistationNumber = notTransferRecieveEvents[i].Car.RegistrationNumber,
+					DowntimeStartedAt = carsWithLastRouteLists.First(cwlrl => cwlrl.car.Id == notTransferRecieveEvents[i].Car.Id).lastRouteListDate.Value,
 					CarTypeWithGeographicalGroup =
-						filteredEvents[i].Car.CarModel.Name
+						notTransferRecieveEvents[i].Car.CarModel.Name
 						+ " " +
-						(filteredEvents[i].Car.Driver.Subdivision.Id == 13 ? "ЮГ" :
-						filteredEvents[i].Car.Driver.Subdivision.Id == 51 ? "север" : ""),
-					TimeAndBreakdownReason = filteredEvents[i].Comment,
-					PlannedReturnToLineDate = filteredEvents[i].EndDate,
+						(notTransferRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya ? _southGeoGroupTitle :
+						notTransferRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri ? _northGeoGroupTitle : ""),
+					TimeAndBreakdownReason = notTransferRecieveEvents[i].Comment,
+					PlannedReturnToLineDate = notTransferRecieveEvents[i].EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = "Test Resheduling reason",
 				});
 			}
 
-			carTransferRows.Add(new CarTransferRow
+			for(var i = 0; i < filteredTransferEvents.Length; i++)
 			{
-				Id = 1,
-				CarTypeWithGeographicalGroup = "Test North",
-				Comment = "Test Comment",
-				RegistationNumber = "dasda24ad",
-				TransferedAt = DateTime.Now
-			});
+				carTransferRows.Add(new CarTransferRow
+				{
+					Id = 1,
+					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
+					CarTypeWithGeographicalGroup = filteredTransferEvents[i].Car.CarModel.Name
+						+ " " +
+						(filteredTransferEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya ? _southGeoGroupTitle :
+						filteredTransferEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri ? _northGeoGroupTitle : ""),
+					Comment = filteredTransferEvents[i].Comment,
+					TransferedAt = filteredTransferEvents[i].EndDate,
+				});
+			}
 
-			carReceptionRows.Add(new CarReceptionRow
+			for(var i = 0; i < filteredRecieveEvents.Length; i++)
 			{
-				Id = 1,
-				CarTypeWithGeographicalGroup = "Test North",
-				Comment = "Test Comment",
-				RegistationNumber = "dasda24ad",
-				RecievedAt = DateTime.Now
-			});
+				carReceptionRows.Add(new CarReceptionRow
+				{
+					Id = 1,
+					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
+					CarTypeWithGeographicalGroup = filteredRecieveEvents[i].Car.CarModel.Name
+						+ " " +
+						(filteredRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya ? _southGeoGroupTitle :
+						filteredRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri ? _northGeoGroupTitle : ""),
+					Comment = filteredRecieveEvents[i].Comment,
+					RecievedAt = filteredRecieveEvents[i].EndDate,
+				});
+			}
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary);
 		}
