@@ -46,10 +46,13 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewVersion, w => w.Sensitive).InitializeFromSource();
-			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewCarVersion();
+			buttonNewVersion.BindCommand(ViewModel.AddNewVersionCommand);
 
 			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeVersionStartDate, w => w.Sensitive).InitializeFromSource();
-			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeVersionStartDate();
+			buttonChangeVersionDate.BindCommand(ViewModel.ChangeStartDateCommand);
+
+			buttonEditOwner.Binding.AddBinding(ViewModel, vm => vm.CanEditCarOwner, w => w.Sensitive).InitializeFromSource();
+			buttonEditOwner.BindCommand(ViewModel.EditCarOwnerCommand);
 
 			Visible = ViewModel.IsWidgetVisible;
 		}
