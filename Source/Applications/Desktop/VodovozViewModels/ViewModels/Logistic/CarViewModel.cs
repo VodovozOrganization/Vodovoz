@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
+using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -59,7 +61,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IFuelCardVersionViewModelFactory fuelCardVersionViewModelFactory,
 			IRouteListsWageController routeListsWageController,
@@ -70,7 +71,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IFuelRepository fuelRepository,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
-			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder)
+			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
+			CarVersionsManagementViewModel carVersionsManagementViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -83,12 +85,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 
 			TabName = "Автомобиль";
 
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
-			CarVersionsViewModel = (carVersionsViewModelFactory ?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory)))
-				.CreateCarVersionsViewModel(Entity);
+
+			_carVersionsManagementViewModel.Initialize(Entity, this);
+			CarVersionsViewModel = _carVersionsManagementViewModel.CarVersionsViewModel;
 
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
@@ -222,7 +226,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			var routeLists = CarVersionsViewModel.GetAllAffectedRouteLists(UoW);
+			var routeLists = _carVersionsManagementViewModel.GetAllAffectedRouteLists(UoW);
 			if(!routeLists.Any())
 			{
 				return base.Save(close);

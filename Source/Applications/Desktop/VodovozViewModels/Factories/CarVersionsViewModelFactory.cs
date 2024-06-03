@@ -3,7 +3,7 @@ using System;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.ViewModels.Widgets.Cars;
+using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 
 namespace Vodovoz.ViewModels.Factories
 {
@@ -20,7 +20,8 @@ namespace Vodovoz.ViewModels.Factories
 
 		public CarVersionsViewModel CreateCarVersionsViewModel(Car car)
 		{
-			return new CarVersionsViewModel(car, _commonServices, new CarVersionsController(car, _routeListRepository));
+			//return new CarVersionsViewModel(car, _commonServices, new CarVersionsController(car, _routeListRepository));
+			return new CarVersionsViewModel();
 		}
 	}
 }

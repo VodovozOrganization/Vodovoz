@@ -824,6 +824,8 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\CarVersionsEditingViewModel.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\CarVersionsManagementViewModel.cs" />
     <Compile Include="Widgets\Cars\FuelCardVersionViewModel.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.CarModelSelectableNode.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
@@ -835,7 +837,7 @@
     <Compile Include="Widgets\DeliveryFreeBalanceViewModel.cs" />
     <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
     <Compile Include="Widgets\Cars\OdometerReadingViewModel.cs" />
-    <Compile Include="Widgets\Cars\CarVersionsViewModel.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\CarVersionsViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
