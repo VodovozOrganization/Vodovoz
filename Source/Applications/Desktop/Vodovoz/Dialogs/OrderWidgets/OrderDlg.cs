@@ -1561,7 +1561,8 @@ namespace Vodovoz
 				(double)Entity.DeliveryPoint.Longitude.Value,
 				isGetClosestByRoute: false,
 				Entity.GetAllGoodsToDeliver(),
-				Entity.DeliveryPoint.District.TariffZone.Id
+				Entity.DeliveryPoint.District.TariffZone.Id,
+				fastDeliveryOrder: Entity
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
@@ -3873,7 +3874,7 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
+			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker, needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 			if(routeListItem != null)
