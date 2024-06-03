@@ -28,6 +28,20 @@ namespace Vodovoz.Permissions
 			public static string CanChangeCarsBottlesFromAddress => "can_change_cars_bottles_from_address";
 
 			/// <summary>
+			/// Изменение принадлежности в автомобиле
+			/// </summary>
+			[Display(
+				Name = "Изменение принадлежности в автомобиле")]
+			public static string CanChangeCarVersion => "can_change_car_version";
+
+			/// <summary>
+			/// Изменение даты старой версии в автомобиле
+			/// </summary>
+			[Display(
+				Name = "Изменение даты старой версии в автомобиле")]
+			public static string CanChangeCarVersionDate => "can_change_car_version_date";
+
+			/// <summary>
 			/// Доступ к отчету "Отчет о принадлежности ТС"
 			/// </summary>
 			[Display(

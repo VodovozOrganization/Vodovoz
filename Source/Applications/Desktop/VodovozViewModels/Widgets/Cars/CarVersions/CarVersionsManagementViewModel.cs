@@ -51,9 +51,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		public virtual bool CanCreate =>
 			(_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate
 			&& !(Car is null) && Car.Id == 0)
-			|| _commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version");
+			|| _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarVersion);
 		public virtual bool CanEdit =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_version_date");
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarVersionDate);
 		public bool IsInsuranceEditingInProgress => CarVersionEditingViewModel.IsWidgetVisible;
 
 		public Car Car
