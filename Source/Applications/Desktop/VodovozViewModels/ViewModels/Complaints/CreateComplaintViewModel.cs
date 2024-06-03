@@ -318,6 +318,11 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private bool HasСounterpartyDuplicateToday()
 		{
+			if(Entity.Order is null)
+			{
+				return false;
+			}
+
 			return UoW.Session.QueryOver<Complaint>()
 				.Where(i => i.Order.Id == Entity.Order.Id)
 				.And(i => i.CreationDate >= DateTime.Now.AddDays(-1))

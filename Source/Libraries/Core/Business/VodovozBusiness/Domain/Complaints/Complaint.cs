@@ -520,11 +520,6 @@ namespace Vodovoz.Domain.Complaints
 					yield return new ValidationResult("Необходимо добавить комментарий \"Результат\".", new[] { nameof(ResultComments) });
 				}
 			}
-
-			if(Order == null)
-			{
-				yield return new ValidationResult("Необходимо выбрать заказ");
-			}
 		}
 
 		#endregion IValidatableObject implementation
