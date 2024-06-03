@@ -22,6 +22,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private int _countDays;
 
 		private CarIsNotAtLineReport _report;
+
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly IFileDialogService _fileDialogService;
@@ -36,6 +37,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IDialogSettingsFactory dialogSettingsFactory,
 			IFileDialogService fileDialogService,
 			IGenericRepository<RouteList> routeListRepository,
+			IGenericRepository<CarEventType> carEventTypeRepository,
 			IGenericRepository<CarEvent> carEventRepository,
 			IGenericRepository<Car> carRepository,
 			IncludeExludeFilterGroupViewModel includeExludeFilterGroupViewModel,
@@ -65,7 +67,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			Date = DateTime.Today;
 			CountDays = 4;
 
-			includeExludeFilterGroupViewModel.InitializeFor(_uUnitOfWork, _carEventRepository);
+			includeExludeFilterGroupViewModel.InitializeFor(_uUnitOfWork, carEventTypeRepository);
 			includeExludeFilterGroupViewModel.RefreshFilteredElementsCommand.Execute();
 
 			IncludeExludeFilterGroupViewModel = includeExludeFilterGroupViewModel;
@@ -139,7 +141,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private void GenerateAndSaveReport()
 		{
 			GenerateReportCommand.Execute();
-			ExportReportCommand.Execute();
+
+			if(_report != null)
+			{
+				ExportReportCommand.Execute();
+			}
 		}
 	}
 }

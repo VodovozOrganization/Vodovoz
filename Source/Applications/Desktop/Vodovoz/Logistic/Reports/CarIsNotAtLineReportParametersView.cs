@@ -23,6 +23,8 @@ namespace Vodovoz.Logistic.Reports
 				.AddBinding(ViewModel, vm => vm.Date, w => w.Date)
 				.InitializeFromSource();
 
+			datepickerDate.IsEditable = true;
+
 			yspinbuttonDaysCount.Binding
 				.AddBinding(ViewModel, vm => vm.CountDays, w => w.ValueAsInt)
 				.InitializeFromSource();
