@@ -17,6 +17,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Application.Complaints;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -64,6 +65,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly bool _canCloseComplaintsPermissionResult;
 
 		private ILifetimeScope _scope;
+		private readonly IComplaintService _complaintService;
 		private Employee _currentEmployee;
 		private ComplaintDiscussionsViewModel _discussionsViewModel;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
@@ -90,7 +92,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IRouteListItemRepository routeListItemRepository,
 			IGeneralSettings generalSettingsSettings,
 			IComplaintSettings complaintSettings,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			IComplaintService complaintService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -99,6 +102,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
@@ -703,6 +707,13 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			base.Close(askSave, source);
+		}
+
+		protected override bool BeforeSave()
+		{
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity.Order?.Id);
+
+			return canSave;
 		}
 
 		public override bool Save(bool close)
