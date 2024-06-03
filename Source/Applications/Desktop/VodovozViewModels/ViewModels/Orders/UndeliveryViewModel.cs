@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Orders
 		private bool _forceSave;
 		private bool _isExternalUoW;
 		private bool _isNewUndelivery;
+		private bool _isFromRouteListClosing;
 
 		public UndeliveryViewModel(
 
@@ -79,8 +80,10 @@ namespace Vodovoz.ViewModels.Orders
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
-		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false)
+		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false, bool isFromRouteListClosing = false)
 		{
+			_isFromRouteListClosing = isFromRouteListClosing;
+
 			if(extrenalUoW != null)
 			{
 				UoW = extrenalUoW;
@@ -220,7 +223,7 @@ namespace Vodovoz.ViewModels.Orders
 
 			if(Entity.Id == 0)
 			{
-				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker);
+				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
 			}
 
 			UndeliveredOrderViewModel.BeforeSaveCommand.Execute();
@@ -234,7 +237,11 @@ namespace Vodovoz.ViewModels.Orders
 				}
 
 				UoW.Save(Entity.OldOrder);
-				UoW.Commit();
+
+				if(!_isExternalUoW)
+				{
+					UoW.Commit();
+				}
 
 				if(_addedCommentToOldUndelivery)
 				{
@@ -260,7 +267,9 @@ namespace Vodovoz.ViewModels.Orders
 				ProcessSmsNotification();
 			}
 
-			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW || needClose));
+			var needCloseParrentTab = !_isExternalUoW || (needClose && !_isFromRouteListClosing);
+
+			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, needCloseParrentTab));
 
 			if(needClose)
 			{
