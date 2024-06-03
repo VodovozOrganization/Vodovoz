@@ -536,7 +536,7 @@ namespace Vodovoz.ViewModels.Widgets
 					var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
 					orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-					Tab.TabParent.AddTab(orderJournal, Tab, false);
+					Tab.TabParent.AddSlaveTab(Tab, orderJournal);
 
 					orderJournal.OnEntitySelectedResult += (s, ea) =>
 					{
@@ -566,7 +566,7 @@ namespace Vodovoz.ViewModels.Widgets
 				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
 				orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-				Tab.TabParent.AddTab(orderJournal, Tab, false);
+				Tab.TabParent.AddSlaveTab(Tab, orderJournal);
 
 				orderJournal.OnEntitySelectedResult += (s, ea) =>
 				{
@@ -586,7 +586,7 @@ namespace Vodovoz.ViewModels.Widgets
 					}
 
 					Entity.NewOrder = UoW.GetById<Order>(selectedId);
-					Entity.NewOrder.Author = this.Entity.OldOrder.Author;
+					Entity.NewOrder.Author = Entity.OldOrder.Author;
 					OnPropertyChanged(nameof(TransferText));
 					Entity.NewDeliverySchedule = Entity.NewOrder.DeliverySchedule;
 
