@@ -1,4 +1,4 @@
-﻿using DeliveryRulesService.Cache;
+using DeliveryRulesService.Cache;
 using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Models;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 
 namespace DeliveryRulesService.Controllers
 {
@@ -29,6 +30,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCacheService _districtCacheService;
 		private readonly IGeneralSettings _generalSettings;
@@ -40,6 +42,7 @@ namespace DeliveryRulesService.Controllers
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			INomenclatureSettings nomenclatureSettings,
 			IFastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCacheService districtCacheService,
 			IGeneralSettings generalSettings)
@@ -50,13 +53,13 @@ namespace DeliveryRulesService.Controllers
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_deliveryRulesSettings =
 				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCacheService = districtCacheService ?? throw new ArgumentNullException(nameof(districtCacheService));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 
 			using var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки");
-
 			_fastDeliverySchedule = uow.GetById<DeliverySchedule>(deliveryRulesSettings.FastDeliveryScheduleId);
 		}
 
@@ -134,7 +137,8 @@ namespace DeliveryRulesService.Controllers
 				});
 
 				var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
-				result.DeliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
+				deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
+				deliveryInfo.FastDeliveryId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			}
 
 			return await ValueTask.FromResult(result.DeliveryInfo);
@@ -291,6 +295,7 @@ namespace DeliveryRulesService.Controllers
 				};
 
 				var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
+				response.PaidDeliveryId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 
 				foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 				{
