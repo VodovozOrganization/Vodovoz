@@ -188,8 +188,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					CarTypeWithGeographicalGroup =
 						notTransferRecieveEvents[i].Car.CarModel.Name
 						+ " " +
-						(notTransferRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya ? _southGeoGroupTitle :
-						notTransferRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri ? _northGeoGroupTitle : ""),
+						GetGeoGroupFromCarEvent(notTransferRecieveEvents, i),
 					TimeAndBreakdownReason = notTransferRecieveEvents[i].Comment,
 					PlannedReturnToLineDate = notTransferRecieveEvents[i].EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = "Test Resheduling reason",
@@ -204,8 +203,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
 					CarTypeWithGeographicalGroup = filteredTransferEvents[i].Car.CarModel.Name
 						+ " " +
-						(filteredTransferEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya ? _southGeoGroupTitle :
-						filteredTransferEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri ? _northGeoGroupTitle : ""),
+						GetGeoGroupFromCarEvent(filteredTransferEvents, i),
 					Comment = filteredTransferEvents[i].Comment,
 					TransferedAt = filteredTransferEvents[i].EndDate,
 				});
@@ -219,8 +217,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
 					CarTypeWithGeographicalGroup = filteredRecieveEvents[i].Car.CarModel.Name
 						+ " " +
-						(filteredRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya ? _southGeoGroupTitle :
-						filteredRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri ? _northGeoGroupTitle : ""),
+						GetGeoGroupFromCarEvent(filteredRecieveEvents, i),
 					Comment = filteredRecieveEvents[i].Comment,
 					RecievedAt = filteredRecieveEvents[i].EndDate,
 				});
@@ -228,5 +225,12 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary);
 		}
+
+		private static string GetGeoGroupFromCarEvent(CarEvent[] notTransferRecieveEvents, int i)
+			=> notTransferRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionSefiyskaya
+			? _southGeoGroupTitle
+			: notTransferRecieveEvents[i].Car.Driver.Subdivision.Id == _logisticsSubdivisionBugri
+				? _northGeoGroupTitle
+				: "";
 	}
 }
