@@ -1,4 +1,4 @@
-using DeliveryRulesService.Cache;
+﻿using DeliveryRulesService.Cache;
 using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -137,8 +137,8 @@ namespace DeliveryRulesService.Controllers
 				});
 
 				var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
-				deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
-				deliveryInfo.FastDeliveryId = _nomenclatureSettings.FastDeliveryNomenclatureId;
+				result.DeliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
+				result.DeliveryInfo.FastDeliveryId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			}
 
 			return await ValueTask.FromResult(result.DeliveryInfo);
