@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using ClosedXML.Report;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -132,10 +133,26 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			if(saveDialogResult.Successful)
 			{
-				_report
-					.RenderTemplate()
+				PostProcess(_report)
 					.Export(saveDialogResult.Path);
 			}
+		}
+
+		private XLTemplate PostProcess(CarIsNotAtLineReport report)
+		{
+			var template = report.GetRawTemplate();
+
+			if(!report.CarReceptionRows.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(12, 14).Delete();
+			}
+
+			if(!report.CarTransferRows.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(7, 10).Delete();
+			}
+
+			return template.RenderTemplate(report);
 		}
 
 		private void GenerateAndSaveReport()
