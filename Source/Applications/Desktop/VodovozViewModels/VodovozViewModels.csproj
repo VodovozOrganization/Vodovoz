@@ -347,10 +347,8 @@
     <Compile Include="Factories\ProfitabilityConstantsDataViewModelFactory.cs" />
     <Compile Include="Factories\RoboatsViewModelFactory.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
-    <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryScheduleViewModel.cs" />
     <Compile Include="Factories\IAttachmentsViewModelFactory.cs" />
-    <Compile Include="Factories\ICarVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\SelectableParametersFilterViewModelFactory.cs" />
     <Compile Include="Infrastructure\IAdditionalJournalRestriction.cs" />

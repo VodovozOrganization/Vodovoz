@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -278,9 +278,7 @@
     <Compile Include="Controllers\OdometerReadingsController.cs" />
     <Compile Include="Controllers\IOdometerReadingsController.cs" />
     <Compile Include="Controllers\OrganizationVersionsController.cs" />
-    <Compile Include="Controllers\CarVersionsController.cs" />
     <Compile Include="Controllers\IOrganizationVersionsController.cs" />
-    <Compile Include="Controllers\ICarVersionsController.cs" />
     <Compile Include="Controllers\IOrderDiscountsController.cs" />
     <Compile Include="Controllers\IPaymentFromBankClientController.cs" />
     <Compile Include="Controllers\OrderDiscountsController.cs" />
