@@ -22,6 +22,8 @@ namespace DeliveryRulesService.DTO
 
 		public string Message { get; set; }
 		public string Status { get; set; }
+		public int? PaidDeliveryId { get; set; }
+		public int? FastDeliveryId { get; set; }
 		public decimal? FastDeliveryPrice { get; set; }
 		public IList<ExtendedWeekDayDeliveryRuleDto> WeekDayDeliveryRules { get; set; }
 
