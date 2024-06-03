@@ -833,7 +833,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void SummarizeNotUsedLimitsWithCurrentIfNeed(IEnumerable<FuelLimit> notUsedFuelLimits)
 		{
-			var notUsedFuelLimitsSum = notUsedFuelLimits.Select(l => l.Amount).Sum() ?? 0;
+			var amountSum = notUsedFuelLimits.Select(l => l.Amount).Sum() ?? 0;
+			var usedAmountSum = notUsedFuelLimits.Select(l => l.UsedAmount).Sum() ?? 0;
+			var notUsedFuelLimitsSum = amountSum - usedAmountSum;
 
 			if(notUsedFuelLimitsSum > 0)
 			{
