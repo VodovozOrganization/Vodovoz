@@ -256,7 +256,7 @@ namespace Vodovoz.Controllers
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
 			IUnitOfWork uow, IUnitOfWorkFactory unitOfWorkFactory, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null,
-			bool isBottlesDiscrepancy = false, bool forceUsePlanCount = false)
+			bool isBottlesDiscrepancy = false, bool forceUsePlanCount = false, bool isFromRouteListClosingNewUndelivery = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled && itemsCacheList != null)
 			{
@@ -293,7 +293,7 @@ namespace Vodovoz.Controllers
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);
-				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(!forceUsePlanCount);
+				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(!forceUsePlanCount && !isFromRouteListClosingNewUndelivery);
 				oldEquipmentToPickupAmountNodes = oldRouteListItem.Order.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
 					.GroupBy(n => n.Nomenclature.Id)

@@ -5,6 +5,7 @@ using QS.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
@@ -33,7 +34,8 @@ namespace Vodovoz.ViewModels.Factories
 				scope.Resolve<ISubdivisionRepository>(),
 				scope.Resolve<IEmployeeJournalFactory>(),
 				scope.Resolve<IEmployeeRepository>(),
-				scope.Resolve<IGtkTabsOpener>()
+				scope.Resolve<IGtkTabsOpener>(),
+				scope.Resolve<IRouteListItemRepository>()
 				);
 		}
 	}
