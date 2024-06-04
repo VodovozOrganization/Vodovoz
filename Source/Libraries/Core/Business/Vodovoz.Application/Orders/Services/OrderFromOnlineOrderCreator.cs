@@ -194,7 +194,8 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
+				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id
+					|| _nomenclatureSettings.FastDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
 				{
 					continue;
 				}

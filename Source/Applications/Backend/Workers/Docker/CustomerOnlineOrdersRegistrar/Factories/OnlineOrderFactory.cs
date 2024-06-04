@@ -13,7 +13,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 {
 	public class OnlineOrderFactory : IOnlineOrderFactory
 	{
-		public OnlineOrder CreateOnlineOrder(IUnitOfWork uow, OnlineOrderInfoDto orderInfoDto)
+		public OnlineOrder CreateOnlineOrder(IUnitOfWork uow, OnlineOrderInfoDto orderInfoDto, int fastDeliveryScheduleId)
 		{
 			var onlineOrder = new OnlineOrder
 			{
@@ -23,7 +23,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				ExternalOrderId = orderInfoDto.ExternalOrderId,
 				DeliveryPointId = orderInfoDto.DeliveryPointId,
 				DeliveryDate = orderInfoDto.DeliveryDate,
-				DeliveryScheduleId = orderInfoDto.DeliveryScheduleId,
 				CallBeforeArrivalMinutes = orderInfoDto.CallBeforeArrivalMinutes,
 				SelfDeliveryGeoGroupId = orderInfoDto.SelfDeliveryGeoGroupId,
 				IsSelfDelivery = orderInfoDto.IsSelfDelivery,
@@ -41,6 +40,8 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				OnlineOrderSum = orderInfoDto.OrderSum,
 				DontArriveBeforeInterval = orderInfoDto.DontArriveBeforeInterval
 			};
+
+			onlineOrder.DeliveryScheduleId = onlineOrder.IsFastDelivery ? fastDeliveryScheduleId : orderInfoDto.DeliveryScheduleId;
 
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
 			AddOrderItems(uow, onlineOrder, orderInfoDto.OnlineOrderItems);

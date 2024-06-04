@@ -2472,7 +2472,7 @@ namespace Vodovoz
 			
 			if(fastDeliveryResult.IsFailure)
 			{
-				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing)))
+				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing)))
 				{
 					var fastDeliveryVerificationViewModel =
 						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
