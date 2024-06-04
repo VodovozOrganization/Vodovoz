@@ -5,7 +5,6 @@ using Gtk;
 using QS.Views.GtkUI;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Cash.Reports;
 
@@ -25,13 +24,16 @@ namespace Vodovoz.Cash.Reports
 			Initialize();
 
 			_defaultAccentColor = GdkColors.CashFlowTotalColor;
-
-			_defaultTreeViewBackgroundColor = Rc.GetStyle(ytreeReportIndicatorsRows).Background(StateType.Normal);
+			_defaultTreeViewBackgroundColor = GdkColors.PrimaryBase;
 		}
 
 		private void Initialize()
 		{
 			UpdateSliderArrow();
+
+			yradiobuttonDdr.Activated += (s, e) => ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Ddr;
+
+			yradiobuttonDds.Activated += (s, e) => ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Dds;
 
 			dateStart.Binding
 				.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date)
@@ -71,6 +73,7 @@ namespace Vodovoz.Cash.Reports
 				_lines = ReportLine.Map(ViewModel.Report);
 
 				ConfigureReportView();
+				return;
 			}
 		}
 
