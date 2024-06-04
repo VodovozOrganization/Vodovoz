@@ -153,36 +153,4 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			OnPropertyChanged(nameof(CanEditCarOwner));
 		}
 	}
-
-	public class AddNewVersionEventArgs : EventArgs
-	{
-		public AddNewVersionEventArgs(DateTime startDateTime)
-		{
-			StartDateTime = startDateTime;
-		}
-
-		public DateTime StartDateTime { get; }
-	}
-
-	public class ChangeStartDateEventArgs : EventArgs
-	{
-		public ChangeStartDateEventArgs(CarVersion carVersion, DateTime startDate)
-		{
-			CarVersion = carVersion;
-			StartDate = startDate;
-		}
-
-		public CarVersion CarVersion { get; }
-		public DateTime StartDate { get; }
-	}
-
-	public class EditCarOwnerEventArgs : EventArgs
-	{
-		public EditCarOwnerEventArgs(CarVersion carVersion)
-		{
-			CarVersion = carVersion;
-		}
-
-		public CarVersion CarVersion { get; }
-	}
 }
