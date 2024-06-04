@@ -258,8 +258,8 @@ namespace Vodovoz.ReportsParameters
 		private Enum[] _carOwnTypes => enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.ToArray();
 
 		private int[] _subdivisionIds => 
-			(comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision) != null
-			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision).Id }
+			(comboSubdivisionsOneDayGroupReport.SelectedItem as NamedDomainObjectNode) != null
+			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as NamedDomainObjectNode).Id }
 			: _availableSubdivisionsForOneDayGroupReport.Select(s => s.Id).ToArray();
 
 		private DateTime _date => 
