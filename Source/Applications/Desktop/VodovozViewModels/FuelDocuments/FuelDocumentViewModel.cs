@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -776,15 +776,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private bool IsMaxDailyFuelLimitExceededForCar()
 		{
-			var todayGivedLiters = _fuelRepository.GetTodayGivedFuelInLiters(UoW, FuelDocument.Car.Id);
-			var totalFuelLitersAmount = todayGivedLiters + FuelDocument.PayedLiters + FuelDocument.FuelLimitLitersAmount;
+			var givedLitersOnDate = _fuelRepository.GetGivedFuelInLitersOnDate(UoW, FuelDocument.Car.Id, FuelDocument.Date);
+			var totalFuelLitersAmount = givedLitersOnDate + FuelDocument.PayedLiters + FuelDocument.FuelLimitLitersAmount;
 
 			var isLimitExceeded = totalFuelLitersAmount > _maxDailyFuelLimitForCar;
 
 			if(isLimitExceeded)
 			{
 				ShowErrorMessage($"Выдать топливо нельзя! Достгнут максимальный лимит по выдаче топлива для авто.\n"
-					+ $"За текущие сутки уже выдано топлива: {todayGivedLiters} л.\n"
+					+ $"За текущие сутки уже выдано топлива: {givedLitersOnDate} л.\n"
 					+ $"Суточное ограничение по топливу: {_maxDailyFuelLimitForCar} л.");
 			}
 
