@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
-			CarInsuranceManagementViewModel insuranceManagementViewModel)
+			CarInsuranceManagementViewModel insuranceManagementViewModel,
 			CarVersionsManagementViewModel carVersionsManagementViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{

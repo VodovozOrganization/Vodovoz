@@ -1,6 +1,6 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -14,9 +14,9 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Car;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -274,6 +274,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			CreateCarInsurancesReportAction();
 			CreateCarTechInspectReportAction();
+			ExportJournalItemsToExcelAction();
 		}
 
 		private void CreateCarInsurancesReportAction()
@@ -292,6 +293,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarTechInspectReport()
+			);
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void ExportJournalItemsToExcelAction()
+		{
+			var selectAction = new JournalAction("Экспорт в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) => ExportJournalItemsToExcel()
 			);
 			NodeActionsList.Add(selectAction);
 		}
@@ -338,29 +349,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarTechInspectReport.ExportToExcel(result.Path, techInspects);
 		}
 
-		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)
-		{
-			var dialogSettings = new DialogSettings();
-			dialogSettings.Title = "Сохранить";
-			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{fileName}.xlsx";
-			dialogSettings.FileFilters.Clear();
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
-
-			return dialogSettings;
-		}
-
-			ExportJournalItemsToExcelAction();
-		private void ExportJournalItemsToExcelAction()
-		{
-			var selectAction = new JournalAction("Экспорт в Excel",
-				(selected) => true,
-				(selected) => true,
-				(selected) => ExportJournalItemsToExcel()
-			);
-			NodeActionsList.Add(selectAction);
-		}
-
 		private void ExportJournalItemsToExcel()
 		{
 			var journalItems = ItemsQuery(UoW).List<CarJournalNode>();
@@ -375,6 +363,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			}
 
 			CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+		}
+
+		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)
+		{
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{fileName}.xlsx";
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
+			return dialogSettings;
 		}
 		public override void Dispose()
 		{

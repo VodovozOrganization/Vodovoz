@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 				worksheet.Cell(rowNumber, colNumber++).Value = item.RegistrationNumber;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.DriverName;
 
-				if(item.IsUpcomingTechInspect)
+				if(item.IsShowBackgroundColorNotification)
 				{
 					var notifyCellsRange = worksheet.Range(rowNumber, 1, rowNumber, _columnsCount);
 					FillCellBackground(notifyCellsRange, _notificationBgColor);
