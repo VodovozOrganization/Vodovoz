@@ -394,6 +394,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 				CarVersionsViewModel.ChangeStartDateClicked -= OnEditStartDateClicked;
 				CarVersionsViewModel.EditCarOwnerClicked -= OnEditCarOwnerClicked;
 			}
+
+			if(!(CarVersionEditingViewModel is null))
+			{
+				CarVersionEditingViewModel.SaveCarVersionClicked -= OnSaveCarVersionClicked;
+				CarVersionEditingViewModel.CancelEditingClicked -= OnCancelEditingClicked;
+			}
 		}
 	}
 }

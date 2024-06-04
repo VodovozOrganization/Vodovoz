@@ -55,7 +55,6 @@ namespace Vodovoz.Views.Logistic
 				Visible = ViewModel.IsWidgetVisible;
 			}
 
-
 			if(e.PropertyName == nameof(ViewModel.AvailableCarOwnTypes))
 			{
 				UpdateCarOwnTypeComboboxAvailableItems();

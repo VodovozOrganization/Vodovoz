@@ -126,12 +126,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 
 		public static void ExportToExcel(string path, IEnumerable<CarJournalNode> items)
 		{
-			var carTechInspectReport = new CarJournalItemsReport
+			var report = new CarJournalItemsReport
 			{
 				Items = items
 			};
 
-			carTechInspectReport.ExportReport(path);
+			report.ExportReport(path);
 		}
 	}
 }
