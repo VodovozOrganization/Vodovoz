@@ -182,6 +182,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			#endregion
 
+			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
+				Restrictions.Disjunction()
+					//.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+					//.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
+					.Add(isOsagoExpiresRestriction)
+					.Add(isKaskoExpiresRestriction),
+				Projections.Constant(true),
+				Projections.Constant(false)
+				);
+
 			if(_filterViewModel.Archive != null)
 			{
 				query.Where(c => c.IsArchive == _filterViewModel.Archive);
@@ -240,14 +250,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(upcomingTechInspectProjection).WithAlias(() => carJournalNodeAlias.IsUpcomingTechInspect)
 					.Select(isOsagoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsOsagoInsuranceExpires)
 					.Select(isKaskoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsKaskoInsuranceExpires)
+					.Select(isShowBackgroundColorNotificationProjection).WithAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification)
 					.Select(CustomProjections.Concat_WS(" ",
 						Projections.Property(() => driverAlias.LastName),
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName))
-				.OrderByAlias(() => carJournalNodeAlias.IsUpcomingTechInspect).Desc
-				.ThenByAlias(() => carJournalNodeAlias.IsOsagoInsuranceExpires).Desc
-				.ThenByAlias(() => carJournalNodeAlias.IsKaskoInsuranceExpires).Desc
+				.ThenByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
