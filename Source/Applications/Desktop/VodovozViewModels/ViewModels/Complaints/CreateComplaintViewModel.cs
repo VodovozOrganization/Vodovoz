@@ -295,7 +295,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		protected override bool BeforeSave()
 		{
-			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity.Order?.Id);
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity);
 
 			return canSave;
 		}

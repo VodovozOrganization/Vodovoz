@@ -25,10 +25,10 @@ namespace Vodovoz.Application.Complaints
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
-		public bool CheckForDuplicateComplaint(IUnitOfWork uow, int? orderId)
+		public bool CheckForDuplicateComplaint(IUnitOfWork uow, Complaint complaint)
 		{
 			var canCreateDuplicateComplaints = _currentPermissionService.ValidatePresetPermission(Permissions.Complaint.CanCreateDuplicateComplaints);
-			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday(uow, orderId);
+			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday(uow, complaint);
 
 			if(hasСounterpartyDuplicateToday && !canCreateDuplicateComplaints)
 			{
@@ -45,16 +45,18 @@ namespace Vodovoz.Application.Complaints
 			return canSaveDuplicate;
 		}
 
-		private bool HasСounterpartyDuplicateToday(IUnitOfWork uow, int? orderId)
+		private bool HasСounterpartyDuplicateToday(IUnitOfWork uow, Complaint complaint)
 		{
-			if(orderId is null)
+			if(complaint.Order is null)
 			{
 				return false;
 			}
 
 			var existsComplaint = _complaintRepository
 		   .Get(uow,
-				c => c.Order.Id == orderId && c.CreationDate >= DateTime.Now.AddDays(-1)
+				c => c.Order.Id == complaint.Order.Id
+				&& c.CreationDate >= DateTime.Now.AddDays(-1)
+				&& c.Id != complaint.Id
 			).FirstOrDefault();
 
 			return existsComplaint != null;
