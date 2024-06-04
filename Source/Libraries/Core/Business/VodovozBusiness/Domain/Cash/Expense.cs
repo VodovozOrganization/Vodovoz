@@ -59,7 +59,16 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date
 		{
 			get => _date;
-			set => SetField(ref _date, value);
+			set
+			{
+				if(SetField(ref _date, value))
+				{
+					if(DdrDate < Date)
+					{
+						DdrDate = Date;
+					}
+				}
+			}
 		}
 
 		[Display(Name = "Дата учета ДДР")]
