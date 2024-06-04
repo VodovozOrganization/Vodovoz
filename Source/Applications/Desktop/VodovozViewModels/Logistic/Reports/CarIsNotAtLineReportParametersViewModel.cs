@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Extensions;
@@ -27,9 +26,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly IGenericRepository<RouteList> _routeListRepository;
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
-		private readonly IGenericRepository<Car> _carRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _uUnitOfWork;
 
@@ -37,10 +34,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IDialogSettingsFactory dialogSettingsFactory,
 			IFileDialogService fileDialogService,
-			IGenericRepository<RouteList> routeListRepository,
 			IGenericRepository<CarEventType> carEventTypeRepository,
 			IGenericRepository<CarEvent> carEventRepository,
-			IGenericRepository<Car> carRepository,
 			IncludeExludeFilterGroupViewModel includeExludeFilterGroupViewModel,
 			IInteractiveService interactiveService,
 			INavigationManager navigation)
@@ -52,12 +47,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_fileDialogService = fileDialogService
 				?? throw new ArgumentNullException(nameof(fileDialogService));
-			_routeListRepository = routeListRepository
-				?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carEventRepository = carEventRepository
 				?? throw new ArgumentNullException(nameof(carEventRepository));
-			_carRepository = carRepository
-				?? throw new ArgumentNullException(nameof(carRepository));
 			_interactiveService = interactiveService
 				?? throw new ArgumentNullException(nameof(interactiveService));
 
@@ -106,9 +97,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 				var reportResult = CarIsNotAtLineReport.Generate(
 					unitOfWork,
-					_routeListRepository,
 					_carEventRepository,
-					_carRepository,
 					Date,
 					CountDays,
 					IncludeExludeFilterGroupViewModel.IncludedElements.Select(e => (int.Parse(e.Number), e.Title)),

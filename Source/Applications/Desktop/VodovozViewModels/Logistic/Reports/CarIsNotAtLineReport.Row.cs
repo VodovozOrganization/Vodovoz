@@ -19,7 +19,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// </summary>
 			public DateTime? DowntimeStartedAt { get; set; }
 
-			public string DowntimeStartedAtString => DowntimeStartedAt is null ? "" : DowntimeStartedAt.Value.ToString("dd.MM.yyyy");
+			public string DowntimeStartedAtString => DowntimeStartedAt is null ? "" : DowntimeStartedAt.Value.ToString(_defaultDateTimeFormat);
 
 			/// <summary>
 			/// Тип авто
@@ -46,7 +46,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// </summary>
 			public DateTime? PlannedReturnToLineDate { get; set; }
 
-			public string PlannedReturnToLineDateString => PlannedReturnToLineDate is null ? "" : PlannedReturnToLineDate.Value.ToString("dd.MM.yyyy");
+			public string PlannedReturnToLineDateString => PlannedReturnToLineDate is null ? "" : PlannedReturnToLineDate.Value.ToString(_defaultDateTimeFormat);
 
 			/// <summary>
 			/// планируемая дата выпуска автомобиля на линию/ основания переноса даты

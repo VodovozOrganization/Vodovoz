@@ -22,10 +22,13 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private const int _logisticsSubdivisionBugri = 51;
 		
 		private const int _logisticsEventTransferId = 11;
-		private const int _logisticsEventRecieveId = 40;
+		private const int _logisticsEventRecieveId = 17;
 
 		private const string _northGeoGroupTitle = "север";
 		private const string _southGeoGroupTitle = "ЮГ";
+
+		private static readonly CarTypeOfUse[] _excludeTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Truck, CarTypeOfUse.Loader };
+		private static readonly CarOwnType[] _carOwnTypes = new CarOwnType[] { CarOwnType.Company, CarOwnType.Raskat };
 
 		private CarIsNotAtLineReport(
 			DateTime date,
@@ -85,9 +88,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		public static Result<CarIsNotAtLineReport> Generate(
 			IUnitOfWork unitOfWork,
-			IGenericRepository<RouteList> routeListRepository,
 			IGenericRepository<CarEvent> carEventRepository,
-			IGenericRepository<Car> carRepository,
 			DateTime date,
 			int countDays,
 			IEnumerable<(int Id, string Title)> includedEvents,
@@ -95,21 +96,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		{
 			var startDate = date.AddDays(-countDays);
 
-			// Версия на дату??
-			
 			var cars = (from car in unitOfWork.Session.Query<Car>()
 						let carOwnType =
 							(CarOwnType?)(from carVersion in unitOfWork.Session.Query<CarVersion>()
 										  where carVersion.Car.Id == car.Id
 											&& carVersion.EndDate == null
-											&& (carVersion.CarOwnType == CarOwnType.Company
-												|| carVersion.CarOwnType == CarOwnType.Raskat)
+											&& _carOwnTypes.Contains( carVersion.CarOwnType)
 										  select carVersion.CarOwnType)
 							.FirstOrDefault()
 						where !car.IsArchive
 							&& carOwnType != null
-							&& car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
-							&& car.CarModel.CarTypeOfUse != CarTypeOfUse.Loader
+							&& !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
 						select car)
 				.Fetch(c => c.Driver)
 				.ToList();
@@ -142,7 +139,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				}
 			}
 
-			carIds = cars
+			var carIdsWithoutRouteListsAfterStartDate = cars
 				.Select(c => c.Id)
 				.ToArray();
 
@@ -153,11 +150,12 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				unitOfWork,
 				ce => ce.StartDate <= date
 					&& ce.EndDate >= date
-					&& carIds.Contains(ce.Car.Id)
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(ce.CarEventType.Id))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)));
 
-			var notTransferRecieveEvents = events
+			var filteredEvents = events.Where(ce => carIdsWithoutRouteListsAfterStartDate.Contains(ce.Car.Id));
+
+			var notTransferRecieveEvents = filteredEvents
 				.Where(ce => ce.CarEventType.Id != _logisticsEventTransferId
 					&& ce.CarEventType.Id != _logisticsEventRecieveId)
 				.OrderByDescending(ce => ce.EndDate)
@@ -166,11 +164,15 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.ToArray();
 
 			var filteredTransferEvents = events
-				.Where(e => e.CarEventType.Id == _logisticsEventTransferId)
+				.Where(e =>
+					carIds.Contains(e.Car.Id)
+					&& e.CarEventType.Id == _logisticsEventTransferId)
 				.ToArray();
 
 			var filteredRecieveEvents = events
-				.Where(e => e.CarEventType.Id == _logisticsEventRecieveId)
+				.Where(e =>
+					carIds.Contains(e.Car.Id)
+					&& e.CarEventType.Id == _logisticsEventRecieveId)
 				.ToArray();
 
 			var rows = new List<Row>();
@@ -218,7 +220,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						cars[i].CarModel.Name
 						+ " " +
 						GetGeoGroupFromCar(cars[i]),
-					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate:dd.MM.yyyy} {ce.CarEventType.Name}")),
+					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
 				});
