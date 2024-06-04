@@ -154,11 +154,25 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxArchivingReason;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxInsuranceEditing;
+
+		private global::Vodovoz.Views.Logistic.CarInsuranceVersionEditingView carinsuranceversioneditingview;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxInsurances;
+
+		private global::Vodovoz.Views.Logistic.CarInsuranceVersionView carinsuranceversionviewOsago;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelKasko;
+
+		private global::Vodovoz.Views.Logistic.CarInsuranceVersionView carinsuranceversionviewKasko;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelArchivingDate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelFuleCard;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOdometer;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOsago;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelVersions;
 
@@ -315,7 +329,7 @@ namespace Vodovoz.Views.Logistic
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.tableCarData = new global::Gtk.Table(((uint)(13)), ((uint)(8)), false);
+			this.tableCarData = new global::Gtk.Table(((uint)(14)), ((uint)(8)), false);
 			this.tableCarData.Name = "tableCarData";
 			this.tableCarData.RowSpacing = ((uint)(6));
 			this.tableCarData.ColumnSpacing = ((uint)(6));
@@ -326,8 +340,8 @@ namespace Vodovoz.Views.Logistic
 			this.carVersionsView.Name = "carVersionsView";
 			this.tableCarData.Add(this.carVersionsView);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.carVersionsView]));
-			w11.TopAttach = ((uint)(10));
-			w11.BottomAttach = ((uint)(11));
+			w11.TopAttach = ((uint)(12));
+			w11.BottomAttach = ((uint)(13));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(7));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -392,8 +406,8 @@ namespace Vodovoz.Views.Logistic
 			this.fuelcardversionview.Name = "fuelcardversionview";
 			this.tableCarData.Add(this.fuelcardversionview);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.fuelcardversionview]));
-			w16.TopAttach = ((uint)(12));
-			w16.BottomAttach = ((uint)(13));
+			w16.TopAttach = ((uint)(13));
+			w16.BottomAttach = ((uint)(14));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(7));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -810,13 +824,13 @@ namespace Vodovoz.Views.Logistic
 			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.odometerReadingView = new global::Vodovoz.Views.Logistic.OdometerReadingView();
-			this.odometerReadingView.HeightRequest = 200;
+			this.odometerReadingView.HeightRequest = 130;
 			this.odometerReadingView.Events = ((global::Gdk.EventMask)(256));
 			this.odometerReadingView.Name = "odometerReadingView";
 			this.tableCarData.Add(this.odometerReadingView);
 			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.odometerReadingView]));
-			w51.TopAttach = ((uint)(11));
-			w51.BottomAttach = ((uint)(12));
+			w51.TopAttach = ((uint)(10));
+			w51.BottomAttach = ((uint)(11));
 			w51.LeftAttach = ((uint)(1));
 			w51.RightAttach = ((uint)(7));
 			w51.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -1114,18 +1128,78 @@ namespace Vodovoz.Views.Logistic
 			w73.XOptions = ((global::Gtk.AttachOptions)(4));
 			w73.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
+			this.yhboxInsuranceEditing = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxInsuranceEditing.Name = "yhboxInsuranceEditing";
+			this.yhboxInsuranceEditing.Spacing = 6;
+			// Container child yhboxInsuranceEditing.Gtk.Box+BoxChild
+			this.carinsuranceversioneditingview = new global::Vodovoz.Views.Logistic.CarInsuranceVersionEditingView();
+			this.carinsuranceversioneditingview.Events = ((global::Gdk.EventMask)(256));
+			this.carinsuranceversioneditingview.Name = "carinsuranceversioneditingview";
+			this.yhboxInsuranceEditing.Add(this.carinsuranceversioneditingview);
+			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.yhboxInsuranceEditing[this.carinsuranceversioneditingview]));
+			w74.Position = 0;
+			w74.Expand = false;
+			w74.Fill = false;
+			this.tableCarData.Add(this.yhboxInsuranceEditing);
+			global::Gtk.Table.TableChild w75 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yhboxInsuranceEditing]));
+			w75.TopAttach = ((uint)(11));
+			w75.BottomAttach = ((uint)(12));
+			w75.LeftAttach = ((uint)(7));
+			w75.RightAttach = ((uint)(8));
+			w75.XOptions = ((global::Gtk.AttachOptions)(4));
+			w75.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCarData.Gtk.Table+TableChild
+			this.yhboxInsurances = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxInsurances.Name = "yhboxInsurances";
+			this.yhboxInsurances.Spacing = 6;
+			// Container child yhboxInsurances.Gtk.Box+BoxChild
+			this.carinsuranceversionviewOsago = new global::Vodovoz.Views.Logistic.CarInsuranceVersionView();
+			this.carinsuranceversionviewOsago.HeightRequest = 180;
+			this.carinsuranceversionviewOsago.Events = ((global::Gdk.EventMask)(256));
+			this.carinsuranceversionviewOsago.Name = "carinsuranceversionviewOsago";
+			this.yhboxInsurances.Add(this.carinsuranceversionviewOsago);
+			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.yhboxInsurances[this.carinsuranceversionviewOsago]));
+			w76.Position = 0;
+			// Container child yhboxInsurances.Gtk.Box+BoxChild
+			this.ylabelKasko = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelKasko.Name = "ylabelKasko";
+			this.ylabelKasko.Xalign = 1F;
+			this.ylabelKasko.Yalign = 0F;
+			this.ylabelKasko.LabelProp = global::Mono.Unix.Catalog.GetString("Каско:");
+			this.yhboxInsurances.Add(this.ylabelKasko);
+			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.yhboxInsurances[this.ylabelKasko]));
+			w77.Position = 1;
+			w77.Expand = false;
+			// Container child yhboxInsurances.Gtk.Box+BoxChild
+			this.carinsuranceversionviewKasko = new global::Vodovoz.Views.Logistic.CarInsuranceVersionView();
+			this.carinsuranceversionviewKasko.HeightRequest = 180;
+			this.carinsuranceversionviewKasko.Events = ((global::Gdk.EventMask)(256));
+			this.carinsuranceversionviewKasko.Name = "carinsuranceversionviewKasko";
+			this.yhboxInsurances.Add(this.carinsuranceversionviewKasko);
+			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.yhboxInsurances[this.carinsuranceversionviewKasko]));
+			w78.Position = 2;
+			w78.Expand = false;
+			this.tableCarData.Add(this.yhboxInsurances);
+			global::Gtk.Table.TableChild w79 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yhboxInsurances]));
+			w79.TopAttach = ((uint)(11));
+			w79.BottomAttach = ((uint)(12));
+			w79.LeftAttach = ((uint)(1));
+			w79.RightAttach = ((uint)(7));
+			w79.XOptions = ((global::Gtk.AttachOptions)(4));
+			w79.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCarData.Gtk.Table+TableChild
 			this.ylabelArchivingDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelArchivingDate.Name = "ylabelArchivingDate";
 			this.ylabelArchivingDate.Xalign = 1F;
 			this.ylabelArchivingDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата архивации:");
 			this.tableCarData.Add(this.ylabelArchivingDate);
-			global::Gtk.Table.TableChild w74 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelArchivingDate]));
-			w74.TopAttach = ((uint)(3));
-			w74.BottomAttach = ((uint)(4));
-			w74.LeftAttach = ((uint)(5));
-			w74.RightAttach = ((uint)(6));
-			w74.XOptions = ((global::Gtk.AttachOptions)(4));
-			w74.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w80 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelArchivingDate]));
+			w80.TopAttach = ((uint)(3));
+			w80.BottomAttach = ((uint)(4));
+			w80.LeftAttach = ((uint)(5));
+			w80.RightAttach = ((uint)(6));
+			w80.XOptions = ((global::Gtk.AttachOptions)(4));
+			w80.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.ylabelFuleCard = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFuleCard.Name = "ylabelFuleCard";
@@ -1134,11 +1208,11 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelFuleCard.LabelProp = global::Mono.Unix.Catalog.GetString("Топливная\nкарта:");
 			this.ylabelFuleCard.Justify = ((global::Gtk.Justification)(1));
 			this.tableCarData.Add(this.ylabelFuleCard);
-			global::Gtk.Table.TableChild w75 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelFuleCard]));
-			w75.TopAttach = ((uint)(12));
-			w75.BottomAttach = ((uint)(13));
-			w75.XOptions = ((global::Gtk.AttachOptions)(4));
-			w75.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w81 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelFuleCard]));
+			w81.TopAttach = ((uint)(13));
+			w81.BottomAttach = ((uint)(14));
+			w81.XOptions = ((global::Gtk.AttachOptions)(4));
+			w81.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.ylabelOdometer = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOdometer.Name = "ylabelOdometer";
@@ -1146,11 +1220,23 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelOdometer.Yalign = 0F;
 			this.ylabelOdometer.LabelProp = global::Mono.Unix.Catalog.GetString("Одометр, км:");
 			this.tableCarData.Add(this.ylabelOdometer);
-			global::Gtk.Table.TableChild w76 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelOdometer]));
-			w76.TopAttach = ((uint)(11));
-			w76.BottomAttach = ((uint)(12));
-			w76.XOptions = ((global::Gtk.AttachOptions)(4));
-			w76.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w82 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelOdometer]));
+			w82.TopAttach = ((uint)(10));
+			w82.BottomAttach = ((uint)(11));
+			w82.XOptions = ((global::Gtk.AttachOptions)(4));
+			w82.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCarData.Gtk.Table+TableChild
+			this.ylabelOsago = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOsago.Name = "ylabelOsago";
+			this.ylabelOsago.Xalign = 1F;
+			this.ylabelOsago.Yalign = 0F;
+			this.ylabelOsago.LabelProp = global::Mono.Unix.Catalog.GetString("Осаго:");
+			this.tableCarData.Add(this.ylabelOsago);
+			global::Gtk.Table.TableChild w83 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelOsago]));
+			w83.TopAttach = ((uint)(11));
+			w83.BottomAttach = ((uint)(12));
+			w83.XOptions = ((global::Gtk.AttachOptions)(4));
+			w83.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.ylabelVersions = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelVersions.Name = "ylabelVersions";
@@ -1158,11 +1244,11 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelVersions.Yalign = 0F;
 			this.ylabelVersions.LabelProp = global::Mono.Unix.Catalog.GetString("Версии:");
 			this.tableCarData.Add(this.ylabelVersions);
-			global::Gtk.Table.TableChild w77 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelVersions]));
-			w77.TopAttach = ((uint)(10));
-			w77.BottomAttach = ((uint)(11));
-			w77.XOptions = ((global::Gtk.AttachOptions)(4));
-			w77.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w84 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ylabelVersions]));
+			w84.TopAttach = ((uint)(12));
+			w84.BottomAttach = ((uint)(13));
+			w84.XOptions = ((global::Gtk.AttachOptions)(4));
+			w84.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.yvboxTechInspectInfo = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxTechInspectInfo.Name = "yvboxTechInspectInfo";
@@ -1185,13 +1271,13 @@ namespace Vodovoz.Views.Logistic
 			this.yentryPreviousTechInspectDate.IsEditable = false;
 			this.yentryPreviousTechInspectDate.InvisibleChar = '•';
 			this.ytableUpcomingTechInspect.Add(this.yentryPreviousTechInspectDate);
-			global::Gtk.Table.TableChild w78 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryPreviousTechInspectDate]));
-			w78.TopAttach = ((uint)(3));
-			w78.BottomAttach = ((uint)(4));
-			w78.LeftAttach = ((uint)(1));
-			w78.RightAttach = ((uint)(2));
-			w78.XOptions = ((global::Gtk.AttachOptions)(4));
-			w78.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w85 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryPreviousTechInspectDate]));
+			w85.TopAttach = ((uint)(3));
+			w85.BottomAttach = ((uint)(4));
+			w85.LeftAttach = ((uint)(1));
+			w85.RightAttach = ((uint)(2));
+			w85.XOptions = ((global::Gtk.AttachOptions)(4));
+			w85.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.yentryPreviousTechInspectOdometer = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryPreviousTechInspectOdometer.CanFocus = true;
@@ -1199,13 +1285,13 @@ namespace Vodovoz.Views.Logistic
 			this.yentryPreviousTechInspectOdometer.IsEditable = false;
 			this.yentryPreviousTechInspectOdometer.InvisibleChar = '•';
 			this.ytableUpcomingTechInspect.Add(this.yentryPreviousTechInspectOdometer);
-			global::Gtk.Table.TableChild w79 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryPreviousTechInspectOdometer]));
-			w79.TopAttach = ((uint)(3));
-			w79.BottomAttach = ((uint)(4));
-			w79.LeftAttach = ((uint)(2));
-			w79.RightAttach = ((uint)(3));
-			w79.XOptions = ((global::Gtk.AttachOptions)(4));
-			w79.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w86 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryPreviousTechInspectOdometer]));
+			w86.TopAttach = ((uint)(3));
+			w86.BottomAttach = ((uint)(4));
+			w86.LeftAttach = ((uint)(2));
+			w86.RightAttach = ((uint)(3));
+			w86.XOptions = ((global::Gtk.AttachOptions)(4));
+			w86.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.yentryUpcomingTechInspectKm = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryUpcomingTechInspectKm.CanFocus = true;
@@ -1213,13 +1299,13 @@ namespace Vodovoz.Views.Logistic
 			this.yentryUpcomingTechInspectKm.IsEditable = false;
 			this.yentryUpcomingTechInspectKm.InvisibleChar = '•';
 			this.ytableUpcomingTechInspect.Add(this.yentryUpcomingTechInspectKm);
-			global::Gtk.Table.TableChild w80 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryUpcomingTechInspectKm]));
-			w80.TopAttach = ((uint)(1));
-			w80.BottomAttach = ((uint)(2));
-			w80.LeftAttach = ((uint)(1));
-			w80.RightAttach = ((uint)(2));
-			w80.XOptions = ((global::Gtk.AttachOptions)(4));
-			w80.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w87 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryUpcomingTechInspectKm]));
+			w87.TopAttach = ((uint)(1));
+			w87.BottomAttach = ((uint)(2));
+			w87.LeftAttach = ((uint)(1));
+			w87.RightAttach = ((uint)(2));
+			w87.XOptions = ((global::Gtk.AttachOptions)(4));
+			w87.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.yentryUpcomingTechInspectLeft = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryUpcomingTechInspectLeft.CanFocus = true;
@@ -1227,100 +1313,100 @@ namespace Vodovoz.Views.Logistic
 			this.yentryUpcomingTechInspectLeft.IsEditable = false;
 			this.yentryUpcomingTechInspectLeft.InvisibleChar = '•';
 			this.ytableUpcomingTechInspect.Add(this.yentryUpcomingTechInspectLeft);
-			global::Gtk.Table.TableChild w81 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryUpcomingTechInspectLeft]));
-			w81.TopAttach = ((uint)(1));
-			w81.BottomAttach = ((uint)(2));
-			w81.LeftAttach = ((uint)(2));
-			w81.RightAttach = ((uint)(3));
-			w81.XOptions = ((global::Gtk.AttachOptions)(4));
-			w81.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w88 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.yentryUpcomingTechInspectLeft]));
+			w88.TopAttach = ((uint)(1));
+			w88.BottomAttach = ((uint)(2));
+			w88.LeftAttach = ((uint)(2));
+			w88.RightAttach = ((uint)(3));
+			w88.XOptions = ((global::Gtk.AttachOptions)(4));
+			w88.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.ylabelPreviousTechInspectDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPreviousTechInspectDate.Name = "ylabelPreviousTechInspectDate";
 			this.ylabelPreviousTechInspectDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата последнего ТО");
 			this.ytableUpcomingTechInspect.Add(this.ylabelPreviousTechInspectDate);
-			global::Gtk.Table.TableChild w82 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelPreviousTechInspectDate]));
-			w82.TopAttach = ((uint)(2));
-			w82.BottomAttach = ((uint)(3));
-			w82.LeftAttach = ((uint)(1));
-			w82.RightAttach = ((uint)(2));
-			w82.XOptions = ((global::Gtk.AttachOptions)(4));
-			w82.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w89 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelPreviousTechInspectDate]));
+			w89.TopAttach = ((uint)(2));
+			w89.BottomAttach = ((uint)(3));
+			w89.LeftAttach = ((uint)(1));
+			w89.RightAttach = ((uint)(2));
+			w89.XOptions = ((global::Gtk.AttachOptions)(4));
+			w89.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.ylabelPreviousTechInspectOdometer = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPreviousTechInspectOdometer.Name = "ylabelPreviousTechInspectOdometer";
 			this.ylabelPreviousTechInspectOdometer.LabelProp = global::Mono.Unix.Catalog.GetString("Одометр");
 			this.ytableUpcomingTechInspect.Add(this.ylabelPreviousTechInspectOdometer);
-			global::Gtk.Table.TableChild w83 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelPreviousTechInspectOdometer]));
-			w83.TopAttach = ((uint)(2));
-			w83.BottomAttach = ((uint)(3));
-			w83.LeftAttach = ((uint)(2));
-			w83.RightAttach = ((uint)(3));
-			w83.XOptions = ((global::Gtk.AttachOptions)(4));
-			w83.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w90 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelPreviousTechInspectOdometer]));
+			w90.TopAttach = ((uint)(2));
+			w90.BottomAttach = ((uint)(3));
+			w90.LeftAttach = ((uint)(2));
+			w90.RightAttach = ((uint)(3));
+			w90.XOptions = ((global::Gtk.AttachOptions)(4));
+			w90.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.ylabelUpcomingTechInspectKm = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelUpcomingTechInspectKm.Name = "ylabelUpcomingTechInspectKm";
 			this.ylabelUpcomingTechInspectKm.LabelProp = global::Mono.Unix.Catalog.GetString("ТО на км");
 			this.ytableUpcomingTechInspect.Add(this.ylabelUpcomingTechInspectKm);
-			global::Gtk.Table.TableChild w84 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelUpcomingTechInspectKm]));
-			w84.LeftAttach = ((uint)(1));
-			w84.RightAttach = ((uint)(2));
-			w84.XOptions = ((global::Gtk.AttachOptions)(4));
-			w84.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w91 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelUpcomingTechInspectKm]));
+			w91.LeftAttach = ((uint)(1));
+			w91.RightAttach = ((uint)(2));
+			w91.XOptions = ((global::Gtk.AttachOptions)(4));
+			w91.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.ylabelUpcomingTechInspectLeft = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelUpcomingTechInspectLeft.Name = "ylabelUpcomingTechInspectLeft";
 			this.ylabelUpcomingTechInspectLeft.LabelProp = global::Mono.Unix.Catalog.GetString("Осталось до ТО, км");
 			this.ytableUpcomingTechInspect.Add(this.ylabelUpcomingTechInspectLeft);
-			global::Gtk.Table.TableChild w85 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelUpcomingTechInspectLeft]));
-			w85.LeftAttach = ((uint)(2));
-			w85.RightAttach = ((uint)(3));
-			w85.XOptions = ((global::Gtk.AttachOptions)(4));
-			w85.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w92 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylabelUpcomingTechInspectLeft]));
+			w92.LeftAttach = ((uint)(2));
+			w92.RightAttach = ((uint)(3));
+			w92.XOptions = ((global::Gtk.AttachOptions)(4));
+			w92.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.ylblPreviousTechInspect = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblPreviousTechInspect.Name = "ylblPreviousTechInspect";
 			this.ylblPreviousTechInspect.Xalign = 1F;
 			this.ylblPreviousTechInspect.LabelProp = global::Mono.Unix.Catalog.GetString("Данные по\nпроведенным ТО:");
 			this.ytableUpcomingTechInspect.Add(this.ylblPreviousTechInspect);
-			global::Gtk.Table.TableChild w86 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylblPreviousTechInspect]));
-			w86.TopAttach = ((uint)(2));
-			w86.BottomAttach = ((uint)(4));
-			w86.XOptions = ((global::Gtk.AttachOptions)(4));
-			w86.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w93 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylblPreviousTechInspect]));
+			w93.TopAttach = ((uint)(2));
+			w93.BottomAttach = ((uint)(4));
+			w93.XOptions = ((global::Gtk.AttachOptions)(4));
+			w93.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableUpcomingTechInspect.Gtk.Table+TableChild
 			this.ylblUpcomingTechInspect = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblUpcomingTechInspect.Name = "ylblUpcomingTechInspect";
 			this.ylblUpcomingTechInspect.LabelProp = global::Mono.Unix.Catalog.GetString("Информация по\nпредстоящему ТО:");
 			this.ytableUpcomingTechInspect.Add(this.ylblUpcomingTechInspect);
-			global::Gtk.Table.TableChild w87 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylblUpcomingTechInspect]));
-			w87.BottomAttach = ((uint)(2));
-			w87.XOptions = ((global::Gtk.AttachOptions)(4));
-			w87.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w94 = ((global::Gtk.Table.TableChild)(this.ytableUpcomingTechInspect[this.ylblUpcomingTechInspect]));
+			w94.BottomAttach = ((uint)(2));
+			w94.XOptions = ((global::Gtk.AttachOptions)(4));
+			w94.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yhboxUpcomingTechInspectInfo.Add(this.ytableUpcomingTechInspect);
-			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.yhboxUpcomingTechInspectInfo[this.ytableUpcomingTechInspect]));
-			w88.Position = 1;
-			w88.Expand = false;
-			w88.Fill = false;
+			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.yhboxUpcomingTechInspectInfo[this.ytableUpcomingTechInspect]));
+			w95.Position = 1;
+			w95.Expand = false;
+			w95.Fill = false;
 			this.yvboxTechInspectInfo.Add(this.yhboxUpcomingTechInspectInfo);
-			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.yvboxTechInspectInfo[this.yhboxUpcomingTechInspectInfo]));
-			w89.Position = 0;
-			w89.Expand = false;
-			w89.Fill = false;
+			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.yvboxTechInspectInfo[this.yhboxUpcomingTechInspectInfo]));
+			w96.Position = 0;
+			w96.Expand = false;
+			w96.Fill = false;
 			this.tableCarData.Add(this.yvboxTechInspectInfo);
-			global::Gtk.Table.TableChild w90 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yvboxTechInspectInfo]));
-			w90.TopAttach = ((uint)(11));
-			w90.BottomAttach = ((uint)(12));
-			w90.LeftAttach = ((uint)(7));
-			w90.RightAttach = ((uint)(8));
-			w90.XOptions = ((global::Gtk.AttachOptions)(4));
-			w90.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w97 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yvboxTechInspectInfo]));
+			w97.TopAttach = ((uint)(10));
+			w97.BottomAttach = ((uint)(11));
+			w97.LeftAttach = ((uint)(7));
+			w97.RightAttach = ((uint)(8));
+			w97.XOptions = ((global::Gtk.AttachOptions)(4));
+			w97.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableCarData);
-			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableCarData]));
-			w91.Position = 0;
-			w91.Expand = false;
-			w91.Fill = false;
+			global::Gtk.Box.BoxChild w98 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableCarData]));
+			w98.Position = 0;
+			w98.Expand = false;
+			w98.Fill = false;
 			w10.Add(this.vboxMain);
 			this.scrolledwindow1.Add(w10);
 			this.notebook1.Add(this.scrolledwindow1);
@@ -1345,8 +1431,8 @@ namespace Vodovoz.Views.Logistic
 			this.yTreeGeographicGroups.EnableSearch = false;
 			this.GtkScrolledWindow1.Add(this.yTreeGeographicGroups);
 			this.vboxGeographicGroups.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.GtkScrolledWindow1]));
-			w96.Position = 0;
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.GtkScrolledWindow1]));
+			w103.Position = 0;
 			// Container child vboxGeographicGroups.Gtk.Box+BoxChild
 			this.hbuttonbox2 = new global::Gtk.HButtonBox();
 			this.hbuttonbox2.Name = "hbuttonbox2";
@@ -1357,9 +1443,9 @@ namespace Vodovoz.Views.Logistic
 			this.btnAddGeographicGroup.UseUnderline = true;
 			this.btnAddGeographicGroup.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbuttonbox2.Add(this.btnAddGeographicGroup);
-			global::Gtk.ButtonBox.ButtonBoxChild w97 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddGeographicGroup]));
-			w97.Expand = false;
-			w97.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w104 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddGeographicGroup]));
+			w104.Expand = false;
+			w104.Fill = false;
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
 			this.btnRemoveGeographicGroup = new global::Gtk.Button();
 			this.btnRemoveGeographicGroup.CanFocus = true;
@@ -1367,18 +1453,18 @@ namespace Vodovoz.Views.Logistic
 			this.btnRemoveGeographicGroup.UseUnderline = true;
 			this.btnRemoveGeographicGroup.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbuttonbox2.Add(this.btnRemoveGeographicGroup);
-			global::Gtk.ButtonBox.ButtonBoxChild w98 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveGeographicGroup]));
-			w98.Position = 1;
-			w98.Expand = false;
-			w98.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w105 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveGeographicGroup]));
+			w105.Position = 1;
+			w105.Expand = false;
+			w105.Fill = false;
 			this.vboxGeographicGroups.Add(this.hbuttonbox2);
-			global::Gtk.Box.BoxChild w99 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.hbuttonbox2]));
-			w99.Position = 1;
-			w99.Expand = false;
-			w99.Fill = false;
+			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.hbuttonbox2]));
+			w106.Position = 1;
+			w106.Expand = false;
+			w106.Fill = false;
 			this.notebook1.Add(this.vboxGeographicGroups);
-			global::Gtk.Notebook.NotebookChild w100 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxGeographicGroups]));
-			w100.Position = 1;
+			global::Gtk.Notebook.NotebookChild w107 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxGeographicGroups]));
+			w107.Position = 1;
 			// Notebook tab
 			this.label23 = new global::Gtk.Label();
 			this.label23.Name = "label23";
@@ -1390,8 +1476,8 @@ namespace Vodovoz.Views.Logistic
 			this.attachmentsView.Events = ((global::Gdk.EventMask)(256));
 			this.attachmentsView.Name = "attachmentsView";
 			this.notebook1.Add(this.attachmentsView);
-			global::Gtk.Notebook.NotebookChild w101 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.attachmentsView]));
-			w101.Position = 2;
+			global::Gtk.Notebook.NotebookChild w108 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.attachmentsView]));
+			w108.Position = 2;
 			// Notebook tab
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
@@ -1399,8 +1485,8 @@ namespace Vodovoz.Views.Logistic
 			this.notebook1.SetTabLabel(this.attachmentsView, this.label2);
 			this.label2.ShowAll();
 			this.vbox1.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
-			w102.Position = 1;
+			global::Gtk.Box.BoxChild w109 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
+			w109.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

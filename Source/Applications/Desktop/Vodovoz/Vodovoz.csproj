@@ -2074,6 +2074,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorFilterView.cs" />
     <Compile Include="Views\Pacs\OperatorFilterView.cs" />
+    <Compile Include="Views\Logistic\CarInsuranceVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionView.cs" />
+    <Compile Include="Views\Logistic\CarInsuranceVersionEditingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionEditingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
