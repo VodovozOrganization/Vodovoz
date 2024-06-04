@@ -96,7 +96,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
-			//carversioneditingview1.ViewModel = ViewModel.CarVersionEditingViewModel;
+			carversioneditingview.ViewModel = ViewModel.CarVersionEditingViewModel;
 			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
 			fuelcardversionview.ViewModel = ViewModel.FuelCardVersionViewModel;
 			carinsuranceversionviewOsago.ViewModel = ViewModel.OsagoInsuranceVersionViewModel;
