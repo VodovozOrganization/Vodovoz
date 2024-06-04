@@ -17,10 +17,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// дата начала простоя
 			/// </summary>
-			public DateTime DowntimeStartedAt { get; set; }
+			public DateTime? DowntimeStartedAt { get; set; }
+
+			public string DowntimeStartedAtString => DowntimeStartedAt is null ? "" : DowntimeStartedAt.Value.ToString("dd.MM.yyyy");
 
 			/// <summary>
 			/// Тип авто
+			/// </summary>
+			public string CarType { get; set; }
+
+			/// <summary>
+			/// Тип авто с географической группой
 			/// </summary>
 			public string CarTypeWithGeographicalGroup { get; set; }
 
@@ -37,13 +44,14 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// Планируемая дата выпуска автомобиля на линию
 			/// </summary>
-			public DateTime PlannedReturnToLineDate { get; set; }
-			
+			public DateTime? PlannedReturnToLineDate { get; set; }
+
+			public string PlannedReturnToLineDateString => PlannedReturnToLineDate is null ? "" : PlannedReturnToLineDate.Value.ToString("dd.MM.yyyy");
+
 			/// <summary>
 			/// планируемая дата выпуска автомобиля на линию/ основания переноса даты
 			/// </summary>
 			public string PlannedReturnToLineDateAndReschedulingReason { get; set; }
-
 		}
 	}
 }
