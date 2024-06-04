@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -814,7 +814,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			IsDocumentSavingInProcess = false;
 
-			Close(false, CloseSource.Save);
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				Close(false, CloseSource.Save);
+			});
 		}
 
 		private void SaveDocument()
