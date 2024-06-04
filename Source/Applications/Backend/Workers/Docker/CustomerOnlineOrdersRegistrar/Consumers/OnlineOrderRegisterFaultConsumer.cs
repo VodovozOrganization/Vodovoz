@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -15,7 +16,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			ILogger<OnlineOrderRegisterFaultConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
-			IOrderService orderService) : base(logger, unitOfWorkFactory, onlineOrderFactory, orderService)
+			IOrderService orderService,
+			IDeliveryRulesSettings deliveryRulesSettings)
+			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
 		{
 		}
 		
