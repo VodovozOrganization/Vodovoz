@@ -32,6 +32,7 @@ namespace Vodovoz.Domain.Cash
 	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		private DateTime _date;
+		private DateTime _ddrDate;
 		private Subdivision _relatedToSubdivision;
 		private ExpenseInvoiceDocumentType _typeDocument;
 		private ExpenseType _typeOperation;
@@ -59,6 +60,13 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _date;
 			set => SetField(ref _date, value);
+		}
+
+		[Display(Name = "Дата учета ДДР")]
+		public virtual DateTime DdrDate
+		{
+			get => _ddrDate;
+			set => SetField(ref _ddrDate, value);
 		}
 
 		[Display(Name = "Относится к подразделению")]
