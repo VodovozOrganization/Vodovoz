@@ -184,8 +184,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
 				Restrictions.Disjunction()
-					//.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
-					//.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
+					.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+					.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
 					.Add(isOsagoExpiresRestriction)
 					.Add(isKaskoExpiresRestriction),
 				Projections.Constant(true),
