@@ -783,8 +783,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			if(isLimitExceeded)
 			{
-				ShowErrorMessage($"Выдать топливо нельзя! Достгнут максимальный лимит по выдаче топлива для авто.\n"
-					+ $"За текущие сутки уже выдано топлива: {givedLitersOnDate} л.\n"
+				ShowErrorMessage($"Выдать топливо нельзя! Достигнут максимальный лимит по выдаче топлива для авто.\n"
+					+ $"На выбранную дату уже выдано топлива: {givedLitersOnDate} л.\n"
 					+ $"Суточное ограничение по топливу: {_maxDailyFuelLimitForCar} л.");
 			}
 
