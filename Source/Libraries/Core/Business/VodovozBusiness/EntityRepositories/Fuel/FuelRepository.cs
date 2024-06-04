@@ -343,16 +343,14 @@ namespace Vodovoz.EntityRepositories.Fuel
 			.Where(d => d.FuelLimit.LimitId == fuelLimitId)
 			.FirstOrDefault();
 
-		public decimal GetTodayGivedFuelInLiters(IUnitOfWork unitOfWork, int carId)
+		public decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date)
 		{
-			var todayDate = DateTime.Today;
-
 			var carFuelOperations = unitOfWork.Session.Query<FuelOperation>()
 				.Where(o =>
 					o.Car.Id == carId
 					&& o.LitersGived > 0
-					&& o.OperationTime >= todayDate
-					&& o.OperationTime < todayDate.AddDays(1))
+					&& o.OperationTime >= date.Date
+					&& o.OperationTime < date.Date.AddDays(1))
 				.ToList();
 
 			var givedLitersSum = carFuelOperations.Sum(o => o.LitersGived);
