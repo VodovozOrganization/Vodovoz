@@ -17,15 +17,9 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 	public partial class CarIsNotAtLineReport : IClosedXmlReport
 	{
 		private const string _defaultDateTimeFormat = "dd.MM.yyyy";
-
-		private const int _logisticsSubdivisionSefiyskaya = 13;
-		private const int _logisticsSubdivisionBugri = 51;
 		
 		private const int _logisticsEventTransferId = 11;
 		private const int _logisticsEventRecieveId = 17;
-
-		private const string _northGeoGroupTitle = "север";
-		private const string _southGeoGroupTitle = "ЮГ";
 
 		private static readonly CarTypeOfUse[] _excludeTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Truck, CarTypeOfUse.Loader };
 		private static readonly CarOwnType[] _carOwnTypes = new CarOwnType[] { CarOwnType.Company, CarOwnType.Raskat };
@@ -260,17 +254,9 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		}
 
 		private static string GetGeoGroupFromCarEvent(CarEvent carEvent) =>
-			carEvent.Car.Driver?.Subdivision?.Id == _logisticsSubdivisionSefiyskaya
-			? _southGeoGroupTitle
-			: carEvent.Car.Driver?.Subdivision?.Id == _logisticsSubdivisionBugri
-				? _northGeoGroupTitle
-				: "";
+			GetGeoGroupFromCar(carEvent.Car);
 
 		private static string GetGeoGroupFromCar(Car car) =>
-			car.Driver?.Subdivision?.Id == _logisticsSubdivisionSefiyskaya
-			? _southGeoGroupTitle
-			: car.Driver?.Subdivision?.Id == _logisticsSubdivisionBugri
-				? _northGeoGroupTitle
-				: "";
+			car.Driver?.Subdivision?.GeographicGroup?.Name ?? "";
 	}
 }
