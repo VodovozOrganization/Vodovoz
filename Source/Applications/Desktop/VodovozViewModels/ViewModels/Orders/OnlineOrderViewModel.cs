@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string DeliverySchedule =>
 			Entity.DeliverySchedule is null
 				? "Время доставки не указано"
-				: $"{ Entity.DeliverySchedule.DeliveryTime }";
+				: $"{ Entity.DeliverySchedule.Name }";
 
 		public string SelfDeliveryGeoGroup =>
 			Entity.SelfDeliveryGeoGroup is null

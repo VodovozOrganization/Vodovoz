@@ -286,6 +286,11 @@ namespace Vodovoz.Application.Orders.Services
 			var deliveryPrice = _deliveryPriceGetter.GetDeliveryPrice(_onlineOrder);
 			var needPaidDelivery = deliveryPrice > 0;
 
+			if(paidDelivery != null)
+			{
+				paidDelivery.NomenclaturePrice = deliveryPrice;
+			}
+
 			if(needPaidDelivery && paidDelivery != null)
 			{
 				if(paidDelivery.Price != deliveryPrice)
