@@ -193,7 +193,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
 						CarType = cars[i].CarModel.Name,
 						CarTypeWithGeographicalGroup =
-							$"{cars[i].CarModel.Name} ({GetGeoGroupFromCar(cars[i])})",
+							$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
 						TimeAndBreakdownReason = "Простой",
 						PlannedReturnToLineDate = null,
 						PlannedReturnToLineDateAndReschedulingReason = "",
@@ -209,7 +209,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
 					CarType = cars[i].CarModel.Name,
 					CarTypeWithGeographicalGroup =
-						$"{cars[i].CarModel.Name} ({GetGeoGroupFromCar(cars[i])})",
+						$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
@@ -223,7 +223,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					Id = 1,
 					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
 					CarTypeWithGeographicalGroup =
-						$"{filteredTransferEvents[i].Car.CarModel.Name} ({GetGeoGroupFromCarEvent(filteredTransferEvents[i])})",
+						$"{filteredTransferEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredTransferEvents[i])}",
 					Comment = filteredTransferEvents[i].Comment,
 					TransferedAt = filteredTransferEvents[i].EndDate,
 				});
@@ -236,7 +236,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					Id = 1,
 					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
 					CarTypeWithGeographicalGroup =
-						$"{filteredRecieveEvents[i].Car.CarModel.Name} ({GetGeoGroupFromCarEvent(filteredRecieveEvents[i])})",
+						$"{filteredRecieveEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredRecieveEvents[i])}",
 					Comment = filteredRecieveEvents[i].Comment,
 					RecievedAt = filteredRecieveEvents[i].EndDate,
 				});
@@ -256,7 +256,16 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private static string GetGeoGroupFromCarEvent(CarEvent carEvent) =>
 			GetGeoGroupFromCar(carEvent.Car);
 
-		private static string GetGeoGroupFromCar(Car car) =>
-			car.Driver?.Subdivision?.GeographicGroup?.Name ?? "";
+		private static string GetGeoGroupFromCar(Car car)
+		{
+			var geoGroupName = car.Driver?.Subdivision?.GeographicGroup?.Name;
+
+			if(string.IsNullOrWhiteSpace(geoGroupName))
+			{
+				return string.Empty;
+			}
+
+			return $"({geoGroupName})";
+		}
 	}
 }
