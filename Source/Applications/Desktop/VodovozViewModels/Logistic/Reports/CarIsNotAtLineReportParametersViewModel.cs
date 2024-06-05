@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Factories;
@@ -30,6 +31,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
 		private readonly IUserSettingsService _userSettingsService;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ICarEventSettings _carEventSettings;
 		private readonly IUnitOfWork _uUnitOfWork;
 
 		public CarIsNotAtLineReportParametersViewModel(
@@ -41,6 +43,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IncludeExludeFilterGroupViewModel includeExludeFilterGroupViewModel,
 			IUserSettingsService userSettingsService,
 			IInteractiveService interactiveService,
+			ICarEventSettings carEventSettings,
 			INavigationManager navigation)
 			: base(navigation)
 		{
@@ -54,6 +57,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(carEventRepository));
 			_interactiveService = interactiveService
 				?? throw new ArgumentNullException(nameof(interactiveService));
+			_carEventSettings = carEventSettings
+				?? throw new ArgumentNullException(nameof(carEventSettings));
 			_userSettingsService = userSettingsService
 				?? throw new ArgumentNullException(nameof(userSettingsService));
 
@@ -124,7 +129,10 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					Date,
 					CountDays,
 					IncludeExludeFilterGroupViewModel.IncludedElements.Select(e => (int.Parse(e.Number), e.Title)),
-					IncludeExludeFilterGroupViewModel.ExcludedElements.Select(e => (int.Parse(e.Number), e.Title)));
+					IncludeExludeFilterGroupViewModel.ExcludedElements.Select(e => (int.Parse(e.Number), e.Title)),
+					_carEventSettings.CarsExcludedFromReportsIds,
+					_carEventSettings.CarTransferEventTypeId,
+					_carEventSettings.CarReceptionEventTypeId);
 
 				reportResult.Match(
 					r => report = r,

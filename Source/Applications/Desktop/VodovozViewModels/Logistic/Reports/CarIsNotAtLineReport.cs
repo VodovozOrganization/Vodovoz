@@ -17,9 +17,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 	public partial class CarIsNotAtLineReport : IClosedXmlReport
 	{
 		private const string _defaultDateTimeFormat = "dd.MM.yyyy";
-		
-		private const int _logisticsEventTransferId = 11;
-		private const int _logisticsEventRecieveId = 17;
 
 		private static readonly CarTypeOfUse[] _excludeTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Truck, CarTypeOfUse.Loader };
 		private static readonly CarOwnType[] _carOwnTypes = new CarOwnType[] { CarOwnType.Company, CarOwnType.Raskat };
@@ -86,7 +83,10 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			DateTime date,
 			int countDays,
 			IEnumerable<(int Id, string Title)> includedEvents,
-			IEnumerable<(int Id, string Title)> excludedEvents)
+			IEnumerable<(int Id, string Title)> excludedEvents,
+			IEnumerable<int> excludeCarsIds,
+			int carTransferEventTypeId,
+			int carReceptionEventTypeId)
 		{
 			var startDate = date.AddDays(-countDays);
 
@@ -98,7 +98,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 											&& _carOwnTypes.Contains( carVersion.CarOwnType)
 										  select carVersion.CarOwnType)
 							.FirstOrDefault()
-						where !car.IsArchive
+						where !excludeCarsIds.Contains(car.Id)
+							&& !car.IsArchive
 							&& carOwnType != null
 							&& !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
 						select car)
@@ -150,8 +151,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var filteredEvents = events.Where(ce => carIdsWithoutRouteListsAfterStartDate.Contains(ce.Car.Id));
 
 			var notTransferRecieveEvents = filteredEvents
-				.Where(ce => ce.CarEventType.Id != _logisticsEventTransferId
-					&& ce.CarEventType.Id != _logisticsEventRecieveId)
+				.Where(ce => ce.CarEventType.Id != carTransferEventTypeId
+					&& ce.CarEventType.Id != carReceptionEventTypeId)
 				.OrderByDescending(ce => ce.EndDate)
 				.ThenBy(ce => ce.StartDate)
 				.GroupBy(ce => ce.Car.Id)
@@ -160,13 +161,13 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var filteredTransferEvents = events
 				.Where(e =>
 					carIds.Contains(e.Car.Id)
-					&& e.CarEventType.Id == _logisticsEventTransferId)
+					&& e.CarEventType.Id == carTransferEventTypeId)
 				.ToArray();
 
 			var filteredRecieveEvents = events
 				.Where(e =>
 					carIds.Contains(e.Car.Id)
-					&& e.CarEventType.Id == _logisticsEventRecieveId)
+					&& e.CarEventType.Id == carReceptionEventTypeId)
 				.ToArray();
 
 			var rows = new List<Row>();
