@@ -11,7 +11,10 @@ using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
+using System.Net.Http;
+using System;
 using System.Text;
+using TrueMarkApi.Controllers;
 using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
@@ -24,6 +27,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Settings.Edo;
 using VodovozHealthCheck;
+using System.Net.Http.Headers;
 
 namespace TrueMarkApi
 {
@@ -44,13 +48,6 @@ namespace TrueMarkApi
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "TrueMarkApi", Version = "v1" });
-			});
-
-			services.AddLogging(logging =>
-			{
-				logging.ClearProviders();
-				logging.AddNLogWeb();
-				logging.AddConfiguration(Configuration.GetSection("NLog"));
 			});
 
 			services.AddMappingAssemblies(
@@ -76,7 +73,11 @@ namespace TrueMarkApi
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IEdoSettings, EdoSettings>();
 			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddHttpClient();
+			services.AddHttpClient<TrueMarkApiController>((hostContext, client) =>
+			{
+				client.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
+				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			});
 
 			// Авторизация
 			services.AddAuthorization();
