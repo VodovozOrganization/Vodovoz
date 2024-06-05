@@ -43,7 +43,7 @@ namespace Vodovoz.Views.Employees
 			notebookMain.ShowTabs = false;
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonSave.Sensitive = ViewModel.CanEditEmployee;
+			buttonSave.Sensitive = ViewModel.CanEditEmployee || ViewModel.CanChangeEmployeeCounterparty;
 
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 
@@ -431,8 +431,7 @@ namespace Vodovoz.Views.Employees
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
 
-			viewModel.IsEditable = ViewModel.CanEditEmployee
-				&& (ViewModel.CanManageOfficeWorkers || ViewModel.CanManageDriversAndForwarders);
+			viewModel.IsEditable = ViewModel.CanEditEmployee || ViewModel.CanChangeEmployeeCounterparty;
 
 			return viewModel;
 		}
