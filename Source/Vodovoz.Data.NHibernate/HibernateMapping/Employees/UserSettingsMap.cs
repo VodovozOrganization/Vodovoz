@@ -26,6 +26,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.SalesBySubdivisionsAnalitycsReportWarehousesString).Column("sales_by_subdivisions_analitycs_report_warehouses");
 			Map(x => x.SalesBySubdivisionsAnalitycsReportSubdivisionsString).Column("sales_by_subdivisions_analitycs_report_subdivisions");
 			Map(x => x.MovementDocumentsNotificationUserSelectedWarehousesString).Column("movement_documents_notification_user_selected_warehouses");
+			Map(x => x.CarIsNotAtLineReportIncludedEventTypeIdsString).Column("car_is_not_at_line_report_included_event_type_ids");
+			Map(x => x.CarIsNotAtLineReportExcludedEventTypeIdsString).Column("car_is_not_at_line_report_excluded_event_type_ids");
 			Map(x => x.FuelControlApiLogin).Column("fuel_control_api_login");
 			Map(x => x.FuelControlApiPassword).Column("fuel_control_api_password");
 			Map(x => x.FuelControlApiKey).Column("fuel_control_api_key");
