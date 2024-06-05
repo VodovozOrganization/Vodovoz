@@ -73,7 +73,7 @@ namespace TrueMarkApi
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IEdoSettings, EdoSettings>();
 			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddHttpClient<TrueMarkApiController>((hostContext, client) =>
+			services.AddHttpClient<TrueMarkApiController>(client =>
 			{
 				client.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
