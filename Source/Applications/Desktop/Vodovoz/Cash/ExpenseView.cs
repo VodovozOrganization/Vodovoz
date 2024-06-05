@@ -64,6 +64,11 @@ namespace Vodovoz.Cash
 				.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ydateDdr.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.DdrDate, w => w.Date)
+				.AddBinding(vm => vm.CanEditDdrDate, w => w.IsEditable)
+				.InitializeFromSource();
+
 			entryExpenseFinancialCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
 
 			specialListCmbOrganisation.ShowSpecialStateNot = true;

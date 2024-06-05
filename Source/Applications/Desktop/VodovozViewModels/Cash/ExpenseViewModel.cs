@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
+using DateTimeHelpers;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IReportViewOpener _reportViewOpener;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private bool _canEditDate;
+		private bool _canEditDdrDate;
 		private Employee _restrictEmployee;
 
 		public ExpenseViewModel(
@@ -124,6 +126,9 @@ namespace Vodovoz.ViewModels.Cash
 			_canEditDate = commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDate);
 
+			_canEditDdrDate = commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDdrDate);
+
 			CachedOrganizations = UoW.GetAll<Organization>().ToList().AsReadOnly();
 
 			if(IsNew)
@@ -168,6 +173,10 @@ namespace Vodovoz.ViewModels.Cash
 			SetPropertyChangeRelation(
 				e => e.Date,
 				() => CanEdit);
+
+			SetPropertyChangeRelation(
+				e => e.DdrDate,
+				() => DdrDate);
 
 			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
@@ -321,9 +330,40 @@ namespace Vodovoz.ViewModels.Cash
 			set => Entity.Money = value;
 		}
 
+		public DateTime DdrDate
+		{
+			get => Entity.DdrDate;
+			set
+			{
+				if(!CanEditDdrDate)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"У вас недостаточно прав для изменения даты учета ДДР");
+					return;
+				}
+
+				var dateTimeLowerBorder = DateTimeExtensions.Max(Entity.Date, Entity.DdrDate.FirstDayOfMonth());
+
+				if(value >= dateTimeLowerBorder)
+				{
+					Entity.DdrDate = value;
+				}
+				else
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Нельзя установить дату учета ДДР ранее {dateTimeLowerBorder:dd.MM.yyyy}");
+					OnPropertyChanged(() => DdrDate);
+				}
+			}
+		}
+
 		public bool CanEditRectroactively { get; }
 
 		public bool CanEditDate => _canEditDate && !IsAdvance;
+
+		public bool CanEditDdrDate => _canEditDdrDate;
 
 		public bool CanCreate => _entityPermissionResult.CanCreate;
 
