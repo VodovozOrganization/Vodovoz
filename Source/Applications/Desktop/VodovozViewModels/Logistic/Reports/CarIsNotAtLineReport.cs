@@ -199,9 +199,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
 						CarType = cars[i].CarModel.Name,
 						CarTypeWithGeographicalGroup =
-							cars[i].CarModel.Name
-							+ " " +
-							GetGeoGroupFromCar(cars[i]),
+							$"{cars[i].CarModel.Name} ({GetGeoGroupFromCar(cars[i])})",
 						TimeAndBreakdownReason = "Простой",
 						PlannedReturnToLineDate = null,
 						PlannedReturnToLineDateAndReschedulingReason = "",
@@ -217,9 +215,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
 					CarType = cars[i].CarModel.Name,
 					CarTypeWithGeographicalGroup =
-						cars[i].CarModel.Name
-						+ " " +
-						GetGeoGroupFromCar(cars[i]),
+						$"{cars[i].CarModel.Name} ({GetGeoGroupFromCar(cars[i])})",
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
@@ -232,9 +228,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					Id = 1,
 					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
-					CarTypeWithGeographicalGroup = filteredTransferEvents[i].Car.CarModel.Name
-						+ " " +
-						GetGeoGroupFromCarEvent(filteredTransferEvents[i]),
+					CarTypeWithGeographicalGroup =
+						$"{filteredTransferEvents[i].Car.CarModel.Name} ({GetGeoGroupFromCarEvent(filteredTransferEvents[i])})",
 					Comment = filteredTransferEvents[i].Comment,
 					TransferedAt = filteredTransferEvents[i].EndDate,
 				});
@@ -246,9 +241,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					Id = 1,
 					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
-					CarTypeWithGeographicalGroup = filteredRecieveEvents[i].Car.CarModel.Name
-						+ " " +
-						GetGeoGroupFromCarEvent(filteredRecieveEvents[i]),
+					CarTypeWithGeographicalGroup =
+						$"{filteredRecieveEvents[i].Car.CarModel.Name} ({GetGeoGroupFromCarEvent(filteredRecieveEvents[i])})",
 					Comment = filteredRecieveEvents[i].Comment,
 					RecievedAt = filteredRecieveEvents[i].EndDate,
 				});
@@ -256,13 +250,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			var summaryByCarModel = rows
 				.GroupBy(row => row.CarType)
-				.Select(g => $"{g.Count()} {g.Key}");
+				.Select(g => $"{g.Key}: {g.Count()}");
 
 			var eventsSummary =
-				"Всего авто " +
-				rows.Count() +
-				", из них " +
-				string.Join(", ", summaryByCarModel);
+				$"Всего {rows.Count()} авто.\n" +
+				string.Join("\n", summaryByCarModel);
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary);
 		}
