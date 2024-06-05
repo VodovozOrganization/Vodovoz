@@ -325,7 +325,7 @@ namespace DriverAPI.Controllers.V5
 		/// <returns></returns>
 		[HttpPost]
 		[AllowAnonymous]
-		[ApiExplorerSettings(IgnoreApi = true)]
+		//[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
 		{
@@ -348,14 +348,6 @@ namespace DriverAPI.Controllers.V5
 
 			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
 
-			if(source.IsFailure)
-			{
-				_logger.LogError("Не найден источник переноса заказа {OrderId}", orderId);
-				return Problem($"Не найден источник переноса заказа {orderId}");
-			}
-
-			var sourceDriverFirebaseToken = source.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
-
 			var previousItemResult = _routeListService.FindPrevious(unitOfWork, targetAddress);
 
 			if(previousItemResult.IsFailure)
@@ -366,8 +358,7 @@ namespace DriverAPI.Controllers.V5
 
 			var previousItemDriverFirebaseToken = previousItemResult.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
 
-			if(targetAddress.RouteList.Id == source.Value.RouteList.Id
-				&& previousItemResult.Value.RouteList.Id != source.Value.RouteList.Id)
+			if(source.IsFailure)
 			{
 				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
 
@@ -380,6 +371,8 @@ namespace DriverAPI.Controllers.V5
 			{
 				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
 			}
+
+			var sourceDriverFirebaseToken = source.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
 
 			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
 
