@@ -32,6 +32,10 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanSelectCarOwner, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanSaveCarVersion, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonSave.BindCommand(ViewModel.SaveCarVersionCommand);
 			ybuttonCancel.BindCommand(ViewModel.CancelEditingCommand);
 

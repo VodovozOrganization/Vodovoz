@@ -21,6 +21,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		private Dictionary<int, (DateTime StartDate, DateTime? EndDate)> _carVersionPeriodsCache;
 		private Car _car;
 		private DialogViewModelBase _parentDialog;
+		private CarVersion _editingCarVersion;
 
 		public CarVersionsManagementViewModel(
 			ICommonServices commonServices,
@@ -181,20 +182,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 				newCarVersion.Car = Car;
 			}
 
-			if(Car.CarVersions.Any())
-			{
-				var currentLatestVersion = Car.CarVersions.MaxBy(x => x.StartDate).First();
-				if(startDate < currentLatestVersion.StartDate.AddDays(1))
-				{
-					throw new ArgumentException(
-						"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
-						nameof(startDate));
-				}
-				currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
-			}
-
 			newCarVersion.StartDate = startDate;
-			Car.ObservableCarVersions.Insert(0, newCarVersion);
+			newCarVersion.CarOwnerOrganization = GetPreviousVersionOrNull(newCarVersion)?.CarOwnerOrganization;
 			CarVersionsViewModel.SelectedCarVersion = newCarVersion;
 			EditCarVersion(newCarVersion);
 			RefreshCarVersionsList();
@@ -230,9 +219,13 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			}
 			else
 			{
-				availableCarOwnTypes = GetAvailableCarOwnTypesForVersion(selectedCarVersion).ToList();
+				availableCarOwnTypes =
+					Car.ObservableCarVersions.Contains(selectedCarVersion)
+					? GetAvailableCarOwnTypesForVersion(selectedCarVersion).ToList()
+					: GetAvailableCarOwnTypesForVersion().ToList();
 			}
 
+			_editingCarVersion = selectedCarVersion;
 			CarVersionEditingViewModel.SetWidgetProperties(selectedCarVersion, availableCarOwnTypes);
 		}
 
@@ -354,6 +347,30 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			CarVersionsViewModel.CarVersions = Car.ObservableCarVersions;
 		}
 
+		private void InsertEditingCarVersionIntoCarVersionsList()
+		{
+			if(_editingCarVersion is null)
+			{
+				return;
+			}
+
+			var startDate = _editingCarVersion.StartDate;
+
+			if(Car.CarVersions.Any())
+			{
+				var currentLatestVersion = Car.CarVersions.MaxBy(x => x.StartDate).First();
+				if(startDate < currentLatestVersion.StartDate.AddDays(1))
+				{
+					throw new ArgumentException(
+						"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
+						nameof(_editingCarVersion.StartDate));
+				}
+				currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
+			}
+
+			Car.ObservableCarVersions.Insert(0, _editingCarVersion);
+		}
+
 		private void OnAddNewVersionClicked(object sender, AddNewVersionEventArgs e)
 		{
 			var startDate = e.StartDateTime;
@@ -378,12 +395,25 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 		private void OnSaveCarVersionClicked(object sender, EventArgs e)
 		{
+			if(_editingCarVersion is null)
+			{
+				return;
+			}
+
+			if(_editingCarVersion.Id == 0 && !Car.CarVersions.Any(v => v.Id == 0))
+			{
+				InsertEditingCarVersionIntoCarVersionsList();
+			}
+
+			_editingCarVersion = null;
 			CarVersionsViewModel.UpdateAccessibilityProperties();
 		}
 
 		private void OnCancelEditingClicked(object sender, EventArgs e)
 		{
+			_editingCarVersion = null;
 			CarVersionsViewModel.UpdateAccessibilityProperties();
+			RefreshCarVersionsList();
 		}
 
 		public void Dispose()

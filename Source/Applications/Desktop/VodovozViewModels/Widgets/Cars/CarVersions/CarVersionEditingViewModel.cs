@@ -4,7 +4,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
@@ -32,7 +31,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CarVersionEditingViewModel));
 
-			SaveCarVersionCommand = new DelegateCommand(SaveCarVersion);
+			SaveCarVersionCommand = new DelegateCommand(SaveCarVersion, () => CanSaveCarVersion);
 			CancelEditingCommand = new DelegateCommand(CancelEditing);
 		}
 
@@ -46,7 +45,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		public INavigationManager NavigationManager { get; }
 		public ILifetimeScope LifetimeScope { get; }
 
-		[PropertyChangedAlso(nameof(CanSelectCarOwner))]
+		[PropertyChangedAlso(nameof(CanSelectCarOwner), nameof(CanSaveCarVersion))]
 		public CarOwnType? SelectedCarOwnType
 		{
 			get => _selectedCarOwnType;
@@ -61,6 +60,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CanSaveCarVersion))]
 		public Organization SelectedCarOwner
 		{
 			get => _selectedCarOwner;
@@ -102,9 +102,11 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			SelectedCarOwnType.HasValue
 			&& SelectedCarOwnType != CarOwnType.Driver;
 
+		public bool CanSaveCarVersion => !CanSelectCarOwner || !(SelectedCarOwner is null);
+
 		private void SaveCarVersion()
 		{
-			if(SelectedCarOwnType is null)
+			if(!CanSaveCarVersion)
 			{
 				return;
 			}
@@ -134,6 +136,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 			OnPropertyChanged(nameof(CanEditCarOwnType));
 			OnPropertyChanged(nameof(CanSelectCarOwner));
+			OnPropertyChanged(nameof(CanSaveCarVersion));
 		}
 
 		private void ClearWidgetProperties()
