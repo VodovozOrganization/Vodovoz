@@ -86,7 +86,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -104,7 +104,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -122,7 +122,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -140,7 +140,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -158,7 +158,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -177,7 +177,7 @@
                         <BorderWidth />
                         <TextDecoration>None</TextDecoration>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -812,7 +812,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>#Получаем данные по операциям с топливом в ДВ
 WITH all_fuel_operations as
@@ -842,7 +842,7 @@ WITH all_fuel_operations as
                 IFNULL(fuel_operations.liters_gived,0) AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-                IFNULL(fuel_documents.fuel_limits, 0) AS liters_limits,
+                IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 0 as is_fine
 	            FROM
@@ -871,7 +871,7 @@ WITH all_fuel_operations as
                 IFNULL(fuel_operations.liters_gived,0)    AS liters_gived,
                 IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-                IFNULL(fuel_documents.fuel_limits, 0) AS liters_limits,
+                IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 fuel_operations.is_fine as is_fine
              FROM
@@ -1001,7 +1001,7 @@ SELECT
 FROM  
 	fuel_operations_data fod
 LEFT JOIN transactions_data td
-	ON fod.route_list_date = DATE(td.transaction_date) AND fod.daily_rl_number = td.daily_transaction_number
+	ON fod.date = DATE(td.transaction_date) AND fod.route_list_date = DATE(td.transaction_date) AND fod.daily_rl_number = td.daily_transaction_number
 ),
 
 #Оставшиеся не добавленными после LEFT JOIN транзакции добавляем в выборку
@@ -1095,7 +1095,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1155,7 +1155,7 @@ SELECT * FROM route_lists_transactions_balance
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 (
@@ -1202,6 +1202,18 @@ SELECT * FROM route_lists_transactions_balance
 	WHERE	
 		DATE(fuel_operations_out.date) &lt; @start_date	
 		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
+-
+# Списание километража без МЛ
+	(SELECT
+	        SUM(mwo.liters_outlayed) AS liters_outlayed
+		FROM 
+			mileage_write_off mwo 
+			LEFT JOIN employees e ON mwo.driver_id = e.id 
+			LEFT JOIN cars c on mwo.car_id = c.id 
+		WHERE
+			mwo.write_off_date &lt; @start_date
+	        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND mwo.car_id = @car_id))
+	    )
 ) as balance</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1215,7 +1227,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>

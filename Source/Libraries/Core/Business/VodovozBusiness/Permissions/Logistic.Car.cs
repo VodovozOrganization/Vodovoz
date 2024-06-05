@@ -40,6 +40,13 @@ namespace Vodovoz.Permissions
 			[Display(
 				Name = "Доступ к настройке уведомления о приближающемся ТО")]
 			public static string CanEditTechInspectSetting => nameof(CanEditTechInspectSetting);
+
+			/// <summary>
+			/// Доступ к настройке уведомления о приближающейся страховке
+			/// </summary>
+			[Display(
+				Name = "Доступ к настройке уведомления о приближающейся страховке")]
+			public static string CanEditInsuranceNotificationsSettings => "can_edit_insurance_notifications_settings";
 		}
 	}
 }

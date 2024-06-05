@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -571,7 +571,7 @@ FROM
 	cv.car_own_type as car_own_type,
 	cm.car_type_of_use as car_type_of_use,
     0 as lites_by_fuel_write_off_document,
-    fuel_documents.fuel_limits AS fuel_limit_liters_gived,
+    fuel_documents.gived_fuel_limits_amount AS fuel_limit_liters_gived,
     IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
     IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
     0 as fuel_received_quantity,

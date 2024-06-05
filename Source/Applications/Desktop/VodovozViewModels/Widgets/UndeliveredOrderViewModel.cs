@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private IList<UndeliveryObject> _entityObjectSource;
 		private IList<UndeliveryKind> _entityKindSource;
 		private IList<UndeliveryKind> _entityKinds;
@@ -77,7 +78,8 @@ namespace Vodovoz.ViewModels.Widgets
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeRepository employeeRepository,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IRouteListItemRepository routeListItemRepository)
 			: base(entity, commonServices)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -89,6 +91,7 @@ namespace Vodovoz.ViewModels.Widgets
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentException(nameof(subdivisionRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentException(nameof(employeeRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentException(nameof(gtkTabsOpener));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 
 			_canReadDetalization = CommonServices.CurrentPermissionService
@@ -337,12 +340,14 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, который требуется открыть</param>
 		private void OpenOrder(Order order)
 		{
-			if(CommonServices.InteractiveService.Question("Требуется сохранить изменения. Продолжить?"))
+			//просто открываем заказ, если не выявятся ошибки в процессе работы, снести комментарии
+			_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
+			/*if(CommonServices.InteractiveService.Question("Требуется сохранить изменения. Продолжить?"))
 			{
-				UoW.Save();
+				UoW.Save(Entity);
 				UoW.Commit();
 				_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
-			}
+			}*/
 		}
 
 		private void RefreshParentUndeliveryDetalizationObjects()
@@ -487,6 +492,13 @@ namespace Vodovoz.ViewModels.Widgets
 					Entity.DriverCallTime = null;
 					Entity.DriverCallNr = null;
 				}
+
+				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
+				if(address != null)
+				{
+					address.BottlesReturned = 0;
+					UoW.Save(address);
+				}
 			}));
 
 		public DelegateCommand NewOrderCommand => _newOrderSelectCommand ?? (_newOrderSelectCommand = new DelegateCommand(
@@ -614,7 +626,7 @@ namespace Vodovoz.ViewModels.Widgets
 					fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
 				}
 
-				var address = new RouteListItemRepository().GetRouteListItemForOrder(UoW, Entity.OldOrder);
+				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
 
 				if(address != null)
 				{

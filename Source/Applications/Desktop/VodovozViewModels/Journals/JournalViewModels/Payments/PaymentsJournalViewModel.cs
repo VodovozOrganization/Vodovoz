@@ -14,6 +14,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
@@ -158,15 +159,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					paymentQuery.Where(p => p.Counterparty.Id == _filterViewModel.Counterparty.Id);
 				}
-				
-				if(_filterViewModel.StartDate.HasValue)
+
+				var startDate = _filterViewModel.StartDate;
+				var endDate = _filterViewModel.EndDate;
+
+				if(startDate.HasValue)
 				{
-					paymentQuery.Where(p => p.Date >= _filterViewModel.StartDate);
+					paymentQuery.Where(p => p.Date >= startDate);
 				}
 
-				if(_filterViewModel.EndDate.HasValue)
+				if(endDate.HasValue)
 				{
-					paymentQuery.Where(p => p.Date <= _filterViewModel.EndDate.Value.AddDays(1).AddMilliseconds(-1));
+					paymentQuery.Where(p => p.Date <= endDate.Value.LatestDayTime());
 				}
 
 				if(_filterViewModel.HideCompleted)

@@ -14,6 +14,10 @@ namespace Vodovoz.ReportsParameters.Fuel
 
 		private global::QS.Views.Control.EntityEntry entityentryUser;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelRequestResult;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxRequestResult;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonCreate;
 
 		protected virtual void Build()
@@ -65,16 +69,37 @@ namespace Vodovoz.ReportsParameters.Fuel
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.ylabelRequestResult = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelRequestResult.Name = "ylabelRequestResult";
+			this.ylabelRequestResult.LabelProp = global::Mono.Unix.Catalog.GetString("Результат запроса:");
+			this.yvboxMain.Add(this.ylabelRequestResult);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ylabelRequestResult]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yenumcomboboxRequestResult = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxRequestResult.Name = "yenumcomboboxRequestResult";
+			this.yenumcomboboxRequestResult.ShowSpecialStateAll = true;
+			this.yenumcomboboxRequestResult.ShowSpecialStateNot = false;
+			this.yenumcomboboxRequestResult.UseShortTitle = false;
+			this.yenumcomboboxRequestResult.DefaultFirst = false;
+			this.yvboxMain.Add(this.yenumcomboboxRequestResult);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yenumcomboboxRequestResult]));
+			w6.Position = 5;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ybuttonCreate = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreate.CanFocus = true;
 			this.ybuttonCreate.Name = "ybuttonCreate";
 			this.ybuttonCreate.UseUnderline = true;
 			this.ybuttonCreate.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.yvboxMain.Add(this.ybuttonCreate);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonCreate]));
-			w5.Position = 4;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonCreate]));
+			w7.Position = 6;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

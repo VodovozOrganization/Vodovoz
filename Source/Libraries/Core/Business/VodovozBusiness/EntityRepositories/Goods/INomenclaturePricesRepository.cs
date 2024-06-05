@@ -6,7 +6,6 @@ namespace Vodovoz.EntityRepositories.Goods
 {
 	public interface INomenclaturePricesRepository
 	{
-		IList<NomenclatureFixedPrice> GetFixedPricesFor19LWater(IUnitOfWork uow);
 		IList<Nomenclature> GetNomenclaturesForGroupPricing(IUnitOfWork uow);
 	}
 }

@@ -239,7 +239,7 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(Comment) });
 			}
 
-			if(CarEventType.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0 )
+			if(CarEventType?.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0 )
 			{
 				yield return new ValidationResult($"Заполните показания одометра.",
 					new[] { nameof(Odometer) });

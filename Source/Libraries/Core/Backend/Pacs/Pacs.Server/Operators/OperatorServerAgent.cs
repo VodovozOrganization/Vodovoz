@@ -20,7 +20,7 @@ using Timer = System.Timers.Timer;
 
 namespace Pacs.Server.Operators
 {
-	public class OperatorServerAgent : IDisposable
+	public partial class OperatorServerAgent : IDisposable
 	{
 		private readonly Operator _operator;
 		private readonly ILogger<OperatorServerAgent> _logger;
@@ -41,15 +41,13 @@ namespace Pacs.Server.Operators
 		private StateMachine.TriggerWithParameters<string> _takeCallTrigger;
 		private StateMachine.TriggerWithParameters<string> _changePhoneTrigger;
 		private StateMachine.TriggerWithParameters<string> _startWorkShiftTrigger;
-		private StateMachine.TriggerWithParameters<string> _endWorkShiftTrigger;
+		private StateMachine.TriggerWithParameters<WorkShiftEndArgs> _endWorkShiftTrigger;
 		private StateMachine.TriggerWithParameters<DisconnectionType> _disconnectTrigger;
 
 		private StateMachine.TriggerWithParameters<BreakStartArgs> _startBreakTrigger;
 		private StateMachine.TriggerWithParameters<BreakEndArgs> _endBreakTrigger;
 
-
 		public event EventHandler<int> OnDisconnect;
-
 
 		public int OperatorId => _operator.Id;
 		public OperatorSession Session { get; private set; }
@@ -66,8 +64,7 @@ namespace Pacs.Server.Operators
 			IPhoneController phoneController,
 			GlobalBreakController globalBreakController,
 			OperatorBreakController operatorBreakController,
-			IUnitOfWorkFactory uowFactory
-		)
+			IUnitOfWorkFactory uowFactory)
 		{
 			_operator = @operator ?? throw new ArgumentNullException(nameof(@operator));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -134,7 +131,7 @@ namespace Pacs.Server.Operators
 			_takeCallTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.TakeCall);
 			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);
 			_startWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.StartWorkShift);
-			_endWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.EndWorkShift);
+			_endWorkShiftTrigger = _machine.SetTriggerParameters<WorkShiftEndArgs>(OperatorStateTrigger.EndWorkShift);
 			_disconnectTrigger = _machine.SetTriggerParameters<DisconnectionType>(OperatorStateTrigger.Disconnect);
 			_startBreakTrigger = _machine.SetTriggerParameters<BreakStartArgs>(OperatorStateTrigger.StartBreak);
 			_endBreakTrigger = _machine.SetTriggerParameters<BreakEndArgs>(OperatorStateTrigger.EndBreak);
@@ -267,6 +264,7 @@ namespace Pacs.Server.Operators
 
 		public async Task Connect()
 		{
+			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
 
@@ -393,34 +391,64 @@ namespace Pacs.Server.Operators
 
 		private void OnStartWorkShift(StateMachine.Transition transition)
 		{
-			var phoneNumber = (string)transition.Parameters[0];
-			_phoneController.AssignPhone(phoneNumber, OperatorId);
-			OperatorState.PhoneNumber = phoneNumber;
-			OperatorState.WorkShift = new OperatorWorkshift
+			try
 			{
-				OperatorId = OperatorId,
-				Started = DateTime.Now,
-				PlannedWorkShift = _operator.WorkShift
-			};
-			_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
+				var phoneNumber = (string)transition.Parameters[0];
+				_phoneController.AssignPhone(phoneNumber, OperatorId);
+				OperatorState.PhoneNumber = phoneNumber;
+				OperatorState.WorkShift = OperatorWorkshift.Create(OperatorId, DateTime.Now, _operator.WorkShift);
+				_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Не удалось начать смену: {ExceptionMessage}, возврат в состояние: {State}", ex.Message, _previuosState.State);
+				if(transition.Destination != _previuosState.State)
+				{
+					ChangeState(_previuosState.State);
+				}
+			}
 		}
 
 		public async Task EndWorkShift(string reason)
 		{
-			await _machine.FireAsync(_endWorkShiftTrigger, reason);
+			var args = new WorkShiftEndArgs
+			{
+				Reason = reason,
+				WorkShiftChangedBy = WorkShiftChangedBy.Operator
+			};
+
+			await _machine.FireAsync(_endWorkShiftTrigger, args);
 		}
 
 		private void OnEndWorkShift(StateMachine.Transition transition)
 		{
-			var reason = (string)transition.Parameters[0];
+			var args = (WorkShiftEndArgs)transition.Parameters[0];
 			ClearPhoneNumber();
-			if(!CanEndWorkshift(reason))
+
+			if(OperatorState.WorkShift == null && args.AdminId != null)
+			{
+				_logger.LogWarning("Администратор {AdminId} завершил не существующую смену оператора {OperatorId} завершил рабочую смену по причине: {Reason}", args.AdminId, OperatorId, args.Reason ?? "Не указано");
+
+				return;
+			}
+
+			if(!CanEndWorkshift(args.Reason))
 			{
 				throw new PacsException("Необходимо указать причину закрытия смены, если завершается раньше планируемого");
 			}
+
 			OperatorState.WorkShift.Ended = DateTime.Now;
-			OperatorState.WorkShift.Reason = reason;
-			_logger.LogInformation("Оператор {OperatorId} завершил рабочую смену", OperatorId);
+
+			if(args.AdminId != null)
+			{
+				OperatorState.WorkShift.Reason = args.Reason;
+				_logger.LogInformation("Администратор {AdminId} завершил смену оператора {OperatorId} завершил рабочую смену по причине: {Reason}", args.AdminId, OperatorId, args.Reason ?? "Не указано");
+			}
+			else
+			{
+				OperatorState.WorkShift.Reason = args.Reason;
+				_logger.LogInformation("Оператор {OperatorId} завершил рабочую смену по причине: {Reason}", OperatorId, args.Reason ?? "Не указано");
+			}
 		}
 
 		public bool CanEndWorkshift(string reason)
@@ -516,6 +544,17 @@ namespace Pacs.Server.Operators
 				Reason = reason
 			};
 			await _machine.FireAsync(_endBreakTrigger, args);
+		}
+
+		public async Task AdminEndWorkShift(int adminId, string reason)
+		{
+			var args = new WorkShiftEndArgs
+			{
+				WorkShiftChangedBy = WorkShiftChangedBy.Admin,
+				AdminId = adminId,
+				Reason = reason
+			};
+			await _machine.FireAsync(_endWorkShiftTrigger, args);
 		}
 
 		private void OnBreakEnded(StateMachine.Transition transition)
@@ -662,21 +701,6 @@ namespace Pacs.Server.Operators
 						$"Неизвестный триггер {trigger}. " +
 						$"Необходимо проверить настройки состояний.");
 			}
-		}
-
-		private class BreakStartArgs
-		{
-			public BreakChangedBy BreakChangedBy { get; set; }
-			public OperatorBreakType BreakType { get; set; }
-			public int AdminId { get; set; }
-			public string Reason { get; set; }
-		}
-
-		private class BreakEndArgs
-		{
-			public BreakChangedBy BreakChangedBy { get; set; }
-			public int AdminId { get; set; }
-			public string Reason { get; set; }
 		}
 
 		#endregion Private structures

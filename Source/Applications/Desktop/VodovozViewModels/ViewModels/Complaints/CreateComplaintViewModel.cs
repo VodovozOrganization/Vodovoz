@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Application.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ISubdivisionSettings _subdivisionSettings;
+		private readonly IComplaintService _complaintService;
 		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope;
@@ -73,7 +76,7 @@ namespace Vodovoz.ViewModels.Complaints
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
-
+			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 			ConfigureEntityPropertyChanges();
@@ -110,9 +113,10 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService,
 			subdivisionRepository, commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
-			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionSettings, phone)
+			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionSettings, complaintService, phone)
 		{
 			var currentClient = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = currentClient;
@@ -135,9 +139,10 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService, subdivisionRepository,
 			commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
-			deliveryPointJournalFactory, subdivisionSettings, phone)
+			deliveryPointJournalFactory, subdivisionSettings, complaintService, phone)
 		{
 			var currentOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = currentOrder;
@@ -288,24 +293,11 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		public void CheckAndSave()
+		protected override bool BeforeSave()
 		{
-			if (!HasСounterpartyDuplicateToday() ||
-				CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
-			{
-				SaveAndClose();
-			}
-		}
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity);
 
-		private bool HasСounterpartyDuplicateToday()
-		{
-			if(Entity.Counterparty == null) {
-				return false;
-			}
-			return UoW.Session.QueryOver<Complaint>()
-				.Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
-				.And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
-				.RowCount() > 0;
+			return canSave;
 		}
 
 		#region ChangeDeliveryPointCommand

@@ -663,6 +663,8 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Cars\CarInsurancesReport.cs" />
+    <Compile Include="ViewModels\Reports\Cars\CarTechInspectReport.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintClassificationSummaryReport.ReportNode.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
@@ -753,6 +755,7 @@
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
+    <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\NamedDomainEntitiesSettingsViewModelBase.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
@@ -822,9 +825,16 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\Cars\Insurance\AddCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceEditingCompetedEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceManagementViewModel.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceVersionEditingViewModel.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceVersionViewModel.cs" />
     <Compile Include="Widgets\Cars\FuelCardVersionViewModel.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.CarModelSelectableNode.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
+    <Compile Include="Widgets\Cars\Insurance\ChangeIsKaskoNotRelevantClickedEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeSearchViewModel.cs" />

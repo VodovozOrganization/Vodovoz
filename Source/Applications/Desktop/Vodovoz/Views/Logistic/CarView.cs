@@ -1,5 +1,4 @@
-﻿using Gamma.Binding;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
@@ -99,6 +98,9 @@ namespace Vodovoz.Views.Logistic
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
 			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
 			fuelcardversionview.ViewModel = ViewModel.FuelCardVersionViewModel;
+			carinsuranceversionviewOsago.ViewModel = ViewModel.OsagoInsuranceVersionViewModel;
+			carinsuranceversionviewKasko.ViewModel = ViewModel.KaskoInsuranceVersionViewModel;
+			carinsuranceversioneditingview.ViewModel = ViewModel.CarInsuranceVersionEditingViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
@@ -130,6 +132,8 @@ namespace Vodovoz.Views.Logistic
 			speciallistcomboboxIncomeChannel.Binding
 				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
 				.InitializeFromSource();
+
+			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);

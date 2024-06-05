@@ -6,7 +6,7 @@ namespace Vodovoz.Domain.Fuel
 	{
 		[Display(Name = "Не указано")]
 		None,
-		[Display(Name = "Успех")]
+		[Display(Name = "Успешно")]
 		Success,
 		[Display(Name = "Ошибка")]
 		Error

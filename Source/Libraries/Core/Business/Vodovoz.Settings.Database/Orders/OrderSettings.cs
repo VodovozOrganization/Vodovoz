@@ -39,6 +39,8 @@ namespace Vodovoz.Settings.Database.Orders
 			_settingsController.GetIntValue("clients_second_order_discount_reason_id");
 		public int ReferFriendDiscountReasonId =>
 			_settingsController.GetValue<int>(nameof(ReferFriendDiscountReasonId));
+		public int FastDeliveryLateDiscountReasonId =>
+			_settingsController.GetValue<int>(nameof(FastDeliveryLateDiscountReasonId));
 
 		public int[] PaymentsByCardFromAvangard =>
 			new[]

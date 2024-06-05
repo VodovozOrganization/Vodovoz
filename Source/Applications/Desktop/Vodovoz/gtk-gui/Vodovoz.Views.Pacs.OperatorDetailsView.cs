@@ -42,7 +42,23 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yButton buttonStartShortBreak;
 
-		private global::Gtk.Label GtkLabel1;
+		private global::Gtk.Label GtkLabel3;
+
+		private global::Gtk.Frame frameWorkShifts;
+
+		private global::Gtk.Alignment GtkAlignment1;
+
+		private global::Gtk.VBox vbox1;
+
+		private global::Gamma.GtkWidgets.yLabel labelWorkShiftEndReason;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+
+		private global::Gamma.GtkWidgets.yTextView textviewWorkShiftEndReason;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonEndWorkshift;
+
+		private global::Gtk.Label frameLabelWorkShifts;
 
 		private global::Gtk.Label tabActions;
 
@@ -195,18 +211,74 @@ namespace Vodovoz.Views.Pacs
 			w13.Fill = false;
 			this.GtkAlignment.Add(this.vboxBreakActions);
 			this.frameBreakActions.Add(this.GtkAlignment);
-			this.GtkLabel1 = new global::Gtk.Label();
-			this.GtkLabel1.Name = "GtkLabel1";
-			this.GtkLabel1.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Перерывы</b>");
-			this.GtkLabel1.UseMarkup = true;
-			this.frameBreakActions.LabelWidget = this.GtkLabel1;
+			this.GtkLabel3 = new global::Gtk.Label();
+			this.GtkLabel3.Name = "GtkLabel3";
+			this.GtkLabel3.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Перерывы</b>");
+			this.GtkLabel3.UseMarkup = true;
+			this.frameBreakActions.LabelWidget = this.GtkLabel3;
 			this.vboxActions.Add(this.frameBreakActions);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxActions[this.frameBreakActions]));
 			w16.Position = 1;
 			w16.Expand = false;
+			// Container child vboxActions.Gtk.Box+BoxChild
+			this.frameWorkShifts = new global::Gtk.Frame();
+			this.frameWorkShifts.Name = "frameWorkShifts";
+			this.frameWorkShifts.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frameWorkShifts.Gtk.Container+ContainerChild
+			this.GtkAlignment1 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment1.Name = "GtkAlignment1";
+			this.GtkAlignment1.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment1.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.labelWorkShiftEndReason = new global::Gamma.GtkWidgets.yLabel();
+			this.labelWorkShiftEndReason.Name = "labelWorkShiftEndReason";
+			this.labelWorkShiftEndReason.Xalign = 0F;
+			this.labelWorkShiftEndReason.LabelProp = global::Mono.Unix.Catalog.GetString("Основание:");
+			this.vbox1.Add(this.labelWorkShiftEndReason);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelWorkShiftEndReason]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
+			this.textviewWorkShiftEndReason = new global::Gamma.GtkWidgets.yTextView();
+			this.textviewWorkShiftEndReason.CanFocus = true;
+			this.textviewWorkShiftEndReason.Name = "textviewWorkShiftEndReason";
+			this.GtkScrolledWindow2.Add(this.textviewWorkShiftEndReason);
+			this.vbox1.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow2]));
+			w19.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ybuttonEndWorkshift = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonEndWorkshift.CanFocus = true;
+			this.ybuttonEndWorkshift.Name = "ybuttonEndWorkshift";
+			this.ybuttonEndWorkshift.UseUnderline = true;
+			this.ybuttonEndWorkshift.Label = global::Mono.Unix.Catalog.GetString("Завершить смену");
+			this.vbox1.Add(this.ybuttonEndWorkshift);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ybuttonEndWorkshift]));
+			w20.Position = 2;
+			w20.Expand = false;
+			w20.Fill = false;
+			this.GtkAlignment1.Add(this.vbox1);
+			this.frameWorkShifts.Add(this.GtkAlignment1);
+			this.frameLabelWorkShifts = new global::Gtk.Label();
+			this.frameLabelWorkShifts.Name = "frameLabelWorkShifts";
+			this.frameLabelWorkShifts.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Смены</b>");
+			this.frameLabelWorkShifts.UseMarkup = true;
+			this.frameWorkShifts.LabelWidget = this.frameLabelWorkShifts;
+			this.vboxActions.Add(this.frameWorkShifts);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxActions[this.frameWorkShifts]));
+			w23.Position = 2;
 			this.notebookOperatorWidget.Add(this.vboxActions);
-			global::Gtk.Notebook.NotebookChild w17 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOperatorWidget[this.vboxActions]));
-			w17.Position = 1;
+			global::Gtk.Notebook.NotebookChild w24 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOperatorWidget[this.vboxActions]));
+			w24.Position = 1;
 			// Notebook tab
 			this.tabActions = new global::Gtk.Label();
 			this.tabActions.Name = "tabActions";

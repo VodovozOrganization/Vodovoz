@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private string _logisticianComment;
 		private DateTime _logisticianCommentVersion;
 		private Employee _author;
-		private IList<FastDeliveryAvailabilityHistoryItem> _items;
+		private IList<FastDeliveryAvailabilityHistoryItem> _items = new List<FastDeliveryAvailabilityHistoryItem>();
 		private IList<FastDeliveryOrderItemHistory> _orderItemsHistory;
 		private IList<FastDeliveryNomenclatureDistributionHistory> _nomenclatureDistributionHistoryItems;
 		private bool _isGetClosestByRoute;

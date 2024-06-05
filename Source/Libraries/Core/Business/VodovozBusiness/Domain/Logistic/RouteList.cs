@@ -1477,9 +1477,9 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void SetAddressStatusWithoutOrderChange(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
+		public virtual void SetAddressStatusWithoutOrderChange(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, bool needCreateDeliveryFreeBalanceOperation = true)
 		{
-			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(uow, newAddressStatus);
+			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(uow, newAddressStatus, needCreateDeliveryFreeBalanceOperation);
 			UpdateStatus();
 		}
 

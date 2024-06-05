@@ -1,6 +1,8 @@
-﻿using NetTopologySuite.Geometries;
+﻿using MassTransit;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Osrm;
@@ -8,6 +10,9 @@ using QS.Utilities.Spatial;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
+using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -17,6 +22,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Factories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -170,6 +176,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 			double longitude,
 			bool isGetClosestByRoute,
 			IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
+			int? tariffZoneId,
+			bool isRequestFromDesktopApp = true,
 			Order fastDeliveryOrder = null)
 		{
 			var maxDistanceToTrackPoint = MaxDistanceToLatestTrackPointKm;
@@ -220,8 +228,11 @@ namespace Vodovoz.EntityRepositories.Delivery
 			fastDeliveryAvailabilityHistory.NomenclatureDistributionHistoryItems =
 				fastDeliveryHistoryConverter.ConvertNomenclatureDistributionToDistributionHistory(distributions, fastDeliveryAvailabilityHistory);
 
-			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
-			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			var tariffZone = tariffZoneId.HasValue
+				? uow.GetById<TariffZone>(tariffZoneId.Value)
+				: GetDistrict(uow, (decimal)latitude, (decimal)longitude)?.TariffZone;
+
+			if(tariffZone == null || !tariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
 				fastDeliveryAvailabilityHistory.AdditionalInformation =
 					new List<string> {"Не найден район, у района отсутствует тарифная зона, либо недоступна экспресс-доставка в текущее время."};
@@ -235,7 +246,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			TrackPoint tp = null;
 			RouteList rl = null;
 			TrackPoint tpInner = null;
-			FastDeliveryVerificationDetailsNode result = null;
+			FastDeliveryVerificationDetailsNode resultAlias = null;
 			Employee e = null;
 
 			RouteListItem rla = null;
@@ -245,17 +256,33 @@ namespace Vodovoz.EntityRepositories.Delivery
 			OrderEquipment oe = null;
 			CarLoadDocument scld = null;
 			CarLoadDocumentItem scldi = null;
-			CountUnclosedFastDeliveryAddressesNode countUnclosedFastDeliveryAddressesAlias = null;
+			RouteListFastDeliveriesCountNode routeListFastDeliveriesCountAlias = null;
 
 			RouteListNomenclatureAmount ordersAmountAlias = null;
 			RouteListNomenclatureAmount loadDocumentsAmountAlias = null;
 
 			DeliveryFreeBalanceOperation freeBalanceOperation = null;
+			
+			var date = DateTime.Now;
 
 			var lastTimeTrackQuery = QueryOver.Of(() => tpInner)
 				.Where(() => tpInner.Track.Id == t.Id)
 				.Select(Projections.Max(() => tpInner.TimeStamp));
 
+			var fastDeliveryMaxDistanceParameterVersion = QueryOver.Of<FastDeliveryMaxDistanceParameterVersion>()
+				.Where(v => v.StartDate <= date
+					&& (v.EndDate == null || v.EndDate > date))
+				.Select(v => v.Value)
+				.Take(1);
+			
+			var routeListFastDeliveryMaxDistance = QueryOver.Of<RouteListFastDeliveryMaxDistance>()
+				.Where(d =>
+					d.RouteList.Id == rl.Id
+					&& d.StartDate <= date
+					&& (d.EndDate == null || d.EndDate > date))
+				.Select(d => d.Distance)
+				.Take(1);
+			
 			//МЛ только в пути и с погруженным запасом
 			var routeListNodes = uow.Session.QueryOver(() => rl)
 				.JoinEntityAlias(() => t, () => t.RouteList.Id == rl.Id)
@@ -265,15 +292,167 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.And(() => rl.Status == RouteListStatus.EnRoute)
 				.And(() => rl.AdditionalLoadingDocument.Id != null) // только с погруженным запасом
 				.SelectList(list => list
-					.Select(() => tp.TimeStamp).WithAlias(() => result.TimeStamp)
-					.Select(() => tp.Latitude).WithAlias(() => result.Latitude)
-					.Select(() => tp.Longitude).WithAlias(() => result.Longitude)
-					.Select(Projections.Entity(() => rl)).WithAlias(() => result.RouteList))
+					.Select(() => tp.TimeStamp).WithAlias(() => resultAlias.TimeStamp)
+					.Select(() => tp.Latitude).WithAlias(() => resultAlias.Latitude)
+					.Select(() => tp.Longitude).WithAlias(() => resultAlias.Longitude)
+					.Select(Projections.Entity(() => rl)).WithAlias(() => resultAlias.RouteList)
+					.Select(() => rl.Id).WithAlias(() => resultAlias.RouteListId)
+					.Select(Projections.SubQuery(routeListFastDeliveryMaxDistance))
+						.WithAlias(() => resultAlias.RouteListFastDeliveryMaxDistance)
+					.Select(Projections.SubQuery(fastDeliveryMaxDistanceParameterVersion))
+						.WithAlias(() => resultAlias.FastDeliveryMaxDistanceParameterVersion)
+				)
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryVerificationDetailsNode>())
 				.List<FastDeliveryVerificationDetailsNode>();
+			
+			var routeListIds = routeListNodes.Select(x => x.RouteList.Id).ToArray();
+			
+			//Не более определённого кол-ва заказов с быстрой доставкой
+			var routeListMaxFastDeliveryOrdersCount = QueryOver.Of<RouteListMaxFastDeliveryOrders>()
+				.Where(d =>
+					d.RouteList.Id == rl.Id
+					&& d.StartDate <= date
+					&& (d.EndDate == null || d.EndDate > date))
+				.Select(d => d.MaxOrders)
+				.Take(1);
+			
+			var maxFastDeliveryOrdersCount = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Int32, "IFNULL(?1, ?2)"),
+				NHibernateUtil.Int32,
+				Projections.SubQuery(routeListMaxFastDeliveryOrdersCount),
+				Projections.Constant(_deliveryRulesSettings.MaxFastOrdersPerSpecificTime)
+			);
 
+			var fastDeliveryCountSubquery = QueryOver.Of(() => rla)
+				.Inner.JoinAlias(() => rla.Order, () => o)
+				.Where(() => rla.RouteList.Id == rl.Id)
+				.And(() => rla.Status == RouteListItemStatus.EnRoute)
+				.And(() => o.IsFastDelivery)
+				.Select(Projections.Count(() => rla.Id));
+
+			var routeListFastDeliveriesCount = uow.Session.QueryOver(() => rl)
+				.WhereRestrictionOn(() => rl.Id).IsInG(routeListIds)
+				.SelectList(list => list
+					.Select(() => rl.Id).WithAlias(() => routeListFastDeliveriesCountAlias.RouteListId)
+					.SelectSubQuery(fastDeliveryCountSubquery)
+						.WithAlias(() => routeListFastDeliveriesCountAlias.UnclosedFastDeliveryAddresses)
+					.Select(maxFastDeliveryOrdersCount)
+						.WithAlias(() => routeListFastDeliveriesCountAlias.MaxFastDeliveryOrdersCount)
+				)
+				.TransformUsing(Transformers.AliasToBean<RouteListFastDeliveriesCountNode>())
+				.List<RouteListFastDeliveriesCountNode>();
+			
+			DeliveryPoint deliveryPointAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			AddressInfoForFastDelivery addressInfoAlias = null;
+
+			var waterCount = QueryOver.Of(() => oi)
+				.JoinAlias(() => oi.Nomenclature, () => nomenclatureAlias)
+				.Where(() => oi.Order.Id == o.Id)
+				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.Select(Projections.Sum(() => oi.Count));
+			
+			var itemsSummaryWeight = QueryOver.Of(() => oi)
+				.JoinAlias(() => oi.Nomenclature, () => nomenclatureAlias)
+				.Where(() => oi.Order.Id == o.Id)
+				.And(() => nomenclatureAlias.TareVolume != TareVolume.Vol19L
+					|| nomenclatureAlias.Category != NomenclatureCategory.water)
+				.Select(Projections.Sum(() => nomenclatureAlias.Weight * oi.Count));
+			
+			var equipmentsSummaryWeight = QueryOver.Of(() => oe)
+				.JoinAlias(() => oe.Nomenclature, () => nomenclatureAlias)
+				.Where(() => oe.Order.Id == o.Id)
+				.And(() => oe.Direction == Direction.Deliver)
+				.Select(Projections.Sum(() => nomenclatureAlias.Weight * oe.Count));
+
+			var addressesLookup = uow.Session.QueryOver<RouteListItem>()
+				.JoinAlias(address => address.Order, () => o)
+				.JoinAlias(() => o.DeliveryPoint, () => deliveryPointAlias)
+				.WhereRestrictionOn(address => address.RouteList.Id).IsInG(routeListIds)
+				.SelectList(list => list
+					.Select(address => address.RouteList.Id).WithAlias(() => addressInfoAlias.RouteListId)
+					.Select(address => address.IndexInRoute).WithAlias(() => addressInfoAlias.IndexInRoute)
+					.Select(address => address.Status).WithAlias(() => addressInfoAlias.AddressStatus)
+					.Select(address => address.StatusLastUpdate).WithAlias(() => addressInfoAlias.StatusLastUpdate)
+					.Select(() => deliveryPointAlias.MinutesToUnload).WithAlias(() => addressInfoAlias.MinutesToUnload)
+					.Select(Projections.SubQuery(waterCount)).WithAlias(() => addressInfoAlias.WaterCount)
+					.Select(Projections.SubQuery(itemsSummaryWeight)).WithAlias(() => addressInfoAlias.ItemsSummaryWeight)
+					.Select(Projections.SubQuery(equipmentsSummaryWeight)).WithAlias(() => addressInfoAlias.EquipmentsSummaryWeight)
+				)
+				.TransformUsing(Transformers.AliasToBean<AddressInfoForFastDelivery>())
+				.List<AddressInfoForFastDelivery>()
+				.ToLookup(x => x.RouteListId);
+			
+			var rlsFastDeliveriesCount =
+				routeListFastDeliveriesCount.ToDictionary(x => x.RouteListId);
+			
+			var freeBalances = uow.Session.QueryOver(() => freeBalanceOperation)
+				.WhereRestrictionOn(() => freeBalanceOperation.RouteList.Id).IsIn(routeListIds)
+				.WhereRestrictionOn(() => freeBalanceOperation.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
+				.SelectList(list => list
+					.SelectGroup(() => freeBalanceOperation.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
+					.SelectGroup(() => freeBalanceOperation.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
+					.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => ordersAmountAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
+				.List<RouteListNomenclatureAmount>();
+			
+			var i = 0;
+
+			if(isRequestFromDesktopApp)
+			{
+				foreach(var node in routeListNodes)
+				{
+					UpdateDistanceAndLastCoordinateTimeParameters(node);
+					UpdateUnClosedFastDeliveriesParameter(node);
+					UpdateRemainingTimeForShipmentNewOrder(node);
+					UpdateRouteListBalanceParameter(node);
+				}
+
+				routeListNodes = routeListNodes
+					.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
+					.ToList();
+			}
+			else
+			{
+				foreach(var node in routeListNodes)
+				{
+					UpdateDistanceAndLastCoordinateTimeParameters(node);
+				}
+
+				routeListNodes = routeListNodes
+					.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
+					.ToList();
+
+				foreach(var node in routeListNodes)
+				{
+					UpdateUnClosedFastDeliveriesParameter(node);
+					UpdateRemainingTimeForShipmentNewOrder(node);
+					UpdateRouteListBalanceParameter(node);
+					i++;
+
+					if(node.IsValidRLToFastDelivery)
+					{
+						break;
+					}
+				}
+
+				if(i < routeListNodes.Count)
+				{
+					routeListNodes = routeListNodes.Take(i).ToList();
+				}
+			}
+			
+			if(routeListNodes.Any())
+			{
+				fastDeliveryAvailabilityHistory.Items = fastDeliveryHistoryConverter
+					.ConvertVerificationDetailsNodesToAvailabilityHistoryItems(routeListNodes, fastDeliveryAvailabilityHistory);
+			}
+
+			return fastDeliveryAvailabilityHistory;
+			
 			//Последняя координата в указанном радиусе
-			foreach(var node in routeListNodes)
+			void UpdateDistanceAndLastCoordinateTimeParameters(FastDeliveryVerificationDetailsNode node)
 			{
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
@@ -284,13 +463,15 @@ namespace Vodovoz.EntityRepositories.Delivery
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;
 				node.DistanceByRoadToClient.ParameterValue = decimal.Round((decimal)(proposedRoute?.TotalDistance ?? int.MaxValue) / 1000, 2);
 
-				double routeListFastDeliveryMaxRadius = maxDistanceToTrackPoint;
+				double routeListFastDeliveryMaxRadius;
 
-				var nodeRouteList = uow.GetById<RouteList>(node.RouteList.Id);
-
-				if(nodeRouteList?.FastDeliveryMaxDistanceItems.Count > 0)
+				if(node.RouteListFastDeliveryMaxDistance.HasValue)
 				{
-					routeListFastDeliveryMaxRadius = (double)nodeRouteList.GetFastDeliveryMaxDistanceValue();
+					routeListFastDeliveryMaxRadius = (double)node.RouteListFastDeliveryMaxDistance;
+				}
+				else
+				{
+					routeListFastDeliveryMaxRadius = node.FastDeliveryMaxDistanceParameterVersion;
 				}
 
 				if(distance < routeListFastDeliveryMaxRadius)
@@ -318,41 +499,17 @@ namespace Vodovoz.EntityRepositories.Delivery
 					node.IsValidRLToFastDelivery = false;
 				}
 			}
-			
-			routeListNodes = routeListNodes
-				.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
-				.ToList();
 
-			//Не более определённого кол-ва заказов с быстрой доставкой
-
-			var addressCountSubquery = QueryOver.Of(() => rla)
-				.Inner.JoinAlias(() => rla.Order, () => o)
-				.Where(() => rla.RouteList.Id == rl.Id)
-				.And(() => rla.Status == RouteListItemStatus.EnRoute)
-				.And(() => o.IsFastDelivery)
-				.Select(Projections.Count(() => rla.Id));
-
-			var routeListsWithCountUnclosedFastDeliveries = uow.Session.QueryOver(() => rl)
-				.WhereRestrictionOn(() => rl.Id).IsInG(routeListNodes.Select(x => x.RouteList.Id))
-				.SelectList(list => list
-					.Select(() => rl.Id).WithAlias(() => countUnclosedFastDeliveryAddressesAlias.RouteListId)
-					.SelectSubQuery(addressCountSubquery).WithAlias(() => countUnclosedFastDeliveryAddressesAlias.UnclosedFastDeliveryAddresses))
-				.TransformUsing(Transformers.AliasToBean<CountUnclosedFastDeliveryAddressesNode>())
-				.List<CountUnclosedFastDeliveryAddressesNode>();
-
-			var rlsWithCountUnclosedFastDeliveries =
-				routeListsWithCountUnclosedFastDeliveries.ToDictionary(x => x.RouteListId, x => x.UnclosedFastDeliveryAddresses);
-
-			foreach(var node in routeListNodes)
+			void UpdateUnClosedFastDeliveriesParameter(FastDeliveryVerificationDetailsNode node)
 			{
-				var countUnclosedFastDeliveryAddresses = rlsWithCountUnclosedFastDeliveries[node.RouteList.Id];
-				node.UnClosedFastDeliveries.ParameterValue = countUnclosedFastDeliveryAddresses;
+				var fastDeliveriesInfo = rlsFastDeliveriesCount[node.RouteListId];
+				var unclosedFastDeliveryAddresses = fastDeliveriesInfo.UnclosedFastDeliveryAddresses;
+				
+				node.UnClosedFastDeliveries.ParameterValue = unclosedFastDeliveryAddresses;
 
-				var nodeRouteList = uow.GetById<RouteList>(node.RouteList.Id);
+				var routeListMaxFastDeliveryOrders = fastDeliveriesInfo.MaxFastDeliveryOrdersCount;
 
-				var routeListMaxFastDeliveryOrders = nodeRouteList.GetMaxFastDeliveryOrdersValue();
-
-				if(countUnclosedFastDeliveryAddresses < routeListMaxFastDeliveryOrders)
+				if(unclosedFastDeliveryAddresses < routeListMaxFastDeliveryOrders)
 				{
 					node.UnClosedFastDeliveries.IsValidParameter = true;
 				}
@@ -364,17 +521,27 @@ namespace Vodovoz.EntityRepositories.Delivery
 			}
 			
 			//Время доставки следующего (текущего) заказа позволяет взять быструю доставку
-			foreach(var routeListNode in routeListNodes)
+			void UpdateRemainingTimeForShipmentNewOrder(FastDeliveryVerificationDetailsNode node)
 			{
-				RouteListItem latestAddress = null;
+				AddressInfoForFastDelivery latestAddress = null;
 
-				var orderedEnRouteAddresses = routeListNode.RouteList.Addresses
-					.Where(x => x.Status == RouteListItemStatus.EnRoute).OrderBy(x => x.IndexInRoute).ToList();
+				var addresses = addressesLookup.Contains(node.RouteListId)
+					? addressesLookup[node.RouteListId]
+					: Array.Empty<AddressInfoForFastDelivery>();
+				
+				var orderedEnRouteAddresses = addresses
+					.Where(x => x.AddressStatus == RouteListItemStatus.EnRoute)
+					.OrderBy(x => x.IndexInRoute)
+					.ToList();
 
-				var orderedCompletedAddresses = routeListNode.RouteList.Addresses
-					.Where(x => x.Status == RouteListItemStatus.Completed).OrderBy(x => x.IndexInRoute).ToList();
+				var orderedCompletedAddresses = addresses
+					.Where(x => x.AddressStatus == RouteListItemStatus.Completed)
+					.OrderBy(x => x.IndexInRoute)
+					.ToList();
 
-				var latestCompletedAddress = orderedCompletedAddresses.OrderByDescending(x => x.StatusLastUpdate).FirstOrDefault();
+				var latestCompletedAddress = orderedCompletedAddresses
+					.OrderByDescending(x => x.StatusLastUpdate)
+					.FirstOrDefault();
 
 				if(latestCompletedAddress != null)
 				{
@@ -387,27 +554,19 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 				if(latestAddress != null)
 				{
-					var neededTime1 = maxTimeForFastDelivery - latestAddress.Order.DeliveryPoint.MinutesToUnload;
+					var neededTime1 = maxTimeForFastDelivery - latestAddress.MinutesToUnload;
 					if(neededTime1 < minTimeForNewOrder)
 					{
-						routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime1, 0);
-						routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = false;
-						routeListNode.IsValidRLToFastDelivery = false;
-						continue;
+						node.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime1, 0);
+						node.RemainingTimeForShipmentNewOrder.IsValidParameter = false;
+						node.IsValidRLToFastDelivery = false;
+						return;
 					}
 
-					var water19Count = latestAddress.Order.OrderItems
-						.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L && x.Nomenclature.Category == NomenclatureCategory.water)
-						.Sum(x => x.Count);
+					var water19Count = latestAddress.WaterCount;
+					var orderItemsSummaryWeight = latestAddress.ItemsSummaryWeight;
 
-					var orderItemsSummaryWeight = latestAddress.Order.OrderItems
-						.Where(x => x.Nomenclature.TareVolume != TareVolume.Vol19L || x.Nomenclature.Category != NomenclatureCategory.water)
-						.Sum(x => x.Nomenclature.Weight * x.Count);
-
-					var orderEquipmentsSummaryWeight = latestAddress.Order.OrderEquipments
-						.Where(x => x.Direction == Direction.Deliver)
-						.Sum(x => x.Nomenclature.Weight * x.Count);
-
+					var orderEquipmentsSummaryWeight = latestAddress.EquipmentsSummaryWeight;
 					var goodsSummaryWeight = orderItemsSummaryWeight + orderEquipmentsSummaryWeight;
 
 					//Время выгрузки след. заказа:
@@ -417,39 +576,27 @@ namespace Vodovoz.EntityRepositories.Delivery
 					
 					if(neededTime2 < minTimeForNewOrder)
 					{
-						routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime2, 0);
-						routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = false;
-						routeListNode.IsValidRLToFastDelivery = false;
+						node.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime2, 0);
+						node.RemainingTimeForShipmentNewOrder.IsValidParameter = false;
+						node.IsValidRLToFastDelivery = false;
 					}
 					else
 					{
-						routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime2, 0);
-						routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
+						node.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime2, 0);
+						node.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
 					}
 				}
 				else
 				{
-					routeListNode.RemainingTimeForShipmentNewOrder.ParameterValue = maxTimeForFastDeliveryTimespan;
-					routeListNode.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
+					node.RemainingTimeForShipmentNewOrder.ParameterValue = maxTimeForFastDeliveryTimespan;
+					node.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
 				}
 			}
-
-			var rlIds =  routeListNodes.Select(x => x.RouteList.Id).ToArray();
-
-			var freeBalances = uow.Session.QueryOver(() => freeBalanceOperation)
-				.WhereRestrictionOn(() => freeBalanceOperation.RouteList.Id).IsIn(rlIds)
-				.WhereRestrictionOn(() => freeBalanceOperation.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.SelectList(list => list
-					.SelectGroup(() => freeBalanceOperation.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
-					.SelectGroup(() => freeBalanceOperation.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
-					.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => ordersAmountAlias.Amount))
-				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
-				.List<RouteListNomenclatureAmount>();
-
+			
 			//Выбираем МЛ, в котором хватает запаса номенклатур на поступивший быстрый заказ
-			foreach(var routeListNode in routeListNodes)
+			void UpdateRouteListBalanceParameter(FastDeliveryVerificationDetailsNode node)
 			{
-				var routeListFreeBalance = freeBalances.Where(x => x.RouteListId == routeListNode.RouteList.Id).ToArray();
+				var routeListFreeBalance = freeBalances.Where(x => x.RouteListId == node.RouteList.Id).ToArray();
 
 				foreach(var need in neededNomenclatures)
 				{
@@ -457,36 +604,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 					if(nomenclatureFreeBalance < need.Value)
 					{
-						routeListNode.IsGoodsEnough.ParameterValue = false;
-						routeListNode.IsGoodsEnough.IsValidParameter = false;
-						routeListNode.IsValidRLToFastDelivery = false;
+						node.IsGoodsEnough.ParameterValue = false;
+						node.IsGoodsEnough.IsValidParameter = false;
+						node.IsValidRLToFastDelivery = false;
 						break;
 					}
 				}
 			}
-
-			if(routeListNodes != null)
-			{
-				fastDeliveryAvailabilityHistory.Items = fastDeliveryHistoryConverter
-					.ConvertVerificationDetailsNodesToAvailabilityHistoryItems(routeListNodes, fastDeliveryAvailabilityHistory);
-			}
-
-			return fastDeliveryAvailabilityHistory;
-		}
-
-		private class RouteListNomenclatureAmount
-		{
-			public int RouteListId { get; set; }
-			public int NomenclatureId { get; set; }
-			public decimal Amount { get; set; }
-		}
-
-		private class RouteListWithCoordinateNode
-		{
-			public DateTime TimeStamp { get; set; }
-			public double Latitude { get; set; }
-			public double Longitude { get; set; }
-			public RouteList RouteList { get; set; }
 		}
 
 		#endregion
@@ -549,67 +673,73 @@ namespace Vodovoz.EntityRepositories.Delivery
 				unitOfWork.Commit();
 			}
 		}
-	}
 
-	public class CountUnclosedFastDeliveryAddressesNode
-	{
-		public int RouteListId { get; set; }
-		public int UnclosedFastDeliveryAddresses { get; set; }
-	}
-	
-	public class FastDeliveryVerificationDetailsNode
-	{
-		public string DriverFIO => RouteList.Driver.GetPersonNameWithInitials();
-		
-		public FastDeliveryVerificationParameter<bool> IsGoodsEnough { get; set; }
-			= new FastDeliveryVerificationParameter<bool>
-			{
-				IsValidParameter = true,
-				ParameterValue = true
-			};
-		public FastDeliveryVerificationParameter<int> UnClosedFastDeliveries { get; set; }
-			= new FastDeliveryVerificationParameter<int>
-			{
-				IsValidParameter = true,
-				ParameterValue = default
-			};
-		public FastDeliveryVerificationParameter<TimeSpan> RemainingTimeForShipmentNewOrder { get; set; }
-			= new FastDeliveryVerificationParameter<TimeSpan>
-			{
-				IsValidParameter = false,
-				ParameterValue = default
-			};
-		public FastDeliveryVerificationParameter<TimeSpan> LastCoordinateTime { get; set; }
-			= new FastDeliveryVerificationParameter<TimeSpan>
-			{
-				IsValidParameter = true,
-				ParameterValue = default
-			};
-		public FastDeliveryVerificationParameter<decimal> DistanceByRoadToClient { get; set; }
-			= new FastDeliveryVerificationParameter<decimal>
-			{
-				IsValidParameter = true,
-				ParameterValue = default
-			};
-		public FastDeliveryVerificationParameter<decimal> DistanceByLineToClient { get; set; }
-			= new FastDeliveryVerificationParameter<decimal>
-			{
-				IsValidParameter = true,
-				ParameterValue = default
-			};
-		public bool IsValidRLToFastDelivery { get; set; } = true;
-		public DateTime TimeStamp { get; set; }
-		public double Latitude { get; set; }
-		public double Longitude { get; set; }
-		public RouteList RouteList { get; set; }
-		public double RouteListFastDeliveryRadius { get; set; }
-		public int RouteListMaxFastDeliveryOrders { get; set; }
-	}
+		public IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime,
+			IGeneralSettings generalSettings, int complaintDetalizationId)
+		{
+			var fastDeliveryIntervalFrom = generalSettings.FastDeliveryIntervalFrom;			
+			var fastDeliveryMaximumPermissibleLate = generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
+			var maxTimeForFastDelivery = _deliveryRulesSettings.MaxTimeForFastDelivery;
+			var maxTimeForFastDeliveryWithLateMinutes = maxTimeForFastDelivery.TotalMinutes + fastDeliveryMaximumPermissibleLate;
 
-	public class FastDeliveryVerificationParameter<T>
-		where T : struct
-	{
-		public T ParameterValue { get; set; }
-		public bool IsValidParameter { get; set; }
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Order orderAlias = null;
+			Complaint complaintAlias = null;
+
+			var alreadyExistsComplaintSubquery = QueryOver.Of(() => complaintAlias)
+				.Where(() => complaintAlias.Order.Id == orderAlias.Id)
+				.And(() => complaintAlias.ComplaintDetalization.Id == complaintDetalizationId)
+				.Select(Projections.Property(() => complaintAlias.Id))
+				.Take(1);
+
+			var fastDeliveryOrdersLateQuery = uow.Session.QueryOver(() => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => orderAlias.Id == routeListItemAlias.Order.Id)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => orderAlias.DeliveryDate >= fromDateTime)
+				.And(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+				.WithSubquery.WhereNotExists(alreadyExistsComplaintSubquery)
+				;
+
+			IProjection intervalProjection = null;
+
+			if(fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated)
+			{
+				intervalProjection = Projections.Property(() => orderAlias.CreateDate);
+			}
+
+			if(fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList)
+			{
+				var rlaFirstSubquery = QueryOver.Of(() => routeListItemAlias)
+					.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
+					.OrderBy(() => routeListItemAlias.CreationDate).Asc()
+					.Select(Projections.Property(() => routeListItemAlias.CreationDate))
+					.Take(1);
+
+				intervalProjection = Projections.SubQuery(rlaFirstSubquery);
+			}
+
+			if(fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered)
+			{
+				intervalProjection = Projections.Property(() => routeListItemAlias.CreationDate);
+			}
+
+			var dateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.Date,
+					"DATE_ADD(?1, INTERVAL ?2 MINUTE)"
+					),
+				NHibernateUtil.Date,
+				intervalProjection,
+				Projections.Constant(maxTimeForFastDeliveryWithLateMinutes)
+			);
+
+			fastDeliveryOrdersLateQuery.Where(Restrictions.Lt(dateProjection, DateTime.Now));
+
+			return fastDeliveryOrdersLateQuery
+				.TransformUsing(Transformers.RootEntity)
+				.List<Order>();
+		}
 	}
 }
