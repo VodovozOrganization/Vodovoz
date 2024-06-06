@@ -13,6 +13,7 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -201,6 +202,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				Projections.Constant(false)
 				);
 
+			CarInsurance carInsuranceAlias = null;
+			Counterparty insurerAlias = null;
+
+			var osagoInsurerSubquery = QueryOver.Of(() => carInsuranceAlias)
+				.Left.JoinAlias(() => carInsuranceAlias.Insurer, () => insurerAlias)
+				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago);
+
+			var kaskoInsurerSubquery = QueryOver.Of(() => carInsuranceAlias)
+				.Left.JoinAlias(() => carInsuranceAlias.Insurer, () => insurerAlias)
+				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko);
+
+			if(_filterViewModel.Insurer != null && !_filterViewModel.IsOnlyCarsWithoutInsurer)
+			{
+				osagoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == _filterViewModel.Insurer.Id);
+				kaskoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == _filterViewModel.Insurer.Id && !carAlias.IsKaskoInsuranceNotRelevant);
+
+				query.Where(Subqueries.Exists(osagoInsurerSubquery.DetachedCriteria)
+					|| Subqueries.Exists(kaskoInsurerSubquery.DetachedCriteria));
+			}
+
+			if(_filterViewModel.IsOnlyCarsWithoutInsurer)
+			{
+				osagoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == null);
+				kaskoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == null && !carAlias.IsKaskoInsuranceNotRelevant);
+
+				query.Where(Subqueries.Exists(osagoInsurerSubquery.DetachedCriteria)
+					|| Subqueries.Exists(kaskoInsurerSubquery.DetachedCriteria));
+			}
+
+			osagoInsurerSubquery.Select(ins => insurerAlias.Name)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
+
+			kaskoInsurerSubquery.Select(ins => insurerAlias.Name)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
+
 			if(_filterViewModel.Archive != null)
 			{
 				query.Where(c => c.IsArchive == _filterViewModel.Archive);
@@ -276,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName)
-					.Select(Projections.Constant("Тестовый страховщик")).WithAlias(() => carJournalNodeAlias.Insurer))
+					.SelectSubQuery(osagoInsurerSubquery).WithAlias(() => carJournalNodeAlias.Insurer))
 				.ThenByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
