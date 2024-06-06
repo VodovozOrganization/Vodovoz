@@ -240,6 +240,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(() => carModelAlias.Id == _filterViewModel.CarModel.Id);
 			}
 
+			if(_filterViewModel.CarOwner != null && !_filterViewModel.IsOnlyCarsWithoutCarOwner)
+			{
+				query.Where(() => currentCarVersion.CarOwnerOrganization.Id == _filterViewModel.CarOwner.Id);
+			}
+
+			if(_filterViewModel.IsOnlyCarsWithoutCarOwner)
+			{
+				query.Where(Restrictions.IsNull(Projections.Property(() => currentCarVersion.CarOwnerOrganization.Id)));
+			}
+
 			query.Where(GetSearchCriterion(
 				() => carAlias.Id,
 				() => carManufacturerAlias.Name,
