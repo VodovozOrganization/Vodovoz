@@ -338,7 +338,7 @@
           <TableColumn>
             <Width>42.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>97.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -391,7 +391,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>Тип авто</Value>
@@ -492,7 +492,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,12 +510,14 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>={car_type_of_use}</Value>
@@ -523,7 +527,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -539,7 +545,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -555,7 +563,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -833,7 +843,7 @@ GROUP BY t.car_type_of_use;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="detailed_report">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT 
@@ -881,7 +891,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="car_type_of_use">
           <DataField>car_type_of_use</DataField>
           <TypeName>System.String</TypeName>
