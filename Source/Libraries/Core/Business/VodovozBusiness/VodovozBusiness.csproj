@@ -282,9 +282,7 @@
     <Compile Include="Controllers\OdometerReadingsController.cs" />
     <Compile Include="Controllers\IOdometerReadingsController.cs" />
     <Compile Include="Controllers\OrganizationVersionsController.cs" />
-    <Compile Include="Controllers\CarVersionsController.cs" />
     <Compile Include="Controllers\IOrganizationVersionsController.cs" />
-    <Compile Include="Controllers\ICarVersionsController.cs" />
     <Compile Include="Controllers\IOrderDiscountsController.cs" />
     <Compile Include="Controllers\IPaymentFromBankClientController.cs" />
     <Compile Include="Controllers\OrderDiscountsController.cs" />

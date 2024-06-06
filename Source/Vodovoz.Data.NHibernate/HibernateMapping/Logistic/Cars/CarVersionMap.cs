@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.CarOwnType).Column("car_own_type").CustomType<CarOwnTypeStringType>();
 
 			References(x => x.Car).Column("car_id");
+			References(x => x.CarOwnerOrganization).Column("car_owner_organization_id");
 		}
 	}
 }
