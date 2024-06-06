@@ -104,6 +104,46 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => UpdateFilterField(ref _restrictedCarOwnTypes, value);
 		}
 
+		public Organization CarOwner
+		{
+			get => _carOwner;
+			set => UpdateFilterField(ref _carOwner, value);
+		}
+
+		public virtual Counterparty Insurer
+		{
+			get => _insurer;
+			set => UpdateFilterField(ref _insurer, value);
+		}
+
+		public virtual bool IsOnlyCarsWithoutCarOwner
+		{
+			get => _isOnlyCarsWithoutCarOwner;
+			set
+			{
+				UpdateFilterField(ref _isOnlyCarsWithoutCarOwner, value);
+
+				if(_isOnlyCarsWithoutCarOwner)
+				{
+					CarOwner = null;
+				}
+			}
+		}
+
+		public virtual bool IsOnlyCarsWithoutInsurer
+		{
+			get => _isOnlyCarsWithoutInsurer;
+			set
+			{
+				UpdateFilterField(ref _isOnlyCarsWithoutInsurer, value);
+
+				if(_isOnlyCarsWithoutInsurer)
+				{
+					Insurer = null;
+				}
+			}
+		}
+
 		public bool CanChangeIsArchive
 		{
 			get => _canChangeIsArchive;
@@ -132,46 +172,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _canChangeCarModel;
 			set => SetField(ref _canChangeCarModel, value);
-		}
-
-		public Organization CarOwner
-		{
-			get => _carOwner;
-			set => SetField(ref _carOwner, value);
-		}
-
-		public virtual Counterparty Insurer
-		{
-			get => _insurer;
-			set => SetField(ref _insurer, value);
-		}
-
-		public virtual bool IsOnlyCarsWithoutCarOwner
-		{
-			get => _isOnlyCarsWithoutCarOwner;
-			set
-			{
-				SetField(ref _isOnlyCarsWithoutCarOwner, value);
-
-				if(_isOnlyCarsWithoutCarOwner)
-				{
-					CarOwner = null;
-				}
-			}
-		}
-
-		public virtual bool IsOnlyCarsWithoutInsurer
-		{
-			get => _isOnlyCarsWithoutInsurer;
-			set
-			{
-				SetField(ref _isOnlyCarsWithoutInsurer, value);
-
-				if(_isOnlyCarsWithoutInsurer)
-				{
-					Insurer = null;
-				}
-			}
 		}
 
 		public void SetFilterSensitivity(bool isSensitive)
