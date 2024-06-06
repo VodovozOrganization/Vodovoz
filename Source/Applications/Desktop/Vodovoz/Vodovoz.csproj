@@ -2090,6 +2090,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionEditingView.cs" />
     <Compile Include="Views\Logistic\CarVersionEditingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionEditingView.cs" />
+    <Compile Include="Counterparties\CallTaskView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
