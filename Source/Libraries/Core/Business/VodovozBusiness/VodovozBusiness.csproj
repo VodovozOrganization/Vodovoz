@@ -56,6 +56,9 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="Domain\Client\CallTaskStatus.cs" />
+    <Compile Include="Domain\Client\ImportanceDegreeType.cs" />
+    <Compile Include="Domain\Client\TaskSource.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
     <Compile Include="Permissions\Employee.cs" />
