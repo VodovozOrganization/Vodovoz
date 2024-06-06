@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
@@ -53,6 +55,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -79,6 +82,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
+
+		public ILifetimeScope LifetimeScope { get; }
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{

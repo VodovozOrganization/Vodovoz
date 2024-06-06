@@ -2,7 +2,9 @@
 using QS.Utilities.Enums;
 using QS.ViewModels.Control.EEVM;
 using System.Collections.Generic;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -25,6 +27,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool _canChangeIsArchive;
 		private bool _canChangeVisitingMasters;
 		private bool _canChangeRestrictedCarTypesOfUse;
+		private Organization _carOwner;
+		private Counterparty _insurer;
+		private bool _isOnlyCarsWithoutCarOwner;
+		private bool _isOnlyCarsWithoutInsurer;
 		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
 
 		public CarJournalFilterViewModel(ViewModelEEVMBuilder<CarModel> carModelViewModelBuilder)
@@ -126,6 +132,46 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _canChangeCarModel;
 			set => SetField(ref _canChangeCarModel, value);
+		}
+
+		public Organization CarOwner
+		{
+			get => _carOwner;
+			set => SetField(ref _carOwner, value);
+		}
+
+		public virtual Counterparty Insurer
+		{
+			get => _insurer;
+			set => SetField(ref _insurer, value);
+		}
+
+		public virtual bool IsOnlyCarsWithoutCarOwner
+		{
+			get => _isOnlyCarsWithoutCarOwner;
+			set
+			{
+				SetField(ref _isOnlyCarsWithoutCarOwner, value);
+
+				if(_isOnlyCarsWithoutCarOwner)
+				{
+					CarOwner = null;
+				}
+			}
+		}
+
+		public virtual bool IsOnlyCarsWithoutInsurer
+		{
+			get => _isOnlyCarsWithoutInsurer;
+			set
+			{
+				SetField(ref _isOnlyCarsWithoutInsurer, value);
+
+				if(_isOnlyCarsWithoutInsurer)
+				{
+					Insurer = null;
+				}
+			}
 		}
 
 		public void SetFilterSensitivity(bool isSensitive)
