@@ -265,7 +265,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						Projections.Property(() => driverAlias.LastName),
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
-					.WithAlias(() => carJournalNodeAlias.DriverName))
+					.WithAlias(() => carJournalNodeAlias.DriverName)
+					.Select(Projections.Constant("Тестовый страховщик")).WithAlias(() => carJournalNodeAlias.Insurer))
 				.ThenByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
