@@ -26,6 +26,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\docker.vod.qsolution.ru-latest.pubxml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="appsettings.Development.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>

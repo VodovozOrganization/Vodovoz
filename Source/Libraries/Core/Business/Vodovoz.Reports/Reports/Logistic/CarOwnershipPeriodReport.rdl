@@ -211,7 +211,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -225,9 +227,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,9 +245,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -256,9 +262,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -272,9 +280,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -288,9 +298,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -492,7 +504,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="car_changes">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -591,7 +603,7 @@ ORDER BY change_date DESC, car_own_type
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="change_date">
           <DataField>change_date</DataField>
           <TypeName>System.String</TypeName>
