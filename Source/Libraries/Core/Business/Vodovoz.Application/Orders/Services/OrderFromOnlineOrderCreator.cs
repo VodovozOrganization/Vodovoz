@@ -84,8 +84,8 @@ namespace Vodovoz.Application.Orders.Services
 			
 			if(!order.SelfDelivery)
 			{
-				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes ?? 15;
-				order.IsDoNotMakeCallBeforeArrival = false;
+				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes;
+				order.IsDoNotMakeCallBeforeArrival = !onlineOrder.CallBeforeArrivalMinutes.HasValue;
 			}
 			else
 			{

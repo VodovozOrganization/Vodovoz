@@ -403,7 +403,8 @@ namespace Vodovoz
 		{
 			var thisSessionOnlineOrder = UoW.GetById<OnlineOrder>(onlineOrder.Id);
 			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(Entity, thisSessionOnlineOrder, manualCreation: true);
-			
+
+			UpdateCallBeforeArrivalMinutesSelectedItem();
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
@@ -687,44 +688,24 @@ namespace Vodovoz
 
 			speciallistcomboboxCallBeforeArrivalMinutes.ShowSpecialStateNot = true;
 			speciallistcomboboxCallBeforeArrivalMinutes.NameForSpecialStateNot = "Не нужен";
-			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItemStrictTyped = false;
 
 			speciallistcomboboxCallBeforeArrivalMinutes.ItemsList = new int?[] { null, 15, 30, 60 };
 
-			speciallistcomboboxCallBeforeArrivalMinutes.ItemSelected += (s, e) =>
-			{
-				Entity.CallBeforeArrivalMinutes = null;
-				Entity.IsDoNotMakeCallBeforeArrival = null;
-
-				if(speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem is SpecialComboState selectedState)
-				{
-					Entity.CallBeforeArrivalMinutes = null;
-					Entity.IsDoNotMakeCallBeforeArrival = selectedState == SpecialComboState.Not;
-				}
-
-				if(speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem is int callBeforeArrivalMinutes)
-				{
-					Entity.CallBeforeArrivalMinutes = callBeforeArrivalMinutes;
-					Entity.IsDoNotMakeCallBeforeArrival = false;
-				}
-			};
+			speciallistcomboboxCallBeforeArrivalMinutes.Binding
+				.AddBinding(Entity, e => e.CallBeforeArrivalMinutes, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			if(UoWGeneric.IsNew
 				|| (Entity.CallBeforeArrivalMinutes is null && Entity.IsDoNotMakeCallBeforeArrival != true))
 			{
+				//Для новых и кривых заказов добавляем и выставляем пустое значение, чтобы пользователь вручную выбрал нужный вариант
 				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = _defaultCallBeforeArrival;
 			}
-			else
+			
+			speciallistcomboboxCallBeforeArrivalMinutes.ItemSelected += (s, e) =>
 			{
-				if(Entity.CallBeforeArrivalMinutes is null)
-				{
-					speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = SpecialComboState.Not;
-				}
-				else
-				{
-					speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = Entity.CallBeforeArrivalMinutes;
-				}
-			}
+				Entity.IsDoNotMakeCallBeforeArrival = !Entity.CallBeforeArrivalMinutes.HasValue;
+			};
 
 			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
@@ -1128,6 +1109,18 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+		}
+
+		private void UpdateCallBeforeArrivalMinutesSelectedItem()
+		{
+			if(Entity.CallBeforeArrivalMinutes is null)
+			{
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = SpecialComboState.Not;
+			}
+			else
+			{
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = Entity.CallBeforeArrivalMinutes;
+			}
 		}
 
 		private void SetPermissions()

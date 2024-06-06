@@ -162,7 +162,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		public string CallBeforeArrivalMinutes =>
 			!Entity.CallBeforeArrivalMinutes.HasValue
-				? "Отзвон за не указан"
+				? "Не нужен"
 				: $"{ Entity.CallBeforeArrivalMinutes }мин.";
 
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
@@ -295,7 +295,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			SetPropertyChangeRelation(
 				e => e.EmployeeWorkWith,
 				() => CanShowEmployeeWorkWith,
+				() => CanGetToWork,
 				() => CanCreateOrder,
+				() => CanCancelOnlineOrder,
 				() => EmployeeWorkWith);
 			
 			SetPropertyChangeRelation(
