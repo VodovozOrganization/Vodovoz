@@ -77,7 +77,8 @@ namespace Vodovoz.Filters.GtkViews
 			w2.BottomAttach = ((uint)(2));
 			w2.LeftAttach = ((uint)(5));
 			w2.RightAttach = ((uint)(6));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.entityentryInsurer = new global::QS.Views.Control.EntityEntry();
 			this.entityentryInsurer.Events = ((global::Gdk.EventMask)(256));
@@ -88,7 +89,8 @@ namespace Vodovoz.Filters.GtkViews
 			w3.BottomAttach = ((uint)(3));
 			w3.LeftAttach = ((uint)(5));
 			w3.RightAttach = ((uint)(6));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryModel = new global::QS.Views.Control.EntityEntry();
 			this.entryModel.Events = ((global::Gdk.EventMask)(256));
