@@ -310,9 +310,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carModelAlias.Name).WithAlias(() => carJournalNodeAlias.ModelName)
 					.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
 					.Select(c => c.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
-					.Select(upcomingTechInspectProjection).WithAlias(() => carJournalNodeAlias.IsUpcomingTechInspect)
-					.Select(isOsagoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsOsagoInsuranceExpires)
-					.Select(isKaskoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsKaskoInsuranceExpires)
 					.Select(isShowBackgroundColorNotificationProjection).WithAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification)
 					.Select(CustomProjections.Concat_WS(" ",
 						Projections.Property(() => driverAlias.LastName),
