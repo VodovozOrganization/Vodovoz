@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -40,7 +41,7 @@ namespace Vodovoz.ReportsParameters
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
-		private List<Subdivision> _availableSubdivisionsForOneDayGroupReport;
+		private IList<NamedDomainObjectNode> _availableSubdivisionsForOneDayGroupReport;
 		private List<DriverSelectableNode> _availableDriversList = new List<DriverSelectableNode>();
 
 		private ITdiTab _parentTab;
@@ -165,10 +166,10 @@ namespace Vodovoz.ReportsParameters
 			SetChekBoxesInActive(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypeOneDayGroupReport);
 
 			//Выбор подразделения
-			comboSubdivisionsOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
+			comboSubdivisionsOneDayGroupReport.SetRenderTextFunc<NamedDomainObjectNode>(x => x.Name);
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Any();
 			comboSubdivisionsOneDayGroupReport.Changed += OnComboSubdivisionsOneDayGroupReportChanged;
 
 			//Время отправления по умолчанию
@@ -229,13 +230,14 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
-		private List<Subdivision> GetAvailableSubdivisionsListInAccordingWithCarParameters()
+		private IList<NamedDomainObjectNode> GetAvailableSubdivisionsListInAccordingWithCarParameters()
 		{
 
 			var selectedCarTypeOfUses = _carTypesOfUse.Cast<CarTypeOfUse>().ToArray();
 			var selectedCarOwnTypes = _carOwnTypes.Cast<CarOwnType>().ToArray();
 
-			return _subdivisionRepository.GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(UoW, selectedCarTypeOfUses, selectedCarOwnTypes).ToList();
+			return _subdivisionRepository
+				.GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(UoW, selectedCarTypeOfUses, selectedCarOwnTypes);
 		}
 
 		private static void SetChekBoxesInActive(string[] valuesToCheck, ref EnumCheckList checkList)
@@ -256,8 +258,8 @@ namespace Vodovoz.ReportsParameters
 		private Enum[] _carOwnTypes => enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.ToArray();
 
 		private int[] _subdivisionIds => 
-			(comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision) != null
-			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision).Id }
+			(comboSubdivisionsOneDayGroupReport.SelectedItem as NamedDomainObjectNode) != null
+			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as NamedDomainObjectNode).Id }
 			: _availableSubdivisionsForOneDayGroupReport.Select(s => s.Id).ToArray();
 
 		private DateTime _date => 
@@ -428,7 +430,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Any();
 			FillDriversTreeView();
 		}
 
@@ -436,7 +438,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Any();
 			FillDriversTreeView();
 		}
 

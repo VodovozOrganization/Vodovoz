@@ -59,9 +59,13 @@
     <Compile Include="Domain\Orders\OnlineOrderStatusUpdatedNotification.cs" />
     <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
+    <Compile Include="Domain\Client\CallTaskStatus.cs" />
+    <Compile Include="Domain\Client\ImportanceDegreeType.cs" />
+    <Compile Include="Domain\Client\TaskSource.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
     <Compile Include="Errors\Orders\FastDelivery.cs" />
+    <Compile Include="Permissions\Employee.cs" />
     <Compile Include="Permissions\Settings.cs" />
     <Compile Include="Domain\Fuel\FuelLimit.cs" />
     <Compile Include="Domain\Fuel\FuelLimitPeriodUnit.cs" />

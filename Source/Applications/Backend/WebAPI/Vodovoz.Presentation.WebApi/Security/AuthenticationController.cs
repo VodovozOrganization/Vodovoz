@@ -158,7 +158,8 @@ namespace Vodovoz.Presentation.WebApi.Security
 			{
 				var externalApplicationUser = _unitOfWork.Session
 					.Query<ExternalApplicationUserForApi>()
-					.Where(eau => eau.Login == username)
+					.Where(eau => eau.Login == username
+						&& _securityOptions.Value.Authorization.ApplicationUserTypes.Contains(eau.ExternalApplicationType))
 					.FirstOrDefault();
 
 				if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))

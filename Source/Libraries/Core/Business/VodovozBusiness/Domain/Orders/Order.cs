@@ -3192,7 +3192,8 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
+			GuiltyTypes? guilty = GuiltyTypes.Client, bool needCreateDeliveryFreeBalanceOperation = false)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 			var routeList = routeListItem?.RouteList;
@@ -3204,7 +3205,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue);
+					routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -3215,12 +3216,12 @@ namespace Vodovoz.Domain.Orders
 					if(guilty == GuiltyTypes.Client)
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Canceled);
+						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
 					}
 					else
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue);
+						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					}
 					break;
 			}
