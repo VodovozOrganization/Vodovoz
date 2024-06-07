@@ -94,9 +94,6 @@ namespace Vodovoz.Application.Orders.Services
 			
 			order.UpdateOrCreateContract(order.UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 
-			//TODO проверка доступности быстрой доставки, если заказ с быстрой доставкой
-			//скорее всего достаточно будет одной проверки при подтверждении заказа
-
 			if(order.Client != null)
 			{
 				if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
