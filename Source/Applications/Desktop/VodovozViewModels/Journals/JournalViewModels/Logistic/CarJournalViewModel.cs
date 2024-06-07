@@ -102,6 +102,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Employee driverAlias = null;
 			CarManufacturer carManufacturerAlias = null;
 			Organization organizationAlias = null;
+			CarInsurance carInsuranceAlias = null;
+			CarInsurance carOsagoAlias = null;
+			CarInsurance carKaskoAlias = null;
+			Counterparty insurerAlias = null;
 
 			var query = uow.Session.QueryOver<Car>(() => carAlias)
 				.Inner.JoinAlias(c => c.CarModel, () => carModelAlias)
@@ -202,44 +206,36 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				Projections.Constant(false)
 				);
 
-			CarInsurance carInsuranceAlias = null;
-			Counterparty insurerAlias = null;
-
-			var osagoInsurerSubquery = QueryOver.Of(() => carInsuranceAlias)
+			var osagoInsurerIdSubquery = QueryOver.Of(() => carInsuranceAlias)
 				.Left.JoinAlias(() => carInsuranceAlias.Insurer, () => insurerAlias)
-				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago);
+				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago)
+				.Select(ins => insurerAlias.Id)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
 
-			var kaskoInsurerSubquery = QueryOver.Of(() => carInsuranceAlias)
+			var kaskoInsurerIdSubquery = QueryOver.Of(() => carInsuranceAlias)
 				.Left.JoinAlias(() => carInsuranceAlias.Insurer, () => insurerAlias)
-				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko);
+				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko)
+				.Select(ins => insurerAlias.Id)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
 
 			if(_filterViewModel.Insurer != null && !_filterViewModel.IsOnlyCarsWithoutInsurer)
 			{
-				osagoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == _filterViewModel.Insurer.Id);
-				kaskoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == _filterViewModel.Insurer.Id && !carAlias.IsKaskoInsuranceNotRelevant);
-
-				query.Where(Subqueries.Exists(osagoInsurerSubquery.DetachedCriteria)
-					|| Subqueries.Exists(kaskoInsurerSubquery.DetachedCriteria));
+				query.Where(Subqueries.Eq(_filterViewModel.Insurer.Id, osagoInsurerIdSubquery.DetachedCriteria)
+					|| Subqueries.Eq(_filterViewModel.Insurer.Id, kaskoInsurerIdSubquery.DetachedCriteria));
 			}
 
 			if(_filterViewModel.IsOnlyCarsWithoutInsurer)
 			{
-				osagoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == null);
-				kaskoInsurerSubquery.Where(() => carInsuranceAlias.Insurer.Id == null && !carAlias.IsKaskoInsuranceNotRelevant);
-
-				query.Where(Subqueries.Exists(osagoInsurerSubquery.DetachedCriteria)
-					|| Subqueries.Exists(kaskoInsurerSubquery.DetachedCriteria));
+				query.Where(Restrictions.Disjunction()
+					.Add(Subqueries.IsNull(osagoInsurerIdSubquery.DetachedCriteria))
+					.Add(Restrictions.Conjunction()
+						.Add(() => !carAlias.IsKaskoInsuranceNotRelevant)
+						.Add(Subqueries.IsNull(kaskoInsurerIdSubquery.DetachedCriteria))));
 			}
-
-			osagoInsurerSubquery.Select(ins => insurerAlias.Name)
-				.OrderBy(() => carInsuranceAlias.EndDate)
-				.Desc
-				.Take(1);
-
-			kaskoInsurerSubquery.Select(ins => insurerAlias.Name)
-				.OrderBy(() => carInsuranceAlias.EndDate)
-				.Desc
-				.Take(1);
 
 			if(_filterViewModel.Archive != null)
 			{
@@ -316,7 +312,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName)
-					.SelectSubQuery(osagoInsurerSubquery).WithAlias(() => carJournalNodeAlias.Insurer))
+					.SelectSubQuery(osagoInsurerIdSubquery).WithAlias(() => carJournalNodeAlias.Insurer))
 				.ThenByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
