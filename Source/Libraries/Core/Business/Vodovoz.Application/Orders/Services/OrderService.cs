@@ -302,12 +302,7 @@ namespace Vodovoz.Application.Orders.Services
 			UpdateDeliveryCost(uow, order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded();
-			
-			//TODO проверка возможности добавления промонаборов
-			
-			//TODO проверить работу сохранения заказов
-			
-			//для открытия внутренней транзакции
+
 			uow.Save(onlineOrder);
 			var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
 

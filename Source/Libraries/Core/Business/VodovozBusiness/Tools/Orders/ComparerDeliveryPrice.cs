@@ -94,7 +94,7 @@ namespace Vodovoz.Tools.Orders
 		{
 			var water = products.Where(
 					x => x.PromoSet == null
-						//&& x.DiscountReason?.IsPresent != true
+						&& x.DiscountReason?.IsPresent != true
 						&& x.Nomenclature != null
 						&& x.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();

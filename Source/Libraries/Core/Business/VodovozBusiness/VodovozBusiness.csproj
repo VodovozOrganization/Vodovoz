@@ -57,6 +57,7 @@
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="Domain\Orders\OnlineOrderStatusUpdatedNotification.cs" />
+    <Compile Include="Domain\Orders\Product.cs" />
     <Compile Include="EntityRepositories\Orders\IOnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="EntityRepositories\Orders\OnlineOrderStatusUpdatedNotificationRepository.cs" />
     <Compile Include="Domain\Client\CallTaskStatus.cs" />

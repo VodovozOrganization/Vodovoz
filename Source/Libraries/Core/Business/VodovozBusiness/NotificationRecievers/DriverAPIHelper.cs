@@ -14,7 +14,7 @@ namespace Vodovoz.NotificationRecievers
 		IRouteListTransferhandByHandReciever,
 		IDisposable
 	{
-		private readonly ILogger _logger;
+		private readonly ILogger<DriverAPIHelper> _logger;
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
 		private string _notifyOfWaitingTimeChangedUri;
@@ -23,7 +23,7 @@ namespace Vodovoz.NotificationRecievers
 		private HttpClient _apiClient;
 
 		public DriverAPIHelper(
-			ILogger logger,
+			ILogger<DriverAPIHelper> logger,
 			DriverApiHelperConfiguration configuration)
 		{
 			_logger = logger;

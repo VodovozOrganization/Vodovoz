@@ -11,6 +11,9 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 	/// </summary>
 	public class OnlineOrderInfoDto
 	{
+		/// <summary>
+		/// Заказ не прошел сохранение
+		/// </summary>
 		public bool FaultedMessage { get; set; }
 		/// <summary>
 		/// Источник заказа
