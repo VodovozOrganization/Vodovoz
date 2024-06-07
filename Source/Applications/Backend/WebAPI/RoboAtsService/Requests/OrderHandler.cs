@@ -375,8 +375,12 @@ namespace RoboatsService.Requests
 
 		private void CreateIncompleteOrder(RoboatsOrderArgs orderArgs)
 		{
-			var order = _orderService.CreateIncompleteOrder(orderArgs);
-			_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {order.Id}");
+			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
+			_callRegistrator.RegisterAborted(
+				ClientPhone,
+				RequestDto.CallGuid,
+				RoboatsCallOperation.CreateOrder,
+				$"Звонок не был успешно завершен. Был создан черновой заказ {orderData.OrderId}");
 		}
 
 		/// <summary>
