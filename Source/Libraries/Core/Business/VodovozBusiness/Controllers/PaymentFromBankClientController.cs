@@ -126,16 +126,25 @@ namespace Vodovoz.Controllers
 		/// <param name="previousOrderStatus">Предыдущий статус заказа</param>
 		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus)
 		{
-			if(HasOrderUndeliveredStatus(previousOrderStatus)
-				&& order.PaymentType == PaymentType.Cashless
-				&& HasNotCancelledRefundedPayment(uow, order.Id, out var refundedPayment))
+			if(HasOrderUndeliveredStatus(previousOrderStatus) && order.PaymentType == PaymentType.Cashless)
 			{
-				refundedPayment.CancelAllocation(
-					$"Причина отмены: заказ №{order.Id} вернули в статус" +
-					$" {order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}",
-					true);
-				uow.Save(refundedPayment);
+				var notCancelledRefundedPayments = GetNotCancelledRefundedPayments(uow, order.Id);
 
+				if(!notCancelledRefundedPayments.Any())
+				{
+					return;
+				}
+
+				foreach(var refundedPayment in notCancelledRefundedPayments)
+				{
+					refundedPayment.CancelAllocation(
+						$"Причина отмены: заказ №{order.Id} вернули в статус" +
+						$" {order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}",
+						true);
+					
+					uow.Save(refundedPayment);
+				}
+				
 				var cancelledPaymentItems =
 					_paymentItemsRepository.GetCancelledPaymentItemsForOrderFromNotCancelledPayments(uow, order.Id);
 
@@ -192,11 +201,9 @@ namespace Vodovoz.Controllers
 			return paymentItems.Any();
 		}
 		
-		private bool HasNotCancelledRefundedPayment(IUnitOfWork uow, int orderId, out Payment refundedPayment)
+		private IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
 		{
-			refundedPayment = _paymentsRepository.GetNotCancelledRefundedPayment(uow, orderId);
-			
-			return refundedPayment != null;
+			return _paymentsRepository.GetNotCancelledRefundedPayments(uow, orderId);
 		}
 
 		private void CreateNewPaymentForReturnAllocatedSumToClientBalance(

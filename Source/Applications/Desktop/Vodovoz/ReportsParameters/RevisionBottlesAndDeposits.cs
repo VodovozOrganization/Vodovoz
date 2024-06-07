@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
@@ -18,28 +17,25 @@ namespace Vodovoz.Reports
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
+		//Т.к. отчет открывается из диалога звонка, то мы не можем контролировать время жизни скоупа
+		//Поэтому создаем на месте
+		private ILifetimeScope _lifetimeScope = ScopeProvider.Scope.BeginLifetimeScope();
 		private bool _showStockBottle;
 
 		public RevisionBottlesAndDeposits(
-			ILifetimeScope lifetimeScope,
 			IOrderRepository orderRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
-			if(lifetimeScope == null)
-			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
-			}
-
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
-			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
-			UoW = uowFactory.CreateWithoutRoot ();
+			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			UoW = uowFactory.CreateWithoutRoot();
 			entityViewModelEntryCounterparty
 				.SetEntityAutocompleteSelectorFactory(
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope));
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			(deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
 				.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
 			evmeDeliveryPoint
@@ -117,6 +113,17 @@ namespace Vodovoz.Reports
 				evmeDeliveryPoint.Sensitive = true;
 				_deliveryPointJournalFilter.Counterparty = entityViewModelEntryCounterparty.Subject as Counterparty;
 			}
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+
+			base.Destroy();
 		}
 	}
 }
