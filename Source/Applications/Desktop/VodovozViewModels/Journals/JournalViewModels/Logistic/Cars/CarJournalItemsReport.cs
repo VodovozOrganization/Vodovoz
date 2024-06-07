@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 				worksheet.Cell(rowNumber, colNumber++).Value = item.ModelName;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.RegistrationNumber;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.DriverName;
-				worksheet.Cell(rowNumber, colNumber++).Value = item.Insurer;
+				worksheet.Cell(rowNumber, colNumber++).Value = item.OsagoInsurer;
 
 				if(item.IsShowBackgroundColorNotification)
 				{

@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -103,9 +104,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarManufacturer carManufacturerAlias = null;
 			Organization organizationAlias = null;
 			CarInsurance carInsuranceAlias = null;
-			CarInsurance carOsagoAlias = null;
-			CarInsurance carKaskoAlias = null;
-			Counterparty insurerAlias = null;
+			CarInsurance osagoAlias = null;
+			CarInsurance kaskoAlias = null;
+			Counterparty osagoInsurerAlias = null;
+			Counterparty kaskoInsurerAlias = null;
+
+			var lastOsagoInsuranceIdSubquery = QueryOver.Of(() => carInsuranceAlias)
+				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago)
+				.Select(ins => ins.Id)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
+
+			var lastKaskoInsuranceIdSubquery = QueryOver.Of(() => carInsuranceAlias)
+				.Where(() => !carAlias.IsKaskoInsuranceNotRelevant && carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko)
+				.Select(ins => ins.Id)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
 
 			var query = uow.Session.QueryOver<Car>(() => carAlias)
 				.Inner.JoinAlias(c => c.CarModel, () => carModelAlias)
@@ -115,7 +131,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						&& currentCarVersion.StartDate <= currentDateTime
 						&& (currentCarVersion.EndDate == null || currentCarVersion.EndDate >= currentDateTime))
 				.Left.JoinAlias(c => c.Driver, () => driverAlias)
-				.Left.JoinAlias(() => currentCarVersion.CarOwnerOrganization, () => organizationAlias);
+				.Left.JoinAlias(() => currentCarVersion.CarOwnerOrganization, () => organizationAlias)
+				.JoinEntityAlias(() => osagoAlias,
+					Subqueries.PropertyEq(nameof(osagoAlias.Id), lastOsagoInsuranceIdSubquery.DetachedCriteria),
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => kaskoAlias,
+					Subqueries.PropertyEq(nameof(kaskoAlias.Id), lastKaskoInsuranceIdSubquery.DetachedCriteria),
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => osagoAlias.Insurer, () => osagoInsurerAlias)
+				.Left.JoinAlias(() => kaskoAlias.Insurer, () => kaskoInsurerAlias);
 
 			#region Проверка приближающегося ТО
 
@@ -206,35 +230,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				Projections.Constant(false)
 				);
 
-			var osagoInsurerIdSubquery = QueryOver.Of(() => carInsuranceAlias)
-				.Left.JoinAlias(() => carInsuranceAlias.Insurer, () => insurerAlias)
-				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago)
-				.Select(ins => insurerAlias.Id)
-				.OrderBy(() => carInsuranceAlias.EndDate)
-				.Desc
-				.Take(1);
-
-			var kaskoInsurerIdSubquery = QueryOver.Of(() => carInsuranceAlias)
-				.Left.JoinAlias(() => carInsuranceAlias.Insurer, () => insurerAlias)
-				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko)
-				.Select(ins => insurerAlias.Id)
-				.OrderBy(() => carInsuranceAlias.EndDate)
-				.Desc
-				.Take(1);
-
 			if(_filterViewModel.Insurer != null && !_filterViewModel.IsOnlyCarsWithoutInsurer)
 			{
-				query.Where(Subqueries.Eq(_filterViewModel.Insurer.Id, osagoInsurerIdSubquery.DetachedCriteria)
-					|| Subqueries.Eq(_filterViewModel.Insurer.Id, kaskoInsurerIdSubquery.DetachedCriteria));
+				query.Where(() =>
+					osagoInsurerAlias.Id == _filterViewModel.Insurer.Id
+					|| (!carAlias.IsKaskoInsuranceNotRelevant && kaskoInsurerAlias.Id == _filterViewModel.Insurer.Id));
 			}
 
 			if(_filterViewModel.IsOnlyCarsWithoutInsurer)
 			{
-				query.Where(Restrictions.Disjunction()
-					.Add(Subqueries.IsNull(osagoInsurerIdSubquery.DetachedCriteria))
-					.Add(Restrictions.Conjunction()
-						.Add(() => !carAlias.IsKaskoInsuranceNotRelevant)
-						.Add(Subqueries.IsNull(kaskoInsurerIdSubquery.DetachedCriteria))));
+				query.Where(() =>
+					osagoInsurerAlias.Id == null
+					|| (!carAlias.IsKaskoInsuranceNotRelevant && kaskoInsurerAlias.Id == null));
 			}
 
 			if(_filterViewModel.Archive != null)
@@ -312,8 +319,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName)
-					.SelectSubQuery(osagoInsurerIdSubquery).WithAlias(() => carJournalNodeAlias.Insurer))
-				.ThenByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
+					.Select(() => osagoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.OsagoInsurer)
+					.Select(() => kaskoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.KaskoInsurer))
+				.OrderByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
