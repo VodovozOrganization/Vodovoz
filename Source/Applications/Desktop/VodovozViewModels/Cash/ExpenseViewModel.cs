@@ -335,7 +335,7 @@ namespace Vodovoz.ViewModels.Cash
 			get => Entity.DdrDate;
 			set
 			{
-				if(!CanEditDdrDate)
+				if(DdrDate != default && DdrDate != Entity.DdrDate && !CanEditDdrDate)
 				{
 					CommonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Error,
