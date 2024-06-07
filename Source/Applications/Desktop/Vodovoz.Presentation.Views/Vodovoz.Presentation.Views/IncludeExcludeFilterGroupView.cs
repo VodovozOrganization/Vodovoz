@@ -27,11 +27,13 @@ namespace Vodovoz.Presentation.Views
 
 			ybuttonClearExcludes.Clicked += (s, e) =>
 			{
+				ViewModel.ClearExcludesCommand.Execute();
 				ytreeviewElements.QueueDraw();
 			};
 
 			ybuttonClearIncludes.Clicked += (s, e) =>
 			{
+				ViewModel.ClearIncludesCommand.Execute();
 				ytreeviewElements.QueueDraw();
 			};
 
@@ -111,6 +113,13 @@ namespace Vodovoz.Presentation.Views
 		{
 			Gtk.Application.Invoke((s, a) => ViewModel.RaiseSelectionChangedCommand.Execute());
 			ytreeviewElements.QueueDraw();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+
+			base.Destroy();
 		}
 	}
 }

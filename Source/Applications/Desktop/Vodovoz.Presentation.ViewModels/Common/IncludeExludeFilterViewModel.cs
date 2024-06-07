@@ -25,6 +25,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private string _title;
 		private bool _showArchived;
+		private string _searchString;
 
 		private IncludeExcludeFilter _filter;
 
@@ -37,6 +38,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			IncludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(IncludedCount));
 			ExcludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(ExcludedCount));
+			SearchStringChanged += (s, e) => RefreshFilteredElements();
 
 			GetReportParametersFunc = DefaultGetReportParameters;
 
@@ -50,7 +52,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public bool WithExcludes { get; set; } = true;
 
 		public EventHandler SelectionChanged;
-		private string _searchString;
 
 		public DelegateCommand RefreshFilteredElementsCommand { get; }
 
@@ -97,6 +98,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			{
 				if(SetField(ref _searchString, value))
 				{
+					UpdateFilteredElements();
 					SearchStringChanged?.Invoke(this, new SearchStringChangedEventArgs(value));
 				}
 			}
@@ -147,20 +149,18 @@ namespace Vodovoz.Presentation.ViewModels.Common
 					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
 				}
 
-				if(isNamed)
+				if(isNamed && !string.IsNullOrWhiteSpace(SearchString))
 				{
-					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(SearchString)
-						|| ((INamed)entity).Name.ToLower().Like($"%{SearchString.ToLower()}%");
+					Expression<Func<TEntity, bool>> isNamedSearchSpec = entity => ((INamed)entity).Name.ToLower().Like($"%{SearchString.ToLower()}%");
 
-					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+					specificationExpression = specificationExpression.CombineWith(isNamedSearchSpec);
 				}
 
-				if(isTitled)
+				if(isTitled && !string.IsNullOrWhiteSpace(SearchString))
 				{
-					Expression<Func<TEntity, bool>> isArchiveSpec = entity => string.IsNullOrWhiteSpace(SearchString)
-						|| ((ITitled)entity).Title.ToLower().Like($"%{SearchString.ToLower()}%");
+					Expression<Func<TEntity, bool>> isTitledSearchSpec = entity => ((ITitled)entity).Title.ToLower().Like($"%{SearchString.ToLower()}%");
 
-					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+					specificationExpression = specificationExpression.CombineWith(isTitledSearchSpec);
 				}
 
 				if(filter.Specification != null)
