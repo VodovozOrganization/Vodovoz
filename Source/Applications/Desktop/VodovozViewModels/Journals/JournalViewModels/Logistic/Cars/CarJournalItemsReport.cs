@@ -42,12 +42,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 		private void SetColumnsWidth(IXLWorksheet worksheet)
 		{
 			worksheet.Column(1).Width = 10;
-			worksheet.Column(2).Width = 50;
+			worksheet.Column(2).Width = 40;
 			worksheet.Column(3).Width = 30;
 			worksheet.Column(4).Width = 30;
 			worksheet.Column(5).Width = 30;
-			worksheet.Column(6).Width = 50;
-			worksheet.Column(7).Width = 50;
+			worksheet.Column(6).Width = 40;
+			worksheet.Column(7).Width = 70;
 		}
 
 		private void AddTableTitleRow(IXLWorksheet worksheet, int rowNumber)
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 				worksheet.Cell(rowNumber, colNumber++).Value = item.ModelName;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.RegistrationNumber;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.DriverName;
-				worksheet.Cell(rowNumber, colNumber++).Value = item.OsagoInsurer;
+				worksheet.Cell(rowNumber, colNumber++).Value = item.InsurersNames;
 
 				if(item.IsShowBackgroundColorNotification)
 				{

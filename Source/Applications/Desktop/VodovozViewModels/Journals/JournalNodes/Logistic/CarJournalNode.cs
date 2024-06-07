@@ -17,23 +17,23 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string KaskoInsurer { get; set; }
 		public bool IsArchive { get; set; }
 		public bool IsShowBackgroundColorNotification { get; set; }
-		public IEnumerable<string> InsurerNames
+		public string InsurersNames
 		{
 			get
 			{
-				var insurerNames = new List<string>();
+				var insurersNames = new List<string>();
 
 				if(!string.IsNullOrEmpty(OsagoInsurer))
 				{
-					insurerNames.Add(OsagoInsurer);
+					insurersNames.Add(OsagoInsurer);
 				}
 
 				if(!string.IsNullOrEmpty(KaskoInsurer))
 				{
-					insurerNames.Add(KaskoInsurer);
+					insurersNames.Add(KaskoInsurer);
 				}
 
-				return insurerNames;
+				return string.Join(", ", insurersNames);
 			}
 		}
 	}
