@@ -55,7 +55,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			DataLoader = dataLoader;
 
 			Title = "Журнал онлайн заказов";
-			
+
+			SearchEnabled = false;
 			UpdateOnChanges(typeof(OnlineOrder));
 			ConfigureFilter(filterParams);
 			CreateNodeActions();

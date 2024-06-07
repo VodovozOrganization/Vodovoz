@@ -66,9 +66,9 @@ namespace Vodovoz.Application.Orders.Services
 			
 			order.Client = onlineOrder.Counterparty;
 			order.DeliveryPoint = onlineOrder.DeliveryPoint;
+			order.SelfDelivery = onlineOrder.IsSelfDelivery;
 			order.DeliveryDate = onlineOrder.DeliveryDate;
 			order.DeliverySchedule = onlineOrder.DeliverySchedule;
-			order.SelfDelivery = onlineOrder.IsSelfDelivery;
 			order.IsFastDelivery = onlineOrder.IsFastDelivery;
 			order.PaymentType = onlineOrder.OnlineOrderPaymentType.ConvertToOrderPaymentType();
 			order.BottlesReturn = onlineOrder.BottlesReturn;
