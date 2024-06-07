@@ -167,27 +167,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			#region Проверка наличия и окончания срока действия страховки
 
-			var osagoMaxEndDateSubquery = QueryOver.Of<CarInsurance>()
-				.Where(ins => ins.Car.Id == carAlias.Id && ins.InsuranceType == CarInsuranceType.Osago)
-				.Select(Projections.Max<CarInsurance>(ins => ins.EndDate));
-
-			var kaskoMaxEndDateSubquery = QueryOver.Of<CarInsurance>()
-				.Where(ins => ins.Car.Id == carAlias.Id && ins.InsuranceType == CarInsuranceType.Kasko)
-				.Select(Projections.Max<CarInsurance>(ins => ins.EndDate));
-
 			var osagoMaxEndDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
 				NHibernateUtil.DateTime,
-				Projections.SubQuery(osagoMaxEndDateSubquery),
-				Projections.Constant(DateTime.MinValue.ToShortDateString())
-				);
+				Projections.Property(() => osagoAlias.EndDate),
+				Projections.Constant(DateTime.MinValue.ToShortDateString()));
 
 			var kaskoMaxEndDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
 				NHibernateUtil.DateTime,
-				Projections.SubQuery(kaskoMaxEndDateSubquery),
-				Projections.Constant(DateTime.MinValue.ToShortDateString())
-				);
+				Projections.Property(() => kaskoAlias.EndDate),
+				Projections.Constant(DateTime.MinValue.ToShortDateString()));
 
 			var isOsagoExpiresRestriction = Restrictions.Conjunction()
 				.Add(Restrictions.Disjunction()
@@ -209,14 +199,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var isOsagoExpiresProjection = Projections.Conditional(
 				isOsagoExpiresRestriction,
 				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+				Projections.Constant(false));
 
 			var isKaskoExpiresProjection = Projections.Conditional(
 				isKaskoExpiresRestriction,
 				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+				Projections.Constant(false));
 
 			#endregion
 
@@ -227,8 +215,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Add(isOsagoExpiresRestriction)
 					.Add(isKaskoExpiresRestriction),
 				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+				Projections.Constant(false));
 
 			if(_filterViewModel.Insurer != null && !_filterViewModel.IsOnlyCarsWithoutInsurer)
 			{
