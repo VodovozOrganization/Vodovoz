@@ -11,6 +11,7 @@
     <ItemGroup>
       <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev-customer_orders_registrar.pubxml" />
       <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
+      <_WebToolingArtifacts Remove="Properties\PublishProfiles\latest-customer_orders_registrar.pubxml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,13 +31,5 @@
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Properties\PublishProfiles\docker.vod.qsolution.ru-dev.pubxml">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </None>
     </ItemGroup>
 </Project>

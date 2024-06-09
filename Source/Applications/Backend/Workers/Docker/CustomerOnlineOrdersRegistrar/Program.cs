@@ -6,6 +6,7 @@ using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.Application;
@@ -44,7 +45,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddCustomerOrdersApiLibrary()
 						.AddApplicationOrderServices()
 						.AddStaticScopeForEntity()
-						//.AddStaticHistoryTracker()
+						.AddStaticHistoryTracker()
 
 						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
 						
