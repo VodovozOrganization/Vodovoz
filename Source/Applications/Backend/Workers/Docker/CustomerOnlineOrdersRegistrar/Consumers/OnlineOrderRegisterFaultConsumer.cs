@@ -25,7 +25,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
-			Logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
+			_logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
 			
 			try
 			{
@@ -34,7 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
+				_logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
 				throw;
 			}

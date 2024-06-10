@@ -28,7 +28,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
-			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
+			_logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
 			
 			try
 			{
@@ -37,7 +37,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
+				_logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
 				_bus.Publish<OnlineOrderInfoDto>(message);
 				return Task.CompletedTask;

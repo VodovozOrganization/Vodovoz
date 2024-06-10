@@ -97,7 +97,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// <summary>
 		/// Отзвон за
 		/// </summary>
-		public int?CallBeforeArrivalMinutes { get; set; }
+		public int? CallBeforeArrivalMinutes { get; set; }
 		
 		/// <summary>
 		/// Доставка за час?
