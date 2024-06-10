@@ -287,7 +287,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => carAlias.RegistrationNumber,
 				() => driverAlias.Name,
 				() => driverAlias.LastName,
-				() => driverAlias.Patronymic));
+				() => driverAlias.Patronymic,
+				() => organizationAlias.Name,
+				() => osagoInsurerAlias.Name,
+				() => kaskoInsurerAlias.Name));
 
 			var result = query
 				.SelectList(list => list
