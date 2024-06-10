@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace EarchiveApi
@@ -22,6 +23,7 @@ namespace EarchiveApi
 		// For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();

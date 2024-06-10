@@ -1,20 +1,22 @@
-﻿using System;
+﻿using Autofac;
+using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QS.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Gamma.Utilities;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Utilities;
-using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -22,10 +24,9 @@ namespace Vodovoz.Domain.Orders
 				NominativePlural = "недовезённые заказы",
 				Nominative = "недовезённый заказ",
 				Prepositional = "недовезённом заказе",
-				PrepositionalPlural = "недовезённых заказах"
-			   )
-	]
+				PrepositionalPlural = "недовезённых заказах")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
 		private UndeliveryTransferAbsenceReason _undeliveryTransferAbsenceReason;
@@ -34,6 +35,9 @@ namespace Vodovoz.Domain.Orders
 		private UndeliveryDetalization _undeliveryDetalization;
 		private UndeliveryStatus? _oldUndeliveryStatus;
 		private UndeliveryStatus _undeliveryStatus;
+		private IList<UndeliveryDiscussion> _undeliveryDiscussions = new List<UndeliveryDiscussion>();
+		private GenericObservableList<UndeliveryDiscussion> _observableUndeliveryDiscussions;
+		private ISubdivisionSettings _subdivisionSettings => ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
 		#region Cвойства
 
@@ -46,8 +50,11 @@ namespace Vodovoz.Domain.Orders
 			get => _undeliveryStatus;
 			protected set
 			{
-				_oldUndeliveryStatus = _undeliveryStatus;
 				SetField(ref _undeliveryStatus, value);
+				if(_oldUndeliveryStatus == null)
+				{
+					_oldUndeliveryStatus = _undeliveryStatus;
+				}
 			}
 		}
 
@@ -273,6 +280,17 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _undeliveryDetalization, value);
 		}
 
+		[Display(Name = "Обсуждения")]
+		public virtual IList<UndeliveryDiscussion> UndeliveryDiscussions
+		{
+			get => _undeliveryDiscussions;
+			set => SetField(ref _undeliveryDiscussions, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<UndeliveryDiscussion> ObservableUndeliveryDiscussions =>
+			_observableUndeliveryDiscussions ?? (_observableUndeliveryDiscussions = new GenericObservableList<UndeliveryDiscussion>(UndeliveryDiscussions));
+
 		#endregion
 
 		#region Вычисляемые свойства
@@ -298,7 +316,19 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddAutoCommentByChangeStatus()
 		{
-			AddAutoComment(CommentedFields.Reason);
+			var text = string.Empty;
+
+			if(_oldUndeliveryStatus.HasValue && _oldUndeliveryStatus != UndeliveryStatus && Id > 0)
+			{
+				text = $"сменил(а) статус недовоза\nс \"{_oldUndeliveryStatus.GetEnumTitle()}\" на \"{UndeliveryStatus.GetEnumTitle()}\"";
+			}
+
+			if(string.IsNullOrEmpty(text))
+			{
+				return;
+			}
+
+			AddAutoCommentToOkkDiscussion(UoW, text);
 		}
 
 		public virtual IList<Employee> GetDrivers(IOrderRepository orderRepository)
@@ -315,51 +345,48 @@ namespace Vodovoz.Domain.Orders
 			LastEditedTime = DateTime.Now;
 		}
 
-		/// <summary>
-		/// Добавление автокомментариев к полям
-		/// </summary>
-		/// <param name="field">Комментируемое поле</param>
-		void AddAutoComment(CommentedFields field)
-		{
-			var text = string.Empty;
-			switch(field) {
-				case CommentedFields.Reason:
-					if(_oldUndeliveryStatus.HasValue && _oldUndeliveryStatus != UndeliveryStatus && Id > 0)
-					{
-						text =
-							$"сменил(а) статус недовоза\nс \"{_oldUndeliveryStatus.GetEnumTitle()}\" на \"{UndeliveryStatus.GetEnumTitle()}\"";
-					}
-
-					break;
-				default:
-					break;
-			}
-			if(string.IsNullOrEmpty(text))
-			{
-				return;
-			}
-
-			AddCommentToTheField(UoW, field, text);
-		}
 
 		/// <summary>
-		/// Добавление комментария к полю
+		/// Добавление комментария к обсуждению ОКК
 		/// </summary>
-		/// <param name="uow">UoW</param>
-		/// <param name="field">Комментируемое поле</param>
+		/// <param name="uow">UoW</param>		
 		/// <param name="text">Текст комментария</param>
-		public virtual void AddCommentToTheField(IUnitOfWork uow, CommentedFields field, string text)
+		public virtual void AddAutoCommentToOkkDiscussion(IUnitOfWork uow, string text)
 		{
-			UndeliveredOrderComment comment = new UndeliveredOrderComment {
+			var okkDiscussion = OkkDiscussion ??  CreateOkkDiscussion(uow);
+
+			var comment = new UndeliveryDiscussionComment
+			{
 				Comment = text,
-				CommentDate = DateTime.Now,
-				CommentedField = field,
-				Employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
-				UndeliveredOrder = this
+				Author = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
+				UndeliveryDiscussion = okkDiscussion,
+				CreationTime = DateTime.Now
 			};
 
-			uow.Save(comment);
+			okkDiscussion.ObservableComments.Add(comment);
+
+			uow.Save(okkDiscussion);
 		}
+
+		public virtual UndeliveryDiscussion CreateOkkDiscussion(IUnitOfWork uow)
+		{
+			var okkSubdivision = uow.GetById<Subdivision>(_subdivisionSettings.GetOkkId());
+
+			var	okkDiscussion = new UndeliveryDiscussion
+			{
+				StartSubdivisionDate = DateTime.Now,
+				Status = UndeliveryDiscussionStatus.InProcess,
+				Undelivery = this,
+				Subdivision = okkSubdivision
+			};
+
+			ObservableUndeliveryDiscussions.Add(okkDiscussion);
+
+			return okkDiscussion;
+		}
+
+		public virtual UndeliveryDiscussion OkkDiscussion => ObservableUndeliveryDiscussions.FirstOrDefault(x => x.Subdivision.Id == _subdivisionSettings.GetOkkId());
+		
 
 		/// <summary>
 		/// Сбор различной информации о недоставленном заказе
@@ -367,7 +394,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Строка</returns>
 		public virtual string GetOldOrderInfo(IOrderRepository orderRepository)
 		{
-			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
+			StringBuilder info = new StringBuilder("\n").AppendLine($"<b>Автор недовоза:</b> {Author?.ShortName}");
 			if(oldOrder != null) {
 				info.AppendLine(string.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
 				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));
@@ -450,12 +477,69 @@ namespace Vodovoz.Domain.Orders
 			return info.ToString();
 		}
 
+		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
+		{
+			if(subdivision == null)
+			{
+				throw new ArgumentNullException(nameof(subdivision));
+			}
+
+			if(ObservableUndeliveryDiscussions.Any(x => x.Subdivision.Id == subdivision.Id))
+			{
+				return;
+			}
+
+			UndeliveryDiscussion newDiscussion = new UndeliveryDiscussion
+			{
+				StartSubdivisionDate = DateTime.Now,
+				PlannedCompletionDate = DateTime.Today,
+				Undelivery = this,
+				Subdivision = subdivision
+			};
+
+			ObservableUndeliveryDiscussions.Add(newDiscussion);
+
+			SetStatus(UndeliveryStatus.InProcess);
+		}
+
+		public virtual void UpdateUndeliveryStatusByDiscussionsStatus()
+		{
+			if(ObservableUndeliveryDiscussions.All(x => x.Status == UndeliveryDiscussionStatus.Closed))
+			{
+				SetStatus(UndeliveryStatus.Checking);
+				return;
+			}
+
+			SetStatus(UndeliveryStatus.InProcess);
+		}
+
+		public virtual IList<string> SetStatus(UndeliveryStatus newStatus)
+		{
+			List<string> result = new List<string>();
+			if(newStatus == UndeliveryStatus.Closed)
+			{
+				if(ObservableResultComments.Count == 0)
+				{
+					result.Add("Необходимо добавить комментарий \"Результат\".");
+				}
+			}
+
+			if(!result.Any())
+			{
+				UndeliveryStatus = newStatus;
+			}
+
+			return result;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
+
 			if(OldOrder == null)
 				yield return new ValidationResult(
 					"Необходимо выбрать недовезённый заказ",
@@ -506,6 +590,20 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Не указан сотрудник, зарегистрировавший недовоз.",
 					new[] { nameof(EmployeeRegistrator) });
 			}
+
+			#region Статусы для отмены
+
+			var isOrderStatusForbiddenForCancellation = !orderRepository.GetStatusesForOrderCancelationWithCancellation().Contains(OldOrder.OrderStatus);
+			var isSelfDeliveryOnLoadingOrder = NewOrder != null && NewOrder.SelfDelivery && OldOrder.OrderStatus == OrderStatus.OnLoading;
+			var isNotUndelivery = GuiltyInUndelivery.Any(x => x.GuiltySide == GuiltyTypes.None);
+
+			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder && !isNotUndelivery)
+			{
+				yield return new ValidationResult("В текущий момент заказ нельзя отменить.",
+					new[] { nameof(OrderStatus) });
+			}
+
+			#endregion
 		}
 
 		#endregion

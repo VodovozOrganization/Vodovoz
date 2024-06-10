@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gdk;
 using Gtk;
@@ -10,12 +10,12 @@ using QS.Permissions;
 using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
+using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewWidgets.Permissions
@@ -45,11 +45,12 @@ namespace Vodovoz.ViewWidgets.Permissions
 
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
 		{
+			var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 			var permissionRepository = new PermissionRepository();
 			ViewModel =
 				new PresetUserPermissionsViewModel(
 					uow, permissionRepository, uow.GetById<User>(user.Id),
-					new UsersPresetPermissionValuesGetter(permissionRepository, new SubdivisionRepository(new ParametersProvider())),
+					new UsersPresetPermissionValuesGetter(permissionRepository, subdivisionRepository),
 					new UserPermissionsExporter(new FileDialogService(), new GtkMessageDialogsInteractive()));
 			Configure();
 		}

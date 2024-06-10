@@ -32,6 +32,7 @@ namespace Vodovoz.Views.Orders
 			enumDiscountValueType.ItemsEnum = typeof(DiscountUnits);
 			enumDiscountValueType.Binding.AddBinding(ViewModel.Entity, e => e.ValueType, w => w.SelectedItem).InitializeFromSource();
 			chkBtnPremiumDiscount.Binding.AddBinding(ViewModel.Entity, e => e.IsPremiumDiscount, w => w.Active).InitializeFromSource();
+			chkBtnPresent.Binding.AddBinding(ViewModel.Entity, e => e.IsPresent, w => w.Active).InitializeFromSource();
 			chkBtnSelectAll.Toggled += (s, e) => ViewModel.UpdateSelectedCategoriesCommand.Execute(chkBtnSelectAll.Active);
 			
 			ConfigureTreeViews();
@@ -50,6 +51,8 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureNomenclatureCategoriesTree()
 		{
 			treeViewNomenclatureCategories.CreateFluentColumnsConfig<SelectableNomenclatureCategoryNode>()
+				.AddColumn("")
+					.AddTextRenderer(x => x.DiscountReasonNomenclatureCategory != null ? x.DiscountReasonNomenclatureCategory.Id.ToString() : "")
 				.AddColumn("")
 					.AddTextRenderer(x =>
 						x.DiscountReasonNomenclatureCategory.NomenclatureCategory.GetEnumTitle())
@@ -81,6 +84,8 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureNomenclaturesTree()
 		{
 			treeViewNomenclatures.CreateFluentColumnsConfig<Nomenclature>()
+				.AddColumn("")
+					.AddNumericRenderer(x => x.Id)
 				.AddColumn("")
 					.AddTextRenderer(x => x.Name)
 				.AddColumn("")

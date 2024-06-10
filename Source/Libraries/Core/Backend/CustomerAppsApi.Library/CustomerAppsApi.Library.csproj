@@ -8,4 +8,9 @@
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
+    </ItemGroup>
+
 </Project>

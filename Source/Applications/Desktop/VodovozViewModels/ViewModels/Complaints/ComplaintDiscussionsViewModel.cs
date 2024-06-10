@@ -1,5 +1,4 @@
-﻿using Autofac;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
@@ -20,22 +20,25 @@ using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Complaints
 {
-	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
+	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>, IDisposable
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly INavigationManager _navigationManager;
+		private DialogViewModelBase _parentTab;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity,
 			IUnitOfWork uow,
+			DialogViewModelBase parentTab,
 			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
 			INavigationManager navigationManager) : base(entity, commonServices)
 		{
+			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -119,19 +122,25 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateAttachSubdivisionCommand()
 		{
 			AttachSubdivisionCommand = new DelegateCommand(
-				() => {
-					var filter = new SubdivisionFilterViewModel();
-					filter.ExcludedSubdivisionsIds = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-
-					var page = _navigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
-
-					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+				() =>
+				{
+					var page = _navigationManager.OpenViewModel<SubdivisionsJournalViewModel, Action<SubdivisionFilterViewModel>>(
+						_parentTab,
+						filter =>
+							filter.ExcludedSubdivisionsIds = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray(),
+						OpenPageOptions.AsSlave,
+						vm => vm.SelectionMode = JournalSelectionMode.Single);
 
 					page.ViewModel.OnSelectResult += (s, e) =>
 					{
-						SubdivisionJournalNode selected = e.SelectedObjects.Where(x => x is SubdivisionJournalNode).Select(x => (x as SubdivisionJournalNode)).FirstOrDefault();
+						var selected = e.SelectedObjects.OfType<SubdivisionJournalNode>().FirstOrDefault();
 
-						Subdivision subdivision = UoW.GetById<Subdivision>(selected.Id);
+						if(selected is null)
+						{
+							return;
+						}
+
+						var subdivision = UoW.GetById<Subdivision>(selected.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
 				},
@@ -185,5 +194,10 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion AttachSubdivisionByComplaintKindCommand
 
 		#endregion Commands
+
+		public void Dispose()
+		{
+			_parentTab = null;
+		}
 	}
 }

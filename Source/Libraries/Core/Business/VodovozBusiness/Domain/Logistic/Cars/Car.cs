@@ -1,13 +1,12 @@
-﻿using System;
+﻿using QS.Attachments.Domain;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using NHibernate.Type;
-using QS.Attachments.Domain;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -15,7 +14,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
-		Nominative = "автомобиль")]
+		Nominative = "автомобиль",
+		GenitivePlural = "автомобилей")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
@@ -28,6 +28,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<CarVersion> _observableCarVersions;
 		private IList<OdometerReading> _odometerReadings = new List<OdometerReading>();
 		private GenericObservableList<OdometerReading> _observableOdometerReadings;
+		private IList<FuelCardVersion> _fuelCardVersions = new List<FuelCardVersion>();
+		private GenericObservableList<FuelCardVersion> _observableFuelCardVersions;
+		private IList<CarInsurance> _carInsurances = new List<CarInsurance>();
+		private GenericObservableList<CarInsurance> _observableCarInsurances;
 		private string _carcase;
 		private string _chassisNumber;
 		private string _color;
@@ -51,8 +55,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
-		private string _registrationNumber = String.Empty;
+		private string _registrationNumber = string.Empty;
 		private string _vIn;
+		private DateTime? _archivingDate;
+		private ArchivingReason? _archivingReason;
+		private int _leftUntilTechInspect;
+		private IncomeChannel _incomeChannel;
+		private bool _isKaskoInsuranceNotRelevant = true;
 
 		public virtual int Id { get; set; }
 
@@ -67,7 +76,27 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
-			set => SetField(ref _isArchive, value);
+			set
+			{
+				if(SetField(ref _isArchive, value) && !value)
+				{
+					ArchivingReason = null;
+				}
+			}
+		}
+
+		[Display(Name = "Дата архивации")]
+		public virtual DateTime? ArchivingDate
+		{
+			get => _archivingDate;
+			set => SetField(ref _archivingDate, value);
+		}
+
+		[Display(Name = "Причина архивации")]
+		public virtual ArchivingReason? ArchivingReason
+		{
+			get => _archivingReason;
+			set => SetField(ref _archivingReason, value);
 		}
 
 		public virtual IList<CarVersion> CarVersions
@@ -84,9 +113,27 @@ namespace Vodovoz.Domain.Logistic.Cars
 			get => _odometerReadings;
 			set => SetField(ref _odometerReadings, value);
 		}
-		
-		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings 
-		    ?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
+
+		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings
+			?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
+
+		public virtual IList<FuelCardVersion> FuelCardVersions
+		{
+			get => _fuelCardVersions;
+			set => SetField(ref _fuelCardVersions, value);
+		}
+
+		public virtual GenericObservableList<FuelCardVersion> ObservableFuelCardVersions => _observableFuelCardVersions
+			?? (_observableFuelCardVersions = new GenericObservableList<FuelCardVersion>(FuelCardVersions));
+
+		public virtual IList<CarInsurance> CarInsurances
+		{
+			get => _carInsurances;
+			set => SetField(ref _carInsurances, value);
+		}
+
+		public virtual GenericObservableList<CarInsurance> ObservableCarInsurances => _observableCarInsurances
+			?? (_observableCarInsurances = new GenericObservableList<CarInsurance>(CarInsurances));
 
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber
@@ -236,13 +283,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
-		[Display(Name = "Номер топливной карты")]
-		public virtual string FuelCardNumber
-		{
-			get => _fuelCardNumber;
-			set => SetField(ref _fuelCardNumber, value);
-		}
-
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -274,6 +314,27 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _attachments, value);
 		}
 
+		[Display(Name = "Осталось до ТО, км")]
+		public virtual int LeftUntilTechInspect
+		{
+			get => _leftUntilTechInspect;
+			set => SetField(ref _leftUntilTechInspect, value);
+		}
+
+		[Display(Name = "Канал поступления")]
+		public virtual IncomeChannel IncomeChannel
+		{
+			get => _incomeChannel;
+			set => SetField(ref _incomeChannel, value);
+		}
+
+		[Display(Name = "Страховка Каско не актуальна для данного ТС")]
+		public virtual bool IsKaskoInsuranceNotRelevant
+		{
+			get => _isKaskoInsuranceNotRelevant;
+			set => SetField(ref _isKaskoInsuranceNotRelevant, value);
+		}
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
@@ -297,6 +358,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 				x.StartDate <= currentDateTime && (x.EndDate == null || x.EndDate >= currentDateTime));
 		}
 
+		public virtual FuelCardVersion GetCurrentActiveFuelCardVersion()
+		{
+			return GetActiveFuelCardVersionOnDate(DateTime.Now);
+		}
+
+		public virtual FuelCardVersion GetActiveFuelCardVersionOnDate(DateTime date)
+		{
+			return ObservableFuelCardVersions.FirstOrDefault(x =>
+				x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
+		}
+
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -306,12 +378,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
 			}
 
-			if(FuelType == null)
+			if(FuelType is null)
 			{
 				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
 			}
-			
-			if(CarModel == null)
+
+			if(CarModel is null)
 			{
 				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
 			}
@@ -319,6 +391,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(FuelConsumption <= 0)
 			{
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { nameof(FuelConsumption) });
+			}
+
+			if(IncomeChannel == IncomeChannel.None)
+			{
+				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
 			var cars = UoW.Session.QueryOver<Car>()
@@ -345,6 +422,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
+
+			if(IsArchive && ArchivingReason == null)
+			{
+				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
+			}
 		}
 
 		private double GetFuelConsumption()
@@ -353,22 +435,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 			{
 				return 0;
 			}
-			
+
 			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate).FirstOrDefault()?.FuelConsumption;
 
 			return result ?? 0;
 		}
-	}
-
-	public class CarTypeOfUseStringType : EnumStringType
-	{
-		public CarTypeOfUseStringType() : base(typeof(CarTypeOfUse))
-		{ }
-	}
-
-	public class GenderStringType : EnumStringType
-	{
-		public GenderStringType() : base(typeof(Gender))
-		{ }
 	}
 }

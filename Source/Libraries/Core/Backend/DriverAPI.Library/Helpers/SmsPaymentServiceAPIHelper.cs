@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
@@ -23,7 +24,7 @@ namespace DriverAPI.Library.Helpers
 			{
 				if (response.IsSuccessStatusCode)
 				{
-					var result = await response.Content.ReadAsAsync<SendPaymentResponseDto>();
+					var result = await response.Content.ReadAsAsync<SendPaymentResponse>();
 
 					if (result.Status == SendPaymentResponseDtoMessageStatus.Ok)
 					{

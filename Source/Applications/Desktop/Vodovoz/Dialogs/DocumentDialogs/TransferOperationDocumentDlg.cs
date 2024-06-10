@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -16,13 +18,13 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class TransferOperationDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<TransferOperationDocument>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public TransferOperationDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
 			TabName = "Новый перенос между точками доставки";
 			ConfigureDlg();
 			Entity.Author = Entity.ResponsiblePerson = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -36,7 +38,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public TransferOperationDocumentDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
 			ConfigureDlg();
 		}
 
@@ -52,11 +54,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			var clientFactory = new CounterpartyJournalFactory();
+			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
-			referenceCounterpartyTo.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			referenceCounterpartyTo.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
 			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
@@ -73,7 +75,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			var messages = new List<string>();
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -216,6 +218,16 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 			this.HasChanges = (decimal)spinDepositsBottles.Value != (Entity.OutEquipmentDepositOperation.RefundDeposit != 0 ? Entity.OutEquipmentDepositOperation.RefundDeposit : (Entity.OutEquipmentDepositOperation.ReceivedDeposit * -1));
+		}
+
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
 		}
 	}
 }

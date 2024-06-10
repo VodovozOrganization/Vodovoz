@@ -14,6 +14,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
@@ -22,6 +23,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
+using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
@@ -67,7 +69,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			SetPermissions();
 
 			CreateCancelPaymentAction();
-			UpdateOnChanges(typeof(PaymentItem), typeof(VodOrder));
+			UpdateOnChanges(
+				typeof(PaymentItem),
+				typeof(Payment),
+				typeof(VodOrder));
 		}
 
 		private void SetPermissions()
@@ -154,20 +159,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					paymentQuery.Where(p => p.Counterparty.Id == _filterViewModel.Counterparty.Id);
 				}
-				
-				if(_filterViewModel.StartDate.HasValue)
+
+				var startDate = _filterViewModel.StartDate;
+				var endDate = _filterViewModel.EndDate;
+
+				if(startDate.HasValue)
 				{
-					paymentQuery.Where(p => p.Date >= _filterViewModel.StartDate);
+					paymentQuery.Where(p => p.Date >= startDate);
 				}
 
-				if(_filterViewModel.EndDate.HasValue)
+				if(endDate.HasValue)
 				{
-					paymentQuery.Where(p => p.Date <= _filterViewModel.EndDate.Value.AddDays(1).AddMilliseconds(-1));
+					paymentQuery.Where(p => p.Date <= endDate.Value.LatestDayTime());
 				}
 
 				if(_filterViewModel.HideCompleted)
 				{
 					paymentQuery.Where(p => p.Status != PaymentState.completed);
+				}
+
+				if(_filterViewModel.HideCancelledPayments)
+				{
+					paymentQuery.Where(p => p.Status != PaymentState.Cancelled);
 				}
 
 				if(_filterViewModel.HidePaymentsWithoutCounterparty)
@@ -193,6 +206,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				if(_filterViewModel.IsSortingDescByUnAllocatedSum)
 				{
 					paymentQuery = paymentQuery.OrderBy(Projections.SubQuery(unAllocatedSum)).Desc;
+				}
+
+				switch(_filterViewModel.SortType)
+				{
+					case PaymentJournalSortType.Status:
+						paymentQuery.OrderBy(() => paymentAlias.Status).Asc();
+						paymentQuery.OrderBy(() => paymentAlias.CounterpartyName).Asc();
+						paymentQuery.OrderBy(() => paymentAlias.Total).Asc();
+						break;
+					case PaymentJournalSortType.Date:
+						paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc();
+						paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc();
+						break;
+					case PaymentJournalSortType.PaymentNum:
+						paymentQuery.OrderBy(() => paymentAlias.PaymentNum).Desc();
+						paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc();
+						break;
+					case PaymentJournalSortType.TotalSum:
+						paymentQuery.OrderBy(() => paymentAlias.Total).Desc();
+						paymentQuery.OrderBy(() => paymentAlias.Date.Date).Desc();
+						break;
 				}
 			}
 
@@ -220,11 +254,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					.Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
 					.Select(() => paymentAlias.IsManuallyCreated).WithAlias(() => resultAlias.IsManualCreated)
 					.SelectSubQuery(unAllocatedSum).WithAlias(() => resultAlias.UnAllocatedSum))
-				.OrderBy(() => paymentAlias.Status).Asc
-				.OrderBy(() => paymentAlias.CounterpartyName).Asc
-				.OrderBy(() => paymentAlias.Total).Asc
 				.TransformUsing(Transformers.AliasToBean<PaymentJournalNode>());
-			
+
 			return resultQuery;
 		}
 

@@ -65,10 +65,10 @@ namespace Vodovoz.Views.Users
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Views.Permissions.UserRoleView
+			// Widget Vodovoz.Views.Users.UserRoleView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.Views.Permissions.UserRoleView";
-			// Container child Vodovoz.Views.Permissions.UserRoleView.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.Views.Users.UserRoleView";
+			// Container child Vodovoz.Views.Users.UserRoleView.Gtk.Container+ContainerChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;

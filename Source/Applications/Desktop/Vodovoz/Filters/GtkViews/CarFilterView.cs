@@ -1,6 +1,8 @@
 ﻿using Gamma.Widgets.Additions;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
@@ -40,11 +42,42 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
 				.InitializeFromSource();
 
-			entryModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory.CreateCarModelAutocompleteSelectorFactory(ViewModel.LifetimeScope));
+			entryModel.ViewModel = ViewModel.CarModelViewModel;
+
 			entryModel.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeCarModel, w => w.Sensitive)
-				.AddBinding(vm => vm.CarModel, w => w.Subject)
 				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.ExcludedCarTypesOfUse))
+			{
+				RefreshHiddenElements();
+			}
+		}
+
+		private void RefreshHiddenElements()
+		{
+			enumcheckCarTypeOfUse.ClearEnumHideList();
+
+			if(ViewModel.ExcludedCarTypesOfUse is null || !ViewModel.ExcludedCarTypesOfUse.Any())
+			{
+				return;
+			}
+
+			foreach(var excludedCarTypeOfUse in ViewModel.ExcludedCarTypesOfUse)
+			{
+				enumcheckCarTypeOfUse.AddEnumToHideList(excludedCarTypeOfUse);
+			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

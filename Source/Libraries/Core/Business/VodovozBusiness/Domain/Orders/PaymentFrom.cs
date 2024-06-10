@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -33,6 +34,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IPaymentFromRepository)) is IPaymentFromRepository paymentFromRepository))
 			{
@@ -40,9 +42,9 @@ namespace Vodovoz.Domain.Orders
 			}
 			
 			if(!(validationContext.ServiceContainer.GetService(
-				typeof(IOrderParametersProvider)) is IOrderParametersProvider orderParametersProvider))
+				typeof(IOrderSettings)) is IOrderSettings orderSettings))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderParametersProvider) }");
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderSettings) }");
 			}
 			
 			if(string.IsNullOrWhiteSpace(Name))
@@ -52,14 +54,14 @@ namespace Vodovoz.Domain.Orders
 
 			if(Id > 0
 				&& OrganizationForOnlinePayments != null
-				&& orderParametersProvider.PaymentsByCardFromAvangard.Contains(Id)
+				&& orderSettings.PaymentsByCardFromAvangard.Contains(Id)
 				&& !OrganizationForOnlinePayments.AvangardShopId.HasValue)
 			{
 				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_Id",
 					new[] { nameof(OrganizationForOnlinePayments.AvangardShopId) });
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				var duplicate = paymentFromRepository.GetDuplicatePaymentFromByName(uow, Id, Name);
 				if(duplicate != null)

@@ -12,7 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Cash
@@ -24,12 +24,12 @@ namespace Vodovoz.EntityRepositories.Cash
 		private CashReceipt _cashReceiptAlias = null;
 		private Counterparty _counterpartyAlias = null;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IOrderSettings _orderSettings;
 
-		public CashReceiptRepository(IUnitOfWorkFactory uowFactory, IOrderParametersProvider orderParametersProvider)
+		public CashReceiptRepository(IUnitOfWorkFactory uowFactory, IOrderSettings orderSettings)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
 		private ICriterion GetPositiveSumRestriction()
@@ -57,15 +57,15 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Add(Restrictions.Conjunction()
 					.Add(() => _orderAlias.PaymentType == PaymentType.PaidOnline)
 					.Add(Restrictions.Disjunction()
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromAvangardId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromSmsYuKassaId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromKulerSaleId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.PaymentFromTerminalId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.GetPaymentByCardFromFastPaymentServiceId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.GetPaymentByCardFromAvangardId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.GetPaymentByCardFromSiteByQrCodeId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.PaymentByCardFromMobileAppId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.PaymentByCardFromSiteId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.PaymentFromSmsYuKassaId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderSettings.GetPaymentByCardFromKulerSaleId)
 						)
 					);
 			return restriction;
@@ -363,20 +363,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			{
 				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
 					.Where(() => _cashReceiptAlias.Order.Id == orderId)
-					.Where(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded)
+					.And(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded
+						&& _cashReceiptAlias.Status != CashReceiptStatus.DuplicateSum)
 					.Select(Projections.Id());
 				var result = query.List<int>();
-				var hasNeededReceipts = result.Any();
 
-				if(hasNeededReceipts)
-				{
-					return hasNeededReceipts;
-				}
-				else
-				{
-					var receiptNeeded = CashReceiptNeeded(uow, orderId);
-					return receiptNeeded;
-				}
+				return result.Any();
 			}
 		}
 

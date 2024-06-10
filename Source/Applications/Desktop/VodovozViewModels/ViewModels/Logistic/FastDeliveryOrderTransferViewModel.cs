@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -14,9 +15,8 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.ViewModels.Extensions;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
@@ -26,16 +26,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public partial class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly TimeSpan _driverOfflineTimeSpan;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IConfirmationQuestionInteractive _confirmationQuestionInteractive;
+		private readonly IAddressTransferController _addressTransferController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
@@ -52,32 +54,30 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IWageParameterService wageParameterService,
 			ITrackRepository trackRepository,
 			OsrmClient osrmClient,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
+			IAddressTransferController addressTransferController,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
 			Title = "Перенос заказа с доставкой за час";
 
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_confirmationQuestionInteractive = confirmationQuestionInteractive ?? throw new ArgumentNullException(nameof(confirmationQuestionInteractive));
+			_addressTransferController = addressTransferController ?? throw new ArgumentNullException(nameof(addressTransferController));
 			FilterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title);
 
-			_driverOfflineTimeSpan = _deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint;
+			_driverOfflineTimeSpan = _deliveryRulesSettings.MaxTimeOffsetForLatestTrackPoint;
 
 			CancelCommand = new DelegateCommand(Cancel, () => CanCancel);
 			TransferCommand = new DelegateCommand(Transfer, () => CanTransfer);
@@ -208,6 +208,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 			}
 
+			var transaction = _unitOfWork.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				_unitOfWork.Session.BeginTransaction();
+			}
+
+			_unitOfWork.Session.Flush();
+
 			routeListFrom.CalculateWages(_wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListFrom);
 			routeListTo.CalculateWages(_wageParameterService);
@@ -218,13 +227,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing((WageParameterService)_wageParameterService);
+				newItem.FirstFillClosing(_wageParameterService);
 			}
 
 			_unitOfWork.Save(address);
 			_unitOfWork.Save(newItem);
 
-			UpdateTranferDocuments(address, newItem);
+			UpdateTranferDocuments(address, newItem, AddressTransferType.FromFreeBalance);
 
 			_unitOfWork.Save(routeListTo);
 			_unitOfWork.Save(routeListFrom);
@@ -282,15 +291,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return true;
 		}
 
-		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
+		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to, AddressTransferType addressTransferType)
 		{
-			var addressTransferController = new AddressTransferController(new EmployeeRepository());
-			addressTransferController.UpdateDocuments(from, to, _unitOfWork);
+			_addressTransferController.UpdateDocuments(from, to, _unitOfWork, addressTransferType);
 		}
 
 		private bool HasAddressChanges(RouteListItem address)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
 			{
 				return uow.GetById<RouteListItem>(address.Id).Status != address.Status;
 			}

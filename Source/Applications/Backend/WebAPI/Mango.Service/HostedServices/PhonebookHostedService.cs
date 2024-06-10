@@ -1,16 +1,15 @@
-﻿using System;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using Mango.Client;
+using MangoService;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
-using Mango.Client;
-using Mango.Service.Extensions;
-using MangoService;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog;
+using Mango.Core;
 
 namespace Mango.Service.HostedServices
 {

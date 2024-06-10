@@ -24,6 +24,7 @@ namespace Vodovoz.Domain.Documents
 	public class CarLoadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 150;
+		public const string DocumentRdlPath = "Reports/Store/CarLoadDocument.rdl";
 
 		#region Сохраняемые свойства
 		
@@ -132,11 +133,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateStockAmount(IUnitOfWork uow, IStockRepository stockRepository)
 		{
 			if(!Items.Any() || Warehouse == null)
+			{
 				return;
+			}
+
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),
-				Warehouse.Id,
+				new []{ Warehouse.Id },
 				TimeStamp
 			);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -28,7 +29,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			}
 			
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);

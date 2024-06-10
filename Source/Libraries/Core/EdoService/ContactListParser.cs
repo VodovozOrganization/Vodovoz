@@ -1,11 +1,11 @@
-﻿using EdoService.Services;
+﻿using EdoService.Library.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TISystems.TTC.CRM.BE.Serialization;
 
-namespace EdoService
+namespace EdoService.Library
 {
 	public class ContactListParser
 	{
@@ -29,8 +29,8 @@ namespace EdoService
 
 
 			return items
-				.Where(x => x.Inn == inn 
-				            && (string.IsNullOrWhiteSpace(x.Kpp) || x.Kpp == kpp))
+				.Where(x => x.Inn == inn
+							&& (string.IsNullOrWhiteSpace(x.Kpp) || x.Kpp == kpp))
 				.OrderByDescending(x => x.State.Changed)
 				.FirstOrDefault();
 		}

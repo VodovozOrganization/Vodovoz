@@ -20,6 +20,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveDistrictsSet?.Name ?? "-";
 			ylabelSelectedDistrictsSetStr.Text = ViewModel.Entity?.Name ?? "";
+			ylabelPriorities.Text = 
+				"На новую версию не были перенесены следующие приоритеты районов водителей (необходимо вручную проконтролировать настройку приоритетов районов указанных водителей):";
 
 			ybuttonActivate.Clicked += async (sender, args) =>
 			{

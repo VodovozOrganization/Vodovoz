@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
+using System;
 using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Models;
+using CustomerAppsApi.Library.Dto.Goods;
+using CustomerAppsApi.Library.Models;
+using CustomerAppsApi.Library.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -14,31 +17,33 @@ namespace CustomerAppsApi.Controllers
 	{
 		private readonly ILogger<CounterpartyController> _logger;
 		private readonly INomenclatureModel _nomenclatureModel;
-		private static readonly ConcurrentDictionary<Source, DateTime> _requestTimes = new ConcurrentDictionary<Source, DateTime>();
+		private readonly PricesFrequencyRequestsHandler _pricesFrequencyRequestsHandler;
+		private readonly NomenclaturesFrequencyRequestsHandler _nomenclaturesFrequencyRequestsHandler;
 
 		public NomenclatureController(
 			ILogger<CounterpartyController> logger,
-			INomenclatureModel nomenclatureModel)
+			INomenclatureModel nomenclatureModel,
+			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler,
+			NomenclaturesFrequencyRequestsHandler nomenclaturesFrequencyRequestsHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_nomenclatureModel = nomenclatureModel ?? throw new ArgumentNullException(nameof(nomenclatureModel));
+			_pricesFrequencyRequestsHandler =
+				pricesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(pricesFrequencyRequestsHandler));
+			_nomenclaturesFrequencyRequestsHandler =
+				nomenclaturesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(nomenclaturesFrequencyRequestsHandler));
 		}
 
-		[HttpGet]
-		[Route("GetNomenclaturesPricesAndStocks")]
+		[HttpGet("GetNomenclaturesPricesAndStocks")]
 		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks([FromQuery] Source source)
 		{
 			var sourceName = source.GetEnumTitle();
 			try
 			{
 				_logger.LogInformation("Поступил запрос на выборку цен и остатков от источника {Source}", sourceName);
-				var now = DateTime.Now;
-				var lastRequestTime = _requestTimes.GetOrAdd(source, now);
-				var passedTimeMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
-
-				if(passedTimeMinutes > 0 && passedTimeMinutes < 1)
+				
+				if(!_pricesFrequencyRequestsHandler.CanRequest(source, sourceName))
 				{
-					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new NomenclaturesPricesAndStockDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
@@ -46,13 +51,43 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var pricesAndStocks = _nomenclatureModel.GetNomenclaturesPricesAndStocks(source);
-				_requestTimes.TryUpdate(source, DateTime.Now, lastRequestTime);
+				_pricesFrequencyRequestsHandler.TryUpdate(source);
 				return pricesAndStocks;
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении цен и остатков для источника {Source}", sourceName);
 				return new NomenclaturesPricesAndStockDto
+				{
+					ErrorMessage = e.Message
+				};
+			}
+		}
+		
+		[HttpGet("GetNomenclatures")]
+		public NomenclaturesDto GetNomenclatures([FromQuery] Source source)
+		{
+			var sourceName = source.GetEnumTitle();
+			try
+			{
+				_logger.LogInformation("Поступил запрос на выборку номенклатур от источника {Source}", sourceName);
+				
+				if(!_nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				{
+					return new NomenclaturesDto
+					{
+						ErrorMessage = "Превышен интервал обращений"
+					};
+				}
+
+				var nomenclatures = _nomenclatureModel.GetNomenclatures(source);
+				_nomenclaturesFrequencyRequestsHandler.TryUpdate(source);
+				return nomenclatures;
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении номенклатур для источника {Source}", sourceName);
+				return new NomenclaturesDto
 				{
 					ErrorMessage = e.Message
 				};

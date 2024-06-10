@@ -7,6 +7,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -39,7 +40,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? GdkColors.PrimaryBase : GdkColors.InsensitiveBase)
 				.Finish();
 			
-			_uow = UnitOfWorkFactory.CreateWithoutRoot();
+			_uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		List<object[]> guilties = new List<object[]>();

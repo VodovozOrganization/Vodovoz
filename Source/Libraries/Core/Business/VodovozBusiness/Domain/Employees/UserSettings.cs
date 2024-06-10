@@ -187,6 +187,91 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _defaultCounterparty, value);
 		}
 
+		#region FuelControl
+
+		private string _fuelControlApiLogin;
+
+		[Display(Name = "Логин API управления топливом")]
+		public virtual string FuelControlApiLogin
+		{
+			get => _fuelControlApiLogin;
+			set
+			{
+				if(SetField(ref _fuelControlApiLogin, value))
+				{
+					ResetFuelControlAPiSessionData();
+				}
+			}
+		}
+
+		private string _fuelControlApiPassword;
+
+		[Display(Name = "Пароль API управления топливом")]
+		public virtual string FuelControlApiPassword
+		{
+			get => _fuelControlApiPassword;
+			set
+			{
+				if(SetField(ref _fuelControlApiPassword, value))
+				{
+					ResetFuelControlAPiSessionData();
+				}
+			}
+		}
+
+		private string _fuelControlApiKey;
+
+		[Display(Name = "Ключ API управления топливом")]
+		public virtual string FuelControlApiKey
+		{
+			get => _fuelControlApiKey;
+			set
+			{
+				if(SetField(ref _fuelControlApiKey, value))
+				{
+					ResetFuelControlAPiSessionData();
+				}
+			}
+		}
+
+		private string _fuelControlApiSessionId;
+
+		[Display(Name = "Id сессии API управления топливом")]
+		public virtual string FuelControlApiSessionId
+		{
+			get => _fuelControlApiSessionId;
+			set => SetField(ref _fuelControlApiSessionId, value);
+		}
+
+		private DateTime? _fuelControlApiSessionExpirationDate;
+
+		[Display(Name = "Дата истечения сессии работы с API управления топливом")]
+		public virtual DateTime? FuelControlApiSessionExpirationDate
+		{
+			get => _fuelControlApiSessionExpirationDate;
+			set => SetField(ref _fuelControlApiSessionExpirationDate, value);
+		}
+
+		public virtual bool IsUserHasAuthDataForFuelControlApi =>
+			!string.IsNullOrWhiteSpace(FuelControlApiLogin)
+			&& !string.IsNullOrWhiteSpace(FuelControlApiPassword)
+			&& !string.IsNullOrWhiteSpace(FuelControlApiKey);
+
+		public virtual bool IsNeedToLoginFuelControlApi =>
+			string.IsNullOrWhiteSpace(FuelControlApiSessionId)
+			|| !FuelControlApiSessionExpirationDate.HasValue
+			|| FuelControlApiSessionExpirationDate <= DateTime.Today;
+
+		private void ResetFuelControlAPiSessionData()
+		{
+			FuelControlApiSessionId = string.Empty;
+			FuelControlApiSessionExpirationDate = null;
+
+			OnPropertyChanged(nameof(IsUserHasAuthDataForFuelControlApi));
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Статус рекламации
 		/// </summary>

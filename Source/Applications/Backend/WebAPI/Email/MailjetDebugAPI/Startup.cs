@@ -8,14 +8,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 using System.Net.Http;
-using ApiClientProvider;
 
 namespace MailjetDebugAPI
 {
 	public class Startup
 	{
 		private const string _eventCallbackSettingsSection = "EventsReciever";
-		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -33,10 +31,8 @@ namespace MailjetDebugAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
-
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
 			services.AddHttpClient();
 
@@ -55,7 +51,7 @@ namespace MailjetDebugAPI
 
 			services.AddSignalR(hubOptions =>
 			{
-				hubOptions.MaximumReceiveMessageSize = 10485760;
+				hubOptions.MaximumReceiveMessageSize = long.MaxValue;
 			});
 		}
 

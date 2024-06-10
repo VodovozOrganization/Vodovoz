@@ -1,12 +1,10 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Views.Control;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
@@ -14,6 +12,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -21,6 +20,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
+using QSWidgetLib;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Employees
 {
@@ -41,7 +43,7 @@ namespace Vodovoz.Views.Employees
 			notebookMain.ShowTabs = false;
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonSave.Sensitive = ViewModel.CanEditEmployee;
+			buttonSave.Sensitive = ViewModel.CanEditEmployee || ViewModel.CanChangeEmployeeCounterparty;
 
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 
@@ -100,6 +102,7 @@ namespace Vodovoz.Views.Employees
 
 			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			comboDriverOfCarTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -201,6 +204,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
+			yentryEmailAddress.ValidationMode = ValidationType.email;
 			yentryEmailAddress.Binding
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -223,31 +227,61 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.DateCalculated, w => w.DateOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			chkHasAccessToWarehouseApp.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasAccessToWarehouseApp, w => w.Active)
+				.InitializeFromSource();
+			chkHasAccessToWarehouseApp.Toggled += OnHasAccessToWarehouseAppToggled;
+			
+			tableWarehouseApiCredentials.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasAccessToWarehouseApp, w => w.Visible)
+				.InitializeFromSource();
+			
+			entryWarehouseAppLogin.Binding
+				.AddBinding(ViewModel.WarehouseAppUser, u => u.Login, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanRegisterWarehouseAppUser, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			entryWarehouseAppPassword.Binding
+				.AddBinding(ViewModel.WarehouseAppUser, u => u.Password, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanRegisterWarehouseAppUser, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnRegisterWarehouseAppUser.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasAccessToWarehouseApp, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.IsValidNewWarehouseAppUser, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnRegisterWarehouseAppUser.Clicked += (sender, args) => ViewModel.RegisterWarehouseAppUserCommand.Execute();
+
+			entryVodovozClient.ViewModel = GetEntryVodovozClientViewModel();
 
 			#endregion
 
 			#region Вкладка Логистика
 
 			dataentryAndroidLogin.Binding
-				.AddBinding(ViewModel.Entity, e => e.AndroidLogin, w => w.Text)
-				.InitializeFromSource();
-			dataentryAndroidLogin.Binding
-				.AddBinding(ViewModel, vm => vm.CanRegisterMobileUser, w => w.Sensitive)
+				.AddBinding(ViewModel.DriverAppUser, u => u.Login, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanRegisterDriverAppUser, w => w.Sensitive)
 				.InitializeFromSource();
 
 			dataentryAndroidPassword.Binding
-				.AddBinding(ViewModel.Entity, e => e.AndroidPassword, w => w.Text)
-				.InitializeFromSource();
-			dataentryAndroidPassword.Binding
-				.AddBinding(ViewModel, vm => vm.CanRegisterMobileUser, w => w.Sensitive)
+				.AddBinding(ViewModel.DriverAppUser, u => u.Password, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanRegisterDriverAppUser, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yMobileLoginInfo.Binding
-				.AddBinding(ViewModel, vm => vm.AddMobileLoginInfo, w => w.LabelProp)
+				.AddBinding(ViewModel, vm => vm.AddDriverAppLoginInfo, w => w.LabelProp)
 				.InitializeFromSource();
 
-			yAddMobileLogin.Binding
-				.AddBinding(ViewModel, vm => vm.IsValidNewMobileUser, w => w.Sensitive)
+			btnCopyWarehouseAppUserCredentials.Binding
+				.AddBinding(ViewModel, vm => vm.CanCopyWarehouseAppUserCredentialsToDriverUser, w => w.Sensitive)
+				.InitializeFromSource();
+			btnCopyWarehouseAppUserCredentials.Clicked +=
+				(sender, args) => ViewModel.CopyWarehouseAppUserCredentialsToDriverAppUserCommand.Execute(); 
+			
+			btnRegisterDriverAppUser.Binding
+				.AddBinding(ViewModel, vm => vm.IsValidNewDriverAppUser, w => w.Sensitive)
 				.InitializeFromSource();
 
 			defaultForwarderEntry.SetEntityAutocompleteSelectorFactory(
@@ -378,7 +412,69 @@ namespace Vodovoz.Views.Employees
 
 			#endregion
 
+			btnCopyEntityId.Binding
+				.AddBinding(ViewModel, vm => vm.CanCopyId, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+		}
+
+		private IEntityEntryViewModel GetEntryVodovozClientViewModel()
+		{
+			var builder = 
+				new LegacyEEVMBuilderFactory<Employee>(ViewModel, ViewModel.Entity, UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope);
+			
+			var viewModel = builder.ForProperty(x => x.Counterparty)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = ViewModel.CanEditEmployee || ViewModel.CanChangeEmployeeCounterparty;
+
+			return viewModel;
+		}
+
+		private void OnHasAccessToWarehouseAppToggled(object sender, EventArgs e)
+		{
+			if(chkHasAccessToWarehouseApp.Active)
+			{
+				if(ViewModel.Entity.Category == EmployeeCategory.driver && ViewModel.Entity.DriverAppUser != null)
+				{
+					ViewModel.CopyCredentialsToOtherUser();
+
+					ViewModel.CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Info,
+						"Пользователь уже зарегистрирован в водительском приложении, " +
+						"производим регистрацию в складском приложении под теми же учетными данными");
+
+					ViewModel.AddRoleToWarehouseAppUserCommand.Execute();
+				}
+				else if(ViewModel.Entity.WarehouseAppUser != null)
+				{
+					ViewModel.CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Info,
+						"Учетная запись есть в складском приложении, но отключена, восстанавливаем");
+					
+					ViewModel.AddRoleToWarehouseAppUserCommand.Execute();
+				}
+			}
+			else
+			{
+				if(ViewModel.Entity.WarehouseAppUser == null
+					|| string.IsNullOrWhiteSpace(ViewModel.Entity.WarehouseAppUser.Login)
+					|| string.IsNullOrWhiteSpace(ViewModel.Entity.WarehouseAppUser.Password))
+				{
+					return;
+				}
+
+				if(ViewModel.CommonServices.InteractiveService.Question(
+					"Пользователь уже зарегистрирован, это действие приведет к отключению доступа к складскому приложению. Продолжаем?"))
+				{
+					ViewModel.RemoveRoleFromWarehouseAppUserCommand.Execute();
+				}
+			}
 		}
 
 		private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -511,14 +607,16 @@ namespace Vodovoz.Views.Employees
 
 			if(!doc.Any())
 			{
-				MessageDialogHelper.RunInfoDialog("Отсутствует главный документ");
+				ViewModel.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Отсутствует главный документ");
 				return;
 			}
 
 			var activeRegistration = ViewModel.Entity.EmployeeRegistrationVersions.SingleOrDefault(x => x.EndDate == null);
 			if(activeRegistration == null || activeRegistration.EmployeeRegistration.RegistrationType != RegistrationType.Contract)
 			{
-				MessageDialogHelper.RunInfoDialog("Должна быть активная версия с видом регистрации: 'ГПХ'(вкладка Реквизиты)");
+				ViewModel.CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Должна быть активная версия с видом регистрации: 'ГПХ'(вкладка Реквизиты)");
 				return;
 			}
 
@@ -822,15 +920,24 @@ namespace Vodovoz.Views.Employees
 
 		#endregion
 
+		protected void OnBtnRegisterDriverAppUserClicked(object sender, EventArgs e)
+		{
+			ViewModel.RegisterDriverAppUserOrAddRoleCommand.Execute();
+		}
+
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
+		}
+
 		public override void Destroy()
 		{
 			attachmentsView?.Destroy();
 			base.Destroy();
-		}
-
-		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
-		{
-			ViewModel.RegisterDriverModuleUserCommand.Execute();
 		}
 	}
 }

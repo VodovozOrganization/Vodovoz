@@ -1,20 +1,17 @@
 ﻿using Autofac;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz
 {
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 		private readonly ILifetimeScope _lifetimeScope;
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -26,7 +23,7 @@ namespace Vodovoz
 			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Warehouse>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Warehouse>();
 			ConfigureDialog();
 		}
 
@@ -39,7 +36,7 @@ namespace Vodovoz
 			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Warehouse>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Warehouse>(id);
 			ConfigureDialog();
 		}
 
@@ -90,7 +87,13 @@ namespace Vodovoz
 				.AddBinding(Entity, s => s.OwningSubdivision, w => w.SelectedItem)
 				.InitializeFromSource();
 			ySpecCmbOwner.Sensitive = CanEdit;
+			
+			entryAddress.IsEditable = CanEdit;
+			entryAddress.Binding
+				.AddBinding(Entity, e => e.Address, w => w.Text)
+				.InitializeFromSource();
 
+			entryMovementNotificationsSubdivisionRecipient.Sensitive = CanEdit;
 			entryMovementNotificationsSubdivisionRecipient.ViewModel = new LegacyEEVMBuilderFactory<Warehouse>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(e => e.MovementDocumentsNotificationsSubdivisionRecipient)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
@@ -105,7 +108,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

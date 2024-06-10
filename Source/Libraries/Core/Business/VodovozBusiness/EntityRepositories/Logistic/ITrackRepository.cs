@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
 

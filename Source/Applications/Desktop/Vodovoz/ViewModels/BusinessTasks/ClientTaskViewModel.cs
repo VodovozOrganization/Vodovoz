@@ -1,34 +1,29 @@
-﻿using QS.Commands;
-using Vodovoz.Domain.BusinessTasks;
-using Vodovoz.Domain.Comments;
+﻿using Autofac;
+using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using QS.Services;
 using QS.ViewModels;
 using QSReport;
+using System;
 using System.Linq;
+using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Client;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Domain.Comments;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories;
-using System;
-using QS.Project.Domain;
-using QS.DomainModel.UoW;
-using QS.Services;
-using Vodovoz.Dialogs.Phones;
-using Vodovoz.Parameters;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Services;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.ViewModels.ViewModels;
-using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Factories;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -69,7 +64,6 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		public readonly IEmployeeRepository employeeRepository;
 		public readonly IBottlesRepository bottleRepository;
-		public readonly ICallTaskRepository callTaskRepository;
 		public readonly IPhoneRepository phoneRepository;
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
@@ -77,19 +71,18 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly IContactParametersProvider _contactsParameters;
+		private readonly IContactSettings _contactsParameters;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
 			IBottlesRepository bottleRepository,
-			ICallTaskRepository callTaskRepository,
 			IPhoneRepository phoneRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactsParameters,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -98,7 +91,6 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
-			this.callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
@@ -118,7 +110,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				TabName = Entity.Counterparty?.Name;
 			}
 
-			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
 			Initialize();
 			CreateCommands();
@@ -128,7 +120,6 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
 			IBottlesRepository bottleRepository,
-			ICallTaskRepository callTaskRepository,
 			IPhoneRepository phoneRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -137,14 +128,13 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactsParameters,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ILifetimeScope lifetimeScope,
 			int counterpartyId,
 			int deliveryPointId)
 			: this(employeeRepository,
 					bottleRepository,
-				  	callTaskRepository,
 					phoneRepository,
 					uowBuilder,
 					unitOfWorkFactory,
@@ -183,7 +173,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			return new PhonesViewModel(phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
+			return new PhonesViewModel(phoneTypeSettings, phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
 				ReadOnly = true
 			};
 		}

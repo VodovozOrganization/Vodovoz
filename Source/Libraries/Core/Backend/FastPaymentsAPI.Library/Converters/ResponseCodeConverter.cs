@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.Library.DTO_s.Responses;
+﻿using FastPaymentsApi.Contracts.Responses;
 
 namespace FastPaymentsAPI.Library.Converters
 {

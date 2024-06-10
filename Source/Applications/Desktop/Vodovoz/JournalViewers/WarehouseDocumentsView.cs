@@ -5,18 +5,20 @@ using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSOrmProject.UpdateNotification;
-using Vodovoz.Domain.Documents;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Warehouses;
 using QS.Project.Domain;
 using QS.Project.Services;
+using QSOrmProject;
+using QSOrmProject.UpdateNotification;
+using System;
+using System.Linq;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -63,7 +65,7 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 
 			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
@@ -150,7 +152,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalGiveoutDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this
@@ -161,7 +163,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalReturnDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this

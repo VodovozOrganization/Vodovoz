@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -12,6 +13,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class DeliveryPointRepository : IDeliveryPointRepository
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public DeliveryPointRepository(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		/// <summary>
 		/// Запрос ищет точку доставки в контрагенте по коду 1с или целиком по адресной строке.
 		/// </summary>
@@ -102,7 +110,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IEnumerable<string> GetAddressesWithFixedPrices(int counterpartyId)
 		{
 			IEnumerable<string> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
 			{
 				DeliveryPoint deliveryPointAlias = null;
 				NomenclatureFixedPrice fixedPriceAlias = null;
@@ -133,6 +141,37 @@ namespace Vodovoz.EntityRepositories.Counterparties
 									.List<DeliveryPoint>();
 
 			return result.Count() == 0;
+		}
+		
+		public IEnumerable<DeliveryPointForSendNode> GetDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId)
+		{
+			DeliveryPointForSendNode resultAlias = null;
+			
+			var result = uow.Session.QueryOver<DeliveryPoint>()
+				.Where(dp => dp.Counterparty.Id == counterpartyId)
+				.SelectList(list => list
+					.Select(dp => dp.Id).WithAlias(() => resultAlias.Id)
+					.Select(dp => dp.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(dp => dp.City).WithAlias(() => resultAlias.City)
+					.Select(dp => dp.LocalityType).WithAlias(() => resultAlias.LocalityType)
+					.Select(dp => dp.LocalityTypeShort).WithAlias(() => resultAlias.LocalityTypeShort)
+					.Select(dp => dp.Street).WithAlias(() => resultAlias.Street)
+					.Select(dp => dp.StreetType).WithAlias(() => resultAlias.StreetType)
+					.Select(dp => dp.StreetTypeShort).WithAlias(() => resultAlias.StreetTypeShort)
+					.Select(dp => dp.Building).WithAlias(() => resultAlias.Building)
+					.Select(dp => dp.Floor).WithAlias(() => resultAlias.Floor)
+					.Select(dp => dp.Entrance).WithAlias(() => resultAlias.Entrance)
+					.Select(dp => dp.Room).WithAlias(() => resultAlias.Room)
+					.Select(dp => dp.Latitude).WithAlias(() => resultAlias.Latitude)
+					.Select(dp => dp.Longitude).WithAlias(() => resultAlias.Longitude)
+					.Select(dp => dp.Category.Id).WithAlias(() => resultAlias.CategoryId)
+					.Select(dp => dp.OnlineComment).WithAlias(() => resultAlias.OnlineComment)
+					.Select(dp => dp.Intercom).WithAlias(() => resultAlias.Intercom)
+				)
+				.TransformUsing(Transformers.AliasToBean<DeliveryPointForSendNode>())
+				.List<DeliveryPointForSendNode>();
+
+			return result;
 		}
 
 		private string GetBuildingNumber(string building)

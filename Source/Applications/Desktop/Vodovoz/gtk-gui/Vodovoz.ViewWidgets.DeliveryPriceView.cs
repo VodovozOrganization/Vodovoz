@@ -24,7 +24,21 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label label9;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelSchedules;
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvToday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvMonday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvTuesday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvWednesday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvThursday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvFriday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvSaturday;
+
+		private global::Vodovoz.ViewWidgets.DeliveryRuleRowView drrvSunday;
 
 		private global::Gtk.HBox hboxTreeView;
 
@@ -126,14 +140,77 @@ namespace Vodovoz.ViewWidgets
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.ylabelSchedules = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelSchedules.Name = "ylabelSchedules";
-			this.ylabelSchedules.Xalign = 0F;
-			this.vbox2.Add(this.ylabelSchedules);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ylabelSchedules]));
+			this.drrvToday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvToday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvToday.Name = "drrvToday";
+			this.vbox2.Add(this.drrvToday);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvToday]));
 			w10.Position = 4;
 			w10.Expand = false;
 			w10.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvMonday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvMonday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvMonday.Name = "drrvMonday";
+			this.vbox2.Add(this.drrvMonday);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvMonday]));
+			w11.Position = 5;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvTuesday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvTuesday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvTuesday.Name = "drrvTuesday";
+			this.vbox2.Add(this.drrvTuesday);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvTuesday]));
+			w12.Position = 6;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvWednesday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvWednesday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvWednesday.Name = "drrvWednesday";
+			this.vbox2.Add(this.drrvWednesday);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvWednesday]));
+			w13.Position = 7;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvThursday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvThursday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvThursday.Name = "drrvThursday";
+			this.vbox2.Add(this.drrvThursday);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvThursday]));
+			w14.Position = 8;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvFriday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvFriday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvFriday.Name = "drrvFriday";
+			this.vbox2.Add(this.drrvFriday);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvFriday]));
+			w15.Position = 9;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvSaturday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvSaturday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvSaturday.Name = "drrvSaturday";
+			this.vbox2.Add(this.drrvSaturday);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvSaturday]));
+			w16.Position = 10;
+			w16.Expand = false;
+			w16.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.drrvSunday = new global::Vodovoz.ViewWidgets.DeliveryRuleRowView();
+			this.drrvSunday.Events = ((global::Gdk.EventMask)(256));
+			this.drrvSunday.Name = "drrvSunday";
+			this.vbox2.Add(this.drrvSunday);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.drrvSunday]));
+			w17.Position = 11;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hboxTreeView = new global::Gtk.HBox();
 			this.hboxTreeView.Name = "hboxTreeView";
@@ -149,11 +226,11 @@ namespace Vodovoz.ViewWidgets
 			this.ytreeviewPrices.Name = "ytreeviewPrices";
 			this.GtkScrolledWindow.Add(this.ytreeviewPrices);
 			this.hboxTreeView.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxTreeView[this.GtkScrolledWindow]));
-			w12.Position = 0;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxTreeView[this.GtkScrolledWindow]));
+			w19.Position = 0;
 			this.vbox2.Add(this.hboxTreeView);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxTreeView]));
-			w13.Position = 5;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxTreeView]));
+			w20.Position = 12;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

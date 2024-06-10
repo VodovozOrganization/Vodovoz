@@ -1,18 +1,20 @@
-﻿using NHibernate;
+﻿using NetTopologySuite.Geometries;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -21,14 +23,15 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
-	public class OrderRepository : IOrderRepository
+	public partial class OrderRepository : IOrderRepository
 	{
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
@@ -37,17 +40,46 @@ namespace Vodovoz.EntityRepositories.Orders
 			.Where(x => x.OrderStatus == OrderStatus.WaitForPayment);
 		}
 
-		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, VodovozOrder orderBaseAlias = null)
+		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(
+			DateTime date, bool showShipped, VodovozOrder orderBaseAlias = null, bool excludeTrucks = false)
 		{
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
+
 			var query = QueryOver.Of<VodovozOrder>(() => orderBaseAlias)
 				.Where(o => o.DeliveryDate == date.Date && !o.SelfDelivery)
 				.Where(o => o.DeliverySchedule != null)
 				.Where(o => o.DeliveryPoint != null);
 
 			if(!showShipped)
+			{
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
+			}
 			else
-				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
+			{
+				query.Where(order => order.OrderStatus != OrderStatus.Canceled
+					&& order.OrderStatus != OrderStatus.NewOrder
+					&& order.OrderStatus != OrderStatus.WaitForPayment);
+			}
+
+			if(excludeTrucks)
+			{
+				query
+					.JoinEntityAlias(
+						() => routeListItemAlias,
+						() => orderBaseAlias.Id == routeListItemAlias.Order.Id,
+						JoinType.LeftOuterJoin)
+					.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+					.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Where(() => routeListAlias.Id == null
+						|| (carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader))
+					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
+			}
+
 			return query;
 		}
 
@@ -98,15 +130,15 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public IList<VodovozOrder> GetOrdersToExport1c8(
 			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
+			IOrderSettings orderSettings,
 			Export1cMode mode,
 			DateTime startDate,
 			DateTime endDate,
 			int? organizationId = null)
 		{
 			var oldReceiptFromYouKassa = new[] {
-				orderParametersProvider.PaymentByCardFromSiteId,
-				orderParametersProvider.PaymentByCardFromMobileAppId
+				orderSettings.PaymentByCardFromSiteId,
+				orderSettings.PaymentByCardFromMobileAppId
 			};
 
 			VodovozOrder orderAlias = null;
@@ -134,14 +166,16 @@ namespace Vodovoz.EntityRepositories.Orders
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c));
 
-			if(organizationId.HasValue) {
+			if(organizationId.HasValue)
+			{
 				CounterpartyContract counterpartyContractAlias = null;
 
 				query.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 					.Where(() => counterpartyContractAlias.Organization.Id == organizationId);
 			}
 
-			switch(mode) {
+			switch(mode)
+			{
 				case Export1cMode.BuhgalteriaOOO:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
@@ -246,6 +280,48 @@ namespace Vodovoz.EntityRepositories.Orders
 						   .Take(1)
 						   ;
 			return query.List().FirstOrDefault();
+		}
+
+		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId)
+		{
+			var counterparty = uow.GetById<Counterparty>(counterpartyId);
+
+			if(counterparty is null)
+			{
+				return false;
+			}
+
+			if(counterparty.FirstOrder != null && !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
+			{
+				return true;
+			}
+
+			var query = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.Client == counterparty)
+					.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
+					.OrderBy(o => o.DeliveryDate).Asc
+					.Take(1);
+
+			return query.SingleOrDefault() != null;
+		}
+
+		public bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId)
+		{
+			if(counterparty.FirstOrder != null
+				&& counterparty.FirstOrder.Id != orderId
+				&& !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
+			{
+				return true;
+			}
+
+			var query = uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.Client == counterparty)
+				.And(o => o.Id != orderId)
+				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
+				.OrderBy(o => o.DeliveryDate).Asc
+				.Take(1);
+
+			return query.SingleOrDefault() != null;
 		}
 
 		/// <summary>
@@ -505,7 +581,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				return 0f;
 
 			IList<int> dateDif = new List<int>();
-			for(int i = 1; i < orders.Count; i++) {
+			for(int i = 1; i < orders.Count; i++)
+			{
 				int dif = (orders[i].DeliveryDate.Value - orders[i - 1].DeliveryDate.Value).Days;
 				dateDif.Add(dif);
 			}
@@ -543,11 +620,47 @@ namespace Vodovoz.EntityRepositories.Orders
 			};
 		}
 
+		public OrderStatus[] GetStatusesForOrderCancelationWithCancellation()
+		{
+			return new OrderStatus[] {
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Canceled,
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled
+			};
+		}
+
+		public OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList()
+		{
+			return new OrderStatus[] {
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.UnloadingOnStock
+			};
+		}
+
+		public OrderStatus[] GetStatusesForFreeBalanceOperations()
+		{
+			return new OrderStatus[] {
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+			};
+		}
+
 		public OrderStatus[] GetStatusesForActualCount(VodovozOrder order)
 		{
-			if(order.SelfDelivery) {
+			if(order.SelfDelivery)
+			{
 				return new OrderStatus[0];
-			} else {
+			}
+			else
+			{
 				return new OrderStatus[]{
 					OrderStatus.Canceled,
 					OrderStatus.Closed,
@@ -605,6 +718,20 @@ namespace Vodovoz.EntityRepositories.Orders
 			};
 		}
 
+		public static OrderStatus[] GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion()
+		{
+			return new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+		}
+
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
@@ -612,15 +739,18 @@ namespace Vodovoz.EntityRepositories.Orders
 			var orders = uow.Session.QueryOver(() => smsPaymentAlias)
 				.Where(() => smsPaymentAlias.Order.Id == orderId)
 				.List();
-			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.Paid)) {
+			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.Paid))
+			{
 				return SmsPaymentStatus.Paid;
 			}
 
-			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment)) {
+			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment))
+			{
 				return SmsPaymentStatus.WaitingForPayment;
 			}
 
-			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.Cancelled)) {
+			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.Cancelled))
+			{
 				return SmsPaymentStatus.Cancelled;
 			}
 
@@ -682,7 +812,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		public bool HasFlyersOnStock(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
+			IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroupId)
 		{
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;
@@ -690,9 +820,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			District districtAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
-			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
-				? routeListParametersProvider.WarehouseSofiiskayaId
-				: routeListParametersProvider.WarehouseBugriId;
+			var warehouseId = geographicGroupId == routeListSettings.SouthGeographicGroupId
+				? routeListSettings.WarehouseSofiiskayaId
+				: routeListSettings.WarehouseBugriId;
 
 			var subQueryBalance = uow.Session.QueryOver(() => operationAlias)
 				.Where(() => operationAlias.Nomenclature.Id == flyerId)
@@ -831,7 +961,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<PaymentType>();
 		}
 
-		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime startDate, int organizationId)
+		public IList<VodovozOrder> GetCashlessOrdersForEdoSendUpd(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -840,18 +970,37 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed };
+
 			var manualResendUpdStartDate = DateTime.Parse("2022-11-15");
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
-				() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
 			query.Where(() => orderAlias.DeliveryDate >= startDate
 					|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd && orderAlias.DeliveryDate >= manualResendUpdStartDate));
+
+			var orderStatusRestriction = Restrictions.Or(
+				Restrictions.And(
+					Restrictions.Or(
+						Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)),
+						Restrictions.NotEqProperty(
+							Projections.Property(() => orderAlias.DeliverySchedule.Id),
+							Projections.Constant(closingDocumentDeliveryScheduleId))),
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatuses)
+					),
+				Restrictions.And(
+					Restrictions.EqProperty(
+						Projections.Property(() => orderAlias.DeliverySchedule.Id),
+						Projections.Constant(closingDocumentDeliveryScheduleId)),
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatusesForOrderDocumentCloser)
+					)
+				);
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
@@ -866,7 +1015,50 @@ namespace Vodovoz.EntityRepositories.Orders
 								&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
-				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.And(orderStatusRestriction)
+				.TransformUsing(Transformers.DistinctRootEntity)
+				.SetTimeout(120)
+				.List();
+
+			return result;
+		}
+
+		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+		{
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlias = null;
+			EdoContainer edoContainerAlias = null;
+			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
+
+			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed };
+
+			var manualResendBillStartDate = DateTime.Parse("2022-11-15");
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+				.JoinEntityAlias(() => edoContainerAlias,
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Bill, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
+
+			query.Where(() => orderAlias.DeliveryDate >= startDate
+					&& (edoContainerAlias.Id == null
+						|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoBill
+								&& orderAlias.DeliveryDate >= manualResendBillStartDate
+						   )
+						));
+
+			var orderStatusRestriction = Restrictions.Or(
+					Restrictions.NotEqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatusesForOrderDocumentCloser));
+
+			var result = query
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.And(orderStatusRestriction)
+				.And(() => counterpartyAlias.NeedSendBillByEdo && counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();
 
@@ -914,6 +1106,17 @@ namespace Vodovoz.EntityRepositories.Orders
 			return uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.Order.Id == orderId)
 				.List();
+		}
+		
+		public bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId)
+		{
+			var result = uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.Order.Id == orderId)
+				.And(x => x.Type == Type.Upd)
+				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+				.Take(1);
+			
+			return result != null;
 		}
 
 		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
@@ -965,7 +1168,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
-
 			return result;
 		}
 
@@ -1042,22 +1244,24 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			return uow.Session.QueryOver(()=> orderItemAlias)
+			return uow.Session.QueryOver(() => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(()=> orderItemAlias.Order.Id == orderId)
+				.Where(() => orderItemAlias.Order.Id == orderId)
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 				.List();
 		}
 
-		public IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId)
+		public IList<TrueMarkCancellationDto> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
-			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
 			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
+			Organization organizationAlias = null;
+			TrueMarkCancellationDto resultAlias = null;
+
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1073,12 +1277,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
 				.Select(Projections.Id());
 
+			var organizationInnSubquery = QueryOver.Of<Organization>()
+				.Where(o => o.Id == organizationId)
+				.Select(o => o.INN);
+
 			var correctSubquery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
 					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin)
-				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.Where(Restrictions.Disjunction()
@@ -1105,13 +1311,18 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
 				.JoinAlias(() => trueMarkApiDocumentAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
-				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.JoinAlias(() => trueMarkApiDocumentAlias.Organization, () => organizationAlias)
 				.Where(() => orderAlias.DeliveryDate > startDate)
+				.Where(() => trueMarkApiDocumentAlias.Organization.Id == organizationId)
 				.WithSubquery.WhereNotExists(correctSubquery)
 				.WithSubquery.WhereNotExists(hasCancellationSubquery)
-				.TransformUsing(Transformers.RootEntity)
-				.List();
+				.SelectList(list => list
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => trueMarkApiDocumentAlias.Guid).WithAlias(() => resultAlias.DocGuid)
+					.Select(() => organizationAlias.INN).WithAlias(() => resultAlias.OrganizationInn)
+				)
+				.TransformUsing(Transformers.AliasToBean<TrueMarkCancellationDto>())
+				.List<TrueMarkCancellationDto>();
 
 			return result;
 		}
@@ -1164,18 +1375,18 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Select(x => x.Id)
 				.Take(1)
 				.DetachedCriteria;
-			
+
 			var selfDeliveryDocumentCriteria = QueryOver.Of<SelfDeliveryDocument>()
 				.Where(x => x.Order.Id == orderAlias.Id)
 				.Select(x => x.Id)
 				.Take(1)
 				.DetachedCriteria;
-			
+
 			var closedWithoutDeliveryCriterion = Restrictions.Conjunction()
 				.Add(Restrictions.Where(() => orderAlias.OrderStatus != OrderStatus.Closed))
 				.Add(Subqueries.IsNotNull(routeListItemCriteria))
 				.Add(Subqueries.IsNotNull(selfDeliveryDocumentCriteria));
-			
+
 			//Исключаем закрытые без доставки
 			mainQuery.WhereNot(closedWithoutDeliveryCriterion);
 
@@ -1308,35 +1519,133 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var orderList = ordersQuery.ToList();
 			var result = orderList
-				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L)
+				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L
+				&& x.Total19LBottlesToDeliver <= orderOnDayFilters.MaxBottles19L)
 				.Distinct()
 				.Select(o => new OrderOnDayNode
-					{
-						OrderId = o.Id,
-						OrderStatus = o.OrderStatus,
-						DeliveryPointLatitude = o.DeliveryPoint.Latitude,
-						DeliveryPointLongitude = o.DeliveryPoint.Longitude,
-						DeliveryPointShortAddress = o.DeliveryPoint.ShortAddress,
-						DeliveryPointCompiledAddress = o.DeliveryPoint.CompiledAddress,
-						DeliveryPointNetTopologyPoint = o.DeliveryPoint.NetTopologyPoint,
-						DeliveryPointDistrictId = o.DeliveryPoint.District.Id,
-						LogisticsRequirements = o.LogisticsRequirements,
-						OrderAddressType = o.OrderAddressType,
-						DeliverySchedule = o.DeliverySchedule,
-						Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
-						Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
-						Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
-						BottlesReturn = o.BottlesReturn,
-						OrderComment = o.Comment,
-						DeliveryPointComment = o.DeliveryPoint.Comment,
-						CommentManager = o.CommentManager,
-						ODZComment = o.ODZComment,
-						OPComment = o.OPComment,
-						DriverMobileAppComment = o.DriverMobileAppComment
-					})
+				{
+					OrderId = o.Id,
+					OrderStatus = o.OrderStatus,
+					DeliveryPointLatitude = o.DeliveryPoint.Latitude,
+					DeliveryPointLongitude = o.DeliveryPoint.Longitude,
+					DeliveryPointShortAddress = o.DeliveryPoint.ShortAddress,
+					DeliveryPointCompiledAddress = o.DeliveryPoint.CompiledAddress,
+					DeliveryPointNetTopologyPoint = o.DeliveryPoint.NetTopologyPoint,
+					DeliveryPointDistrictId = o.DeliveryPoint.District.Id,
+					LogisticsRequirements = o.LogisticsRequirements,
+					OrderAddressType = o.OrderAddressType,
+					DeliverySchedule = o.DeliverySchedule,
+					Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
+					Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
+					Total1500mlBottlesToDeliver = o.Total1500mlBottlesToDeliver,
+					Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
+					Total500mlBottlesToDeliver = o.Total500mlBottlesToDeliver,
+					BottlesReturn = o.BottlesReturn,
+					OrderComment = o.Comment,
+					DeliveryPointComment = o.DeliveryPoint.Comment,
+					CommentManager = o.CommentManager,
+					ODZComment = o.ODZComment,
+					OPComment = o.OPComment,
+					DriverMobileAppComment = o.DriverMobileAppComment,
+					IsCoolerAddedToOrder = o.IsCoolerAddedToOrder,
+					IsSmallBottlesAddedToOrder = o.IsSmallBottlesAddedToOrder
+				})
 				.ToList();
 
 			return result;
+		}
+
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderWithAllocation resultAlias = null;
+
+			var allocated = QueryOver.Of<PaymentItem>()
+				.Where(pi => pi.Order.Id == orderAlias.Id && pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
+				.SelectList(list => list
+					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
+
+			return query.List<OrderWithAllocation>();
+		}
+
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> exceptOrderIds)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderWithAllocation resultAlias = null;
+
+			var allocated = QueryOver.Of<PaymentItem>()
+				.Where(pi => pi.Order.Id == orderAlias.Id && pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
+				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
+					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
+				.And(o => o.Client.Id == counterpartyId)
+				.And(o => o.PaymentType == PaymentType.Cashless)
+				.SelectList(list => list
+					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+					.Select(() => true).WithAlias(() => resultAlias.IsMissingFromDocument)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
+
+			return query.List<OrderWithAllocation>();
+		}
+
+		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
+		{
+			var referredCounterpartiesCount =
+			(
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.Referrer.Id == referrerId
+
+				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
+										  where orders.Client.Id == counterparty.Id
+										  && GetOnClosingOrderStatuses().Contains(orders.OrderStatus)
+										  select orders.Id
+
+				where finishedReferOrders.Any()
+				select counterparty.Id
+			)
+			.Count();
+
+			return referredCounterpartiesCount;
+		}
+
+		public int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId)
+		{
+			var alreadyReceivedBottlesByReferPromotion =
+			(
+				from orderItems in uow.Session.Query<OrderItem>()
+				where orderItems.Order.Client.Id == order.Client.Id
+				&& orderItems.Order.Id != order.Id
+				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
+				select (orderItems.ActualCount ?? orderItems.Count)
+			)
+			.Sum(x => (int?)x);
+
+			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
 
 		public class NotFullyPaidOrderNode
@@ -1363,7 +1672,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			public DeliverySchedule DeliverySchedule { get; set; }
 			public int Total19LBottlesToDeliver { get; set; }
 			public int Total6LBottlesToDeliver { get; set; }
+			public int Total1500mlBottlesToDeliver { get; set; }
 			public int Total600mlBottlesToDeliver { get; set; }
+			public int Total500mlBottlesToDeliver { get; set; }
 			public int? BottlesReturn { get; set; }
 			public string OrderComment { get; set; }
 			public string DeliveryPointComment { get; set; }
@@ -1371,6 +1682,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			public string ODZComment { get; set; }
 			public string OPComment { get; set; }
 			public string DriverMobileAppComment { get; set; }
+			public bool IsCoolerAddedToOrder { get; set; }
+			public bool IsSmallBottlesAddedToOrder { get; set; }
 		}
 	}
 
@@ -1379,13 +1692,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		public DateTime DateForRouting { get; set; }
 		public bool ShowCompleted { get; set; }
 		public bool FastDeliveryEnabled { get; set; }
-		public IEnumerable<OrderAddressType>  OrderAddressTypes { get; set; }
+		public IEnumerable<OrderAddressType> OrderAddressTypes { get; set; }
 		public int ClosingDocumentDeliveryScheduleId { get; set; }
-		public int[] GeographicGroupIds  { get; set; }
+		public int[] GeographicGroupIds { get; set; }
 		public DeliveryScheduleFilterType DeliveryScheduleType { get; set; }
 		public TimeSpan DeliveryFromTime { get; set; }
 		public TimeSpan DeliveryToTime { get; set; }
 		public int MinBottles19L { get; set; }
+		public int MaxBottles19L { get; set; }
 	}
 
 	public enum DeliveryScheduleFilterType
@@ -1398,5 +1712,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		DeliveryStartAndEnd = 2,
 		[Display(Name = "Время создания заказа")]
 		OrderCreateDate = 3
+	}
+
+	public class TrueMarkCancellationDto
+	{
+		public int OrderId { get; set; }
+		public string OrganizationInn { get; set; }
+		public Guid DocGuid { get; set; }
 	}
 }

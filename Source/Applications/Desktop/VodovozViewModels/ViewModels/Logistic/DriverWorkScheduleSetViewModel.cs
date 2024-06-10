@@ -1,34 +1,36 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-    public sealed class DriverWorkScheduleSetViewModel : TabViewModelBase
+	public sealed class DriverWorkScheduleSetViewModel : TabViewModelBase
     {
         public DriverWorkScheduleSetViewModel(
             DriverWorkScheduleSet entity,
             IUnitOfWork uow,
             ICommonServices commonServices,
-            IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
+            IDeliveryScheduleSettings deliveryScheduleSettings,
             IEmployeeRepository employeeRepository,
             INavigationManager navigation = null) 
             : base(commonServices.InteractiveService, navigation)
         {
-            if(defaultDeliveryDayScheduleSettings == null) {
-                throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
-            }
-            this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			if(deliveryScheduleSettings is null)
+			{
+				throw new ArgumentNullException(nameof(deliveryScheduleSettings));
+			}
+
+			this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
             Entity = entity ?? new DriverWorkScheduleSet();
@@ -37,7 +39,7 @@ namespace Vodovoz.ViewModels.Logistic
 
             DeliveryDaySchedules = new List<DeliveryDaySchedule>(uow.GetAll<DeliveryDaySchedule>());
 
-            FillObservableDriverWorkSchedules(defaultDeliveryDayScheduleSettings);
+            FillObservableDriverWorkSchedules(deliveryScheduleSettings);
             UpdateTabName();
             
             Entity.PropertyChanged += (sender, args) => {
@@ -111,9 +113,9 @@ namespace Vodovoz.ViewModels.Logistic
 
         #region Приватные методы
 
-        private void FillObservableDriverWorkSchedules(IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings)
+        private void FillObservableDriverWorkSchedules(IDeliveryScheduleSettings deliveryScheduleSettings)
         {
-            var defaultDaySchedule = uow.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+            var defaultDaySchedule = uow.GetById<DeliveryDaySchedule>(deliveryScheduleSettings.DefaultDeliveryDayScheduleId);
 
             ObservableDriverWorkSchedules = new GenericObservableList<DriverWorkScheduleNode> {
                 new DriverWorkScheduleNode { WeekDay = WeekDayName.Monday, DaySchedule = defaultDaySchedule },

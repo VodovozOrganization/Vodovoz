@@ -1,35 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
+using NHibernate.Criterion.Lambda;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Nodes;
-using Vodovoz.Services;
-using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
 	public class NomenclatureRepository : INomenclatureRepository
 	{
-		private readonly INomenclatureParametersProvider nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
-		public NomenclatureRepository(INomenclatureParametersProvider nomenclatureParametersProvider) {
-			this.nomenclatureParametersProvider = nomenclatureParametersProvider ?? 
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+		public NomenclatureRepository(INomenclatureSettings nomenclatureSettings) {
+			this._nomenclatureSettings = nomenclatureSettings ?? 
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 		
 		public QueryOver<Nomenclature> NomenclatureForProductMaterialsQuery()
@@ -91,8 +87,7 @@ namespace Vodovoz.EntityRepositories.Goods
 							.Where(n => !n.IsArchive);
 		}
 
-		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow) =>
-			nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+
 
 		/// <summary>
 		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.
@@ -156,13 +151,6 @@ namespace Vodovoz.EntityRepositories.Goods
 			return QueryOver.Of<Nomenclature>()
 							.Where(n => n.ProductGroup.Id.IsIn(groupsIds));
 		}
-
-		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow) =>
-			nomenclatureParametersProvider.GetNomenclatureToAddWithMaster(uow);
-		
-		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetForfeitNomenclature(uow);
-		
-		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetSanitisationNomenclature(uow);
 		
 		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{
@@ -337,40 +325,81 @@ namespace Vodovoz.EntityRepositories.Goods
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
 
+		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => _nomenclatureSettings.SanitisationNomenclatureIds;
+
+
 		#region Получение номенклатур воды
 
-		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSemiozerie(uow);
+		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterSemiozerieId);
+		}
 
-		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
+		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterKislorodnayaId);
+		}
 
-		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
+		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterSnyatogorskayaId);
+		}
 
-		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
+		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterKislorodnayaDeluxeId);
+		}
 
-		public Nomenclature GetWaterStroika(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterStroika(uow);
+		public Nomenclature GetWaterStroika(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterStroikaId);
+		}
 
-		public Nomenclature GetWaterRuchki(IUnitOfWork uow) => nomenclatureParametersProvider.GetWaterRuchki(uow);
+		public Nomenclature GetWaterRuchki(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.WaterRuchkiId);
+		}
+
+		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.DefaultBottleNomenclatureId);
+		}
+
+		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.NomenclatureToAddWithMasterId);
+		}
+
+		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.ForfeitId);
+		}
+
+		public Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.FastDeliveryNomenclatureId);
+		}
 
 		#endregion
 
-		public decimal GetWaterPriceIncrement => nomenclatureParametersProvider.GetWaterPriceIncrement;
+		public decimal GetWaterPriceIncrement => _nomenclatureSettings.GetWaterPriceIncrement;
 
-		public int GetIdentifierOfOnlineShopGroup() => nomenclatureParametersProvider.GetIdentifierOfOnlineShopGroup();
+		public int GetIdentifierOfOnlineShopGroup() => _nomenclatureSettings.IdentifierOfOnlineShopGroup;
 
 		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
-		public bool Has19LWater(IUnitOfWork uow, int[] siteNomenclaturesIds)
+		public IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] siteNomenclaturesIds)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
 				.WhereRestrictionOn(n => n.Id).IsIn(siteNomenclaturesIds)
 				.And(n => n.Category == NomenclatureCategory.water)
 				.And(n => n.TareVolume == TareVolume.Vol19L)
-				.List()
-				.Any();
+				.Select(n => n.Id)
+				.List<int>();
 		}
 
-		public IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+		public IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureOnlineParametersNode resultAlias = null;
@@ -379,6 +408,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Left.JoinAlias(p => p.Nomenclature, () => nomenclatureAlias)
 				.Where(p => p.Type == parameterType)
 				.And(p => p.NomenclatureOnlineAvailability != null)
+				.And(() => !nomenclatureAlias.IsArchive)
 				.SelectList(list => list
 					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -406,6 +436,109 @@ namespace Vodovoz.EntityRepositories.Goods
 					.Select(() => nomenclaturePriceAlias.Price).WithAlias(() => resultAlias.Price))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlinePriceNode>())
 				.List<NomenclatureOnlinePriceNode>();
+		}
+		
+		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+		{
+			Nomenclature nomenclatureAlias = null;
+			MobileAppNomenclatureOnlineCatalog mobileAppNomenclatureOnlineCatalogAlias = null;
+			VodovozWebSiteNomenclatureOnlineCatalog vodovozWebSiteNomenclatureOnlineCatalogAlias = null;
+			KulerSaleWebSiteNomenclatureOnlineCatalog kulerSaleWebSiteNomenclatureOnlineCatalogAlias = null;
+			NomenclatureOnlineGroup nomenclatureOnlineGroupAlias = null;
+			NomenclatureOnlineCategory nomenclatureOnlineCategoryAlias = null;
+			NomenclatureOnlineParameters onlineParametersAlias = null;
+			OnlineNomenclatureNode resultAlias = null;
+			
+			var query = uow.Session.QueryOver(() => nomenclatureAlias)
+				.Left.JoinAlias(n => n.NomenclatureOnlineGroup, () => nomenclatureOnlineGroupAlias)
+				.Left.JoinAlias(n => n.NomenclatureOnlineCategory, () => nomenclatureOnlineCategoryAlias)
+				.Left.JoinAlias(n => n.MobileAppNomenclatureOnlineCatalog,
+					() => mobileAppNomenclatureOnlineCatalogAlias)
+				.Left.JoinAlias(n => n.VodovozWebSiteNomenclatureOnlineCatalog,
+					() => vodovozWebSiteNomenclatureOnlineCatalogAlias)
+				.Left.JoinAlias(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog,
+					() => kulerSaleWebSiteNomenclatureOnlineCatalogAlias)
+				.JoinEntityAlias(
+					() => onlineParametersAlias,
+					() => onlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null)
+				.Where(n => !n.IsArchive);
+			
+			var queryBuilder = new QueryOverProjectionBuilder<Nomenclature>()
+				.Select(n => n.Id).WithAlias(() => resultAlias.ErpId)
+				.Select(n => n.OnlineName).WithAlias(() => resultAlias.OnlineName)
+				.Select(() => nomenclatureOnlineGroupAlias.Name).WithAlias(() => resultAlias.OnlineGroup)
+				.Select(() => nomenclatureOnlineCategoryAlias.Name).WithAlias(() => resultAlias.OnlineCategory)
+				.Select(n => n.TareVolume).WithAlias(() => resultAlias.TareVolume)
+				.Select(n => n.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
+				.Select(n => n.IsNewBottle).WithAlias(() => resultAlias.IsNewBottle)
+				.Select(n => n.IsSparklingWater).WithAlias(() => resultAlias.IsSparklingWater)
+				.Select(n => n.EquipmentInstallationType).WithAlias(() => resultAlias.EquipmentInstallationType)
+				.Select(n => n.EquipmentWorkloadType).WithAlias(() => resultAlias.EquipmentWorkloadType)
+				.Select(n => n.PumpType).WithAlias(() => resultAlias.PumpType)
+				.Select(n => n.CupHolderBracingType).WithAlias(() => resultAlias.CupHolderBracingType)
+				.Select(n => n.HasHeating).WithAlias(() => resultAlias.HasHeating)
+				.Select(n => n.NewHeatingPower).WithAlias(() => resultAlias.HeatingPower)
+				.Select(n => n.HeatingProductivity).WithAlias(() => resultAlias.HeatingProductivity)
+				.Select(n => n.ProtectionOnHotWaterTap).WithAlias(() => resultAlias.ProtectionOnHotWaterTap)
+				.Select(n => n.HasCooling).WithAlias(() => resultAlias.HasCooling)
+				.Select(n => n.NewCoolingPower).WithAlias(() => resultAlias.CoolingPower)
+				.Select(n => n.CoolingProductivity).WithAlias(() => resultAlias.CoolingProductivity)
+				.Select(n => n.NewCoolingType).WithAlias(() => resultAlias.CoolingType)
+				.Select(n => n.LockerRefrigeratorType).WithAlias(() => resultAlias.LockerRefrigeratorType)
+				.Select(n => n.LockerRefrigeratorVolume).WithAlias(() => resultAlias.LockerRefrigeratorVolume)
+				.Select(n => n.TapType).WithAlias(() => resultAlias.TapType)
+				.Select(n => n.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType);
+
+			switch(parameterType)
+			{
+				case GoodsOnlineParameterType.ForMobileApp:
+					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null)
+						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForMobileApp);
+					queryBuilder.Select(() => mobileAppNomenclatureOnlineCatalogAlias.ExternalId)
+						.WithAlias(() => resultAlias.OnlineCatalogGuid);
+					break;
+				case GoodsOnlineParameterType.ForVodovozWebSite:
+					query.And(n => n.VodovozWebSiteNomenclatureOnlineCatalog != null)
+						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForVodovozWebSite);
+					queryBuilder.Select(() => vodovozWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
+						.WithAlias(() => resultAlias.OnlineCatalogGuid);
+					break;
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
+					query.And(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog != null)
+						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForKulerSaleWebSite);
+					queryBuilder.Select(() => kulerSaleWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
+						.WithAlias(() => resultAlias.OnlineCatalogGuid);
+					break;
+			}
+
+			query.SelectList(builder => queryBuilder)
+			.TransformUsing(Transformers.AliasToBean<OnlineNomenclatureNode>());
+			
+			return query.List<OnlineNomenclatureNode>();
+		}
+
+		public IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(
+			IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true)
+		{
+			PromotionalSet promoSetAlias = null;
+			PromotionalSetItem promoSetItemAlias = null;
+			NamedDomainObjectNode resultAlias = null;
+
+			var query = unitOfWork.Session.QueryOver(() => promoSetAlias)
+				.JoinAlias(p => p.PromotionalSetItems, () => promoSetItemAlias)
+				.Where(() => promoSetItemAlias.Nomenclature.Id == nomenclatureId);
+
+			if(notArchive)
+			{
+				query.Where(p => !p.IsArchive);
+			}
+			
+			return query.SelectList(list => list
+				.Select(Projections.Distinct(Projections.Property(() => promoSetAlias.Id)).WithAlias(() => resultAlias.Id))
+				.Select(p => p.Name).WithAlias(() => resultAlias.Name))
+			.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
+			.List<NamedDomainObjectNode>();
 		}
 	}
 

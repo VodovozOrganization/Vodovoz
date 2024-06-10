@@ -8,6 +8,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -21,14 +22,19 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -45,7 +51,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly ICommonServices _commonServices;
 
 		#region Constructor
@@ -66,7 +72,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
 			IFileDialogService fileDialogService,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
@@ -87,10 +93,10 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_subdivisionParametersProvider =
-				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionSettings =
+				subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			;
+
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -119,6 +125,7 @@ namespace Vodovoz.ViewModels.Logistic
 			LogisticanSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
+			CarEntryViewModel = BuildCarEntryViewModel();
 
 			TabName = $"Диалог разбора {Entity.Title}";
 			
@@ -133,6 +140,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
+		public IEntityEntryViewModel CarEntryViewModel { get; }
 
 		public readonly IList<DeliveryShift> DeliveryShifts;
 		
@@ -145,7 +153,25 @@ namespace Vodovoz.ViewModels.Logistic
 		#endregion
 
 		public Action UpdateTreeAddresses;
-		
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = false;
+
+			return viewModel;
+		}
+
 		private void ObservableAddressesOnPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == nameof(LateArrivalReason))
@@ -217,18 +243,20 @@ namespace Vodovoz.ViewModels.Logistic
 					});
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-				page.ViewModel.OnEntitySelectedResult +=
+				page.ViewModel.OnSelectResult +=
 					(sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
 						
-						if (selectedNode == null)
+						if(!(selectedObject is FineJournalNode selectedNode))
+						{
 							return;
-						
+						}
+
 						var fine = UoW.GetById<Fine>(selectedNode.Id);
 
 						var undeliveredOrder = GetUndeliveredOrder();
-						if (undeliveredOrder != null)
+						if(undeliveredOrder != null)
 						{
 							fine.UndeliveredOrder = undeliveredOrder;
 							UoW.Save(fine);
@@ -266,12 +294,12 @@ namespace Vodovoz.ViewModels.Logistic
 					});
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-				page.ViewModel.OnEntitySelectedResult +=
+				page.ViewModel.OnSelectResult +=
 					(sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+						if(!(selectedObject is FineJournalNode selectedNode))
 						{
 							return;
 						}

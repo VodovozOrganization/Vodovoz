@@ -1,7 +1,13 @@
-namespace Vodovoz.Errors.Orders
+﻿namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order
 	{
+		public static Error NotFound =>
+			new Error(
+				typeof(Order),
+				nameof(NotFound),
+				"Заказ не найден");
+
 		public static Error CantEdit =>
 			new Error(
 				typeof(Order),
@@ -43,5 +49,17 @@ namespace Vodovoz.Errors.Orders
 				typeof(Order),
 				nameof(Save),
 				"Произошла ошибка при сохранении");
+
+		public static Error NotInOnTheWayStatus =>
+			new Error(
+				typeof(Order),
+				nameof(NotInOnTheWayStatus),
+				"Заказ не в статусе в пути");
+
+		public static Error FastDelivery19LBottlesLimitError(int water19lInOrder, int fastDelivery19LBottlesLimit) =>
+			new Error(
+				typeof(Order),
+				nameof(FastDelivery19LBottlesLimitError),
+				$"Максимально допустимое кол-во 19л воды для доставки за час - {fastDelivery19LBottlesLimit}, в заказе указано {water19lInOrder}");
 	}
 }

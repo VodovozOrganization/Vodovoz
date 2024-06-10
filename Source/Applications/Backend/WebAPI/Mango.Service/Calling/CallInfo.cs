@@ -1,5 +1,4 @@
 ﻿using Mango.Core.Dto;
-using Mango.Service.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +9,12 @@ namespace Mango.Service.Calling
 	public class CallInfo
 	{
 		private DateTime created = DateTime.Now;
-		public CallInfo(CallEvent callEvent)
+		public CallInfo(MangoCallEvent callEvent)
 		{
 			Events[callEvent.Seq] = callEvent;
 		}
 
-		public readonly SortedDictionary<uint, CallEvent> Events = new SortedDictionary<uint, CallEvent>();
+		public readonly SortedDictionary<uint, MangoCallEvent> Events = new SortedDictionary<uint, MangoCallEvent>();
 		public CallInfo OnHoldCall;
 
 		public readonly HashSet<uint> ConnectedExtensions = new HashSet<uint>();
@@ -23,11 +22,11 @@ namespace Mango.Service.Calling
 		#region Расчетные
 
 		public uint Seq => Events.Keys.Last();
-		public CallEvent LastEvent => Events.Last().Value;
+		public MangoCallEvent LastEvent => Events.Last().Value;
 
 		public TimeSpan LiveTime => DateTime.Now - created;
 
-		public bool IsActive => Events.Values.All(e => e.CallState.ParseCallState() != CallState.Disconnected);
+		public bool IsActive => Events.Values.All(e => (int)e.CallState != (int)CallState.Disconnected);
 
 		public string EventsToText()
 		{

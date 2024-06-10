@@ -1,22 +1,14 @@
-﻿using Autofac;
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using QS.Dialog.Gtk;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Services;
 using QS.Validation;
 using QSBanks;
 using QSOrmProject;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Vodovoz;
-using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -25,7 +17,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals;
@@ -34,8 +25,7 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
+using Vodovoz.Presentation.ViewModels.Employees.Journals;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
@@ -44,6 +34,7 @@ using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
+using Vodovoz.ViewModels.Fuel.FuelCards;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -62,10 +53,12 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.Profitability;
 
 public partial class MainWindow
 {
+
 	#region Наша организация
 
 	/// <summary>
@@ -73,11 +66,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Organization));
-		tdiMain.AddTab(refWin);
+		NavigationManager.OpenViewModel<OrganizationJournalViewModel>(null);
 	}
 
 	/// <summary>
@@ -192,9 +183,9 @@ public partial class MainWindow
 	{
 		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
 			x => x.Name,
-			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			 UnitOfWorkFactory.GetDefaultFactory,
+			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices),
+			 ServicesConfig.UnitOfWorkFactory,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
@@ -270,15 +261,15 @@ public partial class MainWindow
 			x => x.Name,
 			() => new UndeliveryProblemSourceViewModel(
 				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices
 			),
 			(node) => new UndeliveryProblemSourceViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices
 			),
-			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.UnitOfWorkFactory,
 			ServicesConfig.CommonServices
 		);
 		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
@@ -343,6 +334,16 @@ public partial class MainWindow
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Справочники Roboats
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnInnerPhonesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InnerPhonesJournalViewModel>(null);
 	}
 
 	#endregion Наша организация
@@ -631,6 +632,56 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<FlyersJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги сайта ВВ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnVodovozWebSiteNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<VodovozWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги мобильного приложения
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnMobileAppNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MobileAppNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги сайта Кулер Сэйл
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnKulerSaleWebSiteNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Группы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnNomenclatureOnlineGroupsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineGroupsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Типы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnNomenclatureOnlineCategoriesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineCategoriesJournalViewModel>(null);
+	}
+
 	#endregion ТМЦ
 
 	#region Банки/Операторы ЭДО
@@ -743,7 +794,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(
+			null,
+			filter => filter.HidenByDefault = true,
+			OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -943,40 +997,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var nomenclatureParametersProvider = scope.Resolve<INomenclatureParametersProvider>();
-		var routeListProfitabilityController = scope.Resolve<IRouteListProfitabilityController>();
-		var commonServices = scope.Resolve<ICommonServices>();
-		var unitOfWorkFactory = scope.Resolve<IUnitOfWorkFactory>();
-
-		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
-			x => x.Name,
-			() => new FuelTypeViewModel(
-				EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, routeListProfitabilityController),
-			(node) => new FuelTypeViewModel(
-				EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, routeListProfitabilityController),
-			unitOfWorkFactory,
-			commonServices);
-
-		var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
-		if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
-		{
-			var viewAction = new JournalAction("Просмотр",
-				(selected) => selected.Any(),
-				(selected) => true,
-				(selected) =>
-				{
-					var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
-					fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
-				}
-			);
-
-			(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
-		}
-
-		tdiMain.AddTab(fuelTypeJournalViewModel);
-
-		fuelTypeJournalViewModel.TabClosed += (s, args) => scope.Dispose();
+		NavigationManager.OpenViewModel<FuelTypeJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1004,11 +1025,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionRouteColumnsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(RouteColumn));
-		tdiMain.AddTab(refWin);
+		NavigationManager.OpenViewModel<RouteColumnJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1040,6 +1059,50 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
 	}
+
+	/// <summary>
+	/// Топливные карты
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelCardsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FuelCardJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Причины списания километража
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionMileageWriteOffReasonsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MileageWriteOffReasonJournalViewModel>(null);
+	}
+
+	#region События нахождения на складе водителей
+
+	/// <summary>
+	/// События
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Завершенные события
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CompletedDriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	#endregion
 
 	#endregion Логистика
 

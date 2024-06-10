@@ -11,10 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Additions;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -25,8 +28,11 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Store;
@@ -37,7 +43,7 @@ namespace Vodovoz
 	{
 		private static NLog.Logger _logger;
 
-		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private INomenclatureSettings _nomenclatureSettings;
 
 		private IEmployeeRepository _employeeRepository;
 		private ITrackRepository _trackRepository;
@@ -49,6 +55,7 @@ namespace Vodovoz
 		private IWageParameterService _wageParameterService;
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+		private IEventsQrPlacer _eventsQrPlacer;
 
 		private IStoreDocumentHelper _storeDocumentHelper;
 
@@ -86,7 +93,7 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarUnloadDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CarUnloadDocument>(id);
 			ConfigureDlg();
 		}
 
@@ -103,7 +110,7 @@ namespace Vodovoz
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
-			_terminalNomenclatureProvider = _lifetimeScope.Resolve<ITerminalNomenclatureProvider>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
@@ -116,11 +123,12 @@ namespace Vodovoz
 			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
+			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 		}
 
 		private void ConfigureNewDoc()
 		{
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -208,7 +216,7 @@ namespace Vodovoz
 			}
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(typeof(CarUnloadDocument), currentUserId, nameof(RetroactivelyClosePermission));
@@ -233,6 +241,8 @@ namespace Vodovoz
 			((GenericObservableList<ReceptionNonSerialEquipmentItemNode>)nonserialequipmentreceptionview1.Items).ListContentChanged +=
 				(sender, e) => HasChanges = true;
 			((GenericObservableList<DefectiveItemNode>)defectiveitemsreceptionview1.Items).ListContentChanged += (sender, e) => HasChanges = true;
+
+			nonserialequipmentreceptionview1.Container = this;
 		}
 
 		public override bool Save()
@@ -242,12 +252,12 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(!UpdateReceivedItemsOnEntity(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal))
+			if(!UpdateReceivedItemsOnEntity(_nomenclatureSettings.NomenclatureIdForTerminal))
 			{
 				return false;
 			}
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -575,15 +585,9 @@ namespace Vodovoz
 			{
 				Save();
 			}
-
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = Entity.Title,
-				Identifier = "Store.CarUnloadDoc",
-				Parameters = new Dictionary<string, object>
-					{
-						{ "id",  Entity.Id }
-					}
-			};
+			
+			var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
+				UoW, Entity.Id, Entity.Title, EventQrDocumentType.CarUnloadDocument);
 
 			TabParent.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),

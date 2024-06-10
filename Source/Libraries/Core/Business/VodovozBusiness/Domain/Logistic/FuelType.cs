@@ -12,25 +12,31 @@ namespace Vodovoz.Domain.Logistic
 
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "виды топлива",
-		Nominative = "вид топлива")]
+		Nominative = "вид топлива",
+		GenitivePlural = "Видов топлива")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class FuelType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual int Id { get; set; }
+		private string _name;
+		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();
+		private string _productGroupId;
 
-		string name;
+		public FuelType()
+		{
+			Name = string.Empty;
+		}
+
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
 		[Required(ErrorMessage = "Название должно быть заполнено.")]
 		[StringLength(20)]
 		public virtual string Name
 		{
-			get { return name; }
-			set { SetField(ref name, value, () => Name); }
+			get => _name;
+			set => SetField(ref _name, value);
 		}
-
-		decimal cost;
 
 		[Display(Name = "Цена")]
 		[Required(ErrorMessage = "Цена должна быть заполнена.")]
@@ -42,7 +48,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();
 		public virtual IList<FuelPriceVersion> FuelPriceVersions
 		{
 			get => _fuelPriceVersions;
@@ -53,16 +58,19 @@ namespace Vodovoz.Domain.Logistic
 		public virtual GenericObservableList<FuelPriceVersion> ObservableFuelPriceVersions => _observableFuelPriceVersions
 			?? (_observableFuelPriceVersions = new GenericObservableList<FuelPriceVersion>(FuelPriceVersions));
 
-		public FuelType()
+		public virtual string ProductGroupId
 		{
-			Name = String.Empty;
+			get => _productGroupId;
+			set => SetField(ref _productGroupId, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Cost < 0)
+			{
 				yield return new ValidationResult("Стоимость не может быть отрицательной",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Cost) });
+			}
 		}
 
 		public override bool Equals(object obj)

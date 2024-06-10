@@ -17,13 +17,14 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IProfitCategoryProvider _profitCategoryProvider;
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -43,8 +44,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
-			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider,
+			IOrganizationSettings organizationSettings,
+			IPaymentSettings paymentSettings,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository) 
@@ -55,21 +56,22 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
-			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
-			if(organizationParametersProvider == null)
+			if(organizationSettings == null)
 			{
-				throw new ArgumentNullException(nameof(organizationParametersProvider));
+				throw new ArgumentNullException(nameof(organizationSettings));
 			}
 
 			InteractiveService = commonServices.InteractiveService;
-			_vodovozId = organizationParametersProvider.VodovozOrganizationId;
-			_vodovozSouthId = organizationParametersProvider.VodovozSouthOrganizationId;
+			_vodovozId = organizationSettings.VodovozOrganizationId;
+			_vodovozSouthId = organizationSettings.VodovozSouthOrganizationId;
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			UnitOfWorkFactory = unitOfWorkFactory;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			
 			TabName = "Выгрузка выписки из банк-клиента";
 
@@ -78,6 +80,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			GetProfitCategories();
 		}
 
+		public IUnitOfWorkFactory UnitOfWorkFactory { get; }
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<ProfitCategory> ProfitCategories { get; private set; }
@@ -172,7 +175,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					&& x.PaymentNum == int.Parse(doc.DocNum)
 					&& x.Organization.INN == doc.RecipientInn
 					&& x.CounterpartyInn == doc.PayerInn
-					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
+					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount
+					&& x.Total == doc.Total);
 
 				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 					UoW,
@@ -180,7 +184,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					int.Parse(doc.DocNum),
 					doc.RecipientInn,
 					doc.PayerInn,
-					doc.PayerCurrentAccount) || curDoc != null)
+					doc.PayerCurrentAccount,
+					doc.Total) || curDoc != null)
 				{
 					count++;
 					countDuplicates++;
@@ -205,41 +210,26 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 		}
 
-		public async Task<bool> SaveAllocatedOrderAsync(PaymentItem paymentItem)
-		{
-			try
-			{
-				var order = UoW.GetById<Order>(paymentItem.Order.Id);
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-
-				UoW.Save(order);
-				UoW.Commit();
-
-				return true;
-			}
-			catch(Exception ex)
-			{
-				UoW.Session.Clear();
-				_logger.Error(ex);
-				_saveAttempts++;
-
-				if(_saveAttempts >= 3)
-				{
-					return false;
-				}
-
-				await Task.Delay(1000);
-				return await SaveAllocatedOrderAsync(paymentItem);
-			}
-		}
-
 		private void Init(string docPath)
 		{
 			IsNotAutoMatchingMode = false;
 			_progress = 0;
 			UpdateProgress?.Invoke("Начинаем работу...", _progress);
 			Parser = new TransferDocumentsFromBankParser(docPath);
-			Parser.Parse();
+
+			try
+			{
+				Parser.Parse();
+			}
+			catch(Exception ex)
+			{
+				if(ex is NotSupportedException)
+				{
+					InteractiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+					UpdateProgress?.Invoke("Произошла ошибка во время загрузки", 0);
+					return;
+				}
+			}
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", _progress);
 			MatchPayments();
@@ -251,7 +241,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			var countDuplicates = 0;
 			
 			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
-			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_profitCategoryProvider.GetDefaultProfitCategory());
+			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_paymentSettings.DefaultProfitCategory);
 			var paymentsToVodovoz = 
 				Parser.TransferDocuments.Where(x => 
 					x.RecipientInn == _organisations[0].INN
@@ -276,15 +266,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IsNotAutoMatchingMode = true;
 		}
 
-		public void CreateOperations(Payment payment)
+		public void CreateOperations(IUnitOfWork uow, Payment payment)
 		{
 			payment.CreateIncomeOperation();
-			UoW.Save(payment.CashlessMovementOperation);
+			uow.Save(payment.CashlessMovementOperation);
 
-			foreach(PaymentItem item in payment.ObservableItems)
+			foreach(var item in payment.ObservableItems)
 			{
 				item.CreateOrUpdateExpenseOperation();
-				UoW.Save(item.CashlessMovementOperation);
+				uow.Save(item.CashlessMovementOperation);
 			}
 		}
 	}

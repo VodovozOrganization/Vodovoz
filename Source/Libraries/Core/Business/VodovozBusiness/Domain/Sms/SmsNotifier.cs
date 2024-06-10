@@ -7,13 +7,15 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Sms
 {
-	public class SmsNotifier
+	public class SmsNotifier : ISmsNotifier
 	{
-		private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly ISmsNotifierSettings _smsNotifierSettings;
 
-		public SmsNotifier(ISmsNotifierParametersProvider smsNotifierParametersProvider)
+		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierSettings smsNotifierSettings)
 		{
-			this.smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			this._smsNotifierSettings = smsNotifierSettings ?? throw new ArgumentNullException(nameof(smsNotifierSettings));
 		}
 
 		/// <summary>
@@ -22,7 +24,7 @@ namespace Vodovoz.Domain.Sms
 		/// </summary>
 		public void NotifyIfNewClient(Order order)
 		{
-			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
+			if(!_smsNotifierSettings.IsSmsNotificationsEnabled) {
 				return;
 			}
 
@@ -38,7 +40,7 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//проверка уже существующих ранее уведомлений
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = _uowFactory.CreateWithoutRoot()) {
 				var existsNotifications = uow.Session.QueryOver<NewClientSmsNotification>()
 					.Where(x => x.Counterparty.Id == order.Client.Id)
 					.List();
@@ -54,7 +56,7 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//получение текста сообщения
-			string messageText = smsNotifierParametersProvider.GetNewClientSmsTextTemplate();
+			string messageText = _smsNotifierSettings.NewClientSmsTextTemplate;
 
 			//формирование текста сообщения
 			const string orderIdVariable = "$order_id$";
@@ -66,7 +68,7 @@ namespace Vodovoz.Domain.Sms
 			messageText = messageText.Replace(deliveryTimeVariable, $"{orderScheduleTimeString}");
 
 			//создание нового уведомления для отправки
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<NewClientSmsNotification>()) {
+			using(var uow = _uowFactory.CreateWithNewRoot<NewClientSmsNotification>()) {
 				uow.Root.Order = order;
 				uow.Root.Counterparty = order.Client;
 				uow.Root.NotifyTime = DateTime.Now;
@@ -93,7 +95,7 @@ namespace Vodovoz.Domain.Sms
 		/// до сохранения самого недовоза в базу</param>
 		public void NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder undeliveredOrder, IUnitOfWork externalUow = null)
 		{
-			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled)
+			if(!_smsNotifierSettings.IsSmsNotificationsEnabled)
 			{
 				return;
 			}
@@ -112,7 +114,7 @@ namespace Vodovoz.Domain.Sms
 			}
 			
 			//проверка уже существующих ранее уведомлений по недовозу
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var existsNotifications = uow.Session.QueryOver<UndeliveryNotApprovedSmsNotification>()
 					.Where(x => x.UndeliveredOrder.Id == undeliveredOrder.Id)
@@ -131,7 +133,7 @@ namespace Vodovoz.Domain.Sms
 			}
 			
 			//получение текста сообщения
-			var msgToSend = smsNotifierParametersProvider.GetUndeliveryAutoTransferNotApprovedTextTemplate();
+			var msgToSend = _smsNotifierSettings.UndeliveryAutoTransferNotApprovedTextTemplate;
 
 			//формирование текста сообщения
 			//метки для замены в тексте сообщения из базы
@@ -169,7 +171,7 @@ namespace Vodovoz.Domain.Sms
 				return;
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<UndeliveryNotApprovedSmsNotification>())
+			using(var uow = _uowFactory.CreateWithNewRoot<UndeliveryNotApprovedSmsNotification>())
 			{
 				FillNotification(uow.Root);
 				uow.Save();

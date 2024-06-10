@@ -16,7 +16,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryProduct;
+		private global::QS.Views.Control.EntityEntry entryProduct;
 
 		private global::Gtk.Label label32;
 
@@ -89,11 +89,9 @@ namespace Vodovoz
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.entryProduct = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryProduct = new global::QS.Views.Control.EntityEntry();
 			this.entryProduct.Events = ((global::Gdk.EventMask)(256));
 			this.entryProduct.Name = "entryProduct";
-			this.entryProduct.CanEditReference = false;
-			this.entryProduct.CanOpenWithoutTabParent = false;
 			this.datatable5.Add(this.entryProduct);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable5[this.entryProduct]));
 			w7.TopAttach = ((uint)(1));

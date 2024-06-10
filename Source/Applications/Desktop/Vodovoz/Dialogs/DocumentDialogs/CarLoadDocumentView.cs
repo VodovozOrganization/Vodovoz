@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -19,10 +18,9 @@ namespace Vodovoz
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		
+		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
+		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+
 		public CarLoadDocumentView()
 		{
 			this.Build();

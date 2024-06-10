@@ -8,9 +8,11 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.CommonEnums;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
@@ -35,7 +37,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			ConfigureCarModelSelectionFilter();
 
@@ -49,6 +51,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW, Startup.AppDIContainer.Resolve<ICarSettings>());
 			_carModelSelectionFilterViewModel.CarModelNodes.ListContentChanged += (s, e) => OnDriverOfSelected();
+			_carModelSelectionFilterViewModel.ExcludedCarTypesOfUse = new[] { CarTypeOfUse.Loader };
 			UpdateCarModelsList();
 		}
 
@@ -91,6 +94,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) =>
 			{
 				OnDriverOfSelected();

@@ -4,9 +4,9 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -45,7 +45,13 @@ namespace Vodovoz.EntityRepositories.Payments
 		}
 
 		public bool NotManuallyPaymentFromBankClientExists(
-			IUnitOfWork uow, DateTime date, int number, string organisationInn, string counterpartyInn, string accountNumber)
+			IUnitOfWork uow,
+			DateTime date,
+			int number,
+			string organisationInn,
+			string counterpartyInn,
+			string accountNumber,
+			decimal sum)
 		{
 			Organization organizationAlias = null;
 
@@ -55,6 +61,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(p => p.PaymentNum == number)
 				.And(p => p.CounterpartyInn == counterpartyInn)
 				.And(p => p.CounterpartyCurrentAcc == accountNumber)
+				.And(p => p.Total == sum)
 				.And(() => organizationAlias.INN == organisationInn)
 				.And(p => !p.IsManuallyCreated)
 				.SingleOrDefault<Payment>();
@@ -95,12 +102,12 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SingleOrDefault<int>();
 		}
 
-		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider)
+		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings paymentSettings)
 		{
 			var undistributedPayments = uow.Session.QueryOver<Payment>()
-									.Where(x => x.Status == PaymentState.undistributed)
-									.And(x => x.ProfitCategory.Id == profitCategoryProvider.GetDefaultProfitCategory())
-									.List();
+				.Where(x => x.Status == PaymentState.undistributed)
+				.And(x => x.ProfitCategory.Id == paymentSettings.DefaultProfitCategory)
+				.List();
 
 			return undistributedPayments;
 		}
@@ -108,21 +115,13 @@ namespace Vodovoz.EntityRepositories.Payments
 		public IList<Payment> GetAllDistributedPayments(IUnitOfWork uow)
 		{
 			var distributedPayments = uow.Session.QueryOver<Payment>()
-									.Where(x => x.Status == PaymentState.distributed)
-									.List();
+				.Where(x => x.Status == PaymentState.distributed)
+				.List();
 
 			return distributedPayments;
 		}
 
-		public Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId)
-		{
-			return uow.Session.QueryOver<Payment>()
-				.Where(p => p.RefundPaymentFromOrderId == orderId)
-				.And(p => p.Status != PaymentState.Cancelled)
-				.SingleOrDefault();
-		}
-		
-		public IList<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
+		public IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<Payment>()
 				.Where(p => p.RefundPaymentFromOrderId == orderId)
@@ -257,7 +256,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SelectGroup(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
 				.Select(p => counterpartyAlias.INN).WithAlias(() => resultAlias.CounterpartyINN)
 				.Select(p => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
-				.Select(p =>organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
+				.Select(p => organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 				.Select(balanceProjection).WithAlias(() => resultAlias.CounterpartyBalance)
 				.Select(counterpartyDebtProjection).WithAlias(() => resultAlias.CounterpartyDebt))
 				.Where(Restrictions.Gt(balanceProjection, 0))
@@ -277,23 +276,41 @@ namespace Vodovoz.EntityRepositories.Payments
 			
 			return payment != null;
 		}
-	}
-	
-	public class UnallocatedBalancesJournalNode : JournalNodeBase
-	{
-		public int CounterpartyId { get; set; }
-		public int OrganizationId { get; set; }
-		public string CounterpartyName { get; set; }
-		public string CounterpartyINN { get; set; }
-		public string OrganizationName { get; set; }
-		public decimal CounterpartyBalance { get; set; }
-		public decimal CounterpartyDebt { get; set; }
-	}
 
-	public class NotFullyAllocatedPaymentNode
-	{
-		public int Id { get; set; }
-		public decimal UnallocatedSum { get; set; }
-		public DateTime PaymentDate { get; set; }
+		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork unitOfWork, int counterpartyId, string counterpartyInn)
+		{
+			var query = from payment in unitOfWork.Session.Query<Payment>()
+						join c in unitOfWork.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
+						from counterparty in counterparties.DefaultIfEmpty()
+						where
+						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
+						&& payment.Status != PaymentState.Cancelled
+						select new PaymentNode
+						{
+							PaymentNum = payment.PaymentNum,
+							PaymentDate = payment.Date,
+							CounterpartyId = counterparty.Id,
+							CounterpartyInn = counterparty.INN,
+							CounterpartyName = counterparty.Name,
+							CounterpartyFullName = counterparty.FullName,
+							PayerName = payment.CounterpartyName,
+							IsManuallyCreated = payment.IsManuallyCreated,
+							PaymentPurpose = payment.PaymentPurpose,
+							PaymentSum = payment.Total
+						};
+
+			return query;
+		}
+
+		public IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
+		{
+			var query = from payment in uow.Session.Query<Payment>()
+						where
+						payment.Status != PaymentState.Cancelled
+						&& (payment.Counterparty.Id == counterpartyId || payment.CounterpartyInn == counterpartyInn)
+						select payment.Total;
+
+			return query;
+		}
 	}
 }

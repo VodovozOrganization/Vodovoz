@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Documents
@@ -205,7 +206,8 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
-			var inStock = stockRepository.NomenclatureInStock(uow, nomenclatureIds, Warehouse.Id, TimeStamp);
+			var inStock =
+				stockRepository.NomenclatureInStock(uow, nomenclatureIds, new []{ Warehouse.Id }, TimeStamp);
 
 			foreach(var item in Items)
 			{
@@ -312,10 +314,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
+		public virtual bool FullyShiped(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
+			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
 		}
 
 		#endregion

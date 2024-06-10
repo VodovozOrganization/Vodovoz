@@ -14,7 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.Date).Column("date");
 			Map(x => x.TotalMoney).Column("total_money");
 			Map(x => x.FineReasonString).Column("fine_reason_string");
-			Map(x => x.FineType).Column("fine_type").CustomType<FineTypeStringType>();
+			Map(x => x.FineType).Column("fine_type");
 
 			References(x => x.RouteList).Column("route_list_id");
 			References(x => x.Author).Column("author_id");

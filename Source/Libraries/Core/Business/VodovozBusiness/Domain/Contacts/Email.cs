@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Contacts
@@ -9,9 +10,11 @@ namespace Vodovoz.Domain.Contacts
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "E-mail адреса",
 		Nominative = "E-mail адрес")]
+	[HistoryTrace]
 	public class Email : PropertyChangedBase, IDomainObject
 	{
-		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
+
 		private TimeSpan _emailMatchingProcessTimeout = TimeSpan.FromSeconds(1);
 
 		private string _address;

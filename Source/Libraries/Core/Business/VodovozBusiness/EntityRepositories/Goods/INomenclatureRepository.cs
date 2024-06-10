@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -74,16 +74,19 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow);
 		Nomenclature GetWaterStroika(IUnitOfWork uow);
 		Nomenclature GetWaterRuchki(IUnitOfWork uow);
+		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
 		/// <summary>
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>
 		int GetIdentifierOfOnlineShopGroup();
 		decimal GetWaterPriceIncrement { get; }
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
-		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
-		IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+		IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] nomenclaturesIds);
+		IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
+		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true);
 	}
 }

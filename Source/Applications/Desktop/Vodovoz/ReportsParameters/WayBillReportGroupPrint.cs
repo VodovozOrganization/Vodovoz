@@ -8,50 +8,60 @@ using NHibernate.Util;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Services;
 using QS.Report;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class WayBillReportGroupPrint : SingleUoWWidgetBase, IParametersWidget
+	public partial class WayBillReportGroupPrint : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly IOrganizationJournalFactory _organizationJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
-		private List<Subdivision> _availableSubdivisionsForOneDayGroupReport;
+		private IList<NamedDomainObjectNode> _availableSubdivisionsForOneDayGroupReport;
 		private List<DriverSelectableNode> _availableDriversList = new List<DriverSelectableNode>();
+
+		private ITdiTab _parentTab;
+		private Car _car;
 
 		public WayBillReportGroupPrint(
 			ILifetimeScope lifetimeScope,
-			IEmployeeJournalFactory employeeJournalFactory, 
-			ICarJournalFactory carJournalFactory, 
+			IEmployeeJournalFactory employeeJournalFactory,
 			IOrganizationJournalFactory organizationJournalFactory, 
 			IInteractiveService interactiveService,
 			ISubdivisionRepository subdivisionRepository)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			ConfigureSingleReport();
 			ConfigureGroupReportForOneDay();
@@ -67,6 +77,54 @@ namespace Vodovoz.ReportsParameters
 
 			enumcheckCarTypeOfUseOneDayGroupReport.CheckStateChanged += EnumcheckCarTypeOfUseOneDayGroupReportCheckStateChanged;
 			enumcheckCarOwnTypeOneDayGroupReport.CheckStateChanged += EnumcheckCarOwnTypeOneDayGroupReportCheckStateChanged;
+		}
+
+		#region Properties
+		public Car Car
+		{
+			get => _car;
+			set
+			{
+				if(_car != value)
+				{
+					_car = value;
+
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Car)));
+				}
+			}
+		}
+
+		public ITdiTab ParentTab
+		{
+			get => _parentTab;
+			set
+			{
+				_parentTab = value;
+
+				if(entityentryCar.ViewModel == null)
+				{
+					entityentryCar.ViewModel = BuildCarEntryViewModel();
+				}
+			}
+		}
+		#endregion Properties
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var navigationManager = _lifetimeScope.BeginLifetimeScope().Resolve<INavigationManager>();
+
+			var viewModel = new LegacyEEVMBuilderFactory<WayBillReportGroupPrint>(ParentTab, this, UoW, navigationManager, _lifetimeScope)
+			.ForProperty(x => x.Car)
+			.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+				filter =>
+				{
+				})
+			.UseViewModelDialog<CarViewModel>()
+			.Finish();
+
+			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
 		}
 
 		#region Конфигурация элементов управления виджета отчетов
@@ -86,9 +144,6 @@ namespace Vodovoz.ReportsParameters
 			entityDriverSingleReport.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			//Выбор автомобиля
-			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-
 			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportClicked;
 		}
 
@@ -103,6 +158,7 @@ namespace Vodovoz.ReportsParameters
 
 			// Тип автомобиля
 			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUseOneDayGroupReport.AddEnumToHideList(CarTypeOfUse.Loader);
 			SetChekBoxesInActive(new string[]{ CarTypeOfUse.Largus.ToString() }, ref enumcheckCarTypeOfUseOneDayGroupReport);
 
 			// Принадлежность автомобиля
@@ -110,10 +166,10 @@ namespace Vodovoz.ReportsParameters
 			SetChekBoxesInActive(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypeOneDayGroupReport);
 
 			//Выбор подразделения
-			comboSubdivisionsOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
+			comboSubdivisionsOneDayGroupReport.SetRenderTextFunc<NamedDomainObjectNode>(x => x.Name);
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Any();
 			comboSubdivisionsOneDayGroupReport.Changed += OnComboSubdivisionsOneDayGroupReportChanged;
 
 			//Время отправления по умолчанию
@@ -134,6 +190,7 @@ namespace Vodovoz.ReportsParameters
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public string Title => "Путевой лист";
 
@@ -148,7 +205,7 @@ namespace Vodovoz.ReportsParameters
 				{
 					{ "date", datepickerSingleReport.Date },
 					{ "driver_id", (entityDriverSingleReport?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entityCarSingleReport?.Subject as Car)?.Id ?? -1 },
+					{ "car_id", Car?.Id ?? -1 },
 					{ "time", timeHourEntrySingleReport.Text + ":" + timeMinuteEntrySingleReport.Text },
 					{ "need_date", !datepickerSingleReport.IsEmpty }
 				}
@@ -173,13 +230,14 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
-		private List<Subdivision> GetAvailableSubdivisionsListInAccordingWithCarParameters()
+		private IList<NamedDomainObjectNode> GetAvailableSubdivisionsListInAccordingWithCarParameters()
 		{
 
 			var selectedCarTypeOfUses = _carTypesOfUse.Cast<CarTypeOfUse>().ToArray();
 			var selectedCarOwnTypes = _carOwnTypes.Cast<CarOwnType>().ToArray();
 
-			return _subdivisionRepository.GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(UoW, selectedCarTypeOfUses, selectedCarOwnTypes).ToList();
+			return _subdivisionRepository
+				.GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(UoW, selectedCarTypeOfUses, selectedCarOwnTypes);
 		}
 
 		private static void SetChekBoxesInActive(string[] valuesToCheck, ref EnumCheckList checkList)
@@ -200,8 +258,8 @@ namespace Vodovoz.ReportsParameters
 		private Enum[] _carOwnTypes => enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.ToArray();
 
 		private int[] _subdivisionIds => 
-			(comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision) != null
-			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision).Id }
+			(comboSubdivisionsOneDayGroupReport.SelectedItem as NamedDomainObjectNode) != null
+			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as NamedDomainObjectNode).Id }
 			: _availableSubdivisionsForOneDayGroupReport.Select(s => s.Id).ToArray();
 
 		private DateTime _date => 
@@ -372,7 +430,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Any();
 			FillDriversTreeView();
 		}
 
@@ -380,7 +438,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Any();
 			FillDriversTreeView();
 		}
 

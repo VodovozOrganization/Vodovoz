@@ -22,7 +22,7 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty

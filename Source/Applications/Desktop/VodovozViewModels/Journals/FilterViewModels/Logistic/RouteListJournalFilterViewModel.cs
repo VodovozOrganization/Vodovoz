@@ -1,18 +1,18 @@
-﻿using QS.Project.Filter;
-using QS.Project.Services;
+﻿using Gamma.Utilities;
+using QS.Commands;
+using QS.Dialog;
+using QS.Project.Filter;
+using QS.Services;
+using QS.Utilities.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Gamma.Utilities;
-using QS.Commands;
-using QS.Dialog;
-using QS.Utilities.Enums;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
+using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -30,9 +30,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private IList<CarOwnType> _restrictedCarOwnTypes;
 		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
 		private DelegateCommand _infoCommand;
+		private int[] _excludeIds;
+		private readonly IInteractiveService _interactiveService;
 
-		public RouteListJournalFilterViewModel()
+		public RouteListJournalFilterViewModel(
+			IUserService userService,
+			ICurrentPermissionService currentPermissionService,
+			IInteractiveService interactiveService)
 		{
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
 			_statusNodes = EnumHelper.GetValuesList<RouteListStatus>().Select(x => new RouteListStatusNode(x) { Selected = true }).ToList();
 
 			foreach(var addressType in Enum.GetValues(typeof(AddressType)).Cast<AddressType>())
@@ -42,7 +57,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				_addressTypeNodes.Add(newAddressTypeNode);
 			}
 
-			var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
+			var currentUserSettings = new UserRepository().GetUserSettings(UoW, userService.CurrentUserId);
 
 			foreach(var addressTypeNode in AddressTypeNodes)
 			{
@@ -60,14 +75,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				}
 			}
 
-			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
-			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
+			var restrictedCarTypeOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
+			restrictedCarTypeOfUse.Remove(CarTypeOfUse.Loader);
 
-			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
+			_restrictedCarTypesOfUse = restrictedCarTypeOfUse;
+
+			var cashier = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			var logistician = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 			HasAccessToDriverTerminal = cashier || logistician;
 
 			SubscribeOnCheckChanged();
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+		}
+
+		public int[] ExcludeIds
+		{
+			get => _excludeIds;
+			set => UpdateFilterField(ref _excludeIds, value);
 		}
 
 		public IList<SaleGeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<SaleGeoGroup>().ToList());
@@ -238,7 +263,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		}
 		
 		public DelegateCommand InfoCommand => _infoCommand ?? (_infoCommand = new DelegateCommand(
-			() => ServicesConfig.InteractiveService.ShowMessage(
+			() => _interactiveService.ShowMessage(
 				ImportanceLevel.Info,
 				"Описание расцветки строк журнала МЛ:\n\n" +
 				"Если МЛ отправлен В Путь пользователем без полной загрузки, то запись строки будет сделана оранжевым цветом\n" +
@@ -274,6 +299,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			UnsubscribeOnCheckChanged();
 			_addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
+			DisposeOnDestroy = true;
 			base.Dispose();
 		}
 	}

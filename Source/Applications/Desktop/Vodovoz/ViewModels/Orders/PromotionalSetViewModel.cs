@@ -1,91 +1,134 @@
-﻿using Autofac;
+﻿using System;
+using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
-using System;
-using System.Linq;
+using Autofac;
+using QS.Navigation;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
+using QS.ViewModels.Extension;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
+	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult, IAskSaveOnCloseViewModel
 	{
-		private readonly IEmployeeService _employeeService;
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly IUserRepository _userRepository;
-		private readonly ILifetimeScope _lifetimeScope;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-
+		private ILifetimeScope _lifetimeScope;
+		private PromotionalSetItem _selectedPromoItem;
+		private PromotionalSetActionBase _selectedAction;
+		private WidgetViewModelBase _selectedActionViewModel;
+		private bool _informationTabActive;
+		private bool _sitesAndAppsTabActive;
+		private bool _showSpecialBottlesCountForDeliveryPrice;
+		private int _currentPage;
+		
 		public PromotionalSetViewModel(
 			IEntityUoWBuilder uowBuilder,
-			IUnitOfWorkFactory unitOfWorkFactory, 
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEmployeeService employeeService,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			INomenclatureSettings nomenclatureSettings,
-			IUserRepository userRepository,
-			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			IStringHandler stringHandler,
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission( "can_change_the_type_of_promo_set" );
+			CanChangeType =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Order.PromotionalSet.CanChangeTypePromoSet) && CanUpdate;
 
 			if(!CanRead)
+			{
 				AbortOpening("У вас недостаточно прав для просмотра");
+			}
 
-			TabName = "Промонаборы";
-			UoW = uowBuilder.CreateUoW<PromotionalSet>(unitOfWorkFactory);
+			_showSpecialBottlesCountForDeliveryPrice = Entity.BottlesCountForCalculatingDeliveryPrice.HasValue;
 			CreateCommands();
+			ConfigureOnlineParameters();
 		}
 
-		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : String.Empty;
+		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : string.Empty;
 
-		private PromotionalSetItem _selectedPromoItem;
-		public PromotionalSetItem SelectedPromoItem {
+		public PromotionalSetItem SelectedPromoItem
+		{
 			get => _selectedPromoItem;
-			set {
+			set
+			{
 				SetField(ref _selectedPromoItem, value);
 				OnPropertyChanged(nameof(CanRemoveNomenclature));
 			}
 		}
 
-		private PromotionalSetActionBase _selectedAction;
-		public PromotionalSetActionBase SelectedAction {
+		public PromotionalSetActionBase SelectedAction
+		{
 			get => _selectedAction;
-			set {
+			set
+			{
 				SetField(ref _selectedAction, value);
 				OnPropertyChanged(nameof(CanRemoveAction));
 			}
 		}
 
-		private WidgetViewModelBase selectedActionViewModel;
-		public WidgetViewModelBase SelectedActionViewModel {
-			get => selectedActionViewModel;
-			set {
-				SetField(ref selectedActionViewModel, value);
+		public WidgetViewModelBase SelectedActionViewModel
+		{
+			get => _selectedActionViewModel;
+			set => SetField(ref _selectedActionViewModel, value);
+		}
+		
+		public int CurrentPage
+		{
+			get => _currentPage;
+			set => SetField(ref _currentPage, value);
+		}
+
+		public bool InformationTabActive
+		{
+			get => _informationTabActive;
+			set
+			{
+				if(SetField(ref _informationTabActive, value) && value)
+				{
+					CurrentPage = 0;
+				}
 			}
 		}
+		
+		public bool SitesAndAppsTabActive
+		{
+			get => _sitesAndAppsTabActive;
+			set
+			{
+				if(SetField(ref _sitesAndAppsTabActive, value) && value)
+				{
+					CurrentPage = 1;
+				}
+			}
+		}
+		
+		public bool ShowSpecialBottlesCountForDeliveryPrice
+		{
+			get => _showSpecialBottlesCountForDeliveryPrice;
+			set
+			{
+				if(SetField(ref _showSpecialBottlesCountForDeliveryPrice, value) && !value)
+				{
+					Entity.BottlesCountForCalculatingDeliveryPrice = null;
+				}
+			}
+		}
+		
+		public PromotionalSetOnlineParameters MobileAppPromotionalSetOnlineParameters { get; private set; }
+		public PromotionalSetOnlineParameters VodovozWebSitePromotionalSetOnlineParameters { get; private set; }
+		public PromotionalSetOnlineParameters KulerSaleWebSitePromotionalSetOnlineParameters { get; private set; }
+		public IStringHandler StringHandler { get; }
 
 		#region Permissions
 
@@ -95,10 +138,12 @@ namespace Vodovoz.ViewModels.Orders
 		public bool CanDelete => PermissionResult.CanDelete;
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
-		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
+		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanCreateOrUpdate;
 		public bool CanRemoveAction => _selectedAction != null && CanDelete && Entity.Id == 0;
 
 		public bool CanChangeType { get; }
+
+		public bool AskSaveOnClose => CanCreateOrUpdate;
 
 		#endregion
 
@@ -117,21 +162,23 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateAddNomenclatureCommand()
 		{
 			AddNomenclatureCommand = new DelegateCommand(
-			() => {
-				var nomenFilter = new NomenclatureFilterViewModel();
-				nomenFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-					x => x.SelectCategory = NomenclatureCategory.water,
-					x => x.SelectSaleCategory = SaleCategory.forSale);
+			() =>
+			{
+				var nomenJournalViewModel =
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						f =>
+						{
+							f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+							f.SelectCategory = NomenclatureCategory.water;
+							f.SelectSaleCategory = SaleCategory.forSale;
+						},
+						OpenPageOptions.AsSlave,
+						vm => vm.SelectionMode = JournalSelectionMode.Single)
+					.ViewModel;
 
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory,
-					CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
-					_nomenclatureRepository, _userRepository, _nomenclatureSettings) {
-					SelectionMode = JournalSelectionMode.Single
-				};
-
-				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-					var selectedNode = e.SelectedNodes.Cast<NomenclatureJournalNode>().FirstOrDefault();
+				nomenJournalViewModel.OnSelectResult += (sender, e) => {
+					var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 					if(selectedNode == null) {
 						return;
 					}
@@ -145,7 +192,6 @@ namespace Vodovoz.ViewModels.Orders
 						PromoSet = Entity
 					});
 				};
-				TabParent.AddSlaveTab(this, nomenJournalViewModel);
 			},
 		  () => true
 		  );
@@ -156,8 +202,8 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateRemoveNomenclatureCommand()
 		{
 			RemoveNomenclatureCommand = new DelegateCommand(
-			() => Entity.ObservablePromotionalSetItems.Remove(SelectedPromoItem),
-			() => CanRemoveNomenclature
+				() => Entity.ObservablePromotionalSetItems.Remove(SelectedPromoItem),
+				() => CanRemoveNomenclature
 			);
 			RemoveNomenclatureCommand.CanExecuteChangedWith(this, x => CanRemoveNomenclature);
 		}
@@ -167,17 +213,21 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateAddActionCommand()
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
-			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, _lifetimeScope,
-					_counterpartySelectorFactory, _nomenclatureRepository, _userRepository);
-				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
+			(actionType) =>
+				{
+					var addFixedPriceViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
+						new TypedParameter(typeof(IUnitOfWork), UoW),
+						new TypedParameter(typeof(PromotionalSet), Entity));
 
-				if(SelectedActionViewModel is ICreationControl) {
-					(SelectedActionViewModel as ICreationControl).CancelCreation += () => {
-						SelectedActionViewModel = null;
-					};
+					addFixedPriceViewModel.Container = this;
+
+					SelectedActionViewModel = addFixedPriceViewModel;
+
+					if(SelectedActionViewModel is ICreationControl)
+					{
+						(SelectedActionViewModel as ICreationControl).CancelCreation += () => { SelectedActionViewModel = null; };
+					}
 				}
-			}
 			);
 		}
 
@@ -186,11 +236,51 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateRemoveActionCommand()
 		{
 			RemoveActionCommand = new DelegateCommand(
-			() => Entity.ObservablePromotionalSetActions.Remove(SelectedAction),
-			() => CanRemoveAction
-				);
+				() => Entity.ObservablePromotionalSetActions.Remove(SelectedAction),
+				() => CanRemoveAction
+			);
 		}
 
 		#endregion
+		
+		private void ConfigureOnlineParameters()
+		{
+			MobileAppPromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			VodovozWebSitePromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSitePromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+		}
+		
+		private PromotionalSetOnlineParameters GetPromotionalSetOnlineParameters(GoodsOnlineParameterType type)
+		{
+			var parameters = Entity.PromotionalSetOnlineParameters.SingleOrDefault(x => x.Type == type);
+			return parameters ?? CreatePromotionalSetOnlineParameters(type);
+		}
+		
+		private PromotionalSetOnlineParameters CreatePromotionalSetOnlineParameters(GoodsOnlineParameterType type)
+		{
+			PromotionalSetOnlineParameters parameters = null;
+			switch(type)
+			{
+				case GoodsOnlineParameterType.ForMobileApp:
+					parameters = new MobileAppPromotionalSetOnlineParameters();
+					break;
+				case GoodsOnlineParameterType.ForVodovozWebSite:
+					parameters = new VodovozWebSitePromotionalSetOnlineParameters();
+					break;
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
+					parameters = new KulerSaleWebSitePromotionalSetOnlineParameters();
+					break;
+			}
+
+			parameters.PromotionalSet = Entity;
+			Entity.PromotionalSetOnlineParameters.Add(parameters);
+			return parameters;
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

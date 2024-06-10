@@ -18,6 +18,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.AddColumn("Клиент и адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.ClientAndAddress)
 					.WrapWidth(300).WrapMode(WrapMode.WordChar)
+				.AddColumn("Ожидает до").HeaderAlignment(0.5f).AddTimeRenderer(node => node.WaitUntilTime)
 				.AddColumn("Интервал\nдоставки").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldDeliverySchedule)
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.AddColumn("Количество\nбутылей").HeaderAlignment(0.5f).AddTextRenderer(node => node.UndeliveredOrderItems)

@@ -28,10 +28,12 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
-			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel, vm => vm.CarEventType, e => e.Subject).InitializeFromSource();
+			entityviewmodelentryCarEventType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarEventType, e => e.Subject)
+				.AddBinding(vm => vm.CanChangeCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
 
@@ -41,7 +43,7 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-				
+
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
@@ -64,6 +66,15 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
+			yspinBtnOdometerReading.Binding
+				.AddBinding(ViewModel.Entity, e => e.Odometer, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			ylblOdometerReading.Binding
+				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
+				.InitializeFromSource();
+
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
@@ -83,7 +94,7 @@ namespace Vodovoz.Views.Logistic
 				ylabelCreateDate.Sensitive =
 				ylabelAuthor.Sensitive =
 				entityviewmodelentryCarEventType.Sensitive =
-				entityviewmodelentryCar.Sensitive =
+				entityentryCar.Sensitive =
 				evmeDriver.Sensitive =
 				ydatepickerStartEventDate.Sensitive =
 				ydatepickerEndEventDate.Sensitive =

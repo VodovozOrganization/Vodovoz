@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -13,6 +10,10 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -136,7 +137,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			{
 				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(WriteOffDocument), "акта выбраковки"))
 				{
-					Save();
+					if(!Save())
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
+						return;
+					}
 				}
 
 				var reportInfo = new QS.Report.ReportInfo

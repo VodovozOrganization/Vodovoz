@@ -1,27 +1,29 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Models
 {
 	public class OrderOrganizationProviderFactory
 	{
+		private readonly ILifetimeScope _scope;
+
+		public OrderOrganizationProviderFactory(ILifetimeScope scope)
+		{
+			_scope = scope ?? throw new System.ArgumentNullException(nameof(scope));
+		}
+
 		public IOrganizationProvider CreateOrderOrganizationProvider()
 		{
-			var parametersProvider = new ParametersProvider();
-			var organizationParametersProvider = new OrganizationParametersProvider(parametersProvider);
-			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var geographicGroupParametersProvider = new GeographicGroupParametersProvider(parametersProvider);
-			var fastPaymentRepository = new FastPaymentRepository();
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
-
 			return new Stage2OrganizationProvider(
-				organizationParametersProvider,
-				orderParametersProvider,
-				geographicGroupParametersProvider,
-				fastPaymentRepository,
-				cashReceiptRepository);
+				_scope.Resolve<IOrganizationSettings>(),
+				_scope.Resolve<IOrderSettings>(),
+				_scope.Resolve<IGeographicGroupSettings>(),
+				_scope.Resolve<IFastPaymentRepository>(),
+				_scope.Resolve<ICashReceiptRepository>());
 		}
 	}
 }

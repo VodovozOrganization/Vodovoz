@@ -7,7 +7,6 @@ using MoreLinq;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Services;
@@ -19,15 +18,15 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IWageParametersProvider _wageParametersProvider;
+		private readonly IWageSettings _wageSettings;
 		private readonly ICommonServices _commonServices;
 
 		private readonly GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
 
-		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageParametersProvider wageParametersProvider,
+		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageSettings wageSettings,
 			ICommonServices commonServices)
 		{
-			_wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
+			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			Build();
@@ -59,8 +58,8 @@ namespace Vodovoz.ReportsParameters.Sales
 				Parameters = new Dictionary<string, object>
 				{
 					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
-					{ "cityId", _wageParametersProvider.GetCityWageDistrictId },
-					{ "suburbId", _wageParametersProvider.GetSuburbWageDistrictId },
+					{ "cityId", _wageSettings.CityWageDistrictId },
+					{ "suburbId", _wageSettings.SuburbWageDistrictId },
 				}
 			};
 		}
@@ -81,19 +80,5 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
-	}
-
-	public class SalaryRateFilterNode : PropertyChangedBase
-	{
-		private bool _selected;
-
-		public bool Selected
-		{
-			get => _selected;
-			set => SetField(ref _selected, value);
-		}
-
-		public int WageId { get; set; }
-		public string Name { get; set; }
 	}
 }

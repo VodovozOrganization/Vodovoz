@@ -1,6 +1,7 @@
 ﻿using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain;
 
@@ -13,14 +14,14 @@ namespace Vodovoz
 		public CommentTemplateDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CommentTemplate> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CommentTemplate> ();
 			ConfigureDlg ();
 		}
 
 		public CommentTemplateDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CommentTemplate> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CommentTemplate> (id);
 			ConfigureDlg ();
 		}
 
@@ -35,7 +36,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

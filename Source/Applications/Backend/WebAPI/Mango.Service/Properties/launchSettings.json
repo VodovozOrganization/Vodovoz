@@ -4,20 +4,19 @@
       "commandName": "Project",
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development",
-				"ASPNETCORE_URLS": "http://+:5001"
+				"ASPNETCORE_URLS": "http://+:5003"
 			},
-      "applicationUrl": "http://localhost:5001"
+      "applicationUrl": "http://localhost:5003"
     },
 		"Docker.Development": {
 			"commandName": "Docker",
 			"environmentVariables": {
-				"ASPNETCORE_ENVIRONMENT": "Development",
-				"ASPNETCORE_URLS": "http://+:5001"
+				"DOTNET_ENVIRONMENT": "Development"
 			},
 			"publishAllPorts": true,
 			"useSSL": false,
 			//5002 это порт Grpc, задается в appsettings.json
-			"DockerfileRunArguments": "-p 5002:5002 -p 5001:5001"
+			"DockerfileRunArguments": "-p 5002:5002 -p 5003:5001"
 		}
   }
 }

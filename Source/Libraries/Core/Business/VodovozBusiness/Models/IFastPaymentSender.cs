@@ -5,6 +5,6 @@ namespace Vodovoz.Models
 {
 	public interface IFastPaymentSender
 	{
-		Task<FastPaymentResult> SendFastPaymentUrlAsync(Order order, string phoneNumber, bool isQr);
+		Task<FastPaymentResult> SendFastPaymentUrlAsync(int orderId, string phoneNumber, bool isQr);
 	}
 }

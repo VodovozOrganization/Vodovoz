@@ -8,6 +8,6 @@ namespace Mango.Core.Dto
 		public string Number { get; set; }
 
 		[JsonPropertyName("type")]
-		public int Type { get; set; }
+		public MangoCallDctType Type { get; set; }
 	}
 }

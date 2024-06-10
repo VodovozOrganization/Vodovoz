@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Models.Orders
 {
@@ -17,7 +16,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IUnitOfWork _uow;
 		private readonly Order _copiedOrder;
 		private readonly Order _resultOrder;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
@@ -26,7 +25,7 @@ namespace Vodovoz.Models.Orders
 		private bool _needCopyStockBottleDiscount;
 
 		internal CopyingOrder(IUnitOfWork uow, Order copiedOrder, Order resultOrder,
-			INomenclatureParametersProvider nomenclatureParametersProvider, IFlyerRepository flyerRepository)
+			INomenclatureSettings nomenclatureSettings, IFlyerRepository flyerRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
@@ -37,13 +36,13 @@ namespace Vodovoz.Models.Orders
 					$"Заказ, в который переносятся данные из копируемого заказа, должен быть новым. (Свойство {nameof(resultOrder.Id)} должно быть равно 0)");
 			}
 
-			_nomenclatureParametersProvider =
-				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings =
+				nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 
-			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			_flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
-			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
 		}
 
 		public Order GetCopiedOrder => _copiedOrder;
@@ -166,6 +165,52 @@ namespace Vodovoz.Models.Orders
 			_resultOrder.RecalculateItemsPrice();
 
 			return this;
+		}
+
+		/// <summary>
+		/// Копирование товаров (<see cref="OrderItem"/>) заказа за исключением тех,
+		/// которые связаны с оборудованием (например, позиции аренды оборудования) (<see cref="OrderEquipment"/>)
+		/// </summary>
+		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
+		/// <param name="withPrices">true - ставим ценам флаг ручного изменения, чтобы они были неизменны
+		/// false - выставляем флаг ручной цены из копируемого заказа</param>
+		/// <param name="forceUseAlternativePrice">Использование альтернативной цены номенклатуры</param>
+		public CopyingOrder CopyOrderItemsExceptEquipmentReferenced(bool withDiscounts = false, bool withPrices = false)
+		{
+			var equipmentReferencedOrderItems = GetEquipmentReferencedOrderItems();
+
+			var orderItems = _copiedOrder.OrderItems
+				.Where(x => x.PromoSet == null)
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
+				.Where(x => !equipmentReferencedOrderItems.Contains(x));
+
+			foreach(var orderItem in orderItems)
+			{
+				CopyOrderItem(orderItem, withDiscounts, withPrices);
+				CopyDependentOrderEquipment(orderItem);
+			}
+
+			_resultOrder.RecalculateItemsPrice();
+
+			return this;
+		}
+
+		private IEnumerable<OrderItem> GetEquipmentReferencedOrderItems()
+		{
+			var orderRentDepositItems = _copiedOrder.OrderEquipments
+				.Where(x => x.OrderRentDepositItem != null)
+				.Select(x => x.OrderRentDepositItem);
+
+			var orderRentServiceItem = _copiedOrder.OrderEquipments
+				.Where(x => x.OrderRentServiceItem != null)
+				.Select(x => x.OrderRentServiceItem);
+
+			var equipmentReferencedItems = _copiedOrder.OrderEquipments
+				.Where(x => x.OrderItem != null)
+				.Select(x => x.OrderItem);
+
+			return orderRentDepositItems.Concat(orderRentServiceItem).Concat(equipmentReferencedItems);
 		}
 
 		/// <summary>
@@ -309,17 +354,12 @@ namespace Vodovoz.Models.Orders
 			bool withDiscounts = false,
 			bool withPrices = false)
 		{
-			var newOrderItem = new OrderItem
-			{
-				Order = _resultOrder,
-				Nomenclature = orderItem.Nomenclature,
-				PromoSet = orderItem.PromoSet,
-				Price = orderItem.Price,
-				IsUserPrice = withPrices,
-				IsAlternativePrice = orderItem.IsAlternativePrice,
-				Count = orderItem.Count,
-				IncludeNDS = orderItem.IncludeNDS
-			};
+			var newOrderItem = OrderItem.CreateForSale(_resultOrder, orderItem.Nomenclature, orderItem.Count, orderItem.Price);
+			
+			newOrderItem.PromoSet = orderItem.PromoSet;
+			newOrderItem.IsUserPrice = withPrices;
+			newOrderItem.IsAlternativePrice = orderItem.IsAlternativePrice;
+			newOrderItem.IncludeNDS = orderItem.IncludeNDS;
 
 			//если перенос из недовоза - сохраняем ссылку на переносимый товар
 			if(withPrices)
@@ -340,17 +380,11 @@ namespace Vodovoz.Models.Orders
 
 			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && (orderItemFrom.DiscountReason != null || isPromoset))
 			{
-				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
-				orderItemTo.Discount = orderItemFrom.Discount;
-				orderItemTo.DiscountMoney = orderItemFrom.DiscountMoney;
-				orderItemTo.DiscountReason = orderItemFrom.DiscountReason;
+				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.Discount, orderItemFrom.DiscountMoney, orderItemFrom.DiscountReason);
 			}
 			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && (orderItemFrom.OriginalDiscountReason != null || isPromoset))
 			{
-				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
-				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
-				orderItemTo.DiscountMoney = orderItemFrom.OriginalDiscountMoney.Value;
-				orderItemTo.DiscountReason = orderItemFrom.OriginalDiscountReason;
+				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.OriginalDiscount.Value, orderItemFrom.OriginalDiscountMoney.Value, orderItemFrom.OriginalDiscountReason);
 			}
 
 			if(withStockBottleDiscount)

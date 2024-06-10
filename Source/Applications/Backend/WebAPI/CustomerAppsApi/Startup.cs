@@ -1,10 +1,5 @@
-﻿using CustomerAppsApi.Converters;
-using CustomerAppsApi.Factories;
-using CustomerAppsApi.Library.Factories;
+using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Middleware;
-using CustomerAppsApi.Models;
-using CustomerAppsApi.Repositories;
-using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,43 +7,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.DB;
-using QS.Project.Domain;
-using QS.Project.Services;
+using QS.Project.Core;
 using QS.Services;
-using QS.Utilities.Numeric;
-using System.Linq;
-using System.Reflection;
-using CustomerAppsApi.HealthChecks;
-using Vodovoz.Controllers;
-using Vodovoz.Controllers.ContactsForExternalCounterparty;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
-using UserRepository = QS.Project.Repositories.UserRepository;
 
 namespace CustomerAppsApi
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = nameof(NLog);
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -59,73 +31,56 @@ namespace CustomerAppsApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllers();
-			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" }); });
-			
-			services.AddLogging(
-				logging =>
+			services
+				.AddSwaggerGen(c => 
+				{ 
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" }); 
+				})
+
+				.AddLogging(logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
-				});
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				})
 
-			RegisterDependencies(services);
+				.AddStackExchangeRedisCache(redisOptions =>
+				{
+					var connection = Configuration.GetConnectionString("Redis");
+					redisOptions.Configuration = connection;
+				})
 
-			services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
-			services.AddHttpClient();
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
 
-			CreateBaseConfig();
-		}
+				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
+				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
+				.AddHttpClient()
+				.AddControllers()
+				;
 
-		private void RegisterDependencies(IServiceCollection services)
-		{
-			services.AddStackExchangeRedisCache(redisOptions =>
-			{
-				var connection = Configuration.GetConnectionString("Redis");
-				redisOptions.Configuration = connection;
-			});
-			
-			services.AddSingleton<IPhoneRepository, PhoneRepository>();
-			services.AddSingleton<IEmailRepository, EmailRepository>();
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
-			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
-			services.AddSingleton<IBottlesRepository, BottlesRepository>();
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
-			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
-			services.AddSingleton<IStockRepository, StockRepository>();
-			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
-			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
-			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
-			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
-			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
-			services.AddSingleton<CounterpartyModelFactory>();
-			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
-			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
-			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
-			services.AddSingleton<ICameFromConverter, CameFromConverter>();
-			services.AddSingleton<ISourceConverter, SourceConverter>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
-			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			Library.DependencyInjection.AddCustomerApiLibrary(services);
 
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
-			services.AddScoped<INomenclatureModel, NomenclatureModel>();
-			services.AddScoped<CounterpartyModelValidator>();
+			services.AddStaticHistoryTracker();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<IUserService>();
+			app.ApplicationServices.GetService<ISettingsController>().RefreshSettings();
+			
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -140,60 +95,6 @@ namespace CustomerAppsApi
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 			app.ConfigureHealthCheckApplicationBuilder();
-		}
-		
-		private void CreateBaseConfig()
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDbConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDbConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDbConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDbConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDbConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.Driver<LoggedMySqlClientDriver>()
-				.AdoNetBatchSize(100);
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				dbConfig,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
-
-			string userLogin = domainDbConfig.GetValue<string>("UserID");
-			int serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == userLogin)
-					.FirstOrDefault();
-
-				serviceUserId = serviceUser.Id;
-
-				ServicesConfig.UserService = new UserService(serviceUser);
-			}
-
-			UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

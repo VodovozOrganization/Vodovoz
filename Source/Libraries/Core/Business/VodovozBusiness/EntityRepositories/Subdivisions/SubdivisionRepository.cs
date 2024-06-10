@@ -1,25 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
+using NHibernate.Transform;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
-using Vodovoz.Parameters;
+using Vodovoz.Settings;
 
 namespace Vodovoz.EntityRepositories.Subdivisions
 {
 	public class SubdivisionRepository : ISubdivisionRepository
 	{
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ISettingsController _settingsController;
 
-		public SubdivisionRepository(IParametersProvider parametersProvider)
+		public SubdivisionRepository(ISettingsController settingsController)
 		{
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		
 		/// <summary>
@@ -61,12 +65,12 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		{
 			var qcDep = "номер_отдела_ОКК";
 			
-			if(!_parametersProvider.ContainsParameter(qcDep))
+			if(!_settingsController.ContainsSetting(qcDep))
 			{
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
 			}
 
-			return uow.GetById<Subdivision>(int.Parse(_parametersProvider.GetParameterValue(qcDep)));
+			return uow.GetById<Subdivision>(int.Parse(_settingsController.GetStringValue(qcDep)));
 		}
 
 		/// <summary>
@@ -138,33 +142,38 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		/// <param name="uow">UoW</param>
 		/// <param name="carTypeOfUses">Тип автомобиля</param>
 		/// <param name="carOwnTypes">Принадлежность автомобиля</param>
-		/// <returns>Список подражделений</returns>
-		public IList<Subdivision> GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, CarOwnType[] carOwnTypes)
+		/// <returns>Список данных подразделений(Код, Наименование)</returns>
+		public IList<NamedDomainObjectNode> GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(
+			IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, CarOwnType[] carOwnTypes)
 		{
 			Car car = null;
 			Subdivision subdivision = null;
 			Employee driverEmployee = null;
 			CarModel carModel = null;
 			CarVersion carVersion = null;
-
-			var availableCars = uow.Session
-				.QueryOver<Car>(() => car)
+			NamedDomainObjectNode resultAlias = null;
+			
+			var availableSubdivisions = uow.Session
+				.QueryOver<Subdivision>(() => subdivision)
+				.JoinEntityAlias(() => driverEmployee, () => driverEmployee.Subdivision.Id == subdivision.Id)
+				.JoinEntityAlias(() => car, () => car.Driver.Id == driverEmployee.Id)
 				.JoinAlias(() => car.CarModel, () => carModel)
-				.JoinAlias(() => car.Driver, () => driverEmployee)
 				.JoinAlias(() => car.CarVersions, () => carVersion)
-				.JoinAlias(() => driverEmployee.Subdivision, () => subdivision)
-				.Where(() => 
-					!car.IsArchive 
-					&& carVersion.EndDate == null 
-					&& driverEmployee.Status == EmployeeStatus.IsWorking 
-					&& driverEmployee.DateFired == null 
+				.Where(() =>
+					!car.IsArchive
+					&& carVersion.EndDate == null
+					&& driverEmployee.Status == EmployeeStatus.IsWorking
+					&& driverEmployee.DateFired == null
 					&& driverEmployee.Category == EmployeeCategory.driver)
 				.WhereRestrictionOn(() => carModel.CarTypeOfUse).IsIn(carTypeOfUses)
 				.WhereRestrictionOn(() => carVersion.CarOwnType).IsIn(carOwnTypes)
-				.List();
-
-			var availableSubdivisions = availableCars.Select(c => c.Driver.Subdivision).Distinct().OrderBy(s => s.Name).ToList();
-
+				.SelectList(list => list
+					.SelectGroup(() => subdivision.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => subdivision.Name).WithAlias(() => resultAlias.Name))
+				.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
+				.OrderBy(() => subdivision.Name).Asc
+				.List<NamedDomainObjectNode>();
+			
 			return availableSubdivisions;
 		}
 	}

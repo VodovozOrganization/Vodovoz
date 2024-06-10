@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
 using Vodovoz.TreeModels;
 using UseForSearchAttribute = QSOrmProject.RepresentationModel.UseForSearchAttribute;
 
@@ -36,7 +34,7 @@ namespace Vodovoz.Representations.ProductGroups
 			};
 		}
 
-		public ProductGroupVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public ProductGroupVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
 		
 		public ProductGroupVM(IUnitOfWork uow, ProductGroupFilterViewModel filterViewModel) : this(uow)
 		{

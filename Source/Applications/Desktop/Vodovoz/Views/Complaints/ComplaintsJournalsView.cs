@@ -49,6 +49,8 @@ namespace Vodovoz.Views.Complaints
 
 		public override void Destroy()
 		{
+			ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+			ViewModel = null;
 			_journalView?.Destroy();
 		}
 	}

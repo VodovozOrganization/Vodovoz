@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 
 		private Counterparty _counterparty;
 		private bool _allSubdivisions;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
-			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			var currentUserSettings = userRepository.GetUserSettings(_unitOfWork, commonServices.UserService.CurrentUserId);
 			Counterparty = currentUserSettings.DefaultCounterparty;
 			SubdivisionViewModel = CreateSubdivisionViewModel();
@@ -102,6 +102,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 		public void Dispose()
 		{
+			_lifetimeScope = null;
 			_unitOfWork?.Dispose();
 		}
 

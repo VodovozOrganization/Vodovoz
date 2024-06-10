@@ -35,10 +35,10 @@ namespace Vodovoz.Views
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Views.ImportPaymentsFromAvangardSbp
+			// Widget Vodovoz.Views.ImportPaymentsFromAvangardSbpView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.Views.ImportPaymentsFromAvangardSbp";
-			// Container child Vodovoz.Views.ImportPaymentsFromAvangardSbp.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.Views.ImportPaymentsFromAvangardSbpView";
+			// Container child Vodovoz.Views.ImportPaymentsFromAvangardSbpView.Gtk.Container+ContainerChild
 			this.vboxMain = new global::Gtk.VBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;

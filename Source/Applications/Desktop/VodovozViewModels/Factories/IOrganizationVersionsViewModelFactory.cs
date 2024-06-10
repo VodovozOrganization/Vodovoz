@@ -9,6 +9,6 @@ namespace Vodovoz.ViewModels.Factories
 {
 	public interface IOrganizationVersionsViewModelFactory
 	{
-		OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization);
+		OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization, bool isEditable = true);
 	}
 }

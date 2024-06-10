@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -34,7 +34,7 @@ namespace Vodovoz.TempAdapters
 								x => x.Name,
 								() => _lifetimeScope.Resolve<IncomeCategoryViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
 								node => _lifetimeScope.Resolve<IncomeCategoryViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
-								UnitOfWorkFactory.GetDefaultFactory,
+								_lifetimeScope.Resolve<IUnitOfWorkFactory>(),
 								commonServices
 							)
 							{

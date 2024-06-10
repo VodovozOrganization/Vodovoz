@@ -47,11 +47,15 @@ namespace Vodovoz.Views.Complaints
 			labelName.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
-
+			
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
 			if (!ViewModel.CanClose)
 			{
 				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.Closed });
+			}
+			if(ViewModel.Entity.Status != ComplaintStatuses.NotTakenInProcess)
+			{
+				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.NotTakenInProcess });
 			}
 
 			_lastStatus = ViewModel.Status;
@@ -69,7 +73,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entryCounterparty.Binding
 				.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -184,18 +188,23 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(Tab); };
+			buttonAddFine.Clicked += (sender, e) => ViewModel.AddFineCommand.Execute();
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
-			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };
+			buttonAttachFine.Clicked += (sender, e) => ViewModel.AttachFineCommand.Execute();
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+
+			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
+			{
+				handsetPhone.SetPhone(ViewModel.Entity.Phone);
+			}
 
 			ViewModel.Entity.PropertyChanged += (o, e) =>
 			{
@@ -377,7 +386,7 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			}
 			else
 			{

@@ -19,10 +19,10 @@ namespace Vodovoz.ReportsParameters
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.ReportsParameters.SetBillsReport
+			// Widget Vodovoz.ReportsParameters.SetBillsReportView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.ReportsParameters.SetBillsReport";
-			// Container child Vodovoz.ReportsParameters.SetBillsReport.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.ReportsParameters.SetBillsReportView";
+			// Container child Vodovoz.ReportsParameters.SetBillsReportView.Gtk.Container+ContainerChild
 			this.vbox2 = new global::Gtk.VBox();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;

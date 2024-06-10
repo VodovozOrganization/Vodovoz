@@ -53,7 +53,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="routeListId">Идентификатор МЛ</param>
 		/// <returns></returns>
 		bool IsTerminalRequired(IUnitOfWork uow, int routeListId);
-		bool RouteListContainsGivedFuelLiters(IUnitOfWork uow, int id);
+		bool RouteListContainsGivenFuelLiters(IUnitOfWork uow, int routeListId);
 		decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList);
 		IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList);
 		IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
@@ -84,5 +84,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 		int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 		decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 		RouteListRepository.RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg);
+		IList<Nomenclature> GetRouteListNomenclatures(IUnitOfWork uow, int routeListId, bool isArchived = false);
+
+		decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse);
+		void SaveCargoDailyNorms(Dictionary<CarTypeOfUse, decimal> cargoDailyNorms);
 	}
 }

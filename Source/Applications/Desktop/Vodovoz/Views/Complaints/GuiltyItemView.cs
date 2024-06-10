@@ -26,12 +26,14 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel.Entity, e => e.Responsible, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			entVmEmployee.CanDisposeEntitySelectorFactory = false;
 			entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			entVmEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
 			entVmEmployee.Binding.AddBinding(ViewModel, vm => vm.CanChooseEmployee, w => w.Visible).InitializeFromSource();
 			entVmEmployee.CanOpenWithoutTabParent = true;
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+			entrySubdivision.ViewModel.DisposeViewModel = false;
 			entrySubdivision.Binding
 				.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible)
 				.InitializeFromSource();

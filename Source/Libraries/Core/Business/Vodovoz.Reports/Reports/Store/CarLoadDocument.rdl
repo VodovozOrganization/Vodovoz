@@ -75,7 +75,7 @@ ORDER BY clmn_for_sorting;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id AS route_list_id,
@@ -126,7 +126,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -235,6 +235,20 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Field Name="e_shop_order">
           <DataField>e_shop_order</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="InfoString">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT bp.str_value as info_str
+FROM base_parameters bp 
+WHERE bp.name = 'car_load_document_info_string';</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="info_str">
+          <DataField>info_str</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -845,19 +859,19 @@ GROUP BY o2.e_shop_order;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>277.6pt</Width>
+            <Width>150.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.7pt</Width>
+            <Width>33.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.0pt</Width>
+            <Width>31.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.2pt</Width>
+            <Width>32.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.0pt</Width>
@@ -1110,8 +1124,8 @@ GROUP BY o2.e_shop_order;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>36.4pt</Left>
-        <Top>193.0pt</Top>
+        <Left>105.6pt</Left>
+        <Top>209.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1150,7 +1164,7 @@ GROUP BY o2.e_shop_order;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>N0</Format>
                       </Style>
@@ -1250,7 +1264,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Value>Кладовщик_____________</Value>
         <ZIndex>0</ZIndex>
         <Left>40.9pt</Left>
-        <Top>347.2pt</Top>
+        <Top>396.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1264,7 +1278,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>0</ZIndex>
         <Left>282.9pt</Left>
-        <Top>347.0pt</Top>
+        <Top>396.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1344,7 +1358,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>270.9pt</Top>
+        <Top>320.5pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1417,7 +1431,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>272.6pt</Top>
+        <Top>322.2pt</Top>
       </Table>
       <Line Name="Line3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -1432,7 +1446,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>267.8pt</Top>
+        <Top>318.2pt</Top>
       </Line>
       <Table Name="Table9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1506,7 +1520,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>164.5pt</Top>
+        <Top>180.5pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1673,7 +1687,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>161.4pt</Top>
+        <Top>177.4pt</Top>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -1790,7 +1804,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>20.8pt</Left>
-        <Top>305.8pt</Top>
+        <Top>355.4pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1839,7 +1853,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>413.1pt</Left>
-        <Top>306.1pt</Top>
+        <Top>343.7pt</Top>
         <Details>
           <TableRows>
             <TableRow>
@@ -2465,8 +2479,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>0</ZIndex>
-        <Left>282.9pt</Left>
-        <Top>241.9pt</Top>
+        <Left>263.7pt</Left>
+        <Top>257.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2476,11 +2490,11 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       </Textbox>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.24pt</Height>
-        <Width>134pt</Width>
+        <Width>134.00pt</Width>
         <Value>Кладовщик_____________</Value>
         <ZIndex>0</ZIndex>
-        <Left>40.9pt</Left>
-        <Top>241.9pt</Top>
+        <Left>110.5pt</Left>
+        <Top>257.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2494,7 +2508,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
         <ZIndex>0</ZIndex>
         <Left>173.1pt</Left>
-        <Top>360.9pt</Top>
+        <Top>410.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2564,6 +2578,58 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Left>0.0pt</Left>
         <Top>2.4pt</Top>
       </Table>
+      <Rectangle Name="LeftQrRectangle">
+        <Height>120.00pt</Height>
+        <Width>90.00pt</Width>
+        <Left>0.00pt</Left>
+        <Top>177.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Rectangle>
+      <Rectangle Name="RightQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>120.00pt</Height>
+        <Width>90.00pt</Width>
+        <Left>457.60pt</Left>
+        <Top>177.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Rectangle>
+      <Textbox Name="Textbox33" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15pt</Height>
+        <Width>565pt</Width>
+        <Value>=First( {info_str} , "InfoString" )</Value>
+        <ZIndex>0</ZIndex>
+        <Left>3pt</Left>
+        <Top>156.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.78pt</Height>
+        <Width>565pt</Width>
+        <Value>=First( {info_str} , "InfoString" )</Value>
+        <ZIndex>0</ZIndex>
+        <Left>3.0pt</Left>
+        <Top>429.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Height>574.2pt</Height>
     <Columns>1</Columns>

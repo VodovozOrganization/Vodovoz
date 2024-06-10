@@ -100,6 +100,10 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
       <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
       <Name>Vodovoz.Settings.Database</Name>
@@ -117,7 +121,6 @@
     <Compile Include="Counterparties\CounterpartyTests.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceControllerTests.cs" />
     <Compile Include="Domain\WaterFixedPricesGeneratorTests.cs" />
-    <Compile Include="Employees\PersonnelTests.cs" />
     <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
     <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />
@@ -174,7 +177,7 @@
     <PackageReference Include="NUnit.Extension.NUnitV2ResultWriter" Version="3.7.0" />
     <PackageReference Include="NUnit.Extension.TeamCityEventListener" Version="1.0.7" />
     <PackageReference Include="NUnit.Extension.VSProjectLoader" Version="3.9.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />

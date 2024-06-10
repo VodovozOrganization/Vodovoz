@@ -19,14 +19,22 @@ namespace Vodovoz.Reports
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, null, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
-				.ForProperty(x => x.Counterparty)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
-				.Finish();
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
 
-			entryCounterparty.ViewModel.PropertyChanged += OnReferenceCounterpartyChanged;
-		}	
+		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.TdiTab))
+			{
+				entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, ViewModel.TdiTab, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+					.ForProperty(x => x.Counterparty)
+					.UseTdiEntityDialog()
+					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+					.Finish();
+
+				entryCounterparty.ViewModel.PropertyChanged += OnReferenceCounterpartyChanged;
+			}
+		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -50,6 +58,13 @@ namespace Vodovoz.Reports
 		protected void OnReferenceCounterpartyChanged(object sender, EventArgs e)
 		{
 			ValidateParameters();
+		}
+
+		public override void Destroy()
+		{
+			entryCounterparty.ViewModel.PropertyChanged -= OnReferenceCounterpartyChanged;
+			ViewModel.TdiTab = null;
+			base.Destroy();
 		}
 	}
 }

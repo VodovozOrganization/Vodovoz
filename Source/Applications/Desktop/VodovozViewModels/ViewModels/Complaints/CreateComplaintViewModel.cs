@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Application.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -20,25 +21,25 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IList<ComplaintKind> _complaintKinds;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
+		private readonly ISubdivisionSettings _subdivisionSettings;
+		private readonly IComplaintService _complaintService;
+		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private DelegateCommand _changeDeliveryPointCommand;
@@ -58,7 +59,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope;
@@ -67,19 +69,16 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
-			if(orderSelectorFactory == null)
-			{
-				throw new ArgumentNullException(nameof(orderSelectorFactory));
-			}
-
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
+			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
 			Entity.ComplaintType = ComplaintType.Client;
-			Entity.SetStatus(ComplaintStatuses.Checking);
+			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
 
@@ -94,6 +93,8 @@ namespace Vodovoz.ViewModels.Complaints
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			CanEditComplaintClassification = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
 		}
 
 		public CreateComplaintViewModel(Counterparty client,
@@ -111,10 +112,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService,
 			subdivisionRepository, commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
-			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionParametersProvider, phone)
+			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionSettings, complaintService, phone)
 		{
 			var currentClient = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = currentClient;
@@ -136,16 +138,16 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService, subdivisionRepository,
 			commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
-			deliveryPointJournalFactory, subdivisionParametersProvider, phone)
+			deliveryPointJournalFactory, subdivisionSettings, complaintService, phone)
 		{
 			var currentOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = currentOrder;
 			Entity.Counterparty = currentOrder.Client;
 			Entity.Phone = phone;
-
 		}
 
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -168,12 +170,16 @@ namespace Vodovoz.ViewModels.Complaints
 
 				Entity.Driver = routeList.Driver;
 			}
+
+			if(e.PropertyName == nameof(Entity.Counterparty))
+			{
+				InitializeOrderAutocompleteSelectorFactory(_orderSelectorFactory);
+			}
 		}
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
-			var orderFilter =
-				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, _lifetimeScope);
+			var orderFilter = _lifetimeScope.Resolve<OrderJournalFilterViewModel>();
 			
 			if(Entity.Counterparty != null)
 			{
@@ -210,6 +216,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		//так как диалог только для создания рекламации
 		public bool CanEdit => PermissionResult.CanCreate;
+
+		public bool CanEditComplaintClassification { get; }
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
@@ -257,7 +265,7 @@ namespace Vodovoz.ViewModels.Complaints
 						CommonServices,
 						_subdivisionRepository,
 						EmployeeJournalFactory,
-						_subdivisionParametersProvider);
+						_subdivisionSettings);
 				}
 
 				return guiltyItemsViewModel;
@@ -285,24 +293,11 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		public void CheckAndSave()
+		protected override bool BeforeSave()
 		{
-			if (!HasСounterpartyDuplicateToday() ||
-				CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
-			{
-				SaveAndClose();
-			}
-		}
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity);
 
-		private bool HasСounterpartyDuplicateToday()
-		{
-			if(Entity.Counterparty == null) {
-				return false;
-			}
-			return UoW.Session.QueryOver<Complaint>()
-				.Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
-				.And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
-				.RowCount() > 0;
+			return canSave;
 		}
 
 		#region ChangeDeliveryPointCommand
@@ -320,10 +315,16 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#endregion ChangeDeliveryPointCommand
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

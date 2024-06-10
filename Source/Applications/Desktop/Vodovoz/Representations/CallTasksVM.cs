@@ -16,12 +16,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Services;
 using ClosedXML.Excel;
 using QS.Project.Services.FileDialog;
 using Gamma.Utilities;
 using WrapMode = Pango.WrapMode;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Representations
 {
@@ -82,7 +82,7 @@ namespace Vodovoz.Representations
 			})
 			.Finish();
 
-		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
+		public CallTasksVM(IFileDialogService fileDialogService)
 		{
 			_fileDialogService = fileDialogService;
 		}
@@ -137,9 +137,8 @@ namespace Vodovoz.Representations
 			}
 
 			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
-			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
+			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {

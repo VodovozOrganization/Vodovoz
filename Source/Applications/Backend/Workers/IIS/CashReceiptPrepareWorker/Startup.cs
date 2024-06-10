@@ -4,24 +4,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
-using QS.Project.DB;
-using QS.Project.Domain;
-using System.Reflection;
+using QS.Project.Core;
 using TrueMarkApi.Library;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
@@ -29,8 +22,6 @@ namespace CashReceiptPrepareWorker
 {
 	public class Startup
     {
-		private const string _nLogSectionName = "NLog";
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -46,28 +37,32 @@ namespace CashReceiptPrepareWorker
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			services.AddHostedService<ReceiptsPrepareWorker>();
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				;
 
-			CreateBaseConfig();
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			services.AddHostedService<ReceiptsPrepareWorker>();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-
-			builder.RegisterModule<DatabaseSettingsModule>();
-
-			builder.RegisterType<DefaultSessionProvider>()
-				.As<ISessionProvider>()
-				.SingleInstance();
-
-			builder.RegisterType<DefaultUnitOfWorkFactory>()
-				.As<IUnitOfWorkFactory>()
-				.SingleInstance();
 
 			builder.RegisterType<TrueMarkRepository>()
 				.As<ITrueMarkRepository>()
@@ -83,16 +78,6 @@ namespace CashReceiptPrepareWorker
 
 			builder.RegisterType<CashReceiptFactory>()
 				.As<ICashReceiptFactory>()
-				.SingleInstance();
-
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			builder.RegisterType<OrderParametersProvider>()
-				.As<IOrderParametersProvider>()
-				.SingleInstance();
-
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			builder.RegisterType<ParametersProvider>()
-				.As<IParametersProvider>()
 				.SingleInstance();
 
 			builder.RegisterType<ReceiptPreparerFactory>()
@@ -148,42 +133,5 @@ namespace CashReceiptPrepareWorker
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
         }
-
-		private void CreateBaseConfig()
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-				;
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
-		}
 	}
 }

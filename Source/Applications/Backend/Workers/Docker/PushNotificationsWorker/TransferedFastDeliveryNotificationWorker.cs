@@ -1,5 +1,4 @@
-﻿using FirebaseCloudMessaging.Client;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PushNotificationsWorker.Options;
@@ -12,21 +11,21 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Application.FirebaseCloudMessaging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PushNotificationsWorker
 {
 	internal sealed class TransferedFastDeliveryNotificationWorker : BackgroundService
 	{
 		private readonly ILogger<TransferedFastDeliveryNotificationWorker> _logger;
-		private readonly IFirebaseCloudMessagingService _firebaseService;
-		private readonly IUnitOfWork _unitOfWork;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TimeSpan _interval;
 
 		public TransferedFastDeliveryNotificationWorker(
 			ILogger<TransferedFastDeliveryNotificationWorker> logger,
 			IOptions<TransferedFastDeliveryNotificationWorkerSettings> settings,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IFirebaseCloudMessagingService firebaseService)
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			if(settings is null)
 			{
@@ -35,15 +34,8 @@ namespace PushNotificationsWorker
 
 			_interval = settings.Value.Interval;
 
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_firebaseService = firebaseService ?? throw new ArgumentNullException(nameof(firebaseService));
-
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Сервис PUSH сообщений");
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,18 +47,25 @@ namespace PushNotificationsWorker
 			{
 				try
 				{
+					using var scope = _serviceScopeFactory.CreateScope();
+
+					var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
+					var firebaseService = scope.ServiceProvider.GetRequiredService<IFirebaseCloudMessagingService>();
+
+					using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Сервис PUSH сообщений");
+
 					var today = DateTime.Today;
 
 					var routeListsTransferedFrom =
-						from routeListAddress in _unitOfWork.Session.Query<RouteListItem>()
-						join order in _unitOfWork.Session.Query<Order>()
+						from routeListAddress in unitOfWork.Session.Query<RouteListItem>()
+						join order in unitOfWork.Session.Query<Order>()
 						on routeListAddress.Order.Id equals order.Id
-						join routeList in _unitOfWork.Session.Query<RouteList>()
+						join routeList in unitOfWork.Session.Query<RouteList>()
 						on routeListAddress.RouteList.Id equals routeList.Id
-						join driver in _unitOfWork.Session.Query<Employee>()
+						join driver in unitOfWork.Session.Query<Employee>()
 						on routeList.Driver.Id equals driver.Id
 						let notNotified = (
-							from change in _unitOfWork.Session.Query<FastDeliveryChange>()
+							from change in unitOfWork.Session.Query<FastDeliveryChange>()
 							where change.RouteList.Id == routeListAddress.RouteList.Id
 							&& change.ChangeType == FastDeliveryChange.ChangeTypeEnum.Transfered
 							select change.Id
@@ -96,11 +95,13 @@ namespace PushNotificationsWorker
 							"Адрес маршрутного листа {RouteListAddressId}, заказ {OrderId} был перенесен",
 							routeListAddress.Id,
 							routeListAddress.Order.Id);
-
-						if(!string.IsNullOrWhiteSpace(routeListAddress.RouteList.Driver.AndroidToken))
+						
+						var userApp = routeListAddress.RouteList.Driver.DriverAppUser;
+						
+						if(userApp != null && !string.IsNullOrWhiteSpace(userApp.Token))
 						{
-							await _firebaseService.SendFastDeliveryAddressCanceledMessage(
-								routeListAddress.RouteList.Driver.AndroidToken,
+							await firebaseService.SendFastDeliveryAddressTransferedMessage(
+								userApp.Token,
 								routeListAddress.Order.Id);
 						}
 
@@ -112,10 +113,10 @@ namespace PushNotificationsWorker
 							CreatedAt = DateTime.Now
 						};
 
-						_unitOfWork.Session.Save(newChange);
+						unitOfWork.Session.Save(newChange);
 					}
 
-					_unitOfWork.Session.Flush();
+					unitOfWork.Commit();
 
 					await Task.Delay(_interval, stoppingToken);
 				}

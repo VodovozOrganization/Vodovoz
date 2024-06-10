@@ -21,12 +21,6 @@ namespace Sms.Internal.Service
                 .ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();
-                })
-				.ConfigureLogging(logging =>
-				{
-					logging.ClearProviders();
-					logging.SetMinimumLevel(LogLevel.Trace);
-				})
-				.UseNLog();
+                });
     }
 }

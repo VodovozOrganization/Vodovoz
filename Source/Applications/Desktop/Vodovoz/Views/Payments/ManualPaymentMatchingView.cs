@@ -75,7 +75,7 @@ namespace Vodovoz.Views
 
             ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
-            entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+            entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 
             entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
             entryCounterparty.ChangedByUser += (sender, e) =>

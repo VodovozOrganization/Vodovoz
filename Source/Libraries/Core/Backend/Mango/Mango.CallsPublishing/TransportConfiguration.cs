@@ -1,30 +1,27 @@
 ﻿using Mango.Core.Dto;
 using MassTransit;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Mango.CallsPublishing
 {
-    public static class TransportConfiguration
+	public static class TransportConfiguration
     {
 		/// <summary>
-		/// Конфигурирует общие настройки для сообщений
+		/// Конфигурирует настройки для сообщений Манго
 		/// </summary>
-		public static void ConfigureMangoMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
+		public static void AddMangoTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<CallEvent>(x => x.SetEntityName("mango.call_event"));
-		}
+			configurator.Message<MangoCallEvent>(x => x.SetEntityName("mango.event.call.publish"));
+			configurator.Send<MangoCallEvent>(x => x.UseRoutingKeyFormatter(ctx => $"acdgroup-{ctx.Message.To.AcdGroup}."));
+			configurator.Publish<MangoCallEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Topic;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 
-		/// <summary>
-		/// Конфигурирует настройки отправки сообщений
-		/// </summary>
-		public static void ConfigureMangoProducerTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
-		{
-			configurator.ConfigureMangoMessageTopology(context);
-
-			configurator.Publish<CallEvent>(x =>
+			configurator.Message<MangoSummaryEvent>(x => x.SetEntityName("mango.event.summary.publish"));
+			configurator.Publish<MangoSummaryEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
@@ -32,6 +29,4 @@ namespace Mango.CallsPublishing
 			});
 		}
 	}
-
-
 }

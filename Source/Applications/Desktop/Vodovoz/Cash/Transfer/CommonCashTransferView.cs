@@ -3,7 +3,6 @@ using QS.DomainModel.UoW;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Transfer;
 
 namespace Vodovoz.Cash.Transfer
@@ -35,9 +34,7 @@ namespace Vodovoz.Cash.Transfer
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			evmeDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(ViewModel.LifetimeScope));
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			comboboxCashSubdivisionFrom.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsFrom, w => w.ItemsList).InitializeFromSource();

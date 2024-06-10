@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using Vodovoz.Domain.Logistic;
 using NHibernate.Persister.Entity;
+using Vodovoz.Core.Domain;
 using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Logistic

@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using FluentNHibernate.Conventions;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -16,10 +17,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DateTimeHelpers;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
@@ -35,7 +38,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.TempAdapters;
@@ -45,6 +47,9 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.ViewModels.Infrastructure;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -52,6 +57,7 @@ namespace Vodovoz.ViewModels.Logistic
 		<RouteList, ITdiTab, RouteListJournalNode, RouteListJournalFilterViewModel>
 	{
 		private readonly IRouteListService _routeListService;
+		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -60,9 +66,9 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IStockRepository _stockRepository;
 		private readonly IReportPrinter _reportPrinter;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
-		private readonly IUserSettings _userSettings;
+		private readonly IUserSettingsService _userSettings;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
@@ -83,14 +89,15 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			IUserSettings userSettings,
+			IUserSettingsService userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
+			IEventsQrPlacer eventsQrPlacer,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -102,12 +109,12 @@ namespace Vodovoz.ViewModels.Logistic
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
-			_terminalNomenclatureProvider =
-				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -248,6 +255,11 @@ namespace Vodovoz.ViewModels.Logistic
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(FilterViewModel.RestrictedCarTypesOfUse.ToArray());
 			}
 
+			if(FilterViewModel.ExcludeIds != null &&  FilterViewModel.ExcludeIds.Any())
+			{
+				query.Where(() => !routeListAlias.Id.IsIn(FilterViewModel.ExcludeIds));
+			}
+
 			var driverProjection = CustomProjections.Concat_WS(
 				" ",
 				Projections.Property(() => driverAlias.LastName),
@@ -311,9 +323,9 @@ namespace Vodovoz.ViewModels.Logistic
 			return result;
 		};
 
-		protected override Func<ITdiTab> CreateDialogFunction => () => _gtkTabsOpener.CreateRouteListCreateDlg();
+		protected override Func<ITdiTab> CreateDialogFunction => () => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
-		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => _gtkTabsOpener.CreateRouteListCreateDlg(node.Id);
+		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		#region PopupActions
 
@@ -366,7 +378,7 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						_gtkTabsOpener.OpenRouteListCreateDlg(TabParent, selectedNode.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);
@@ -487,7 +499,7 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						_gtkTabsOpener.OpenRouteListKeepingDlg(TabParent, selectedNode.Id);
+						NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);
@@ -755,14 +767,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 				//Не погружен остался только терминал
 				var routeListShippedWithoutTerminal = notLoadedGoods.Count == 1
-					&& notLoadedGoods.All(x => x.NomenclatureId == _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+					&& notLoadedGoods.All(x => x.NomenclatureId == _nomenclatureSettings.NomenclatureIdForTerminal);
 
 				var valid = commonServices.ValidationService.Validate(carLoadDocument, showValidationResults: false);
 
 				if((routeListFullyShipped || routeListShippedWithoutTerminal) && valid)
 				{
 					carLoadDocument.ClearItemsFromZero();
-					carLoadDocument.UpdateOperations(localUow, _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+					carLoadDocument.UpdateOperations(localUow, _nomenclatureSettings.NomenclatureIdForTerminal);
 
 					if(!carLoadDocument.Items.Any())
 					{
@@ -778,20 +790,29 @@ namespace Vodovoz.ViewModels.Logistic
 						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 							"Водителю необходимо получить терминал на кассе");
 					}
-
-					var reportInfo = new ReportInfo
-					{
-						Title = carLoadDocument.Title,
-						Identifier = "Store.CarLoadDocument",
-						Parameters = new Dictionary<string, object> { { "id", carLoadDocument.Id } },
-						PrintType = ReportInfo.PrintingType.MultiplePrinters
-					};
-
+					
+					var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
+						UoW, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
 					_reportPrinter.Print(reportInfo);
 				}
 				else
 				{
+					if(!routeListShippedWithoutTerminal && notLoadedGoods.Any())
+					{						
+						var archivedNomenclatures = _routeListRepository.GetRouteListNomenclatures(localUow, routeList.Id, true);
+
+						if(archivedNomenclatures.Any())
+						{
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+								$"Не удалось автоматически отгрузить Маршрутный лист, т.к. присутствуют архивнвые номенклатуры: " +
+								$"{string.Join(", ", archivedNomenclatures.Select(n => $"№{n.Id} {n.Name}"))}.");
+
+							return;
+						}
+					}
+
 					localUow.Commit();
+
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось автоматически отгрузить Маршрутный лист");
 
@@ -820,7 +841,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				return false;
 			}
-			return !_routeListRepository.RouteListContainsGivedFuelLiters(UoW, selectedNode.Id);
+			return !_routeListRepository.RouteListContainsGivenFuelLiters(UoW, selectedNode.Id);
 		}
 
 		private void SendRouteListsInLoading(IList<RouteListJournalNode> selectedNodes)
@@ -956,8 +977,29 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateEditAction();
+		}
+
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var entityConfig = EntityConfigs.First().Value;
+			var addAction = new JournalAction("Добавить",
+				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => {
+					var page = NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+					page.ViewModel.EntitySaved += Tab_EntitySaved;
+				},
+				"Insert"
+				);
+			NodeActionsList.Add(addAction);
 		}
 
 		private void CreateEditAction()
@@ -994,7 +1036,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.First(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
 					{
 						HideJournal(TabParent);

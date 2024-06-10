@@ -25,7 +25,6 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class M2ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<M2ProxyDocument>, IEditableDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
@@ -36,7 +35,7 @@ namespace Vodovoz.Dialogs.Employees
 		public M2ProxyDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			ConfigureDlg();
 		}
@@ -46,7 +45,7 @@ namespace Vodovoz.Dialogs.Employees
 		public M2ProxyDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
 			TabName = "Изменение доверенности М-2";
 			ConfigureDlg();
 		}
@@ -54,7 +53,7 @@ namespace Vodovoz.Dialogs.Employees
 		public M2ProxyDlg(Order order)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			Entity.Order = order;
 
@@ -90,7 +89,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
 			var supplierFactory = _lifetimeScope.Resolve<ICounterpartyJournalFactory>();
-			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 
 			yETicketNr.Binding.AddBinding(Entity, x => x.TicketNumber, w => w.Text).InitializeFromSource();
@@ -206,7 +205,7 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.Order == null)
 				return true;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

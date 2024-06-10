@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace Vodovoz.Errors
 {
@@ -55,6 +57,19 @@ namespace Vodovoz.Errors
 			{
 				errorsHandlingAction(Errors);
 			}
+		}
+
+		public string GetErrorsString()
+		{
+			var sb = new StringBuilder();
+			var i = 1;
+
+			foreach(var error in Errors)
+			{
+				sb.AppendLine($"{i++}. " + error.Message);
+			}
+
+			return sb.ToString();
 		}
 
 		public static Result Success() => new Result(true, Error.None);

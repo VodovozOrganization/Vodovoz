@@ -5,7 +5,22 @@
     <UserSecretsId>36f5cbbd-0ac6-47ab-9b21-aabf6d5588ca</UserSecretsId>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
   <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Google.Protobuf" Version="3.22.1" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
@@ -19,6 +34,8 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
   </ItemGroup>
 
 </Project>

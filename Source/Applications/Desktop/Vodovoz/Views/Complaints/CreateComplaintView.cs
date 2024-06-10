@@ -1,18 +1,8 @@
 ﻿using System;
 using Gamma.Widgets;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -31,20 +21,26 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
 			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			EntryCounterparty_ChangedByUser(this, new EventArgs());
 			entryCounterparty.ChangedByUser += EntryCounterparty_ChangedByUser;
 
 			spLstComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
-			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
-			spLstComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
+			spLstComplaintKind.Binding
+				.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEditComplaintClassification, w => w.Sensitive)
+				.InitializeFromSource();
+
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
-				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+				.AddBinding(vm => vm.ComplaintObject, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEditComplaintClassification, w => w.Sensitive)
+				.InitializeFromSource();
 
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
@@ -74,12 +70,14 @@ namespace Vodovoz.Views.Complaints
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.CheckAndSave(); };
+			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 		}
 
 		void EntryCounterparty_ChangedByUser(object sender, System.EventArgs e)
 		{
+			entryOrder.SetEntitySelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
+
 			if(ViewModel.Entity.Counterparty != null) {
 				spLstAddress.NameForSpecialStateNot = "Самовывоз";
 				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));

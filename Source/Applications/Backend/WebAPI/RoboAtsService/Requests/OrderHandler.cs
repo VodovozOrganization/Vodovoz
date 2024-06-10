@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Sms.Internal;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.Requests
 {
@@ -19,10 +21,11 @@ namespace RoboatsService.Requests
 	{
 		private readonly ILogger<LastOrderHandler> _logger;
 		private readonly IRoboatsRepository _roboatsRepository;
-		private readonly RoboatsOrderModel _roboatsOrderModel;
+		private readonly IOrderService _orderService;
 		private readonly ValidOrdersProvider _validOrdersProvider;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
+		private readonly IFastPaymentSender _fastPaymentSender;
 
 		public OrderRequestType RequestType { get; }
 
@@ -48,18 +51,20 @@ namespace RoboatsService.Requests
 		public OrderHandler(
 			ILogger<LastOrderHandler> logger,
 			IRoboatsRepository roboatsRepository,
-			RoboatsOrderModel roboatsOrderModel,
+			IOrderService orderService,
 			ValidOrdersProvider validOrdersProvider,
 			RequestDto requestDto,
 			IRoboatsSettings roboatsSettings,
-			RoboatsCallRegistrator callRegistrator) : base(requestDto)
+			RoboatsCallRegistrator callRegistrator,
+			IFastPaymentSender fastPaymentSender) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
-			_roboatsOrderModel = roboatsOrderModel ?? throw new ArgumentNullException(nameof(roboatsOrderModel));
+			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_validOrdersProvider = validOrdersProvider ?? throw new ArgumentNullException(nameof(validOrdersProvider));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
+			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
 
 			if(RequestDto.RequestSubType == "price")
 			{
@@ -240,7 +245,7 @@ namespace RoboatsService.Requests
 			orderArgs.WatersInfo = watersInfo;
 			orderArgs.BottlesReturn = bottlesReturn;
 
-			var price = _roboatsOrderModel.GetOrderPrice(orderArgs);
+			var price = _orderService.GetOrderPrice(orderArgs);
 			if(price <= 0)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.NegativeOrderSum, RoboatsCallOperation.CalculateOrderPrice,
@@ -350,6 +355,8 @@ namespace RoboatsService.Requests
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Ошибка при подтверждении заказа роботом");
+
 				if(ex is AggregateException aggregateException && aggregateException.InnerException != null)
 				{
 					ex = aggregateException.InnerException;
@@ -362,35 +369,83 @@ namespace RoboatsService.Requests
 
 		private void CreateAndAcceptOrder(RoboatsOrderArgs orderArgs)
 		{
-			var orderId = _roboatsOrderModel.CreateAndAcceptOrder(orderArgs);
+			var orderId = _orderService.CreateAndAcceptOrder(orderArgs);
 			_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Звонок был успешно завершен. Cоздан и подтвержден заказ {orderId}");
 		}
 
 		private void CreateIncompleteOrder(RoboatsOrderArgs orderArgs)
 		{
-			var orderId = _roboatsOrderModel.CreateIncompleteOrder(orderArgs);
-			_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {orderId}");
+			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
+			_callRegistrator.RegisterAborted(
+				ClientPhone,
+				RequestDto.CallGuid,
+				RoboatsCallOperation.CreateOrder,
+				$"Звонок не был успешно завершен. Был создан черновой заказ {orderData.OrderId}");
 		}
 
+		/// <summary>
+		/// Создает заказ с имеющимися данными в статусе Новый.
+		/// Запускает процесс формирования оплаты и отправки QR кода по смс.
+		/// Если после 3-х попыток не получилось сформировать оплату, то заказ остается в статусе новый.
+		/// Если оплата сформирована то заказ переходит в статус Принят
+		/// </summary>
 		private async Task CreateOrderWithPaymentByQrCode(RoboatsOrderArgs orderArgs, bool needAcceptOrder)
 		{
-			var order = await _roboatsOrderModel.CreateOrderWithPaymentByQrCode(ClientPhone, orderArgs, needAcceptOrder);
-			if(order.OrderStatus == OrderStatus.NewOrder)
+			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
+			
+			if(needAcceptOrder)
 			{
-				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Был создан черновой заказ {order.Id} с оплатой по QR коду." +
-					$" Оплату не удалось сформировать и отправить автоматически." +
-					$" Повторите оплату в ручном режиме или свяжитесь с клиентом для выбора другого способа оплаты.");
+				var paymentSent = await TryingSendPayment(ClientPhone, orderData.OrderId);
+				if(paymentSent)
+				{
+					orderData = _orderService.AcceptOrder(orderData.OrderId, orderData.AuthorId);
+				}
 			}
-			else if(order.OrderStatus == OrderStatus.Accepted)
+			
+			if(orderData.OrderStatus == OrderStatus.NewOrder)
 			{
-				_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Был подтвержден заказ {order.Id} с оплатой по QR коду." +
-					$" Оплата сформирована и отправлена автоматически.");
+				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, 
+					$"Был создан черновой заказ {orderData.OrderId} с оплатой по QR коду." +
+					" Оплату не удалось сформировать и отправить автоматически." +
+					" Повторите оплату в ручном режиме или свяжитесь с клиентом для выбора другого способа оплаты.");
+			}
+			else if(orderData.OrderStatus == OrderStatus.Accepted)
+			{
+				_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, 
+					$"Был подтвержден заказ {orderData.OrderId} с оплатой по QR коду." +
+					" Оплата сформирована и отправлена автоматически.");
 			}
 			else
 			{
-				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Был создан заказ в некорректном статусе {order.OrderStatus}." +
-					$" Обратитесь в отдел разработки.");
+				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder,
+					$"Был создан заказ в некорректном статусе {orderData.OrderStatus}." +
+					" Обратитесь в отдел разработки.");
 			}
+		}
+		
+		private async Task<bool> TryingSendPayment(string phone, int orderId)
+		{
+			FastPaymentResult result;
+			var attemptsCount = 0;
+
+			do
+			{
+				if(attemptsCount > 0)
+				{
+					await Task.Delay(60000);
+				}
+				result = await _fastPaymentSender.SendFastPaymentUrlAsync(orderId, phone, true);
+
+				if(result.Status == ResultStatus.Error && result.OrderAlreadyPaied)
+				{
+					return true;
+				}
+
+				attemptsCount++;
+
+			} while(result.Status == ResultStatus.Error && attemptsCount < 3);
+
+			return result.Status == ResultStatus.Ok;
 		}
 
 		private IEnumerable<RoboatsWaterInfo> GetWaters()

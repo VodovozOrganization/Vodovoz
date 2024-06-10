@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TISystems.TTC.Common;
 using Vodovoz.Domain.Client;
@@ -10,21 +11,21 @@ using Vodovoz.Domain.Orders;
 
 namespace TaxcomEdoApi.Factories
 {
-	public class EdoUpdFactory
+	public class EdoUpdFactory : IEdoUpdFactory
 	{
-		private readonly ParticipantDocFlowConverter _participantDocFlowConverter;
-		private readonly UpdProductConverter _updProductConverter;
+		private readonly IParticipantDocFlowConverter _participantDocFlowConverter;
+		private readonly IUpdProductConverter _updProductConverter;
 
 		public EdoUpdFactory(
-			ParticipantDocFlowConverter participantDocFlowConverter,
-			UpdProductConverter updProductConverter)
+			IParticipantDocFlowConverter participantDocFlowConverter,
+			IUpdProductConverter updProductConverter)
 		{
 			_participantDocFlowConverter =
 				participantDocFlowConverter ?? throw new ArgumentNullException(nameof(participantDocFlowConverter));
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
 		}
 		
-		public Fajl CreateNewUpdXml(Order order, string organizationAccountId, string certificateSubject)
+		public Fajl CreateNewUpdXml(Order order, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject)
 		{
 			var org = order.Contract.Organization;
 			
@@ -155,6 +156,10 @@ namespace TaxcomEdoApi.Factories
 				}
 			};
 
+			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
+			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
+			var patronymic = firstNameAndPatronymic.Length == 2 ? firstNameAndPatronymic[1] : null;
+
 			upd.Dokument.SvProdPer = new FajlDokumentSvProdPer
 			{
 				SvPer = new FajlDokumentSvProdPerSvPer
@@ -163,12 +168,22 @@ namespace TaxcomEdoApi.Factories
 					OsnPer = new[]
 					{
 						GetBasis(order)
+					},
+					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
+					{
+						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
+						{
+							FIO = new FIOTip
+							{
+								Familija = certDetails.SurName,
+								Imja = firstNameAndPatronymic[0],
+								Otchestvo = patronymic
+							},
+							Dolzhnost = warrantOptions.JobPosition
+						}
 					}
 				}
 			};
-			
-			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
-			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
 			
 			upd.Dokument.Podpisant = new[]
 			{
@@ -183,11 +198,11 @@ namespace TaxcomEdoApi.Factories
 						{
 							Familija = certDetails.SurName,
 							Imja = firstNameAndPatronymic[0],
-							Otchestvo = firstNameAndPatronymic[1]
+							Otchestvo = patronymic
 						},
 						INNJuL = org.INN,
 						NaimOrg = org.Name,
-						Dolzhn = "Главный бухгалтер"
+						Dolzhn = warrantOptions.JobPosition
 					}
 				}
 			};

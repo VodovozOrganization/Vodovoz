@@ -1,10 +1,8 @@
-﻿using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using NLog.LayoutRenderers.Wrappers;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -18,7 +16,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -46,7 +44,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(filterConfiguration != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+				FilterViewModel.ConfigureWithoutFiltering(filterConfiguration);
 			}
 
 			UpdateOnChanges(

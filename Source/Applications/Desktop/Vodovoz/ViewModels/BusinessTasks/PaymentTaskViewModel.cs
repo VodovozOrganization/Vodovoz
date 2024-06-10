@@ -5,12 +5,14 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using Autofac;
 using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -24,6 +26,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		public readonly IEmployeeRepository employeeRepository;
 
 		public PaymentTaskViewModel(
+			ILifetimeScope lifetimeScope,
 			IEmployeeRepository employeeRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -50,7 +53,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 			Initialize();
 			CreateCommands();
-			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 		}
 
 		private void Initialize()
@@ -59,7 +62,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
 																				OrderJournalViewModel,
-																				OrderJournalFilterViewModel>(CommonServices);
+																				OrderJournalFilterViewModel>(ServicesConfig.UnitOfWorkFactory, CommonServices);
 		}
 
 		private void CreateCommands()

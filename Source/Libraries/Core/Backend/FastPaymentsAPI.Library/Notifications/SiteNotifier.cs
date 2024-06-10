@@ -1,6 +1,6 @@
-﻿using FastPaymentsAPI.Library.ApiClients;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
+﻿using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Factories;
 using Microsoft.Extensions.Logging;
 using System;

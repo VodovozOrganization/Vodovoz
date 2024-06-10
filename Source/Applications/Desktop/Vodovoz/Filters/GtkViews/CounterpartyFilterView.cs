@@ -85,6 +85,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.CounterpartyVodovozInternalId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
+			entryCounterpartyInn.ValidationMode = ValidationType.Numeric;
 			entryCounterpartyInn.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyInn.Binding
 				.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text)

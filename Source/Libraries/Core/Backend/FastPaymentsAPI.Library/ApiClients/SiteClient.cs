@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.Library.DTO_s.Requests;
+﻿using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;

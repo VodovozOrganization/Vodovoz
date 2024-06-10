@@ -1,21 +1,12 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using System;
-using System.Linq;
-using NHibernate.Criterion;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Models;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
-using QS.Project.Journal;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -34,12 +25,10 @@ namespace Vodovoz.Views.Logistic
 
 			vehicleNumberEntry.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number).InitializeFromSource();
 
-			entryCarModel.CanEditReference = ViewModel.CanEditCarModel;
-			entryCarModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory
-				.CreateCarModelAutocompleteSelectorFactory(ViewModel.LifetimeScope));
+			entryCarModel.ViewModel = ViewModel.CarModelViewModel;
+
 			entryCarModel.Binding
-				.AddBinding(ViewModel.Entity, e => e.CarModel, w => w.Subject)
-				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.Sensitive)
+				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			orderNumberSpin.Binding.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
@@ -55,21 +44,23 @@ namespace Vodovoz.Views.Logistic
 			yentryDocIssuedOrg.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedOrg, w => w.Text).InitializeFromSource();
 			ydatepickerDocIssuedDate.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
 
-			yentryFuelCardNumber.Binding.AddBinding(ViewModel.Entity, e => e.FuelCardNumber, w => w.Text).InitializeFromSource();
-			yentryFuelCardNumber.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditFuelCardNumber, w => w.Sensitive).InitializeFromSource();
+			yenumcomboboxArchivingReason.ItemsEnum = typeof(ArchivingReason);
+			yenumcomboboxArchivingReason.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.ArchivingReason, w => w.SelectedItemOrNull)
+				.AddBinding(e => e.IsArchive, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelArchivingReason.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible).InitializeFromSource();
 
 			yentryPTSNum.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 
-			entryDriver.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+			entryDriver.ViewModel = ViewModel.DriverViewModel;
 
 			textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
 
-			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			entryFuelType.ViewModel = ViewModel.FuelTypeViewModel;
 
-			dataentryFuelType.SubjectType = typeof(FuelType);
-			dataentryFuelType.Binding.AddBinding(ViewModel.Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
 			radiobuttonMain.Active = true;
 
 			minBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
@@ -82,7 +73,17 @@ namespace Vodovoz.Views.Logistic
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			
+
+			ylabelArchivingDate.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.ArchivingDate != null, w => w.Visible)
+				.InitializeFromSource();
+
+			datepickerArchivingDate.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.ArchivingDate, w => w.DateOrNull)
+				.AddFuncBinding(e => e.ArchivingDate != null, w => w.Visible)
+				.InitializeFromSource();
+
 			textDriverInfo.Selectable = true;
 
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
@@ -95,7 +96,12 @@ namespace Vodovoz.Views.Logistic
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
+			carversioneditingview.ViewModel = ViewModel.CarVersionEditingViewModel;
 			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
+			fuelcardversionview.ViewModel = ViewModel.FuelCardVersionViewModel;
+			carinsuranceversionviewOsago.ViewModel = ViewModel.OsagoInsuranceVersionViewModel;
+			carinsuranceversionviewKasko.ViewModel = ViewModel.KaskoInsuranceVersionViewModel;
+			carinsuranceversioneditingview.ViewModel = ViewModel.CarInsuranceVersionEditingViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
@@ -105,6 +111,30 @@ namespace Vodovoz.Views.Logistic
 			btnAddGeographicGroup.Clicked += (s, e) => ViewModel.AddGeoGroupCommand.Execute();
 			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
 			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
+
+			yentryPreviousTechInspectDate.Binding
+				.AddBinding(ViewModel, vm => vm.PreviousTechInspectDate, w => w.Text)
+				.InitializeFromSource();
+
+			yentryPreviousTechInspectOdometer.Binding
+				.AddBinding(ViewModel, vm => vm.PreviousTechInspectOdometer, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			yentryUpcomingTechInspectKm.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectKm, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			yentryUpcomingTechInspectLeft.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectLeft, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			speciallistcomboboxIncomeChannel.SetRenderTextFunc<IncomeChannel>(x => x.GetEnumDisplayName());
+			speciallistcomboboxIncomeChannel.ItemsList = Enum.GetValues(typeof(IncomeChannel));
+			speciallistcomboboxIncomeChannel.Binding
+				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);

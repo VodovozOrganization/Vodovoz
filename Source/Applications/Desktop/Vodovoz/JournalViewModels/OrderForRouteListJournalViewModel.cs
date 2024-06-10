@@ -1,49 +1,40 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Deletion;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
+using System;
+using System.Globalization;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using QS.Project.Journal.DataLoader;
-using QS.Project.Services.FileDialog;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Services;
-using QS.Navigation;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
 	{
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private readonly IFileDialogService _fileDialogService;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderForRouteListJournalViewModel(
@@ -51,39 +42,24 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			IGtkTabsOpener gtkDialogsOpener,
-			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IFileDialogService fileDialogService,
+			INomenclatureRepository nomenclatureRepository,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			Action<OrderJournalFilterViewModel> filterConfig = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_closingDocumentDeliveryScheduleId =
-				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 
 			filterViewModel.Journal = this;
 
 			if(filterConfig != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 
 			TabName = "Журнал заказов";
@@ -104,6 +80,55 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+			CreateCustomDeleteAction();
+		}
+
+		private void CreateCustomDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => {
+					var selectedNodes = selected.OfType<OrderForRouteListJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanDelete;
+				},
+				(selected) => EntityConfigs.Any(config => config.Value.PermissionResult.CanDelete),
+				(selected) => {
+					var selectedNodes = selected.OfType<OrderForRouteListJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					if(config.PermissionResult.CanDelete)
+					{
+						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					}
+				},
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
+		}
+
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
 		{
 			OrderForRouteListJournalNode resultAlias = null;
@@ -117,8 +142,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			var sanitizationNomenclatureIds = 
-				new NomenclatureParametersProvider(new ParametersProvider()).GetSanitisationNomenclature(uow);
+			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
@@ -262,6 +286,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => orderAlias.SelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				   .Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
+				   .Select(() => orderAlias.WaitUntilTime).WithAlias(() => resultAlias.WaitUntilTime)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => orderAlias.Address1c).WithAlias(() => resultAlias.Address1c)
 				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
@@ -310,10 +335,9 @@ namespace Vodovoz.JournalViewModels
 						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var route in routes) {
-							tdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
-								() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
-							);
+							var page = NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(route.Key));
+
+							page.ViewModel.SelectOrdersById(route.Select(x => x.Order.Id).ToArray());
 						}
 					}
 				)

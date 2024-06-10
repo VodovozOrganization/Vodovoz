@@ -14,11 +14,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -125,6 +126,10 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.SelectedGeoGroup, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			ychkbtnHideTrucks.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HideTrucks, w => w.Active)				
+				.InitializeFromSource();
+
 			ConfigureMap();
 			SubscribeToEvents();
 
@@ -199,6 +204,8 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
 				.AddColumn("Остаток\nбут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
 				.AddColumn("Остаток\nзапаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
+				.RowCells().AddSetter<CellRendererText>((c, node) => c.BackgroundGdk = 
+					node.TotalWorkDays <= ViewModel.MaxDaysForNewbieDriver ? GdkColors.CarMonitoringNewbieDriversBase : GdkColors.PrimaryBase)
 				.Finish();
 
 			yTreeViewDrivers.ItemsDataSource = ViewModel.WorkingDrivers;

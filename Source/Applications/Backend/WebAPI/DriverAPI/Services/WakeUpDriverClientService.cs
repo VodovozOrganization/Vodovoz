@@ -1,8 +1,9 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.Library.V5.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Services
@@ -10,31 +11,34 @@ namespace DriverAPI.Services
 	internal sealed class WakeUpDriverClientService : IWakeUpDriverClientService
 	{
 		private readonly ILogger<WakeUpDriverClientService> _logger;
-
+		private readonly IEmployeeService _employeeService;
 		private ConcurrentDictionary<int, string> _clients = new();
 
 		public WakeUpDriverClientService(
 			ILogger<WakeUpDriverClientService> logger,
-			IEmployeeModel employeeModel)
+			IEmployeeService employeeService)
 		{
-			if(employeeModel is null)
-			{
-				throw new ArgumentNullException(nameof(employeeModel));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-			var drivers = employeeModel.GetAllPushNotifiableEmployees();
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			var drivers = _employeeService.GetAllPushNotifiableEmployees();
 
 			foreach(var driver in drivers)
 			{
-				if(_clients.TryAdd(driver.Id, driver.AndroidToken))
+				var userApp = driver.DriverAppUser;
+				
+				if(_clients.TryAdd(driver.Id, userApp.Token))
 				{
-					_logger.LogTrace("Предзагружен получатель WakeUp-сообщений {DriverId} с токеном {FirebaseToken}", driver.Id, driver.AndroidToken);
+					_logger.LogTrace(
+						"Предзагружен получатель WakeUp-сообщений {DriverId} с токеном {FirebaseToken}",
+						driver.Id,
+						userApp.Token);
 					continue;
 				}
 
-				_logger.LogWarning("Не удалось предзагрузить получателя WakeUp-сообщений {DriverId} с токеном {FirebaseToken}", driver.Id, driver.AndroidToken);
+				_logger.LogWarning(
+					"Не удалось предзагрузить получателя WakeUp-сообщений {DriverId} с токеном {FirebaseToken}",
+					driver.Id,
+					userApp.Token);
 			}
 
 			_logger.LogInformation("Зарегистрировано {WakeUpCoordinatesNotificationClientsCount} клиентов для получения WakeUp-сообщений", Clients.Count);
@@ -80,13 +84,15 @@ namespace DriverAPI.Services
 
 		public void UnSubscribe(Employee driver)
 		{
+			var userApp = driver.DriverAppUser;
+
 			try
 			{
 				if(!_clients.TryGetValue(driver.Id, out var activeToken))
 				{
 					_logger.LogWarning("Не удалось отписать водителя {DriverId} от WakeUp-сообщений, токен {FirebaseToken}, водитель не подписан на WakeUp-сообщения",
 						driver.Id,
-						driver.AndroidToken);
+						userApp.Token);
 
 					return;
 				}
@@ -102,14 +108,23 @@ namespace DriverAPI.Services
 
 				_logger.LogError("Не удалось отписать водителя {DriverId} от WakeUp-сообщений, токен {FirebaseToken}",
 					driver.Id,
-					driver.AndroidToken);
+					userApp.Token);
 			}
 			catch(Exception e)
 			{
 				_logger.LogCritical(e, "Не удалось отписать водителя {DriverId} от WakeUp-сообщений, токен {FirebaseToken}, произошла непредвиденная ошибка",
 					driver.Id,
-					driver.AndroidToken);
+					userApp.Token);
 			}
+		}
+
+		public void UnSubscribe(string recipientToken)
+		{
+			var recipientToRemove = _clients.FirstOrDefault(keyValuePair => keyValuePair.Value == recipientToken);
+			_clients.TryRemove(recipientToRemove);
+
+			var driver = _employeeService.GetDriverExternalApplicationUserByFirebaseToken(recipientToken);
+			_employeeService.DisablePushNotifications(driver);
 		}
 	}
 }

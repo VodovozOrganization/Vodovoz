@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -12,14 +12,27 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
 {
-    public class DocumentsPrinterViewModel : TabViewModelBase
-    {
-        private readonly Order _currentOrder;
-		private readonly RouteList _currentRouteList;
-		
+	public class DocumentsPrinterViewModel : TabViewModelBase
+	{
+		private readonly Order _currentOrder;
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
+		private RouteList _currentRouteList;
+		private IEntityDocumentsPrinter _entityDocumentsPrinter;
+
 		public event Action PreviewDocument;
 		public event EventHandler DocumentsPrinted;
-		
+
+		public DocumentsPrinterViewModel(
+			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager)
+			: base(interactiveService, navigationManager)
+		{
+			TabName = "Печать документов";
+			_entityDocumentsPrinterFactory = entityDocumentsPrinterFactory;
+		}
+
+		[Obsolete("Опасный метод, невозможен вызов через навигатор и проброс зависимостей через контейнер")]
 		public DocumentsPrinterViewModel(
 			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
 			IInteractiveService interactiveService,
@@ -39,8 +52,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			_currentOrder = order;
 			Configure();
+			DefaultPreviewDocument();
 		}
-		
+
+		[Obsolete("Опасный метод, невозможен вызов через навигатор и проброс зависимостей через контейнер")]
 		public DocumentsPrinterViewModel(
 			IUnitOfWork uow,
 			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
@@ -57,11 +72,33 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			
 			_currentRouteList = routeList;
 			Configure();
+			DefaultPreviewDocument();
 		}
-		
-		public IEntityDocumentsPrinter EntityDocumentsPrinter { get; }
+
+		public IEntityDocumentsPrinter EntityDocumentsPrinter
+		{
+			get => _entityDocumentsPrinter;
+			private set => SetField(ref _entityDocumentsPrinter, value);
+		}
 
 		public SelectablePrintDocument SelectedDocument { get; set; }
+
+		public void ConfigureForRouteListDocumentsPrint(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			RouteListPrintableDocuments selectedType)
+		{
+			EntityDocumentsPrinter =
+				_entityDocumentsPrinterFactory
+				.CreateRouteListWithOrderDocumentsPrinter(unitOfWork, routeList, new[] { selectedType });
+
+			TabName = "Печать документов МЛ";
+
+			_currentRouteList = routeList;
+
+			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
+			DefaultPreviewDocument();
+		}
 
 		private void Configure()
 		{
@@ -70,6 +107,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		
 		public void DefaultPreviewDocument()
 		{
+			if(EntityDocumentsPrinter is null)
+			{
+				return;
+			}
+
 			var printDocuments = EntityDocumentsPrinter.DocumentsToPrint;
 			if(_currentOrder != null) 
 			{ //если этот диалог вызван из заказа
@@ -100,5 +142,5 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		public void PrintAll() => EntityDocumentsPrinter.Print();
 
 		public void ReportViewerOnReportPrinted(object o, EventArgs args) => DocumentsPrinted?.Invoke(o, args);
-    }
+	}
 }

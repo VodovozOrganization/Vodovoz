@@ -1,27 +1,26 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListRatesLevelWageCalculationService : IRouteListWageCalculationService
 	{
-		private readonly RatesLevelWageParameterItem wageParameterItem;
-		private readonly IRouteListWageCalculationSource wageCalculationSource;
+		private readonly RatesLevelWageParameterItem _wageParameterItem;
+		private readonly IRouteListWageCalculationSource _wageCalculationSource;
 
 		public RouteListRatesLevelWageCalculationService(RatesLevelWageParameterItem wageParameterItem, IRouteListWageCalculationSource wageCalculationSource)
 		{
-			this.wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
-			this.wageCalculationSource = wageCalculationSource ?? throw new ArgumentNullException(nameof(wageCalculationSource));
+			_wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
+			_wageCalculationSource = wageCalculationSource ?? throw new ArgumentNullException(nameof(wageCalculationSource));
 		}
 
 		public RouteListWageResult CalculateWage()
 		{
-			var wage = wageCalculationSource.ItemSources.Sum(s => CalculateWageForRouteListItem(s).Wage);
+			var wage = _wageCalculationSource.ItemSources.Sum(s => CalculateWageForRouteListItem(s).Wage);
 			return new RouteListWageResult(wage, 0);
 		}
 
@@ -35,9 +34,14 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			}
 
 			#region Оплата оборудования, если нет 19л воды в заказе
+
 			var wageForBottlesOrEquipment = CalculateWageForFull19LBottles(src);
+
 			if(wageForBottlesOrEquipment <= 0)
+			{
 				wageForBottlesOrEquipment = CalculateWageForEquipment(src);
+			}
+
 			#endregion Оплата оборудования, если нет 19л воды в заказе
 
 			resultSum += CalculateWageForAddress(src);
@@ -58,15 +62,18 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		private decimal GetRateValue(IRouteListItemWageCalculationSource src, WageRate rate)
 		{
 			if(rate == null)
+			{
 				return 0;
-			switch(wageCalculationSource.EmployeeCategory) {
+			}
+
+			switch(_wageCalculationSource.EmployeeCategory) {
 				case EmployeeCategory.driver:
 					return src.WasVisitedByForwarder ? rate.WageForDriverWithForwarder(src): rate.WageForDriverWithoutForwarder(src);
 				case EmployeeCategory.forwarder:
 					return rate.WageForForwarder(src);
 				case EmployeeCategory.office:
 				default:
-					throw new InvalidOperationException($"Для указанного типа сотрудника \"{wageCalculationSource.EmployeeCategory.GetEnumTitle()}\" не предусмотрен расчет зарплаты по уровням");
+					throw new InvalidOperationException($"Для указанного типа сотрудника \"{_wageCalculationSource.EmployeeCategory.GetEnumTitle()}\" не предусмотрен расчет зарплаты по уровням");
 			}
 		}
 
@@ -76,8 +83,10 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		decimal CalculateWageForAddress(IRouteListItemWageCalculationSource src)
 		{
 			if(!src.HasFirstOrderForDeliveryPoint)
+			{
 				return 0;
-			
+			}
+
 			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == (src.IsDriverForeignDistrict? WageRateTypes.ForeignAddress : WageRateTypes.Address));
 
 			return GetRateValue(src, rate);
@@ -101,11 +110,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			bool addressWithBigOrder = HasBigOrder(src);
 
 			var rate = GetCurrentWageDistrictLevelRate(src).WageRates
-														   .FirstOrDefault(
-																r => r.WageRateType == (
-																	addressWithBigOrder ? WageRateTypes.Bottle19LInBigOrder : WageRateTypes.Bottle19L
-																)
-															);
+				.FirstOrDefault(
+					r => r.WageRateType == (
+						addressWithBigOrder
+						? WageRateTypes.Bottle19LInBigOrder
+						: WageRateTypes.Bottle19L));
 
 			decimal paymentForOne = GetRateValue(src, rate);
 
@@ -120,11 +129,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			bool addressWithBigOrder = HasBigOrder(src);
 
 			var rate = GetCurrentWageDistrictLevelRate(src).WageRates
-														   .FirstOrDefault(
-																r => r.WageRateType == (
-																	addressWithBigOrder ? WageRateTypes.EmptyBottle19LInBigOrder : WageRateTypes.EmptyBottle19L
-																)
-															);
+				.FirstOrDefault(
+					r => r.WageRateType == (
+						addressWithBigOrder
+						? WageRateTypes.EmptyBottle19LInBigOrder
+						: WageRateTypes.EmptyBottle19L));
 
 			decimal paymentForOne = GetRateValue(src, rate);
 
@@ -149,7 +158,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		decimal CalculateWageForEquipment(IRouteListItemWageCalculationSource src)
 		{
 			if(!src.NeedTakeOrDeliverEquipment)
+			{
 				return 0;
+			}
 
 			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Equipment);
 
@@ -225,7 +236,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		WageDistrictLevelRate GetCurrentWageDistrictLevelRate(IRouteListItemWageCalculationSource src)
 		{
 			return src.WageCalculationMethodic
-				?? wageParameterItem.WageDistrictLevelRates.LevelRates
+				?? _wageParameterItem.WageDistrictLevelRates.LevelRates
 					.FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress && r.CarTypeOfUse == src.CarTypeOfUse);
 		}
 
@@ -257,6 +268,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			{
 				var rateAddress = wageRates.FirstOrDefault(r =>
 					r.WageRateType == (src.IsDriverForeignDistrict ? WageRateTypes.ForeignAddress : WageRateTypes.Address));
+
 				if(rateAddress != null)
 				{
 					addressWageDetails.WageCalculationDetailsList.Add(
@@ -272,6 +284,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			bool addressWithBigOrder = HasBigOrder(src);
 			var rateFullBottle19L = wageRates
 				.FirstOrDefault(r => r.WageRateType == (addressWithBigOrder ? WageRateTypes.Bottle19LInBigOrder : WageRateTypes.Bottle19L));
+
 			var priceFullBottle19L = GetRateValue(src, rateFullBottle19L);
 			if(priceFullBottle19L * src.FullBottle19LCount > 0)
 			{

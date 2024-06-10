@@ -6,7 +6,7 @@ using Vodovoz.Domain.Orders;
 
 namespace TaxcomEdoApi.Converters
 {
-	public class UpdProductConverter
+	public class UpdProductConverter : IUpdProductConverter
 	{
 		public FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(IList<OrderItem> orderItems)
 		{

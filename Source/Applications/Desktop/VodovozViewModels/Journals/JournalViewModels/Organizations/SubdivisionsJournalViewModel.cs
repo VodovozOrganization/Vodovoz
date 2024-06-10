@@ -21,7 +21,6 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organizations
@@ -32,8 +31,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
@@ -47,8 +44,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			Action<SubdivisionFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -56,8 +51,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			_currentPermissionService = currentPermissionService
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
@@ -100,7 +93,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
 		}
 
-
 		public IRecursiveConfig RecuresiveConfig { get; }
 
 		public override string FooterInfo
@@ -112,7 +104,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 		private void InitializePermissionsMatrix()
 		{
-			_domainObjectsPermissions.Add(typeof(Subdivision),  _currentPermissionService.ValidateEntityPermission(typeof(Subdivision)));
+			_domainObjectsPermissions.Add(typeof(Subdivision), _currentPermissionService.ValidateEntityPermission(typeof(Subdivision)));
 		}
 
 		private void OnSearchPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -132,13 +124,15 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		{
 			var searchString = string.IsNullOrWhiteSpace(_filterViewModel.SearchString) ? string.Empty : $"%{_filterViewModel.SearchString.ToLower()}%";
 
-			return (string.IsNullOrWhiteSpace(searchString) || parentId == null)
+			return ((string.IsNullOrWhiteSpace(searchString) && _filterViewModel.IncludedSubdivisionsIds.Length == 0) || parentId == null)
 			? (from subdivision in unitOfWork.Session.Query<Subdivision>()
-			   where ((string.IsNullOrWhiteSpace(searchString)
-				   && subdivision.ParentSubdivision.Id == parentId)
-					   || subdivision.Name.ToLower().Like(searchString)
-					   || subdivision.ShortName.ToLower().Like(searchString)
-					   || subdivision.Id.ToString().Like(searchString))
+			   where ((string.IsNullOrWhiteSpace(searchString) && subdivision.ParentSubdivision.Id == parentId && _filterViewModel.IncludedSubdivisionsIds.Length == 0)
+					   || ((string.IsNullOrWhiteSpace(searchString)
+								|| (subdivision.Name.ToLower().Like(searchString)
+								|| subdivision.ShortName.ToLower().Like(searchString)
+								|| subdivision.Id.ToString().Like(searchString)))
+							&& (_filterViewModel.IncludedSubdivisionsIds.Length == 0 || _filterViewModel.IncludedSubdivisionsIds.Contains(subdivision.Id))
+							&& (!string.IsNullOrWhiteSpace(searchString) || _filterViewModel.IncludedSubdivisionsIds.Length > 0)))
 				   && (_filterViewModel.ShowArchieved || !subdivision.IsArchive)
 				   && !_filterViewModel.ExcludedSubdivisionsIds.Contains(subdivision.Id)
 				   && (_filterViewModel.SubdivisionType == null
@@ -152,12 +146,12 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			   orderby subdivision.Name
 			   select new SubdivisionJournalNode
 			   {
-					Id = subdivision.Id,
-					Name = subdivision.Name,
-					ChiefName = chiefFIO,
-					ParentId = subdivision.ParentSubdivision.Id,
-					Children = children.ToList(),
-					IsArchive = subdivision.IsArchive
+				   Id = subdivision.Id,
+				   Name = subdivision.Name,
+				   ChiefName = chiefFIO,
+				   ParentId = subdivision.ParentSubdivision.Id,
+				   Children = children.ToList(),
+				   IsArchive = subdivision.IsArchive
 			   })
 				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
 		}

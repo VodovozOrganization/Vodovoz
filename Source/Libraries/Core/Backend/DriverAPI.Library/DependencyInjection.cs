@@ -1,11 +1,25 @@
 ﻿using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
-using DriverAPI.Library.Temp;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using Vodovoz.Application;
-using Vodovoz.Application.Services.Logistics;
+using EventsApi.Library;
+using EventsApi.Library.Models;
 using Vodovoz;
+using Vodovoz.Application;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Common;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Controllers;
+using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
+using DriverAPI.Library.V5.Services;
+using Vodovoz.FirebaseCloudMessaging;
+using Microsoft.Extensions.Configuration;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.NotificationRecievers;
+using Vodovoz.Core.Domain.Common;
 
 namespace DriverAPI.Library
 {
@@ -19,7 +33,7 @@ namespace DriverAPI.Library
 		/// </summary>
 		/// <param name="services"></param>
 		/// <returns></returns>
-		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services)
+		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services, IConfiguration configuration)
 		{
 			// Конвертеры
 			foreach(var type in typeof(DependencyInjection)
@@ -33,26 +47,47 @@ namespace DriverAPI.Library
 			}
 
 			// Хелперы
-			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
-			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
-			services.AddScoped<IActionTimeHelper, ActionTimeHelper>();
+			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>()
+				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
-			// DAL обертки
-			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
-			services.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>();
-			services.AddScoped<IRouteListModel, RouteListModel>();
-			services.AddScoped<IOrderModel, OrderModel>();
-			services.AddScoped<IEmployeeModel, EmployeeModel>();
-			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
-			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
-			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
+			services.AddVersion5();
 
-			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
+			services.AddScoped<IGlobalSettings, GlobalSettings>()
+				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
-			services.AddBusiness();
-			services.AddApplication();
+			services.AddBusiness(configuration)
+				.AddApplication()
+				.AddDatabaseSettings()
+				.AddDriverEventsDependencies()
+				.AddFirebaseCloudMessaging(configuration);
+
+			services
+				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+				.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
+				.AddScoped<IEmailRepository, EmailRepository>()
+				.AddScoped<IEmployeeRepository, EmployeeRepository>()
+				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
+				.AddScoped<IPaymentItemsRepository, PaymentItemsRepository>()
+				.AddScoped<IOrderRepository, OrderRepository>()
+				.AddScoped<IPaymentsRepository, PaymentsRepository>()
+				.AddScoped<IUndeliveredOrdersRepository, UndeliveredOrdersRepository>()
+				.AddScoped<ICashRepository, CashRepository>()
+				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 
 			return services;
+		}
+
+		public static IServiceCollection AddVersion5(this IServiceCollection services)
+		{
+			// DAL обертки
+			return services.AddScoped<ITrackPointsService, TrackPointsService>()
+				.AddScoped<IDriverMobileAppActionRecordService, DriverMobileAppActionRecordService>()
+				.AddScoped<IRouteListService, RouteListService>()
+				.AddScoped<IOrderService, OrderService>()
+				.AddScoped<IEmployeeService, EmployeeService>()
+				.AddScoped<ISmsPaymentService, SmsPaymentService>()
+				.AddScoped<IDriverComplaintService, DriverComplaintService>()
+				.AddScoped<IFastPaymentService, FastPaymentService>();
 		}
 	}
 }

@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>184.0pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>data</DataSetName>
+        <NoRows>За выбранный период нет пропущенных звонков</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>155.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>172.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>128.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>119.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Звонок</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Начат</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Завершен</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Ожидание, сек</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value></Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>Мог принять</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>Время на реакцию, сек</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value></Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value></Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>={last_name} + ' ' + {name} + ' ' + {patronymic}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={time_to_reaction}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value></Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="TableGroupGroup1">
+              <GroupExpressions>
+                <GroupExpression>=Fields!call_id.Value</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <TableRows>
+                <TableRow>
+                  <Height>12 pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox20">
+                          <Value>={from_number}</Value>
+                          <CanGrow>true</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox21">
+                          <Value>={appeared_time}</Value>
+                          <CanGrow>true</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>dd.MM.yyyy HH:mm:ss</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox22">
+                          <Value>={disconnected_time}</Value>
+                          <CanGrow>true</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>dd.MM.yyyy HH:mm:ss</Format>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox23">
+                          <Value>={waiting}</Value>
+                          <CanGrow>true</CanGrow>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
+        </TableGroups>
+        <Left>0.0pt</Left>
+        <Top>53.6pt</Top>
+      </Table>
+      <Textbox Name="Textbox56">
+        <Height>40.50pt</Height>
+        <Width>576.61pt</Width>
+        <Value>='Отчет по пропущенным звонкам\n' +
+'с ' + Format({?date_from}, 'dd.MM.yyyy HH:mm:ss') + ' по ' +Format({?date_to}, 'dd.MM.yyyy HH:mm:ss')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>3.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>16pt</FontSize>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>20.4pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSources>
+    <DataSource Name="DS">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString />
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="data">
+      <Query >
+        <DataSourceName>DS</DataSourceName>
+        <Timeout>120</Timeout>
+        <CommandText>SELECT
+	pc.entry_id as call_id,
+	pc.from_number,
+	pc.start_time as appeared_time,
+	pc.end_time as disconnected_time,
+	TIMESTAMPDIFF(SECOND, pc.start_time, pc.end_time) as waiting_exact,
+	(SELECT (IF(waiting_exact &lt; 0, 0, waiting_exact))) AS waiting,
+	pos.operator_id,
+	e.last_name,
+	e.name,
+	e.patronymic,
+	TIMESTAMPDIFF(
+		SECOND, 
+		IF(pos.started &gt;= pc.start_time, pos.started, pc.start_time), 
+		IF(pos.operator_id IS NULL, NULL, (IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= pc.end_time, pc.end_time, pos.ended), pc.end_time)))
+	) as time_to_reaction
+FROM pacs_calls pc
+INNER JOIN pacs_sub_calls psc ON psc.entry_id = pc.entry_id 
+LEFT JOIN pacs_operator_states pos ON
+	pos.state = 'WaitingForCall'
+	AND pos.started &lt; pc.end_time
+	AND (pos.ended IS NULL OR pos.ended &gt; pc.start_time)
+	#время на реакцию
+	AND TIMESTAMPDIFF(
+		SECOND, 
+		IF(pos.started &gt;= pc.start_time, pos.started, pc.start_time), 
+		IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= pc.end_time, pc.end_time , pos.ended), pc.end_time)
+	) &gt;= SEC_TO_TIME(3)
+LEFT JOIN employees e ON e.id = pos.operator_id
+WHERE 
+	pc.entry_result = 'Missed'
+	AND pc.call_direction = 'Incoming'
+	AND pc.start_time &gt;= @date_from
+	AND pc.end_time  &lt;= @date_to
+	AND psc.to_extension IS NOT NULL
+GROUP BY pc.entry_id, pos.operator_id
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date_from">
+            <Value>={?date_from}</Value>
+          </QueryParameter>
+          <QueryParameter Name="date_to">
+            <Value>={?date_to}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="call_id">
+          <DataField>call_id</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="from_number">
+          <DataField>from_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="appeared_time">
+          <DataField>appeared_time</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="disconnected_time">
+          <DataField>disconnected_time</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="operator_id">
+          <DataField>operator_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="last_name">
+          <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="patronymic">
+          <DataField>patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="time_to_reaction">
+          <DataField>time_to_reaction</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="waiting">
+          <DataField>waiting</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="date_from">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="date_to">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

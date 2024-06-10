@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -16,20 +17,25 @@ namespace Vodovoz.Reports
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
+		//Т.к. отчет открывается из диалога звонка, то мы не можем контролировать время жизни скоупа
+		//Поэтому создаем на месте
+		private ILifetimeScope _lifetimeScope = ScopeProvider.Scope.BeginLifetimeScope();
 		private bool _showStockBottle;
 
-		public RevisionBottlesAndDeposits(IOrderRepository orderRepository,
+		public RevisionBottlesAndDeposits(
+			IOrderRepository orderRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			UoW = uowFactory.CreateWithoutRoot();
 			entityViewModelEntryCounterparty
 				.SetEntityAutocompleteSelectorFactory(
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory());
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			(deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
 				.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
 			evmeDeliveryPoint
@@ -107,6 +113,17 @@ namespace Vodovoz.Reports
 				evmeDeliveryPoint.Sensitive = true;
 				_deliveryPointJournalFilter.Counterparty = entityViewModelEntryCounterparty.Subject as Counterparty;
 			}
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+
+			base.Destroy();
 		}
 	}
 }

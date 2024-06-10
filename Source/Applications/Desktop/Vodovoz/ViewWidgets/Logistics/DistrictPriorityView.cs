@@ -40,7 +40,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
 			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+			var journalViewModel = new DistrictJournalViewModel(filter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices) {
 				EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false, SelectionMode = JournalSelectionMode.Multiple
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {

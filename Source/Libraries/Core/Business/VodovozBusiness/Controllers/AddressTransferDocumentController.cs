@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Documents;
@@ -8,22 +8,23 @@ using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Controllers
 {
-	public class AddressTransferController
+	public class AddressTransferController : IAddressTransferController
 	{
 		private readonly IEmployeeRepository employeeRepository;
+		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
-		public AddressTransferController(IEmployeeRepository employeeRepository)
+		public AddressTransferController(IEmployeeRepository employeeRepository, IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController)
 		{
+			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
-		public void UpdateDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow)
+		public void UpdateDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, AddressTransferType addressTransferType)
 		{
-
-			CreateOrUpdateAddressTransferDocuments(@from, to, uow);
+			CreateOrUpdateAddressTransferDocuments(@from, to, uow, addressTransferType);
 		}
 
-		private void CreateOrUpdateAddressTransferDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow)
+		private void CreateOrUpdateAddressTransferDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, AddressTransferType addressTransferType)
 		{
 			var transferDocument = uow.Session.QueryOver<AddressTransferDocument>()
 				.Where(x => x.RouteListFrom.Id == from.RouteList.Id)
@@ -46,18 +47,17 @@ namespace Vodovoz.Controllers
 			transferDocument.RouteListFrom = from.RouteList;
 			transferDocument.RouteListTo = to.RouteList;
 
-
 			var newAddressTransferItem = new AddressTransferDocumentItem
 			{
 				Document = transferDocument,
 				OldAddress = from,
 				NewAddress = to,
-				AddressTransferType = from.AddressTransferType
+				AddressTransferType = addressTransferType
 			};
 
 			transferDocument.ObservableAddressTransferDocumentItems.Add(newAddressTransferItem);
 
-			CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem);
+			CreateDeliveryFreeBalanceTransferItems(uow, newAddressTransferItem);
 
 			if(newAddressTransferItem.AddressTransferType == AddressTransferType.FromHandToHand)
 			{
@@ -100,22 +100,9 @@ namespace Vodovoz.Controllers
 			}
 		}
 
-		private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem)
+		private void CreateDeliveryFreeBalanceTransferItems(IUnitOfWork uow, AddressTransferDocumentItem addressTransferItem)
 		{
-			foreach(var orderItem in addressTransferItem.OldAddress.Order.GetAllGoodsToDeliver())
-			{
-				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
-				{
-					AddressTransferDocumentItem = addressTransferItem,
-					RouteListFrom = addressTransferItem.OldAddress.RouteList,
-					RouteListTo = addressTransferItem.NewAddress.RouteList,
-					Nomenclature = orderItem.Nomenclature,
-					Amount = orderItem.Amount
-				};
-
-				newDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
-				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
-			}
+			_routeListAddressKeepingDocumentController.CreateDeliveryFreeBalanceTransferItems(uow, addressTransferItem);
 		}
 	}
 }

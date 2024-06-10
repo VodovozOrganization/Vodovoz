@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.ViewModels.ViewModels.Rent;
 

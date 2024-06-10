@@ -1,8 +1,11 @@
 ﻿using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.FilterViewModels.Employees
@@ -21,6 +24,8 @@ namespace Vodovoz.FilterViewModels.Employees
 		private int[] _findFinesWithIds;
 		private FinesJournalViewModel _journalViewModel;
 		private bool _canEditFilter;
+		private Employee _author;
+		private bool _canEditAuthor;
 
 		public FineFilterViewModel()
 		{
@@ -43,10 +48,22 @@ namespace Vodovoz.FilterViewModels.Employees
 					.Finish();
 
 				SubdivisionViewModel.IsEditable = CanEditSubdivision;
+
+				var authorViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<FineFilterViewModel>(value, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope);
+
+				AuthorViewModel = authorViewModelEntryViewModelBuilder
+					.ForProperty(x => x.Author)
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+					.UseViewModelDialog<EmployeeViewModel>()
+					.Finish();
+
+				AuthorViewModel.IsEditable = CanEditAuthor;
 			}
 		}
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+
+		public IEntityEntryViewModel AuthorViewModel { get; private set; }
 
 		public bool CanEditFilter
 		{
@@ -58,6 +75,7 @@ namespace Vodovoz.FilterViewModels.Employees
 					CanEditSubdivision = value;
 					CanEditFineDate = value;
 					CanEditRouteListDate = value;
+					CanEditAuthor = value;
 				}
 			}
 		}
@@ -120,6 +138,24 @@ namespace Vodovoz.FilterViewModels.Employees
 		{
 			get => _findFinesWithIds;
 			set => UpdateFilterField(ref _findFinesWithIds, value);
+		}
+
+		public virtual bool CanEditAuthor
+		{
+			get => _canEditAuthor;
+			set => SetField(ref _canEditAuthor, value);
+		}
+
+		public virtual Employee Author
+		{
+			get => _author;
+			set => UpdateFilterField(ref _author, value);
+		}
+
+		public override void Dispose()
+		{
+			_journalViewModel = null;
+			base.Dispose();
 		}
 	}
 }

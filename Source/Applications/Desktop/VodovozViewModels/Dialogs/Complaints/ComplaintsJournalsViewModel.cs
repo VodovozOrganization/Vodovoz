@@ -2,28 +2,23 @@
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
-using QS.RepresentationModel;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Dialogs.Complaints
 {
 	public class ComplaintsJournalsViewModel : TabViewModelBase, IComplaintsInfoProvider
 	{
-		private JournalViewModelBase _journal;
-		private readonly IComplaintsJournalFactory _complaintsJournalFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ILifetimeScope _lifetimeScope;
+		private JournalViewModelBase _journal;
+		private ILifetimeScope _lifetimeScope;
 		private ComplaintFilterViewModel _filterViewModel;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -31,13 +26,11 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 		public ComplaintsJournalsViewModel(
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IComplaintsJournalFactory complaintsJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
 			Action<ComplaintFilterViewModel> filterConfig = null)
 			: base(commonServices.InteractiveService, navigationManager)
 		{
-			_complaintsJournalFactory = complaintsJournalFactory ?? throw new ArgumentNullException(nameof(complaintsJournalFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
@@ -60,6 +53,7 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 				_filterViewModel.SetAndRefilterAtOnce(filterConfig);
 			}
 
+			_filterViewModel.JournalViewModel = this;
 			_filterViewModel.DisposeOnDestroy = false;
 		}
 
@@ -97,11 +91,7 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 
 		private void UpdateJournal(JournalViewModelBase newJournal)
 		{
-			if(Journal?.DataLoader != null)
-			{
-				Journal.DataLoader.ItemsListUpdated -= OnDataLoaderItemsListUpdated;
-			}
-			Journal?.Dispose();
+			DisposeOldJournal();
 			Journal = newJournal;
 		}
 
@@ -119,26 +109,45 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 
 		public override void Dispose()
 		{
+			DisposeOldJournal();
+			UoW.Dispose();
+			
+			if(_filterViewModel != null)
+			{
+				_filterViewModel.Dispose();
+				_filterViewModel = null;
+			}
+			
+			_lifetimeScope = null;
+			base.Dispose();
+		}
+		
+		private void DisposeOldJournal()
+		{
 			if(Journal?.DataLoader != null)
 			{
 				Journal.DataLoader.ItemsListUpdated -= OnDataLoaderItemsListUpdated;
 			}
-			UoW.Dispose();
-			_filterViewModel.Dispose();
-			base.Dispose();
+
+			if(Journal is IChangeComplaintJournal journal)
+			{
+				journal.ChangeView -= ChangeView;
+			}
+			
+			Journal?.Dispose();
 		}
 
 		private ComplaintsJournalViewModel GetStandartJournal()
 		{
-			var journal = _complaintsJournalFactory.GetStandartJournal(_filterViewModel);
-			journal.ParentTab = this;
+			var journal = _lifetimeScope.Resolve<ComplaintsJournalViewModel>(
+				new TypedParameter(typeof(ComplaintFilterViewModel), _filterViewModel));
 			return journal;
 		}
 
 		private ComplaintsWithDepartmentsReactionJournalViewModel GetJournalWithDepartmentsReaction()
 		{
-			var journal = _complaintsJournalFactory.GetJournalWithDepartmentsReaction(_filterViewModel);
-			journal.ParentTab = this;
+			var journal = _lifetimeScope.Resolve<ComplaintsWithDepartmentsReactionJournalViewModel>(
+				new TypedParameter(typeof(ComplaintFilterViewModel), _filterViewModel));
 			return journal;
 		}
 	}

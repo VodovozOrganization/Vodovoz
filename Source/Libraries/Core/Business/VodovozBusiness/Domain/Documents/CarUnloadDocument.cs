@@ -31,6 +31,7 @@ namespace Vodovoz.Domain.Documents
 		private Warehouse _warehouse;
 		private IList<CarUnloadDocumentItem> _items = new List<CarUnloadDocumentItem>();
 		private GenericObservableList<CarUnloadDocumentItem> _observableItems;
+		public const string DocumentRdlPath = "Reports/Store/CarUnloadDoc.rdl";
 
 		#region Сохраняемые свойства
 

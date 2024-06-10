@@ -38,7 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table2;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryNomenclature;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gtk.HBox hbox5;
 
@@ -80,6 +80,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.NullableCheckButton nullablecheckOneOrder;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideExcludedFromAutoCalls;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideWithoutEmail;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideWithoutFixedPrices;
@@ -114,6 +116,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
 			this.entityVMEntryDeliveryPoint.CanEditReference = false;
+			this.entityVMEntryDeliveryPoint.CanDisposeEntitySelectorFactory = false;
 			this.entityVMEntryDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryDeliveryPoint);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
@@ -128,6 +131,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceClient.Name = "entryreferenceClient";
 			this.entryreferenceClient.CanEditReference = false;
+			this.entryreferenceClient.CanDisposeEntitySelectorFactory = false;
 			this.entryreferenceClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryreferenceClient);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
@@ -275,13 +279,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
-			this.entityviewmodelentryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryNomenclature.Name = "entityviewmodelentryNomenclature";
-			this.entityviewmodelentryNomenclature.CanEditReference = false;
-			this.entityviewmodelentryNomenclature.CanOpenWithoutTabParent = false;
-			this.table2.Add(this.entityviewmodelentryNomenclature);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.entityviewmodelentryNomenclature]));
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryNomenclature.Name = "entryNomenclature";
+			this.table2.Add(this.entryNomenclature);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.entryNomenclature]));
 			w16.TopAttach = ((uint)(2));
 			w16.BottomAttach = ((uint)(3));
 			w16.LeftAttach = ((uint)(1));
@@ -504,6 +506,21 @@ namespace Vodovoz.Filters.GtkViews
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table2.Gtk.Table+TableChild
+			this.ycheckbuttonHideExcludedFromAutoCalls = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonHideExcludedFromAutoCalls.CanFocus = true;
+			this.ycheckbuttonHideExcludedFromAutoCalls.Name = "ycheckbuttonHideExcludedFromAutoCalls";
+			this.ycheckbuttonHideExcludedFromAutoCalls.Label = global::Mono.Unix.Catalog.GetString("Скрыть клиентов с отказом от автообзвонов");
+			this.ycheckbuttonHideExcludedFromAutoCalls.DrawIndicator = true;
+			this.ycheckbuttonHideExcludedFromAutoCalls.UseUnderline = true;
+			this.table2.Add(this.ycheckbuttonHideExcludedFromAutoCalls);
+			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonHideExcludedFromAutoCalls]));
+			w37.TopAttach = ((uint)(2));
+			w37.BottomAttach = ((uint)(3));
+			w37.LeftAttach = ((uint)(4));
+			w37.RightAttach = ((uint)(5));
+			w37.XOptions = ((global::Gtk.AttachOptions)(4));
+			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.ycheckbuttonHideWithoutEmail = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonHideWithoutEmail.CanFocus = true;
 			this.ycheckbuttonHideWithoutEmail.Name = "ycheckbuttonHideWithoutEmail";
@@ -511,13 +528,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonHideWithoutEmail.DrawIndicator = true;
 			this.ycheckbuttonHideWithoutEmail.UseUnderline = true;
 			this.table2.Add(this.ycheckbuttonHideWithoutEmail);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonHideWithoutEmail]));
-			w37.TopAttach = ((uint)(1));
-			w37.BottomAttach = ((uint)(2));
-			w37.LeftAttach = ((uint)(2));
-			w37.RightAttach = ((uint)(4));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
-			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonHideWithoutEmail]));
+			w38.TopAttach = ((uint)(1));
+			w38.BottomAttach = ((uint)(2));
+			w38.LeftAttach = ((uint)(2));
+			w38.RightAttach = ((uint)(4));
+			w38.XOptions = ((global::Gtk.AttachOptions)(4));
+			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycheckbuttonHideWithoutFixedPrices = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonHideWithoutFixedPrices.CanFocus = true;
@@ -526,13 +543,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonHideWithoutFixedPrices.DrawIndicator = true;
 			this.ycheckbuttonHideWithoutFixedPrices.UseUnderline = true;
 			this.table2.Add(this.ycheckbuttonHideWithoutFixedPrices);
-			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonHideWithoutFixedPrices]));
-			w38.TopAttach = ((uint)(2));
-			w38.BottomAttach = ((uint)(3));
-			w38.LeftAttach = ((uint)(2));
-			w38.RightAttach = ((uint)(4));
-			w38.XOptions = ((global::Gtk.AttachOptions)(0));
-			w38.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonHideWithoutFixedPrices]));
+			w39.TopAttach = ((uint)(2));
+			w39.BottomAttach = ((uint)(3));
+			w39.LeftAttach = ((uint)(2));
+			w39.RightAttach = ((uint)(4));
+			w39.XOptions = ((global::Gtk.AttachOptions)(0));
+			w39.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycheckbuttonShowCancellation = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonShowCancellation.CanFocus = true;
@@ -541,11 +558,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonShowCancellation.DrawIndicator = true;
 			this.ycheckbuttonShowCancellation.UseUnderline = true;
 			this.table2.Add(this.ycheckbuttonShowCancellation);
-			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowCancellation]));
-			w39.LeftAttach = ((uint)(4));
-			w39.RightAttach = ((uint)(5));
-			w39.XOptions = ((global::Gtk.AttachOptions)(4));
-			w39.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowCancellation]));
+			w40.LeftAttach = ((uint)(4));
+			w40.RightAttach = ((uint)(5));
+			w40.XOptions = ((global::Gtk.AttachOptions)(4));
+			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycheckbuttonShowSuspended = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonShowSuspended.CanFocus = true;
@@ -554,13 +571,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonShowSuspended.DrawIndicator = true;
 			this.ycheckbuttonShowSuspended.UseUnderline = true;
 			this.table2.Add(this.ycheckbuttonShowSuspended);
-			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowSuspended]));
-			w40.TopAttach = ((uint)(1));
-			w40.BottomAttach = ((uint)(2));
-			w40.LeftAttach = ((uint)(4));
-			w40.RightAttach = ((uint)(5));
-			w40.XOptions = ((global::Gtk.AttachOptions)(4));
-			w40.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowSuspended]));
+			w41.TopAttach = ((uint)(1));
+			w41.BottomAttach = ((uint)(2));
+			w41.LeftAttach = ((uint)(4));
+			w41.RightAttach = ((uint)(5));
+			w41.XOptions = ((global::Gtk.AttachOptions)(4));
+			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycomboboxReason = new global::Gamma.Widgets.ySpecComboBox();
 			this.ycomboboxReason.Name = "ycomboboxReason";
@@ -569,38 +586,38 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycomboboxReason.ShowSpecialStateAll = false;
 			this.ycomboboxReason.ShowSpecialStateNot = true;
 			this.table2.Add(this.ycomboboxReason);
-			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table2[this.ycomboboxReason]));
-			w41.TopAttach = ((uint)(1));
-			w41.BottomAttach = ((uint)(2));
-			w41.LeftAttach = ((uint)(1));
-			w41.RightAttach = ((uint)(2));
-			w41.XOptions = ((global::Gtk.AttachOptions)(4));
-			w41.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table2[this.ycomboboxReason]));
+			w42.TopAttach = ((uint)(1));
+			w42.BottomAttach = ((uint)(2));
+			w42.LeftAttach = ((uint)(1));
+			w42.RightAttach = ((uint)(2));
+			w42.XOptions = ((global::Gtk.AttachOptions)(4));
+			w42.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ylabelOneOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOneOrder.Name = "ylabelOneOrder";
 			this.ylabelOneOrder.Xalign = 0F;
 			this.ylabelOneOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Клиенты с одним заказом");
 			this.table2.Add(this.ylabelOneOrder);
-			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabelOneOrder]));
-			w42.LeftAttach = ((uint)(3));
-			w42.RightAttach = ((uint)(4));
-			w42.XOptions = ((global::Gtk.AttachOptions)(4));
-			w42.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabelOneOrder]));
+			w43.LeftAttach = ((uint)(3));
+			w43.RightAttach = ((uint)(4));
+			w43.XOptions = ((global::Gtk.AttachOptions)(4));
+			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox2.Add(this.table2);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
-			w43.Position = 2;
-			w43.Expand = false;
-			w43.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
+			w44.Position = 2;
+			w44.Expand = false;
+			w44.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.hbox2.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
-			w44.PackType = ((global::Gtk.PackType)(1));
-			w44.Position = 3;
-			w44.Expand = false;
-			w44.Fill = false;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
+			w45.PackType = ((global::Gtk.PackType)(1));
+			w45.Position = 3;
+			w45.Expand = false;
+			w45.Fill = false;
 			this.Add(this.hbox2);
 			if ((this.Child != null))
 			{

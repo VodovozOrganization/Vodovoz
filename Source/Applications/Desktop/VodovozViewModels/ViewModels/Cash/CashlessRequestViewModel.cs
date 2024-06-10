@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 		private FinancialExpenseCategory _financialExpenseCategory;
 
 		public CashlessRequestViewModel(
@@ -46,10 +46,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = base.TabName;
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_currentEmployee =
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
@@ -333,5 +333,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		#endregion
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

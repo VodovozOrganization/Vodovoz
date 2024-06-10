@@ -3,6 +3,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 
 namespace Vodovoz.Filters.Views
 {
@@ -38,6 +39,13 @@ namespace Vodovoz.Filters.Views
 			chkPaymentsWithoutCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.HidePaymentsWithoutCounterparty, w => w.Active)
 				.InitializeFromSource();
+			chkHideCancelledPayments.Binding
+				.AddBinding(ViewModel, vm => vm.HideCancelledPayments, w => w.Active)
+				.InitializeFromSource();
+			yenumcmbSortType.Binding
+				.AddBinding(ViewModel, vm => vm.SortType, w => w.SelectedItem)
+				.InitializeFromSource();
+			yenumcmbSortType.ItemsEnum = typeof(PaymentJournalSortType);
 
 			ConfigureEntry();
 		}

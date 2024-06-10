@@ -16,7 +16,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
@@ -89,12 +89,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.table1.Add(this.entityviewmodelentryCar);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.table1.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryCar]));
 			w6.TopAttach = ((uint)(3));
 			w6.BottomAttach = ((uint)(4));
 			w6.LeftAttach = ((uint)(1));
@@ -106,6 +105,8 @@ namespace Vodovoz.Dialogs.Employees
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
 			w7.TopAttach = ((uint)(2));
@@ -119,6 +120,8 @@ namespace Vodovoz.Dialogs.Employees
 			this.evmeOrganisation.Events = ((global::Gdk.EventMask)(256));
 			this.evmeOrganisation.Name = "evmeOrganisation";
 			this.evmeOrganisation.CanEditReference = true;
+			this.evmeOrganisation.CanDisposeEntitySelectorFactory = false;
+			this.evmeOrganisation.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeOrganisation);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeOrganisation]));
 			w8.TopAttach = ((uint)(1));

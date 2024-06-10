@@ -3,6 +3,8 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
@@ -16,11 +18,13 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels
 {
@@ -30,8 +34,14 @@ namespace Vodovoz.ViewModels
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IDepositRepository _depositRepository;
 		private readonly IMoneyRepository _moneyRepository;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly ILifetimeScope _lifetimeScope;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private ILifetimeScope _lifetimeScope;
+
+		private Employee _currentEmployee;
+		private string _currentBottlesDebt;
+		private string _currentBottlesDeposit;
+		private string _currentEquipmentDeposit;
+		private string _currentMoneyDebt;
 
 		public ResidueViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -42,7 +52,8 @@ namespace Vodovoz.ViewModels
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ISubdivisionSettings subdivisionSettings,
+			ISubdivisionRepository subdivisionRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
@@ -53,12 +64,15 @@ namespace Vodovoz.ViewModels
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			_moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			TabName = "Ввод остатков";
 			if(CurrentEmployee == null)
@@ -83,12 +97,14 @@ namespace Vodovoz.ViewModels
 				this,
 				_lifetimeScope,
 				commonServices,
-				new SubdivisionRepository(new ParametersProvider()),
+				_subdivisionRepository,
 				employeeJournalFactory,
-				subdivisionParametersProvider);
+				subdivisionSettings);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
 		}
+
+		public GuiltyItemsViewModel GuiltyItemsVM { get; set; }
 
 		public void OnObservableEquipmentItemsPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -97,12 +113,11 @@ namespace Vodovoz.ViewModels
 				return;
 			}
 
-			if(nameof(ResidueEquipmentDepositItem.EquipmentCount) == e.PropertyName) {
+			if(nameof(ResidueEquipmentDepositItem.EquipmentCount) == e.PropertyName)
+			{
 				item.DepositCount = item.EquipmentCount;
 			}
 		}
-
-		public GuiltyItemsViewModel GuiltyItemsVM { get; set; }
 
 		private void ConfigureEntityPropertyChanges()
 		{
@@ -113,13 +128,15 @@ namespace Vodovoz.ViewModels
 			);
 		}
 
-		private Employee currentEmployee;
-		public Employee CurrentEmployee {
-			get {
-				if(currentEmployee == null) {
-					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+		public Employee CurrentEmployee
+		{
+			get
+			{
+				if(_currentEmployee == null)
+				{
+					_currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
-				return currentEmployee;
+				return _currentEmployee;
 			}
 		}
 
@@ -130,40 +147,45 @@ namespace Vodovoz.ViewModels
 			Entity.LastEditAuthor = CurrentEmployee;
 			Entity.LastEditTime = DateTime.Now;
 			if(Entity.DeliveryPoint != null)
+			{
 				Entity.DeliveryPoint.HaveResidue = true;
+			}
+
 			Entity.UpdateOperations(UoW, _bottlesRepository, _moneyRepository, _depositRepository, CommonServices.ValidationService);
 
 			return base.BeforeSave();
 		}
 
-		private string _currentBottlesDebt;
-		public virtual string CurrentBottlesDebt {
+		public virtual string CurrentBottlesDebt
+		{
 			get => _currentBottlesDebt;
 			set => SetField(ref _currentBottlesDebt, value);
 		}
 
-		private string _currentBottlesDeposit;
-		public virtual string CurrentBottlesDeposit {
+		public virtual string CurrentBottlesDeposit
+		{
 			get => _currentBottlesDeposit;
 			set => SetField(ref _currentBottlesDeposit, value);
 		}
 
-		private string _currentEquipmentDeposit;
-		public virtual string CurrentEquipmentDeposit {
+		public virtual string CurrentEquipmentDeposit
+		{
 			get => _currentEquipmentDeposit;
-			set => SetField(ref _currentEquipmentDeposit, value, () => CurrentEquipmentDeposit);
+			set => SetField(ref _currentEquipmentDeposit, value);
 		}
 
-		private string currentMoneyDebt;
-		public virtual string CurrentMoneyDebt {
-			get => currentMoneyDebt;
-			set => SetField(ref currentMoneyDebt, value, () => CurrentMoneyDebt);
+		public virtual string CurrentMoneyDebt
+		{
+			get => _currentMoneyDebt;
+			set => SetField(ref _currentMoneyDebt, value);
 		}
 
 		private void UpdateResidue()
 		{
 			if(Entity.Customer == null)
+			{
 				return;
+			}
 
 			int bottleDebt;
 			bottleDebt = Entity.DeliveryPoint == null
@@ -174,16 +196,26 @@ namespace Vodovoz.ViewModels
 
 			decimal bottleDeposit;
 			if(Entity.DeliveryPoint == null)
+			{
 				bottleDeposit = _depositRepository.GetDepositsAtCounterparty(UoW, Entity.Customer, DepositType.Bottles, Entity.Date);
+			}
 			else
+			{
 				bottleDeposit = _depositRepository.GetDepositsAtDeliveryPoint(UoW, Entity.DeliveryPoint, DepositType.Bottles, Entity.Date);
+			}
+
 			CurrentBottlesDeposit = CurrencyWorks.GetShortCurrencyString(bottleDeposit);
 
 			decimal equipDeposit;
 			if(Entity.DeliveryPoint == null)
+			{
 				equipDeposit = _depositRepository.GetDepositsAtCounterparty(UoW, Entity.Customer, DepositType.Equipment, Entity.Date);
+			}
 			else
+			{
 				equipDeposit = _depositRepository.GetDepositsAtDeliveryPoint(UoW, Entity.DeliveryPoint, DepositType.Equipment, Entity.Date);
+			}
+
 			CurrentEquipmentDeposit = CurrencyWorks.GetShortCurrencyString(equipDeposit);
 
 			decimal debt = _moneyRepository.GetCounterpartyDebt(UoW, Entity.Customer, Entity.Date);
@@ -195,20 +227,23 @@ namespace Vodovoz.ViewModels
 		public DelegateCommand AddDepositEquipmentItemCommand { get; private set; }
 		public DelegateCommand<ResidueEquipmentDepositItem> RemoveDepositEquipmentItemCommand { get; private set; }
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		private void CreateCommands()
 		{
 			AddDepositEquipmentItemCommand = new DelegateCommand(
-				() => {
-					var filter = new NomenclatureFilterViewModel();
-					filter.RestrictCategory = NomenclatureCategory.equipment;
-
-					var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
-					journal.FilterViewModel = filter;
-					journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;
-					TabParent.AddSlaveTab(this, journal);
+				() =>
+				{
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+						{
+							filter.RestrictCategory = NomenclatureCategory.equipment;
+						},
+						OpenPageOptions.AsSlave,
+						viewModel =>
+						{
+							viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+							viewModel.SelectionMode = JournalSelectionMode.Single;
+						});
 				},
 				() => CanEdit
 			);
@@ -219,9 +254,9 @@ namespace Vodovoz.ViewModels
 			);
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;
@@ -231,5 +266,11 @@ namespace Vodovoz.ViewModels
 		}
 
 		#endregion Commands
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

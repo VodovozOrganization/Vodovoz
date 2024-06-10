@@ -1,36 +1,28 @@
-﻿using System;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 {
-	public class FlyersJournalViewModel : SingleEntityJournalViewModelBase<Flyer, FlyerViewModel, FlyersJournalNode>
+	public class FlyersJournalViewModel : EntityJournalViewModelBase<Flyer, FlyerViewModel, FlyersJournalNode>
 	{
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly IFlyerRepository _flyerRepository;
-		
 		public FlyersJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			IFlyerRepository flyerRepository,
-			bool hideJournalForOpenDialog = false,
-			bool hideJournalForCreateDialog = false
-		) : base(uowFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService)
+			: base(uowFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_nomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			
 			TabName = "Журнал рекламных листовок";
 			
@@ -39,7 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 				typeof(FlyerActionTime));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Flyer>> ItemsSourceQueryFunction => uow =>
+		protected override IQueryOver<Flyer> ItemsQuery(IUnitOfWork uow)
 		{
 			Flyer flyerAlias = null;
 			Nomenclature leafletNomenclatureAlias = null;
@@ -53,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 			query.Where(GetSearchCriterion(
 				() => leafletNomenclatureAlias.Name
 			));
-			
+
 			var result = query.SelectList(list => list
 					.Select(l => l.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => leafletNomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
@@ -61,24 +53,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 					.Select(() => flyerActionTimeAlias.EndDate).WithAlias(() => resultAlias.EndDate))
 				.OrderBy(() => leafletNomenclatureAlias.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<FlyersJournalNode>());
-			
-			return result;
-		};
 
-		protected override Func<FlyerViewModel> CreateDialogFunction => () =>
-			new FlyerViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory,
-				commonServices,
-				_nomenclatureSelectorFactory,
-				_flyerRepository);
-		
-		protected override Func<FlyersJournalNode, FlyerViewModel> OpenDialogFunction => n =>
-			new FlyerViewModel(
-				EntityUoWBuilder.ForOpen(n.Id),
-				UnitOfWorkFactory,
-				commonServices,
-				_nomenclatureSelectorFactory,
-				_flyerRepository);
+			return result;
+		}
 	}
 }
