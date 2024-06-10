@@ -1,0 +1,391 @@
+﻿using Autofac;
+using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
+using QS.Services;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
+using System;
+using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Models;
+using Vodovoz.Services;
+using Vodovoz.Settings.Contacts;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Employees;
+
+namespace Vodovoz.ViewModels.Counterparties
+{
+	public class CallTaskViewModel : EntityDialogViewModelBase<CallTask>
+	{
+		private Action _openReportByCounterpartyLegacyCallback;
+		private Action _openReportByDeliveryPointLegacyCallback;
+		private bool _canCreateTask = false;
+		private string _deliveryPointOrSelfDeliveryDebt;
+		private string _bottleReserve;
+		private string _deliveryPointOldComments;
+		private string _counterpartyDebt;
+		private readonly IOrderOrganizationProviderFactory _orderOrganizationProviderFactory;
+		private readonly IPhoneTypeSettings _phoneTypeSettings;
+		private readonly IPhoneRepository _phoneRepository;
+		private readonly IBottlesRepository _bottlesRepository;
+		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IContactSettings _contactSettings;
+		private readonly ICommonServices _commonServices;
+
+		private string _lastComment;
+		private Action _createNewOrderLegacyCallback;
+
+		public CallTaskViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigation,
+			IValidator validator,
+			IEmployeeService employeeService,
+			IOrderOrganizationProviderFactory orderOrganizationProviderFactory,
+			ViewModelEEVMBuilder<Employee> attachedEmployyeeViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelEEVMBuilder,
+			IPhoneTypeSettings phoneTypeSettings,
+			IPhoneRepository phoneRepository,
+			IBottlesRepository bottlesRepository,
+			ICallTaskRepository callTaskRepository,
+			IEmployeeRepository employeeRepository,
+			IContactSettings contactSettings,
+			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope)
+			: base(uowBuilder, unitOfWorkFactory, navigation, validator)
+		{
+			if(attachedEmployyeeViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(attachedEmployyeeViewModelEEVMBuilder));
+			}
+
+			if(deliveryPointViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(deliveryPointViewModelEEVMBuilder));
+			}
+
+			_orderOrganizationProviderFactory = orderOrganizationProviderFactory
+				?? throw new ArgumentNullException(nameof(orderOrganizationProviderFactory));
+			_phoneTypeSettings = phoneTypeSettings
+				?? throw new ArgumentNullException(nameof(phoneTypeSettings));
+			_phoneRepository = phoneRepository
+				?? throw new ArgumentNullException(nameof(phoneRepository));
+			_bottlesRepository = bottlesRepository
+				?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_callTaskRepository = callTaskRepository
+				?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_employeeRepository = employeeRepository
+				?? throw new ArgumentNullException(nameof(employeeRepository));
+			_contactSettings = contactSettings
+				?? throw new ArgumentNullException(nameof(contactSettings));
+			_commonServices = commonServices
+				?? throw new ArgumentNullException(nameof(commonServices));
+			LifetimeScope = lifetimeScope;
+
+			if(UoW.IsNew)
+			{
+				Title = "Новая задача";
+				Entity.CreationDate = DateTime.Now;
+				Entity.Source = TaskSource.Handmade;
+				Entity.TaskCreator = employeeService.GetEmployeeForCurrentUser(UoW);
+				Entity.EndActivePeriod = DateTime.Now.AddDays(1);
+			}
+			else
+			{
+				Title = Entity.Counterparty?.Name;
+			}
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			AttachedEmployeeViewModel = attachedEmployyeeViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.AssignedEmployee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = EmployeeCategory.office;
+				})
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			DeliveryPointViewModel = deliveryPointViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.DeliveryPoint)
+				.UseViewModelJournalAndAutocompleter<DeliveryPointJournalViewModel, DeliveryPointJournalFilterViewModel>(filter =>
+				{
+					filter.Counterparty = Entity.Counterparty;
+				})
+				.UseViewModelDialog<DeliveryPointViewModel>()
+				.Finish();
+
+			DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
+
+			CounterpartyPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
+			CounterpartyPhonesViewModel.ReadOnly = true;
+
+			DeliveryPointPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
+			DeliveryPointPhonesViewModel.ReadOnly = true;
+
+			CreateReportByCounterpartyCommand = new DelegateCommand(CreateReportByCounterparty, () => CanCreateReportByCounterparty);
+			CreateReportByCounterpartyCommand.CanExecuteChangedWith(this, vm => vm.CanCreateReportByCounterparty);
+
+			CreateReportByDeliveryPointCommand = new DelegateCommand(CreateReportByDeliveryPoint, () => CanCreateReportByDeliveryPoint);
+			CreateReportByDeliveryPointCommand.CanExecuteChangedWith(this, vm => CanCreateReportByDeliveryPoint);
+
+			AddCommentCommand = new DelegateCommand(AddComment);
+			CancelLastCommentCommand = new DelegateCommand(CancelLastComment);
+
+			CreateNewOrderCommand = new DelegateCommand(CreateNewOrder);
+			CreateNewTaskCommand = new DelegateCommand(CreateNewTask);
+
+			UpdateCounterpartyInformation();
+			UpdateDeliveryPointInformation();
+		}
+
+		public IEntityEntryViewModel AttachedEmployeeViewModel { get; }
+		public IEntityEntryViewModel DeliveryPointViewModel { get; }
+
+		public PhonesViewModel CounterpartyPhonesViewModel { get; }
+		public PhonesViewModel DeliveryPointPhonesViewModel { get; }
+		public ILifetimeScope LifetimeScope { get; }
+
+		public DelegateCommand CreateReportByCounterpartyCommand { get; }
+		public DelegateCommand CreateReportByDeliveryPointCommand { get; }
+		public DelegateCommand AddCommentCommand { get; }
+		public DelegateCommand CancelLastCommentCommand { get; }
+
+		public DelegateCommand CreateNewOrderCommand { get; }
+		public DelegateCommand CreateNewTaskCommand { get; }
+
+		public bool CanCreateTask
+		{
+			get => _canCreateTask;
+			private set => SetField(ref _canCreateTask, value);
+		}
+
+		public string DeliveryPointOrSelfDeliveryDebt
+		{
+			get => _deliveryPointOrSelfDeliveryDebt;
+			private set => SetField(ref _deliveryPointOrSelfDeliveryDebt, value);
+		}
+
+		public string BottleReserve
+		{
+			get => _bottleReserve;
+			private set => SetField(ref _bottleReserve, value);
+		}
+
+		public string DeliveryPointOldComments
+		{
+			get => _deliveryPointOldComments;
+			private set => SetField(ref _deliveryPointOldComments, value);
+		}
+
+		public string CounterpartyDebt
+		{
+			get => _counterpartyDebt;
+			private set => SetField(ref _counterpartyDebt, value);
+		}
+
+		public string TaskCreatorString => $"Создатель : {Entity.TaskCreator?.ShortName}";
+
+		public string TaskCompletedAtString => $"Задача выполнена {Entity.CompleteDate?.ToString("dd / MM / yyyy  HH:mm")}";
+
+		public bool CanCreateReportByCounterparty => Entity.Counterparty != null;
+
+		public bool CanCreateReportByDeliveryPoint => Entity.DeliveryPoint != null;
+
+		public bool CanChengeDeliveryPoint => Entity.Counterparty != null;
+
+		public void SetCounterpartyById(int counterpartyId)
+		{
+			Entity.Counterparty = UoW.GetById<Counterparty>(counterpartyId);
+		}
+
+		public void SetDeliveryPointById(int deliveryPointId)
+		{
+			Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPointId);
+		}
+
+		[Obsolete("Убрать при обновлении")]
+		public void SetCreateReportByCounterpartyLegacyCallback(Action action)
+		{
+			_openReportByCounterpartyLegacyCallback = action;
+		}
+
+		[Obsolete("Убрать при обновлении")]
+		public void SetCreateReportByDeliveryPointLegacyCallback(Action action)
+		{
+			_openReportByDeliveryPointLegacyCallback = action;
+		}
+
+		[Obsolete("Убрать при обновлении")]
+		public void SetCreateNewOrderLegacyCallback(Action action)
+		{
+			_createNewOrderLegacyCallback = action;
+		}
+
+		private void AddComment()
+		{
+			if(string.IsNullOrEmpty(Entity.Comment))
+			{
+				return;
+			}
+
+			Entity.AddComment(UoW, Entity.Comment, out _lastComment, _employeeRepository);
+			Entity.Comment = string.Empty;
+		}
+
+		private void CancelLastComment()
+		{
+			if(string.IsNullOrEmpty(_lastComment))
+			{
+				return;
+			}
+
+			Entity.Comment =
+				Entity.Comment.Remove(
+					Entity.Comment.Length - _lastComment.Length - 1,
+					_lastComment.Length + 1);
+
+			_lastComment = string.Empty;
+		}
+
+		private void CreateReportByCounterparty()
+		{
+			_openReportByCounterpartyLegacyCallback.Invoke();
+		}
+
+		private void CreateReportByDeliveryPoint()
+		{
+			_openReportByDeliveryPointLegacyCallback.Invoke();
+		}
+
+		private void CreateNewOrder()
+		{
+			_createNewOrderLegacyCallback.Invoke();
+		}
+
+		private void CreateNewTask()
+		{
+			NavigationManager.OpenViewModel<CallTaskViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.None, vm =>
+			{
+				vm.Entity.DeliveryPoint =
+					Entity.DeliveryPoint != null
+					? vm.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id)
+					: null;
+
+				vm.Entity.Counterparty = vm.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
+
+				vm.Entity.AssignedEmployee =
+					Entity.AssignedEmployee != null
+					? vm.UoW.GetById<Employee>(Entity.AssignedEmployee.Id)
+					: null;
+
+				vm.Entity.EndActivePeriod =
+					DateTime.Now.Date
+						.AddHours(23)
+						.AddMinutes(59)
+						.AddSeconds(59);
+			});
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Counterparty))
+			{
+				UpdateCounterpartyInformation();
+
+				if(Entity.Counterparty != null && Entity.Counterparty.DeliveryPoints.Count == 1)
+				{
+					Entity.DeliveryPoint =
+						Entity.Counterparty.DeliveryPoints.First();
+				}
+
+				OnPropertyChanged(() => CanCreateReportByCounterparty);
+				DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.DeliveryPoint))
+			{
+				UpdateDeliveryPointInformation();
+
+				OnPropertyChanged(() => CanCreateReportByDeliveryPoint);
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.TaskCreator))
+			{
+				OnPropertyChanged(() => TaskCreatorString);
+
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.CompleteDate))
+			{
+				OnPropertyChanged(() => TaskCompletedAtString);
+
+				return;
+			}
+		}
+
+		private void UpdateCounterpartyInformation()
+		{
+			if(Entity.Counterparty != null)
+			{
+				CounterpartyDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
+
+				CounterpartyPhonesViewModel.PhonesList = Entity.Counterparty.ObservablePhones;
+
+				DeliveryPointOrSelfDeliveryDebt = _bottlesRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty).ToString();
+			}
+			else
+			{
+				CounterpartyDebt = string.Empty;
+				CounterpartyPhonesViewModel.PhonesList = null;
+			}
+		}
+
+		private void UpdateDeliveryPointInformation()
+		{
+			if(Entity.DeliveryPoint != null)
+			{
+				DeliveryPointOrSelfDeliveryDebt = _bottlesRepository
+					.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint)
+					.ToString();
+
+				BottleReserve = Entity.DeliveryPoint.BottleReserv.ToString();
+
+				DeliveryPointPhonesViewModel.PhonesList =
+					Entity.DeliveryPoint.ObservablePhones;
+
+				DeliveryPointOldComments = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
+			}
+			else
+			{
+				DeliveryPointOrSelfDeliveryDebt = string.Empty;
+				BottleReserve = string.Empty;
+				DeliveryPointOldComments = Entity.Comment;
+				DeliveryPointPhonesViewModel.PhonesList = null;
+			}
+		}
+	}
+}

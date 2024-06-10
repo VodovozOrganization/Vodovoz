@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QSReport;
@@ -29,6 +30,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
 using Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport;
@@ -37,11 +39,14 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
 {
-	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
+	public class DebtorsJournalViewModel : EntityJournalViewModelBase<Order, CallTaskViewModel, DebtorJournalNode>
 	{
 		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
 		private readonly IDebtorsSettings _debtorsParameters;
+		private readonly DebtorsJournalFilterViewModel _filterViewModel;
+		private readonly IInteractiveService _interactiveService;
+		private readonly ICommonServices _commonServices;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
@@ -56,6 +61,7 @@ namespace Vodovoz.Representations
 		public DebtorsJournalViewModel(
 			DebtorsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IEmployeeRepository employeeRepository,
@@ -64,26 +70,37 @@ namespace Vodovoz.Representations
 			IEmailSettings emailSettings,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IEmailRepository emailRepository,
-			IFileDialogService fileDialogService)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
+			IFileDialogService fileDialogService,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService)
+			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			if(employeeRepository is null)
+			if(unitOfWorkFactory is null)
 			{
-				throw new ArgumentNullException(nameof(employeeRepository));
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			_canSendBulkEmails = commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Email.CanSendBulkEmails);
+			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Permissions.Email.CanSendBulkEmails);
 
 			filterViewModel.Journal = this;
+			JournalFilter = _filterViewModel;
 
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
@@ -122,371 +139,6 @@ namespace Vodovoz.Representations
 				FooterInfo = $"Сумма всех долгов по таре (по адресам): {result}  |  " + base.FooterInfo;
 			}
 		}
-
-		protected override Func<IUnitOfWork, IQueryOver<Order>> ItemsSourceQueryFunction => (uow) =>
-		{
-			DeliveryPoint deliveryPointAlias = null;
-			Counterparty counterpartyAlias = null;
-			BottlesMovementOperation bottleMovementOperationAlias = null;
-			BottlesMovementOperation bottlesMovementAlias = null;
-			DebtorJournalNode resultAlias = null;
-			Residue residueAlias = null;
-			CallTask taskAlias = null;
-			Order orderAlias = null;
-			Order lastOrderAlias = null;
-			Order orderCountAlias = null;
-			OrderItem orderItemAlias = null;
-			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			Nomenclature nomenclatureSubQueryAlias = null;
-			Order orderFromAnotherDPAlias = null;
-			Email emailAlias = null;
-			Phone phoneAlias = null;
-			NomenclatureFixedPrice nomenclatureFixedPriceAlias = null;
-
-			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
-			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
-
-			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
-
-			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
-				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-				.And(new Disjunction()
-					.Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-					.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
-						&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
-						&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
-				.Select(
-					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-						NHibernateUtil.Int32, new IProjection[]
-						{
-							Projections.Sum(() => bottlesMovementAlias.Returned),
-							Projections.Sum(() => bottlesMovementAlias.Delivered)
-						}));
-
-			var residueQuery = QueryOver.Of(() => residueAlias)
-				.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "IF(?1 IS NOT NULL,'есть', 'нет')"),
-					NHibernateUtil.String,
-					Projections.Property(() => residueAlias.Id)))
-				.Take(1);
-
-			var bottleDebtByClientQuery = QueryOver.Of(() => bottlesMovementAlias)
-				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Select(
-					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-						NHibernateUtil.Int32, new IProjection[]
-						{
-							Projections.Sum(() => bottlesMovementAlias.Returned),
-							Projections.Sum(() => bottlesMovementAlias.Delivered)
-						}));
-
-			var taskExistQuery = QueryOver.Of(() => taskAlias)
-				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.And(() => taskAlias.IsTaskComplete == false)
-				.Select(Projections.Property(() => taskAlias.Id))
-				.Take(1);
-
-			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
-				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
-				.Select(Projections.Count(Projections.Id()));
-
-			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
-				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Select(Projections.Property(() => emailAlias.Id));
-
-			var countDeliveryPointFixedPricesSubQuery = QueryOver.Of(() => nomenclatureFixedPriceAlias)
-				.Where(() => nomenclatureFixedPriceAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.Select(Projections.Id());
-
-			#region Phones Subqueries
-
-			var deliveryPointPhonesSubquery = QueryOver.Of(() => phoneAlias)
-				.Where(() => phoneAlias.DeliveryPoint.Id == orderAlias.DeliveryPoint.Id)
-				.AndNot(() => phoneAlias.IsArchive)
-				.Select(
-					CustomProjections.GroupConcat(
-						CustomProjections.Concat_WS(
-							"",
-							Projections.Constant("8"),
-							Projections.Property(() => phoneAlias.DigitsNumber)),
-						separator: ";\n"));
-
-			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
-				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
-				.AndNot(() => phoneAlias.IsArchive)
-				.Select(
-					CustomProjections.GroupConcat(
-						CustomProjections.Concat_WS(
-							"",
-							Projections.Constant("8"),
-							Projections.Property(() => phoneAlias.DigitsNumber)),
-						separator: ";\n"));
-
-			var phoneProjection = Projections.Conditional(
-				Restrictions.IsNull(Projections.SubQuery(deliveryPointPhonesSubquery)),
-				Projections.SubQuery(counterpartyPhonesSubquery),
-				Projections.SubQuery(deliveryPointPhonesSubquery));
-
-			#endregion
-
-			var emailSubquery = QueryOver.Of(() => emailAlias)
-				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
-				.Select(CustomProjections.GroupConcat(() => emailAlias.Address, separator: ";\n"));
-
-			#region LastOrder
-
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.Select(Projections.Property<Order>(p => p.Id))
-				.OrderByAlias(() => orderAlias.Id).Desc
-				.Take(1);
-
-			var olderLastOrderIdQueryWithDate = GetOlderLastOrderIdWithDateQuery(
-				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias);
-
-			var lastOrderIdQueryWithDate = GetLastOrderIdWithDateQuery(
-				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias, olderLastOrderIdQueryWithDate);
-
-			var lastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Select(Projections.Property(() => nomenclatureAlias.Id))
-				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.And(() => FilterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
-
-			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Select(Projections.Property(() => discountReasonAlias.Id))
-				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.And(() => FilterViewModel.DiscountReason.Id == discountReasonAlias.Id);
-
-			var orderFromAnotherDP = QueryOver.Of(() => orderFromAnotherDPAlias)
-				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
-				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
-				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
-					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
-					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery));
-
-			var orderFromSuspended = QueryOver.Of(() => orderFromAnotherDPAlias)
-				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQueryWithDate)
-				.Where(x => x.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId).Take(1);
-
-			var orderFromCancellation = QueryOver.Of(() => orderFromAnotherDPAlias)
-				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQueryWithDate)
-				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
-
-			var orderFromSuspendedWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
-				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQuery)
-				.Where(x => x.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId).Take(1);
-
-			var orderFromCancellationWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
-				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
-				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQuery)
-				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
-
-			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
-				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
-				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
-				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
-				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
-				.Where(
-					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), _notDeliveredStatuses)))
-				.Select(Projections.GroupProperty(
-					Projections.Property<Order>(o => o.Client.Id)));
-
-			#endregion LastOrder
-
-			if(FilterViewModel != null && FilterViewModel.EndDate != null)
-			{
-				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQueryWithDate.Take(1));
-			}
-			else
-			{
-				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
-			}
-
-			#region Filter
-
-			if(FilterViewModel != null)
-			{
-				if(FilterViewModel.Client != null)
-				{
-					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
-				}
-
-				if(FilterViewModel.Address != null)
-				{
-					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
-				}
-
-				if(FilterViewModel.OPF != null)
-				{
-					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
-				}
-
-				if(FilterViewModel.LastOrderBottlesFrom != null)
-				{
-					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
-				}
-
-				if(FilterViewModel.LastOrderBottlesTo != null)
-				{
-					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
-				}
-
-				if(FilterViewModel.DeliveryPointsFrom != null)
-				{
-					ordersQuery = ordersQuery.Where(Restrictions.Ge(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsFrom.Value));
-				}
-
-				if(FilterViewModel.DeliveryPointsTo != null)
-				{
-					ordersQuery = ordersQuery.Where(Restrictions.Le(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsTo.Value));
-				}
-
-				if(FilterViewModel.StartDate != null)
-				{
-					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
-				}
-
-				if(FilterViewModel.EndDate != null)
-				{
-					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
-				}
-
-				if(FilterViewModel.EndDate != null && FilterViewModel.HideActiveCounterparty)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
-				}
-
-				if(FilterViewModel.WithOneOrder != null)
-				{
-					var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
-
-					subQuerryOrdersCount.Where(FilterViewModel.WithOneOrder.Value
-						? Restrictions.Eq(countProjection, 1)
-						: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
-
-					ordersQuery.WithSubquery
-						.WhereProperty(() => counterpartyAlias.Id)
-						.In(subQuerryOrdersCount);
-				}
-
-				if(FilterViewModel.DebtorsTaskStatus != null)
-				{
-					if(FilterViewModel.DebtorsTaskStatus.Value == DebtorsTaskStatus.HasTask)
-					{
-						ordersQuery = ordersQuery.WithSubquery.WhereExists(taskExistQuery);
-					}
-					else
-					{
-						ordersQuery = ordersQuery.WithSubquery.WhereNotExists(taskExistQuery);
-					}
-				}
-
-				if(FilterViewModel.LastOrderNomenclature != null)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(lastOrderNomenclatures);
-				}
-
-				if(FilterViewModel.DiscountReason != null)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(lastOrderDiscount);
-				}
-
-				if(FilterViewModel.DebtBottlesFrom != null)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
-				}
-
-				if(FilterViewModel.DebtBottlesTo != null)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
-				}
-
-				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
-				}
-
-				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
-				}
-
-				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
-				}
-
-				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
-				}
-
-				if(FilterViewModel.HideWithoutEmail)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
-				}
-
-				if(FilterViewModel.HideWithoutFixedPrices)
-				{
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);
-				}
-
-				if(FilterViewModel.SelectedDeliveryPointCategory != null)
-				{
-					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
-				}
-
-				if(FilterViewModel.HideExcludeFromAutoCalls)
-				{
-					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
-				}
-			}
-
-			#endregion Filter
-
-			ordersQuery.Where(GetSearchCriterion(
-				() => deliveryPointAlias.Id,
-				() => deliveryPointAlias.CompiledAddress,
-				() => counterpartyAlias.Id,
-				() => counterpartyAlias.Name));
-
-			var resultQuery = ordersQuery
-				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
-				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
-				.SelectList(list => list
-					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
-					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.AddressId)
-					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.ClientName)
-					.Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.AddressName)
-					.Select(() => deliveryPointAlias.BottleReserv).WithAlias(() => resultAlias.Reserve)
-					.Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
-					.Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
-					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
-					.SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
-					.SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
-					.SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
-					.SelectSubQuery(taskExistQuery).WithAlias(() => resultAlias.TaskId)
-					.SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint)
-					.Select(phoneProjection).WithAlias(() => resultAlias.Phones)
-					.SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Emails))
-				.SetTimeout(300)
-				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
-
-			return resultQuery;
-		};
 
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
@@ -568,13 +220,13 @@ namespace Vodovoz.Representations
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => nomenclatureAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.And(() => FilterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
+				.And(() => _filterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
 
 			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => discountReasonAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.And(() => FilterViewModel.DiscountReason.Id == discountReasonAlias.Id);
+				.And(() => _filterViewModel.DiscountReason.Id == discountReasonAlias.Id);
 
 			var orderFromAnotherDP = QueryOver.Of(() => orderFromAnotherDPAlias)
 				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
@@ -617,7 +269,7 @@ namespace Vodovoz.Representations
 
 			#endregion LastOrder
 
-			if(FilterViewModel != null && FilterViewModel.EndDate != null)
+			if(_filterViewModel != null && _filterViewModel.EndDate != null)
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQueryWithDate.Take(1));
 			}
@@ -626,9 +278,9 @@ namespace Vodovoz.Representations
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
 
-			if(FilterViewModel != null && FilterViewModel.DebtorsTaskStatus != null)
+			if(_filterViewModel != null && _filterViewModel.DebtorsTaskStatus != null)
 			{
-				if(FilterViewModel.DebtorsTaskStatus.Value == DebtorsTaskStatus.HasTask)
+				if(_filterViewModel.DebtorsTaskStatus.Value == DebtorsTaskStatus.HasTask)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(taskExistQuery);
 				}
@@ -640,85 +292,85 @@ namespace Vodovoz.Representations
 
 			#region Filter
 
-			if(FilterViewModel != null)
+			if(_filterViewModel != null)
 			{
-				if(FilterViewModel.Client != null)
+				if(_filterViewModel.Client != null)
 				{
-					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
+					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == _filterViewModel.Client.Id);
 				}
 
-				if(FilterViewModel.Address != null)
+				if(_filterViewModel.Address != null)
 				{
-					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
+					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == _filterViewModel.Address.Id);
 				}
 
-				if(FilterViewModel.OPF != null)
+				if(_filterViewModel.OPF != null)
 				{
-					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
+					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == _filterViewModel.OPF.Value);
 				}
 
-				if(FilterViewModel.LastOrderBottlesFrom != null)
-				{
-					ordersQuery =
-						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
-				}
-
-				if(FilterViewModel.LastOrderBottlesTo != null)
+				if(_filterViewModel.LastOrderBottlesFrom != null)
 				{
 					ordersQuery =
-						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
+						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= _filterViewModel.LastOrderBottlesFrom.Value);
 				}
 
-				if(FilterViewModel.DeliveryPointsFrom != null)
+				if(_filterViewModel.LastOrderBottlesTo != null)
 				{
-					ordersQuery = ordersQuery.Where(Restrictions.Ge(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsFrom.Value));
+					ordersQuery =
+						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= _filterViewModel.LastOrderBottlesTo.Value);
 				}
 
-				if(FilterViewModel.DeliveryPointsTo != null)
+				if(_filterViewModel.DeliveryPointsFrom != null)
 				{
-					ordersQuery = ordersQuery.Where(Restrictions.Le(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsTo.Value));
+					ordersQuery = ordersQuery.Where(Restrictions.Ge(Projections.SubQuery(countDeliveryPoint), _filterViewModel.DeliveryPointsFrom.Value));
 				}
 
-				if(FilterViewModel.StartDate != null)
+				if(_filterViewModel.DeliveryPointsTo != null)
 				{
-					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
+					ordersQuery = ordersQuery.Where(Restrictions.Le(Projections.SubQuery(countDeliveryPoint), _filterViewModel.DeliveryPointsTo.Value));
 				}
 
-				if(FilterViewModel.EndDate != null)
+				if(_filterViewModel.StartDate != null)
 				{
-					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= _filterViewModel.StartDate.Value);
 				}
 
-				if(FilterViewModel.EndDate != null && FilterViewModel.HideActiveCounterparty)
+				if(_filterViewModel.EndDate != null)
+				{
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= _filterViewModel.EndDate.Value);
+				}
+
+				if(_filterViewModel.EndDate != null && _filterViewModel.HideActiveCounterparty)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
 				}
 
-				if(FilterViewModel.LastOrderNomenclature != null)
+				if(_filterViewModel.LastOrderNomenclature != null)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(lastOrderNomenclatures);
 				}
 
-				if(FilterViewModel.DiscountReason != null)
+				if(_filterViewModel.DiscountReason != null)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(lastOrderDiscount);
 				}
 
-				if(FilterViewModel.DebtBottlesFrom != null)
+				if(_filterViewModel.DebtBottlesFrom != null)
 				{
-					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(_filterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				}
 
-				if(FilterViewModel.DebtBottlesTo != null)
+				if(_filterViewModel.DebtBottlesTo != null)
 				{
-					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(_filterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 				}
 
-				if(FilterViewModel.WithOneOrder != null)
+				if(_filterViewModel.WithOneOrder != null)
 				{
 					var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
 
-					subQuerryOrdersCount.Where(FilterViewModel.WithOneOrder.Value
+					subQuerryOrdersCount.Where(_filterViewModel.WithOneOrder.Value
 						? Restrictions.Eq(countProjection, 1)
 						: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
 
@@ -727,43 +379,43 @@ namespace Vodovoz.Representations
 						.In(subQuerryOrdersCount);
 				}
 
-				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+				if(!_filterViewModel.EndDate.HasValue && _filterViewModel.ShowSuspendedCounterparty)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
 				}
 
-				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+				if(!_filterViewModel.EndDate.HasValue && _filterViewModel.ShowCancellationCounterparty)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
 				}
 
-				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+				if(_filterViewModel.EndDate.HasValue && _filterViewModel.ShowSuspendedCounterparty)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
 				}
 
-				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+				if(_filterViewModel.EndDate.HasValue && _filterViewModel.ShowCancellationCounterparty)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
 				}
 
-				if(FilterViewModel.HideWithoutEmail)
+				if(_filterViewModel.HideWithoutEmail)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
 				}
 
-				if(FilterViewModel.HideWithoutFixedPrices)
+				if(_filterViewModel.HideWithoutFixedPrices)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);
 					//.Where(Restrictions.Gt(Projections.SubQuery(countDeliveryPointFixedPricesSubQuery), 0));
 				}
 
-				if(FilterViewModel.SelectedDeliveryPointCategory != null)
+				if(_filterViewModel.SelectedDeliveryPointCategory != null)
 				{
-					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
+					ordersQuery.Where(() => deliveryPointAlias.Category.Id == _filterViewModel.SelectedDeliveryPointCategory.Id);
 				}
 
-				if(FilterViewModel.HideExcludeFromAutoCalls)
+				if(_filterViewModel.HideExcludeFromAutoCalls)
 				{
 					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
 				}
@@ -782,7 +434,7 @@ namespace Vodovoz.Representations
 			var queryResult = ordersQuery
 				.JoinAlias(c => c.DeliveryPoint,
 					() => deliveryPointAlias,
-					(FilterViewModel != null && FilterViewModel.HideWithoutFixedPrices)
+					(_filterViewModel != null && _filterViewModel.HideWithoutFixedPrices)
 						? NHibernate.SqlCommand.JoinType.InnerJoin
 						: NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
@@ -926,9 +578,9 @@ namespace Vodovoz.Representations
 					var bulkEmailViewModel = new BulkEmailViewModel(
 						null,
 						UnitOfWorkFactory,
-						ItemsSourceQueryFunction,
+						ItemsQuery,
 						_emailSettings,
-						commonServices,
+						_commonServices,
 						_attachmentsViewModelFactory,
 						_currentEmployee,
 						_emailRepository);
@@ -956,14 +608,14 @@ namespace Vodovoz.Representations
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc;
 
-			if(FilterViewModel?.StartDate != null)
+			if(_filterViewModel?.StartDate != null)
 			{
-				query.And(() => lastOrderAlias.DeliveryDate >= FilterViewModel.StartDate);
+				query.And(() => lastOrderAlias.DeliveryDate >= _filterViewModel.StartDate);
 			}
 
-			if(FilterViewModel?.EndDate != null)
+			if(_filterViewModel?.EndDate != null)
 			{
-				query.And(() => lastOrderAlias.DeliveryDate <= FilterViewModel.EndDate);
+				query.And(() => lastOrderAlias.DeliveryDate <= _filterViewModel.EndDate);
 			}
 
 			return query;
@@ -983,17 +635,22 @@ namespace Vodovoz.Representations
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Order>(p => p.Id));
 
-			if(FilterViewModel?.EndDate != null)
+			if(_filterViewModel?.EndDate != null)
 			{
-				query.And(() => lastOrderAlias.DeliveryDate > FilterViewModel.EndDate);
+				query.And(() => lastOrderAlias.DeliveryDate > _filterViewModel.EndDate);
 			}
 
 			return query;
 		}
 
-		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
-
-		protected override Func<DebtorJournalNode, CallTaskDlg> OpenDialogFunction => (node) => new CallTaskDlg(node.ClientId, node.AddressId);
+		protected override void EditEntityDialog(DebtorJournalNode node)
+		{
+			NavigationManager.OpenViewModel<CallTaskViewModel>(this, OpenPageOptions.AsSlave, vm =>
+			{
+				vm.SetCounterpartyById(node.ClientId);
+				vm.SetDeliveryPointById(node.AddressId);
+			});
+		}
 
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
 		{
@@ -1003,7 +660,7 @@ namespace Vodovoz.Representations
 
 		public void ExportToExcel()
 		{
-			var rows = ItemsSourceQueryFunction.Invoke(UoW).List<DebtorJournalNode>();
+			var rows = ItemsQuery(UoW).List<DebtorJournalNode>();
 			var report = new DebtorsJournalReport(rows, _fileDialogService);
 			report.Export();
 		}
@@ -1051,10 +708,376 @@ namespace Vodovoz.Representations
 				UoW.Save(task);
 			}
 
-			commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
+			
+			_interactiveService.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
 			UoW.Commit();
 
 			return newTaskCount;
+		}
+
+		protected override IQueryOver<Order> ItemsQuery(IUnitOfWork uow)
+		{
+			DeliveryPoint deliveryPointAlias = null;
+			Counterparty counterpartyAlias = null;
+			BottlesMovementOperation bottleMovementOperationAlias = null;
+			BottlesMovementOperation bottlesMovementAlias = null;
+			DebtorJournalNode resultAlias = null;
+			Residue residueAlias = null;
+			CallTask taskAlias = null;
+			Order orderAlias = null;
+			Order lastOrderAlias = null;
+			Order orderCountAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderItem orderItemsSubQueryAlias = null;
+			DiscountReason discountReasonAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			Nomenclature nomenclatureSubQueryAlias = null;
+			Order orderFromAnotherDPAlias = null;
+			Email emailAlias = null;
+			Phone phoneAlias = null;
+			NomenclatureFixedPrice nomenclatureFixedPriceAlias = null;
+
+			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
+			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
+
+			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
+
+			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
+				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+				.And(new Disjunction()
+					.Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+						&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+						&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[]
+						{
+							Projections.Sum(() => bottlesMovementAlias.Returned),
+							Projections.Sum(() => bottlesMovementAlias.Delivered)
+						}));
+
+			var residueQuery = QueryOver.Of(() => residueAlias)
+				.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Select(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "IF(?1 IS NOT NULL,'есть', 'нет')"),
+					NHibernateUtil.String,
+					Projections.Property(() => residueAlias.Id)))
+				.Take(1);
+
+			var bottleDebtByClientQuery = QueryOver.Of(() => bottlesMovementAlias)
+				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[]
+						{
+							Projections.Sum(() => bottlesMovementAlias.Returned),
+							Projections.Sum(() => bottlesMovementAlias.Delivered)
+						}));
+
+			var taskExistQuery = QueryOver.Of(() => taskAlias)
+				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.And(() => taskAlias.IsTaskComplete == false)
+				.Select(Projections.Property(() => taskAlias.Id))
+				.Take(1);
+
+			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
+				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Count(Projections.Id()));
+
+			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Property(() => emailAlias.Id));
+
+			var countDeliveryPointFixedPricesSubQuery = QueryOver.Of(() => nomenclatureFixedPriceAlias)
+				.Where(() => nomenclatureFixedPriceAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Select(Projections.Id());
+
+			#region Phones Subqueries
+
+			var deliveryPointPhonesSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.DeliveryPoint.Id == orderAlias.DeliveryPoint.Id)
+				.AndNot(() => phoneAlias.IsArchive)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							"",
+							Projections.Constant("8"),
+							Projections.Property(() => phoneAlias.DigitsNumber)),
+						separator: ";\n"));
+
+			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
+				.AndNot(() => phoneAlias.IsArchive)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							"",
+							Projections.Constant("8"),
+							Projections.Property(() => phoneAlias.DigitsNumber)),
+						separator: ";\n"));
+
+			var phoneProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.SubQuery(deliveryPointPhonesSubquery)),
+				Projections.SubQuery(counterpartyPhonesSubquery),
+				Projections.SubQuery(deliveryPointPhonesSubquery));
+
+			#endregion
+
+			var emailSubquery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
+				.Select(CustomProjections.GroupConcat(() => emailAlias.Address, separator: ";\n"));
+
+			#region LastOrder
+
+			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.Select(Projections.Property<Order>(p => p.Id))
+				.OrderByAlias(() => orderAlias.Id).Desc
+				.Take(1);
+
+			var olderLastOrderIdQueryWithDate = GetOlderLastOrderIdWithDateQuery(
+				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias);
+
+			var lastOrderIdQueryWithDate = GetLastOrderIdWithDateQuery(
+				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias, olderLastOrderIdQueryWithDate);
+
+			var lastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.Property(() => nomenclatureAlias.Id))
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => _filterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
+
+			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.Property(() => discountReasonAlias.Id))
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => _filterViewModel.DiscountReason.Id == discountReasonAlias.Id);
+
+			var orderFromAnotherDP = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
+				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
+				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
+					.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
+					.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery));
+
+			var orderFromSuspended = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQueryWithDate)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId).Take(1);
+
+			var orderFromCancellation = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQueryWithDate)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
+
+			var orderFromSuspendedWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQuery)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideSuspendedCounterpartyId).Take(1);
+
+			var orderFromCancellationWithoutDate = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.WithSubquery.WhereProperty(x => x.Id).Eq(lastOrderIdQuery)
+				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
+
+			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
+				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
+				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
+				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+				.Where(
+					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), _notDeliveredStatuses)))
+				.Select(Projections.GroupProperty(
+					Projections.Property<Order>(o => o.Client.Id)));
+
+			#endregion LastOrder
+
+			if(_filterViewModel != null && _filterViewModel.EndDate != null)
+			{
+				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQueryWithDate.Take(1));
+			}
+			else
+			{
+				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
+			}
+
+			#region Filter
+
+			if(_filterViewModel != null)
+			{
+				if(_filterViewModel.Client != null)
+				{
+					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == _filterViewModel.Client.Id);
+				}
+
+				if(_filterViewModel.Address != null)
+				{
+					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == _filterViewModel.Address.Id);
+				}
+
+				if(_filterViewModel.OPF != null)
+				{
+					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == _filterViewModel.OPF.Value);
+				}
+
+				if(_filterViewModel.LastOrderBottlesFrom != null)
+				{
+					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= _filterViewModel.LastOrderBottlesFrom.Value);
+				}
+
+				if(_filterViewModel.LastOrderBottlesTo != null)
+				{
+					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= _filterViewModel.LastOrderBottlesTo.Value);
+				}
+
+				if(_filterViewModel.DeliveryPointsFrom != null)
+				{
+					ordersQuery = ordersQuery.Where(Restrictions.Ge(Projections.SubQuery(countDeliveryPoint), _filterViewModel.DeliveryPointsFrom.Value));
+				}
+
+				if(_filterViewModel.DeliveryPointsTo != null)
+				{
+					ordersQuery = ordersQuery.Where(Restrictions.Le(Projections.SubQuery(countDeliveryPoint), _filterViewModel.DeliveryPointsTo.Value));
+				}
+
+				if(_filterViewModel.StartDate != null)
+				{
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= _filterViewModel.StartDate.Value);
+				}
+
+				if(_filterViewModel.EndDate != null)
+				{
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= _filterViewModel.EndDate.Value);
+				}
+
+				if(_filterViewModel.EndDate != null && _filterViewModel.HideActiveCounterparty)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
+				}
+
+				if(_filterViewModel.WithOneOrder != null)
+				{
+					var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+					subQuerryOrdersCount.Where(_filterViewModel.WithOneOrder.Value
+						? Restrictions.Eq(countProjection, 1)
+						: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+					ordersQuery.WithSubquery
+						.WhereProperty(() => counterpartyAlias.Id)
+						.In(subQuerryOrdersCount);
+				}
+
+				if(_filterViewModel.DebtorsTaskStatus != null)
+				{
+					if(_filterViewModel.DebtorsTaskStatus.Value == DebtorsTaskStatus.HasTask)
+					{
+						ordersQuery = ordersQuery.WithSubquery.WhereExists(taskExistQuery);
+					}
+					else
+					{
+						ordersQuery = ordersQuery.WithSubquery.WhereNotExists(taskExistQuery);
+					}
+				}
+
+				if(_filterViewModel.LastOrderNomenclature != null)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(lastOrderNomenclatures);
+				}
+
+				if(_filterViewModel.DiscountReason != null)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(lastOrderDiscount);
+				}
+
+				if(_filterViewModel.DebtBottlesFrom != null)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(_filterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
+				}
+
+				if(_filterViewModel.DebtBottlesTo != null)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(_filterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+				}
+
+				if(!_filterViewModel.EndDate.HasValue && _filterViewModel.ShowSuspendedCounterparty)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
+				}
+
+				if(!_filterViewModel.EndDate.HasValue && _filterViewModel.ShowCancellationCounterparty)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
+				}
+
+				if(_filterViewModel.EndDate.HasValue && _filterViewModel.ShowSuspendedCounterparty)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
+				}
+
+				if(_filterViewModel.EndDate.HasValue && _filterViewModel.ShowCancellationCounterparty)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
+				}
+
+				if(_filterViewModel.HideWithoutEmail)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
+				}
+
+				if(_filterViewModel.HideWithoutFixedPrices)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);
+				}
+
+				if(_filterViewModel.SelectedDeliveryPointCategory != null)
+				{
+					ordersQuery.Where(() => deliveryPointAlias.Category.Id == _filterViewModel.SelectedDeliveryPointCategory.Id);
+				}
+
+				if(_filterViewModel.HideExcludeFromAutoCalls)
+				{
+					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
+				}
+			}
+
+			#endregion Filter
+
+			ordersQuery.Where(GetSearchCriterion(
+				() => deliveryPointAlias.Id,
+				() => deliveryPointAlias.CompiledAddress,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.Name));
+
+			var resultQuery = ordersQuery
+				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
+				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
+				.SelectList(list => list
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
+					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.AddressId)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.ClientName)
+					.Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.AddressName)
+					.Select(() => deliveryPointAlias.BottleReserv).WithAlias(() => resultAlias.Reserve)
+					.Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
+					.Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
+					.SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
+					.SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
+					.SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
+					.SelectSubQuery(taskExistQuery).WithAlias(() => resultAlias.TaskId)
+					.SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint)
+					.Select(phoneProjection).WithAlias(() => resultAlias.Phones)
+					.SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Emails))
+				.SetTimeout(300)
+				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
+
+			return resultQuery;
 		}
 	}
 }
