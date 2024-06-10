@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -26,5 +28,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IEnumerable<CarOwnType> selectedCarOwnTypes);
 		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType);
 		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId);
+		Task<IList<RouteList>> GetCarsRouteLists(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType, Car car,
+			DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+		Task<IList<int>> GetCarsIdsHavingRouteLists(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType,
+			Car car, int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
+			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
+		Task<IList<CarEvent>> GetCarEvents(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
+			CarOwnType carOwnType, Car car, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+		Task<IList<Car>> GetCarsWithoutData(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
+			CarOwnType carOwnType, Car car, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
 	}
 }

@@ -1,12 +1,18 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -141,6 +147,262 @@ namespace Vodovoz.EntityRepositories.Logistic
 				};
 
 			return carTechInspects;
+		}
+
+		public async Task<IList<RouteList>> GetCarsRouteLists(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			CarOwnType carOwnType,
+			Car car,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				RouteList routeListAlias = null;
+				Car carAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+				Employee assignedDriverAlias = null;
+
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Inner.JoinAlias(() => routeListAlias.Car, () => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+							&& carVersionAlias.StartDate <= routeListAlias.Date &&
+							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
+					.Where(() => routeListAlias.Date >= startDate && routeListAlias.Date < endDate)
+					.Where(() => !carAlias.IsArchive)
+					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+				if(car != null)
+				{
+					query.Where(() => carAlias.Id == car.Id);
+				}
+
+				query.Fetch(SelectMode.Fetch, x => x.Addresses)
+					.Fetch(SelectMode.Fetch, x => x.Driver)
+					.Fetch(SelectMode.Fetch, x => x.Forwarder);
+
+				return query
+					.OrderBy(() => carAlias.Id).Asc
+					.ThenBy(() => routeListAlias.Id).Asc
+					.TransformUsing(Transformers.DistinctRootEntity)
+					.List<RouteList>();
+			},
+				cancellationToken
+			);
+		}
+
+		public async Task<IList<int>> GetCarsIdsHavingRouteLists(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			CarOwnType carOwnType,
+			Car car,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
+			DateTime startDate,
+			DateTime endDate,
+			bool isOnlyCarsWithCompletedFastDelivery,
+			bool isOnlyCarsWithCompletedCommonDelivery,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				RouteList routeListAlias = null;
+				RouteListItem routeListAddressAlias = null;
+				Order orderAlias = null;
+				Car carAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+				Employee assignedDriverAlias = null;
+
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Inner.JoinAlias(() => routeListAlias.Car, () => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+							&& carVersionAlias.StartDate <= routeListAlias.Date &&
+							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
+					.JoinEntityAlias(() => routeListAddressAlias,
+						() => routeListAlias.Id == routeListAddressAlias.RouteList.Id,
+						JoinType.LeftOuterJoin)
+					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
+					.Where(() => routeListAlias.Date >= startDate && routeListAlias.Date < endDate)
+					.And(() => !carAlias.IsArchive)
+					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+
+				if(car != null)
+				{
+					query.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					query.Where(Restrictions.In(Projections.Property(nameof(carAlias.Id)), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(nameof(carAlias.Id)), excludedCarModelIds)));
+				}
+
+				if(isOnlyCarsWithCompletedFastDelivery && !isOnlyCarsWithCompletedCommonDelivery)
+				{
+					query
+					.Where(() => orderAlias.IsFastDelivery)
+					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed);
+				}
+
+				if(isOnlyCarsWithCompletedCommonDelivery && !isOnlyCarsWithCompletedFastDelivery)
+				{
+					query
+					.Where(() => !orderAlias.IsFastDelivery)
+					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed);
+				}
+
+				return query
+					.SelectList(list => list
+					.Select(() => carAlias.Id))
+					.OrderBy(() => carAlias.Id).Asc
+					.TransformUsing(Transformers.DistinctRootEntity)
+					.List<int>();
+			},
+				cancellationToken
+			);
+		}
+
+		public async Task<IList<CarEvent>> GetCarEvents(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
+			CarOwnType carOwnType,
+			Car car,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				CarEvent carEventAlias = null;
+				Car carAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+				Employee assignedDriverAlias = null;
+
+				var query = uow.Session.QueryOver(() => carEventAlias)
+					.Inner.JoinAlias(() => carEventAlias.Car, () => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+							&& carVersionAlias.StartDate <= carEventAlias.StartDate &&
+							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= carEventAlias.StartDate))
+					.Where(() => carEventAlias.StartDate <= endDate && carEventAlias.EndDate >= startDate && !carEventAlias.DoNotShowInOperation)
+					.Where(() => !carAlias.IsArchive)
+					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+
+				if(car != null)
+				{
+					query.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					query.Where(Restrictions.In(Projections.Property(() => carModelAlias.Id), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
+				}
+
+				return query
+					.TransformUsing(Transformers.DistinctRootEntity)
+					.List<CarEvent>();
+			},
+				cancellationToken);
+		}
+
+		public async Task<IList<Car>> GetCarsWithoutData(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
+			CarOwnType carOwnType,
+			Car car,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				Car carAlias = null;
+				Employee assignedDriverAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+
+				var carsQuery = uow.Session.QueryOver(() => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+						&& carVersionAlias.StartDate <= endDate
+							  && (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= startDate))
+					.Where(() => !carAlias.IsArchive)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					carsQuery.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+				if(car != null)
+				{
+					carsQuery.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					carsQuery.Where(Restrictions.In(Projections.Property(() => carModelAlias.Id), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					carsQuery.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
+				}
+
+				carsQuery.Fetch(SelectMode.Fetch, x => x.GeographicGroups);
+
+				return carsQuery.List<Car>();
+			},
+			cancellationToken);	
 		}
 	}
 }
