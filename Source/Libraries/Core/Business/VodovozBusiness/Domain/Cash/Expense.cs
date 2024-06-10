@@ -1,8 +1,12 @@
-﻿using Gamma.Utilities;
+﻿using DateTimeHelpers;
+using FluentNHibernate.Data;
+using Gamma.Utilities;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Services;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
@@ -356,6 +360,13 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var dateTimeLowerBorder = DateTimeExtensions.Max(Date, DdrDate.FirstDayOfMonth());
+
+			if(DdrDate < dateTimeLowerBorder)
+			{
+				yield return new ValidationResult($"Некорректная дата учета ДДР {DdrDate:dd.MM.yyyy}, значение должно быть больше {dateTimeLowerBorder:dd.MM.yyyy}", new[] { nameof(DdrDate) });
+			}
+
 			if(validationContext.Items.ContainsKey("IsSelfDelivery") && (bool)validationContext.Items["IsSelfDelivery"])
 			{
 				if(TypeDocument != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)

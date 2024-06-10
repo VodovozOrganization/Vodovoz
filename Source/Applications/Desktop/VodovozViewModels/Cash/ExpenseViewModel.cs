@@ -354,7 +354,7 @@ namespace Vodovoz.ViewModels.Cash
 					CommonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Warning,
 						$"Нельзя установить дату учета ДДР ранее {dateTimeLowerBorder:dd.MM.yyyy}");
-					OnPropertyChanged(() => DdrDate);
+					OnPropertyChanged(nameof(DdrDate));
 				}
 			}
 		}
@@ -488,12 +488,12 @@ namespace Vodovoz.ViewModels.Cash
 				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-					|| Entity.TypeOperation == ExpenseType.Salary)
+				|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-					|| Entity.TypeOperation == ExpenseType.Salary)
+				|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
