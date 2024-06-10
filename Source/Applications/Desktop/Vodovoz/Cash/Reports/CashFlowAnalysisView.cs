@@ -3,8 +3,10 @@ using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Cash.Reports;
 
@@ -31,9 +33,9 @@ namespace Vodovoz.Cash.Reports
 		{
 			UpdateSliderArrow();
 
-			yradiobuttonDdr.Activated += (s, e) => ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Ddr;
+			yradiobuttonDdr.Toggled += ReportModeChanged;
 
-			yradiobuttonDds.Activated += (s, e) => ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Dds;
+			yradiobuttonDds.Toggled += ReportModeChanged;
 
 			dateStart.Binding
 				.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date)
@@ -64,6 +66,21 @@ namespace Vodovoz.Cash.Reports
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void ReportModeChanged(object sender, EventArgs e)
+		{
+			if(sender is yRadioButton reportModeRadioButton && reportModeRadioButton.Active)
+			{
+				if(reportModeRadioButton.Name.Contains(CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Dds.ToString()))
+				{
+					ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Dds;
+				}
+				else if(reportModeRadioButton.Name.Contains(CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Ddr.ToString()))
+				{
+					ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Ddr;
+				}
+			}
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
