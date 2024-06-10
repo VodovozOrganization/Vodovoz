@@ -132,7 +132,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var isQr = (btn as yButton)?.Name == nameof(btnSendFastPaymentPayByQrUrlBySms);
 
-			var resultTask = _fastPaymentSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
+			var resultTask = _fastPaymentSender.SendFastPaymentUrlAsync(_order.Id, validatedPhoneEntry.Text, isQr);
 			resultTask.Wait();
 			var result = resultTask.Result;
 

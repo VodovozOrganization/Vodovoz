@@ -32,7 +32,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="currOrder">Заказ, из которого берётся точка доставки</param>
 		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
-		public Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, VodovozOrder currOrder, bool ignoreCurrentOrder = false)
+		public Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
+			IUnitOfWork uow, VodovozOrder currOrder, bool ignoreCurrentOrder = false)
 		{
 			if(GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap != null)
 			{
@@ -68,7 +69,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result;
 		}
 
-		public bool AddressHasAlreadyBeenUsedForPromo(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		public bool AddressHasAlreadyBeenUsedForPromoForNewClients(IUnitOfWork uow, DeliveryPoint deliveryPoint)
 		{
 			string building = GetBuildingNumber(deliveryPoint.Building);
 

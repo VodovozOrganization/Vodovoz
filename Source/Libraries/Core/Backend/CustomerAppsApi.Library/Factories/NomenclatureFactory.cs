@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Nodes;
 
