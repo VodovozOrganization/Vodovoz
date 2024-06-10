@@ -5,6 +5,12 @@ using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "Строки бесплатной аренды онлайн заказа",
+		Nominative = "Строка бесплатной аренды онлайн заказа",
+		Prepositional = "Строке бесплатной аренды онлайн заказа",
+		PrepositionalPlural = "Строках бесплатной аренды онлайн заказа"
+	)]
 	[HistoryTrace]
 	public class OnlineFreeRentPackage : PropertyChangedBase, IDomainObject
 	{

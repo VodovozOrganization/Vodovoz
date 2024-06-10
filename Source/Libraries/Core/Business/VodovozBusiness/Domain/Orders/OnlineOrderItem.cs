@@ -6,6 +6,12 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "Строки онлайн заказа",
+		Nominative = "Строка онлайн заказа",
+		Prepositional = "Строке онлайн заказа",
+		PrepositionalPlural = "Строках онлайн заказа"
+	)]
 	[HistoryTrace]
 	public class OnlineOrderItem : Product, IDomainObject
 	{

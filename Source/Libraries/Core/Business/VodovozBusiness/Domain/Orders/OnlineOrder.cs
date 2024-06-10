@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
@@ -20,6 +21,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Онлайн заказах"
 	)]
 	[HistoryTrace]
+	[EntityPermission]
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
