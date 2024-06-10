@@ -298,12 +298,6 @@ namespace Vodovoz.ViewModels.Counterparties
 					Entity.AssignedEmployee != null
 					? vm.UoW.GetById<Employee>(Entity.AssignedEmployee.Id)
 					: null;
-
-				vm.Entity.EndActivePeriod =
-					DateTime.Now.Date
-						.AddHours(23)
-						.AddMinutes(59)
-						.AddSeconds(59);
 			});
 		}
 
