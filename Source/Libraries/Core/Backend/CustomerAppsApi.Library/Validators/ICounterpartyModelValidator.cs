@@ -1,4 +1,5 @@
 ﻿using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Counterparties;
 
 namespace CustomerAppsApi.Library.Validators
 {

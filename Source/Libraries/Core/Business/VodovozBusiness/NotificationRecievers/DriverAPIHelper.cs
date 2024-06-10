@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.NotificationRecievers
 {
@@ -13,6 +14,7 @@ namespace Vodovoz.NotificationRecievers
 		IRouteListTransferhandByHandReciever,
 		IDisposable
 	{
+		private readonly ILogger<DriverAPIHelper> _logger;
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
 		private string _notifyOfWaitingTimeChangedUri;
@@ -20,8 +22,11 @@ namespace Vodovoz.NotificationRecievers
 		private string _notifyOfCashRequestForDriverIsGivenForTakeUri;
 		private HttpClient _apiClient;
 
-		public DriverAPIHelper(DriverApiHelperConfiguration configuration)
+		public DriverAPIHelper(
+			ILogger<DriverAPIHelper> logger,
+			DriverApiHelperConfiguration configuration)
 		{
+			_logger = logger;
 			InitializeClient(configuration);
 		}
 
@@ -53,13 +58,21 @@ namespace Vodovoz.NotificationRecievers
 
 		public async Task NotifyOfFastDeliveryOrderAdded(int orderId)
 		{
-			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfFastDeliveryOrderAddedUri, orderId))
+			try
 			{
-				if(response.IsSuccessStatusCode)
+				using(var response = await _apiClient.PostAsJsonAsync(_notifyOfFastDeliveryOrderAddedUri, orderId))
 				{
-					return;
+					if(response.IsSuccessStatusCode)
+					{
+						return;
+					}
+
+					throw new DriverAPIHelperException(response.ReasonPhrase);
 				}
-				throw new DriverAPIHelperException(response.ReasonPhrase);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, $"Не удалось уведомить водителя о добавлении заказа {orderId} с быстрой доставкой в МЛ");
 			}
 		}
 
@@ -71,6 +84,7 @@ namespace Vodovoz.NotificationRecievers
 				{
 					return;
 				}
+
 				throw new DriverAPIHelperException(response.ReasonPhrase);
 			}
 		}
