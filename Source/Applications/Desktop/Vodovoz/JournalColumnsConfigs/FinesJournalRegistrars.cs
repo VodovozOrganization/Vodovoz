@@ -19,6 +19,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapWidth(600)
 				.AddColumn("Автор штрафа").AddTextRenderer(node => node.AuthorName)
 				.AddColumn("Подразделения сотрудников").AddTextRenderer(node => node.FinedEmployeesSubdivisions)
+				.AddColumn("Взыскано по событию ТС").AddTextRenderer(node => node.CarEvent)
 				.AddColumn("")
 				.Finish();
 	}
