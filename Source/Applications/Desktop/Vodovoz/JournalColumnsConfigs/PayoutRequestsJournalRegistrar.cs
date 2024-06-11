@@ -16,7 +16,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.XAlign(0.5f)
 				.AddColumn("Дата создания")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.Date.ToShortDateString())
+					.AddTextRenderer(n => n.Date.ToString())
 					.XAlign(0.5f)
 				.AddColumn("Тип документа")
 					.HeaderAlignment(0.5f)
