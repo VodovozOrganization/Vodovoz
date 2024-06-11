@@ -6,7 +6,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
@@ -154,13 +153,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarTypeOfUse? carTypeOfUse,
 			CarOwnType carOwnType,
 			Car car,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
 			DateTime startDate,
 			DateTime endDate,
+			bool isOnlyCarsWithCompletedFastDelivery,
+			bool isOnlyCarsWithCompletedCommonDelivery,
 			CancellationToken cancellationToken)
 		{
 			return await Task.Run(() =>
 			{
 				RouteList routeListAlias = null;
+				RouteListItem routeListAddressAlias = null;
+				Order orderAlias = null;
 				Car carAlias = null;
 				CarModel carModelAlias = null;
 				CarVersion carVersionAlias = null;
@@ -176,7 +181,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
 					.Where(() => routeListAlias.Date >= startDate && routeListAlias.Date < endDate)
 					.Where(() => !carAlias.IsArchive)
-					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
 					.And(() => carVersionAlias.CarOwnType == carOwnType);
 
@@ -184,9 +189,46 @@ namespace Vodovoz.EntityRepositories.Logistic
 				{
 					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
 				}
+
 				if(car != null)
 				{
 					query.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					query.Where(Restrictions.In(Projections.Property(nameof(carAlias.Id)), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(nameof(carAlias.Id)), excludedCarModelIds)));
+				}
+
+				var completedFastDeliveryAddressesSubquery =
+					QueryOver.Of(() => routeListAddressAlias)
+					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
+					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
+					.And(() => orderAlias.IsFastDelivery)
+					.Select(rla => rla.Id);
+
+				var completedCommonAddressesSubquery =
+					QueryOver.Of(() => routeListAddressAlias)
+					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
+					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
+					.And(() => !orderAlias.IsFastDelivery)
+					.Select(rla => rla.Id);
+
+				if(isOnlyCarsWithCompletedFastDelivery && !isOnlyCarsWithCompletedCommonDelivery)
+				{
+					query.Where(Restrictions.IsNotNull(Projections.SubQuery(completedFastDeliveryAddressesSubquery)));
+				}
+
+				if(isOnlyCarsWithCompletedCommonDelivery && !isOnlyCarsWithCompletedFastDelivery)
+				{
+					query.Where(Restrictions.IsNotNull(Projections.SubQuery(completedCommonAddressesSubquery)));
 				}
 
 				query.Fetch(SelectMode.Fetch, x => x.Addresses)
@@ -240,7 +282,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
 					.Where(() => routeListAlias.Date >= startDate && routeListAlias.Date < endDate)
 					.And(() => !carAlias.IsArchive)
-					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
 					.And(() => carVersionAlias.CarOwnType == carOwnType);
 
@@ -402,7 +444,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 				return carsQuery.List<Car>();
 			},
-			cancellationToken);	
+			cancellationToken);
 		}
 	}
 }

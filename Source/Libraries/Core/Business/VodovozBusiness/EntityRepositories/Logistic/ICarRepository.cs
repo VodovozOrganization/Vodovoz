@@ -29,7 +29,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType);
 		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId);
 		Task<IList<RouteList>> GetCarsRouteLists(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType, Car car,
-			DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+			int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
+			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
 		Task<IList<int>> GetCarsIdsHavingRouteLists(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType,
 			Car car, int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
 			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
