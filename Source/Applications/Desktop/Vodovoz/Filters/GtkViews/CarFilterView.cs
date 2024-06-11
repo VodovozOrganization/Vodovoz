@@ -1,9 +1,12 @@
 ﻿using Gamma.Widgets.Additions;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.Filters.GtkViews
@@ -48,6 +51,17 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanChangeCarModel, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ycheckbuttonCarsWithoutOwner.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyCarsWithoutCarOwner, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonCarsWithoutInsurance.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyCarsWithoutInsurer, w => w.Active)
+				.InitializeFromSource();
+
+			ConfigureInsurerEntityEntry();
+			ConfigureCarOwnerEntityEntry();
+
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
@@ -72,6 +86,37 @@ namespace Vodovoz.Filters.GtkViews
 			{
 				enumcheckCarTypeOfUse.AddEnumToHideList(excludedCarTypeOfUse);
 			}
+		}
+
+		private void ConfigureInsurerEntityEntry()
+		{
+			entityentryInsurer.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsOnlyCarsWithoutInsurer, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entityentryInsurer.ViewModel =
+				new LegacyEEVMBuilderFactory<CarJournalFilterViewModel>(ViewModel.Journal, ViewModel, ViewModel.Journal.UoW, ViewModel.Journal.NavigationManager, ViewModel.Journal.LifetimeScope)
+				.ForProperty(x => x.Insurer)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>((filter) =>
+				{
+					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
+				})
+				.Finish();
+		}
+
+		private void ConfigureCarOwnerEntityEntry()
+		{
+			entityentryCarOwner.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsOnlyCarsWithoutCarOwner, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entityentryCarOwner.ViewModel =
+				new LegacyEEVMBuilderFactory<CarJournalFilterViewModel>(ViewModel.Journal, ViewModel, ViewModel.Journal.UoW, ViewModel.Journal.NavigationManager, ViewModel.Journal.LifetimeScope)
+				.ForProperty(x => x.CarOwner)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.Finish();
 		}
 
 		public override void Destroy()
