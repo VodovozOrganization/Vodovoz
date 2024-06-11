@@ -204,7 +204,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			PrintCommand = new DelegateCommand(Print);
 			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
-			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Self));
+			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Cancel));
 
 			RefreshCurrentEmployeeWage();
 
