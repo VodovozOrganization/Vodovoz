@@ -1,31 +1,35 @@
-﻿using System;
+﻿using CryptoPro.Security.Cryptography.Pkcs;
+using CryptoPro.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using TrueMarkApi.Dto.Auth;
-using TrueMarkApi.Models;
+using TrueMark.Contracts.Auth;
+using TrueMarkApi.Options;
 
 namespace TrueMarkApi.Services.Authorization
 {
-	public class AuthorizationService:IAuthorizationService
+	public class AuthorizationService : IAuthorizationService
 	{
 		private static HttpClient _httpClient;
+		private readonly IOptions<TrueMarkApiOptions> _options;
 		private readonly ILogger<AuthorizationService> _logger;
 		private readonly HashSet<AuthorizationTokenCache> _tokenCacheList = new();
 
-		public AuthorizationService(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<AuthorizationService> logger)
+		public AuthorizationService(IOptions<TrueMarkApiOptions> options, IHttpClientFactory httpClientFactory, ILogger<AuthorizationService> logger)
 		{
-			var apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
-
 			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
+			_httpClient.BaseAddress = new Uri(options.Value.ExternalTrueMarkBaseUrl);
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			_options = options ?? throw new ArgumentNullException(nameof(options)); ;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -46,17 +50,16 @@ namespace TrueMarkApi.Services.Authorization
 
 			_logger.LogInformation("Токен авторизации устарел, получаем новый...");
 
-			var authKeyResponse = await _httpClient.GetAsync(authUrn);
-			var authKeyStream = await authKeyResponse.Content.ReadAsStreamAsync();
-			var authKey = await JsonSerializer.DeserializeAsync<AuthKeyResponseDto>(authKeyStream);
-			var authKeyDataInBase64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(authKey.Data));
+			var authKeyResponse = await _httpClient.GetStreamAsync(authUrn);
+			var authKey = await JsonSerializer.DeserializeAsync<AuthKeyResponseDto>(authKeyResponse);
 
-			var signModel = new SignModel(сertificateThumbPrint, authKeyDataInBase64String, true);
+			var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == сertificateThumbPrint);
+			var sign = await CreateAttachedSignedCmsWithStore2012_256(authKey.Data, false, currentCert.CertPath, currentCert.CertPwd);
 
 			var tokenRequest = new TokenRequestDto
 			{
 				Uuid = authKey.Uuid,
-				Data = signModel.Sign(),
+				Data = Convert.ToBase64String(sign),
 				Inn = inn
 			};
 
@@ -69,7 +72,7 @@ namespace TrueMarkApi.Services.Authorization
 				var responseContent = await tokenResponseBody.Content.ReadAsStreamAsync();
 				var tokenResponse = await JsonSerializer.DeserializeAsync<TokenResponseDto>(responseContent);
 
-				if (tokenResponse != null)
+				if(tokenResponse != null)
 				{
 					var tokenCache = new AuthorizationTokenCache
 					{
@@ -87,6 +90,24 @@ namespace TrueMarkApi.Services.Authorization
 			_logger.LogError($"Ошибка при получении токена авторизации в ЧЗ: Http code {tokenResponseBody.StatusCode}, причина {tokenResponseBody.ReasonPhrase}");
 
 			return null;
+		}
+
+		public Task<byte[]> CreateAttachedSignedCmsWithStore2012_256(string data, bool isDeatchedSign, string certPath, string certPwd)
+		{
+			byte[] signature;
+
+			byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+			using(var gostCert = new CpX509Certificate2(certPath, certPwd, X509KeyStorageFlags.EphemeralKeySet))
+			{
+				var contentInfo = new ContentInfo(dataBytes);
+				var signedCms = new CpSignedCms(contentInfo, isDeatchedSign);
+				CpCmsSigner cmsSigner = new CpCmsSigner(gostCert);
+				signedCms.ComputeSignature(cmsSigner);
+				signature = signedCms.Encode();
+			}
+
+			return Task.FromResult(signature);
 		}
 	}
 }

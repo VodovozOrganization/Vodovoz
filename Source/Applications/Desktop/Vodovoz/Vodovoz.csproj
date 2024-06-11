@@ -2448,6 +2448,14 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
+      <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
+      <Name>TrueMark.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMarkApi.Client\TrueMarkApi.Client.csproj">
+      <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
+      <Name>TrueMarkApi.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
       <Name>Vodovoz.Core.Application</Name>
@@ -2475,10 +2483,6 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj">
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
       <Name>Vodovoz.Settings</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj">
-      <Project>{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66}</Project>
-      <Name>TrueMarkApi.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>

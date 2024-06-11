@@ -44,15 +44,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
-using TrueMarkApi.Library.Converters;
-using TrueMarkApi.Library.Dto;
+using TrueMark.Contracts;
+using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
@@ -71,6 +70,7 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -98,7 +98,6 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -2146,7 +2145,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TrueMarkResponseResultDto trueMarkResponse;
+			TrueMarkRegistrationResultDto trueMarkResponse;
 
 			try
 			{

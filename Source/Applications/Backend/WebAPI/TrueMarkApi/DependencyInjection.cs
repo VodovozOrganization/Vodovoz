@@ -1,13 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TrueMarkApi.Services;
+using TrueMarkApi.Options;
 
-namespace DatabaseServiceWorker
+namespace TrueMarkApi
 {
 	public static class DependencyInjection
 	{
 		public static IServiceCollection ConfigureTrueMarkWorker(this IServiceCollection services, HostBuilderContext context) => services
-			.Configure<TrueMarkOptions>(context.Configuration.GetSection(nameof(TrueMarkOptions)));
-
+			.Configure<TrueMarkApiOptions>(context.Configuration.GetSection(nameof(TrueMarkApiOptions)));
 	}
 }
