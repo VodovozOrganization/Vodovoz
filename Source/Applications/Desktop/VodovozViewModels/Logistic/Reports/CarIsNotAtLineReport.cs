@@ -162,13 +162,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var filteredTransferEvents = events
 				.Where(e =>
 					carIds.Contains(e.Car.Id)
-					&& e.CarEventType.Id == carTransferEventTypeId)
+					&& e.CarEventType.Id == carTransferEventTypeId
+					&& e.CreateDate >= startDate.AddDays(-1)
+					&& e.CreateDate <= startDate.LatestDayTime())
 				.ToArray();
 
 			var filteredRecieveEvents = events
 				.Where(e =>
 					carIds.Contains(e.Car.Id)
-					&& e.CarEventType.Id == carReceptionEventTypeId)
+					&& e.CarEventType.Id == carReceptionEventTypeId
+					&& e.CreateDate >= startDate.AddDays(-1)
+					&& e.CreateDate <= startDate.LatestDayTime())
 				.ToArray();
 
 			var rows = new List<Row>();
@@ -218,42 +222,38 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				});
 			}
 
-			for(var i = 0; i < filteredTransferEvents.Length; i++)
+			if((!includedEvents.Any() || includedEvents.Any(pair => pair.Id == carTransferEventTypeId))
+				&& (!excludedEvents.Any() || !excludedEvents.Any(pair => pair.Id == carTransferEventTypeId)))
 			{
-				if(filteredTransferEvents[i].CreateDate < startDate.AddDays(-1)
-					|| filteredTransferEvents[i].CreateDate > startDate.LatestDayTime())
+				for(var i = 0; i < filteredTransferEvents.Length; i++)
 				{
-					continue;
+					carTransferRows.Add(new CarTransferRow
+					{
+						Id = i + 1,
+						RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
+						CarTypeWithGeographicalGroup =
+							$"{filteredTransferEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredTransferEvents[i])}",
+						Comment = filteredTransferEvents[i].Comment,
+						TransferedAt = filteredTransferEvents[i].CreateDate,
+					});
 				}
-
-				carTransferRows.Add(new CarTransferRow
-				{
-					Id = 1,
-					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
-					CarTypeWithGeographicalGroup =
-						$"{filteredTransferEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredTransferEvents[i])}",
-					Comment = filteredTransferEvents[i].Comment,
-					TransferedAt = filteredTransferEvents[i].CreateDate,
-				});
 			}
 
-			for(var i = 0; i < filteredRecieveEvents.Length; i++)
+			if((!includedEvents.Any() || includedEvents.Any(pair => pair.Id == carReceptionEventTypeId))
+				&& (!excludedEvents.Any() || !excludedEvents.Any(pair => pair.Id == carReceptionEventTypeId)))
 			{
-				if(filteredRecieveEvents[i].CreateDate < startDate.AddDays(-1)
-					|| filteredRecieveEvents[i].CreateDate > startDate.LatestDayTime())
+				for(var i = 0; i < filteredRecieveEvents.Length; i++)
 				{
-					continue;
+					carReceptionRows.Add(new CarReceptionRow
+					{
+						Id = i + 1,
+						RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
+						CarTypeWithGeographicalGroup =
+							$"{filteredRecieveEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredRecieveEvents[i])}",
+						Comment = filteredRecieveEvents[i].Comment,
+						RecievedAt = filteredRecieveEvents[i].CreateDate,
+					});
 				}
-
-				carReceptionRows.Add(new CarReceptionRow
-				{
-					Id = 1,
-					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
-					CarTypeWithGeographicalGroup =
-						$"{filteredRecieveEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredRecieveEvents[i])}",
-					Comment = filteredRecieveEvents[i].Comment,
-					RecievedAt = filteredRecieveEvents[i].CreateDate,
-				});
 			}
 
 			var summaryByCarModel = rows
