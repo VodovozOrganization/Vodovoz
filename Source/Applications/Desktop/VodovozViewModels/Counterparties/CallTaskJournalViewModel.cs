@@ -14,6 +14,7 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -40,7 +41,8 @@ namespace Vodovoz.ViewModels.Counterparties
 			Action<CallTaskFilterViewModel> filterConfigurationAction = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_fileDialogService = fileDialogService;
+			_fileDialogService = fileDialogService
+				?? throw new ArgumentNullException(nameof(fileDialogService));
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
 
@@ -52,7 +54,15 @@ namespace Vodovoz.ViewModels.Counterparties
 			JournalFilter = _filterViewModel;
 
 			_filterViewModel.OnFiltered += OnFilterRefiltered;
+			_filterViewModel.SetAndRefilterAtOnce();
+
+			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
+			CreatePopupActions();
 		}
+
+		public override string FooterInfo { get; set; }
+
+		protected override Func<IUnitOfWork, int> ItemsCountFunction => unitOfWork => ItemsQuery(unitOfWork).List<CallTaskJournalNode>().Count;
 
 		protected override IQueryOver<CallTask> ItemsQuery(IUnitOfWork uow)
 		{
@@ -71,19 +81,27 @@ namespace Vodovoz.ViewModels.Counterparties
 				.Left.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
 
+			var latestEndDateTime = _filterViewModel.EndDate.Date
+				.AddHours(23)
+				.AddMinutes(59)
+				.AddSeconds(59);
+
 			switch(_filterViewModel.DateType)
 			{
 				case TaskFilterDateType.CreationTime:
-					tasksQuery.Where(x => x.CreationDate >= _filterViewModel.StartDate.Date)
-							  .And(x => x.CreationDate <= _filterViewModel.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
+					tasksQuery
+						.Where(x => x.CreationDate >= _filterViewModel.StartDate.Date)
+						.And(x => x.CreationDate <= latestEndDateTime);
 					break;
 				case TaskFilterDateType.CompleteTaskDate:
-					tasksQuery.Where(x => x.CompleteDate >= _filterViewModel.StartDate.Date)
-							  .And(x => x.CompleteDate <= _filterViewModel.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
+					tasksQuery
+						.Where(x => x.CompleteDate >= _filterViewModel.StartDate.Date)
+						.And(x => x.CompleteDate <= latestEndDateTime);
 					break;
 				default:
-					tasksQuery.Where(x => x.EndActivePeriod >= _filterViewModel.StartDate.Date)
-							  .And(x => x.EndActivePeriod <= _filterViewModel.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
+					tasksQuery
+						.Where(x => x.EndActivePeriod >= _filterViewModel.StartDate.Date)
+						.And(x => x.EndActivePeriod <= latestEndDateTime);
 					break;
 			}
 
@@ -111,28 +129,38 @@ namespace Vodovoz.ViewModels.Counterparties
 				tasksQuery.Where(() => districtAlias.GeographicGroup.Id == _filterViewModel.GeographicGroup.Id);
 			}
 
-			var bottleDebtByAddressQuery = uow.Session.QueryOver(() => bottlesMovementOperationAlias)
-			.Where(() => bottlesMovementOperationAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(() => bottlesMovementOperationAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-								Projections.Sum(() => bottlesMovementOperationAlias.Returned),
-								Projections.Sum(() => bottlesMovementOperationAlias.Delivered)}
-				));
+			var bottleDebtByAddressQuery = uow.Session
+				.QueryOver(() => bottlesMovementOperationAlias)
+				.Where(() => bottlesMovementOperationAlias.Counterparty.Id == counterpartyAlias.Id)
+				.And(() => bottlesMovementOperationAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[]
+						{
+							Projections.Sum(() => bottlesMovementOperationAlias.Returned),
+							Projections.Sum(() => bottlesMovementOperationAlias.Delivered)
+						}));
 
-			var bottleDebtByClientQuery = uow.Session.QueryOver(() => bottlesMovementOperationAlias)
-			.Where(() => bottlesMovementOperationAlias.Counterparty.Id == counterpartyAlias.Id)
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-								Projections.Sum(() => bottlesMovementOperationAlias.Returned),
-								Projections.Sum(() => bottlesMovementOperationAlias.Delivered) }
-				));
+			var bottleDebtByClientQuery = uow.Session
+				.QueryOver(() => bottlesMovementOperationAlias)
+				.Where(() => bottlesMovementOperationAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Select(
+					Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+						NHibernateUtil.Int32, new IProjection[]
+						{
+							Projections.Sum(() => bottlesMovementOperationAlias.Returned),
+							Projections.Sum(() => bottlesMovementOperationAlias.Delivered)
+						}));
 
-			return tasksQuery
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive)
-				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias, () => !counterpartyPhoneAlias.IsArchive)
+			tasksQuery
+				.Left.JoinAlias(
+					() => deliveryPointAlias.Phones,
+					() => deliveryPointPhoneAlias,
+					() => !deliveryPointPhoneAlias.IsArchive)
+				.Left.JoinAlias(
+					() => counterpartyAlias.Phones,
+					() => counterpartyPhoneAlias,
+					() => !counterpartyPhoneAlias.IsArchive)
 				.Left.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias)
 				.SelectList(list => list
@@ -165,53 +193,47 @@ namespace Vodovoz.ViewModels.Counterparties
 						Projections.Constant("\n"))
 				   ).WithAlias(() => resultAlias.CounterpartyPhones)
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
-				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
-				)
-			.TransformUsing(Transformers.AliasToBean<CallTaskJournalNode>());
-		}
+				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient));
 
-		private IEnumerable<CallTaskJournalNode> SortResult(IEnumerable<CallTaskJournalNode> tasks)
-		{
-			IEnumerable<CallTaskJournalNode> result;
 
-			switch(_filterViewModel.SortingParam)
+			IProjection GetSortResultExpression()
 			{
-				case SortingParamType.DebtByAddress:
-					result = tasks.OrderBy(x => x.DebtByAddress);
-					break;
-				case SortingParamType.DebtByClient:
-					result = tasks.OrderBy(x => x.DebtByClient);
-					break;
-				case SortingParamType.AssignedEmployee:
-					result = tasks.OrderBy(x => x.AssignedEmployeeName);
-					break;
-				case SortingParamType.Client:
-					result = tasks.OrderBy(x => x.ClientName);
-					break;
-				case SortingParamType.Deadline:
-					result = tasks.OrderBy(x => x.Deadline);
-					break;
-				case SortingParamType.DeliveryPoint:
-					result = tasks.OrderBy(x => x.AddressName);
-					break;
-				case SortingParamType.Id:
-					result = tasks.OrderBy(x => x.Id);
-					break;
-				case SortingParamType.ImportanceDegree:
-					result = tasks.OrderBy(x => x.ImportanceDegree);
-					break;
-				case SortingParamType.Status:
-					result = tasks.OrderBy(x => x.TaskStatus);
-					break;
-				default:
-					throw new NotImplementedException();
+				switch(_filterViewModel.SortingParam)
+				{
+					case SortingParamType.DebtByAddress:
+						return Projections.SubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery);
+					case SortingParamType.DebtByClient:
+						return Projections.SubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery);
+					case SortingParamType.AssignedEmployee:
+						return Projections.Property(() => employeeAlias.Name);
+					case SortingParamType.Client:
+						return Projections.Property(() => counterpartyAlias.Name);
+					case SortingParamType.Deadline:
+						return Projections.Property(() => callTaskAlias.EndActivePeriod);
+					case SortingParamType.DeliveryPoint:
+						return Projections.Property(() => deliveryPointAlias.ShortAddress);
+					case SortingParamType.ImportanceDegree:
+						return Projections.Property(() => callTaskAlias.ImportanceDegree);
+					case SortingParamType.Status:
+						return Projections.Property(() => callTaskAlias.TaskState);
+					case SortingParamType.Id:
+					default:
+						return Projections.Property(() => callTaskAlias.Id);
+				}
 			}
+
+			var spec = GetSortResultExpression();
+
 			if(_filterViewModel.SortingDirection == SortingDirectionType.FromBiggerToSmaller)
 			{
-				result = result.Reverse();
+				return tasksQuery
+					.TransformUsing(Transformers.AliasToBean<CallTaskJournalNode>())
+					.OrderBy(spec).Desc();
 			}
 
-			return result;
+			return tasksQuery
+				.TransformUsing(Transformers.AliasToBean<CallTaskJournalNode>())
+				.OrderBy(spec).Asc();
 		}
 
 		private void OnFilterRefiltered(object sender, EventArgs e)
@@ -219,8 +241,15 @@ namespace Vodovoz.ViewModels.Counterparties
 			Refresh();
 		}
 
-		internal void ExportTasks(string fileName)
+		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
+			FooterInfo = GetSummary();
+		}
+
+		private void ExportTasks()
+		{
+			var fileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
 			using(var wb = new XLWorkbook())
 			{
 				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
@@ -237,9 +266,28 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		private void InsertValues(IXLWorksheet ws)
 		{
-			var colName = new string[] { "№", "Номер \nзадачи", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг \nпо адресу", "Долг \nпо клиенту", "Телефон адреса", "Телефон клиента", "Ответственный", "Выполнить до", "Срочность", "Комментарий" };
+			var colName = new string[]
+			{
+				"№",
+				"Номер \nзадачи",
+				"Статус",
+				"Клиент",
+				"Дата созадния",
+				"Адрес",
+				"Долг \nпо адресу",
+				"Долг \nпо клиенту",
+				"Телефон адреса",
+				"Телефон клиента",
+				"Ответственный",
+				"Выполнить до",
+				"Срочность",
+				"Комментарий"
+			};
+
+			var items = ItemsQuery(UoW).List<CallTaskJournalNode>();
+
 			var index = 0;
-			var rows = from row in Items as List<CallTaskJournalNode>
+			var rows = from row in items
 					   select new
 					   {
 						   ind = index++,
@@ -294,13 +342,15 @@ namespace Vodovoz.ViewModels.Counterparties
 			return result.Successful;
 		}
 
-		public Dictionary<string, int> GetStatistics(Employee employee = null)
+		public string GetSummary()
 		{
+			var employee = _filterViewModel.Employee;
+
 			var statisticsParam = new Dictionary<string, int>();
 
 			if(!(_filterViewModel is CallTaskFilterViewModel taskFilter))
 			{
-				return statisticsParam;
+				return string.Empty;
 			}
 
 			DateTime start = taskFilter.StartDate.Date;
@@ -317,19 +367,31 @@ namespace Vodovoz.ViewModels.Counterparties
 			}
 
 			var callTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Call);
-			statisticsParam.Add("Звонков : ", callTaskQuery.RowCount());
+			statisticsParam.Add("Звонков", callTaskQuery.RowCount());
 
 			var difTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.DifficultClient);
-			statisticsParam.Add("Сложных клиентов : ", difTaskQuery.RowCount());
+			statisticsParam.Add("Сложных клиентов", difTaskQuery.RowCount());
 
 			var jobTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Task);
-			statisticsParam.Add("Заданий : ", difTaskQuery.RowCount());
+			statisticsParam.Add("Заданий", difTaskQuery.RowCount());
 
-			statisticsParam.Add("Кол-во задач : ", Items.Count);
+			var allNodes = ItemsQuery(UoW).List<CallTaskJournalNode>();
 
-			statisticsParam.Add("Тара на забор : ", Items.OfType<CallTaskJournalNode>().Sum(x => x.TareReturn));
+			statisticsParam.Add("Кол-во задач", allNodes.Count);
 
-			return statisticsParam;
+			statisticsParam.Add("Тара на забор", allNodes.Sum(x => x.TareReturn));
+
+			return string.Join(" | ", statisticsParam.Select(pair => $"{pair.Key} : {pair.Value}"));
+		}
+
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+			NodeActionsList.Add(new JournalAction(
+				"Экспорт",
+				(nodes) => true,
+				(nodes) => true,
+				(nodes) => ExportTasks()));
 		}
 
 		protected override void CreatePopupActions()

@@ -27,6 +27,9 @@ namespace Vodovoz.Counterparties
 
 		private void Initialize()
 		{
+			buttonSave.BindCommand(ViewModel.SaveCommand);
+			buttonCancel.BindCommand(ViewModel.CloseCommand);
+
 			labelCreator.Binding
 				.AddBinding(ViewModel, vm => vm.TaskCreatorString, w => w.Text)
 				.InitializeFromSource();
@@ -54,7 +57,11 @@ namespace Vodovoz.Counterparties
 				.InitializeFromSource();
 
 			ytextviewComments.Binding
-				.AddBinding(ViewModel.Entity, s => s.Comment, w => w.Buffer.Text)
+				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			textviewLastComment.Binding
+				.AddBinding(ViewModel, vm => vm.Comment, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			yentryTareReturn.ValidationMode = ValidationType.numeric;
@@ -97,7 +104,7 @@ namespace Vodovoz.Counterparties
 				.InitializeFromSource();
 
 			ytextviewOldComments.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPointOldComments, w => w.Buffer.Text)
+				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			ViewModel.SetCreateReportByCounterpartyLegacyCallback(() =>

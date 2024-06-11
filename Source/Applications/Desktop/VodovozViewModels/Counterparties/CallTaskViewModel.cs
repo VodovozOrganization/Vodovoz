@@ -50,6 +50,7 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		private string _lastComment;
 		private Action _createNewOrderLegacyCallback;
+		private string _comment;
 
 		public CallTaskViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -155,6 +156,9 @@ namespace Vodovoz.ViewModels.Counterparties
 			CreateNewOrderCommand = new DelegateCommand(CreateNewOrder);
 			CreateNewTaskCommand = new DelegateCommand(CreateNewTask);
 
+			SaveCommand = new DelegateCommand(() => SaveAndClose());
+			CloseCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
+
 			UpdateCounterpartyInformation();
 			UpdateDeliveryPointInformation();
 		}
@@ -173,6 +177,9 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public DelegateCommand CreateNewOrderCommand { get; }
 		public DelegateCommand CreateNewTaskCommand { get; }
+
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CloseCommand { get; }
 
 		public bool CanCreateTask
 		{
@@ -202,6 +209,12 @@ namespace Vodovoz.ViewModels.Counterparties
 		{
 			get => _counterpartyDebt;
 			private set => SetField(ref _counterpartyDebt, value);
+		}
+
+		public string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
 		public string TaskCreatorString => $"Создатель : {Entity.TaskCreator?.ShortName}";
@@ -244,13 +257,13 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		private void AddComment()
 		{
-			if(string.IsNullOrEmpty(Entity.Comment))
+			if(string.IsNullOrEmpty(Comment))
 			{
 				return;
 			}
 
-			Entity.AddComment(UoW, Entity.Comment, out _lastComment, _employeeRepository);
-			Entity.Comment = string.Empty;
+			Entity.AddComment(UoW, Comment, out _lastComment, _employeeRepository);
+			Comment = string.Empty;
 		}
 
 		private void CancelLastComment()
@@ -261,9 +274,7 @@ namespace Vodovoz.ViewModels.Counterparties
 			}
 
 			Entity.Comment =
-				Entity.Comment.Remove(
-					Entity.Comment.Length - _lastComment.Length - 1,
-					_lastComment.Length + 1);
+				Entity.Comment.Replace(_lastComment, string.Empty);
 
 			_lastComment = string.Empty;
 		}

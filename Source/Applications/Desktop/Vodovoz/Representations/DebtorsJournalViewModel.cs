@@ -105,6 +105,7 @@ namespace Vodovoz.Representations
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
+			CreatePopupActions();
 		}
 
 		public override string FooterInfo
@@ -446,6 +447,8 @@ namespace Vodovoz.Representations
 
 		protected override void CreatePopupActions()
 		{
+			PopupActionsList.Clear();
+
 			PopupActionsList.Add(new JournalAction(
 				"Акт по бутылям и залогам(по клиенту)",
 				x => true,
