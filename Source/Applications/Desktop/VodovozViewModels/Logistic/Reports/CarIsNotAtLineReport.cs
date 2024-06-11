@@ -96,7 +96,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 							(CarOwnType?)(from carVersion in unitOfWork.Session.Query<CarVersion>()
 										  where carVersion.Car.Id == car.Id
 											&& carVersion.EndDate == null
-											&& _carOwnTypes.Contains( carVersion.CarOwnType)
+											&& _carOwnTypes.Contains(carVersion.CarOwnType)
 										  select carVersion.CarOwnType)
 							.FirstOrDefault()
 						where !excludeCarsIds.Contains(car.Id)
@@ -116,6 +116,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				 let lastRouteListDate =
 					(DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
 								where routeList.Car.Id == car.Id
+									&& routeList.Date <= date
 								orderby routeList.Date descending
 								select routeList.Date)
 					.FirstOrDefault()
