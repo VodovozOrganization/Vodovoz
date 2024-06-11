@@ -402,7 +402,7 @@ namespace Vodovoz.ViewModels.Counterparties
 				(selectedItems) =>
 				{
 					var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
-					ChangeEnitity((task) => task.ImportanceDegree = ImportanceDegreeType.Important, selectedNodes.ToArray(), false);
+					ChangeEnitity((task) => task.ImportanceDegree = ImportanceDegreeType.Important, selectedNodes.ToArray());
 					foreach(var selectedNode in selectedNodes)
 					{
 						selectedNode.ImportanceDegree = ImportanceDegreeType.Important;
@@ -410,7 +410,7 @@ namespace Vodovoz.ViewModels.Counterparties
 				}));
 		}
 
-		public void ChangeEnitity(Action<CallTask> action, CallTaskJournalNode[] taskNodes, bool NeedUpdate = true)
+		public void ChangeEnitity(Action<CallTask> action, CallTaskJournalNode[] taskNodes)
 		{
 			if(action == null)
 			{
@@ -427,11 +427,6 @@ namespace Vodovoz.ViewModels.Counterparties
 			});
 
 			UoW.Commit();
-
-			if(NeedUpdate)
-			{
-				Refresh();
-			}
 		}
 	}
 }
