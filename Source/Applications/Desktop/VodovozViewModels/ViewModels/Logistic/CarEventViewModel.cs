@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -15,6 +16,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -33,6 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
 		private readonly ICarEventSettings _carEventSettings;
+		private readonly ICarEventRepository _carEventRepository;
 		private readonly ILifetimeScope _lifetimeScope;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		private EntityEntryViewModel<Car> _viewModel;
@@ -79,6 +82,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarEventSettings carEventSettings,
 			INavigationManager navigationManager,
+			ICarEventRepository carEventRepository,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -90,6 +94,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -367,6 +372,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				if(!(selectedObject is FineJournalNode selectedNode))
 				{
+					return;
+				}
+
+				var carEvent = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id).FirstOrDefault();
+
+				if(carEvent != null)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n{carEvent.Id} - {carEvent.CarEventType.ShortName}");
+
 					return;
 				}
 
