@@ -10,6 +10,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Errors;
 using Vodovoz.ViewModels.Reports;
+using DateTimeHelpers;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -219,6 +220,12 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			for(var i = 0; i < filteredTransferEvents.Length; i++)
 			{
+				if(filteredTransferEvents[i].CreateDate < startDate.AddDays(-1)
+					|| filteredTransferEvents[i].CreateDate > startDate.LatestDayTime())
+				{
+					continue;
+				}
+
 				carTransferRows.Add(new CarTransferRow
 				{
 					Id = 1,
@@ -226,12 +233,18 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					CarTypeWithGeographicalGroup =
 						$"{filteredTransferEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredTransferEvents[i])}",
 					Comment = filteredTransferEvents[i].Comment,
-					TransferedAt = filteredTransferEvents[i].EndDate,
+					TransferedAt = filteredTransferEvents[i].CreateDate,
 				});
 			}
 
 			for(var i = 0; i < filteredRecieveEvents.Length; i++)
 			{
+				if(filteredRecieveEvents[i].CreateDate < startDate.AddDays(-1)
+					|| filteredRecieveEvents[i].CreateDate > startDate.LatestDayTime())
+				{
+					continue;
+				}
+
 				carReceptionRows.Add(new CarReceptionRow
 				{
 					Id = 1,
@@ -239,7 +252,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					CarTypeWithGeographicalGroup =
 						$"{filteredRecieveEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredRecieveEvents[i])}",
 					Comment = filteredRecieveEvents[i].Comment,
-					RecievedAt = filteredRecieveEvents[i].EndDate,
+					RecievedAt = filteredRecieveEvents[i].CreateDate,
 				});
 			}
 
