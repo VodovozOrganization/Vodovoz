@@ -204,6 +204,8 @@ namespace Vodovoz.ViewModels.Cash
 
 			PrintCommand = new DelegateCommand(Print);
 			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
+			SaveCommand.CanExecuteChangedWith(this, vm => vm.CanSave);
+
 			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Cancel));
 
 			RefreshCurrentEmployeeWage();
@@ -355,9 +357,9 @@ namespace Vodovoz.ViewModels.Cash
 
 				var dateTimeLowerBorder = DateTimeExtensions.Max(Entity.Date, Entity.DdrDate.FirstDayOfMonth());
 
-				if(value >= dateTimeLowerBorder)
+				if(value.Date >= dateTimeLowerBorder.Date)
 				{
-					Entity.DdrDate = value;
+					Entity.DdrDate = value.Date;
 				}
 				else
 				{
