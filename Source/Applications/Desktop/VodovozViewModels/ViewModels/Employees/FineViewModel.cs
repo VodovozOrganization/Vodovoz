@@ -68,11 +68,11 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void ConfigureCarEvent(ICarEventRepository carEventRepository)
 		{
-			var carEvent = carEventRepository.GetCarEventsByFine(UoW, Entity.Id).FirstOrDefault();
+			var carEvents = carEventRepository.GetCarEventsByFine(UoW, Entity.Id);
 			
-			if(carEvent != null)
+			if(carEvents.Any())
 			{
-				CarEvent = $"Взыскано по событию ТС: {carEvent.Id} - {carEvent.CarEventType.ShortName}";
+				CarEvent = $"Взыскано по событию ТС: {string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}";
 			}
 		}
 

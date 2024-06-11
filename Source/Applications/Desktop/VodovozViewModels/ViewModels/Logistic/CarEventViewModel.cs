@@ -375,13 +375,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					return;
 				}
 
-				var carEvent = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id).FirstOrDefault();
+				var carEvents = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id);
 
-				if(carEvent != null)
+				if(carEvents.Any())
 				{
 					CommonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Warning,
-						$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n{carEvent.Id} - {carEvent.CarEventType.ShortName}");
+						$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n" +
+						$"{string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}");
 
 					return;
 				}
