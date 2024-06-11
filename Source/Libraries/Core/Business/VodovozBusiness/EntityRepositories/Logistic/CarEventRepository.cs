@@ -36,16 +36,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 				).FirstOrDefault();
 		}
 
-		public CarEvent GetCarEventByFine(IUnitOfWork uow, int fineId)
+		public IList<CarEvent> GetCarEventsByFine(IUnitOfWork uow, int fineId)
 		{
 			CarEvent carEventAlias = null;
 			Fine finesAlias = null;
 
-			return uow.Session.QueryOver(() => carEventAlias)
+			return uow.Session.QueryOver<CarEvent>(() => carEventAlias)
 				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
 				.Where(() => finesAlias.Id == fineId)
-				.Take(1)
-				.SingleOrDefault();
+				.List();
 		}
 	}
 }

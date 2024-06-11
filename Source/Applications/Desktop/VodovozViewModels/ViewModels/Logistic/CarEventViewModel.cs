@@ -375,7 +375,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					return;
 				}
 
-				var carEvent = _carEventRepository.GetCarEventByFine(UoW, selectedNode.Id);
+				var carEvent = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id).FirstOrDefault();
 
 				if(carEvent != null)
 				{

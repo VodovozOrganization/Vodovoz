@@ -10,6 +10,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		IEnumerable<CarEvent> Get(IUnitOfWork unitOfWork, Expression<Func<CarEvent, bool>> predicate = null);
 		CarEvent GetLastTechInspectCarEvent(IUnitOfWork uow, int carId, int techInspectCarEventTypeId);
-		CarEvent GetCarEventByFine(IUnitOfWork uow, int fineId);
+		IList<CarEvent> GetCarEventsByFine(IUnitOfWork uow, int fineId);
 	}
 }
