@@ -166,15 +166,16 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			CarEventType carEventTypeAliase = null;
 			Fine finesAlias = null;
 
+			var carEventProjection = CustomProjections.Concat(
+					Projections.Property(() => carEventAlias.Id),
+					Projections.Constant(" - "),
+					Projections.Property(() => carEventTypeAliase.ShortName));
+
 			var carEventSubquery = QueryOver.Of<CarEvent>(() => carEventAlias)
 				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
 				.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAliase)
 				.Where(() => finesAlias.Id == fineAlias.Id)
-				.Select(CustomProjections.Concat(
-					Projections.Property(() => carEventAlias.Id),
-					Projections.Constant(" - "),
-					Projections.Property(() => carEventTypeAliase.ShortName)))
-				.Take(1);
+				.Select(CustomProjections.GroupConcat(carEventProjection, separator: ", "));
 
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
