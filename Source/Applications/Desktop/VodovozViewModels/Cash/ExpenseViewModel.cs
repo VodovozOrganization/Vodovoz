@@ -203,10 +203,20 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			PrintCommand = new DelegateCommand(Print);
-			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);
-			CloseCommand = new DelegateCommand(() => Close(CanEdit, CloseSource.Self));
+			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
+			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Self));
 
 			RefreshCurrentEmployeeWage();
+
+			PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(CanEdit))
+			{
+				OnPropertyChanged(nameof(CanSave));
+			}
 		}
 
 		public IReadOnlyCollection<Organization> CachedOrganizations { get; }
@@ -370,6 +380,8 @@ namespace Vodovoz.ViewModels.Cash
 		public bool CanEdit => (UoW.IsNew && CanCreate)
 			|| (_entityPermissionResult.CanUpdate && Entity.Date.Date == DateTime.Now.Date)
 			|| CanEditRectroactively;
+
+		public bool CanSave => CanEdit || CanEditDate;
 
 		[PropertyChangedAlso(nameof(CurrentEmployeeWageBalanceLabelString))]
 		public decimal CurrentEmployeeWage { get; private set; }
