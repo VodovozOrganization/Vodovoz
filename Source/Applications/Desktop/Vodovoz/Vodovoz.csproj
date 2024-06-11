@@ -1154,8 +1154,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReportView.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport.cs" />
-    <Compile Include="JournalViewers\TasksView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.TasksView.cs" />
     <Compile Include="Representations\DebtorsJournalViewModel.cs" />
     <Compile Include="Cash\Transfer\IncomeCashTransferView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.Transfer.IncomeCashTransferView.cs" />
