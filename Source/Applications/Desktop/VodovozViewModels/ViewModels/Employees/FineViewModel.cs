@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void ConfigureCarEvent(ICarEventRepository carEventRepository)
 		{
-			var carEvent = carEventRepository.GetCarEventsByFine(UoW, Entity.Id).FirstOrDefault();
+			var carEvent = carEventRepository.GetCarEventByFine(UoW, Entity.Id);
 			
 			if(carEvent != null)
 			{
