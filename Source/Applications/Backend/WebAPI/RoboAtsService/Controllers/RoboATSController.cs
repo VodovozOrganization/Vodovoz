@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using RoboatsService.Handlers;
 using RoboatsService.Monitoring;
 using RoboAtsService.Contracts.Requests;
@@ -11,6 +12,8 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Vodovoz.Application.Contacts;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 
@@ -26,6 +29,7 @@ namespace RoboatsService.Controllers
 		private readonly RequestHandlerFactory _handlerFactory;
 		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
 		private readonly IRoboatsRepository _roboatsRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IPhoneService _phoneService;
 
 		public RoboatsController(
@@ -33,12 +37,14 @@ namespace RoboatsService.Controllers
 			RequestHandlerFactory handlerFactory,
 			RoboatsCallRegistrator roboatsCallRegistrator,
 			IRoboatsRepository roboatsRepository,
+			IGenericRepository<Order> orderRepository,
 			IPhoneService phoneService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_orderRepository = orderRepository;
 			_phoneService = phoneService ?? throw new ArgumentNullException(nameof(phoneService));
 		}
 
@@ -105,15 +111,23 @@ namespace RoboatsService.Controllers
 
 		[HttpGet(nameof(GetContactPhoneHasOrdersForDeliveryToday))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetContactPhoneHasOrdersForDeliveryTodayResponse))]
-		public IActionResult GetContactPhoneHasOrdersForDeliveryToday(string counterpartyPhone)
+		public IActionResult GetContactPhoneHasOrdersForDeliveryToday([FromServices]IUnitOfWork unitOfWork, string counterpartyPhone)
 		{
 			try
 			{
-				var counterpartyId = _roboatsRepository.GetCounterpartyIdsByPhone(counterpartyPhone.Substring(1)).FirstOrDefault();
+				var todayOrdersDeliveryPointsIds = _orderRepository.GetValue(
+					unitOfWork,
+					o => o.DeliveryPoint.Id,
+					o => o.ContactPhone != null
+						&& o.DeliveryDate != null
+						&& o.DeliveryDate.Value.Date == DateTime.Today
+						&& o.ContactPhone.DigitsNumber == counterpartyPhone.Substring(1));
+
 				return Ok(
 					new GetContactPhoneHasOrdersForDeliveryTodayResponse
 					{
-						Status = _roboatsRepository.CounterpartyHasTodayDeliveryOrders(counterpartyId)
+						Status = todayOrdersDeliveryPointsIds.Any(),
+						DeliveryPointIds = todayOrdersDeliveryPointsIds
 					});
 			}
 			catch(Exception ex)

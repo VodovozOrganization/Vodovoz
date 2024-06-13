@@ -2,20 +2,18 @@
 using NHibernate.Criterion;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Dialect.Function;
-using NPOI.SS.Formula.Functions;
-using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
-using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Roboats;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Roboats
 {
@@ -536,19 +534,6 @@ namespace Vodovoz.EntityRepositories.Roboats
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				return uow.GetAll<TodayIntervalOffer>().ToList();
-			}
-		}
-
-		public bool CounterpartyHasTodayDeliveryOrders(int counterpartyId)
-		{
-			using(var unitOfWork = _uowFactory.CreateWithoutRoot())
-			{
-				return
-					(from order in unitOfWork.Session.Query<Order>()
-					 where order.Client.Id == counterpartyId
-					  && order.DeliveryDate.Value.Date == DateTime.Today
-					 select order.Id)
-					.Any();
 			}
 		}
 	}
