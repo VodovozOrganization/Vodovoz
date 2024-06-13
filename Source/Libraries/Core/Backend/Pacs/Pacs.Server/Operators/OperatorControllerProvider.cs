@@ -34,7 +34,7 @@ namespace Pacs.Server.Operators
 			{
 				if(!_operatorControllers.TryGetValue(op.Id, out var _))
 				{
-					_operatorControllers.TryAdd(op.Id, _operatorControllerFactory.CreateOperatorController(_operatorRepository.GetOperator(op.Id)));
+					_operatorControllers.TryAdd(op.Id, _operatorControllerFactory.CreateOperatorController(op.Id));
 				}
 			}
 		}
@@ -53,7 +53,7 @@ namespace Pacs.Server.Operators
 				throw new PacsException($"Оператор {operatorId} не зарегистрирован");
 			}
 
-			controller = _operatorControllerFactory.CreateOperatorController(@operator);
+			controller = _operatorControllerFactory.CreateOperatorController(operatorId);
 
 			if(!_operatorControllers.TryAdd(operatorId, controller))
 			{
