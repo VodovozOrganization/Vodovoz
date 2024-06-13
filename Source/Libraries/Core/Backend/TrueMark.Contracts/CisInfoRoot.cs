@@ -7,6 +7,9 @@ namespace TrueMark.Contracts
 	/// </summary>
 	public class CisInfoRoot
 	{
+		/// <summary>
+		/// Информация о КИ
+		/// </summary>
 		[JsonPropertyName("cisInfo")]
 		public CisInfo CisInfo { get; set; }
 	}
