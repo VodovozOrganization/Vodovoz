@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMarkApi.Library;
-using TrueMarkApi.Library.Dto;
+using TrueMark.Contracts;
+using TrueMarkApi.Client;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark

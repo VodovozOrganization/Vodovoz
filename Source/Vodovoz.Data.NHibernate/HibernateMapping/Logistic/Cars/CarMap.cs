@@ -36,6 +36,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.ArchivingReason).Column("archiving_reason");
 			Map(x => x.LeftUntilTechInspect).Column("left_until_tech_inspect");
 			Map(x => x.IncomeChannel).Column("income_channel");
+			Map(x => x.IsKaskoInsuranceNotRelevant).Column("is_kasko_not_relevant");
 
 			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
@@ -46,6 +47,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 				.OrderBy("start_date DESC");
 			HasMany(x => x.FuelCardVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
+			HasMany(x => x.CarInsurances).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
+				.OrderBy("end_date DESC");
 
 			HasMany(x => x.OdometerReadings).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
