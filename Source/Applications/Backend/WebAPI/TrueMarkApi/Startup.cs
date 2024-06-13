@@ -1,20 +1,17 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NLog.Web;
 using QS.Services;
 using System.Text;
 using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Options;
 using TrueMarkApi.Services.Authorization;
 using VodovozHealthCheck;
-using System.Net.Http.Headers;
 
 namespace TrueMarkApi
 {
@@ -33,13 +30,6 @@ namespace TrueMarkApi
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "TrueMarkApi", Version = "v1" });
-			});
-
-			services.AddLogging(logging =>
-			{
-				logging.ClearProviders();
-				logging.AddNLogWeb();
-				logging.AddConfiguration(Configuration.GetSection("NLog"));
 			});
 
 			services.AddControllers();

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -185,7 +186,7 @@ namespace TrueMarkApi.Controllers
 			}
 		}
 
-		[HttpGet, Produces("text/plain")]
+		[HttpGet, Produces(MediaTypeNames.Text.Plain)]
 		public async Task<string> Login(string certificateThumbPrint, string inn)
 		{
 			return await _authorizationService.Login(certificateThumbPrint, inn);

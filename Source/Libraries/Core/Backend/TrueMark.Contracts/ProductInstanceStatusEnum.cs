@@ -1,5 +1,8 @@
 ﻿namespace TrueMark.Contracts
 {
+	/// <summary>
+	/// Данные о статусах экземпляров товаров
+	/// </summary>
 	public enum ProductInstanceStatusEnum
 	{
 		/// <summary>
