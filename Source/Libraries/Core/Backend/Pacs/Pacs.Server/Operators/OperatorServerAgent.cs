@@ -1,7 +1,6 @@
 ﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
-using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Breaks;
 using Pacs.Server.Phones;
@@ -22,7 +21,6 @@ namespace Pacs.Server.Operators
 {
 	public partial class OperatorServerAgent : IDisposable
 	{
-		private readonly Operator _operator;
 		private readonly ILogger<OperatorServerAgent> _logger;
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
@@ -49,14 +47,14 @@ namespace Pacs.Server.Operators
 
 		public event EventHandler<int> OnDisconnect;
 
-		public int OperatorId => _operator.Id;
+		public int OperatorId { get; }
 		public OperatorSession Session { get; private set; }
 		public OperatorState OperatorState { get; private set; }
 
 		public OperatorBreakAvailability BreakAvailability { get; private set; }
 
 		public OperatorServerAgent(
-			Operator @operator,
+			int operatorId,
 			ILogger<OperatorServerAgent> logger,
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
@@ -66,7 +64,7 @@ namespace Pacs.Server.Operators
 			OperatorBreakController operatorBreakController,
 			IUnitOfWorkFactory uowFactory)
 		{
-			_operator = @operator ?? throw new ArgumentNullException(nameof(@operator));
+			OperatorId = operatorId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
 			_operatorRepository = operatorRepository ?? throw new ArgumentNullException(nameof(operatorRepository));
@@ -264,6 +262,8 @@ namespace Pacs.Server.Operators
 
 		public async Task Connect()
 		{
+			var opearator = _operatorRepository.GetOperator(OperatorId);
+
 			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
@@ -372,6 +372,7 @@ namespace Pacs.Server.Operators
 
 		public async Task KeepAlive()
 		{
+			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.KeepAlive);
 		}
 
@@ -395,8 +396,9 @@ namespace Pacs.Server.Operators
 			{
 				var phoneNumber = (string)transition.Parameters[0];
 				_phoneController.AssignPhone(phoneNumber, OperatorId);
+				var @operator = _operatorRepository.GetOperator(OperatorId);
 				OperatorState.PhoneNumber = phoneNumber;
-				OperatorState.WorkShift = OperatorWorkshift.Create(OperatorId, DateTime.Now, _operator.WorkShift);
+				OperatorState.WorkShift = OperatorWorkshift.Create(OperatorId, DateTime.Now, @operator.WorkShift);
 				_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
 			}
 			catch(Exception ex)
