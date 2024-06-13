@@ -105,7 +105,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
-				.AddScoped<IUserService>(context => ServicesConfig.UserService)
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 				.AddScoped<IWarehouseModel, WarehouseModel>()
 				.AddScoped<IRentPackageModel, RentPackageModel>()
