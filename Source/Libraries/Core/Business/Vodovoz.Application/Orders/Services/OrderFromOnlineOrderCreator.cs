@@ -80,6 +80,7 @@ namespace Vodovoz.Application.Orders.Services
 			if(!string.IsNullOrWhiteSpace(onlineOrder.OnlineOrderComment))
 			{
 				order.Comment = onlineOrder.OnlineOrderComment;
+				order.HasCommentForDriver = true;
 			}
 			
 			if(!order.SelfDelivery)
@@ -223,6 +224,11 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			foreach(var onlineRentPackage in onlineRentPackages)
 			{
+				if(onlineRentPackage.FreeRentPackage is null)
+				{
+					continue;
+				}
+				
 				var rentPackage = onlineRentPackage.FreeRentPackage;
 				
 				var existingItems = order.OrderEquipments
