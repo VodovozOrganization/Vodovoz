@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
@@ -75,6 +76,7 @@ namespace RoboatsService
 			services.AddApplication();
 			services.AddBusiness(Configuration)
 				.AddInfrastructure()
+				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)))
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 		}
 
