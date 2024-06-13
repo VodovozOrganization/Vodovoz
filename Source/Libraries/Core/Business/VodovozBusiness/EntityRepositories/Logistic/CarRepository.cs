@@ -9,8 +9,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
@@ -386,5 +388,54 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return carsRouteListAddressesGroup;
 		}
+
+		public IQueryable<AdressesOrdersData> GetAddressesOrdersData(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds)
+		{
+			var data =
+				from rl in unitOfWork.Session.Query<RouteList>()
+				join rla in unitOfWork.Session.Query<RouteListItem>() on rl.Id equals rla.RouteList.Id
+				join car in unitOfWork.Session.Query<Car>() on rl.Car.Id equals car.Id
+				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
+				join o in unitOfWork.Session.Query<Order>() on rla.Order.Id equals o.Id into orders
+				from order in orders.DefaultIfEmpty()
+				join orderItem in unitOfWork.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				join n in unitOfWork.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals n.Id into nomenclatures
+				from nomenclature in nomenclatures.DefaultIfEmpty()
+				where routeListsIds.Contains(rl.Id)
+				select new AdressesOrdersData
+				{
+					RouteListId = rla.RouteList.Id,
+					CarId = car.Id,
+					CarTypeOfuse = carModel.CarTypeOfUse,
+					AddressId = rla.Id,
+					IsAddressWasTransfered = rla.WasTransfered,
+					AddressStatus = rla.Status,
+					OrderId = order.Id,
+					OrderItemCount = orderItem.Count,
+					OrderItemActualCount = orderItem.ActualCount,
+					IsNomenclatureWater19L = nomenclature.IsWater19L,
+					NomenclatureWeight = nomenclature.Weight,
+					NomenclatureVolume = nomenclature.Volume
+				};
+
+			return data;
+		}
+	}
+
+	public class AdressesOrdersData
+	{
+		public int RouteListId { get; set; }
+		public int CarId { get; set; }
+		public CarTypeOfUse CarTypeOfuse { get; set; }
+		public int AddressId { get; set; }
+		public bool IsAddressWasTransfered { get; set; }
+		public RouteListItemStatus AddressStatus { get; set; }
+		public int? OrderId { get; set; }
+		public decimal? OrderItemCount { get; set; }
+		public decimal? OrderItemActualCount { get; set; }
+		public bool? IsNomenclatureWater19L { get; set; }
+		public decimal? NomenclatureWeight { get; set; }
+		public decimal? NomenclatureVolume { get; set; }
+
 	}
 }

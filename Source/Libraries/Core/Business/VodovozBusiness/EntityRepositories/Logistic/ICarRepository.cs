@@ -39,5 +39,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		Task<IDictionary<(int CarId, int Day), IEnumerable<RouteListItem>>> GetNotPriorityDistrictsAddresses(
 			IUnitOfWork unitOfWork, IList<int> routeListsIds, CancellationToken cancellationToken);
+		IQueryable<AdressesOrdersData> GetAddressesOrdersData(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
 	}
 }
