@@ -150,7 +150,6 @@ stage('Build'){
 				stage('Build WEB'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
-						PublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
@@ -187,7 +186,6 @@ stage('Compress'){
 	parallel(
 		"Desktop" : { CompressDesktopArtifact() },
 
-		"DriverAPI" : { CompressWebArtifact("Backend/WebAPI/DriverAPI") },
 		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
 		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
@@ -213,7 +211,6 @@ stage('Delivery'){
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 
-		"DriverAPI" : { DeliveryWebArtifact("DriverAPI") },
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
 		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
@@ -244,7 +241,6 @@ stage('Publish'){
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
 
-		"DriverAPI" : { PublishWeb("DriverAPI") },
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
 		"PayPageAPI" : { PublishWeb("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
