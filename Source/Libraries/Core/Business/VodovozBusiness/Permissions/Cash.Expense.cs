@@ -1,10 +1,18 @@
-﻿namespace Vodovoz.Permissions
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Vodovoz.Permissions
 {
 	public static partial class Cash
     {
 		public static class Expense
 		{
 			public static string CanEditDate => CanEditExpenseAndIncomeDate;
+
+			/// <summary>
+			/// Возможность редактирвоать дату учета ДДР
+			/// </summary>
+			[Display(Name = "Возможность редактирвоать дату учета ДДР")]
+			public static string CanEditDdrDate => nameof(CanEditDdrDate);
 		}
 	}
 }

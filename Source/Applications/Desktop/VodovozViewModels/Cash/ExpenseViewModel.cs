@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
+using DateTimeHelpers;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IReportViewOpener _reportViewOpener;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private bool _canEditDate;
+		private bool _canEditDdrDate;
 		private Employee _restrictEmployee;
 
 		public ExpenseViewModel(
@@ -124,6 +126,9 @@ namespace Vodovoz.ViewModels.Cash
 			_canEditDate = commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDate);
 
+			_canEditDdrDate = commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDdrDate);
+
 			CachedOrganizations = UoW.GetAll<Organization>().ToList().AsReadOnly();
 
 			if(IsNew)
@@ -170,6 +175,10 @@ namespace Vodovoz.ViewModels.Cash
 				() => CanEdit);
 
 			SetPropertyChangeRelation(
+				e => e.DdrDate,
+				() => DdrDate);
+
+			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
@@ -194,10 +203,22 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			PrintCommand = new DelegateCommand(Print);
-			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);
-			CloseCommand = new DelegateCommand(() => Close(true, CloseSource.Self));
+			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
+			SaveCommand.CanExecuteChangedWith(this, vm => vm.CanSave);
+
+			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Cancel));
 
 			RefreshCurrentEmployeeWage();
+
+			PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(CanEdit))
+			{
+				OnPropertyChanged(nameof(CanSave));
+			}
 		}
 
 		public IReadOnlyCollection<Organization> CachedOrganizations { get; }
@@ -321,15 +342,48 @@ namespace Vodovoz.ViewModels.Cash
 			set => Entity.Money = value;
 		}
 
+		public DateTime DdrDate
+		{
+			get => Entity.DdrDate;
+			set
+			{
+				if(DdrDate != default && DdrDate != Entity.DdrDate && !CanEditDdrDate)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"У вас недостаточно прав для изменения даты учета ДДР");
+					return;
+				}
+
+				var dateTimeLowerBorder = DateTimeExtensions.Max(Entity.Date, Entity.DdrDate.FirstDayOfMonth());
+
+				if(value.Date >= dateTimeLowerBorder.Date)
+				{
+					Entity.DdrDate = value.Date;
+				}
+				else
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Нельзя установить дату учета ДДР ранее {dateTimeLowerBorder:dd.MM.yyyy}");
+					OnPropertyChanged(nameof(DdrDate));
+				}
+			}
+		}
+
 		public bool CanEditRectroactively { get; }
 
 		public bool CanEditDate => _canEditDate && !IsAdvance;
+
+		public bool CanEditDdrDate => _canEditDdrDate;
 
 		public bool CanCreate => _entityPermissionResult.CanCreate;
 
 		public bool CanEdit => (UoW.IsNew && CanCreate)
 			|| (_entityPermissionResult.CanUpdate && Entity.Date.Date == DateTime.Now.Date)
 			|| CanEditRectroactively;
+
+		public bool CanSave => CanEdit || CanEditDate;
 
 		[PropertyChangedAlso(nameof(CurrentEmployeeWageBalanceLabelString))]
 		public decimal CurrentEmployeeWage { get; private set; }
@@ -448,12 +502,12 @@ namespace Vodovoz.ViewModels.Cash
 				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-					|| Entity.TypeOperation == ExpenseType.Salary)
+				|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-					|| Entity.TypeOperation == ExpenseType.Salary)
+				|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}

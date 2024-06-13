@@ -3,9 +3,10 @@ using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Vodovoz.Extensions;
+using System.Linq;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Cash.Reports;
 
@@ -25,13 +26,16 @@ namespace Vodovoz.Cash.Reports
 			Initialize();
 
 			_defaultAccentColor = GdkColors.CashFlowTotalColor;
-
-			_defaultTreeViewBackgroundColor = Rc.GetStyle(ytreeReportIndicatorsRows).Background(StateType.Normal);
+			_defaultTreeViewBackgroundColor = GdkColors.PrimaryBase;
 		}
 
 		private void Initialize()
 		{
 			UpdateSliderArrow();
+
+			yradiobuttonDdr.Toggled += ReportModeChanged;
+
+			yradiobuttonDds.Toggled += ReportModeChanged;
 
 			dateStart.Binding
 				.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date)
@@ -64,6 +68,21 @@ namespace Vodovoz.Cash.Reports
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
+		private void ReportModeChanged(object sender, EventArgs e)
+		{
+			if(sender is yRadioButton reportModeRadioButton && reportModeRadioButton.Active)
+			{
+				if(reportModeRadioButton.Name.Contains(CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Dds.ToString()))
+				{
+					ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Dds;
+				}
+				else if(reportModeRadioButton.Name.Contains(CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Ddr.ToString()))
+				{
+					ViewModel.ReportMode = CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.Ddr;
+				}
+			}
+		}
+
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.Report))
@@ -71,6 +90,7 @@ namespace Vodovoz.Cash.Reports
 				_lines = ReportLine.Map(ViewModel.Report);
 
 				ConfigureReportView();
+				return;
 			}
 		}
 
