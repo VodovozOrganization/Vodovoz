@@ -89,7 +89,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			int carTransferEventTypeId,
 			int carReceptionEventTypeId)
 		{
-			var startDate = date.AddDays(-countDays);
+			date = date.LatestDayTime();
+			var startDate = date.AddDays(-countDays).Date;
 
 			var cars = (from car in unitOfWork.Session.Query<Car>()
 						let carOwnType =
