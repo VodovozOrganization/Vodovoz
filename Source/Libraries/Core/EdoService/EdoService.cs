@@ -34,13 +34,13 @@ namespace EdoService.Library
 
 				if(type == Type.Upd)
 				{
-					var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+					var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 						.Where(x => x.Order.Id == entity.GetId())
 						.OrderByDescending(x => x.CreationDate)
 						.FirstOrDefault();
 
 					if(orderLastTrueMarkDocument != null
-						&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+						&& orderLastTrueMarkDocument.Type != TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation)
 					{
 						edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
 					}

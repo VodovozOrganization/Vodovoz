@@ -1,10 +1,11 @@
-﻿using System;
-using System.Threading;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
-using TrueMarkApi.Library;
-using Vodovoz.Settings.Edo;
+using TrueMark.Contracts;
+using TrueMarkApi.Options;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 
@@ -12,53 +13,52 @@ namespace TrueMarkApi.HealthChecks
 {
 	public class TrueMarkHealthCheck : VodovozHealthCheckBase
 	{
-		private readonly IEdoSettings _edoSettings;
+		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly IOptions<TrueMarkApiOptions> _options;
 
-		public TrueMarkHealthCheck(ILogger<TrueMarkHealthCheck> logger, IEdoSettings edoSettings, IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+		public TrueMarkHealthCheck(
+			ILogger<TrueMarkHealthCheck> logger,
+			IHttpClientFactory httpClientFactory,
+			IOptions<TrueMarkApiOptions> options)
+			: base(logger)
 		{
-			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
+			_httpClientFactory = httpClientFactory ?? throw new System.ArgumentNullException(nameof(httpClientFactory));
+			_options = options ?? throw new System.ArgumentNullException(nameof(options));
 		}
 
-		protected override Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> GetHealthResult()
 		{
 			var healthResult = new VodovozHealthResultDto();
 
-			var controllerIsHealthy = CheckControllerIsHealthy();
+			var controllerIsHealthy = await CheckControllerIsHealthyAsync();
 
 			if(!controllerIsHealthy)
 			{
 				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка контроллера.");
 			}
 
-			var serviceIsHealthy = CheckDocumentServiceIsHealthy();
+			healthResult.IsHealthy = controllerIsHealthy;
 
-			if(!serviceIsHealthy)
-			{
-				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка сервиса документов.");
-			}
-
-			healthResult.IsHealthy = controllerIsHealthy && serviceIsHealthy;
-
-			return Task.FromResult(healthResult);
+			return healthResult;
 		}
 
-		private bool CheckControllerIsHealthy()
+		private async Task<bool> CheckControllerIsHealthyAsync()
 		{
-			var client = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
-			var result = client.GetParticipantRegistrationForWaterStatusAsync(_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, "7816453294", new CancellationToken());
+			var httpClient = _httpClientFactory.CreateClient();
+			httpClient.DefaultRequestHeaders.Accept.Clear();
+			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _options.Value.InternalSecurityKey);
+			var urlWithParams = $"http://localhost:5000/api/ParticipantRegistrationForWater?inn={7816453294}";
+			var response = await httpClient.GetAsync(urlWithParams);
+			var responseBody = await response.Content.ReadAsStreamAsync();
+			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody);
 
-			if(result != null && result.Result.RegistrationStatusString == "Зарегистрирован")
+			if(responseResult != null && responseResult.RegistrationStatusString == "Зарегистрирован")
 			{
 				return true;
 			}
 
 			return false;
 		}
-
-		public bool IsHealthy { get; set; }
-
-		private bool CheckDocumentServiceIsHealthy() => IsHealthy;
-
 	}
 }
