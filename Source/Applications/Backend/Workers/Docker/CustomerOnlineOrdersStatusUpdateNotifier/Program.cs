@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
@@ -46,6 +47,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
+						.AddBusiness(hostContext.Configuration)
 						
 						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
