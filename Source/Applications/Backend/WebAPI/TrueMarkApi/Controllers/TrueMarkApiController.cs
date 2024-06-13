@@ -193,9 +193,9 @@ namespace TrueMarkApi.Controllers
 		}
 
 		[HttpGet]
-		public async Task<byte[]> Sign(string data, bool isDeatchedSign, string certificateThumbPrint)
+		public async Task<byte[]> Sign(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
 		{
-			var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint);
+			var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);
 
 			return await _authorizationService.CreateAttachedSignedCmsWithStore2012_256(data, isDeatchedSign, currentCert.CertPath, currentCert.CertPwd);
 		}
