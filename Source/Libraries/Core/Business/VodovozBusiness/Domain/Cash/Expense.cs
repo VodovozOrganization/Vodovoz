@@ -360,7 +360,7 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var dateTimeLowerBorder = DateTimeExtensions.Max(Date, DdrDate.FirstDayOfMonth());
+			var dateTimeLowerBorder = DateTimeExtensions.Max(Date, DdrDate.FirstDayOfMonth()).Date;
 
 			if(DdrDate < dateTimeLowerBorder)
 			{
