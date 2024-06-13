@@ -372,6 +372,7 @@ namespace Pacs.Server.Operators
 
 		public async Task KeepAlive()
 		{
+			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.KeepAlive);
 		}
 
