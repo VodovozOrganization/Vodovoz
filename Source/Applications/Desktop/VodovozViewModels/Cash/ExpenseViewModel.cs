@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -7,7 +7,6 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -209,6 +208,10 @@ namespace Vodovoz.ViewModels.Cash
 			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Cancel));
 
 			RefreshCurrentEmployeeWage();
+
+			ValidationContext.Items.Add(
+				nameof(IFinancialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId),
+				_financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId);
 
 			PropertyChanged += OnViewModelPropertyChanged;
 		}
@@ -506,11 +509,6 @@ namespace Vodovoz.ViewModels.Cash
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
-			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-				|| Entity.TypeOperation == ExpenseType.Salary)
-			{
-				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
-			}
 			else
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity);
@@ -668,7 +666,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			if(unclosedChangeAdvances.Count() > 0)
 			{
-				ServicesConfig.CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 					"Закройте сначала ранее выданные авансы со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
 				return false;
 			}
@@ -676,7 +674,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			if(!_orderIdsToChanges.Any())
 			{
-				ServicesConfig.CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
 					"Для данного МЛ нет наличных заказов требующих сдачи");
 				return false;
 			}
