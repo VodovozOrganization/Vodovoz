@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Orders
@@ -12,6 +13,7 @@ namespace Vodovoz.Domain.Orders
 			PrepositionalPlural = "Причинах отмены онлайн заказа"
 		)
 	]
+	[EntityPermission]
 	[HistoryTrace]
 	public class OnlineOrderCancellationReason : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
