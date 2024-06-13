@@ -35,8 +35,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
-using Vodovoz.ViewModels.Widgets.Cars.Insurance;
-using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -54,7 +52,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -62,6 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IFuelCardVersionViewModelFactory fuelCardVersionViewModelFactory,
 			IRouteListsWageController routeListsWageController,
@@ -72,44 +70,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IFuelRepository fuelRepository,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
-			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
-			CarInsuranceManagementViewModel insuranceManagementViewModel,
-			CarVersionsManagementViewModel carVersionsManagementViewModel)
+			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
-
-			if(insuranceManagementViewModel is null)
-			{
-				throw new ArgumentNullException(nameof(insuranceManagementViewModel));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 
 			TabName = "Автомобиль";
 
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
-
-			_carVersionsManagementViewModel.Initialize(Entity, this);
-			CarVersionsViewModel = _carVersionsManagementViewModel.CarVersionsViewModel;
-			CarVersionEditingViewModel = _carVersionsManagementViewModel.CarVersionEditingViewModel;
+			CarVersionsViewModel = (carVersionsViewModelFactory ?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory)))
+				.CreateCarVersionsViewModel(Entity);
 
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
-
-			insuranceManagementViewModel.Initialize(Entity, this);
-			OsagoInsuranceVersionViewModel = insuranceManagementViewModel.OsagoInsuranceVersionViewModel;
-			KaskoInsuranceVersionViewModel = insuranceManagementViewModel.KaskoInsuranceVersionViewModel;
-			CarInsuranceVersionEditingViewModel = insuranceManagementViewModel.CarInsuranceVersionEditingViewModel;
 
 			FuelCardVersionViewModel = (fuelCardVersionViewModelFactory ?? throw new ArgumentNullException(nameof(fuelCardVersionViewModelFactory)))
 				.CreateFuelCardVersionViewModel(Entity, UoW);
@@ -219,12 +201,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
-		public CarVersionEditingViewModel CarVersionEditingViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 		public FuelCardVersionViewModel FuelCardVersionViewModel { get; }
-		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
-		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
-		public CarInsuranceVersionEditingViewModel CarInsuranceVersionEditingViewModel { get; }
 
 		protected override bool BeforeSave()
 		{
@@ -244,7 +222,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			var routeLists = _carVersionsManagementViewModel.GetAllAffectedRouteLists(UoW);
+			var routeLists = CarVersionsViewModel.GetAllAffectedRouteLists(UoW);
 			if(!routeLists.Any())
 			{
 				return base.Save(close);

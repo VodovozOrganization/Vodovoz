@@ -11,14 +11,13 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<CarJournalNode> config) =>
 			config.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
-				.AddColumn("Собственник").AddTextRenderer(x => x.CarOwner).WrapWidth(300).WrapMode(WrapMode.WordChar)
 				.AddColumn("Производитель").AddTextRenderer(x => x.ManufacturerName).WrapWidth(300).WrapMode(WrapMode.WordChar)
 				.AddColumn("Модель").AddTextRenderer(x => x.ModelName).WrapWidth(300).WrapMode(WrapMode.WordChar)
 				.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
-			        .AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = n.IsShowBackgroundColorNotification ? GdkColors.Pink : GdkColors.PrimaryBase)
+			        .AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = n.IsUpcomingTechInspect ? GdkColors.Pink : GdkColors.PrimaryBase)
 				.Finish();
 	}
 }

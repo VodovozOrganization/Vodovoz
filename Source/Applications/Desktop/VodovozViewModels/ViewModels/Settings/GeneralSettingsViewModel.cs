@@ -1,15 +1,25 @@
-﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
-using QS.ViewModels.Dialog;
 using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Settings.Car;
+using Autofac;
+using QS.DomainModel.Entity;
+using QS.Project.Journal;
+using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.Settings.Fuel;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
@@ -21,7 +31,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IFuelControlSettings _fuelControlSettings;
-		private readonly ICarInsuranceSettings _carInsuranceSettings;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
@@ -64,13 +73,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _gazelleMaxDailyFuelLimit;
 		private int _loaderMaxDailyFuelLimit;
 
-		private int _osagoEndingNotifyDaysBefore;
-		private int _kaskoEndingNotifyDaysBefore;
-
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettings,
 			IFuelControlSettings fuelControlSettings,
-			ICarInsuranceSettings carInsuranceSettings,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -83,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
-			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
+
 			TabName = "Общие настройки";
 
 			RouteListPrintedFormPhones = _generalSettings.GetRouteListPrintedFormPhones;
@@ -129,13 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_upcomingTechInspectForRaskatCars = _generalSettings.UpcomingTechInspectForRaskatCars;
 			CanEditUpcomingTechInspectSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditTechInspectSetting);
 			SaveUpcomingTechInspectCommand = new DelegateCommand(SaveUpcomingTechInspect, () => CanEditUpcomingTechInspectSetting);
-
-			_osagoEndingNotifyDaysBefore = _carInsuranceSettings.OsagoEndingNotifyDaysBefore;
-			_kaskoEndingNotifyDaysBefore = _carInsuranceSettings.KaskoEndingNotifyDaysBefore;
-			CanEditInsuranceNotificationsSettings =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditInsuranceNotificationsSettings);
-			SaveInsuranceNotificationsSettingsCommand = new DelegateCommand(SaveInsuranceNotificationsSettings, () => CanEditInsuranceNotificationsSettings);
-
+			
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
 			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.CanEditFastDeliveryIntervalFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
@@ -394,34 +393,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#endregion
 
-		#region Настройка уведомлений о приближающихся страховках
-
-		public int OsagoEndingNotifyDaysBefore
-		{
-			get => _osagoEndingNotifyDaysBefore;
-			set => SetField(ref _osagoEndingNotifyDaysBefore, value);
-		}
-
-		public int KaskoEndingNotifyDaysBefore
-		{
-			get => _kaskoEndingNotifyDaysBefore;
-			set => SetField(ref _kaskoEndingNotifyDaysBefore, value);
-		}
-
-		public DelegateCommand SaveInsuranceNotificationsSettingsCommand { get; }
-		public bool CanEditInsuranceNotificationsSettings { get; }
-
-		private void SaveInsuranceNotificationsSettings()
-		{
-			_carInsuranceSettings.SetOsagoEndingNotifyDaysBefore(OsagoEndingNotifyDaysBefore);
-			_carInsuranceSettings.SetKaskoEndingNotifyDaysBefore(KaskoEndingNotifyDaysBefore);
-
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
-
-		}
-
-		#endregion
-
 		#region BillAdditionalInfo
 
 		public string BillAdditionalInfo
@@ -506,7 +477,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public int FastDeliveryMaximumPermissibleLateMinutes
 		{
-			get => _fastDeliveryMaximumPermissibleLateMinutes;
+			get => _fastDeliveryMaximumPermissibleLateMinutes; 
 			set => SetField(ref _fastDeliveryMaximumPermissibleLateMinutes, value);
 		}
 
@@ -517,8 +488,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SetFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum fastDeliveryIntervalFrom)
 		{
-			switch(fastDeliveryIntervalFrom)
-			{
+			switch (fastDeliveryIntervalFrom)
+				{
 				case FastDeliveryIntervalFromEnum.OrderCreated:
 					IsIntervalFromOrderCreated = true;
 					break;
@@ -527,7 +498,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					break;
 				case FastDeliveryIntervalFromEnum.RouteListItemTransfered:
 					IsIntervalFromRouteListItemTransfered = true;
-					break;
+					break;				
 			}
 		}
 

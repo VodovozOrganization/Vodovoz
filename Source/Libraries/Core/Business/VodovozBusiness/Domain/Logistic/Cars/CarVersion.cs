@@ -1,8 +1,8 @@
-﻿using QS.DomainModel.Entity;
-using QS.HistoryLog;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Organizations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -16,7 +16,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private DateTime _startDate;
 		private DateTime? _endDate;
 		private CarOwnType _carOwnType;
-		private Organization _carOwnerOrganization;
 
 		public virtual int Id { get; set; }
 
@@ -46,13 +45,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _car;
 			set => SetField(ref _car, value);
-		}
-
-		[Display(Name = "Собственник авто")]
-		public virtual Organization CarOwnerOrganization
-		{
-			get => _carOwnerOrganization;
-			set => SetField(ref _carOwnerOrganization, value);
 		}
 
 		public virtual bool IsCompanyCar => CarOwnType == CarOwnType.Company;

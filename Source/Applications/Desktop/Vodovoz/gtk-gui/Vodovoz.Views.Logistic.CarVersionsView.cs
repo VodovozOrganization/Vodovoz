@@ -20,8 +20,6 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton buttonChangeVersionDate;
 
-		private global::Gamma.GtkWidgets.yButton buttonEditOwner;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -67,7 +65,6 @@ namespace Vodovoz.Views.Logistic
 			this.datepickerVersionDate.Date = new global::System.DateTime(0);
 			this.datepickerVersionDate.IsEditable = true;
 			this.datepickerVersionDate.AutoSeparation = false;
-			this.datepickerVersionDate.HideButtonClearDate = false;
 			this.hbox2.Add(this.datepickerVersionDate);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.datepickerVersionDate]));
 			w4.Position = 1;
@@ -94,22 +91,11 @@ namespace Vodovoz.Views.Logistic
 			w6.Position = 3;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonEditOwner = new global::Gamma.GtkWidgets.yButton();
-			this.buttonEditOwner.CanFocus = true;
-			this.buttonEditOwner.Name = "buttonEditOwner";
-			this.buttonEditOwner.UseUnderline = true;
-			this.buttonEditOwner.Label = global::Mono.Unix.Catalog.GetString("Редактировать собственника");
-			this.hbox2.Add(this.buttonEditOwner);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonEditOwner]));
-			w7.Position = 4;
+			this.vbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.vbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
 			this.Add(this.vbox3);
 			if ((this.Child != null))
 			{

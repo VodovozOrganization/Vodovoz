@@ -5,7 +5,7 @@ using Gdk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
+using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -33,29 +33,23 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Принадлежность")
 					.AddComboRenderer(x => x.CarOwnType)
 					.SetDisplayFunc(x => x.GetEnumTitle())
+					.DynamicFillListFunc(version => ViewModel.GetAvailableCarOwnTypesForVersion(version))
+					.AddSetter((c, n) => { c.Editable = n.Id == 0; c.Text += n.Id == 0 ? "  ▼" : ""; })
 					.XAlign(0.5f)
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate.ToString("g")).XAlign(0.5f)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "").XAlign(0.5f)
-				.AddColumn("Собственник").AddTextRenderer(x => x.CarOwnerOrganization == null ? "" : x.CarOwnerOrganization.Name).XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
-
-			ytreeCarVersions.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarVersions, w => w.ItemsDataSource)
-				.AddBinding(vm => vm.SelectedCarVersion, w => w.SelectedRow)
-				.InitializeFromSource();
+			ytreeCarVersions.ItemsDataSource = ViewModel.Entity.ObservableCarVersions;
+			ytreeCarVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedCarVersion, w => w.SelectedRow).InitializeFromSource();
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewVersion, w => w.Sensitive).InitializeFromSource();
-			buttonNewVersion.BindCommand(ViewModel.AddNewVersionCommand);
+			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewCarVersion();
 
-			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeVersionStartDate, w => w.Sensitive).InitializeFromSource();
-			buttonChangeVersionDate.BindCommand(ViewModel.ChangeStartDateCommand);
+			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeVersionDate, w => w.Sensitive).InitializeFromSource();
+			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeVersionStartDate();
 
-			buttonEditOwner.Binding.AddBinding(ViewModel, vm => vm.CanEditCarOwner, w => w.Sensitive).InitializeFromSource();
-			buttonEditOwner.BindCommand(ViewModel.EditCarOwnerCommand);
-
-			Visible = ViewModel.IsWidgetVisible;
+			Visible = ViewModel.CanRead;
 		}
 	}
 }
