@@ -45,7 +45,6 @@ namespace Pacs.Core
 				StateMutator,
 				FiringMode.Queued);
 
-
 			ConfigureBaseStates(_machine);
 
 			_machine.Configure(OperatorStateType.WaitingForCall)
