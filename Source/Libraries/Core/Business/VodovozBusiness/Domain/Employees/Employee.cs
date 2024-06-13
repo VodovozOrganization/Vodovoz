@@ -73,6 +73,7 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<EmployeeRegistrationVersion> _observableEmployeeRegistrationVersions;
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
+		private IWageCalculationRepository _wageCalculationRepository;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -504,8 +505,12 @@ namespace Vodovoz.Domain.Employees
 		
 		public virtual ExternalApplicationUser WarehouseAppUser =>
 			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
-		
-		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
+
+		public virtual IWageCalculationRepository WageCalculationRepository
+		{
+			get => _wageCalculationRepository ?? ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
+			set => _wageCalculationRepository = value;
+		}
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 

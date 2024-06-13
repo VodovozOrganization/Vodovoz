@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class OrderAgreement : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
-		private readonly IWaterPricesRepository _waterPricesRepository = ScopeProvider.Scope.Resolve<IWaterPricesRepository>();
+		private IWaterPricesRepository _waterPricesRepository;
 		
 		#region implemented abstract members of OrderDocument
 
@@ -58,7 +58,7 @@ namespace Vodovoz.Domain.Orders.Documents
 						break;
 					case AgreementType.WaterSales:
 						var waterAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as WaterAgreementParser);
-						waterAgreementParser.AddPricesTable(_waterPricesRepository.GetCompleteWaterPriceTable(uow));
+						waterAgreementParser.AddPricesTable((_waterPricesRepository != null ? _waterPricesRepository : (_waterPricesRepository = ScopeProvider.Scope.Resolve<IWaterPricesRepository>())).GetCompleteWaterPriceTable(uow));
 						break;
 					case AgreementType.EquipmentSales:
 						var equipmentAgreementParser = (AdditionalAgreement.DocumentTemplate.DocParser as EquipmentAgreementParser);
