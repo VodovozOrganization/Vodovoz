@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using QS.Project.Versioning;
 
 // Information about this assembly is defined by the following attributes.

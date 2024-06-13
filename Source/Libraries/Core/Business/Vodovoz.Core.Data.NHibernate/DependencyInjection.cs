@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Cfg.Db;
+﻿using System.Linq;
+using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
 using QS;
 using QS.Project;
@@ -52,6 +53,21 @@ namespace Vodovoz.Core.Data.NHibernate
 
 			services.AddStaticServicesConfig();
 
+			return services;
+		}
+		
+		public static IServiceCollection AddCoreDataRepositories(this IServiceCollection services)
+		{
+			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
+				.Where(t => t.IsClass
+							&& t.Name.EndsWith("Repository")
+							&& t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"));
+
+			foreach(var type in settingsTypes)
+			{
+				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+			}
+			
 			return services;
 		}
 	}

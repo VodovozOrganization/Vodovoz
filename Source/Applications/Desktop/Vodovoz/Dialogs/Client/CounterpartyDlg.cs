@@ -1141,7 +1141,7 @@ namespace Vodovoz
 
 		private void ConfigureTabFixedPrices()
 		{
-			var fixedPriceController = _lifetimeScope.Resolve<NomenclatureFixedPriceController>();
+			var fixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
 			var fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;

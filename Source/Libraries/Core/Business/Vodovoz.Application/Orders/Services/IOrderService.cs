@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.UoW;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -10,9 +9,10 @@ namespace Vodovoz.Application.Orders.Services
 
 		void CheckAndAddBottlesToReferrerByReferFriendPromo(IUnitOfWork uow, Order order, bool canChangeDiscountValue);
 		int CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs);
-		int CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
-		Task<Order> CreateOrderWithPaymentByQrCode(string phone, RoboatsOrderArgs roboatsOrderArgs, bool needAcceptOrder);
+		(int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
 		decimal GetOrderPrice(RoboatsOrderArgs roboatsOrderArgs);
 		void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
+		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
+		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);
 	}
 }

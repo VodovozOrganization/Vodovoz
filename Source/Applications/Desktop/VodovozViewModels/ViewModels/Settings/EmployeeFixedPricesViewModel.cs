@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly INavigationManager _navigationManager;
 		private readonly IValidator _validator;
 		private readonly IValidationViewFactory _validationResultViewFactory;
-		private readonly NomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IUnitOfWork _uow;
 		private INamedDomainObject _selectedNomenclature;
 		private NomenclatureFixedPrice _selectedFixedPrice;
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IValidator validator,
 			DialogViewModelBase parentViewModel,
 			IValidationViewFactory validationResultViewFactory,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
+			INomenclatureFixedPriceController nomenclatureFixedPriceController,
 			ICurrentPermissionService currentPermissionService
 			)
 		{
