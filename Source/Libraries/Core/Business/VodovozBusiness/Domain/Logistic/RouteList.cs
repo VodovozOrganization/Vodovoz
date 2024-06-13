@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using DocumentFormat.OpenXml.InkML;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;
@@ -926,7 +927,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RemoveAddress(RouteListItem address)
 		{
-			if(!TryRemoveAddress(address, out string message, new RouteListItemRepository()))
+			if(!TryRemoveAddress(address, out string message, ScopeProvider.Scope.Resolve<IRouteListItemRepository>()))
 				throw new NotSupportedException(string.Format("\n\n{0}\n", message));
 		}
 
@@ -1873,8 +1874,8 @@ namespace Vodovoz.Domain.Logistic
 									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(orderSettings);
-							orderValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
+							orderValidationContext.InitializeServiceProvider(ScopeProvider.Scope.Resolve);
+
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)
@@ -2280,7 +2281,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
-				&& new PermissionRepository().HasAccessToClosingRoutelist(
+				&& ScopeProvider.Scope.Resolve<IPermissionRepository>().HasAccessToClosingRoutelist(
 					UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;

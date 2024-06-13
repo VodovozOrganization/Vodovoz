@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories.Contacts;
 
 namespace Vodovoz.EntityRepositories
 {

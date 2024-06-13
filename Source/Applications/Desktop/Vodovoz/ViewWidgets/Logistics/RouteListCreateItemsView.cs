@@ -35,7 +35,7 @@ namespace Vodovoz
 	[ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private readonly IRouteColumnRepository _routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 
 		private int _goodsColumnsCount = -1;
@@ -315,7 +315,7 @@ namespace Vodovoz
 		{
 			foreach(var selectedRouteListItem in _selectedRouteListItems)
 			{
-				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, new RouteListItemRepository()))
+				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, ScopeProvider.Scope.Resolve<IRouteListItemRepository>()))
 				{
 					ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message, "Невозможно удалить");
 				}

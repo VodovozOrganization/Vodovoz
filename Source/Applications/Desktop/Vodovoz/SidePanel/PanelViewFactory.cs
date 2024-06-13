@@ -46,16 +46,16 @@ namespace Vodovoz.SidePanel
 					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 					return new CallTaskPanelView(
 						employeeSettings,
-						new EmployeeRepository(),
+						ScopeProvider.Scope.Resolve<IEmployeeRepository>(),
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
 					var complaintSettigs = ScopeProvider.Scope.Resolve<IComplaintSettings>();
-					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), complaintSettigs);
+					return new ComplaintPanelView(ScopeProvider.Scope.Resolve<IComplaintsRepository>(), ScopeProvider.Scope.Resolve<IComplaintResultsRepository>(), complaintSettigs);
 				case PanelViewType.SmsSendPanelView:
 					var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,
-						new FastPaymentRepository(),
+						ScopeProvider.Scope.Resolve<IFastPaymentRepository>(),
 						fastPaymentSettings);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
@@ -65,9 +65,9 @@ namespace Vodovoz.SidePanel
 					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 					return new CashInfoPanelView(
 						ServicesConfig.UnitOfWorkFactory,
-						new CashRepository(),
+						ScopeProvider.Scope.Resolve<ICashRepository>(),
 						subdivisionRepository,
-						new UserRepository());
+						ScopeProvider.Scope.Resolve<IUserRepository>());
 				case PanelViewType.EdoLightsMatrixPanelView:
 					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 					IGtkTabsOpener gtkTabsOpener = new GtkTabsOpener();

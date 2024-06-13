@@ -19,13 +19,15 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private IDepositRepository _depositRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 
 		public TransferOperationDocumentDlg()
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
 			TabName = "Новый перенос между точками доставки";
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			ConfigureDlg();
 			Entity.Author = Entity.ResponsiblePerson = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -38,6 +40,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public TransferOperationDocumentDlg(int id)
 		{
 			this.Build();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
 			ConfigureDlg();
 		}
@@ -48,6 +51,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		void ConfigureDlg()
 		{
+			_depositRepository =  _lifetimeScope.Resolve<IDepositRepository>();
 			ySpecCmbDeliveryPointFrom.SetSizeRequest(250, 30);
 			ySpecCmbDeliveryPointTo.SetSizeRequest(250, 30);
 
@@ -68,7 +72,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			transferoperationdocumentitemview1.DocumentUoW = UoWGeneric;
 
 			if(Entity.FromClient != null)
-				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				RefreshSpinButtons(new BottlesRepository(), _depositRepository);
 		}
 
 		public override bool Save()
@@ -106,8 +110,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{1}: {0}", d.ShortAddress, d.Id));
 				ySpecCmbDeliveryPointFrom.ItemsList = Entity.FromClient.DeliveryPoints;
 				ySpecCmbDeliveryPointFrom.Binding.AddBinding(Entity, t => t.FromDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
-				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
-				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				RefreshSpinButtons(new BottlesRepository(), _depositRepository);
+				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons(new BottlesRepository(), _depositRepository);
 			}
 		}
 
@@ -124,7 +128,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnCheckbuttonLockToggled(object sender, EventArgs e)
 		{
 			if(Entity.FromClient != null)
-				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				RefreshSpinButtons(new BottlesRepository(), _depositRepository);
 		}
 
 		protected void RefreshSpinButtons(IBottlesRepository bottlesRepository, IDepositRepository depositRepository)

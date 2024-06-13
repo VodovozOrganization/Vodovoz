@@ -43,6 +43,7 @@ namespace Vodovoz.Representations
 		private readonly IOrderPaymentSettings _orderPaymentSettings;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly ICashRepository _cashRepository;
 		private readonly bool _userCanChangePayTypeToByCard;
 
 		public SelfDeliveriesJournalViewModel(
@@ -54,6 +55,7 @@ namespace Vodovoz.Representations
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IEmployeeService employeeService,
+			ICashRepository cashRepository,
 			INavigationManager navigationManager,
 			Action<OrderJournalFilterViewModel> filterConfig = null) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
@@ -62,6 +64,7 @@ namespace Vodovoz.Representations
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
@@ -338,13 +341,12 @@ namespace Vodovoz.Representations
 
 		}
 		
-
 		//FIXME отделить от GTK
 		void CreateSelfDeliveryCashInvoices(int orderId)
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.SelfDeliveryIsFullyPaid(new CashRepository())) {
+			if(order.SelfDeliveryIsFullyPaid(_cashRepository)) {
 				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
 				return;
 			}

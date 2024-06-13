@@ -358,7 +358,7 @@ namespace Vodovoz.Domain.Orders
 			var comment = new UndeliveryDiscussionComment
 			{
 				Comment = text,
-				Author = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
+				Author = ScopeProvider.Scope.Resolve<IEmployeeRepository>().GetEmployeeForCurrentUser(uow),
 				UndeliveryDiscussion = okkDiscussion,
 				CreationTime = DateTime.Now
 			};

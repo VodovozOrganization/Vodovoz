@@ -18,13 +18,14 @@ namespace Vodovoz
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 
 		public ContactDlg (Counterparty counterparty)
 		{
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Contact>();
 			UoWGeneric.Root.Counterparty = counterparty;
+			_externalCounterpartyRepository = _lifetimeScope.Resolve<IExternalCounterpartyRepository>();
 			ConfigureDlg ();
 		}
 
@@ -36,7 +37,8 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Contact> (id);
-			ConfigureDlg ();
+			_externalCounterpartyRepository = _lifetimeScope.Resolve<IExternalCounterpartyRepository>();
+			ConfigureDlg();
 		}
 
 

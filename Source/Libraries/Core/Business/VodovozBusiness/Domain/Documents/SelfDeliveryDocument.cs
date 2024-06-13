@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -238,7 +239,7 @@ namespace Vodovoz.Domain.Documents
 			if(!Items.Any() || Order == null)
 				return;
 
-			var inUnloaded = new SelfDeliveryRepository().NomenclatureUnloaded(uow, Order, this);
+			var inUnloaded = ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>().NomenclatureUnloaded(uow, Order, this);
 
 			foreach(var item in Items) {
 				if(inUnloaded.ContainsKey(item.Nomenclature.Id))

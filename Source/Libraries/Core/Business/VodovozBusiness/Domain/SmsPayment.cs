@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
@@ -93,12 +94,12 @@ namespace Vodovoz.Domain
                 && Order.OrderStatus == OrderStatus.WaitForPayment
                 && Order.PayAfterShipment)
             {
-                Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
-                    uow,
+				Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
+					uow,
 					nomenclatureSettings,
-                    new RouteListItemRepository(),
-                    new SelfDeliveryRepository(),
-                    new CashRepository());
+					ScopeProvider.Scope.Resolve<IRouteListItemRepository>(),
+					ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>(),
+					ScopeProvider.Scope.Resolve<ICashRepository>());
                 Order.IsSelfDeliveryPaid = true;
             }
 

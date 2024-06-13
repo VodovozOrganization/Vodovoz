@@ -1948,7 +1948,7 @@ namespace Vodovoz.Domain.Orders
 			OrderItems.Sum(item => Decimal.Round(item.Price * item.ActualCount - item.DiscountMoney ?? 0, 2));
 
 		public virtual bool CanBeMovedFromClosedToAcepted =>
-			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
+			ScopeProvider.Scope.Resolve<IRouteListItemRepository>().WasOrderInAnyRouteList(UoW, this)
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
@@ -1999,7 +1999,7 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
-		private CounterpartyContractRepository counterpartyContractRepository;
+		private ICounterpartyContractRepository counterpartyContractRepository;
 		private ICounterpartyContractFactory counterpartyContractFactory;
 
 		/// <summary>
@@ -2040,8 +2040,8 @@ namespace Vodovoz.Domain.Orders
 				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope); 
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
+				var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
+				counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 			}
 			
@@ -3195,7 +3195,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
 			GuiltyTypes? guilty = GuiltyTypes.Client, bool needCreateDeliveryFreeBalanceOperation = false)
 		{
-			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
+			var routeListItem = ScopeProvider.Scope.Resolve<IRouteListItemRepository>().GetRouteListItemForOrder(UoW, this);
 			var routeList = routeListItem?.RouteList;
 			switch(OrderStatus)
 			{
@@ -3429,22 +3429,22 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void SelfDeliveryAcceptCashPaid(ICallTaskWorker callTaskWorker)
 		{
-			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
-			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
+			decimal totalCashPaid = ScopeProvider.Scope.Resolve<ICashRepository>().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = ScopeProvider.Scope.Resolve<ICashRepository>().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
 		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, ICallTaskWorker callTaskWorker, int? incomeExcludedDoc = null)
 		{
-			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
-			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
+			decimal totalCashPaid = ScopeProvider.Scope.Resolve<ICashRepository>().GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
+			decimal totalCashReturn = ScopeProvider.Scope.Resolve<ICashRepository>().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
 		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, ICallTaskWorker callTaskWorker, int? expenseExcludedDoc = null)
 		{
-			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
-			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
+			decimal totalCashPaid = ScopeProvider.Scope.Resolve<ICashRepository>().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = ScopeProvider.Scope.Resolve<ICashRepository>().GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
@@ -3466,14 +3466,14 @@ namespace Vodovoz.Domain.Orders
 
 			IsSelfDeliveryPaid = true;
 
-			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW, new SelfDeliveryRepository());
+			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW, ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>());
 
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 					var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 					UpdateBottlesMovementOperationWithoutDelivery(
-						UoW, nomenclatureSettings, new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
+						UoW, nomenclatureSettings, ScopeProvider.Scope.Resolve<IRouteListItemRepository>(), ScopeProvider.Scope.Resolve<ICashRepository>(), incomeCash, expenseCash);
 				} else
 					ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 
@@ -3502,7 +3502,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyIncomePaid()
 		{
-			decimal totalPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalPaid = ScopeProvider.Scope.Resolve<ICashRepository>().GetIncomePaidSumForOrder(UoW, Id);
 
 			return OrderPositiveSum == totalPaid;
 		}
@@ -3512,7 +3512,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyExpenseReturned()
 		{
-			decimal totalReturned = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
+			decimal totalReturned = ScopeProvider.Scope.Resolve<ICashRepository>().GetExpenseReturnSumForOrder(UoW, Id);
 
 			return OrderNegativeSum == totalReturned;
 		}
@@ -3695,7 +3695,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void UpdateSelfDeliveryActualCounts(SelfDeliveryDocument notSavedDocument = null)
 		{
-			var loadedDictionary = new SelfDeliveryRepository().OrderNomenclaturesLoaded(UoW, this);
+			var loadedDictionary = ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>().OrderNomenclaturesLoaded(UoW, this);
 			if(notSavedDocument != null && notSavedDocument.Id <= 0)
 			{ //если id > 0, то такой документ был учтён при получении словаря из репозитория
 				foreach(var item in notSavedDocument.Items)

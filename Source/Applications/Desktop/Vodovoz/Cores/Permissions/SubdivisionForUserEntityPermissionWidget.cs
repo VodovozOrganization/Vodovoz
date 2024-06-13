@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Permissions
 	public partial class SubdivisionForUserEntityPermissionWidget : Gtk.Bin, IUserPermissionTab
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
 		private SubdivisionsJournalViewModel _subdivisionJVM;
 
 		public string Title => "Особые права на подразделения";

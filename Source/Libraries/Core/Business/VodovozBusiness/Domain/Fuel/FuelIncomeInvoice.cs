@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -110,7 +111,8 @@ namespace Vodovoz.Domain.Fuel
 			}
 
 			var validationContext = new ValidationContext(this);
-			validationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			validationContext.InitializeServiceProvider(ScopeProvider.Scope.Resolve);
+
 			string exceptionMessage = this.RaiseValidationAndGetResult(validationContext);
 			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
 				throw new ValidationException(exceptionMessage);

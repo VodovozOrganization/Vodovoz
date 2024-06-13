@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
 using MySqlConnector;
 using NHibernate;
 using QS.Attachments.Domain;
@@ -293,18 +294,18 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			if(!(validationContext.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
+			if(!(validationContext.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
 					subdivisionSettings))
 			{
 				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionSettings)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
+			if(!(validationContext.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
 			}
@@ -504,7 +505,7 @@ namespace Vodovoz.Domain.Employees
 		public virtual ExternalApplicationUser WarehouseAppUser =>
 			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
 		
-		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = new WageCalculationRepository();
+		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 

@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Services;
 using System;
 using Vodovoz.Controllers;
@@ -24,7 +25,7 @@ namespace Vodovoz.ViewModels.Factories
 
 		public OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization, bool isEditable = true)
 		{
-			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), new StoredResourceRepository(_uowFactory), _employeeJournalFactory, isEditable);
+			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), ScopeProvider.Scope.Resolve<IStoredResourceRepository>(), _employeeJournalFactory, isEditable);
 		}
 	}
 }

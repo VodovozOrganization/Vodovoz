@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Contacts;
 
 namespace Vodovoz.ViewModels.Reports
 {

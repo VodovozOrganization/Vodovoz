@@ -24,6 +24,7 @@ namespace Vodovoz.TempAdapters
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 			if(unitOfWorkFactory == null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -32,10 +33,8 @@ namespace Vodovoz.TempAdapters
 			using(var uow =
 				unitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
 			{
-				_excludedIds = new CategoryRepository().ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
+				_excludedIds = _lifetimeScope.Resolve<ICategoryRepository>().ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
 			}
-
-			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultExpenseCategoryAutocompleteSelectorFactory()

@@ -31,7 +31,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IStockRepository _stockRepository;
 		private ILifetimeScope _lifetimeScope;
 		private RegradingOfGoodsDocumentItem newRow;
 		private RegradingOfGoodsDocumentItem FineEditItem;
@@ -50,6 +50,7 @@ namespace Vodovoz
 			}
 
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)

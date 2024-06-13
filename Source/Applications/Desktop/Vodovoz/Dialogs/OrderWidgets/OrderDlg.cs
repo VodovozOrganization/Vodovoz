@@ -201,18 +201,18 @@ namespace Vodovoz
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
-		private readonly IServiceClaimRepository _serviceClaimRepository = new ServiceClaimRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+		private readonly IUserRepository _userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+		private readonly IFlyerRepository _flyerRepository = ScopeProvider.Scope.Resolve<IFlyerRepository>();
+		private readonly IDocTemplateRepository _docTemplateRepository = ScopeProvider.Scope.Resolve<IDocTemplateRepository>();
+		private readonly IServiceClaimRepository _serviceClaimRepository = ScopeProvider.Scope.Resolve<IServiceClaimRepository>();
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly ICashRepository _cashRepository = new CashRepository();
-		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly IDiscountReasonRepository _discountReasonRepository = ScopeProvider.Scope.Resolve<IDiscountReasonRepository>();
+		private readonly IRouteListItemRepository _routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
+		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
+		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
+		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private ICounterpartyService _counterpartyService;
@@ -223,8 +223,8 @@ namespace Vodovoz
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= ScopeProvider.Scope.Resolve<INonSerialEquipmentsForRentJournalViewModelFactory>();
 
-		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
-		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
+		private readonly IPaymentItemsRepository _paymentItemsRepository = ScopeProvider.Scope.Resolve<IPaymentItemsRepository>();
+		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 
 		private readonly bool _canSetOurOrganization =
@@ -338,7 +338,7 @@ namespace Vodovoz
 					callTaskWorker = new CallTaskWorker(
 						ServicesConfig.UnitOfWorkFactory,
 						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
+						ScopeProvider.Scope.Resolve<ICallTaskRepository>(),
 						_orderRepository,
 						_employeeRepository,
 						employeeSettings,
@@ -477,9 +477,7 @@ namespace Vodovoz
 				Entity.PaymentType = Entity.Client.PaymentMethod;
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
+				counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
@@ -601,8 +599,8 @@ namespace Vodovoz
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			_orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, _orderSettings);
-			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider, cashReceiptRepository);
+			var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
+			counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, ServicesConfig.UnitOfWorkFactory);
 
@@ -831,7 +829,7 @@ namespace Vodovoz
 
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
-			var deliveryScheduleRepository = new DeliveryScheduleRepository();
+			var deliveryScheduleRepository = _lifetimeScope.Resolve<IDeliveryScheduleRepository>();
 			var fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService,
 				ServicesConfig.CommonServices.CurrentPermissionService);
@@ -2659,7 +2657,7 @@ namespace Vodovoz
 				}
 
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(
-					UoW, _nomenclatureSettings, new RouteListItemRepository(), new CashRepository());
+					UoW, _nomenclatureSettings, _routeListItemRepository, _cashRepository);
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.Closed, CallTaskWorker);

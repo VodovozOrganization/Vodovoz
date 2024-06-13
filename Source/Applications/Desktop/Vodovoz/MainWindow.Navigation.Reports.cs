@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -191,11 +191,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
 	{
-		var paymentsRepository = new PaymentsRepository();
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		var paymentsRepository = scope.Resolve<IPaymentsRepository>();
 
-		tdiMain.OpenTab(
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport(paymentsRepository)));
+
+		tab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>
@@ -210,7 +213,7 @@ public partial class MainWindow
 			() => new QSReport.ReportViewDlg(
 				  new FirstClientsReport(
 						_autofacScope.Resolve<IDistrictJournalFactory>(),
-						new DiscountReasonRepository()))); ;
+						_autofacScope.Resolve<IDiscountReasonRepository>())));
 	}
 
 	/// <summary>
@@ -468,11 +471,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
 	{
-		var employeeRepository = new EmployeeRepository();
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		var employeeRepository = scope.Resolve<IEmployeeRepository>();
 
-		tdiMain.OpenTab(
+		var tdiTab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
 			() => new QSReport.ReportViewDlg(new ProductionRequestReport(employeeRepository)));
+
+		tdiTab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>
@@ -605,9 +611,13 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var tdiTab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(NavigationManager, new DiscountReasonRepository())));
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(NavigationManager, scope.Resolve<IDiscountReasonRepository>())));
+
+		tdiTab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>

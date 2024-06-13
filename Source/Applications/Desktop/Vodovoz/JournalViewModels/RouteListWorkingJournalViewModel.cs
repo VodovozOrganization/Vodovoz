@@ -61,6 +61,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly decimal _routeListProfitabilityIndicator;
 
 		public RouteListWorkingJournalViewModel(
@@ -78,6 +79,7 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IOrganizationRepository organizationRepository,
+			IEmployeeRepository employeeRepository,
 			INavigationManager navigationManager)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -92,6 +94,7 @@ namespace Vodovoz.JournalViewModels
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
@@ -393,7 +396,7 @@ namespace Vodovoz.JournalViewModels
 				CallTaskSingletonFactory.GetInstance(),
 				_callTaskRepository,
 				new OrderRepository(),
-				new EmployeeRepository(),
+				_employeeRepository,
 				employeeSettings,
 				commonServices.UserService,
 				ErrorReporter.Instance);

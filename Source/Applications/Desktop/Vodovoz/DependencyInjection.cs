@@ -15,11 +15,10 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.Entity.PresetPermissions;
 using QS.Services;
 using System;
-using System.Net.Http.Headers;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Settings.Pacs;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure.Services;
 
@@ -28,7 +27,8 @@ namespace Vodovoz
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddWaterDeliveryDesktop(this IServiceCollection services) =>
-			services.AddVodovozViewModels();
+			services.AddVodovozViewModels()
+				.AddInfrastructure();
 
 		public static IServiceCollection AddPermissionValidation(this IServiceCollection services)
 		{

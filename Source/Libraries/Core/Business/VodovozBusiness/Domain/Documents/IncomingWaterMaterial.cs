@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -53,7 +52,7 @@ namespace Vodovoz.Domain.Documents
 
 		decimal amount;
 
-		[Min(1)]
+		[Range(typeof(decimal), "1", "79228162514264337593543950335")]
 		[Display(Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }

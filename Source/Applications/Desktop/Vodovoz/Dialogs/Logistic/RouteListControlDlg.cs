@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Logistic;
@@ -50,12 +49,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public override bool Save()
 		{
-			var contextItems = new Dictionary<object, object>
-			{
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()}
-			};
-
-			var context = new ValidationContext(Entity, null, contextItems);
+			var context = new ValidationContext(Entity);
+			context.InitializeServiceProvider(ScopeProvider.Scope.Resolve);
 			var validator = ServicesConfig.ValidationService;
 
 			if(!validator.Validate(Entity, context))

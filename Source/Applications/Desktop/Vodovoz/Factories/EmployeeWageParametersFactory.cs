@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Employees;
@@ -23,14 +24,14 @@ namespace Vodovoz.Factories
 
 		public EmployeeWageParametersViewModel CreateEmployeeWageParametersViewModel(Employee employee, ITdiTab tab, IUnitOfWork uow)
 		{
-			var employeeRepository = new EmployeeRepository();
-			var userRepository = new UserRepository();
-			var wageCalculationRepository = new WageCalculationRepository();
-			
+			var employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			var userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+			var wageCalculationRepository = ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
+
 			var validator = new HierarchicalPresetPermissionValidator(
 				_uowFactory,
 				employeeRepository,
-				new PermissionRepository());
+				ScopeProvider.Scope.Resolve<IPermissionRepository>());
 
 			return new EmployeeWageParametersViewModel(employee, tab, uow, validator, userRepository, ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager, employeeRepository, wageCalculationRepository);

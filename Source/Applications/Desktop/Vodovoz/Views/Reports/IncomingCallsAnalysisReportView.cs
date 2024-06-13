@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Utilities;
 using QS.Views.Dialog;
-using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Contacts;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.Views.Reports

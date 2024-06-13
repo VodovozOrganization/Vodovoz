@@ -996,8 +996,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
-			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), _nomenclatureRepository);
+			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController = ScopeProvider.Scope.Resolve<IRouteListAddressKeepingDocumentController>();
 
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}

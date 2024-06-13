@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
@@ -20,7 +19,7 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private readonly IDocTemplateRepository _docTemplateRepository;
 
 		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
@@ -32,6 +31,7 @@ namespace Vodovoz
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
 			UoWGeneric.Root.Counterparty = counterparty;
 			UoWGeneric.Root.GenerateSubNumber(counterparty);
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
 			TabName = "Новый договор";
 			ConfigureDlg ();
 		}
@@ -50,9 +50,7 @@ namespace Vodovoz
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
-			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			var contractType = _lifetimeScope.Resolve<ICounterpartyContractRepository>().GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;
@@ -65,8 +63,9 @@ namespace Vodovoz
 		public CounterpartyContractDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
-			ConfigureDlg ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(id);
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
+			ConfigureDlg();
 		}
 
 		private void ConfigureDlg ()
@@ -110,11 +109,11 @@ namespace Vodovoz
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 
-            entryNumber.Sensitive = false;
-            dateIssue.Sensitive = false;
+			entryNumber.Sensitive = false;
+			dateIssue.Sensitive = false;
 			entityentryOrganization.Sensitive = false;
-            ycomboContractType.Sensitive = false;
-        }
+			ycomboContractType.Sensitive = false;
+		}
 
 		public override bool Save ()
 		{

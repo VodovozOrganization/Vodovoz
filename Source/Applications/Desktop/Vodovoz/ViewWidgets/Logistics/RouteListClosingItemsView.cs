@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -24,8 +25,8 @@ namespace Vodovoz
 	[ToolboxItem(true)]
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+		private readonly IRouteColumnRepository _routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 
 		private readonly Gdk.Pixbuf _undoIcon;
 		private readonly Gdk.Pixbuf _jumpToIcon;

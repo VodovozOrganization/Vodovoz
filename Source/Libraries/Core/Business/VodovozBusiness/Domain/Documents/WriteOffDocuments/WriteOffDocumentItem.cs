@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Documents.IncomingInvoices;
@@ -43,7 +42,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			set => SetField(ref _cullingCategory, value);
 		}
 
-		[Min(1)]
+		[Range(typeof(decimal), "1", "79228162514264337593543950335")]
 		[Display(Name = "Количество")]
 		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal Amount

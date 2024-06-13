@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Persistance.Operations;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
@@ -27,10 +28,10 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly IDepositRepository _depositRepository = new DepositRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IDepositRepository _depositRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
@@ -42,6 +43,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public DeliveryPointPanelView(ICommonServices commonServices)
 		{
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
+			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
+			_depositRepository = _lifetimeScope.Resolve<IDepositRepository>();
+			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			Build();
 			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));

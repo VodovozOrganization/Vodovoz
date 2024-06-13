@@ -49,9 +49,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		private IUnitOfWork UoW;
 		
@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		public bool IsDeliveryPointChoiceRequired => 
 			Client.Phones.All(p => p.DigitsNumber != MangoManager.CurrentCall.Phone.DigitsNumber)
 			&& DeliveryPoints.Count > 1;
-		
+
 		#endregion
 
 		#region Конструкторы
@@ -98,6 +98,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
+			IEmployeeRepository employeeRepository,
+			IOrderRepository orderRepository,
+			IRouteListItemRepository routeListItemRepository,
 			int count = 5)
 		{
 			Client = client;
@@ -125,6 +128,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				.AndWhere(p => p.Counterparty?.Id == client.Id || client.DeliveryPoints.Any(dp => dp.Id == p.DeliveryPoint?.Id));
 
 			FillDeliveryPoints();
+			_employeeRepository = employeeRepository;
+			_orderRepository = orderRepository;
+			_routeListItemRepository = routeListItemRepository;
 		}
 
 		#endregion
@@ -258,7 +264,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 				_unitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
+				ScopeProvider.Scope.Resolve<ICallTaskRepository>(),
 				_orderRepository,
 				_employeeRepository,
 				employeeSettings,

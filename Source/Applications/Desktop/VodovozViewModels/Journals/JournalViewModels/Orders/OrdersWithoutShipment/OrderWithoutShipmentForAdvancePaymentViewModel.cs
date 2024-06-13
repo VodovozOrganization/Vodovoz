@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEdoService _edoService;
 		private ILifetimeScope _lifetimeScope;
@@ -74,6 +75,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
+			IEmailRepository emailRepository,
 			IEmailSettings emailSettings,
 			IEdoService edoService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -82,6 +84,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
@@ -127,7 +130,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
 					uowFactory,
-					new EmailRepository(uowFactory),
+					_emailRepository,
 					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,

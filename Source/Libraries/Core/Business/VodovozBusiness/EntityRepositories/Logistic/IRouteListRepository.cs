@@ -83,7 +83,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		bool HasFreeBalanceForOrder(IUnitOfWork uow, Order order, RouteList routeListTo);
 		int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 		decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
-		RouteListRepository.RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg);
+		RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg);
 		IList<Nomenclature> GetRouteListNomenclatures(IUnitOfWork uow, int routeListId, bool isArchived = false);
 
 		decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse);

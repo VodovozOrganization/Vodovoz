@@ -7,10 +7,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -166,13 +164,5 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
-	}
-
-	public class ClientEquipmentNode
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public string ShortName { get; set; }
-		public int Count { get; set; }
 	}
 }

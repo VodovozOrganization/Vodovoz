@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -48,8 +49,8 @@ namespace Vodovoz.Domain.Contacts
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object> {
 				{"Reason", nameof(ConfigureValidationContext)}
 			});
-			context.ServiceContainer.AddService(typeof(IUnitOfWork), uow);
-			context.ServiceContainer.AddService(typeof(IPhoneRepository), phoneRepository);
+			context.InitializeServiceProvider(ScopeProvider.Scope.Resolve);
+
 			return context;
 		}
 

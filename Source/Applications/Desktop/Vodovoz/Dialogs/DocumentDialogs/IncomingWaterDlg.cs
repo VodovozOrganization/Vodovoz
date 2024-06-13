@@ -27,8 +27,8 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IUserRepository _userRepository;
 		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
 
 		public INavigationManager NavigationManager { get; private set; }
@@ -37,6 +37,8 @@ namespace Vodovoz
 		{
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null)
 			{
@@ -54,6 +56,8 @@ namespace Vodovoz
 		public IncomingWaterDlg(int id)
 		{
 			Build();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
 			
 			ConfigureDlg();

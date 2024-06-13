@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.EntityRepositories.Orders
+﻿namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	public class ReceiptForOrderNode
 	{

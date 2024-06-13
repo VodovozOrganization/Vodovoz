@@ -2,20 +2,19 @@
 using System.IO;
 using NHibernate.Criterion;
 using NLog;
-using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Equipments;
 using QS.Project.Services;
+using Autofac;
 
 namespace Vodovoz
 {
 	public partial class EquipmentDlg : QS.Dialog.Gtk.EntityDialogBase<Equipment>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
+		private readonly IEquipmentRepository _equipmentRepository = ScopeProvider.Scope.Resolve<IEquipmentRepository>();
 
 		//FIXME Возможно нужно удалить конструктор, так как создание нового оборудования отсюда должно быть закрыто.
 		public EquipmentDlg ()

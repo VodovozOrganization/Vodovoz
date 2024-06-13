@@ -41,8 +41,8 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IStockRepository _stockRepository;
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
 
@@ -56,7 +56,8 @@ namespace Vodovoz
 			Build();
 
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
-
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -85,6 +86,8 @@ namespace Vodovoz
 		public SelfDeliveryDocumentDlg(int id)
 		{
 			Build();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
@@ -278,17 +281,25 @@ namespace Vodovoz
 
 			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
 			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			IRouteListItemRepository routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
+			ISelfDeliveryRepository selfDeliveryRepository = ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>();
+			ICashRepository cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
+			ICallTaskRepository callTaskRepository = ScopeProvider.Scope.Resolve<ICallTaskRepository>();
+
 			var callTaskWorker = new CallTaskWorker(
 				ServicesConfig.UnitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
+				callTaskRepository,
 				new OrderRepository(),
 				_employeeRepository,
 				employeeSettings,
 				ServicesConfig.CommonServices.UserService,
 				ErrorReporter.Instance);
-			if(Entity.FullyShiped(UoW, nomenclatureSettings, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
+
+			if(Entity.FullyShiped(UoW, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker))
+			{
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
+			}
 
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();

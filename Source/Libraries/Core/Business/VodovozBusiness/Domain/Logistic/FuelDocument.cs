@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Autofac;
+using NLog;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System;
@@ -204,7 +205,8 @@ namespace Vodovoz.Domain.Logistic
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
 				{"Reason", nameof(CreateOperations)}
 			});
-			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			context.InitializeServiceProvider(ScopeProvider.Scope.Resolve);
+
 			string validationMessage = this.RaiseValidationAndGetResult(context);
 			if(!string.IsNullOrWhiteSpace(validationMessage))
 			{

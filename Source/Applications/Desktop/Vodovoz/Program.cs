@@ -1,8 +1,9 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
 using Fias.Client;
+using FuelControl.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,14 +57,11 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Application;
-using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Logistics;
+using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Application.Mango;
 using Vodovoz.Application.Pacs;
-using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
-using Vodovoz.CachingRepositories.Counterparty;
-using Vodovoz.Controllers;
 using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
@@ -81,11 +79,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Suppliers;
@@ -113,7 +109,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Orders;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Counterparty;
@@ -124,14 +120,15 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
-using Vodovoz.Validation;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Permissions;
@@ -143,19 +140,6 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
-using Vodovoz.Data.NHibernate;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Domain.Sms;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
-using Vodovoz.Tools.Orders;
-using MassTransit;
-using Vodovoz.ViewModels.Infrastructure;
-using FuelControl.Library;
-using Vodovoz.Services.Fuel;
-using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
-using Vodovoz.Application.Logistics.Fuel;
-using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 
 namespace Vodovoz
 {
@@ -206,7 +190,6 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
-					builder.RegisterType<CashRepository>().As<ICashRepository>();
 
 					#endregion
 
@@ -399,19 +382,6 @@ namespace Vodovoz
 					builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
 
 					#endregion
-
-					#region Кэширующие репозитории
-
-					builder.RegisterType<FinancialExpenseCategoriesNodesInMemoryCacheRepository>()
-						.As<IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory>>();
-
-					builder.RegisterType<FinancialIncomeCategoriesNodesInMemoryCacheRepository>()
-						.As<IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory>>();
-
-					builder.RegisterType<CounterpartyInMemoryTitlesCacheRepository>()
-						.As<IDomainEntityNodeInMemoryCacheRepository<Counterparty>>();
-
-					#endregion Кэширующие репозитории
 
 					#region Mango
 

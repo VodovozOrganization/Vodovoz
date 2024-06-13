@@ -48,10 +48,10 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
-			_employeeRepository = new EmployeeRepository();
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
 			_bottleRepository = new BottlesRepository();
-			_callTaskRepository = new CallTaskRepository();
-			_phoneRepository = new PhoneRepository();
+			_callTaskRepository = ScopeProvider.Scope.Resolve<ICallTaskRepository>();
+			_phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			_commonServices = ServicesConfig.CommonServices;
 			TabName = "Новая задача";
@@ -77,10 +77,10 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
-			_employeeRepository = new EmployeeRepository();
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
 			_bottleRepository = new BottlesRepository();
-			_callTaskRepository = new CallTaskRepository();
-			_phoneRepository = new PhoneRepository();
+			_callTaskRepository = ScopeProvider.Scope.Resolve<ICallTaskRepository>();
+			_phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			_commonServices = ServicesConfig.CommonServices;
 			TabName = Entity.Counterparty?.Name;
@@ -94,8 +94,7 @@ namespace Vodovoz.Dialogs
 			_contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
-			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
+			_counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;

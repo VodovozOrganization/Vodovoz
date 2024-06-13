@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -532,12 +532,15 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		var tdiTab = tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(
-								new EmployeeJournalFactory(NavigationManager),
-								new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory)), null
+				new EmployeeJournalFactory(NavigationManager),
+				scope.Resolve<IDeliveryPointRepository>()), null
 		);
+
+		tdiTab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
@@ -677,8 +680,7 @@ public partial class MainWindow : Window
 	{
 		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 		var employeeService = _autofacScope.Resolve<IEmployeeService>();
-		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
-			uowFactory, PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
+		var entityExtendedPermissionValidator = _autofacScope.Resolve<IEntityExtendedPermissionValidator>();
 
 		var employeeFilter = new EmployeeFilterViewModel
 		{

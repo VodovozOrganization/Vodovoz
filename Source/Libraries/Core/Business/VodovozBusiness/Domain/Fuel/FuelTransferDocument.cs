@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -209,7 +210,8 @@ namespace Vodovoz.Domain.Fuel
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
 				{"ForStatus", FuelTransferDocumentStatuses.Sent}
 			});
-			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			context.InitializeServiceProvider(ScopeProvider.Scope.Resolve);
+
 			string exceptionMessage = this.RaiseValidationAndGetResult(context);
 			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
 				throw new ValidationException(exceptionMessage);

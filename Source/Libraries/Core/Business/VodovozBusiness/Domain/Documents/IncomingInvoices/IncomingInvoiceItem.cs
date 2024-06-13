@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -37,7 +36,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
-		[Min(1)]
+		[Range(typeof(decimal), "1", "79228162514264337593543950335")]
 		[Display(Name = "Количество")]
 		public virtual decimal Amount
 		{
@@ -52,7 +51,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
-		[Min(0)]
+		[Range(typeof(decimal), "0", "79228162514264337593543950335")]
 		[Display(Name = "Цена")]
 		public virtual decimal PrimeCost
 		{

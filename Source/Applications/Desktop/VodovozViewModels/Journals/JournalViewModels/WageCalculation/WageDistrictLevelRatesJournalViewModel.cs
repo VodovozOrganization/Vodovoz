@@ -16,10 +16,16 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+		private readonly IWageCalculationRepository _wageCalculationRepository;
 
-		public WageDistrictLevelRatesJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public WageDistrictLevelRatesJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IWageCalculationRepository wageCalculationRepository)
+			: base(unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			TabName = "Журнал ставок по уровням";
 
 			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictLevelRatesJournalNode>;
@@ -61,7 +67,7 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 			unitOfWorkFactory,
 			commonServices,
 			UoW,
-			new WageCalculationRepository()
+			_wageCalculationRepository
 	   );
 
 		protected override Func<WageDistrictLevelRatesJournalNode, WageDistrictLevelRatesViewModel> OpenDialogFunction => n => new WageDistrictLevelRatesViewModel(
@@ -70,7 +76,7 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 			unitOfWorkFactory,
 			commonServices,
 			UoW,
-			new WageCalculationRepository()
+			_wageCalculationRepository
 	   );
 	}
 }

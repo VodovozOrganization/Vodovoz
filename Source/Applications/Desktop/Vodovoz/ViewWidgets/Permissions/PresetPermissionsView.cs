@@ -46,7 +46,7 @@ namespace Vodovoz.ViewWidgets.Permissions
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
 		{
 			var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
-			var permissionRepository = new PermissionRepository();
+			var permissionRepository = ScopeProvider.Scope.Resolve<IPermissionRepository>();
 			ViewModel =
 				new PresetUserPermissionsViewModel(
 					uow, permissionRepository, uow.GetById<User>(user.Id),

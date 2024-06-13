@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using DataAnnotationsExtensions;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -58,7 +57,7 @@ namespace Vodovoz.Domain.Organizations
 
 		private string _iNN;
 		[Display(Name = "ИНН")]
-		[Digits(ErrorMessage = "ИНН может содержать только цифры.")]
+		[RegularExpression("([0-9]*)", ErrorMessage = "ИНН может содержать только цифры.")]
 		[StringLength(12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
 		public virtual string INN {
 			get => _iNN;
@@ -67,7 +66,7 @@ namespace Vodovoz.Domain.Organizations
 
 		private string _kPP;
 		[Display(Name = "КПП")]
-		[Digits(ErrorMessage = "КПП может содержать только цифры.")]
+		[RegularExpression("([0-9]*)", ErrorMessage = "КПП может содержать только цифры.")]
 		[StringLength(9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
 		public virtual string KPP {
 			get => _kPP;
@@ -76,7 +75,7 @@ namespace Vodovoz.Domain.Organizations
 
 		private string _oGRN;
 		[Display(Name = "ОГРН/ОГРНИП")]
-		[Digits(ErrorMessage = "ОГРН/ОГРНИП может содержать только цифры.")]
+		[RegularExpression("([0-9]*)", ErrorMessage = "ОГРН/ОГРНИП может содержать только цифры.")]
 		[StringLength(15, MinimumLength = 0, ErrorMessage = "Номер ОГРНИП не должен превышать 15 цифр.")]
 		public virtual string OGRN {
 			get => _oGRN;
@@ -85,7 +84,7 @@ namespace Vodovoz.Domain.Organizations
 
 		private string _oKPO;
 		[Display(Name = "ОКПО")]
-		[Digits(ErrorMessage = "ОКПО может содержать только цифры.")]
+		[RegularExpression("([0-9]*)", ErrorMessage = "ОКПО может содержать только цифры.")]
 		[StringLength(10, MinimumLength = 8, ErrorMessage = "Номер ОКПО не должен превышать 10 цифр.")]
 		public virtual string OKPO {
 			get => _oKPO;

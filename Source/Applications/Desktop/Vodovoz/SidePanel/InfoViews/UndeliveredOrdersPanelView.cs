@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -24,7 +25,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class UndeliveredOrdersPanelView : Gtk.Bin, IPanelView
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		
 		public UndeliveredOrdersPanelView()
 		{

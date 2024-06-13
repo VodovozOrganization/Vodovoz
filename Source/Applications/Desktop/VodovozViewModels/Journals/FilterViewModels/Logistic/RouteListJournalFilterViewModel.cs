@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.Project.Filter;
@@ -57,7 +58,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				_addressTypeNodes.Add(newAddressTypeNode);
 			}
 
-			var currentUserSettings = new UserRepository().GetUserSettings(UoW, userService.CurrentUserId);
+			var currentUserSettings = ScopeProvider.Scope.Resolve<IUserRepository>().GetUserSettings(UoW, userService.CurrentUserId);
 
 			foreach(var addressTypeNode in AddressTypeNodes)
 			{

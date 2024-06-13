@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
+		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEdoService _edoService;
 		public Action<string> OpenCounterpartyJournal;
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
+			IEmailRepository emailRepository,
 			IEmailSettings emailSettings,
 			IEdoService edoService) : base(uowBuilder, uowFactory, commonServices)
 		{
@@ -69,6 +71,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			CounterpartyAutocompleteSelectorFactory =
@@ -108,7 +111,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
 					uowFactory,
-					new EmailRepository(uowFactory),
+					_emailRepository,
 					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,

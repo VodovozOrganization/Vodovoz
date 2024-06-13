@@ -24,12 +24,12 @@ namespace Vodovoz
 		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeleteByPresetPermission;
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
 
 		public DeliveryPointsManagementView()
 		{
 			Build();
-
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
 				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())

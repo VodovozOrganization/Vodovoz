@@ -1,4 +1,5 @@
-﻿using GMap.NET;
+﻿using Autofac;
+using GMap.NET;
 using Polylines;
 using QS.DomainModel.UoW;
 using QS.Osrm;
@@ -21,7 +22,7 @@ namespace Vodovoz.Tools.Logistic
 	/// </summary>
 	public class RouteGeometryCalculator : IDistanceCalculator, IDisposable
 	{
-		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
+		private readonly ICachedDistanceRepository _cachedDistanceRepository = ScopeProvider.Scope.Resolve<ICachedDistanceRepository>();
 		private readonly IGlobalSettings _globalSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUnitOfWork _uow;

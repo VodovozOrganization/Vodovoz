@@ -64,6 +64,7 @@ namespace Vodovoz
 		private readonly IUserRepository _userRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly ITdiCompatibilityNavigation _tdiNavigationManager;
+		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
@@ -111,6 +112,7 @@ namespace Vodovoz
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			ITdiCompatibilityNavigation tdiNavigationManager,
+			IFlyerRepository flyerRepository,
 			ILifetimeScope lifetimeScope)
 		{
 			if(currentPermissionService is null)
@@ -143,6 +145,7 @@ namespace Vodovoz
 			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
@@ -282,7 +285,7 @@ namespace Vodovoz
 			clientEntry.ViewModel.Changed += OnClientEntryViewModelChanged;
 			clientEntry.ViewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
 
-			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
+			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
 			ConfigureDeliveryPointRefference(_orderNode.Client);
 
 			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);

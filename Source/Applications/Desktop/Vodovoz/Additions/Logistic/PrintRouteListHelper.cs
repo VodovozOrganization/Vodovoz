@@ -25,7 +25,7 @@ namespace Vodovoz.Additions.Logistic
 	public static class PrintRouteListHelper
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private static readonly IRouteColumnRepository _routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 		private static readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";

@@ -28,6 +28,7 @@ using QS.Navigation;
 using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Autofac;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -36,8 +37,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IStockRepository _stockRepository;
 
 		private SelectableParametersReportFilter _filter;
 
@@ -45,6 +46,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			_stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
+
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -54,9 +58,14 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(UoW.IsNew)
+			{
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
+			}
+
 			if(!UoW.IsNew)
+			{
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeEdit);
+			}
 
 			ConfigureDlg(storeDocument);
 		}
@@ -64,6 +73,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
 			this.Build();
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			_stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
 			var storeDocument = new StoreDocumentHelper(new UserSettingsService());

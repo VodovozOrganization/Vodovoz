@@ -20,19 +20,21 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IUserRepository _userRepository;
 		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public RegradingOfGoodsDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument>();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
@@ -45,6 +47,8 @@ namespace Vodovoz
 		public RegradingOfGoodsDocumentDlg (int id)
 		{
 			this.Build ();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
 			
 			ConfigureDlg();
