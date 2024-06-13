@@ -16,7 +16,7 @@ using Vodovoz.Presentation.WebApi.Security;
 
 namespace LogisticsEventsApi.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/[action]")]
 	[ApiController]
 	public class PushNotificationsController : ApiControllerBase
 	{
