@@ -1,6 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
@@ -359,6 +359,32 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return carsQuery.List<Car>();
 			},
 			cancellationToken);
+		}
+
+		public async Task<IDictionary<(int CarId, int Day), IEnumerable<RouteListItem>>> GetNotPriorityDistrictsAddresses(
+			IUnitOfWork unitOfWork,
+			IList<int> routeListsIds,
+			CancellationToken cancellationToken)
+		{
+			var carsRouteListAddresses =
+				from rla in unitOfWork.Session.Query<RouteListItem>()
+				join rl in unitOfWork.Session.Query<RouteList>() on rla.RouteList.Id equals rl.Id
+				join empl in unitOfWork.Session.Query<Employee>() on rl.Driver.Id equals empl.Id into drivers
+				from driver in drivers.DefaultIfEmpty()
+				join o in unitOfWork.Session.Query<Order>() on rla.Order.Id equals o.Id into orders
+				from order in orders.DefaultIfEmpty()
+				where
+				routeListsIds.Contains(rl.Id)
+				&& (driver == null || !driver.DriverDistrictPrioritySets.Any(ddps =>
+				ddps.DateActivated <= rl.Date && (ddps.DateDeactivated == null || ddps.DateDeactivated >= rl.Date)
+				&& ddps.DriverDistrictPriorities.Any(ddp => ddp.District.Id == order.DeliveryPoint.District.Id)))
+				select new { CarId = rl.Car.Id, Day = rl.Date.Day, Address = rla };
+
+			var carsRouteListAddressesGroup = (await carsRouteListAddresses.ToListAsync(cancellationToken))
+				.GroupBy(rl => (rl.CarId, rl.Day))
+				.ToDictionary(g => g.Key, g => g.Select(item => item.Address));
+
+			return carsRouteListAddressesGroup;
 		}
 	}
 }
