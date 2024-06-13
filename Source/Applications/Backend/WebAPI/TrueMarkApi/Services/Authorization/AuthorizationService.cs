@@ -53,7 +53,7 @@ namespace TrueMarkApi.Services.Authorization
 			var authKeyResponse = await _httpClient.GetStreamAsync(authUrn);
 			var authKey = await JsonSerializer.DeserializeAsync<AuthKeyResponseDto>(authKeyResponse);
 
-			var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == сertificateThumbPrint);
+			var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == сertificateThumbPrint && c.Inn == inn);
 			var sign = await CreateAttachedSignedCmsWithStore2012_256(authKey.Data, false, currentCert.CertPath, currentCert.CertPwd);
 
 			var tokenRequest = new TokenRequestDto

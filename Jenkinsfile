@@ -150,14 +150,12 @@ stage('Build'){
 				stage('Build WEB'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
-						PublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/TrueMarkAPI/TrueMarkAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/TaxcomEdoApi.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
@@ -187,14 +185,12 @@ stage('Compress'){
 	parallel(
 		"Desktop" : { CompressDesktopArtifact() },
 
-		"DriverAPI" : { CompressWebArtifact("Backend/WebAPI/DriverAPI") },
 		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
 		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
 		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
 		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-		"TrueMarkAPI" : { CompressWebArtifact("Backend/WebAPI/TrueMarkAPI") },
 		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
 		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
 		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
@@ -213,14 +209,12 @@ stage('Delivery'){
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 
-		"DriverAPI" : { DeliveryWebArtifact("DriverAPI") },
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
 		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		"TrueMarkAPI" : { DeliveryWebArtifact("TrueMarkAPI") },
 		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
 		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
@@ -244,14 +238,12 @@ stage('Publish'){
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
 
-		"DriverAPI" : { PublishWeb("DriverAPI") },
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
 		"PayPageAPI" : { PublishWeb("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
 		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
 		"RoboatsService" : { PublishWeb("RoboatsService") },
-		"TrueMarkAPI" : { PublishWeb("TrueMarkAPI") },
 		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
 		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },

@@ -119,15 +119,16 @@ namespace TrueMarkApi
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Отправка документов в ЧЗ"))
 				{
-					foreach(var organizationCertificate in _options.Value.OrganizationCertificates)
+					foreach(var certificate in _options.Value.OrganizationCertificates)
 					{
-						var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, organizationCertificate.EdxClientId);
+						var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, certificate.EdxClientId);
 						_logger.LogInformation("Запускаем необходимые транзакции для организации {OrganizationId}. " +
 											   "Отпечаток сертификата {CertificateThumbPrint}, " +
+											   "ИНН {Inn}, " +
 											   "Id кабинета ЭДО {OrganizationCertificateEdxClientId}",
-							organization.Id, organizationCertificate.CertificateThumbPrint, organizationCertificate.EdxClientId);
+							organization.Id, certificate.CertificateThumbPrint, certificate.Inn, certificate.EdxClientId);
 
-						await ProcessOrganizationDocuments(uow, startDate, organization, organizationCertificate, stoppingToken);
+						await ProcessOrganizationDocuments(uow, startDate, organization, certificate, stoppingToken);
 					}
 				}
 			}
@@ -138,27 +139,27 @@ namespace TrueMarkApi
 		}
 
 		private async Task ProcessOrganizationDocuments(IUnitOfWork uow, DateTime startDate, Organization organization,
-			OrganizationCertificate organizationCertificate, CancellationToken cancellationToken)
+			OrganizationCertificate certificate, CancellationToken cancellationToken)
 		{
 			try
 			{
 				if(organization is null)
 				{
-					_logger.LogError("Не найдена организация по edxClientId {OrganizationCertificateEdxClientId}", organizationCertificate.EdxClientId);
+					_logger.LogError("Не найдена организация по edxClientId {OrganizationCertificateEdxClientId}", certificate.EdxClientId);
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
-				var token = await Login(organizationCertificate.CertificateThumbPrint, organizationCertificate.Inn, cancellationToken);
+				var token = await Login(certificate.CertificateThumbPrint, certificate.Inn, cancellationToken);
 
 				_logger.LogInformation("Получили токен авторизации: {AuthorizationToken} ", token);
 
 				var externalHttpClient = GetHttpClient(token, _options.Value.ExternalTrueMarkBaseUrl);
 
-				await ProcessNewOrders(uow, externalHttpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
+				await ProcessNewOrders(uow, externalHttpClient, startDate, organization, certificate, cancellationToken);
 
-				await ProcessOldOrdersWithErrors(uow, externalHttpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
+				await ProcessOldOrdersWithErrors(uow, externalHttpClient, startDate, organization, certificate, cancellationToken);
 
-				await ProcessCancellationDocuments(uow, externalHttpClient, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
+				await ProcessCancellationDocuments(uow, externalHttpClient, organization, certificate, cancellationToken);
 
 			}
 			catch(Exception e)
@@ -168,12 +169,13 @@ namespace TrueMarkApi
 		}
 
 		private async Task ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
-			string organizationCertificateThumbPrint, CancellationToken cancellationToken)
+			OrganizationCertificate certificate, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем заказы для организации {OrganizationId}, " +
 								   "отпечаток сертификата {OrganizationCertificateThumbPrint}, " +
+								   "ИНН {Inn}, ",
 								   "код личного кабинета {OrganizationTaxcomEdoAccountId}, по которым надо осуществить вывод из оборота",
-								   organization.Id, organizationCertificateThumbPrint, organization.TaxcomEdoAccountId);
+								   organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoAccountId);
 
 			var orders = _orderRepository.GetOrdersForTrueMark(uow, startDate, organization.Id);
 
@@ -196,16 +198,16 @@ namespace TrueMarkApi
 			foreach(var order in orders)
 			{
 				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId} для организации {OrganizationId}, " +
-									   "отпечаток сертификата {OrganizationCertificateThumbPrint}," +
+									   "отпечаток сертификата {OrganizationCertificateThumbPrint}, ИНН {Inn}" +
 									   "код личного кабинета {OrganizationTaxcomEdoAccountId}",
-					order.Id, organization.Id, organizationCertificateThumbPrint, organization.TaxcomEdoAccountId);
+					order.Id, organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoAccountId);
 
 				try
 				{
 					var productDocumentFactory = CreateProductDocumentFactory(organization.INN, order);
 
 					var trueMarkApiDocument =
-						await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, organizationCertificateThumbPrint, cancellationToken);
+						await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, certificate, cancellationToken);
 
 					trueMarkApiDocument.Order = order;
 					trueMarkApiDocument.Organization = organization;
@@ -227,7 +229,7 @@ namespace TrueMarkApi
 		}
 
 		private async Task ProcessCancellationDocuments(IUnitOfWork uow, HttpClient httpClient, Organization organization,
-			string certificateThumbPrint, CancellationToken cancellationToken)
+			OrganizationCertificate certificate, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем список для отмены вывода из оборота для организации {OrganizationId}", organization.Id);
 
@@ -251,7 +253,7 @@ namespace TrueMarkApi
 					var documentFactory = new CancellationDocumentFactory(organization.INN, doc.DocGuid.ToString());
 
 					var trueMarkApiDocument =
-						await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT_CANCEL, documentFactory, certificateThumbPrint, cancellationToken);
+						await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT_CANCEL, documentFactory, certificate, cancellationToken);
 
 					trueMarkApiDocument.Order = new Order { Id = doc.OrderId };
 					trueMarkApiDocument.Type = TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation;
@@ -282,7 +284,7 @@ namespace TrueMarkApi
 		}
 
 		private async Task ProcessOldOrdersWithErrors(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
-			string certificateThumbPrint, CancellationToken cancellationToken)
+			OrganizationCertificate certificate, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем заказы с ошибками вывода из оборота для организации {OrganizationId}", organization.Id);
 
@@ -324,7 +326,7 @@ namespace TrueMarkApi
 						? new ProductDocumentForDonationFactory(organization.INN, order)
 						: new ProductDocumentForOwnUseFactory(organization.INN, order);
 
-					recievedDocument = await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, certificateThumbPrint, cancellationToken);
+					recievedDocument = await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, certificate, cancellationToken);
 					savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
 					savedDocument.IsSuccess = recievedDocument.IsSuccess;
 					savedDocument.Guid = recievedDocument.Guid;
@@ -349,14 +351,14 @@ namespace TrueMarkApi
 			: new ProductDocumentForOwnUseFactory(inn, order);
 
 		private async Task<TrueMarkDocument> CreateAndSendDocument(HttpClient httpClient, TrueMarkDocumentType trueMarkDocumentType, IDocumentFactory productDocumentFactory,
-			string certificateThumbPrint, CancellationToken cancellationToken)
+			OrganizationCertificate certificate, CancellationToken cancellationToken)
 		{
 			var documentCreateUrl = "lk/documents/create?pg=water";
 
 			var document = productDocumentFactory.CreateDocument();
 
 			var internalHttpClient = GetHttpClient(_options.Value.AuthorizationToken, _options.Value.InternalTrueMarkApiBaseUrl);
-			var signEndPoint = $"Sign?data={document}&&isDeatchedSign=true&&certificateThumbPrint={certificateThumbPrint}";
+			var signEndPoint = $"Sign?data={document}&&isDeatchedSign=true&&certificateThumbPrint={certificate.CertificateThumbPrint}&&inn={certificate.Inn}";
 			var signResponse = await internalHttpClient.GetStreamAsync(signEndPoint, cancellationToken);
 			var sign = await JsonSerializer.DeserializeAsync<byte[]>(signResponse);
 			var documentBytes = Encoding.UTF8.GetBytes(document);
@@ -372,15 +374,16 @@ namespace TrueMarkApi
 			var serializedDocument = JsonSerializer.Serialize(gtinReceiptDocument);
 			var documentContent = new StringContent(serializedDocument, Encoding.UTF8, "application/json");
 
-			_logger.LogInformation("Отправка: сертификат {OrganizationCertificateThumbPrint}, токен авторизации {AuthorizationToken}",
-				certificateThumbPrint, httpClient.DefaultRequestHeaders.Authorization);
+			_logger.LogInformation("Отправка: сертификат {OrganizationCertificateThumbPrint}, ИНН {Inn} токен авторизации {AuthorizationToken}",
+				certificate.CertificateThumbPrint, certificate.Inn, httpClient.DefaultRequestHeaders.Authorization);
 
 			var documentResponse = await httpClient.PostAsync(documentCreateUrl, documentContent, cancellationToken);
 
 			if(!documentResponse.IsSuccessStatusCode)
 			{
-				_logger.LogError("Ошибка: сертификат {OrganizationCertificateThumbPrint}, токен авторизации {AuthorizationToken}",
-					certificateThumbPrint, httpClient.DefaultRequestHeaders.Authorization);
+				_logger.LogError("Ошибка: сертификат {OrganizationCertificateThumbPrint}, ИНН {Inn} токен авторизации {AuthorizationToken}",
+				certificate.CertificateThumbPrint, certificate.Inn, httpClient.DefaultRequestHeaders.Authorization);
+
 
 				return new TrueMarkDocument
 				{
