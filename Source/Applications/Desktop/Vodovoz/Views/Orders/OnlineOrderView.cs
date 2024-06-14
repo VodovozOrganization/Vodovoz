@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -344,7 +344,7 @@ namespace Vodovoz.Views.Orders
 								externalCounterpartyMatching.AssignedExternalCounterparty.Phone.Counterparty.Id);
 						ViewModel.Save(false);
 					}
-					else
+					else if(externalCounterpartyMatching.Status == ExternalCounterpartyMatchingStatus.AwaitingProcessing)
 					{
 						ViewModel.ShowMessage("Перед соданием заказа присвойте контрагента нажав по соответствующей кнопке");
 						return;
