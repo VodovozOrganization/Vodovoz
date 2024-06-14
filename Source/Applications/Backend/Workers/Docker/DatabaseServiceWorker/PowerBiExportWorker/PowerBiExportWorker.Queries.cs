@@ -1,4 +1,4 @@
-﻿using NHibernate.Transform;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -93,6 +93,59 @@ namespace DatabaseServiceWorker
 				.SetParameter("date", date);
 
 			return revenueQuery.UniqueResult<decimal>();
+		}
+
+		private decimal GetNumberOfFastDeliverySales(IUnitOfWork uow, DateTime date)
+		{
+			var sql = "SELECT SUM(IFNULL(oi.actual_count, oi.count)) AS total_count" +
+				" FROM order_items oi INNER JOIN orders o on o.id = oi.order_id" +
+				" INNER JOIN base_parameters bp on bp.str_value = oi.nomenclature_id" +
+				" WHERE bp.name = 'fast_delivery_nomenclature_id'" +
+				" AND  (o.order_status = 'Accepted' OR o.order_status = 'InTravelList'" +
+				" OR o.order_status = 'OnLoading'" +
+				" OR o.order_status = 'OnTheWay'" +
+				" OR o.order_status = 'Shipped'" +
+				" OR o.order_status = 'UnloadingOnStock' " +
+				" OR o.order_status = 'Closed'" +
+				" OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment))" +
+				" AND (delivery_date = :date) AND !o.is_contract_closer;";
+
+			var query = uow.Session
+				.CreateSQLQuery(sql)
+				.SetParameter("date", date);
+
+			return query.UniqueResult<int>();
+		}
+
+		private LateDto GetLates(IUnitOfWork uow, DateTime date)
+		{
+			var sql = "SET @interval_select_mode = (SELECT str_value AS value from base_parameters bp WHERE bp.name = 'FastDeliveryIntervalFrom');" +
+				" SELECTSum(Delays.delay < '00:05:00') AS LessThan5Minutes," +
+				" Sum(Delays.delay < '00:30:00' AND Delays.delay >= '00:05:00') AS LessThan30Minutes," +
+				" Sum(Delays.delay >= '00:30:00') AS MoreThan30Minutes" +
+				" FROM (SELECT IF(is_fast_delivery," +
+				" TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update)," +
+				"	(IF(@interval_select_mode = 'Transfer', route_list_addresses.creation_date, IF(@interval_select_mode = 'FirstAddress', " +
+				"		(SELECT rla.creation_date FROM route_list_addresses rla WHERE rla.order_id = orders.id ORDER BY creation_date LIMIT 1), orders.create_date" +
+				" )) + INTERVAL (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'fast_delivery_time') HOUR ))," +
+				" TIMEDIFF(TIME(IFNULL(orders.time_delivered, route_list_addresses.status_last_update)), delivery_schedule.to_time)) AS delay" +
+				" FROM route_lists INNER JOIN employees driver ON driver.id = route_lists.driver_id AND driver.visiting_master = 0" +
+				" LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id" +
+				" LEFT JOIN orders ON orders.id = route_list_addresses.order_id" +
+				" LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id" +
+				" INNER JOIN cars c ON route_lists.car_id = c.id" +
+				" INNER JOIN car_models cm ON c.model_id = cm.id" +
+				" INNER JOIN car_versions cv ON c.id = cv.car_id" +
+				" AND cv.start_date <= route_lists.date" +
+				" AND (cv.end_date IS NULL OR cv.end_date >= route_lists.date)" +
+				" WHERE route_lists.`date` = :date AND is_fast_delivery = 1 AND route_list_addresses.status = 'Completed'" +
+				" GROUP BY route_list_addresses.id HAVING delay > 0) AS Delays;";
+
+			var query = uow.Session
+				.CreateSQLQuery(sql)
+				.SetParameter("date", date);
+
+			return query.UniqueResult<LateDto>();			
 		}
 	}
 }
