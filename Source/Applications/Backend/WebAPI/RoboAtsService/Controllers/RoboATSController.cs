@@ -11,8 +11,10 @@ using RoboAtsService.Contracts.Responses;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
@@ -30,6 +32,7 @@ namespace RoboatsService.Controllers
 		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IGenericRepository<DeliveryPoint> _deliveryPointRepository;
 		private readonly IPhoneService _phoneService;
 
 		public RoboatsController(
@@ -38,13 +41,15 @@ namespace RoboatsService.Controllers
 			RoboatsCallRegistrator roboatsCallRegistrator,
 			IRoboatsRepository roboatsRepository,
 			IGenericRepository<Order> orderRepository,
+			IGenericRepository<DeliveryPoint> deliveryPointRepository,
 			IPhoneService phoneService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
-			_orderRepository = orderRepository;
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			_phoneService = phoneService ?? throw new ArgumentNullException(nameof(phoneService));
 		}
 
@@ -137,6 +142,32 @@ namespace RoboatsService.Controllers
 			}
 		}
 
+		[HttpGet(nameof(GetDeliveryPointInfo))]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DeliveryPointInfoResponse))]
+		public IActionResult GetDeliveryPointInfo([FromServices] IUnitOfWork unitOfWork, int deliveryPointId)
+		{
+			var deliveryPoint = _deliveryPointRepository
+				.Get(unitOfWork, dp => dp.Id == deliveryPointId)
+				.FirstOrDefault();
+
+			if(deliveryPoint is null)
+			{
+				return Problem($"Точка доставки {deliveryPointId} не найдена");
+			}
+
+			var buildingNumber = _roboatsRepository.GetDeliveryPointBuilding(deliveryPointId, deliveryPoint.Counterparty.Id);
+
+			var result = new DeliveryPointInfoResponse
+			{
+				StreetId = _roboatsRepository.GetRoboAtsStreetId(deliveryPoint.Counterparty.Id, deliveryPointId),
+				HouseNumber = GetHouseNumber(buildingNumber),
+				BuildingNumber = GetCorpusNumber(buildingNumber),
+				AppartmentNumber = GetApartmentNumber(_roboatsRepository.GetDeliveryPointApartment(deliveryPointId, deliveryPoint.Counterparty.Id))
+			};
+
+			return Ok(result);
+		}
+
 		[HttpGet(nameof(GetCourierPhonesByTodayOrderContactPhone))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCourierPhonesResponse))]
 		public IActionResult GetCourierPhonesByTodayOrderContactPhone(string counterpartyPhone)
@@ -166,6 +197,30 @@ namespace RoboatsService.Controllers
 				_logger.LogError(ex, "Произошла ошибка {ExceptionMessage}", ex.Message);
 				return Problem("Ошибка выполнения запроса");
 			}
+		}
+
+		private string GetHouseNumber(string fullBuildingNumber)
+		{
+			var regex = new Regex(@"\d{1,}");
+			var match = regex.Match(fullBuildingNumber);
+			return match.Value;
+		}
+
+		private string GetCorpusNumber(string fullBuildingNumber)
+		{
+			var regex = new Regex(@"((к[ ]*[.]?[ ]*\d+)|(кор[ ]*[.]?[ ]*\d+)|(корп[ ]*[.]?[ ]*\d+)|(корпус[ ]*[.]?[ ]*\d+)){1,}"); //на всякий решили добавить поиск по корп
+			var match = regex.Match(fullBuildingNumber);
+
+			var regexDigits = new Regex(@"\d{1,}");
+			var corpusNumber = regexDigits.Match(match.Value);
+			return corpusNumber.Value;
+		}
+
+		private string GetApartmentNumber(string fullApartmentNumber)
+		{
+			var regex = new Regex(@"\d{1,}");
+			var match = regex.Match(fullApartmentNumber);
+			return match.Value;
 		}
 	}
 }
