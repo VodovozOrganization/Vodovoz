@@ -346,7 +346,7 @@ namespace Vodovoz.Views.Orders
 					}
 					else if(externalCounterpartyMatching.Status == ExternalCounterpartyMatchingStatus.AwaitingProcessing)
 					{
-						ViewModel.ShowMessage("Перед соданием заказа присвойте контрагента нажав по соответствующей кнопке");
+						ViewModel.ShowMessage("Перед созданием заказа присвойте контрагента нажав по соответствующей кнопке");
 						return;
 					}
 				}
