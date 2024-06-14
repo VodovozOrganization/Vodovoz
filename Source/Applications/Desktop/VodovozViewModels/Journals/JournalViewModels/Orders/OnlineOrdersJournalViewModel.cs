@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Timers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -197,11 +198,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 					
 					if(endDate.HasValue)
-					{ 
+					{
 						query.Where(o => o.DeliveryDate <= endDate); 
 					}
 					break;
 				case OrdersDateFilterType.CreationDate:
+					if(startDate.HasValue)
+					{
+						query.Where(o => o.Created >= startDate);
+					}
+					
+					if(endDate.HasValue)
+					{
+						query.Where(o => o.Created <= endDate.Value.LatestDayTime()); 
+					}
 					break;
 			}
 			

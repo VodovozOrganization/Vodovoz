@@ -1,5 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
-using DatabaseServiceWorker;
+﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;

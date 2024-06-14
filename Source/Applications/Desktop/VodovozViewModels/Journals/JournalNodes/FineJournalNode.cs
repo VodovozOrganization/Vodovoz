@@ -19,5 +19,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string AuthorName { get; set; }
 
 		public string FinedEmployeesSubdivisions { get; set; }
+
+		public string CarEvent { get; set; }
 	}
 }

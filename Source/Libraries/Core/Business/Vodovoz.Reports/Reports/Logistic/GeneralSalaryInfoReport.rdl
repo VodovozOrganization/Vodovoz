@@ -293,7 +293,7 @@ FROM
 			employees empl
 		LEFT JOIN
         	employees works_with
-        	ON works_with.default_forwarder_id = empl.id
+        	ON works_with.default_forwarder_id = empl.id AND works_with.status != 'isFired' AND works_with.id = (SELECT MAX(id) FROM employees WHERE status != 'isFired' AND default_forwarder_id = empl.id)
 		INNER JOIN
         	route_lists rl
         	ON rl.status &lt;&gt; 'New'

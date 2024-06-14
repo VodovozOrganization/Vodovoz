@@ -4,30 +4,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NLog.Web;
-using QS.HistoryLog;
-using QS.Project.Core;
 using QS.Services;
-using System.Net.Http;
-using System;
 using System.Text;
-using TrueMarkApi.Controllers;
 using TrueMarkApi.HealthChecks;
-using TrueMarkApi.Services;
+using TrueMarkApi.Options;
 using TrueMarkApi.Services.Authorization;
-using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Edo;
-using Vodovoz.Settings.Edo;
 using VodovozHealthCheck;
-using System.Net.Http.Headers;
 
 namespace TrueMarkApi
 {
@@ -43,44 +27,19 @@ namespace TrueMarkApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var apiSection = Configuration.GetSection("Api");
-
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "TrueMarkApi", Version = "v1" });
 			});
 
-			services.AddMappingAssemblies(
-				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-				typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-				typeof(QS.Banks.Domain.Bank).Assembly,
-				typeof(QS.HistoryLog.HistoryMain).Assembly,
-				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-				typeof(QS.Attachments.Domain.Attachment).Assembly,
-				typeof(EmployeeWithLoginMap).Assembly
-			);
-			services.AddDatabaseConnection();
-			services.AddCore();
-			services.AddTrackedUoW();
-
-			services.AddStaticHistoryTracker();
-			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-
 			services.AddControllers();
-			services.AddHostedService<TrueMarkDocumentService>();
-			services.AddSingleton<IAuthorizationService, AuthorizationService>();
-			services.AddSingleton<IOrderRepository, OrderRepository>();
-			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
-			services.AddSingleton<IEdoSettings, EdoSettings>();
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddHttpClient<TrueMarkApiController>(client =>
-			{
-				client.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
-				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			});
+			services.AddHttpClient();
 
-			// Авторизация
+			services.AddSingleton<IAuthorizationService, AuthorizationService>();
+
+			// Авторизация	
 			services.AddAuthorization();
+			var securityKey = Configuration.GetSection(nameof(TrueMarkApiOptions)).GetValue<string>("InternalSecurityKey");
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(options =>
 				{
@@ -90,7 +49,7 @@ namespace TrueMarkApi
 						ValidateAudience = false,
 						ValidateLifetime = false,
 						ValidateIssuerSigningKey = true,
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(apiSection.GetValue<string>("SecurityKey")))
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey))
 					};
 				});
 
