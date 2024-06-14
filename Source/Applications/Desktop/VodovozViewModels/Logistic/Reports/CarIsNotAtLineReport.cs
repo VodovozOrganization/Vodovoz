@@ -158,8 +158,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					&& e.CarEventType.Id == carTransferEventTypeId
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carTransferEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carTransferEventTypeId))
-					&& e.CreateDate >= date.AddDays(-1)
-					&& e.CreateDate <= date.LatestDayTime())
+					&& e.CreateDate >= date.AddDays(-1).Date
+					&& e.CreateDate <= date)
 				.ToArray();
 
 			var filteredRecieveEvents = carEventRepository.Get(
@@ -168,8 +168,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					&& e.CarEventType.Id == carReceptionEventTypeId
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carReceptionEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carReceptionEventTypeId))
-					&& e.CreateDate >= date.AddDays(-1)
-					&& e.CreateDate <= date.LatestDayTime())
+					&& e.CreateDate >= date.AddDays(-1).Date
+					&& e.CreateDate <= date)
 				.ToArray();
 
 			var rows = new List<Row>();
