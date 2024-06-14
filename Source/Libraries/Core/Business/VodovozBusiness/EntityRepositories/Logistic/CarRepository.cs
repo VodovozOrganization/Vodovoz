@@ -407,17 +407,21 @@ namespace Vodovoz.EntityRepositories.Logistic
 				join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
 				join d in unitOfWork.Session.Query<District>() on deliveryPoint.District.Id equals d.Id into districts
 				from district in districts.DefaultIfEmpty()
+				join ds in unitOfWork.Session.Query<DeliverySchedule>() on order.DeliverySchedule.Id equals ds.Id into deliverySchedules
+				from deliverySchedule in deliverySchedules.DefaultIfEmpty()
 				where routeListsIds.Contains(rl.Id)
 
 				select new AdressesOrdersData
 				{
 					RouteListId = rla.RouteList.Id,
 					RouteListDate = rl.Date,
+					RouteListConfirmedDistance = rl.ConfirmedDistance,
 					CarId = car.Id,
 					CarTypeOfuse = carModel.CarTypeOfUse,
 					AddressId = rla.Id,
 					IsAddressWasTransfered = rla.WasTransfered,
 					AddressStatus = rla.Status,
+					AddressStatusLastUpdate = rla.StatusLastUpdate,
 					OrderId = order.Id,
 					OrderItemCount = orderItem.Count,
 					OrderItemActualCount = orderItem.ActualCount,
@@ -426,7 +430,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 					NomenclatureVolume = nomenclature == null ? 0 : nomenclature.Volume,
 					DeliveryPointId = deliveryPoint.Id,
 					DeliveryPointDistrictId = deliveryPoint.District.Id,
-					DeliveryPointWageDistrictId = district.WageDistrict.Id
+					DeliveryPointWageDistrictId = district.WageDistrict.Id,
+					OrderDeliveryScheduleTo = deliverySchedule.To
 				};
 
 			return data;
@@ -437,11 +442,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		public int RouteListId { get; set; }
 		public DateTime RouteListDate { get; set; }
+		public decimal RouteListConfirmedDistance { get; set; }
 		public int CarId { get; set; }
 		public CarTypeOfUse CarTypeOfuse { get; set; }
 		public int AddressId { get; set; }
 		public bool IsAddressWasTransfered { get; set; }
 		public RouteListItemStatus AddressStatus { get; set; }
+		public DateTime? AddressStatusLastUpdate { get; set; }
 		public int? OrderId { get; set; }
 		public decimal? OrderItemCount { get; set; }
 		public decimal? OrderItemActualCount { get; set; }
@@ -451,6 +458,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public int DeliveryPointId { get; set; }
 		public int? DeliveryPointDistrictId { get; set; }
 		public int? DeliveryPointWageDistrictId { get; set; }
+		public TimeSpan? OrderDeliveryScheduleTo { get; set; }
 
 	}
 }
