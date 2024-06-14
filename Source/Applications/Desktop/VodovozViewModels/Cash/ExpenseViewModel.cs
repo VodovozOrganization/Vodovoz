@@ -480,7 +480,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public override bool Save(bool close)
 		{
-			if(base.Save(false))
+			if(base.Save(close))
 			{
 				if(Entity.RouteListClosing != null)
 				{
