@@ -3,7 +3,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
@@ -29,16 +28,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IEnumerable<CarOwnType> selectedCarOwnTypes);
 		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType);
 		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId);
-		Task<IList<RouteList>> GetCarsRouteLists(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType, Car car,
-			int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
-			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
 		Task<IList<CarEvent>> GetCarEvents(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
 			CarOwnType carOwnType, Car car, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
 		Task<IList<Car>> GetCarsWithoutData(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
 			CarOwnType carOwnType, Car car, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
-
 		Task<IDictionary<(int CarId, int Day), IEnumerable<RouteListItem>>> GetNotPriorityDistrictsAddresses(
 			IUnitOfWork unitOfWork, IList<int> routeListsIds, CancellationToken cancellationToken);
-		IQueryable<AdressesOrdersData> GetAddressesOrdersData(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
+		IQueryable<Car> GetCarsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListIds);
+		IQueryable<OdometerReading> GetOdometerReadingByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
+		IDictionary<int, string> GetCarsGeoGroups(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
+		Task<IDictionary<int, string>> GetDriversNamesByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken);
 	}
 }

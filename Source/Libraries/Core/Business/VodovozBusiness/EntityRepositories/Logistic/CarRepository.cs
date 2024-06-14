@@ -8,13 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
@@ -150,103 +146,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				};
 
 			return carTechInspects;
-		}
-
-		public async Task<IList<RouteList>> GetCarsRouteLists(
-			IUnitOfWork uow,
-			CarTypeOfUse? carTypeOfUse,
-			CarOwnType carOwnType,
-			Car car,
-			int[] includedCarModelIds,
-			int[] excludedCarModelIds,
-			DateTime startDate,
-			DateTime endDate,
-			bool isOnlyCarsWithCompletedFastDelivery,
-			bool isOnlyCarsWithCompletedCommonDelivery,
-			CancellationToken cancellationToken)
-		{
-			return await Task.Run(() =>
-			{
-				RouteList routeListAlias = null;
-				RouteListItem routeListAddressAlias = null;
-				Order orderAlias = null;
-				Car carAlias = null;
-				CarModel carModelAlias = null;
-				CarVersion carVersionAlias = null;
-				Employee assignedDriverAlias = null;
-
-				var query = uow.Session.QueryOver(() => routeListAlias)
-					.Inner.JoinAlias(() => routeListAlias.Car, () => carAlias)
-					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
-					.JoinEntityAlias(() => carVersionAlias,
-						() => carVersionAlias.Car.Id == carAlias.Id
-							&& carVersionAlias.StartDate <= routeListAlias.Date &&
-							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
-					.Where(() => routeListAlias.Date >= startDate && routeListAlias.Date < endDate)
-					.Where(() => !carAlias.IsArchive)
-					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
-					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
-					.And(() => carVersionAlias.CarOwnType == carOwnType);
-
-				if(carTypeOfUse != null)
-				{
-					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
-				}
-
-				if(car != null)
-				{
-					query.Where(() => carAlias.Id == car.Id);
-				}
-
-				if(includedCarModelIds.Any())
-				{
-					query.Where(Restrictions.In(Projections.Property(nameof(carAlias.Id)), includedCarModelIds));
-				}
-
-				if(excludedCarModelIds.Any())
-				{
-					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(nameof(carAlias.Id)), excludedCarModelIds)));
-				}
-
-				var completedFastDeliveryAddressesSubquery =
-					QueryOver.Of(() => routeListAddressAlias)
-					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
-					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
-					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
-					.And(() => orderAlias.IsFastDelivery)
-					.Select(rla => rla.Id);
-
-				var completedCommonAddressesSubquery =
-					QueryOver.Of(() => routeListAddressAlias)
-					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
-					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
-					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
-					.And(() => !orderAlias.IsFastDelivery)
-					.Select(rla => rla.Id);
-
-				if(isOnlyCarsWithCompletedFastDelivery && !isOnlyCarsWithCompletedCommonDelivery)
-				{
-					query.Where(Restrictions.IsNotNull(Projections.SubQuery(completedFastDeliveryAddressesSubquery)));
-				}
-
-				if(isOnlyCarsWithCompletedCommonDelivery && !isOnlyCarsWithCompletedFastDelivery)
-				{
-					query.Where(Restrictions.IsNotNull(Projections.SubQuery(completedCommonAddressesSubquery)));
-				}
-
-				query.Fetch(SelectMode.Fetch, x => x.Addresses)
-					.Fetch(SelectMode.Fetch, x => x.Driver)
-					.Fetch(SelectMode.Fetch, x => x.Forwarder);
-
-				return query
-					.OrderBy(() => carAlias.Id).Asc
-					.ThenBy(() => routeListAlias.Id).Asc
-					.TransformUsing(Transformers.DistinctRootEntity)
-					.List<RouteList>();
-			},
-				cancellationToken
-			);
 		}
 
 		public async Task<IList<CarEvent>> GetCarEvents(
@@ -391,74 +290,46 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return carsRouteListAddressesGroup;
 		}
 
-		public IQueryable<AdressesOrdersData> GetAddressesOrdersData(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds)
+		public IQueryable<Car> GetCarsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListIds)
 		{
-			var data =
+			var cars =
 				from rl in unitOfWork.Session.Query<RouteList>()
-				join rla in unitOfWork.Session.Query<RouteListItem>() on rl.Id equals rla.RouteList.Id
 				join car in unitOfWork.Session.Query<Car>() on rl.Car.Id equals car.Id
-				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
-				join o in unitOfWork.Session.Query<Order>() on rla.Order.Id equals o.Id into orders
-				from order in orders.DefaultIfEmpty()
-				join oi in unitOfWork.Session.Query<OrderItem>() on order.Id equals oi.Order.Id into orderItems
-				from orderItem in orderItems.DefaultIfEmpty()
-				join n in unitOfWork.Session.Query<Nomenclature>() on (orderItem == null ? 0 : orderItem.Nomenclature.Id) equals n.Id into nomenclatures
-				from nomenclature in nomenclatures.DefaultIfEmpty()
-				join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
-				join d in unitOfWork.Session.Query<District>() on deliveryPoint.District.Id equals d.Id into districts
-				from district in districts.DefaultIfEmpty()
-				join ds in unitOfWork.Session.Query<DeliverySchedule>() on order.DeliverySchedule.Id equals ds.Id into deliverySchedules
-				from deliverySchedule in deliverySchedules.DefaultIfEmpty()
-				where routeListsIds.Contains(rl.Id)
+				where routeListIds.Contains(rl.Id)
+				orderby car.Id
+				select car;
 
-				select new AdressesOrdersData
-				{
-					RouteListId = rla.RouteList.Id,
-					RouteListDate = rl.Date,
-					RouteListConfirmedDistance = rl.ConfirmedDistance,
-					CarId = car.Id,
-					CarTypeOfuse = carModel.CarTypeOfUse,
-					AddressId = rla.Id,
-					IsAddressWasTransfered = rla.WasTransfered,
-					AddressStatus = rla.Status,
-					AddressStatusLastUpdate = rla.StatusLastUpdate,
-					OrderId = order.Id,
-					OrderItemCount = orderItem.Count,
-					OrderItemActualCount = orderItem.ActualCount,
-					IsNomenclatureWater19L = nomenclature == null ? false : nomenclature.IsWater19L,
-					NomenclatureWeight = nomenclature == null ? 0 : nomenclature.Weight,
-					NomenclatureVolume = nomenclature == null ? 0 : nomenclature.Volume,
-					DeliveryPointId = deliveryPoint.Id,
-					DeliveryPointDistrictId = deliveryPoint.District.Id,
-					DeliveryPointWageDistrictId = district.WageDistrict.Id,
-					OrderDeliveryScheduleTo = deliverySchedule.To
-				};
-
-			return data;
+			return cars.Distinct();
 		}
-	}
 
-	public class AdressesOrdersData
-	{
-		public int RouteListId { get; set; }
-		public DateTime RouteListDate { get; set; }
-		public decimal RouteListConfirmedDistance { get; set; }
-		public int CarId { get; set; }
-		public CarTypeOfUse CarTypeOfuse { get; set; }
-		public int AddressId { get; set; }
-		public bool IsAddressWasTransfered { get; set; }
-		public RouteListItemStatus AddressStatus { get; set; }
-		public DateTime? AddressStatusLastUpdate { get; set; }
-		public int? OrderId { get; set; }
-		public decimal? OrderItemCount { get; set; }
-		public decimal? OrderItemActualCount { get; set; }
-		public bool? IsNomenclatureWater19L { get; set; }
-		public decimal? NomenclatureWeight { get; set; }
-		public decimal? NomenclatureVolume { get; set; }
-		public int DeliveryPointId { get; set; }
-		public int? DeliveryPointDistrictId { get; set; }
-		public int? DeliveryPointWageDistrictId { get; set; }
-		public TimeSpan? OrderDeliveryScheduleTo { get; set; }
+		public IQueryable<OdometerReading> GetOdometerReadingByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds)
+		{
+			var odometerReading =
+				unitOfWork.Session.Query<OdometerReading>()
+				.Where(or => carsIds.Contains(or.Car.Id));
 
+			return odometerReading;
+		}
+
+		public IDictionary<int, string> GetCarsGeoGroups(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>
+			unitOfWork.Session.Query<Car>()
+			.Where(c => carsIds.Contains(c.Id))
+			.Select(c => new { CarId = c.Id, GeoGroups = string.Join(", ", c.GeographicGroups.Select(g => g.Name)) })
+			.ToDictionary(c => c.CarId, c => c.GeoGroups);
+
+		public async Task<IDictionary<int, string>> GetDriversNamesByCars(
+			IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken)
+		{
+			var driversNames =
+				from car in unitOfWork.Session.Query<Car>()
+				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
+				from driver in drivers.DefaultIfEmpty()
+				where carsIds.Contains(car.Id)
+				select new { CarId = car.Id, DriverName = driver == null ? "-" : driver.ShortName };
+
+			return (await driversNames.ToListAsync(cancellationToken))
+				.GroupBy(g => g.CarId)
+				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
+		}
 	}
 }

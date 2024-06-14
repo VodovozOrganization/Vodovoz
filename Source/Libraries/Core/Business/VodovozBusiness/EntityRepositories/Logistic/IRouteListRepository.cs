@@ -2,6 +2,9 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -88,5 +91,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse);
 		void SaveCargoDailyNorms(Dictionary<CarTypeOfUse, decimal> cargoDailyNorms);
+		Task<IList<RouteList>> GetCarsRouteListsForPeriod(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType, Car car,
+			int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
+			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
+		IQueryable<ExploitationReportRouteListDataNode> GetExploitationReportRouteListDataNodes(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
+		IQueryable<int> GetOrderIdsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
 	}
 }
