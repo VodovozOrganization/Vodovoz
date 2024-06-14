@@ -8,11 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
@@ -398,13 +400,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
 				join o in unitOfWork.Session.Query<Order>() on rla.Order.Id equals o.Id into orders
 				from order in orders.DefaultIfEmpty()
-				join orderItem in unitOfWork.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
-				join n in unitOfWork.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals n.Id into nomenclatures
+				join oi in unitOfWork.Session.Query<OrderItem>() on order.Id equals oi.Order.Id into orderItems
+				from orderItem in orderItems.DefaultIfEmpty()
+				join n in unitOfWork.Session.Query<Nomenclature>() on (orderItem == null ? 0 : orderItem.Nomenclature.Id) equals n.Id into nomenclatures
 				from nomenclature in nomenclatures.DefaultIfEmpty()
+				join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
+				join d in unitOfWork.Session.Query<District>() on deliveryPoint.District.Id equals d.Id into districts
+				from district in districts.DefaultIfEmpty()
 				where routeListsIds.Contains(rl.Id)
+
 				select new AdressesOrdersData
 				{
 					RouteListId = rla.RouteList.Id,
+					RouteListDate = rl.Date,
 					CarId = car.Id,
 					CarTypeOfuse = carModel.CarTypeOfUse,
 					AddressId = rla.Id,
@@ -413,9 +421,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 					OrderId = order.Id,
 					OrderItemCount = orderItem.Count,
 					OrderItemActualCount = orderItem.ActualCount,
-					IsNomenclatureWater19L = nomenclature.IsWater19L,
-					NomenclatureWeight = nomenclature.Weight,
-					NomenclatureVolume = nomenclature.Volume
+					IsNomenclatureWater19L = nomenclature == null ? false : nomenclature.IsWater19L,
+					NomenclatureWeight = nomenclature == null ? 0 : nomenclature.Weight,
+					NomenclatureVolume = nomenclature == null ? 0 : nomenclature.Volume,
+					DeliveryPointId = deliveryPoint.Id,
+					DeliveryPointDistrictId = deliveryPoint.District.Id,
+					DeliveryPointWageDistrictId = district.WageDistrict.Id
 				};
 
 			return data;
@@ -425,6 +436,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public class AdressesOrdersData
 	{
 		public int RouteListId { get; set; }
+		public DateTime RouteListDate { get; set; }
 		public int CarId { get; set; }
 		public CarTypeOfUse CarTypeOfuse { get; set; }
 		public int AddressId { get; set; }
@@ -436,6 +448,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public bool? IsNomenclatureWater19L { get; set; }
 		public decimal? NomenclatureWeight { get; set; }
 		public decimal? NomenclatureVolume { get; set; }
+		public int DeliveryPointId { get; set; }
+		public int? DeliveryPointDistrictId { get; set; }
+		public int? DeliveryPointWageDistrictId { get; set; }
 
 	}
 }
