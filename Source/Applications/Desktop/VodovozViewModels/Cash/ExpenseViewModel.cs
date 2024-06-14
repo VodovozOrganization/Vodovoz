@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -488,8 +488,6 @@ namespace Vodovoz.ViewModels.Cash
 					Entity.RouteListClosing.UpdateRouteListDebt();
 					_logger.LogInformation("Ok");
 				}
-
-				Close(false, CloseSource.Save);
 
 				return true;
 			}
