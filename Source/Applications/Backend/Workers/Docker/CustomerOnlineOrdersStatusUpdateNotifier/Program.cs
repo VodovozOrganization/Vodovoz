@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
 using CustomerOnlineOrdersStatusUpdateNotifier.Services;
@@ -51,7 +52,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						
 						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
-					
+						.AddSingleton(_ => new JsonSerializerOptions
+						{
+							PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+						})
 						.AddHostedService<OnlineOrdersStatusUpdatedNotifier>()
 						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(client =>
 						{
