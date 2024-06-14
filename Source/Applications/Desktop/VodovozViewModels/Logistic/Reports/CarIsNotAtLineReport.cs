@@ -129,15 +129,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				 })
 				.ToArray();
 
-			foreach(var carsWithRouteList in carsWithLastRouteLists)
-			{
-				if(carsWithRouteList.lastRouteListDate > startDate)
-				{
-					cars.Remove(cars.FirstOrDefault(c => c.Id == carsWithRouteList.car.Id));
-				}
-			}
-
 			var carIdsWithoutRouteListsAfterStartDate = cars
+				.Where(c => !carsWithLastRouteLists.Any(cwrl => cwrl.lastRouteListDate > startDate && cwrl.car.Id == c.Id))
 				.Select(c => c.Id)
 				.ToArray();
 
@@ -151,9 +144,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(ce.CarEventType.Id))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)));
 
-			var filteredEvents = events.Where(ce => carIdsWithoutRouteListsAfterStartDate.Contains(ce.Car.Id));
-
-			var notTransferRecieveEvents = filteredEvents
+			var notTransferRecieveEvents = events
 				.Where(ce => ce.CarEventType.Id != carTransferEventTypeId
 					&& ce.CarEventType.Id != carReceptionEventTypeId)
 				.OrderByDescending(ce => ce.EndDate)
@@ -198,6 +189,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 				if(carEventGroup == null)
 				{
+					if(!carIdsWithoutRouteListsAfterStartDate.Contains(cars[i].Id))
+					{
+						continue;
+					}
+
 					rows.Add(new Row
 					{
 						Id = i + 1,
