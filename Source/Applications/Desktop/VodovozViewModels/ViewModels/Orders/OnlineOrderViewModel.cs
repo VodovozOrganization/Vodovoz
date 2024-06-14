@@ -82,6 +82,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
 		public bool CanGetToWork => Entity.EmployeeWorkWith is null;
+
 		public bool CanCreateOrder =>
 			OrderIsNullAndOnlineOrderNotCanceledStatus && CurrentEmployeeIsEmployeeWorkWith;
 		public bool CanCancelOnlineOrder =>
@@ -298,7 +299,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				() => CanGetToWork,
 				() => CanCreateOrder,
 				() => CanCancelOnlineOrder,
-				() => EmployeeWorkWith);
+				() => EmployeeWorkWith,
+				() => CanOpenExternalCounterpartyMatching);
 			
 			SetPropertyChangeRelation(
 				e => e.Counterparty,

@@ -1,24 +1,29 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
 using Microsoft.Extensions.Configuration;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 {
 	public class OnlineOrdersStatusUpdatedNotificationService : IOnlineOrdersStatusUpdatedNotificationService
 	{
 		private readonly HttpClient _httpClient;
+		private readonly JsonSerializerOptions _jsonSerializerOptions;
 		private readonly IConfigurationSection _mobileAppSection;
 		private readonly IConfigurationSection _vodovozSiteSection;
 
 		public OnlineOrdersStatusUpdatedNotificationService(
 			HttpClient client,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			JsonSerializerOptions jsonSerializerOptions)
 		{
 			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
+			_jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 
 			if(configuration is null)
 			{
@@ -29,9 +34,11 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 			_vodovozSiteSection = configuration.GetSection("VodovozSite");
 		}
 
-		public async Task<int> NotifyOfOnlineOrderStatusUpdatedAsync(OnlineOrderStatusUpdatedDto statusUpdatedDto, Source source)
+		public async Task<int> NotifyOfOnlineOrderStatusUpdatedAsync(
+			OnlineOrderStatusUpdatedDto statusUpdatedDto, Source source, CancellationToken cancellationToken = default)
 		{
-			var response = await _httpClient.PostAsJsonAsync(GetUriString(source), statusUpdatedDto);
+			var content = JsonContent.Create(statusUpdatedDto, mediaType: null, _jsonSerializerOptions);
+			var response = await _httpClient.PutAsync(GetUriString(source), content, cancellationToken);
 			return (int)response.StatusCode;
 		}
 
