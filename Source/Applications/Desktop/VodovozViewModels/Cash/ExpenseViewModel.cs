@@ -480,7 +480,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public override bool Save(bool close)
 		{
-			if(base.Save(close))
+			if(base.Save(false))
 			{
 				if(Entity.RouteListClosing != null)
 				{
@@ -489,7 +489,7 @@ namespace Vodovoz.ViewModels.Cash
 					_logger.LogInformation("Ok");
 				}
 
-				return true;
+				return base.Save(close);
 			}
 
 			return false;
