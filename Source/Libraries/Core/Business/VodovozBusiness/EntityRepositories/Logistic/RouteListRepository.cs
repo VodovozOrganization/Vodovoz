@@ -1744,7 +1744,7 @@ FROM
 			var ordersIds =
 				from rla in unitOfWork.Session.Query<RouteListItem>()
 				join order in unitOfWork.Session.Query<VodovozOrder>() on rla.Order.Id equals order.Id
-				where routeListsIds.Contains(rla.Id)
+				where routeListsIds.Contains(rla.RouteList.Id)
 				orderby order.Id
 				select order.Id;
 

@@ -148,7 +148,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return carTechInspects;
 		}
 
-		public async Task<IList<CarEvent>> GetCarEvents(
+		public async Task<IList<CarEventData>> GetCarEvents(
 			IUnitOfWork uow,
 			CarTypeOfUse? carTypeOfUse,
 			int[] includedCarModelIds,
@@ -166,6 +166,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				CarModel carModelAlias = null;
 				CarVersion carVersionAlias = null;
 				Employee assignedDriverAlias = null;
+				CarEventType carEventTypeAlias = null;
+				CarEventData carEventDataAlias = null;
 
 				var query = uow.Session.QueryOver(() => carEventAlias)
 					.Inner.JoinAlias(() => carEventAlias.Car, () => carAlias)
@@ -175,6 +177,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 						() => carVersionAlias.Car.Id == carAlias.Id
 							&& carVersionAlias.StartDate <= carEventAlias.StartDate &&
 							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= carEventAlias.StartDate))
+					.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
 					.Where(() => carEventAlias.StartDate <= endDate && carEventAlias.EndDate >= startDate && !carEventAlias.DoNotShowInOperation)
 					.Where(() => !carAlias.IsArchive)
 					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
@@ -201,9 +204,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
 				}
 
-				return query
-					.TransformUsing(Transformers.DistinctRootEntity)
-					.List<CarEvent>();
+				var result = query.SelectList(list => list
+					.Select(() => carEventAlias.Id).WithAlias(() => carEventDataAlias.EventId)
+					.Select(() => carAlias.Id).WithAlias(() => carEventDataAlias.CarId)
+					.Select(() => carEventAlias.StartDate).WithAlias(() => carEventDataAlias.StartDate)
+					.Select(() => carEventAlias.EndDate).WithAlias(() => carEventDataAlias.EndDate)
+					.Select(() => carEventTypeAlias.ShortName).WithAlias(() => carEventDataAlias.EventTypeShortName))
+					.TransformUsing(Transformers.AliasToBean<CarEventData>())
+					.List<CarEventData>();
+
+				return result;
 			},
 				cancellationToken);
 		}
@@ -331,5 +341,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.GroupBy(g => g.CarId)
 				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
 		}
+
+		public IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>
+			unitOfWork.Session.Query<Car>()
+			.Where(c => carsIds.Contains(c.Id))
+			.Distinct();
+	}
+
+	public class CarEventData
+	{
+		public int EventId { get; set; }
+		public int CarId { get; set; }
+		public DateTime StartDate { get; set; }
+		public DateTime EndDate { get; set; }
+		public string EventTypeShortName { get; set; }
 	}
 }
