@@ -39,6 +39,7 @@ using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using QS.DomainModel.Entity;
 using System.ComponentModel;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -73,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
 			IFuelRepository fuelRepository,
+			IStringHandler stringHandler,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
@@ -96,6 +98,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 
 			TabName = "Автомобиль";
@@ -209,6 +212,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }
 		public bool CanViewFuelCard { get; }
+
+		public IStringHandler StringHandler { get; }
 
 		public IEntityEntryViewModel CarModelViewModel { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
@@ -469,24 +474,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					if(UpcomingTechInspectKmCalculated != value)
 					{
-						if(value > UpcomingTechInspectKmCalculated)
-						{
-							throw new InvalidOperationException("Нельзя установить значение более расчетного");
-						}
-
 						Entity.TechInspectForKm = value;
 					}
 					else
 					{
 						Entity.TechInspectForKm = null;
 					}
-
-					OnPropertyChanged(nameof(UpcomingTechInspectKm));
 				}
 			}
 		}
 
 		public int UpcomingTechInspectLeft { get; private set; }
+
+		public void ShowErrorMwssage(string message)
+		{
+			ShowErrorMessage(message);
+		}
 
 		private void AddGeoGroup()
 		{
