@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1010,10 +1010,6 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
       <Name>VodovozBusiness</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
-      <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
-      <Name>EdoService.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
