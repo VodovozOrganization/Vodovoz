@@ -58,7 +58,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DependencyInjecxtion.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IncludeExcludeFilterGroupView.cs" />
