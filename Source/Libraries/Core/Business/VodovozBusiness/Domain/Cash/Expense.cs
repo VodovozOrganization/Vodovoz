@@ -22,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Settings.Cash;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Cash
@@ -450,7 +451,17 @@ namespace Vodovoz.Domain.Cash
 					if(ExpenseCategoryId == null)
 					{
 						yield return new ValidationResult("Статья расхода должна быть указана.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
+							new[] { nameof(ExpenseCategoryId) });
+					}
+
+					if(ExpenseCategoryId != null
+						&& validationContext.Items.ContainsKey(nameof(IFinancialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId))
+						&& ExpenseCategoryId == (int)validationContext.Items[nameof(IFinancialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId)]
+						&& RouteListClosing is null)
+					{
+						yield return new ValidationResult(
+							"Для данной статьи расхода должен быть указан МЛ",
+							new[] { nameof(RouteListClosing) });
 					}
 				}
 
