@@ -100,7 +100,7 @@ namespace Vodovoz
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
 
-			_viewModelWidgetsRegistrar.RegisterateWidgets();
+			_viewModelWidgetsRegistrar.RegisterateWidgets(Assembly.GetExecutingAssembly(), typeof(Presentation.Views.DependencyInjection).Assembly);
 
 			ConfigureJournalColumnsConfigs();
 

@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Logistic
 	[EntityPermission]
 	[HistoryTrace]
 
-	public class CarEventType : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class CarEventType : PropertyChangedBase, IDomainObject, IValidatableObject, IArchivable, INamedDomainObject
 	{
 		private string _name;
 		private string _shortName;
