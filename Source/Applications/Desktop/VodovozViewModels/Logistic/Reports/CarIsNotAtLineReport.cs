@@ -183,6 +183,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			var eventsGrouppedByCarModel = events.GroupBy(fe => fe.Car.CarModel.Id);
 
+			var skippedRows = 0;
+
 			for(var i = 0; i < cars.Count; i++)
 			{
 				var carEventGroup = notTransferRecieveEvents.FirstOrDefault(x => x.Key == cars[i].Id);
@@ -191,12 +193,13 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					if(!carIdsWithoutRouteListsAfterStartDate.Contains(cars[i].Id))
 					{
+						skippedRows++;
 						continue;
 					}
 
 					rows.Add(new Row
 					{
-						Id = i + 1,
+						Id = i + 1 - skippedRows,
 						RegistationNumber = cars[i].RegistrationNumber,
 						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
 						CarType = cars[i].CarModel.Name,
@@ -212,7 +215,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 				rows.Add(new Row
 				{
-					Id = i + 1,
+					Id = i + 1 - skippedRows,
 					RegistationNumber = cars[i].RegistrationNumber,
 					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
 					CarType = cars[i].CarModel.Name,
