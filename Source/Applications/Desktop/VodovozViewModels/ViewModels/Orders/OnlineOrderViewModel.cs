@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private bool _orderCreatingState;
+		private bool _canCancelAnyOnlineOrder;
 
 		public OnlineOrderViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -56,6 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
+			SetPermissions();
 			CreateCommands();
 			CreatePropertyChangeRelations();
 			GetOnlineOrderItems();
@@ -71,13 +73,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
 
-		private void CreateCommands()
-		{
-			CreateGetToWorkCommand();
-			CreateCancelOnlineOrderCommand();
-			CreateOpenExternalCounterpartyMatchingCommand();
-		}
-
 		public bool CanShowId => Entity.Id > 0;
 
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
@@ -88,7 +83,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanCancelOnlineOrder =>
 			OrderIsNullAndOnlineOrderNotCanceledStatus
 			&& !_orderCreatingState
-			&& CurrentEmployeeIsEmployeeWorkWith;
+			&& (CurrentEmployeeIsEmployeeWorkWith || _canCancelAnyOnlineOrder);
 		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
@@ -188,6 +183,21 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public void ShowMessage(string message, string title = null)
 		{
 			ShowInfoMessage(message, title);
+		}
+		
+		private void SetPermissions()
+		{
+			var permissionService = CommonServices.PermissionService;
+			
+			_canCancelAnyOnlineOrder =
+				permissionService.ValidateUserPresetPermission(Vodovoz.Permissions.OnlineOrder.CanCancelAnyOnlineOrder, CurrentUser.Id);
+		}
+		
+		private void CreateCommands()
+		{
+			CreateGetToWorkCommand();
+			CreateCancelOnlineOrderCommand();
+			CreateOpenExternalCounterpartyMatchingCommand();
 		}
 
 		private void CreateGetToWorkCommand()
