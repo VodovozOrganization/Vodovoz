@@ -1660,7 +1660,8 @@ FROM
 					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
 					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
 					.And(() => orderAlias.IsFastDelivery)
-					.Select(rla => rla.Id);
+					.Select(rla => rla.Id)
+					.Take(1);
 
 				var completedCommonAddressesSubquery =
 					QueryOver.Of(() => routeListAddressAlias)
@@ -1668,7 +1669,8 @@ FROM
 					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
 					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
 					.And(() => !orderAlias.IsFastDelivery)
-					.Select(rla => rla.Id);
+					.Select(rla => rla.Id)
+					.Take(1);
 
 				if(isOnlyCarsWithCompletedFastDelivery && !isOnlyCarsWithCompletedCommonDelivery)
 				{
