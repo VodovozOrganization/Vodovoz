@@ -3,8 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -27,7 +27,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
 		IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList);
 		bool HasRouteList(int driverId, DateTime date, int deliveryShiftId);
-		IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uoW, int routeListId, RouteListItemStatus [] excludeAddressStatuses = null);
+		IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uoW, int routeListId, RouteListItemStatus[] excludeAddressStatuses = null);
 		GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse);
 		IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList);
 		IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null);
@@ -96,5 +96,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
 		IQueryable<ExploitationReportRouteListDataNode> GetExploitationReportRouteListDataNodes(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
 		IQueryable<int> GetOrderIdsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
+		decimal GetCarsConfirmedDistanceForPeriod(IUnitOfWork unitOfWork, int carId, DateTime startDate, DateTime endDate);
 	}
 }

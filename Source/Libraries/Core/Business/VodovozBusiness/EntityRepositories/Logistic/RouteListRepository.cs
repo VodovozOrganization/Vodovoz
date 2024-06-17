@@ -1754,6 +1754,17 @@ FROM
 
 			return ordersIds.Distinct();
 		}
+
+		public decimal GetCarsConfirmedDistanceForPeriod(IUnitOfWork unitOfWork, int carId, DateTime startDate, DateTime endDate)
+		{
+			return unitOfWork.Session.QueryOver<RouteList>()
+				.Where(routeList => routeList.Car.Id == carId
+					&& routeList.Date >= startDate
+					&& routeList.Date < endDate
+					&& routeList.ConfirmedDistance > 0)
+				.Select(Projections.Sum<RouteList>(routeList => routeList.ConfirmedDistance))
+				.SingleOrDefault<decimal>();
+		}
 	}
 
 	#region DTO
