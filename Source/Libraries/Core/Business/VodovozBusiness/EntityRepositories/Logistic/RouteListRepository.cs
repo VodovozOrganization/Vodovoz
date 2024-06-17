@@ -1767,35 +1767,7 @@ FROM
 		}
 	}
 
-	#region DTO
-
-	public class ExploitationReportRouteListDataNode
-	{
-		public int RouteListId { get; set; }
-		public DateTime RouteListDate { get; set; }
-		public int? RouteListForwarderId { get; set; }
-		public decimal RouteListConfirmedDistance { get; set; }
-		public int CarId { get; set; }
-		public CarTypeOfUse CarTypeOfuse { get; set; }
-		public int? CarMaxBottles { get; set; }
-		public decimal? CarMaxVolume { get; set; }
-		public decimal? CarMaxWeight { get; set; }
-		public int AddressId { get; set; }
-		public bool IsAddressWasTransfered { get; set; }
-		public RouteListItemStatus AddressStatus { get; set; }
-		public DateTime? AddressStatusLastUpdate { get; set; }
-		public int? OrderId { get; set; }
-		public bool? OrderIsFastDelivery { get; set; }
-		public decimal? OrderItemCount { get; set; }
-		public decimal? OrderItemActualCount { get; set; }
-		public bool? IsNomenclatureWater19L { get; set; }
-		public decimal? NomenclatureWeight { get; set; }
-		public decimal? NomenclatureVolume { get; set; }
-		public int DeliveryPointId { get; set; }
-		public int? DeliveryPointDistrictId { get; set; }
-		public int? DeliveryPointWageDistrictId { get; set; }
-		public TimeSpan? OrderDeliveryScheduleTo { get; set; }
-	}
+#region DTO
 
 	public class ReturnsNode
 	{
