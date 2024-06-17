@@ -146,6 +146,9 @@ namespace TrueMarkApi.Controllers
 				string content = JsonSerializer.Serialize(identificationCodes.ToArray());
 				HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
+				var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
+				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
 				var response = await _httpClient.PostAsync(uri, httpContent);
 
 				if(!response.IsSuccessStatusCode)
