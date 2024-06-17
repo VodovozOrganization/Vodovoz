@@ -37,6 +37,8 @@ using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
+using QS.DomainModel.Entity;
+using System.ComponentModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -51,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
 		private bool _isNeedToUpdateCarInfoInDriverEntity;
+		private int _upcomingTechInspectKmCalculated;
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
@@ -158,13 +161,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
 
-			Entity.PropertyChanged += (sender, args) =>
-			{
-				if(args.PropertyName == nameof(Entity.Driver) && Entity.Driver != null)
-				{
-					OnDriverChanged();
-				}
-			};
+			Entity.PropertyChanged += OnEntityPropertyChangedHandler;
 
 			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
 
@@ -186,7 +183,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			PreviousTechInspectOdometer = lastTechInspectCarEvent?.Odometer ?? 0;
 
-			UpcomingTechInspectKm = PreviousTechInspectOdometer + Entity.CarModel?.TeсhInspectInterval ?? 0;
+			UpcomingTechInspectKmCalculated = PreviousTechInspectOdometer + Entity.CarModel?.TeсhInspectInterval ?? 0;
 
 			UpcomingTechInspectLeft = Entity.LeftUntilTechInspect;
 		}
@@ -455,7 +452,40 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
-		public int UpcomingTechInspectKm { get; set; }
+
+		[PropertyChangedAlso(nameof(UpcomingTechInspectKm))]
+		public int UpcomingTechInspectKmCalculated
+		{
+			get => _upcomingTechInspectKmCalculated;
+			private set => SetField(ref _upcomingTechInspectKmCalculated, value);
+		}
+
+		public int UpcomingTechInspectKm
+		{
+			get => Entity.TechInspectForKm ?? UpcomingTechInspectKmCalculated;
+			set
+			{
+				if(Entity.TechInspectForKm != value)
+				{
+					if(UpcomingTechInspectKmCalculated != value)
+					{
+						if(value > UpcomingTechInspectKmCalculated)
+						{
+							throw new InvalidOperationException("Нельзя установить значение более расчетного");
+						}
+
+						Entity.TechInspectForKm = value;
+					}
+					else
+					{
+						Entity.TechInspectForKm = null;
+					}
+
+					OnPropertyChanged(nameof(UpcomingTechInspectKm));
+				}
+			}
+		}
+
 		public int UpcomingTechInspectLeft { get; private set; }
 
 		private void AddGeoGroup()
@@ -515,11 +545,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			});
 		}
 
+		private void OnEntityPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Driver) && Entity.Driver != null)
+			{
+				OnDriverChanged();
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.TechInspectForKm))
+			{
+				OnPropertyChanged(nameof(UpcomingTechInspectKm));
+				return;
+			}
+		}
+
 		public override void Dispose()
 		{
 			Entity.ObservableCarVersions.ElementAdded -= OnObservableCarVersionsElementAdded;
 			CarModelViewModel.ChangedByUser -= OnCarModelViewModelChangedByUser;
 			DriverViewModel.ChangedByUser -= OnDriverViewModelChangedByUser;
+			Entity.PropertyChanged -= OnEntityPropertyChangedHandler;
 
 			base.Dispose();
 		}
