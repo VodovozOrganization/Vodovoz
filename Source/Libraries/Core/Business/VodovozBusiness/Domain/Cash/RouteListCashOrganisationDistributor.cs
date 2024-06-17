@@ -135,7 +135,7 @@ namespace Vodovoz.Domain.Cash
 
 		public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
 		{
-			if(amount == 0)
+			if(amount == 0 || routeList is null)
 			{
 				return;
 			}
