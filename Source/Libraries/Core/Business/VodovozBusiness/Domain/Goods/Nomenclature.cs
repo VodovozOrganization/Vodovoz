@@ -139,6 +139,10 @@ namespace Vodovoz.Domain.Goods
 		private int? _planMonth;
 		private string _amountInAPackage;
 		private int? _planDay;
+		private int? _heatingTemperatureFromOnline;
+		private int? _heatingTemperatureToOnline;
+		private int? _coolingTemperatureFromOnline;
+		private int? _coolingTemperatureToOnline;
 
 		public Nomenclature()
 		{
@@ -981,6 +985,34 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _isSparklingWater;
 			set => SetField(ref _isSparklingWater, value);
+		}
+
+		[Display(Name = "Температура нагрева от")]
+		public virtual int? HeatingTemperatureFromOnline
+		{
+			get => _heatingTemperatureFromOnline;
+			set => SetField(ref _heatingTemperatureFromOnline, value);
+		}
+
+		[Display(Name = "Температура нагрева до")]
+		public virtual int? HeatingTemperatureToOnline
+		{
+			get => _heatingTemperatureToOnline;
+			set => SetField(ref _heatingTemperatureToOnline, value);
+		}
+
+		[Display(Name = "Температура охлаждения от")]
+		public virtual int? CoolingTemperatureFromOnline
+		{
+			get => _coolingTemperatureFromOnline;
+			set => SetField(ref _coolingTemperatureFromOnline, value);
+		}
+
+		[Display(Name = "Температура охлаждения до")]
+		public virtual int? CoolingTemperatureToOnline
+		{
+			get => _coolingTemperatureToOnline;
+			set => SetField(ref _coolingTemperatureToOnline, value);
 		}
 
 		#endregion Онлайн характеристики для ИПЗ
