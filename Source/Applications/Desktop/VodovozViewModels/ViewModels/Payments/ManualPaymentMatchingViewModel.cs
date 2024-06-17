@@ -37,8 +37,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private const string _error = "Ошибка";
 		private DateTime? _startDate = DateTime.Now.AddMonths(-1);
 		private DateTime? _endDate = DateTime.Now.AddMonths(1);
-		private OrderStatus? _orderStatus;
-		private OrderPaymentStatus? _orderPaymentStatus;
+		private List<OrderStatus> _orderStatus = new List<OrderStatus>();
+		private List<OrderPaymentStatus> _orderPaymentStatus = new List<OrderPaymentStatus>();
 		private ManualPaymentMatchingViewModelAllocatedNode _selectedAllocatedNode;
 		private decimal _allocatedSum;
 		private decimal _currentBalance;
@@ -139,13 +139,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			set => SetField(ref _endDate, value);
 		}
 
-		public OrderStatus? OrderStatusVM
+		public List<OrderStatus> OrderStatusVM
 		{
 			get => _orderStatus;
 			set => SetField(ref _orderStatus, value);
 		}
 
-		public OrderPaymentStatus? OrderPaymentStatusVM
+		public List<OrderPaymentStatus> OrderPaymentStatusVM
 		{
 			get => _orderPaymentStatus;
 			set => SetField(ref _orderPaymentStatus, value);
@@ -630,14 +630,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				incomePaymentQuery.Where(x => x.DeliveryDate >= StartDate && x.DeliveryDate <= EndDate);
 			}
 
-			if(OrderStatusVM != null)
+			if(OrderStatusVM != null && OrderStatusVM.Count > 0)
 			{
-				incomePaymentQuery.Where(x => x.OrderStatus == OrderStatusVM);
+				incomePaymentQuery.Where(x => OrderStatusVM.Contains(x.OrderStatus));
 			}
 
-			if(OrderPaymentStatusVM != null)
+			if(OrderPaymentStatusVM != null && OrderPaymentStatusVM.Count > 0)
 			{
-				incomePaymentQuery.Where(x => x.OrderPaymentStatus == OrderPaymentStatusVM);
+				incomePaymentQuery.Where(x => OrderPaymentStatusVM.Contains(x.OrderPaymentStatus));
 			}
 
 			var lastPayment = QueryOver.Of(() => paymentItemAlias)
