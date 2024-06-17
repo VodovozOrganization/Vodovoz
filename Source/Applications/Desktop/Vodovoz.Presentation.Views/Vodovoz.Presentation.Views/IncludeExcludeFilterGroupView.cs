@@ -56,8 +56,6 @@ namespace Vodovoz.Presentation.Views
 				.AddBinding(ViewModel, vm => vm.ShowArchived, w => w.Active)
 				.InitializeFromSource();
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-
 			ViewModel.FilteredElementsChanged += (s, e) => ReBindElementsList();
 
 			ytreeviewElements.Binding
@@ -65,10 +63,6 @@ namespace Vodovoz.Presentation.Views
 				.InitializeFromSource();
 
 			ReBindElementsList();
-		}
-
-		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
 		}
 
 		private void ReBindElementsList()
@@ -117,8 +111,6 @@ namespace Vodovoz.Presentation.Views
 
 		public override void Destroy()
 		{
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-
 			base.Destroy();
 		}
 	}
