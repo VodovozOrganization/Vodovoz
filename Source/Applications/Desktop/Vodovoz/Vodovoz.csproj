@@ -2082,6 +2082,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorFilterView.cs" />
     <Compile Include="Views\Pacs\OperatorFilterView.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReportParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.Reports.CarIsNotAtLineReportParametersView.cs" />
     <Compile Include="Views\Logistic\CarInsuranceVersionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionView.cs" />
     <Compile Include="Views\Logistic\CarInsuranceVersionEditingView.cs" />
@@ -2094,6 +2096,7 @@
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="ReportsParameters\Fuel\" />
+    <Folder Include="Logistic\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2679,6 +2682,10 @@
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>
       <Name>Vodovoz.Presentation.ViewModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.Views\Vodovoz.Presentation.Views\Vodovoz.Presentation.Views.csproj">
+      <Project>{2ddf3b3d-ff28-424f-ac31-2dc9265a02ff}</Project>
+      <Name>Vodovoz.Presentation.Views</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</Project>
