@@ -162,7 +162,7 @@ namespace DatabaseServiceWorker
 					select new
 					{
 						Car = c,
-						LeftUntilTechInspect = Math.Max(0, (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0) - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0))
+						LeftUntilTechInspect = (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0) - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0)
 					}
 				).ToList();
 
