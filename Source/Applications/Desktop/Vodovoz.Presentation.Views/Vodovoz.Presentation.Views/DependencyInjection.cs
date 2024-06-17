@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Presentation.Views
 {
-	public static class DependencyInjecxtion
+	public static class DependencyInjection
 	{
 	}
 }
