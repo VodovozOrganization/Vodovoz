@@ -455,7 +455,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
-		public int UpcomingTechInspectKm { get; private set; }
+		public int UpcomingTechInspectKm { get; set; }
 		public int UpcomingTechInspectLeft { get; private set; }
 
 		private void AddGeoGroup()
