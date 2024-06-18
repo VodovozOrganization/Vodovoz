@@ -30,6 +30,8 @@ namespace Vodovoz.Domain.Employees
 		public UserSettings(User user)
 		{
 			User = user;
+			CarIsNotAtLineReportIncludedEventTypeIdsString = string.Empty;
+			CarIsNotAtLineReportExcludedEventTypeIdsString = string.Empty;
 		}
 
 		#region Свойства
