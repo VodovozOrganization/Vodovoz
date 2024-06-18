@@ -265,6 +265,13 @@ namespace Pacs.Server.Operators
 			var opearator = _operatorRepository.GetOperator(OperatorId);
 
 			LoadOperatorState(OperatorId);
+
+			if(OperatorState.State == OperatorStateType.Connected
+				&& OperatorState.WorkShift?.Ended != null)
+			{
+				OperatorState.WorkShift = null;
+			}
+
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
 

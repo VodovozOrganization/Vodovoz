@@ -23,8 +23,7 @@ namespace Pacs.Server.Operators
 			ILogger<OperatorController> logger,
 			OperatorServerAgent operatorAgent,
 			IPhoneController phoneController,
-			GlobalBreakController globalBreakController
-			)
+			GlobalBreakController globalBreakController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorAgent = operatorAgent ?? throw new ArgumentNullException(nameof(operatorAgent));
