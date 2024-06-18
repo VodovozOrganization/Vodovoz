@@ -60,7 +60,7 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yVBox yvbox3;
 
-		private global::Gamma.GtkWidgets.yLabel labelSmallBreaksUsed;
+		private global::Gamma.GtkWidgets.yLabel labelShortBreaksUsed;
 
 		private global::Gamma.GtkWidgets.yLabel labelBreakInfo;
 
@@ -334,12 +334,12 @@ namespace Vodovoz.Views.Pacs
 			this.yvbox3.Name = "yvbox3";
 			this.yvbox3.Spacing = 6;
 			// Container child yvbox3.Gtk.Box+BoxChild
-			this.labelSmallBreaksUsed = new global::Gamma.GtkWidgets.yLabel();
-			this.labelSmallBreaksUsed.Name = "labelSmallBreaksUsed";
-			this.labelSmallBreaksUsed.Xalign = 0F;
-			this.labelSmallBreaksUsed.LabelProp = global::Mono.Unix.Catalog.GetString("Количество использованных малых перерывов: 0");
-			this.yvbox3.Add(this.labelSmallBreaksUsed);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvbox3[this.labelSmallBreaksUsed]));
+			this.labelShortBreaksUsed = new global::Gamma.GtkWidgets.yLabel();
+			this.labelShortBreaksUsed.Name = "labelSmallBreaksUsed";
+			this.labelShortBreaksUsed.Xalign = 0F;
+			this.labelShortBreaksUsed.LabelProp = global::Mono.Unix.Catalog.GetString("Количество использованных малых перерывов: 0");
+			this.yvbox3.Add(this.labelShortBreaksUsed);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvbox3[this.labelShortBreaksUsed]));
 			w22.Position = 0;
 			w22.Expand = false;
 			w22.Fill = false;
