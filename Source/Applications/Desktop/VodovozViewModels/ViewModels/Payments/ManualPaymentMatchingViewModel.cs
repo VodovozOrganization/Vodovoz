@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
@@ -7,9 +8,11 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Journal.Search;
 using QS.Project.Search;
 using QS.Services;
+using QS.Utilities.Enums;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -17,8 +20,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using Autofac;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
@@ -26,10 +27,10 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -38,8 +39,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private const string _error = "Ошибка";
 		private DateTime? _startDate = DateTime.Now.AddMonths(-1);
 		private DateTime? _endDate = DateTime.Now.AddMonths(1);
-		private List<OrderStatus> _orderStatus = new List<OrderStatus>();
-		private List<OrderPaymentStatus> _orderPaymentStatus = new List<OrderPaymentStatus>();
+		private IEnumerable<OrderStatus> _orderStatuses = EnumHelper.GetValuesList<OrderStatus>();
+		private IEnumerable<OrderPaymentStatus> _orderPaymentStatuses = EnumHelper.GetValuesList<OrderPaymentStatus>();
 		private ManualPaymentMatchingViewModelAllocatedNode _selectedAllocatedNode;
 		private decimal _allocatedSum;
 		private decimal _currentBalance;
@@ -82,10 +83,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
-			CounterpartyAutocompleteSelectorFactory = 
+			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
-			
+
 			if(uowBuilder.IsNewEntity)
 			{
 				throw new AbortCreatingPageException(
@@ -123,7 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				UpdateAllocatedNodes();
 			}
-			
+
 			TabClosed += OnTabClosed;
 
 			Entity.ObservableItems.ElementRemoved += (_, _1, _2) => OnPropertyChanged(nameof(CanChangeCounterparty));
@@ -145,16 +146,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			set => SetField(ref _endDate, value);
 		}
 
-		public List<OrderStatus> OrderStatusVM
+		public IEnumerable<OrderStatus> OrderStatuses
 		{
-			get => _orderStatus;
-			set => SetField(ref _orderStatus, value);
+			get => _orderStatuses;
+			set
+			{
+				SetField(ref _orderStatuses, value);
+				UpdateNodes();
+			}
 		}
 
-		public List<OrderPaymentStatus> OrderPaymentStatusVM
+		public IEnumerable<OrderPaymentStatus> OrderPaymentStatuses
 		{
-			get => _orderPaymentStatus;
-			set => SetField(ref _orderPaymentStatus, value);
+			get => _orderPaymentStatuses;
+			set
+			{
+				SetField(ref _orderPaymentStatuses, value);
+				UpdateNodes();
+			}
 		}
 
 		public decimal AllocatedSum
@@ -169,18 +178,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			set => SetField(ref _currentBalance, value);
 		}
 
+		[PropertyChangedAlso(nameof(CounterpartyOterOrdersDebt))]
 		public decimal CounterpartyTotalDebt
 		{
 			get => _counterpartyTotalDebt;
 			set => SetField(ref _counterpartyTotalDebt, value);
 		}
 
+		[PropertyChangedAlso(nameof(CounterpartyOterOrdersDebt))]
 		public decimal CounterpartyWaitingForPaymentOrdersDebt
 		{
 			get => _counterpartyWaitingForPaymentOrdersDebt;
 			set => SetField(ref _counterpartyWaitingForPaymentOrdersDebt, value);
 		}
 
+		[PropertyChangedAlso(nameof(CounterpartyOterOrdersDebt))]
 		public decimal CounterpartyClosingDocumentsOrdersDebt
 		{
 			get => _counterpartyClosingDocumentsOrdersDebt;
@@ -223,6 +235,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 		}
+
+		public decimal CounterpartyOterOrdersDebt =>
+			CounterpartyTotalDebt
+			- CounterpartyWaitingForPaymentOrdersDebt
+			- CounterpartyClosingDocumentsOrdersDebt;
 
 		public bool CanRevertPay =>
 			SelectedAllocatedNode != null
@@ -337,7 +354,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				ShowWarningMessage("Нельзя снимать оплату с отмененного заказа!");
 				return false;
 			}
-			
+
 			Entity.RemovePaymentItem(SelectedAllocatedNode.PaymentItemId);
 			var order = UoW.GetById<VodOrder>(SelectedAllocatedNode.OrderId);
 
@@ -567,7 +584,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				Close(false, CloseSource.Self);
 			}
 		}
-		
+
 		private void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(
@@ -591,7 +608,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private void CreateOperations()
 		{
 			Entity.CreateIncomeOperation();
-			
+
 			foreach(PaymentItem item in Entity.ObservableItems)
 			{
 				item.CreateOrUpdateExpenseOperation();
@@ -648,14 +665,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				incomePaymentQuery.Where(x => x.DeliveryDate >= StartDate && x.DeliveryDate <= EndDate);
 			}
 
-			if(OrderStatusVM != null && OrderStatusVM.Count > 0)
+			if(OrderStatuses != null)
 			{
-				incomePaymentQuery.Where(x => OrderStatusVM.Contains(x.OrderStatus));
+				incomePaymentQuery.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), OrderStatuses.ToArray()));
 			}
 
-			if(OrderPaymentStatusVM != null && OrderPaymentStatusVM.Count > 0)
+			if(OrderPaymentStatuses != null)
 			{
-				incomePaymentQuery.Where(x => OrderPaymentStatusVM.Contains(x.OrderPaymentStatus));
+				incomePaymentQuery.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderPaymentStatus), OrderPaymentStatuses.ToArray()));
 			}
 
 			var lastPayment = QueryOver.Of(() => paymentItemAlias)
@@ -774,7 +791,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 			return null;
 		}
-		
+
 		private void UpdateCurrentEditor()
 		{
 			if(Entity.CurrentEditorUser != null)
@@ -792,7 +809,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			Entity.CurrentEditorUser = null;
 		}
-		
+
 		private void OnTabClosed(object sender, EventArgs e)
 		{
 			if(Entity.CurrentEditorUser != null)
@@ -803,7 +820,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 		}
-		
+
 		private void RemoveCurrentEditor(IUnitOfWork uow)
 		{
 			var curPayment = uow.GetById<Payment>(Entity.Id);
