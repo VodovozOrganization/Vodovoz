@@ -29,6 +29,7 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -43,7 +44,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private decimal _allocatedSum;
 		private decimal _currentBalance;
 		private decimal _previousCounterpartyDebt;
-		private decimal _counterpartyDebt;
+		private decimal _counterpartyTotalDebt;
+		private decimal _counterpartyClosingDocumentsOrdersDebt;
+		private decimal _counterpartyWaitingForPaymentOrdersDebt;
 		private decimal _sumToAllocate;
 		private decimal _lastBalance;
 
@@ -52,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private DelegateCommand _revertAllocatedSum;
 
 		public ManualPaymentMatchingViewModel(
@@ -64,7 +68,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			IDialogsFactory dialogsFactory,
 			IOrganizationRepository organizationRepository,
-			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryScheduleSettings deliveryScheduleSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
 			{
@@ -76,6 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			CounterpartyAutocompleteSelectorFactory = 
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
@@ -163,10 +169,22 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			set => SetField(ref _currentBalance, value);
 		}
 
-		public decimal CounterpartyDebt
+		public decimal CounterpartyTotalDebt
 		{
-			get => _counterpartyDebt;
-			set => SetField(ref _counterpartyDebt, value);
+			get => _counterpartyTotalDebt;
+			set => SetField(ref _counterpartyTotalDebt, value);
+		}
+
+		public decimal CounterpartyWaitingForPaymentOrdersDebt
+		{
+			get => _counterpartyWaitingForPaymentOrdersDebt;
+			set => SetField(ref _counterpartyWaitingForPaymentOrdersDebt, value);
+		}
+
+		public decimal CounterpartyClosingDocumentsOrdersDebt
+		{
+			get => _counterpartyClosingDocumentsOrdersDebt;
+			set => SetField(ref _counterpartyClosingDocumentsOrdersDebt, value);
 		}
 
 		public decimal SumToAllocate
@@ -362,24 +380,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void UpdateCounterpartyDebt(ManualPaymentMatchingViewModelNode node)
 		{
-			if(CounterpartyDebt > 0)
+			if(CounterpartyTotalDebt > 0)
 			{
-				CounterpartyDebt -= node.CurrentPayment - node.OldCurrentPayment;
+				CounterpartyTotalDebt -= node.CurrentPayment - node.OldCurrentPayment;
 
-				if(CounterpartyDebt <= 0)
+				if(CounterpartyTotalDebt <= 0)
 				{
-					_previousCounterpartyDebt = CounterpartyDebt;
+					_previousCounterpartyDebt = CounterpartyTotalDebt;
 
-					if(CounterpartyDebt != 0)
+					if(CounterpartyTotalDebt != 0)
 					{
-						CounterpartyDebt = 0;
+						CounterpartyTotalDebt = 0;
 					}
 				}
 			}
 			else
 			{
 				_previousCounterpartyDebt -= node.CurrentPayment - node.OldCurrentPayment;
-				CounterpartyDebt = _previousCounterpartyDebt > 0 ? _previousCounterpartyDebt : 0;
+				CounterpartyTotalDebt = _previousCounterpartyDebt > 0 ? _previousCounterpartyDebt : 0;
 			}
 		}
 
@@ -720,9 +738,17 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public void GetCounterpartyDebt()
 		{
-			CounterpartyDebt = Entity.Counterparty != null
+			CounterpartyTotalDebt = Entity.Counterparty != null
 				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
-				: default(decimal);
+				: default;
+
+			CounterpartyWaitingForPaymentOrdersDebt = Entity.Counterparty != null
+				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(UoW, Entity.Counterparty.Id)
+				: default;
+
+			CounterpartyClosingDocumentsOrdersDebt = Entity.Counterparty != null
+				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebt(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
+				: default;
 		}
 
 		private string TryGetOrganizationType(string name)

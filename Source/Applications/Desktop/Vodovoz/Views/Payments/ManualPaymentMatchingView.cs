@@ -61,7 +61,7 @@ namespace Vodovoz.Views
 
             ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
             ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-            ylabelCounterpartyDebt.Binding.AddBinding(ViewModel, vm => vm.CounterpartyDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+            ylabelCounterpartyDebt.Binding.AddBinding(ViewModel, vm => vm.CounterpartyTotalDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 
             labelPayer.Text = ViewModel.Entity.CounterpartyName;
             labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
