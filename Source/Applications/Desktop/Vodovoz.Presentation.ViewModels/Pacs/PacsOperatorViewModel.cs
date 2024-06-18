@@ -1,4 +1,5 @@
 ﻿using Core.Infrastructure;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using QS.Commands;
@@ -104,6 +105,24 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			set => SetField(ref _phoneNumber, value);
 		}
 
+		public virtual string CurrentOperatorId =>
+			_operatorService.OperatorState?.OperatorId is null
+			? "Номер оператора: -"
+			: $"Номер оператора: {_operatorService.OperatorState?.OperatorId ?? 0}";
+
+		public virtual string WorkShiftId =>
+			_operatorService.OperatorState?.WorkShift?.Id is null
+			? "Номер смены: -"
+			: $"Номер смены: {_operatorService.OperatorState?.WorkShift?.Id ?? 0}";
+
+		public virtual string CurrentOperatorStatus =>
+			_operatorService.OperatorState is null
+			? "Статус оператора: -"
+			: $"Статус оператора: {_operatorService.OperatorState.State.GetEnumTitle()}";
+
+		public virtual string ShortBreaksUsedCount =>
+			$"Количество использованных малых перерывов: 0";
+
 		public virtual IEnumerable<string> AvailablePhones
 		{
 			get => _availablePhones;
@@ -117,9 +136,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			&& _operatorService.CanChangePhone;
 
 		public bool CanStartLongBreak => _operatorService.CanStartLongBreak && !_operatorService.BreakInProgress;
+
 		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
+
 		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
+
 		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
+
 		public bool CanEndWorkShift => _operatorService.CanEndWorkShift;
 
 		public virtual string BreakInfo
@@ -137,6 +160,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					case nameof(OperatorService.OperatorState):
 						PhoneNumber = _operatorService.OperatorState?.PhoneNumber;
 						OnPropertyChanged(nameof(CanChangePhone));
+						OnPropertyChanged(nameof(CurrentOperatorId));
+						OnPropertyChanged(nameof(CurrentOperatorStatus));
 						break;
 					case nameof(OperatorService.OperatorsOnBreak):
 						PrepareOperatorsOnBreakViewModels();
@@ -148,6 +173,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 						break;
 					case nameof(OperatorService.CanStartWorkShift):
 						OnPropertyChanged(nameof(CanStartWorkShift));
+						OnPropertyChanged(nameof(WorkShiftId));
 						break;
 					case nameof(OperatorService.CanChangePhone):
 						OnPropertyChanged(nameof(CanChangePhone));
@@ -172,10 +198,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					case nameof(OperatorService.BreakInProgress):
 						OnPropertyChanged(nameof(CanStartLongBreak));
 						OnPropertyChanged(nameof(CanStartShortBreak));
+						OnPropertyChanged(nameof(ShortBreaksUsedCount));
 						OnPropertyChanged(nameof(CanEndBreak));
 						break;
 					case nameof(OperatorService.CanEndWorkShift):
 						OnPropertyChanged(nameof(CanEndWorkShift));
+						OnPropertyChanged(nameof(WorkShiftId));
 						break;
 					default:
 						break;
