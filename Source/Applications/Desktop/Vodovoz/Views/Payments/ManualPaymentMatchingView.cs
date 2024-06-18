@@ -48,12 +48,12 @@ namespace Vodovoz.Views
             daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
             daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
             daterangepicker1.PeriodChangedByUser += (sender, e) => ViewModel.UpdateNodes();
-            yenumcomboOrderStatus.ItemsEnum = typeof(OrderStatus);
-            yenumcomboOrderStatus.Binding.AddBinding(ViewModel, vm => vm.OrderStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
-            yenumcomboOrderStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
-            yenumcomboOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
-            yenumcomboOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
-            yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
+            //yenumcomboOrderStatus.ItemsEnum = typeof(OrderStatus);
+            //yenumcomboOrderStatus.Binding.AddBinding(ViewModel, vm => vm.OrderStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
+            //yenumcomboOrderStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
+            //yenumcomboOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
+            //yenumcomboOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
+            //yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => ViewModel.UpdateNodes();
 
             labelTotalSum.Text = ViewModel.Entity.Total.ToString();
             labelLastBalance.Binding.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
@@ -61,7 +61,7 @@ namespace Vodovoz.Views
 
             ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
             ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-            ylabelCounterpartyDebt.Binding.AddBinding(ViewModel, vm => vm.CounterpartyTotalDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+			ylabelWaitForPaymentValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyTotalDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 
             labelPayer.Text = ViewModel.Entity.CounterpartyName;
             labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
