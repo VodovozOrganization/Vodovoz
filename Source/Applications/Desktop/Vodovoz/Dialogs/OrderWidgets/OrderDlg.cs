@@ -535,6 +535,7 @@ namespace Vodovoz
 		}
 
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
+		//и диалога звонка
 		public void CopyLesserOrderFrom(int orderId)
 		{
 			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository);

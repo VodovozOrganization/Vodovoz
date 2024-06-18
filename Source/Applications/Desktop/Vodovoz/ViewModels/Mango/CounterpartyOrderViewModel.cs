@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		public Counterparty Client { get; private set; }
 		private ILifetimeScope _lifetimeScope;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private ITdiCompatibilityNavigation tdiNavigation;
+		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderSettings _orderSettings;
 
@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			Client = client;
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			tdiNavigation = tdinavigation;
+			_tdiNavigation = tdinavigation;
 			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -205,18 +205,22 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		
 		public void OpenMoreInformationAboutCounterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
+			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
 			var tab = page.TdiTab as CounterpartyDlg;
 		}
 		public void OpenMoreInformationAboutOrder(int id)
 		{
-			var page = tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
+			var page = _tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
 		}
 
 		public void RepeatOrder(int orderId)
 		{
 			if(orderId != 0)
-				tdiNavigation.OpenTdiTab<OrderDlg, int, bool>(null, orderId, true, OpenPageOptions.IgnoreHash);
+			{
+				var page = _tdiNavigation.OpenTdiTab<OrderDlg>(null, OpenPageOptions.IgnoreHash);
+				var dlg = page.TdiTab as OrderDlg;
+				dlg.CopyLesserOrderFrom(orderId);
+			}
 		}
 
 		public void OpenRoutedList(Order order)
@@ -225,25 +229,25 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				order.OrderStatus == OrderStatus.Accepted ||
 				order.OrderStatus == OrderStatus.OnLoading
 			) {
-				tdiNavigation.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+				_tdiNavigation.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 			} else if(order.OrderStatus == OrderStatus.OnTheWay ||
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed
 			) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeList.Id));
+					_tdiNavigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeList.Id));
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
+					_tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
 		}
 
 		public void OpenUndelivery(Order order)
 		{
-			var page = tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel>(null);
+			var page = _tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel>(null);
 			var dlg = page.TdiTab as UndeliveredOrdersJournalViewModel;
 			var filter = dlg.UndeliveredOrdersFilterViewModel;
 			filter.HidenByDefault = true;
@@ -278,7 +282,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					return;
 				}
 
-				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel>(
+				_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
 					null,
 					OpenPageOptions.AsSlave,
 					vm =>
@@ -328,7 +332,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
 				};
-				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
+				_tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
 			}
 		}
 		#endregion

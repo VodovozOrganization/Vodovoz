@@ -17,6 +17,7 @@ namespace Vodovoz.TempAdapters
 		void OpenOrderDlg(ITdiTab tab, int id);
 		void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId);
 		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
+		void OpenCopyFromCallOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
 		void OpenRouteListClosingDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId);
 		ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId);

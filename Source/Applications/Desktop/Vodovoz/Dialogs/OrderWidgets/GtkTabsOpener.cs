@@ -83,6 +83,16 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => dlg
 			);
 		}
+		
+		public void OpenCopyFromCallOrderDlg(ITdiTab tab, int copiedOrderId)
+		{
+			var dlg = new OrderDlg(copiedOrderId, true);
+			
+			tab.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<Order>(65656),
+				() => dlg
+			);
+		}
 
 		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
 		{

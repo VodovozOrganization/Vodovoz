@@ -1376,8 +1376,26 @@ namespace Vodovoz.JournalViewModels
 							return;
 						}
 						
-						var order = UoW.GetById<VodovozOrder>(selectedNode.Id);
-						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order.Id);
+						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, selectedNode.Id);
+					}
+				)
+			);
+			
+			PopupActionsList.Add(
+				new JournalAction(
+					"Повторить заказ(звонок)",
+					selectedItems => CanCreateOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
+					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
+					(selectedItems) =>
+					{
+						var selectedNode = selectedItems.Cast<OrderJournalNode>().FirstOrDefault();
+
+						if(selectedNode is null)
+						{
+							return;
+						}
+						
+						_gtkDialogsOpener.OpenCopyFromCallOrderDlg(this, selectedNode.Id);
 					}
 				)
 			);
