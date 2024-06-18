@@ -35,6 +35,8 @@ namespace Vodovoz.Views.Goods
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private Entry _entry;
+		private const int _maxWidthOnlineSizeWidget = 50;
+		private const int _maxLenghtNumericEntry = 5;
 		
 		public NomenclatureView(NomenclatureViewModel viewModel) : base(viewModel)
 		{
@@ -687,6 +689,33 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.SelectedOnlineCategory, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			entryLengthOnline.WidthRequest = _maxWidthOnlineSizeWidget;
+			entryLengthOnline.MaxLength = _maxLenghtNumericEntry;
+			entryLengthOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.LengthOnline, w => w.Text, new NullableIntToStringConverter())
+				.InitializeFromSource();
+			entryLengthOnline.Changed += OnNumericEntryChanged;
+			
+			entryWidthOnline.WidthRequest = _maxWidthOnlineSizeWidget;
+			entryWidthOnline.MaxLength = _maxLenghtNumericEntry;
+			entryWidthOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.WidthOnline, w => w.Text, new NullableIntToStringConverter())
+				.InitializeFromSource();
+			entryWidthOnline.Changed += OnNumericEntryChanged;
+			
+			entryHeightOnline.WidthRequest = _maxWidthOnlineSizeWidget;
+			entryHeightOnline.MaxLength = _maxLenghtNumericEntry;
+			entryHeightOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.HeightOnline, w => w.Text, new NullableIntToStringConverter())
+				.InitializeFromSource();
+			entryHeightOnline.Changed += OnNumericEntryChanged;
+
+			entryWeightOnline.MaxLength = 8;
+			entryWeightOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.WeightOnline, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryWeightOnline.Changed += OnNumericWithFractionalPartChanged;
+			
 			#region Онлайн характеристики воды
 
 			tableWaterOnlineCharacteristics.Binding
@@ -766,11 +795,17 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.HasHeating, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryHeatingPowerOnline.MaxLength = 5;
+			entryHeatingPowerOnline.MaxLength = _maxLenghtNumericEntry;
 			entryHeatingPowerOnline.Binding
 				.AddBinding(ViewModel.Entity, e => e.NewHeatingPower, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 			entryHeatingPowerOnline.Changed += OnNumericEntryChanged;
+			
+			enumHeatingPowerUnitsOnline.ShowSpecialStateNot = true;
+			enumHeatingPowerUnitsOnline.ItemsEnum = typeof(PowerUnits);
+			enumHeatingPowerUnitsOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.HeatingPowerUnits, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			
 			lblHeatingProductivityOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
@@ -779,12 +814,24 @@ namespace Vodovoz.Views.Goods
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasHeating, w => w.Sensitive)
 				.InitializeFromSource();
-
-			entryHeatingProductivityOnline.MaxLength = 5;
-			entryHeatingProductivityOnline.Binding
-				.AddBinding(ViewModel.Entity, e => e.HeatingProductivity, w => w.Text, new NullableIntToStringConverter())
+			
+			enumHeatingProductivityFromToOnline.ShowSpecialStateNot = true;
+			enumHeatingProductivityFromToOnline.ItemsEnum = typeof(ProductivityComparisionSign);
+			enumHeatingProductivityFromToOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.HeatingProductivityComparisionSign, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
-			entryHeatingProductivityOnline.Changed += OnNumericEntryChanged;
+
+			entryHeatingProductivityOnline.MaxLength = _maxLenghtNumericEntry;
+			entryHeatingProductivityOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.HeatingProductivity, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryHeatingProductivityOnline.Changed += OnNumericWithFractionalPartChanged;
+			
+			enumHeatingProductivityUnitsOnline.ShowSpecialStateNot = true;
+			enumHeatingProductivityUnitsOnline.ItemsEnum = typeof(ProductivityUnits);
+			enumHeatingProductivityUnitsOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.HeatingProductivityUnits, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			lblHeatingTemperatureOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
@@ -794,12 +841,17 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.HasHeating, w => w.Sensitive)
 				.InitializeFromSource();
 
+			entryHeatingTemperatureOnlineFrom.MaxLength = _maxLenghtNumericEntry;
 			entryHeatingTemperatureOnlineFrom.Binding
 				.AddBinding(ViewModel.Entity, e => e.HeatingTemperatureFromOnline, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryHeatingTemperatureOnlineFrom.Changed += OnNumericEntryChanged;
+			
+			entryHeatingTemperatureOnlineTo.MaxLength = _maxLenghtNumericEntry;
 			entryHeatingTemperatureOnlineTo.Binding
 				.AddBinding(ViewModel.Entity, e => e.HeatingTemperatureToOnline, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryHeatingTemperatureOnlineTo.Changed += OnNumericEntryChanged;
 
 			#endregion
 
@@ -833,11 +885,17 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryCoolingPowerOnline.MaxLength = 5;
+			entryCoolingPowerOnline.MaxLength = _maxLenghtNumericEntry;
 			entryCoolingPowerOnline.Binding
 				.AddBinding(ViewModel.Entity, e => e.NewCoolingPower, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 			entryCoolingPowerOnline.Changed += OnNumericEntryChanged;
+
+			enumCoolingPowerUnitsOnline.ShowSpecialStateNot = true;
+			enumCoolingPowerUnitsOnline.ItemsEnum = typeof(PowerUnits);
+			enumCoolingPowerUnitsOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.CoolingPowerUnits, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 			
 			lblCoolingProductivityOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
@@ -846,12 +904,24 @@ namespace Vodovoz.Views.Goods
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
 				.InitializeFromSource();
-
-			entryCoolingProductivityOnline.MaxLength = 5;
-			entryCoolingProductivityOnline.Binding
-				.AddBinding(ViewModel.Entity, e => e.CoolingProductivity, w => w.Text, new NullableIntToStringConverter())
+			
+			enumCoolingProductivityFromToOnline.ShowSpecialStateNot = true;
+			enumCoolingProductivityFromToOnline.ItemsEnum = typeof(ProductivityComparisionSign);
+			enumCoolingProductivityFromToOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.CoolingProductivityComparisionSign, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
-			entryCoolingProductivityOnline.Changed += OnNumericEntryChanged;
+
+			entryCoolingProductivityOnline.MaxLength = _maxLenghtNumericEntry;
+			entryCoolingProductivityOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.CoolingProductivity, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryCoolingProductivityOnline.Changed += OnNumericWithFractionalPartChanged;
+
+			enumCoolingProductivityUnitsOnline.ShowSpecialStateNot = true;
+			enumCoolingProductivityUnitsOnline.ItemsEnum = typeof(ProductivityUnits);
+			enumCoolingProductivityUnitsOnline.Binding
+				.AddBinding(ViewModel.Entity, e => e.CoolingProductivityUnits, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			lblCoolingTemperatureOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
@@ -861,12 +931,17 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
 				.InitializeFromSource();
 
+			entryCoolingTemperatureOnlineFrom.MaxLength = _maxLenghtNumericEntry;
 			entryCoolingTemperatureOnlineFrom.Binding
 				.AddBinding(ViewModel.Entity, e => e.CoolingTemperatureFromOnline, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryCoolingTemperatureOnlineFrom.Changed += OnNumericEntryChanged;
+			
+			entryCoolingTemperatureOnlineTo.MaxLength = _maxLenghtNumericEntry;
 			entryCoolingTemperatureOnlineTo.Binding
 				.AddBinding(ViewModel.Entity, e => e.CoolingTemperatureToOnline, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryCoolingTemperatureOnlineTo.Changed += OnNumericEntryChanged;
 
 			#endregion
 
@@ -883,7 +958,7 @@ namespace Vodovoz.Views.Goods
 			lblLockerRefrigeratorVolumeOnlineTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
-			entryLockerRefrigeratorVolumeOnline.MaxLength = 5;
+			entryLockerRefrigeratorVolumeOnline.MaxLength = _maxLenghtNumericEntry;
 			entryLockerRefrigeratorVolumeOnline.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.LockerRefrigeratorType != null, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.LockerRefrigeratorVolume, w => w.Text, new NullableIntToStringConverter())
@@ -977,7 +1052,9 @@ namespace Vodovoz.Views.Goods
 			}
 		}
 
-		private void OnPriceWithoutDiscountChanged(object sender, EventArgs e)
+		private void OnPriceWithoutDiscountChanged(object sender, EventArgs e) => OnNumericWithFractionalPartChanged(sender, e);
+		
+		private void OnNumericWithFractionalPartChanged(object sender, EventArgs e)
 		{
 			var entry = sender as Entry;
 			var chars = entry.Text.ToCharArray();

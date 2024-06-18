@@ -50,11 +50,11 @@ namespace Vodovoz.Domain.Goods
 		private CupHolderBracingType? _cupHolderBracingType;
 		private bool? _hasHeating;
 		private int? _newHeatingPower;
-		private int? _heatingProductivity;
+		private decimal? _heatingProductivity;
 		private ProtectionOnHotWaterTap? _protectionOnHotWaterTap;
 		private bool? _hasCooling;
 		private int? _newCoolingPower;
-		private int? _coolingProductivity;
+		private decimal? _coolingProductivity;
 		private CoolingType? _newCoolingType;
 		private LockerRefrigeratorType? _lockerRefrigeratorType;
 		private int? _lockerRefrigeratorVolume;
@@ -143,7 +143,17 @@ namespace Vodovoz.Domain.Goods
 		private int? _heatingTemperatureToOnline;
 		private int? _coolingTemperatureFromOnline;
 		private int? _coolingTemperatureToOnline;
-
+		private int? _lengthOnline;
+		private int? _widthOnline;
+		private int? _heightOnline;
+		private decimal? _weightOnline;
+		private PowerUnits? _heatingPowerUnits;
+		private PowerUnits? _coolingPowerUnits;
+		private ProductivityUnits? _heatingProductivityUnits;
+		private ProductivityUnits? _coolingProductivityUnits;
+		private ProductivityComparisionSign? _heatingProductivityComparisionSign;
+		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
+		
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -918,7 +928,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Производительность нагрева")]
-		public virtual int? HeatingProductivity
+		public virtual decimal? HeatingProductivity
 		{
 			get => _heatingProductivity;
 			set => SetField(ref _heatingProductivity, value);
@@ -946,7 +956,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Производительность охлаждения")]
-		public virtual int? CoolingProductivity
+		public virtual decimal? CoolingProductivity
 		{
 			get => _coolingProductivity;
 			set => SetField(ref _coolingProductivity, value);
@@ -1013,6 +1023,76 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _coolingTemperatureToOnline;
 			set => SetField(ref _coolingTemperatureToOnline, value);
+		}
+
+		[Display(Name = "Длина для ИПЗ")]
+		public virtual int? LengthOnline
+		{
+			get => _lengthOnline;
+			set => SetField(ref _lengthOnline, value);
+		}
+		
+		[Display(Name = "Ширина для ИПЗ")]
+		public virtual int? WidthOnline
+		{
+			get => _widthOnline;
+			set => SetField(ref _widthOnline, value);
+		}
+		
+		[Display(Name = "Высота для ИПЗ")]
+		public virtual int? HeightOnline
+		{
+			get => _heightOnline;
+			set => SetField(ref _heightOnline, value);
+		}
+		
+		[Display(Name = "Вес для ИПЗ")]
+		public virtual decimal? WeightOnline
+		{
+			get => _weightOnline;
+			set => SetField(ref _weightOnline, value);
+		}
+
+		[Display(Name = "Единицы измерения мощности нагрева")]
+		public virtual PowerUnits? HeatingPowerUnits
+		{
+			get => _heatingPowerUnits;
+			set => SetField(ref _heatingPowerUnits, value);
+		}
+		
+		[Display(Name = "Единицы измерения мощности охлаждения")]
+		public virtual PowerUnits? CoolingPowerUnits
+		{
+			get => _coolingPowerUnits;
+			set => SetField(ref _coolingPowerUnits, value);
+		}
+		
+		[Display(Name = "Единицы измерения производительности нагрева")]
+		public virtual ProductivityUnits? HeatingProductivityUnits
+		{
+			get => _heatingProductivityUnits;
+			set => SetField(ref _heatingProductivityUnits, value);
+		}
+		
+		[Display(Name = "Единицы измерения производительности охлаждения")]
+		public virtual ProductivityUnits? CoolingProductivityUnits
+		{
+			get => _coolingProductivityUnits;
+			set => SetField(ref _coolingProductivityUnits, value);
+		}
+		
+		[Display(Name = "Показатель производительности нагрева")]
+		public virtual ProductivityComparisionSign? HeatingProductivityComparisionSign
+		{
+			get => _heatingProductivityComparisionSign;
+			set => SetField(ref _heatingProductivityComparisionSign, value);
+		}
+		
+		[Display(Name = "Показатель производительности охлаждения")]
+		public virtual ProductivityComparisionSign? CoolingProductivityComparisionSign
+		{
+			get => _coolingProductivityComparisionSign;
+			set => SetField(ref _coolingProductivityComparisionSign, value);
 		}
 
 		#endregion Онлайн характеристики для ИПЗ
@@ -1486,13 +1566,9 @@ namespace Vodovoz.Domain.Goods
 			PumpType = null;
 			CupHolderBracingType = null;
 			HasHeating = null;
-			NewHeatingPower = null;
-			HeatingProductivity = null;
-			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			NewCoolingPower = null;
-			CoolingProductivity = null;
-			NewCoolingType = null;
+			ResetHeatingParameters();
+			ResetCoolingParameters();
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1521,13 +1597,9 @@ namespace Vodovoz.Domain.Goods
 			EquipmentWorkloadType = null;
 			CupHolderBracingType = null;
 			HasHeating = null;
-			NewHeatingPower = null;
-			HeatingProductivity = null;
-			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			NewCoolingPower = null;
-			CoolingProductivity = null;
-			NewCoolingType = null;
+			ResetHeatingParameters();
+			ResetCoolingParameters();
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1540,13 +1612,9 @@ namespace Vodovoz.Domain.Goods
 			EquipmentWorkloadType = null;
 			PumpType = null;
 			HasHeating = null;
-			NewHeatingPower = null;
-			HeatingProductivity = null;
-			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			NewCoolingPower = null;
-			CoolingProductivity = null;
-			NewCoolingType = null;
+			ResetHeatingParameters();
+			ResetCoolingParameters();
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1555,15 +1623,25 @@ namespace Vodovoz.Domain.Goods
 		public virtual void ResetCoolingParameters()
 		{
 			NewCoolingPower = null;
+			CoolingPowerUnits = null;
 			CoolingProductivity = null;
+			CoolingProductivityComparisionSign = null;
+			CoolingProductivityUnits = null;
 			NewCoolingType = null;
+			CoolingTemperatureFromOnline = null;
+			CoolingTemperatureToOnline = null;
 		}
 
 		public virtual void ResetHeatingParameters()
 		{
 			NewHeatingPower = null;
+			HeatingPowerUnits = null;
 			HeatingProductivity = null;
+			HeatingProductivityComparisionSign = null;
+			HeatingProductivityUnits = null;
 			ProtectionOnHotWaterTap = null;
+			HeatingTemperatureFromOnline = null;
+			HeatingTemperatureToOnline = null;
 		}
 
 		public virtual void ResetLockerRefrigeratorVolume()

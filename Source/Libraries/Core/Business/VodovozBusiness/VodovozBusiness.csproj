@@ -56,6 +56,11 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="Converters\INomenclatureOnlineCharacteristicsConverter.cs" />
+    <Compile Include="Converters\NomenclatureOnlineCharacteristicsConverter.cs" />
+    <Compile Include="Domain\Goods\PowerUnits.cs" />
+    <Compile Include="Domain\Goods\ProductivityComparisionSign.cs" />
+    <Compile Include="Domain\Goods\ProductivityUnits.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarRepository.CarInsuranceNode.cs" />
