@@ -198,6 +198,14 @@ namespace Pacs.Server.Operators
 			}
 
 			OperatorState = OperatorState.Copy(_previuosState);
+
+			if(OperatorState.State == OperatorStateType.WaitingForCall
+				&& newState == OperatorStateType.Connected
+				&& OperatorState.WorkShift?.Ended != null)
+			{
+				OperatorState.WorkShift = null;
+			}
+
 			OperatorState.State = newState;
 			OperatorState.Started = timestamp;
 			OperatorState.Ended = null;
@@ -265,12 +273,6 @@ namespace Pacs.Server.Operators
 			var opearator = _operatorRepository.GetOperator(OperatorId);
 
 			LoadOperatorState(OperatorId);
-
-			if(OperatorState.State == OperatorStateType.Connected
-				&& OperatorState.WorkShift?.Ended != null)
-			{
-				OperatorState.WorkShift = null;
-			}
 
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
