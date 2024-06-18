@@ -69,7 +69,7 @@ namespace Vodovoz.Views
 
 			ylabelWaitForPaymentValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 			ylabelCloseDocumentsValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelOtherOrdersDebtValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyOterOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+			ylabelOtherOrdersDebtValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 
 			labelPayer.Text = ViewModel.Entity.CounterpartyName;
 			labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();

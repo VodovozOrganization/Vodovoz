@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private decimal _counterpartyTotalDebt;
 		private decimal _counterpartyClosingDocumentsOrdersDebt;
 		private decimal _counterpartyWaitingForPaymentOrdersDebt;
+		private decimal _counterpartyOtherOrdersDebt;
 		private decimal _sumToAllocate;
 		private decimal _lastBalance;
 
@@ -178,25 +179,28 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			set => SetField(ref _currentBalance, value);
 		}
 
-		[PropertyChangedAlso(nameof(CounterpartyOterOrdersDebt))]
 		public decimal CounterpartyTotalDebt
 		{
 			get => _counterpartyTotalDebt;
 			set => SetField(ref _counterpartyTotalDebt, value);
 		}
 
-		[PropertyChangedAlso(nameof(CounterpartyOterOrdersDebt))]
 		public decimal CounterpartyWaitingForPaymentOrdersDebt
 		{
 			get => _counterpartyWaitingForPaymentOrdersDebt;
 			set => SetField(ref _counterpartyWaitingForPaymentOrdersDebt, value);
 		}
 
-		[PropertyChangedAlso(nameof(CounterpartyOterOrdersDebt))]
 		public decimal CounterpartyClosingDocumentsOrdersDebt
 		{
 			get => _counterpartyClosingDocumentsOrdersDebt;
 			set => SetField(ref _counterpartyClosingDocumentsOrdersDebt, value);
+		}
+
+		public decimal CounterpartyOtherOrdersDebt
+		{
+			get => _counterpartyOtherOrdersDebt;
+			set => SetField(ref _counterpartyOtherOrdersDebt, value);
 		}
 
 		public decimal SumToAllocate
@@ -235,11 +239,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 		}
-
-		public decimal CounterpartyOterOrdersDebt =>
-			CounterpartyTotalDebt
-			- CounterpartyWaitingForPaymentOrdersDebt
-			- CounterpartyClosingDocumentsOrdersDebt;
 
 		public bool CanRevertPay =>
 			SelectedAllocatedNode != null
@@ -684,6 +683,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				.Where(x => x.Order.Id == orderAlias.Id)
 				.Select(OrderProjections.GetOrderSumProjection());
 
+			var isClosingDocumentsOrderProjection =
+				Projections.Conditional(
+					Restrictions.Eq(Projections.Property(() => orderAlias.DeliverySchedule.Id), _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId),
+					Projections.Constant(true),
+					Projections.Constant(false));
+
 			incomePaymentQuery.Where(
 				GetSearchCriterion(
 					() => orderAlias.Id
@@ -697,7 +702,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
 					.SelectSubQuery(orderSum).WithAlias(() => resultAlias.ActualOrderSum)
-					.SelectSubQuery(lastPayment).WithAlias(() => resultAlias.LastPayments))
+					.SelectSubQuery(lastPayment).WithAlias(() => resultAlias.LastPayments)
+					.Select(isClosingDocumentsOrderProjection).WithAlias(() => resultAlias.IsClosingDocumentsOrder))
 				.TransformUsing(Transformers.AliasToBean<ManualPaymentMatchingViewModelNode>())
 				.List<ManualPaymentMatchingViewModelNode>();
 
@@ -757,6 +763,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			CounterpartyTotalDebt = Entity.Counterparty != null
 				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
+				: default;
+
+			CounterpartyOtherOrdersDebt = Entity.Counterparty != null
+				? _orderRepository.GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
 				: default;
 
 			CounterpartyWaitingForPaymentOrdersDebt = Entity.Counterparty != null
@@ -883,6 +893,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public decimal CurrentPayment { get; set; }
 		public bool Calculate { get; set; }
 		public OrderPaymentStatus OrderPaymentStatus { get; set; }
+		public bool IsClosingDocumentsOrder { get; set; }
 	}
 
 	public class ManualPaymentMatchingViewModelAllocatedNode
