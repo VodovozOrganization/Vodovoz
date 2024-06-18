@@ -71,7 +71,7 @@ namespace Pacs.Server.Breaks
 			}
 
 			var shortBreakAllowedAt = WhenShortBreakAllowed(states, _settings);
-			var shortLimitValidated = shortBreakAllowedAt < DateTime.Now;
+			var shortLimitValidated = shortBreakAllowedAt <= DateTime.Now;
 			if(!shortLimitValidated)
 			{
 				breakAvailability.ShortBreakAvailable = false;
@@ -101,6 +101,7 @@ namespace Pacs.Server.Breaks
 				.Where(x => x.BreakType == OperatorBreakType.Short);
 
 			var lastShortBreak = breaksByType.OrderBy(x => x.Started).LastOrDefault();
+
 			if(lastShortBreak == null)
 			{
 				return DateTime.Now;
