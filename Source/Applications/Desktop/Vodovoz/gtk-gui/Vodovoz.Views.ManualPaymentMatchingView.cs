@@ -435,6 +435,8 @@ namespace Vodovoz.Views
 			w29.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.GtkScrolledWindowOrdersStatuses = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOrdersStatuses.WidthRequest = 250;
+			this.GtkScrolledWindowOrdersStatuses.HeightRequest = 80;
 			this.GtkScrolledWindowOrdersStatuses.Name = "GtkScrolledWindowOrdersStatuses";
 			this.GtkScrolledWindowOrdersStatuses.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindowOrdersStatuses.Gtk.Container+ContainerChild
@@ -454,6 +456,8 @@ namespace Vodovoz.Views
 			w33.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.GtkScrolledWindowPaymentsStatuses = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowPaymentsStatuses.WidthRequest = 250;
+			this.GtkScrolledWindowPaymentsStatuses.HeightRequest = 80;
 			this.GtkScrolledWindowPaymentsStatuses.Name = "GtkScrolledWindowPaymentsStatuses";
 			this.GtkScrolledWindowPaymentsStatuses.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindowPaymentsStatuses.Gtk.Container+ContainerChild
