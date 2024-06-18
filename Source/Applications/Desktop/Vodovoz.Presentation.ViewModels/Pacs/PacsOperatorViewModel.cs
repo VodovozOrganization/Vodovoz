@@ -136,9 +136,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			&& _operatorService.CanChangePhone;
 
 		public bool CanStartLongBreak => _operatorService.CanStartLongBreak && !_operatorService.BreakInProgress;
+
 		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
+
 		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
+
 		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
+
 		public bool CanEndWorkShift => _operatorService.CanEndWorkShift;
 
 		public virtual string BreakInfo
