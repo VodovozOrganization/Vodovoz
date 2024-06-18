@@ -1,16 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
+using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Common;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
@@ -21,41 +16,58 @@ using Vodovoz.Settings.Database.Fuel;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
+using Vodovoz.Validation;
 
 namespace Vodovoz
 {
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddBusiness(this IServiceCollection services, IConfiguration configuration) => services
+
+			.RegisterClassesByInterfaces("Controller")
+			.RegisterClassesByInterfaces("Repository")
+			.RegisterClassesByInterfaces("Service")
+			.RegisterClassesByInterfaces("Handler")
+			.RegisterClassesByInterfaces("Factory")
+			
 			.ConfigureBusinessOptions(configuration)
-			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
-			.AddScoped<IWageParameterService, WageParameterService>()
-			.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
-			.AddScoped<IAddressTransferController, AddressTransferController>()
-			.AddScoped<IRouteListProfitabilityController, RouteListProfitabilityController>()
+			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
-			.AddScoped<IWageCalculationRepository, WageCalculationRepository>()
 			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
-			.AddScoped<IProfitabilityConstantsRepository, ProfitabilityConstantsRepository>()
-			.AddScoped<IRouteListProfitabilityRepository, RouteListProfitabilityRepository>()
-			.AddScoped<INomenclatureRepository, NomenclatureRepository>()
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
 			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
 			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
-			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
-			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
-			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>()
-			.AddScoped<IDeliveryRepository, DeliveryRepository>()
-			.AddScoped<IEmailService, EmailService>()
 			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
+			.AddScoped<FastDeliveryHandler>()
+			.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
+			.AddScoped<ICallTaskWorker, CallTaskWorker>()
+			.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
+			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 			.AddScoped<OrderStateKey>()
+			.AddScoped<OnlineOrderStateKey>()
+			.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
 			.AddDriverApiHelper()
-			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-			;
+		;
 
+		private static IServiceCollection RegisterClassesByInterfaces(this IServiceCollection services, string classEndsWith)
+		{
+			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
+				.Where(t => t.IsClass
+					&& t.Name.EndsWith(classEndsWith)
+					&& t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"));
+
+			foreach(var type in settingsTypes)
+			{
+				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+			}
+			
+			return services;
+		}
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
 			.Configure<PushNotificationSettings>(pushNotificationOptions =>
 				configuration.GetSection(nameof(PushNotificationSettings)).Bind(pushNotificationOptions));

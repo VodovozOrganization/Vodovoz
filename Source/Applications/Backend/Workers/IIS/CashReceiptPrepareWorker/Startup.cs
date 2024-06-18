@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 using QS.Project.Core;
-using TrueMarkApi.Library;
+using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Cash;
@@ -15,7 +15,6 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
 namespace CashReceiptPrepareWorker

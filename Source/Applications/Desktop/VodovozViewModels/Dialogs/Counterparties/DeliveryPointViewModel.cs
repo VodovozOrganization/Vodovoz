@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
+			INomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
 			IEntityUoWBuilder uowBuilder,

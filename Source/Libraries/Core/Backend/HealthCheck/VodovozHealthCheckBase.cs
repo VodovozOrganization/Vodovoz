@@ -14,10 +14,10 @@ namespace VodovozHealthCheck
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
-		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger, IUnitOfWorkFactory unitOfWorkFactory)
+		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger, IUnitOfWorkFactory unitOfWorkFactory = null)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWorkFactory = unitOfWorkFactory;
 		}
 
 		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new ())
@@ -29,11 +29,14 @@ namespace VodovozHealthCheck
 
 			try
 			{
-				isDbConnected = CheckDbConnection();
-
-				if(!isDbConnected)
+				if(_unitOfWorkFactory != null)
 				{
-					return HealthCheckResult.Unhealthy("Проблема с БД.");
+					isDbConnected = CheckDbConnection();
+
+					if(!isDbConnected)
+					{
+						return HealthCheckResult.Unhealthy("Проблема с БД.");
+					}
 				}
 
 				healthResult = await GetHealthResult();

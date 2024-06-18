@@ -74,8 +74,7 @@ namespace Vodovoz.Application.Pacs
 			OperatorSettingsConsumer operatorSettingsConsumer,
 			IObservable<OperatorsOnBreakEvent> operatorsOnBreakPublisher,
 			IPacsEmployeeProvider pacsEmployeeProvider,
-			OperatorKeepAliveController operatorKeepAliveController
-		)
+			OperatorKeepAliveController operatorKeepAliveController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -238,6 +237,7 @@ namespace Vodovoz.Application.Pacs
 					OnPropertyChanged(nameof(CanStartWorkShift));
 					OnPropertyChanged(nameof(CanEndWorkShift));
 
+					UpdateBreakInfo();
 					UpdateLongBreak();
 					UpdateShortBreak();
 					UpdateEndBreak();
@@ -290,6 +290,7 @@ namespace Vodovoz.Application.Pacs
 				UpdateShortBreak();
 			}
 		}
+
 		public GlobalBreakAvailabilityEvent GlobalBreakAvailability
 		{
 			get => _globalBreakAvailability;
@@ -300,7 +301,6 @@ namespace Vodovoz.Application.Pacs
 				UpdateBreakInfo();
 				UpdateLongBreak();
 				UpdateShortBreak();
-
 			}
 		}
 
@@ -320,18 +320,20 @@ namespace Vodovoz.Application.Pacs
 		private void StartDelayedBreakUpdate()
 		{
 			_delayedBreakUpdateTimer.Stop();
+
 			if(BreakAvailability.ShortBreakSupposedlyAvailableAfter == null)
 			{
 				return;
 			}
 
 			var interval = BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value - DateTime.Now;
+
 			if(interval < TimeSpan.Zero)
 			{
 				return;
 			}
 
-			interval.Add(TimeSpan.FromSeconds(1));
+			interval.Add(TimeSpan.FromSeconds(2));
 
 			_delayedBreakUpdateTimer.Interval = interval.TotalMilliseconds;
 			_delayedBreakUpdateTimer.AutoReset = false;
@@ -455,10 +457,10 @@ namespace Vodovoz.Application.Pacs
 
 		private void UpdateShortBreak()
 		{
-			var breakUnavailable = !BreakAvailability.ShortBreakAvailable
-			|| !GlobalBreakAvailability.ShortBreakAvailable;
+			var breakAvailable = BreakAvailability.ShortBreakAvailable
+				&& GlobalBreakAvailability.ShortBreakAvailable;
 
-			CanStartShortBreak = _operatorStateAgent.CanStartBreak && !breakUnavailable;
+			CanStartShortBreak = _operatorStateAgent.CanStartBreak && breakAvailable;
 
 			if(_operatorStateAgent.CanStartBreak && CanStartShortBreak)
 			{

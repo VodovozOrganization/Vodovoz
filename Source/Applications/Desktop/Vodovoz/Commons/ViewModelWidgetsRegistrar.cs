@@ -13,6 +13,7 @@ using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Vodovoz.Core;
 
 namespace Vodovoz.Commons
@@ -35,54 +36,60 @@ namespace Vodovoz.Commons
 			_viewModelsTypesList = GetViewModels();
 		}
 
-		public void RegisterateWidgets()
+		public void RegisterateWidgets(params Assembly[] assemblies)
 		{
 			ViewModelWidgetResolver.Instance = _viewModelWidgetResolver;
 
 			_viewModelWidgetResolver.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>();
 
-			typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes()
-				.Where(x => x.BaseType != null
-					&& x.BaseType.IsGenericType
-					&& (x.BaseType.GetGenericTypeDefinition() == typeof(TabViewBase<>)
-						|| (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
-							&& typeof(TabViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First()))))
-				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
-				.ForEach(keyValue =>
-				{
-					_viewModelWidgetResolver.RegisterWidgetForTabViewModel(keyValue.Value, keyValue.Key);
-					_logger.LogInformation("Зарегистрирована {ViewModel} для {Widget}", keyValue.Value, keyValue.Key);
-				});
+			foreach(var assembly in assemblies)
+			{
+				assembly.GetTypes()
+					.Where(x => x.BaseType != null
+						&& x.BaseType.IsGenericType
+						&& (x.BaseType.GetGenericTypeDefinition() == typeof(TabViewBase<>)
+							|| (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
+								&& typeof(TabViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First()))))
+					.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
+					.ForEach(keyValue =>
+					{
+						_viewModelWidgetResolver.RegisterWidgetForTabViewModel(keyValue.Value, keyValue.Key);
+						_logger.LogInformation("Зарегистрирована {ViewModel} для {Widget}", keyValue.Value, keyValue.Key);
+					});
+			}
 
-			ConfigureFiltersWidgets();
+			ConfigureFiltersWidgets(assemblies);
 		}
 
-		public void ConfigureFiltersWidgets()
+		public void ConfigureFiltersWidgets(params Assembly[] assemblies)
 		{
 			DialogHelper.FilterWidgetResolver = _viewModelWidgetResolver;
 
-			typeof(ViewModelWidgetsRegistrar).Assembly.GetTypes()
-				.Where(x => x.BaseType != null
-					&& x.BaseType.IsGenericType
-					&& (x.BaseType.GetGenericTypeDefinition() == typeof(DialogViewBase<>)
-					 || x.BaseType.GetGenericTypeDefinition() == typeof(WidgetViewBase<>)
-					 || x.BaseType.GetGenericTypeDefinition() == typeof(FilterViewBase<>)
-					 || x.BaseType.GetGenericTypeDefinition() == typeof(EntityTabViewBase<,>)
-					 || (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
-						&& (typeof(WidgetViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())
-						|| typeof(ReportParametersViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())))))
-				.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
-				.ForEach(keyValue =>
-				{
-					var viewModelsForCurrentView = _viewModelsTypesList.Where(type => keyValue.Value.IsAssignableFrom(type)).ToList();
-
-					foreach(var viewModel in viewModelsForCurrentView)
+			foreach(var assembly in assemblies)
+			{
+				assembly.GetTypes()
+					.Where(x => x.BaseType != null
+						&& x.BaseType.IsGenericType
+						&& (x.BaseType.GetGenericTypeDefinition() == typeof(DialogViewBase<>)
+						 || x.BaseType.GetGenericTypeDefinition() == typeof(WidgetViewBase<>)
+						 || x.BaseType.GetGenericTypeDefinition() == typeof(FilterViewBase<>)
+						 || x.BaseType.GetGenericTypeDefinition() == typeof(EntityTabViewBase<,>)
+						 || (x.BaseType.GetGenericTypeDefinition() == typeof(ViewBase<>)
+							&& (typeof(WidgetViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())
+							|| typeof(ReportParametersViewModelBase).IsAssignableFrom(x.BaseType.GetGenericArguments().First())))))
+					.ToDictionary(x => x, x => x.BaseType.GetGenericArguments().First())
+					.ForEach(keyValue =>
 					{
-						_viewModelWidgetResolver.RegisterWidgetForWidgetViewModel(viewModel, keyValue.Key);
-						_logger.LogInformation("Зарегистрирована {ViewModel} для {Widget}", viewModel, keyValue.Key);
-					}
-				});
+						var viewModelsForCurrentView = _viewModelsTypesList.Where(type => keyValue.Value.IsAssignableFrom(type)).ToList();
+
+						foreach(var viewModel in viewModelsForCurrentView)
+						{
+							_viewModelWidgetResolver.RegisterWidgetForWidgetViewModel(viewModel, keyValue.Key);
+							_logger.LogInformation("Зарегистрирована {ViewModel} для {Widget}", viewModel, keyValue.Key);
+						}
+					});
+			}
 		}
 
 		private List<Type> GetViewModels()

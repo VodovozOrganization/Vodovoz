@@ -1,6 +1,8 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -12,14 +14,17 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.Cars;
 
@@ -39,6 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
@@ -51,6 +57,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -78,6 +85,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
 
+		public ILifetimeScope LifetimeScope { get; }
+
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
@@ -93,6 +102,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarVersion currentCarVersion = null;
 			Employee driverAlias = null;
 			CarManufacturer carManufacturerAlias = null;
+			Organization organizationAlias = null;
+			CarInsurance carInsuranceAlias = null;
+			CarInsurance osagoAlias = null;
+			CarInsurance kaskoAlias = null;
+			Counterparty osagoInsurerAlias = null;
+			Counterparty kaskoInsurerAlias = null;
+
+			var lastOsagoInsuranceIdSubquery = QueryOver.Of(() => carInsuranceAlias)
+				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago)
+				.Select(ins => ins.Id)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
+
+			var lastKaskoInsuranceIdSubquery = QueryOver.Of(() => carInsuranceAlias)
+				.Where(() => !carAlias.IsKaskoInsuranceNotRelevant && carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko)
+				.Select(ins => ins.Id)
+				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
 
 			var query = uow.Session.QueryOver<Car>(() => carAlias)
 				.Inner.JoinAlias(c => c.CarModel, () => carModelAlias)
@@ -101,7 +130,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					() => currentCarVersion.Car.Id == carAlias.Id
 						&& currentCarVersion.StartDate <= currentDateTime
 						&& (currentCarVersion.EndDate == null || currentCarVersion.EndDate >= currentDateTime))
-				.Left.JoinAlias(c => c.Driver, () => driverAlias);
+				.Left.JoinAlias(c => c.Driver, () => driverAlias)
+				.Left.JoinAlias(() => currentCarVersion.CarOwnerOrganization, () => organizationAlias)
+				.JoinEntityAlias(() => osagoAlias,
+					Subqueries.PropertyEq(nameof(osagoAlias.Id), lastOsagoInsuranceIdSubquery.DetachedCriteria),
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => kaskoAlias,
+					Subqueries.PropertyEq(nameof(kaskoAlias.Id), lastKaskoInsuranceIdSubquery.DetachedCriteria),
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => osagoAlias.Insurer, () => osagoInsurerAlias)
+				.Left.JoinAlias(() => kaskoAlias.Insurer, () => kaskoInsurerAlias);
 
 			#region Проверка приближающегося ТО
 
@@ -129,27 +167,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			#region Проверка наличия и окончания срока действия страховки
 
-			var osagoMaxEndDateSubquery = QueryOver.Of<CarInsurance>()
-				.Where(ins => ins.Car.Id == carAlias.Id && ins.InsuranceType == CarInsuranceType.Osago)
-				.Select(Projections.Max<CarInsurance>(ins => ins.EndDate));
-
-			var kaskoMaxEndDateSubquery = QueryOver.Of<CarInsurance>()
-				.Where(ins => ins.Car.Id == carAlias.Id && ins.InsuranceType == CarInsuranceType.Kasko)
-				.Select(Projections.Max<CarInsurance>(ins => ins.EndDate));
-
 			var osagoMaxEndDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
 				NHibernateUtil.DateTime,
-				Projections.SubQuery(osagoMaxEndDateSubquery),
-				Projections.Constant(DateTime.MinValue.ToShortDateString())
-				);
+				Projections.Property(() => osagoAlias.EndDate),
+				Projections.Constant(DateTime.MinValue.ToShortDateString()));
 
 			var kaskoMaxEndDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
 				NHibernateUtil.DateTime,
-				Projections.SubQuery(kaskoMaxEndDateSubquery),
-				Projections.Constant(DateTime.MinValue.ToShortDateString())
-				);
+				Projections.Property(() => kaskoAlias.EndDate),
+				Projections.Constant(DateTime.MinValue.ToShortDateString()));
 
 			var isOsagoExpiresRestriction = Restrictions.Conjunction()
 				.Add(Restrictions.Disjunction()
@@ -171,14 +199,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var isOsagoExpiresProjection = Projections.Conditional(
 				isOsagoExpiresRestriction,
 				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+				Projections.Constant(false));
 
 			var isKaskoExpiresProjection = Projections.Conditional(
 				isKaskoExpiresRestriction,
 				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+				Projections.Constant(false));
 
 			#endregion
 
@@ -189,8 +215,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Add(isOsagoExpiresRestriction)
 					.Add(isKaskoExpiresRestriction),
 				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+				Projections.Constant(false));
+
+			if(_filterViewModel.Insurer != null && !_filterViewModel.IsOnlyCarsWithoutInsurer)
+			{
+				query.Where(() =>
+					osagoInsurerAlias.Id == _filterViewModel.Insurer.Id
+					|| (!carAlias.IsKaskoInsuranceNotRelevant && kaskoInsurerAlias.Id == _filterViewModel.Insurer.Id));
+			}
+
+			if(_filterViewModel.IsOnlyCarsWithoutInsurer)
+			{
+				query.Where(() =>
+					osagoInsurerAlias.Id == null
+					|| (!carAlias.IsKaskoInsuranceNotRelevant && kaskoInsurerAlias.Id == null));
+			}
 
 			if(_filterViewModel.Archive != null)
 			{
@@ -231,6 +270,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(() => carModelAlias.Id == _filterViewModel.CarModel.Id);
 			}
 
+			if(_filterViewModel.CarOwner != null && !_filterViewModel.IsOnlyCarsWithoutCarOwner)
+			{
+				query.Where(() => currentCarVersion.CarOwnerOrganization.Id == _filterViewModel.CarOwner.Id);
+			}
+
+			if(_filterViewModel.IsOnlyCarsWithoutCarOwner)
+			{
+				query.Where(Restrictions.IsNull(Projections.Property(() => currentCarVersion.CarOwnerOrganization.Id)));
+			}
+
 			query.Where(GetSearchCriterion(
 				() => carAlias.Id,
 				() => carManufacturerAlias.Name,
@@ -238,25 +287,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => carAlias.RegistrationNumber,
 				() => driverAlias.Name,
 				() => driverAlias.LastName,
-				() => driverAlias.Patronymic));
+				() => driverAlias.Patronymic,
+				() => organizationAlias.Name,
+				() => osagoInsurerAlias.Name,
+				() => kaskoInsurerAlias.Name));
 
 			var result = query
 				.SelectList(list => list
 					.Select(c => c.Id).WithAlias(() => carJournalNodeAlias.Id)
+					.Select(() => organizationAlias.Name).WithAlias(() => carJournalNodeAlias.CarOwner)
 					.Select(() => carManufacturerAlias.Name).WithAlias(() => carJournalNodeAlias.ManufacturerName)
 					.Select(() => carModelAlias.Name).WithAlias(() => carJournalNodeAlias.ModelName)
 					.Select(c => c.RegistrationNumber).WithAlias(() => carJournalNodeAlias.RegistrationNumber)
 					.Select(c => c.IsArchive).WithAlias(() => carJournalNodeAlias.IsArchive)
-					.Select(upcomingTechInspectProjection).WithAlias(() => carJournalNodeAlias.IsUpcomingTechInspect)
-					.Select(isOsagoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsOsagoInsuranceExpires)
-					.Select(isKaskoExpiresProjection).WithAlias(() => carJournalNodeAlias.IsKaskoInsuranceExpires)
 					.Select(isShowBackgroundColorNotificationProjection).WithAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification)
 					.Select(CustomProjections.Concat_WS(" ",
 						Projections.Property(() => driverAlias.LastName),
 						Projections.Property(() => driverAlias.Name),
 						Projections.Property(() => driverAlias.Patronymic)))
-					.WithAlias(() => carJournalNodeAlias.DriverName))
-				.ThenByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
+					.WithAlias(() => carJournalNodeAlias.DriverName)
+					.Select(() => osagoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.OsagoInsurer)
+					.Select(() => kaskoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.KaskoInsurer))
+				.OrderByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
 
@@ -269,6 +321,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			CreateCarInsurancesReportAction();
 			CreateCarTechInspectReportAction();
+			ExportJournalItemsToExcelAction();
 		}
 
 		private void CreateCarInsurancesReportAction()
@@ -287,6 +340,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarTechInspectReport()
+			);
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void ExportJournalItemsToExcelAction()
+		{
+			var selectAction = new JournalAction("Экспорт в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) => ExportJournalItemsToExcel()
 			);
 			NodeActionsList.Add(selectAction);
 		}
@@ -333,6 +396,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarTechInspectReport.ExportToExcel(result.Path, techInspects);
 		}
 
+		private void ExportJournalItemsToExcel()
+		{
+			var journalItems = ItemsQuery(UoW).List<CarJournalNode>();
+
+			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarJournalItemsReport.ReportTitle}");
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+		}
+
 		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)
 		{
 			var dialogSettings = new DialogSettings();
@@ -344,7 +423,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			return dialogSettings;
 		}
-
 		public override void Dispose()
 		{
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;

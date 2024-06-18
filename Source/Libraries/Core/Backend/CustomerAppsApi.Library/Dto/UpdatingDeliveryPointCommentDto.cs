@@ -1,4 +1,6 @@
-﻿namespace CustomerAppsApi.Library.Dto
+﻿using Vodovoz.Core.Domain.Clients;
+
+namespace CustomerAppsApi.Library.Dto
 {
 	public class UpdatingDeliveryPointCommentDto
 	{

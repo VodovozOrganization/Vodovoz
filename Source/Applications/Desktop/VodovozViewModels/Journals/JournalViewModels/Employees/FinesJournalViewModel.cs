@@ -6,6 +6,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
@@ -17,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.NHibernateProjections.Employees;
@@ -160,6 +162,21 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
+			CarEvent carEventAlias = null;
+			CarEventType carEventTypeAliase = null;
+			Fine finesAlias = null;
+
+			var carEventProjection = CustomProjections.Concat(
+					Projections.Property(() => carEventAlias.Id),
+					Projections.Constant(" - "),
+					Projections.Property(() => carEventTypeAliase.ShortName));
+
+			var carEventSubquery = QueryOver.Of<CarEvent>(() => carEventAlias)
+				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
+				.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAliase)
+				.Where(() => finesAlias.Id == fineAlias.Id)
+				.Select(CustomProjections.GroupConcat(carEventProjection, separator: ", "));
+
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
 				() => fineAlias.TotalMoney,
@@ -195,6 +212,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						NHibernateUtil.String,
 						Projections.Property(() => finedEmployeeSubdivision.Name),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
+					.SelectSubQuery(carEventSubquery).WithAlias(() => resultAlias.CarEvent)
 				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
 		}

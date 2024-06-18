@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 			Map(x => x.TypeDocument).Column("type_document");
 			Map(x => x.TypeOperation).Column("type_operation");
 			Map(x => x.Date).Column("date");
+			Map(x => x.DdrDate).Column("ddr_date");
 			Map(x => x.Money).Column("money");
 			Map(x => x.AdvanceClosed).Column("advance_closed");
 			Map(x => x.Description).Column("description");
