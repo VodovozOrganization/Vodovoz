@@ -9,7 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 	{
 		public static string ReportTitle => "Список автомобилей";
 
-		private const int _columnsCount = 6;
+		private const int _columnsCount = 7;
 		private readonly XLColor _headersBgColor = XLColor.FromColor(Color.FromArgb(170, 200, 140));
 		private readonly XLColor _notificationBgColor = XLColor.FromColor(Color.FromArgb(250, 192, 192));
 
@@ -42,11 +42,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 		private void SetColumnsWidth(IXLWorksheet worksheet)
 		{
 			worksheet.Column(1).Width = 10;
-			worksheet.Column(2).Width = 50;
+			worksheet.Column(2).Width = 40;
 			worksheet.Column(3).Width = 30;
 			worksheet.Column(4).Width = 30;
 			worksheet.Column(5).Width = 30;
-			worksheet.Column(6).Width = 50;
+			worksheet.Column(6).Width = 40;
+			worksheet.Column(7).Width = 70;
 		}
 
 		private void AddTableTitleRow(IXLWorksheet worksheet, int rowNumber)
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 			worksheet.Cell(rowNumber, colNumber++).Value = "Модель";
 			worksheet.Cell(rowNumber, colNumber++).Value = "Гос. номер";
 			worksheet.Cell(rowNumber, colNumber++).Value = "Водитель";
+			worksheet.Cell(rowNumber, colNumber++).Value = "Страховщик";
 
 			var tableHeadersRange = worksheet.Range(rowNumber, 1, rowNumber, _columnsCount);
 			FormatTableHeaderCells(tableHeadersRange);
@@ -98,6 +100,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars
 				worksheet.Cell(rowNumber, colNumber++).Value = item.ModelName;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.RegistrationNumber;
 				worksheet.Cell(rowNumber, colNumber++).Value = item.DriverName;
+				worksheet.Cell(rowNumber, colNumber++).Value = item.InsurersNames;
 
 				if(item.IsShowBackgroundColorNotification)
 				{

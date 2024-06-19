@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 			Order orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+			TrueMarkDocument trueMarkApiDocumentAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoUpdReportRow resultAlias = null;
 
@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 
 			var trueApiMaxDateSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
 				.Where(() => trueMarkApiDocumentAlias.Order.Id == orderAlias.Id)
-				.And(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal)
+				.And(() => trueMarkApiDocumentAlias.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal)
 				.OrderBy(() => trueMarkApiDocumentAlias.CreationDate).Desc
 				.Select(Projections.Max(() => trueMarkApiDocumentAlias.CreationDate))
 				.Take(1);

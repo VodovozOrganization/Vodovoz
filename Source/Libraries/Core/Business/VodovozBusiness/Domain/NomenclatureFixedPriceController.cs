@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,7 +11,7 @@ using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain
 {
-	public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
+	public class NomenclatureFixedPriceController : INomenclatureFixedPriceController 
 	{
 		private readonly INomenclatureFixedPriceFactory _nomenclatureFixedPriceFactory;
 		private readonly INomenclatureFixedPriceRepository _nomenclatureFixedPriceRepository;
@@ -95,14 +95,14 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice)
 		{
 			if (deliveryPoint.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
 				deliveryPoint.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
 			}
 		}
 		
-		public void DeleteFixedPrice(Counterparty counterparty, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		public void DeleteFixedPrice(Counterparty counterparty, NomenclatureFixedPrice nomenclatureFixedPrice)
 		{
 			if (counterparty.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
 				counterparty.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);

@@ -7,5 +7,8 @@
 		int MaxDaysForNewbieDriver { get; }
 		int DefaultEmployeeForCallTask { get; }
 		int DefaultEmployeeForDepositReturnTask { get; }
+		int MobileAppEmployee { get; }
+		int VodovozWebSiteEmployee { get; }
+		int KulerSaleWebSiteEmployee { get; }
 	}
 }

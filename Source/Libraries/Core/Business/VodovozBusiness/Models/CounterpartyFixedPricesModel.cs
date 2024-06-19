@@ -12,9 +12,12 @@ namespace Vodovoz.Models
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly Counterparty _counterparty;
-		private readonly NomenclatureFixedPriceController _fixedPriceController;
+		private readonly INomenclatureFixedPriceController _fixedPriceController;
 
-		public CounterpartyFixedPricesModel(IUnitOfWork uow, Counterparty counterparty, NomenclatureFixedPriceController fixedPriceController)
+		public CounterpartyFixedPricesModel(
+			IUnitOfWork uow,
+			Counterparty counterparty,
+			INomenclatureFixedPriceController fixedPriceController)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));

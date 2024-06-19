@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 
@@ -33,6 +34,17 @@ namespace Vodovoz.EntityRepositories.Logistic
 					orderby ce.StartDate descending
 					select ce
 				).FirstOrDefault();
+		}
+
+		public IList<CarEvent> GetCarEventsByFine(IUnitOfWork uow, int fineId)
+		{
+			CarEvent carEventAlias = null;
+			Fine finesAlias = null;
+
+			return uow.Session.QueryOver<CarEvent>(() => carEventAlias)
+				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
+				.Where(() => finesAlias.Id == fineId)
+				.List();
 		}
 	}
 }

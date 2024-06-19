@@ -99,6 +99,8 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.ObservableItems, w => w.ItemsDataSource)
 				.InitializeFromSource();
 
+			ylabelCarEvent.Binding.AddBinding(ViewModel, vm => vm.CarEvent, w => w.LabelProp).InitializeFromSource();
+
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonSave.Sensitive = ViewModel.CanEdit;
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);

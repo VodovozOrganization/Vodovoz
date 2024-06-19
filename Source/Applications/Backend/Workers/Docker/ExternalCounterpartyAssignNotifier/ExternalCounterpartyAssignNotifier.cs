@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Counterparties;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

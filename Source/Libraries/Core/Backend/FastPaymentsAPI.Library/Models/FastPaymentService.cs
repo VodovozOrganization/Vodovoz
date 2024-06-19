@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Organizations;
+using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Models
 {

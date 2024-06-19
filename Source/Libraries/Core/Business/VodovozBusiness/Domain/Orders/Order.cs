@@ -2066,25 +2066,24 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
-
-		public virtual void AddOrUpdateDeliveryItem(Nomenclature nomenclature, decimal price)
+		
+		public virtual void UpdateDeliveryItem(Nomenclature nomenclature, decimal price)
 		{
-			var deliveryPriceItem = OrderItem.CreateDeliveryOrderItem(this, nomenclature, price);
+			//Т.к. запускается пересчет различных параметров, который может привести к добавлению платной доставки
+			//создание строки с платной доставкой лучше запускать до ее поиска в коллекции
+			var newDeliveryItem = OrderItem.CreateDeliveryOrderItem(this, nomenclature, price);
+			var currentDeliveryItem = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
-			var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-
-			if(delivery == null)
+			if(price > 0)
 			{
-				AddOrderItem(deliveryPriceItem);
+				AddOrUpdateDeliveryItem(currentDeliveryItem, newDeliveryItem, price);
 				return;
 			}
-
-			if(delivery.Price == price)
+			
+			if(currentDeliveryItem != null)
 			{
-				return;
+				RemoveOrderItem(currentDeliveryItem);
 			}
-
-			delivery.SetPrice(price);
 		}
 
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
@@ -2136,6 +2135,22 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
 		{
 			orderItem?.SetCount(newCount);
+		}
+		
+		private void AddOrUpdateDeliveryItem(OrderItem currentDeliveryItem, OrderItem newDeliveryItem, decimal price)
+		{
+			if(currentDeliveryItem is null)
+			{
+				AddOrderItem(newDeliveryItem);
+				return;
+			}
+
+			if(currentDeliveryItem.Price == price)
+			{
+				return;
+			}
+
+			currentDeliveryItem.SetPrice(price);
 		}
 
 		#endregion
@@ -2735,7 +2750,7 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(proSet.PromotionalSetForNewClients && CanUsedPromo(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients && HasUsedPromoForNewClients(promotionalSetRepository))
 			{
 				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
@@ -2767,14 +2782,14 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Проверка на использование промонабора в заказе на адрес
 		/// </summary>
-		/// <returns><c>true</c>, если на адрес не доставляли промонабор,
-		/// <c>false</c> если нельзя.</returns>
-		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
+		/// <returns><c>true</c>, если на адрес доставляли промонабор для новых клиентов,
+		/// <c>false</c> если нет</returns>
+		public virtual bool HasUsedPromoForNewClients(IPromotionalSetRepository promotionalSetRepository)
 		{
 			return !SelfDelivery
 				&& Client.PersonType == PersonType.natural
 				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
-				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromo(UoW, deliveryPoint);
+				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromoForNewClients(UoW, deliveryPoint);
 		}
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
@@ -3520,12 +3535,18 @@ namespace Vodovoz.Domain.Orders
 		private void AcceptSelfDeliveryOrder(ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
+			{
 				return;
+			}
 
 			if(PayAfterShipment || OrderSum == 0)
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
+			}
 			else
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, callTaskWorker);
+			}
 		}
 
 		/// <summary>
@@ -3547,9 +3568,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual void AcceptOrder(Employee currentEmployee, ICallTaskWorker callTaskWorker)
 		{
 			if(SelfDelivery)
+			{
 				AcceptSelfDeliveryOrder(callTaskWorker);
+			}
 			else if(CanSetOrderAsAccepted)
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
+			}
 
 			AcceptedOrderEmployee = currentEmployee;
 		}
@@ -4033,6 +4058,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateDocuments()
 		{
+			if(Client is null)
+			{
+				return;
+			}
+			
 			CheckAndCreateDocuments(_emailService.GetRequirementDocTypes(this));
 		}
 
@@ -4413,7 +4443,14 @@ namespace Vodovoz.Domain.Orders
 				Comment = $"{_generalSettingsParameters.OrderAutoComment}{Environment.NewLine}{Comment}";
 			}
 
-			uow.Save();
+			if(uow is IUnitOfWorkGeneric<Order>)
+			{
+				uow.Save();
+			}
+			else
+			{
+				uow.Save(this);
+			}
 		}
 
 		public virtual void RemoveReturnTareReason()
@@ -4552,13 +4589,13 @@ namespace Vodovoz.Domain.Orders
 
 				edoDocumentsActions.IsNeedToResendEdoUpd = true;
 
-				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 					.Where(x => x.Order.Id == Id)
 					.OrderByDescending(x => x.CreationDate)
 					.FirstOrDefault();
 
 				if(orderLastTrueMarkDocument != null 
-					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+					&& orderLastTrueMarkDocument.Type != TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation)
 				{
 					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
 				}

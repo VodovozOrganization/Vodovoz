@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Factories;
+using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -7,12 +7,14 @@ using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Project.Services;
+using QS.Services;
 using QS.Project.DB;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
@@ -22,13 +24,18 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.Validation;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Delivery;
+using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Roboats;
 using VodovozInfrastructure.Cryptography;
 
@@ -75,6 +82,7 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
 				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
 				.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>()
+				.AddSingleton<ICallTaskFactory, CallTaskSingletonFactory>()
 				.AddSingleton<IRentPackageFactory, RentPackageFactory>()
 				.AddSingleton<IDeliveryPointFactory, DeliveryPointFactory>()
 				.AddSingleton<ICameFromConverter, CameFromConverter>()
@@ -88,6 +96,16 @@ namespace CustomerAppsApi.Library
 				.AddScoped<INomenclatureModel, NomenclatureModel>()
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
+				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddScoped<ICallTaskWorker, CallTaskWorker>()
+				.AddScoped<ICounterpartyContractRepository, CounterpartyContractRepository>()
+				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
+				.AddScoped<FastDeliveryHandler>()
+				.AddScoped<IDriverApiSettings, DriverApiSettings>()
+				.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
+				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
+				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
+				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 				.AddScoped<IWarehouseModel, WarehouseModel>()
 				.AddScoped<IRentPackageModel, RentPackageModel>()
 				.AddScoped<IDeliveryPointService, DeliveryPointService>()

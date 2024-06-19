@@ -20,7 +20,7 @@ namespace Pacs.Server
 				.AddSingleton<IOperatorRepository, OperatorRepository>()
 				.AddSingleton<IOperatorAgentFactory, OperatorAgentFactory>()
 				.AddSingleton<IOperatorControllerFactory, OperatorControllerFactory>()
-				.AddSingleton<IOperatorControllerProvider, OperatorControllerProvider>()
+				.AddSingleton<IOperatorStateService, OperatorStateService>()
 				.AddSingleton<IOperatorNotifier, OperatorNotifier>()
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
