@@ -14,12 +14,12 @@ namespace Pacs.Operators.Server
 	public class OperatorController : ControllerBase
 	{
 		private readonly ILogger<OperatorController> _logger;
-		private readonly IOperatorStateService _controllerProvider;
+		private readonly IOperatorStateService _operatorStateService;
 
 		public OperatorController(ILogger<OperatorController> logger, IOperatorStateService controllerProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_controllerProvider = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));
+			_operatorStateService = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));
 		}
 
 		[HttpPost]
@@ -27,7 +27,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> Connect([FromBody] Connect command)
 		{
 			_logger.LogTrace("Подключение оператора {OperatorId}", command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.Connect();
 			return result;
 		}
@@ -37,7 +37,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> Disconnect([FromBody] Disconnect command)
 		{
 			_logger.LogTrace("Отключение оператора {OperatorId}", command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.Disconnect();
 
 			return result;
@@ -48,7 +48,7 @@ namespace Pacs.Operators.Server
 		public async Task KeepAlive([FromBody] KeepAlive command)
 		{
 			_logger.LogTrace("Поддержание подключения оператора {OperatorId}", command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			await controller.KeepAlive();
 		}
 
@@ -57,7 +57,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> StartWorkShift([FromBody] StartWorkShift command)
 		{
 			_logger.LogTrace("Начало смены оператора {OperatorId}", command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.StartWorkShift(command.PhoneNumber);
 
 			return result;
@@ -68,7 +68,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> EndWorkShift([FromBody] EndWorkShift command)
 		{
 			_logger.LogTrace("Завершение смены оператора {OperatorId}", command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.EndWorkShift(command.Reason);
 
 			return result;
@@ -79,7 +79,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> ChangePhone([FromBody] ChangePhone command)
 		{
 			_logger.LogTrace("Смена телефона оператора {OperatorId} на  {Phone}", command.OperatorId, command.PhoneNumber);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.ChangePhone(command.PhoneNumber);
 
 			return result;
@@ -90,7 +90,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> StartBreak([FromBody] StartBreak command)
 		{
 			_logger.LogTrace("Начало {BreakType} перерыва оператора {OperatorId}", command.BreakType, command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.StartBreak(command.BreakType);
 
 			return result;
@@ -101,7 +101,7 @@ namespace Pacs.Operators.Server
 		public async Task<OperatorResult> EndBreak([FromBody] EndBreak command)
 		{
 			_logger.LogTrace("Завершение перерыва оператора {OperatorId}", command.OperatorId);
-			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
 			var result = await controller.EndBreak();
 
 			return result;
