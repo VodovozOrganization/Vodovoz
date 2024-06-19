@@ -34,132 +34,69 @@ namespace Pacs.Server.Operators
 			WarmUpOperatorStates();
 		}
 
-		/// <summary>
-		/// Смена телефона оператора
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <param name="phoneNumber">Новый номер телефона</param>
-		/// <returns></returns>
 		public async Task<OperatorResult> ChangePhone(int operatorId, string phoneNumber)
 		{
 			return await GetOperatorController(operatorId).ChangePhone(phoneNumber);
 		}
 
-		/// <summary>
-		/// Подключение оператора
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <returns></returns>
 		public async Task<OperatorResult> Connect(int operatorId)
 		{
 			return await GetOperatorController(operatorId).Connect();
 		}
 
-		/// <summary>
-		/// Отключение оператора
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <returns></returns>
 		public async Task<OperatorResult> Disconnect(int operatorId)
 		{
 			return await GetOperatorController(operatorId).Disconnect();
 		}
 
-		/// <summary>
-		/// Начало перерыва
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <param name="breakType"><see cref="OperatorBreakType">Тип перерыва</see></param>
-		/// <returns></returns>
 		public async Task<OperatorResult> StartBreak(int operatorId, OperatorBreakType breakType)
 		{
 			return await GetOperatorController(operatorId).StartBreak(breakType);
 		}
 
-		/// <summary>
-		/// Завершение перерыва
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <returns></returns>
 		public async Task<OperatorResult> EndBreak(int operatorId)
 		{
 			return await GetOperatorController(operatorId).EndBreak();
 		}
 
-		/// <summary>
-		/// Начало смены
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <param name="phoneNumber">Номер телефона</param>
-		/// <returns></returns>
 		public async Task<OperatorResult> StartWorkShift(int operatorId, string phoneNumber)
 		{
 			return await GetOperatorController(operatorId).StartWorkShift(phoneNumber);
 		}
 
-		/// <summary>
-		/// Завершение смены оператора
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <param name="reason">Причина</param>
-		/// <returns></returns>
 		public async Task<OperatorResult> EndWorkShift(int operatorId, string reason)
 		{
 			return await GetOperatorController(operatorId).EndWorkShift(reason);
 		}
 
-		/// <summary>
-		/// Поддержание состояния подключения
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <returns></returns>
 		public async Task KeepAlive(int operatorId)
 		{
 			await GetOperatorController(operatorId).KeepAlive();
 		}
 
-		private void ControllerOnDisconnect(object sender, int operatorId)
+		public async Task<OperatorResult> AdminStartBreak(int operatorId, OperatorBreakType breakType, int adminId, string reason)
 		{
-			if(_operatorControllers.TryRemove(operatorId, out var controller))
-			{
-				controller.Dispose();
-				controller.OnDisconnect -= ControllerOnDisconnect;
-			}
+			return await GetOperatorController(operatorId).AdminStartBreak(breakType, adminId, reason);
 		}
 
-		public OperatorController GetOperatorController(string phoneNumber)
+		public async Task<OperatorResult> AdminEndBreak(int operatorId, int adminId, string reason)
 		{
-			var controller = _operatorControllers
-				.Select(x => x.Value)
-				.FirstOrDefault(x => x.AssignedToPhone(phoneNumber));
-
-			return controller;
+			return await GetOperatorController(operatorId).AdminEndBreak(adminId, reason);
 		}
 
-		public OperatorController GetOperatorController(int operatorId)
+		public async Task<OperatorResult> AdminEndWorkShift(int operatorId, int adminId, string reason)
 		{
-			if(_operatorControllers.TryGetValue(operatorId, out var controller))
-			{
-				return controller;
-			}
+			return await GetOperatorController(operatorId).AdminEndWorkShift(adminId, reason);
+		}
 
-			var @operator = _operatorRepository.GetOperator(operatorId);
+		public async Task TakeCall(string toExtension, string callId)
+		{
+			await FindOperatorControllerByOperatorPhone(toExtension)?.TakeCall(callId);
+		}
 
-			if(@operator == null)
-			{
-				throw new PacsException($"Оператор {operatorId} не зарегистрирован");
-			}
-
-			controller = _operatorControllerFactory.CreateOperatorController(operatorId);
-
-			if(!_operatorControllers.TryAdd(operatorId, controller))
-			{
-				return _operatorControllers[operatorId];
-			}
-
-			controller.OnDisconnect += ControllerOnDisconnect;
-
-			return controller;
+		public async Task EndCall(string toExtension, string callId)
+		{
+			await FindOperatorControllerByOperatorPhone(toExtension)?.EndCall(callId);
 		}
 
 		/// <summary>
@@ -181,6 +118,55 @@ namespace Pacs.Server.Operators
 					_operatorControllers.TryAdd(operatorState.OperatorId, _operatorControllerFactory.CreateOperatorController(operatorState.OperatorId));
 				}
 			}
+		}
+
+		/// <summary>
+		/// Обработка события отключение оператора
+		/// </summary>
+		/// <param name="sender">Объект оповещающий о событии</param>
+		/// <param name="operatorId">Идентификатор оператора</param>
+		private void OnOperatorDisconnected(object sender, int operatorId)
+		{
+			if(_operatorControllers.TryRemove(operatorId, out var controller))
+			{
+				controller.Dispose();
+				controller.OnDisconnect -= OnOperatorDisconnected;
+			}
+		}
+
+		private OperatorController FindOperatorControllerByOperatorPhone(string phoneNumber)
+		{
+			var controller = _operatorControllers
+				.Select(x => x.Value)
+				.FirstOrDefault(x => x.AssignedToPhone(phoneNumber));
+
+			return controller;
+		}
+
+		private OperatorController GetOperatorController(int operatorId)
+		{
+			if(_operatorControllers.TryGetValue(operatorId, out var controller))
+			{
+				return controller;
+			}
+
+			var @operator = _operatorRepository.GetOperator(operatorId);
+
+			if(@operator == null)
+			{
+				throw new PacsException($"Оператор {operatorId} не зарегистрирован");
+			}
+
+			controller = _operatorControllerFactory.CreateOperatorController(operatorId);
+
+			if(!_operatorControllers.TryAdd(operatorId, controller))
+			{
+				return _operatorControllers[operatorId];
+			}
+
+			controller.OnDisconnect += OnOperatorDisconnected;
+
+			return controller;
 		}
 	}
 }

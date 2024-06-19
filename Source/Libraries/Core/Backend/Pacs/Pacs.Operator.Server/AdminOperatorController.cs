@@ -16,10 +16,14 @@ namespace Pacs.Operators.Server
 		private readonly ILogger<OperatorController> _logger;
 		private readonly IOperatorStateService _operatorStateService;
 
-		public AdminOperatorController(ILogger<OperatorController> logger, IOperatorStateService controllerProvider)
+		public AdminOperatorController(
+			ILogger<OperatorController> logger,
+			IOperatorStateService controllerProvider)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_operatorStateService = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_operatorStateService = controllerProvider
+				?? throw new ArgumentNullException(nameof(controllerProvider));
 		}
 
 		[HttpPost]
@@ -28,10 +32,8 @@ namespace Pacs.Operators.Server
 		{
 			_logger.LogTrace("Начало {BreakType} перерыва оператора {OperatorId} вызванное командой администратора {AdminId}", 
 				command.BreakType, command.OperatorId, command.AdminId);
-			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
-			var result = await controller.AdminStartBreak(command.BreakType, command.AdminId, command.Reason);
 
-			return result;
+			return await _operatorStateService.AdminStartBreak(command.OperatorId, command.BreakType, command.AdminId, command.Reason);
 		}
 
 		[HttpPost]
@@ -40,10 +42,8 @@ namespace Pacs.Operators.Server
 		{
 			_logger.LogTrace("Завершение перерыва оператора {OperatorId} вызванное командой администратора {AdminId}",
 				command.OperatorId, command.AdminId);
-			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
-			var result = await controller.AdminEndBreak(command.AdminId, command.Reason);
 
-			return result;
+			return await _operatorStateService.AdminEndBreak(command.OperatorId, command.AdminId, command.Reason);
 		}
 
 		[HttpPost]
@@ -52,10 +52,8 @@ namespace Pacs.Operators.Server
 		{
 			_logger.LogTrace("Завершение смены оператора {OperatorId} вызванное командой администратора {AdminId}",
 				command.OperatorId, command.AdminId);
-			var controller = _operatorStateService.GetOperatorController(command.OperatorId);
-			var result = await controller.AdminEndWorkShift(command.AdminId, command.Reason);
 
-			return result;
+			return await _operatorStateService.AdminEndWorkShift(command.OperatorId, command.AdminId, command.Reason);
 		}
 	}
 }
