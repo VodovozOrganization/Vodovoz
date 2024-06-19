@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
@@ -14,9 +14,9 @@ namespace Pacs.Operators.Server
 	public class OperatorController : ControllerBase
 	{
 		private readonly ILogger<OperatorController> _logger;
-		private readonly IOperatorControllerProvider _controllerProvider;
+		private readonly IOperatorStateService _controllerProvider;
 
-		public OperatorController(ILogger<OperatorController> logger, IOperatorControllerProvider controllerProvider)
+		public OperatorController(ILogger<OperatorController> logger, IOperatorStateService controllerProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_controllerProvider = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));

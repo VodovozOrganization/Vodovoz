@@ -14,9 +14,9 @@ namespace Pacs.Operators.Server
 	public class AdminOperatorController
 	{
 		private readonly ILogger<OperatorController> _logger;
-		private readonly IOperatorControllerProvider _controllerProvider;
+		private readonly IOperatorStateService _controllerProvider;
 
-		public AdminOperatorController(ILogger<OperatorController> logger, IOperatorControllerProvider controllerProvider)
+		public AdminOperatorController(ILogger<OperatorController> logger, IOperatorStateService controllerProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_controllerProvider = controllerProvider ?? throw new ArgumentNullException(nameof(controllerProvider));

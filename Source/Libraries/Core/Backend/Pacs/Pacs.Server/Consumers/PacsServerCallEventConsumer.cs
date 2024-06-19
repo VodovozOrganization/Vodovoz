@@ -10,9 +10,9 @@ namespace Pacs.Server.Consumers
 {
 	public class PacsServerCallEventConsumer : IConsumer<PacsCallEvent>
 	{
-		private readonly IOperatorControllerProvider _operatorControllerProvider;
+		private readonly IOperatorStateService _operatorControllerProvider;
 
-		public PacsServerCallEventConsumer(IOperatorControllerProvider operatorControllerProvider)
+		public PacsServerCallEventConsumer(IOperatorStateService operatorControllerProvider)
 		{
 			_operatorControllerProvider = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
 		}

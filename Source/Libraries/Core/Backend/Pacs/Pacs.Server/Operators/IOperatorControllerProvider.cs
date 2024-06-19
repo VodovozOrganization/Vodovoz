@@ -1,6 +1,6 @@
 ﻿namespace Pacs.Server.Operators
 {
-	public interface IOperatorControllerProvider
+	public interface IOperatorStateService
 	{
 		OperatorController GetOperatorController(int operatorId);
 		OperatorController GetOperatorController(string phoneNumber);

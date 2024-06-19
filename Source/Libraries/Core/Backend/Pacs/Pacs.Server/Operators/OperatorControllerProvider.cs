@@ -1,21 +1,19 @@
 ﻿using Pacs.Core;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Operators
 {
-	public class OperatorControllerProvider : IOperatorControllerProvider
+	public class OperatorStateService : IOperatorStateService
 	{
 		private readonly IOperatorControllerFactory _operatorControllerFactory;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly ConcurrentDictionary<int, OperatorController> _operatorControllers;
 
-		public OperatorControllerProvider(IOperatorControllerFactory operatorControllerFactory, IPacsRepository pacsRepository, IOperatorRepository operatorRepository)
+		public OperatorStateService(IOperatorControllerFactory operatorControllerFactory, IPacsRepository pacsRepository, IOperatorRepository operatorRepository)
 		{
 			_operatorControllerFactory = operatorControllerFactory ?? throw new ArgumentNullException(nameof(operatorControllerFactory));
 			_pacsRepository = pacsRepository;
