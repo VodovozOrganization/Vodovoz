@@ -22,5 +22,6 @@ namespace Pacs.Operators.Client
 		Task<OperatorStateEvent> ChangeNumber(string phoneNumber);
 		Task<OperatorStateEvent> StartBreak(OperatorBreakType breakType, CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> EndBreak(CancellationToken cancellationToken = default);
+		Task<OperatorBreakAvailability> GetOperatorBreakAvailability(int operatorId);
 	}
 }

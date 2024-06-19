@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Vodovoz.Application.Mango;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
@@ -92,7 +93,7 @@ namespace Vodovoz.Application.Pacs
 			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
-			_delayedBreakUpdateTimer.Elapsed += (s, e) => UpdateBreakInfo();
+			_delayedBreakUpdateTimer.Elapsed += async (s, e) => await OnBreakAvailabilityTimerElapsedAsync(s, e);
 
 			_employee = _employeeService.GetEmployeeForCurrentUser();
 
@@ -110,6 +111,12 @@ namespace Vodovoz.Application.Pacs
 			{
 				UpdateMango();
 			}
+		}
+
+		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
+		{
+			await RefreshBreakAvailability();
+			UpdateBreakInfo();
 		}
 
 		public bool IsInitialized { get; }
@@ -196,10 +203,23 @@ namespace Vodovoz.Application.Pacs
 			{
 				OperatorState = stateEvent.State;
 			}
+
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
 			{
 				BreakAvailability = stateEvent.BreakAvailability;
 			}
+		}
+
+		public async Task RefreshBreakAvailability()
+		{
+			if(OperatorState is null)
+			{
+				return;
+			}
+
+			var globalBreakAvailability = await _client.GetOperatorBreakAvailability(OperatorState.OperatorId);
+
+			BreakAvailability = globalBreakAvailability;
 		}
 
 		private void SubscribeEvents()

@@ -402,6 +402,11 @@ namespace Pacs.Server.Operators
 			{
 				var operatorStateMachine = FindOperatorControllerByOperatorPhone(toExtension);
 
+				if(operatorStateMachine == null)
+				{
+					throw new Exception($"Не найден оператор для принятия звонка {callId} на номер {toExtension}");
+				}
+
 				await CheckConnection(operatorStateMachine);
 
 				if(!operatorStateMachine.CanChangedBy(OperatorTrigger.TakeCall))
@@ -423,6 +428,11 @@ namespace Pacs.Server.Operators
 			{
 				var operatorStateMachine = FindOperatorControllerByOperatorPhone(toExtension);
 
+				if(operatorStateMachine == null)
+				{
+					throw new Exception($"Не найден оператор для завершения звонка {callId} на номер {toExtension}");
+				}
+
 				await CheckConnection(operatorStateMachine);
 
 				if(!operatorStateMachine.CanChangedBy(OperatorTrigger.EndCall))
@@ -436,6 +446,11 @@ namespace Pacs.Server.Operators
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке завершения звонка");
 			}
+		}
+
+		public async Task<OperatorBreakAvailability> GetBreakAvailability(int operatorId)
+		{
+			return await Task.FromResult(_operatorBreakAvailabilityService.GetBreakAvailability(operatorId));
 		}
 
 		/// <summary>

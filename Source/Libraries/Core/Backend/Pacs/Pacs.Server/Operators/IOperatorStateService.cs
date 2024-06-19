@@ -1,4 +1,5 @@
 ﻿using Pacs.Core.Messages.Commands;
+using Pacs.Core.Messages.Events;
 using System.Threading.Tasks;
 
 namespace Pacs.Server.Operators
@@ -108,5 +109,12 @@ namespace Pacs.Server.Operators
 		/// <param name="callId">Идентификатор звонка</param>
 		/// <returns></returns>
 		Task EndCall(string toExtension, string callId);
+
+		/// <summary>
+		/// Получение текущей возможности взять перерыв
+		/// </summary>
+		/// <param name="operatorId">Идентификатор оператора</param>
+		/// <returns></returns>
+		Task<OperatorBreakAvailability> GetBreakAvailability(int operatorId);
 	}
 }
