@@ -450,6 +450,7 @@ namespace Pacs.Server.Operators
 				State = _operatorAgent.OperatorState,
 				BreakAvailability = _operatorAgent.BreakAvailability,
 			};
+
 			return content;
 		}
 

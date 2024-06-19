@@ -1,5 +1,5 @@
-﻿using Pacs.Core.Messages.Events;
-using Pacs.Server;
+﻿using Microsoft.Extensions.Logging;
+using Pacs.Core.Messages.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,7 @@ namespace Pacs.Server.Breaks
 {
 	public class OperatorBreakController
 	{
+		private readonly ILogger<OperatorBreakController> _logger;
 		private readonly GlobalBreakController _globalController;
 		private readonly IPacsRepository _repository;
 		private OperatorBreakAvailability _breakAvailability;
@@ -18,9 +19,10 @@ namespace Pacs.Server.Breaks
 
 		public event EventHandler<OperatorBreakAvailability> BreakAvailabilityChanged;
 
-		public OperatorBreakController(int operatorId, GlobalBreakController globalController, IPacsRepository repository)
+		public OperatorBreakController(int operatorId, ILogger<OperatorBreakController> logger, GlobalBreakController globalController, IPacsRepository repository)
 		{
 			_operatorId = operatorId;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_globalController = globalController ?? throw new ArgumentNullException(nameof(globalController));
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
@@ -51,10 +53,12 @@ namespace Pacs.Server.Breaks
 		{
 			var states = _repository.GetOperatorBreakStates(_operatorId, DateTime.Today);
 			var newBreakAvailability = GetNewBreakAvailability(states);
+
 			if(!_breakAvailability.Equals(newBreakAvailability))
 			{
 				_breakAvailability = newBreakAvailability;
 			}
+
 			return _breakAvailability;
 		}
 
@@ -71,7 +75,10 @@ namespace Pacs.Server.Breaks
 			}
 
 			var shortBreakAllowedAt = WhenShortBreakAllowed(states, _settings);
-			var shortLimitValidated = shortBreakAllowedAt <= DateTime.Now;
+
+			var now = DateTime.Now;
+			_logger.LogDebug("Breask allowed at {Date}, now: {DateNow}", shortBreakAllowedAt, now);
+			var shortLimitValidated = shortBreakAllowedAt <= now;
 			if(!shortLimitValidated)
 			{
 				breakAvailability.ShortBreakAvailable = false;
@@ -100,14 +107,21 @@ namespace Pacs.Server.Breaks
 			var breaksByType = breakStates
 				.Where(x => x.BreakType == OperatorBreakType.Short);
 
+			_logger.LogDebug("Breaks in provided collection: {@BreakByTypes}", breaksByType);
+
 			var lastShortBreak = breaksByType.OrderBy(x => x.Started).LastOrDefault();
+
+			_logger.LogDebug("Breaks in provided collection: {@LastBreak}", lastShortBreak);
 
 			if(lastShortBreak == null)
 			{
-				return DateTime.Now;
+				var now = DateTime.Now;
+				_logger.LogDebug("Returned date {Date}", now);
+				return now;
 			}
 
 			var allowedTime = lastShortBreak.Started + actualSettings.ShortBreakDuration + actualSettings.ShortBreakInterval;
+			_logger.LogDebug("Returned date {Date}", allowedTime);
 			return allowedTime;
 		}
 	}

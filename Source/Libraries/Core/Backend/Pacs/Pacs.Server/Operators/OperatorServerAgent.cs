@@ -108,6 +108,8 @@ namespace Pacs.Server.Operators
 				Session = OperatorState.Session;
 				StartCheckInactivity();
 			}
+
+			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 		}
 
 		private void CreateNew(int operatorId)
@@ -273,7 +275,6 @@ namespace Pacs.Server.Operators
 			var opearator = _operatorRepository.GetOperator(OperatorId);
 
 			LoadOperatorState(OperatorId);
-
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
 
@@ -381,7 +382,6 @@ namespace Pacs.Server.Operators
 
 		public async Task KeepAlive()
 		{
-			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.KeepAlive);
 		}
 
