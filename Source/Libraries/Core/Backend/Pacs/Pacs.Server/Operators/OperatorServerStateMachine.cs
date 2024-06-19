@@ -124,7 +124,10 @@ namespace Pacs.Server.Operators
 
 		private void ConfigureStateMachine()
 		{
-			_machine = new StateMachine(() => OperatorState.State, ChangeState, FiringMode.Queued);
+			_machine = new StateMachine(
+				() => OperatorState.State,
+				ChangeState,
+				FiringMode.Queued);
 
 			OperatorStateMachine.ConfigureBaseStates(_machine);
 
@@ -215,7 +218,7 @@ namespace Pacs.Server.Operators
 
 		public bool CanChangedBy(OperatorTrigger trigger)
 		{
-			return _machine.CanFire(ConvertTrigger(trigger));
+			return _machine.CanFire(trigger.ToOperatorStateTrigger());
 		}
 
 		#region Save
@@ -229,7 +232,7 @@ namespace Pacs.Server.Operators
 					"Необходимо проверить настройки состояний.");
 			}
 
-			OperatorState.Trigger = ConvertTrigger(transition.Trigger);
+			OperatorState.Trigger = transition.Trigger.ToOperatorTrigger();
 
 			if(OperatorState.WorkShift != null
 				&& OperatorState.WorkShift.Ended.HasValue
@@ -543,6 +546,7 @@ namespace Pacs.Server.Operators
 			{
 				BreakChangedBy = BreakChangedBy.Operator,
 			};
+
 			await _machine.FireAsync(_endBreakTrigger, args);
 		}
 
@@ -554,6 +558,7 @@ namespace Pacs.Server.Operators
 				AdminId = adminId,
 				Reason = reason
 			};
+
 			await _machine.FireAsync(_endBreakTrigger, args);
 		}
 
@@ -565,6 +570,7 @@ namespace Pacs.Server.Operators
 				AdminId = adminId,
 				Reason = reason
 			};
+
 			await _machine.FireAsync(_endWorkShiftTrigger, args);
 		}
 
@@ -650,71 +656,6 @@ namespace Pacs.Server.Operators
 		}
 
 		#endregion
-
-		#region Private structures
-
-		private OperatorTrigger ConvertTrigger(OperatorStateTrigger trigger)
-		{
-			switch(trigger)
-			{
-				case OperatorStateTrigger.Connect:
-					return OperatorTrigger.Connect;
-				case OperatorStateTrigger.StartWorkShift:
-					return OperatorTrigger.StartWorkShift;
-				case OperatorStateTrigger.TakeCall:
-					return OperatorTrigger.TakeCall;
-				case OperatorStateTrigger.EndCall:
-					return OperatorTrigger.EndCall;
-				case OperatorStateTrigger.StartBreak:
-					return OperatorTrigger.StartBreak;
-				case OperatorStateTrigger.EndBreak:
-					return OperatorTrigger.EndBreak;
-				case OperatorStateTrigger.ChangePhone:
-					return OperatorTrigger.ChangePhone;
-				case OperatorStateTrigger.EndWorkShift:
-					return OperatorTrigger.EndWorkShift;
-				case OperatorStateTrigger.Disconnect:
-					return OperatorTrigger.Disconnect;
-				case OperatorStateTrigger.KeepAlive:
-				case OperatorStateTrigger.CheckInactivity:
-				default:
-					throw new InvalidOperationException(
-						$"Триггер {trigger} не конвертируется в тип {nameof(OperatorTrigger)}, " +
-						$"так как не предусмотрено его сохранение. " +
-						$"Необходимо проверить настройки состояний.");
-			}
-		}
-
-		private OperatorStateTrigger ConvertTrigger(OperatorTrigger trigger)
-		{
-			switch(trigger)
-			{
-				case OperatorTrigger.Connect:
-					return OperatorStateTrigger.Connect;
-				case OperatorTrigger.StartWorkShift:
-					return OperatorStateTrigger.StartWorkShift;
-				case OperatorTrigger.TakeCall:
-					return OperatorStateTrigger.TakeCall;
-				case OperatorTrigger.EndCall:
-					return OperatorStateTrigger.EndCall;
-				case OperatorTrigger.StartBreak:
-					return OperatorStateTrigger.StartBreak;
-				case OperatorTrigger.EndBreak:
-					return OperatorStateTrigger.EndBreak;
-				case OperatorTrigger.ChangePhone:
-					return OperatorStateTrigger.ChangePhone;
-				case OperatorTrigger.EndWorkShift:
-					return OperatorStateTrigger.EndWorkShift;
-				case OperatorTrigger.Disconnect:
-					return OperatorStateTrigger.Disconnect;
-				default:
-					throw new InvalidOperationException(
-						$"Неизвестный триггер {trigger}. " +
-						$"Необходимо проверить настройки состояний.");
-			}
-		}
-
-		#endregion Private structures
 
 		public void Dispose()
 		{
