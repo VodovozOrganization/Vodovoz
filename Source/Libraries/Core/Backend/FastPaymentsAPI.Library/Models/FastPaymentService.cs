@@ -19,9 +19,9 @@ using Vodovoz.Settings.Organizations;
 
 namespace FastPaymentsAPI.Library.Models
 {
-	public class FastPaymentModel : IFastPaymentModel
+	public class FastPaymentService : IFastPaymentService
 	{
-		private readonly ILogger<FastPaymentModel> _logger;
+		private readonly ILogger<FastPaymentService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -33,8 +33,8 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRequestFromConverter _requestFromConverter;
 
-		public FastPaymentModel(
-			ILogger<FastPaymentModel> logger,
+		public FastPaymentService(
+			ILogger<FastPaymentService> logger,
 			IUnitOfWork uow,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderRepository orderRepository,

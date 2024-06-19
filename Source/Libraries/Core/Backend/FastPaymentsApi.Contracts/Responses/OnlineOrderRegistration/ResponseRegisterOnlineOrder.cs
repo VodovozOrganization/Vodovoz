@@ -1,18 +1,22 @@
 ﻿using Vodovoz.Domain.FastPayments;
 
-namespace FastPaymentsApi.Contracts.Responses
+namespace FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration
 {
 	/// <summary>
-	/// Данные для ответа водительскому приложению
+	/// Данные ответа при регистрации онлайн заказа
 	/// </summary>
-	public class QRResponseDTO : IFastPaymentStatusDto
+	public class ResponseRegisterOnlineOrder : IFastPaymentStatusDto
 	{
 		/// <summary>
 		/// Изображение QR-кода в формате Png закодированное в строку Base64
 		/// </summary>
-		public string QRCode { get; set; }
+		public string QrCode { get; set; }
 		/// <summary>
-		/// Статус оплаты СБП
+		/// Ссылка на оплату
+		/// </summary>
+		public string PayUrl { get; set; }
+		/// <summary>
+		/// Статус платежа
 		/// </summary>
 		public FastPaymentStatus? FastPaymentStatus { get; set; }
 		/// <summary>
