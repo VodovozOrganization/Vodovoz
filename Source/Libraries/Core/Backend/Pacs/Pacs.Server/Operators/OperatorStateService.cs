@@ -19,6 +19,7 @@ namespace Pacs.Server.Operators
 		private readonly ILogger<OperatorStateService> _logger;
 		private readonly IOperatorServerStateMachineFactory _operatorStateMachineFactory;
 		private readonly IGlobalBreakController _globalBreakController;
+		private readonly OperatorBreakController _operatorBreakController;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IPhoneController _phoneController;
 		private readonly IOperatorRepository _operatorRepository;
@@ -31,6 +32,7 @@ namespace Pacs.Server.Operators
 			ILogger<OperatorStateService> logger,
 			IOperatorServerStateMachineFactory operatorStateMachineFactory,
 			IGlobalBreakController globalBreakController,
+			OperatorBreakController operatorBreakController,
 			IPacsRepository pacsRepository,
 			IPhoneController phoneController,
 			IOperatorRepository operatorRepository)
@@ -41,6 +43,8 @@ namespace Pacs.Server.Operators
 				?? throw new ArgumentNullException(nameof(operatorStateMachineFactory));
 			_globalBreakController = globalBreakController
 				?? throw new ArgumentNullException(nameof(globalBreakController));
+			_operatorBreakController = operatorBreakController
+				?? throw new ArgumentNullException(nameof(operatorBreakController));
 			_pacsRepository = pacsRepository
 				?? throw new ArgumentNullException(nameof(pacsRepository));
 			_phoneController = phoneController
@@ -362,7 +366,6 @@ namespace Pacs.Server.Operators
 
 			try
 			{
-
 				if(!ValidateOperator(operatorStateMachine, out var result))
 				{
 					return result;
@@ -381,6 +384,7 @@ namespace Pacs.Server.Operators
 				}
 
 				await operatorStateMachine.AdminEndWorkShift(adminId, reason);
+
 				return new OperatorResult(GetResultContent(operatorStateMachine));
 			}
 			catch(Exception ex)
@@ -462,13 +466,14 @@ namespace Pacs.Server.Operators
 		/// <param name="operatorId">Идентификатор оператора</param>
 		private void OnOperatorDisconnected(object sender, int operatorId)
 		{
-			if(_operatorControllers.TryRemove(operatorId, out var controller))
-			{
-				controller.Dispose();
-				controller.OnDisconnect -= OnOperatorDisconnected;
-			}
+			InvalidateOperatorCache(operatorId);
 		}
 
+		/// <summary>
+		/// Поиск стейт машины по номеру телефона
+		/// </summary>
+		/// <param name="phoneNumber">Добавочный номер оператора</param>
+		/// <returns></returns>
 		private OperatorServerStateMachine FindOperatorControllerByOperatorPhone(string phoneNumber)
 		{
 			var controller = _operatorControllers
@@ -478,6 +483,12 @@ namespace Pacs.Server.Operators
 			return controller;
 		}
 
+		/// <summary>
+		/// Получение стейт машины оператора
+		/// </summary>
+		/// <param name="operatorId">Идентификатор оператора</param>
+		/// <returns></returns>
+		/// <exception cref="PacsException"></exception>
 		private OperatorServerStateMachine GetOperatorController(int operatorId)
 		{
 			if(_operatorControllers.TryGetValue(operatorId, out var controller))
@@ -556,11 +567,14 @@ namespace Pacs.Server.Operators
 			if(breakType == OperatorBreakType.Long)
 			{
 				canStartGlobal = _globalBreakController.BreakAvailability.LongBreakAvailable;
+
 				if(!canStartGlobal)
 				{
 					description = _globalBreakController.BreakAvailability.LongBreakDescription;
 				}
+
 				canStart = operatorServerStateMachine.BreakAvailability.LongBreakAvailable;
+
 				if(!canStart)
 				{
 					description = operatorServerStateMachine.BreakAvailability.LongBreakDescription;
@@ -569,11 +583,14 @@ namespace Pacs.Server.Operators
 			else
 			{
 				canStartGlobal = _globalBreakController.BreakAvailability.ShortBreakAvailable;
+
 				if(!canStartGlobal)
 				{
 					description = _globalBreakController.BreakAvailability.ShortBreakDescription;
 				}
+
 				canStart = operatorServerStateMachine.BreakAvailability.ShortBreakAvailable;
+				
 				if(!canStart)
 				{
 					description = operatorServerStateMachine.BreakAvailability.ShortBreakDescription;
