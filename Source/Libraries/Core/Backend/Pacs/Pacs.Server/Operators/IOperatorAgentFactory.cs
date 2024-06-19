@@ -4,6 +4,6 @@ namespace Pacs.Server.Operators
 {
 	public interface IOperatorAgentFactory
 	{
-		OperatorServerAgent CreateOperatorAgent(int operatorId);
+		OperatorServerStateMachine CreateOperatorAgent(int operatorId);
 	}
 }

@@ -13,7 +13,7 @@ namespace Pacs.Server.Operators
 	public class OperatorController : IDisposable
 	{
 		private readonly ILogger<OperatorController> _logger;
-		private readonly OperatorServerAgent _operatorAgent;
+		private readonly OperatorServerStateMachine _operatorAgent;
 		private readonly IPhoneController _phoneController;
 		private readonly GlobalBreakController _globalBreakController;
 
@@ -21,7 +21,7 @@ namespace Pacs.Server.Operators
 
 		public OperatorController(
 			ILogger<OperatorController> logger,
-			OperatorServerAgent operatorAgent,
+			OperatorServerStateMachine operatorAgent,
 			IPhoneController phoneController,
 			GlobalBreakController globalBreakController)
 		{

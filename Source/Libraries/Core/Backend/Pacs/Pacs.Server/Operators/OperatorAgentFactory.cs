@@ -18,9 +18,9 @@ namespace Pacs.Server.Operators
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
-		public OperatorServerAgent CreateOperatorAgent(int operatorId)
+		public OperatorServerStateMachine CreateOperatorAgent(int operatorId)
 		{
-			var operatorServerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorServerAgent>>();
+			var operatorServerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorServerStateMachine>>();
 			var operatorBreakControllerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorBreakController>>();
 			var pacsSettings = _serviceProvider.GetRequiredService<IPacsSettings>();
 			var operatorRepository = _serviceProvider.GetRequiredService<IOperatorRepository>();
@@ -30,7 +30,7 @@ namespace Pacs.Server.Operators
 			var pacsRepository = _serviceProvider.GetRequiredService<IPacsRepository>();
 			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
 			var breakController = new OperatorBreakController(operatorId, operatorBreakControllerLogger, globalBreakController, pacsRepository);
-			return new OperatorServerAgent(
+			return new OperatorServerStateMachine(
 				operatorId,
 				operatorServerLogger,
 				pacsSettings,

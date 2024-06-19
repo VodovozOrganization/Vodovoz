@@ -19,9 +19,9 @@ using Timer = System.Timers.Timer;
 
 namespace Pacs.Server.Operators
 {
-	public partial class OperatorServerAgent : IDisposable
+	public partial class OperatorServerStateMachine : IDisposable
 	{
-		private readonly ILogger<OperatorServerAgent> _logger;
+		private readonly ILogger<OperatorServerStateMachine> _logger;
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
@@ -53,9 +53,9 @@ namespace Pacs.Server.Operators
 
 		public OperatorBreakAvailability BreakAvailability { get; private set; }
 
-		public OperatorServerAgent(
+		public OperatorServerStateMachine(
 			int operatorId,
-			ILogger<OperatorServerAgent> logger,
+			ILogger<OperatorServerStateMachine> logger,
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
@@ -126,7 +126,7 @@ namespace Pacs.Server.Operators
 		{
 			_machine = new StateMachine(() => OperatorState.State, ChangeState, FiringMode.Queued);
 
-			OperatorStateAgent.ConfigureBaseStates(_machine);
+			OperatorStateMachine.ConfigureBaseStates(_machine);
 
 			_takeCallTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.TakeCall);
 			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);

@@ -35,7 +35,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly IOperatorClient _client;
 		private readonly IMangoManager _mangoManager;
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
-		private readonly IOperatorStateAgent _operatorStateAgent;
+		private readonly IOperatorStateMachine _operatorStateAgent;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IObservable<GlobalBreakAvailabilityEvent> _globalBreakPublisher;
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
@@ -68,7 +68,7 @@ namespace Vodovoz.Application.Pacs
 			IEmployeeService employeeService,
 			IOperatorClient operatorClient,
 			IMangoManager mangoManager,
-			IOperatorStateAgent operatorStateAgent,
+			IOperatorStateMachine operatorStateAgent,
 			IPacsRepository pacsRepository,
 			IObservable<GlobalBreakAvailabilityEvent> globalBreakPublisher,
 			OperatorSettingsConsumer operatorSettingsConsumer,

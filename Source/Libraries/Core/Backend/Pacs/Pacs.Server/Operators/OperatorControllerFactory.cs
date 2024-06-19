@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Pacs.Server.Breaks;
 using Pacs.Server.Phones;
 using System;
-using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Operators
 {
