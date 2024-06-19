@@ -1646,12 +1646,12 @@ FROM
 
 				if(includedCarModelIds.Any())
 				{
-					query.Where(Restrictions.In(Projections.Property(nameof(carAlias.Id)), includedCarModelIds));
+					query.Where(Restrictions.In(Projections.Property(() => carModelAlias.Id), includedCarModelIds));
 				}
 
 				if(excludedCarModelIds.Any())
 				{
-					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(nameof(carAlias.Id)), excludedCarModelIds)));
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
 				}
 
 				var completedFastDeliveryAddressesSubquery =
