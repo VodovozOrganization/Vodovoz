@@ -67,9 +67,17 @@ namespace Vodovoz.Views
 			ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 			ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 
-			ylabelWaitForPaymentValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelCloseDocumentsValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelOtherOrdersDebtValue.Binding.AddBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+			ylabelWaitForPaymentValue.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.InitializeFromSource();
+
+			ylabelCloseDocumentsValue.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt > 0 ? vm.CounterpartyClosingDocumentsOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.InitializeFromSource();
+
+			ylabelOtherOrdersDebtValue.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt > 0 ? vm.CounterpartyOtherOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.InitializeFromSource();
 
 			labelPayer.Text = ViewModel.Entity.CounterpartyName;
 			labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();

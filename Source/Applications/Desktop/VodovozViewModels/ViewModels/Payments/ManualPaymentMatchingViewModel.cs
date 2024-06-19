@@ -396,24 +396,23 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void UpdateCounterpartyDebt(ManualPaymentMatchingViewModelNode node)
 		{
-			if(CounterpartyTotalDebt > 0)
+			var addedPaymentSum = node.CurrentPayment - node.OldCurrentPayment;
+
+			CounterpartyTotalDebt -= addedPaymentSum;
+
+			if(node.IsClosingDocumentsOrder)
 			{
-				CounterpartyTotalDebt -= node.CurrentPayment - node.OldCurrentPayment;
-
-				if(CounterpartyTotalDebt <= 0)
-				{
-					_previousCounterpartyDebt = CounterpartyTotalDebt;
-
-					if(CounterpartyTotalDebt != 0)
-					{
-						CounterpartyTotalDebt = 0;
-					}
-				}
+				CounterpartyClosingDocumentsOrdersDebt -= addedPaymentSum;
 			}
-			else
+
+			if(node.OrderStatus == OrderStatus.WaitForPayment)
 			{
-				_previousCounterpartyDebt -= node.CurrentPayment - node.OldCurrentPayment;
-				CounterpartyTotalDebt = _previousCounterpartyDebt > 0 ? _previousCounterpartyDebt : 0;
+				CounterpartyWaitingForPaymentOrdersDebt -= addedPaymentSum;
+			}
+
+			if(!node.IsClosingDocumentsOrder && node.OrderStatus != OrderStatus.WaitForPayment)
+			{
+				CounterpartyOtherOrdersDebt -= addedPaymentSum;
 			}
 		}
 
