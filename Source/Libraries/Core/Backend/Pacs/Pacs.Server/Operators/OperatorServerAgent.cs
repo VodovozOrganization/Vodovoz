@@ -108,6 +108,8 @@ namespace Pacs.Server.Operators
 				Session = OperatorState.Session;
 				StartCheckInactivity();
 			}
+
+			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 		}
 
 		private void CreateNew(int operatorId)
@@ -198,6 +200,14 @@ namespace Pacs.Server.Operators
 			}
 
 			OperatorState = OperatorState.Copy(_previuosState);
+
+			if(OperatorState.State == OperatorStateType.WaitingForCall
+				&& newState == OperatorStateType.Connected
+				&& OperatorState.WorkShift?.Ended != null)
+			{
+				OperatorState.WorkShift = null;
+			}
+
 			OperatorState.State = newState;
 			OperatorState.Started = timestamp;
 			OperatorState.Ended = null;
@@ -372,7 +382,6 @@ namespace Pacs.Server.Operators
 
 		public async Task KeepAlive()
 		{
-			LoadOperatorState(OperatorId);
 			await _machine.FireAsync(OperatorStateTrigger.KeepAlive);
 		}
 
