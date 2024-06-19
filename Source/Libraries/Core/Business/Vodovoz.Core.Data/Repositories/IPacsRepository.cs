@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Data.Repositories
 	public interface IPacsRepository
 	{
 		bool PacsEnabledFor(int employeeId);
-		IEnumerable<OperatorState> GetOperators(DateTime from);
+		IEnumerable<OperatorState> GetOperatorStatesFrom(DateTime from);
 		IEnumerable<OperatorState> GetOnlineOperators();
 		IEnumerable<Call> GetCalls(DateTime from);
 		IEnumerable<Call> GetActiveCalls();
