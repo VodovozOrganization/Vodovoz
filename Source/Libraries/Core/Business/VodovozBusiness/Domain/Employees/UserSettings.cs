@@ -31,6 +31,8 @@ namespace Vodovoz.Domain.Employees
 		public UserSettings(User user)
 		{
 			User = user;
+			CarIsNotAtLineReportIncludedEventTypeIdsString = string.Empty;
+			CarIsNotAtLineReportExcludedEventTypeIdsString = string.Empty;
 		}
 
 		#region Свойства
@@ -280,6 +282,8 @@ namespace Vodovoz.Domain.Employees
 		private string _salesBySubdivisionsAnalitycsReportWarehousesString;
 		private string _salesBySubdivisionsAnalitycsReportSubdivisionsString;
 		private string _themeName;
+		private string _carIsNotAtLineReportIncludedEventTypeIdsString;
+		private string _carIsNotAtLineReportExcludedEventTypeIdsString;
 
 		[Display(Name = "Статус рекламации")]
 		public virtual ComplaintStatuses? DefaultComplaintStatus
@@ -346,8 +350,40 @@ namespace Vodovoz.Domain.Employees
 			set => MovementDocumentsNotificationUserSelectedWarehousesString = string.Join(", ", value);
 		}
 
+		[Display(Name = "Выбранные пользователем типы событий отчета по простоям на включение в отчет")]
+		public virtual string CarIsNotAtLineReportIncludedEventTypeIdsString
+		{
+			get => _carIsNotAtLineReportIncludedEventTypeIdsString;
+			set => SetField(ref _carIsNotAtLineReportIncludedEventTypeIdsString, value);
+		}
+
+		[Display(Name = "Выбранные пользователем типы событий отчета по простоям на исключение из отчета в отчет")]
+		public virtual string CarIsNotAtLineReportExcludedEventTypeIdsString
+		{
+			get => _carIsNotAtLineReportExcludedEventTypeIdsString;
+			set => SetField(ref _carIsNotAtLineReportExcludedEventTypeIdsString, value);
+		}
+
+		[PropertyChangedAlso(nameof(CarIsNotAtLineReportIncludedEventTypeIdsString))]
+		public virtual IEnumerable<int> CarIsNotAtLineReportIncludedEventTypeIds
+		{
+			get => string.IsNullOrWhiteSpace(CarIsNotAtLineReportIncludedEventTypeIdsString) ? Enumerable.Empty<int>() : CarIsNotAtLineReportIncludedEventTypeIdsString
+				.Split (new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => int.Parse(x));
+			set => CarIsNotAtLineReportIncludedEventTypeIdsString = string.Join(", ", value);
+		}
+
+		[PropertyChangedAlso(nameof(CarIsNotAtLineReportExcludedEventTypeIdsString))]
+		public virtual IEnumerable<int> CarIsNotAtLineReportExcludedEventTypeIds
+		{
+			get => string.IsNullOrWhiteSpace(CarIsNotAtLineReportExcludedEventTypeIdsString) ? Enumerable.Empty<int>() : CarIsNotAtLineReportExcludedEventTypeIdsString
+				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => int.Parse(x));
+			set => CarIsNotAtLineReportExcludedEventTypeIdsString = string.Join(", ", value);
+		}
+
 		#endregion
-		
+
 		public virtual void UpdateCashSortingIndices()
 		{
 			var index = 1;

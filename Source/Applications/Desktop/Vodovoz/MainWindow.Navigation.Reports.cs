@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Presentation.ViewModels.Logistic.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -1435,6 +1436,16 @@ public partial class MainWindow
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Отчёт по простою
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction89Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CarIsNotAtLineReportParametersViewModel>(null);
 	}
 
 	#endregion Транспорт

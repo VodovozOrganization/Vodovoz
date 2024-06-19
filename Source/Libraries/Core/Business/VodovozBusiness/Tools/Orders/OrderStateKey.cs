@@ -1,27 +1,23 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
-	public class OrderStateKey
+	public class OrderStateKey : ComparerDeliveryPrice
 	{
 		private readonly IOrderSettings _orderSettings;
 
 		[Display(Name = "Заказ, для которого определяются параметры")]
-		public Order Order { get; set; }
+		public Order Order { get; private set; }
 
 		public OrderStateKey(IOrderSettings orderSettings)
 		{
@@ -51,17 +47,14 @@ namespace Vodovoz.Tools.Orders
 		[Display(Name = "Есть выезд мастера?")]
 		public bool NeedMaster { get; set; } = false;
 
-		[Display(Name = "Самовывоз?")]
-		public bool IsSelfDelivery { get; set; } = false;
+		[Display(Name = "Самовывоз?")] public bool IsSelfDelivery { get; set; } = false;
 
 		[Display(Name = "Оплата после отгрузки")]
 		public bool PayAfterShipment { get; internal set; }
 
-		[Display(Name = "Статус заказа")]
-		public OrderStatus OrderStatus { get; set; }
+		[Display(Name = "Статус заказа")] public OrderStatus OrderStatus { get; set; }
 
-		[Display(Name = "Тип оплаты")]
-		public PaymentType PaymentType { get; set; }
+		[Display(Name = "Тип оплаты")] public PaymentType PaymentType { get; set; }
 
 		[Display(Name = "Есть ли специальные поля для печати в контрагенте?")]
 		public bool HaveSpecialFields { get; set; }
@@ -74,45 +67,25 @@ namespace Vodovoz.Tools.Orders
 
 		#endregion
 
-		#region для проверки цены доставки
+		public IEnumerable<OrderEquipment> OnlyEquipments =>
+			Order.OrderEquipments.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.equipment);
 
-		[Display(Name = "Сколько воды многооборотной таре 19л?")]
-		public decimal NotDisposableWater19LCount { get; set; }
-
-		[Display(Name = "Сколько воды одноразовой таре 19л?")]
-		public decimal DisposableWater19LCount { get; set; }
-
-		[Display(Name = "Сколько воды одноразовой таре 6л?")]
-		public decimal DisposableWater6LCount { get; set; }
-		
-		[Display(Name = "Сколько воды одноразовой таре 1.5л?")]
-		public decimal DisposableWater1500mlCount { get; set; }
-
-		[Display(Name = "Сколько воды одноразовой таре 0.6л?")]
-		public decimal DisposableWater600mlCount { get; set; }
-		
-		[Display(Name = "Сколько воды одноразовой таре 0.5л?")]
-		public decimal DisposableWater500mlCount { get; set; }
-
-		#endregion
-
-		public IEnumerable<OrderEquipment> OnlyEquipments => Order.OrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment);
-
-		public void InitializeFields(Order order, OrderStatus? requiredStatus = null)
+		public override void InitializeFields(Order order, OrderStatus? requiredStatus = null)
 		{
 			Order = order;
+			DeliveryDate = order.DeliveryDate;
 			OrderStatus = requiredStatus ?? Order.OrderStatus;
 
-			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			//для документов
 			DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
 			IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
 
 			HasOrderEquipment = HasOrderEquipments(Order.UoW);
 
-			if(!Order.ObservableOrderItems.Any() || 
-			   (Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x => 
-				   x.Nomenclature.Id == nomenclatureSettings.PaidDeliveryNomenclatureId))) 
+			if(!Order.ObservableOrderItems.Any() ||
+				(Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x =>
+					x.Nomenclature.Id == nomenclatureSettings.PaidDeliveryNomenclatureId)))
 			{
 				HasOrderItems = false;
 			}
@@ -120,7 +93,7 @@ namespace Vodovoz.Tools.Orders
 			{
 				HasOrderItems = true;
 			}
-			
+
 			IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
 			NeedToReturnBottles = Order.BottlesReturn > 0;
 			NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
@@ -132,99 +105,18 @@ namespace Vodovoz.Tools.Orders
 			HasEShopOrder = Order.EShopOrder.HasValue;
 
 			//для проверки цены доставки
-			CalculateAllWaterCount();
-		}
-
-		private void ResetCounts()
-		{
-			DisposableWater19LCount = default;
-			NotDisposableWater19LCount = default;
-			DisposableWater6LCount = default;
-			DisposableWater1500mlCount = default;
-			DisposableWater600mlCount = default;
-			DisposableWater500mlCount = default;
-		}
-
-		private void CalculateAllWaterCount()
-		{
-			ResetCounts();
-			CalculatePromoSetWaterCount();
-			CalculateNotPromoSetWaterCount();
-		}
-
-		private void CalculatePromoSetWaterCount()
-		{
-			var water = Order.OrderItems.Where(
-				x => x.PromoSet != null &&
-					x.Nomenclature != null &&
-					x.Nomenclature.Category == NomenclatureCategory.water)
-				.ToList();
-
-			foreach(var item in water)
-			{
-				if(item.PromoSet.BottlesCountForCalculatingDeliveryPrice.HasValue)
-				{
-					NotDisposableWater19LCount = item.PromoSet.BottlesCountForCalculatingDeliveryPrice.Value;
-					break;
-				}
-				
-				CalculateWaterCount(item);
-			}
-		}
-
-		private void CalculateNotPromoSetWaterCount()
-		{
-			var water = Order.OrderItems.Where(
-				x => x.PromoSet == null
-				&& x.DiscountReason?.IsPresent != true
-				&& x.Nomenclature != null
-				&& x.Nomenclature.Category == NomenclatureCategory.water)
-				.ToList();
-
-			foreach(var item in water)
-			{
-				CalculateWaterCount(item);
-			}
-		}
-
-		private void CalculateWaterCount(OrderItem item)
-		{
-			switch(item.Nomenclature.TareVolume)
-			{
-				case TareVolume.Vol19L:
-					if(item.Nomenclature.IsDisposableTare)
-					{
-						DisposableWater19LCount += item.Count;
-					}
-					else
-					{
-						NotDisposableWater19LCount += item.Count;
-					}
-					break;
-				case TareVolume.Vol6L:
-					DisposableWater6LCount += item.Count;
-					break;
-				case TareVolume.Vol1500ml:
-					DisposableWater1500mlCount += item.Count;
-					break;
-				case TareVolume.Vol600ml:
-					DisposableWater600mlCount += item.Count;
-					break;
-				case TareVolume.Vol500ml:
-					DisposableWater500mlCount += item.Count;
-					break;
-			}
+			CalculateAllWaterCount(Order.OrderItems);
 		}
 
 		private bool HasOrderEquipments(IUnitOfWork uow)
 		{
 			var allActiveFlyersNomenclaturesIds = new FlyerRepository().GetAllActiveFlyersNomenclaturesIdsByDate(uow, Order.DeliveryDate);
-			
-			if (!Order.ObservableOrderEquipments.Any() || OnlyFlyersInEquipments(allActiveFlyersNomenclaturesIds)) 
+
+			if(!Order.ObservableOrderEquipments.Any() || OnlyFlyersInEquipments(allActiveFlyersNomenclaturesIds))
 			{
 				return false;
 			}
-			
+
 			return true;
 		}
 
@@ -241,19 +133,6 @@ namespace Vodovoz.Tools.Orders
 			}
 
 			return true;
-		}
-
-		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
-		{
-			decimal totalWater19LCount = DisposableWater19LCount + NotDisposableWater19LCount;
-			bool deliveryIsFree = 
-				(totalWater19LCount > 0 && totalWater19LCount >= rule.Water19LCount)
-				|| (DisposableWater6LCount > 0 && DisposableWater6LCount >= rule.Water6LCount)
-				|| (DisposableWater1500mlCount > 0 && DisposableWater1500mlCount >= rule.Water1500mlCount)
-				|| (DisposableWater600mlCount > 0 && DisposableWater600mlCount >= rule.Water600mlCount)
-				|| (DisposableWater500mlCount > 0 && DisposableWater500mlCount >= rule.Water500mlCount);
-
-			return !deliveryIsFree;
 		}
 	}
 }

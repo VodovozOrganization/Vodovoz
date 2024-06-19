@@ -17,6 +17,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Application.Complaints;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -98,7 +99,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));		
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))

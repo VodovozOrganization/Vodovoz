@@ -7,6 +7,7 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Nodes;
 
 namespace Vodovoz.Tools.Orders
 {

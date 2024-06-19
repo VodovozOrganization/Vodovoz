@@ -1,8 +1,12 @@
-﻿using Gamma.Utilities;
+﻿using DateTimeHelpers;
+using FluentNHibernate.Data;
+using Gamma.Utilities;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Services;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
@@ -18,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Settings.Cash;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Cash
@@ -32,6 +37,7 @@ namespace Vodovoz.Domain.Cash
 	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
 		private DateTime _date;
+		private DateTime _ddrDate;
 		private Subdivision _relatedToSubdivision;
 		private ExpenseInvoiceDocumentType _typeDocument;
 		private ExpenseType _typeOperation;
@@ -58,7 +64,23 @@ namespace Vodovoz.Domain.Cash
 		public virtual DateTime Date
 		{
 			get => _date;
-			set => SetField(ref _date, value);
+			set
+			{
+				if(SetField(ref _date, value))
+				{
+					if(DdrDate < Date)
+					{
+						DdrDate = Date;
+					}
+				}
+			}
+		}
+
+		[Display(Name = "Дата учета ДДР")]
+		public virtual DateTime DdrDate
+		{
+			get => _ddrDate;
+			set => SetField(ref _ddrDate, value);
 		}
 
 		[Display(Name = "Относится к подразделению")]
@@ -339,6 +361,13 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var dateTimeLowerBorder = DateTimeExtensions.Max(Date, DdrDate.FirstDayOfMonth()).Date;
+
+			if(DdrDate < dateTimeLowerBorder)
+			{
+				yield return new ValidationResult($"Некорректная дата учета ДДР {DdrDate:dd.MM.yyyy}, значение должно быть больше {dateTimeLowerBorder:dd.MM.yyyy}", new[] { nameof(DdrDate) });
+			}
+
 			if(validationContext.Items.ContainsKey("IsSelfDelivery") && (bool)validationContext.Items["IsSelfDelivery"])
 			{
 				if(TypeDocument != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
@@ -422,7 +451,17 @@ namespace Vodovoz.Domain.Cash
 					if(ExpenseCategoryId == null)
 					{
 						yield return new ValidationResult("Статья расхода должна быть указана.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
+							new[] { nameof(ExpenseCategoryId) });
+					}
+
+					if(ExpenseCategoryId != null
+						&& validationContext.Items.ContainsKey(nameof(IFinancialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId))
+						&& ExpenseCategoryId == (int)validationContext.Items[nameof(IFinancialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId)]
+						&& RouteListClosing is null)
+					{
+						yield return new ValidationResult(
+							"Для данной статьи расхода должен быть указан МЛ",
+							new[] { nameof(RouteListClosing) });
 					}
 				}
 

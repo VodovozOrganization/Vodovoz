@@ -22,5 +22,6 @@
 		int GetDiscountReasonStockBottle20PercentsId { get; }
 		int GetClientsSecondOrderDiscountReasonId { get; }
 		int ReferFriendDiscountReasonId { get; }
+		int FastDeliveryLateDiscountReasonId { get; }
 	}
 }

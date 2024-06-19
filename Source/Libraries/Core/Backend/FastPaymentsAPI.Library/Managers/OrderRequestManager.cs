@@ -7,6 +7,7 @@ using FastPaymentsAPI.Library.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.FastPayments;
+using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Managers
 {

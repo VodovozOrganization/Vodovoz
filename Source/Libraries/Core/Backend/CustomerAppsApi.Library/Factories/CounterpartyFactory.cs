@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 

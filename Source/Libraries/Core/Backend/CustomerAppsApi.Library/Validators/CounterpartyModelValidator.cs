@@ -1,4 +1,5 @@
-﻿using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
 using System;
 using System.Text;

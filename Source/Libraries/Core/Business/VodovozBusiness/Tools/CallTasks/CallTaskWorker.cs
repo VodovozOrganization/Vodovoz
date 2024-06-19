@@ -33,9 +33,9 @@ namespace Vodovoz.Tools.CallTasks
 
 		public CallTaskWorker(
 			IUnitOfWorkFactory uowfactory,
-			ICallTaskFactory callTaskFactory, 
-			ICallTaskRepository callTaskRepository, 
-			IOrderRepository orderRepository, 
+			ICallTaskFactory callTaskFactory,
+			ICallTaskRepository callTaskRepository,
+			IOrderRepository orderRepository,
 			IEmployeeRepository employeeRepository,
 			IEmployeeSettings employeeSettings,
 			IUserService userService,

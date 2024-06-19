@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Domain.Client;
 
-namespace TrueMarkApi.Library.Converters
+namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkApiRegistrationStatusConverter
 	{

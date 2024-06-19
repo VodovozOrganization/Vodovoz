@@ -42,6 +42,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
@@ -139,6 +140,7 @@ using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
+using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -167,11 +169,9 @@ namespace Vodovoz
 		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 
-		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
+		private IFastDeliveryValidator _fastDeliveryValidator;
 
 		private static readonly IDeliveryRulesSettings _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
-
-		private static readonly IDriverApiSettings _driverApiSettings = ScopeProvider.Scope.Resolve<IDriverApiSettings>();
 
 		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
 
@@ -253,7 +253,7 @@ namespace Vodovoz
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
-		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
+		private INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
 		private bool _isNeedSendBillToEmail;
@@ -264,6 +264,8 @@ namespace Vodovoz
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
+		private FastDeliveryHandler _fastDeliveryHandler;
+		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -293,31 +295,6 @@ namespace Vodovoz
 		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
-
-
-		private DriverAPIHelper _driverApiHelper;
-
-		public virtual DriverAPIHelper DriverApiHelper
-		{
-			get
-			{
-				if(_driverApiHelper == null)
-				{
-					var driverApiConfig = new DriverApiHelperConfiguration
-					{
-						ApiBase = _driverApiSettings.ApiBase,
-						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI,
-						NotifyOfOrderWithGoodsTransferingIsTransferedUri = _driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri,
-						NotifyOfCashRequestForDriverIsGivenForTakeUri = _driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri
-					};
-					_driverApiHelper = new DriverAPIHelper(driverApiConfig);
-				}
-
-				return _driverApiHelper;
-			}
-		}
 
 		#region Работа с боковыми панелями
 
@@ -402,7 +379,6 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-			_driverApiHelper?.Dispose();
 			base.Destroy();
 		}
 
@@ -424,6 +400,19 @@ namespace Vodovoz
 			ConfigureDlg();
 			//по стандарту тип - доставка
 			Entity.OrderAddressType = OrderAddressType.Delivery;
+		}
+		
+		public OrderDlg(OnlineOrder onlineOrder) : this()
+		{
+			var thisSessionOnlineOrder = UoW.GetById<OnlineOrder>(onlineOrder.Id);
+			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(Entity, thisSessionOnlineOrder, manualCreation: true);
+
+			UpdateCallBeforeArrivalMinutesSelectedItem();
+			Entity.UpdateDocuments();
+			CheckForStopDelivery();
+			UpdateOrderAddressTypeWithUI();
+			AddCommentsFromDeliveryPoint();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		public OrderDlg(IUnitOfWorkGeneric<Order> unitOfWork)
@@ -582,12 +571,16 @@ namespace Vodovoz
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
+			_fastDeliveryHandler = _lifetimeScope.Resolve<FastDeliveryHandler>();
+			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
 			_emailService = _lifetimeScope.Resolve<IEmailService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<IOrderFromOnlineOrderCreator>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 
@@ -600,9 +593,8 @@ namespace Vodovoz
 
 			_previousDeliveryDate = Entity.DeliveryDate;
 
-			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
-			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
+			_nomenclatureFixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
+			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
@@ -699,44 +691,24 @@ namespace Vodovoz
 
 			speciallistcomboboxCallBeforeArrivalMinutes.ShowSpecialStateNot = true;
 			speciallistcomboboxCallBeforeArrivalMinutes.NameForSpecialStateNot = "Не нужен";
-			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItemStrictTyped = false;
 
 			speciallistcomboboxCallBeforeArrivalMinutes.ItemsList = new int?[] { null, 15, 30, 60 };
 
-			speciallistcomboboxCallBeforeArrivalMinutes.ItemSelected += (s, e) =>
-			{
-				Entity.CallBeforeArrivalMinutes = null;
-				Entity.IsDoNotMakeCallBeforeArrival = null;
-
-				if(speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem is SpecialComboState selectedState)
-				{
-					Entity.CallBeforeArrivalMinutes = null;
-					Entity.IsDoNotMakeCallBeforeArrival = selectedState == SpecialComboState.Not;
-				}
-
-				if(speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem is int callBeforeArrivalMinutes)
-				{
-					Entity.CallBeforeArrivalMinutes = callBeforeArrivalMinutes;
-					Entity.IsDoNotMakeCallBeforeArrival = false;
-				}
-			};
+			speciallistcomboboxCallBeforeArrivalMinutes.Binding
+				.AddBinding(Entity, e => e.CallBeforeArrivalMinutes, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			if(UoWGeneric.IsNew
 				|| (Entity.CallBeforeArrivalMinutes is null && Entity.IsDoNotMakeCallBeforeArrival != true))
 			{
+				//Для новых и кривых заказов добавляем и выставляем пустое значение, чтобы пользователь вручную выбрал нужный вариант
 				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = _defaultCallBeforeArrival;
 			}
-			else
+			
+			speciallistcomboboxCallBeforeArrivalMinutes.ItemSelected += (s, e) =>
 			{
-				if(Entity.CallBeforeArrivalMinutes is null)
-				{
-					speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = SpecialComboState.Not;
-				}
-				else
-				{
-					speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = Entity.CallBeforeArrivalMinutes;
-				}
-			}
+				Entity.IsDoNotMakeCallBeforeArrival = !Entity.CallBeforeArrivalMinutes.HasValue;
+			};
 
 			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
@@ -1140,6 +1112,18 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+		}
+
+		private void UpdateCallBeforeArrivalMinutesSelectedItem()
+		{
+			if(Entity.CallBeforeArrivalMinutes is null)
+			{
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = SpecialComboState.Not;
+			}
+			else
+			{
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = Entity.CallBeforeArrivalMinutes;
+			}
 		}
 
 		private void SetPermissions()
@@ -1565,7 +1549,8 @@ namespace Vodovoz
 				(double)Entity.DeliveryPoint.Longitude.Value,
 				isGetClosestByRoute: false,
 				Entity.GetAllGoodsToDeliver(),
-				Entity
+				Entity.DeliveryPoint.District.TariffZone.Id,
+				fastDeliveryOrder: Entity
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
@@ -2465,7 +2450,7 @@ namespace Vodovoz
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
-			if(hasPromoSetForNewClients && Entity.CanUsedPromo(_promotionalSetRepository))
+			if(hasPromoSetForNewClients && Entity.HasUsedPromoForNewClients(_promotionalSetRepository))
 			{
 				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
@@ -2479,59 +2464,20 @@ namespace Vodovoz
 			{
 				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
-
-			RouteList routeListToAddFastDeliveryOrder = null;
-
-			if(Entity.IsFastDelivery)
+			
+			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
+			
+			if(fastDeliveryResult.IsFailure)
 			{
-				var isFastDelivery19LBottlesLimitActive = _generalSettingsSettings.IsFastDelivery19LBottlesLimitActive;
-
-				if(isFastDelivery19LBottlesLimitActive)
+				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing)))
 				{
-					var water19LInOrderCount = Entity.OrderItems
-					.Where(oi => oi.Nomenclature.Category == NomenclatureCategory.water
-						&& oi.Nomenclature.TareVolume == TareVolume.Vol19L)
-					.Sum(oi => oi.Count);
-
-					var fastDelivery19LBottlesLimitCount = _generalSettingsSettings.FastDelivery19LBottlesLimitCount;
-
-					if(water19LInOrderCount > fastDelivery19LBottlesLimitCount)
-					{
-						return Result.Failure(Errors.Orders.Order.FastDelivery19LBottlesLimitError((int)water19LInOrderCount, fastDelivery19LBottlesLimitCount));
-					}
-				}
-
-				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
-
-				if(fastDeliveryValidationResult.IsFailure)
-				{
-					return Result.Failure(fastDeliveryValidationResult.Errors);
-				}
-
-				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
-					UoW,
-					(double)Entity.DeliveryPoint.Latitude.Value,
-					(double)Entity.DeliveryPoint.Longitude.Value,
-					isGetClosestByRoute: true,
-					Entity.GetAllGoodsToDeliver(),
-					Entity
-				);
-
-				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
-				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
-
-				routeListToAddFastDeliveryOrder = fastDeliveryAvailabilityHistory.Items
-					.FirstOrDefault(x => x.IsValidToFastDelivery)
-					?.RouteList;
-
-				if(routeListToAddFastDeliveryOrder == null)
-				{
-					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-					Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+					var fastDeliveryVerificationViewModel =
+						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
+					NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
-
-					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
+
+				return fastDeliveryResult;
 			}
 
 			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
@@ -2585,61 +2531,14 @@ namespace Vodovoz
 
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
-
-			RouteListItem fastDeliveryAddress = null;
-
-			if(routeListToAddFastDeliveryOrder != null)
-			{
-				UoW.Session.Refresh(routeListToAddFastDeliveryOrder);
-				fastDeliveryAddress = routeListToAddFastDeliveryOrder.AddAddressFromOrder(Entity);
-				Entity.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, CallTaskWorker);
-				Entity.UpdateDocuments();
-			}
-
-			if(fastDeliveryAddress != null)
-			{
-				UoW.Session.Save(fastDeliveryAddress);
-
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-					UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-			}
+			
+			_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, CallTaskWorker);
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
-
-			if(routeListToAddFastDeliveryOrder != null && DriverApiSettings.NotificationsEnabled)
-			{
-				NotifyDriverOfFastDeliveryOrderAddedAsync();
-			}
-
 			ProcessSmsNotification();
-
 			UpdateUIState();
 
 			return Result.Success();
-		}
-
-		private async Task NotifyDriverOfFastDeliveryOrderAddedAsync()
-		{
-			try
-			{
-				await DriverApiHelper.NotifyOfFastDeliveryOrderAdded(Entity.Id);
-			}
-			catch(Exception e)
-			{
-				logger.Error(e, "Не удалось уведомить водителя о добавлении заказа с быстрой доставкой в МЛ");
-			}
-		}
-
-		private async Task NotifyDriverAboutWaitingTimeChangedAsync()
-		{
-			try
-			{
-				await DriverApiHelper.NotifyOfWaitingTimeChanged(Entity.Id);
-			}
-			catch(Exception e)
-			{
-				logger.Error(e, $"Не удалось уведомить водителя изменении времени ожидания");
-			}
 		}
 
 		private void PrepareSendBillInformation()
@@ -3877,7 +3776,7 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker);
+			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker, needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 			if(routeListItem != null)
@@ -4222,7 +4121,6 @@ namespace Vodovoz
 		/// дополнительном соглашении
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
-
 
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его

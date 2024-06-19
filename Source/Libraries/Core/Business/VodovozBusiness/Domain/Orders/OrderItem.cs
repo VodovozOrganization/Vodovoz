@@ -17,15 +17,13 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource, IDiscount
+	public class OrderItem : Product, IDomainObject, IOrderItemWageCalculationSource, IDiscount
 	{
 		private int _id;
 		private Order _order;
-		private Nomenclature _nomenclature;
 		private Equipment _equipment;
 		private decimal _price;
 		private bool _isUserPrice;
-		private decimal _count = -1;
 		private decimal? _actualCount;
 		private decimal? _includeNDS;
 		private bool _isDiscountInMoney;
@@ -35,10 +33,8 @@ namespace Vodovoz.Domain.Orders
 		private decimal? _originalDiscountMoney;
 		private decimal _discountByStock;
 		private decimal? _valueAddedTax;
-		private DiscountReason _discountReason;
 		private DiscountReason _originalDiscountReason;
 		private CounterpartyMovementOperation _counterpartyMovementOperation;
-		private PromotionalSet _promoSet;
 		private bool _isAlternativePrice;
 		private bool _isFixedPrice;
 		private OrderRentType _rentType;
@@ -68,13 +64,6 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _order, value);
 		}
 
-		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
-		{
-			get => _nomenclature;
-			protected set => SetField(ref _nomenclature, value);
-		}
-
 		[Display(Name = "Оборудование")]
 		public virtual Equipment Equipment
 		{
@@ -94,13 +83,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isUserPrice;
 			set => SetField(ref _isUserPrice, value);
-		}
-
-		[Display(Name = "Количество")]
-		public virtual decimal Count
-		{
-			get => _count;
-			protected set => SetField(ref _count, value);
 		}
 
 		public virtual decimal? ActualCount
@@ -165,13 +147,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _valueAddedTax, value);
 		}
 
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason
-		{
-			get => _discountReason;
-			set => SetField(ref _discountReason, value);
-		}
-
 		[Display(Name = "Основание скидки на товар до отмены заказа")]
 		public virtual DiscountReason OriginalDiscountReason
 		{
@@ -183,13 +158,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _counterpartyMovementOperation;
 			set => SetField(ref _counterpartyMovementOperation, value);
-		}
-
-		[Display(Name = "Добавлено из промонабора")]
-		public virtual PromotionalSet PromoSet
-		{
-			get => _promoSet;
-			set => SetField(ref _promoSet, value);
 		}
 
 		[Display(Name = "Альтернативная цена?")]

@@ -9,17 +9,6 @@ namespace Vodovoz.EntityRepositories.Goods
 {
 	public class NomenclaturePricesRepository : INomenclaturePricesRepository
 	{
-		public IList<NomenclatureFixedPrice> GetFixedPricesFor19LWater(IUnitOfWork uow)
-		{
-			Nomenclature nomenclatureAlias = null;
-
-			return uow.Session.QueryOver<NomenclatureFixedPrice>()
-				.Inner.JoinAlias(fp => fp.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
-				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.List();
-		}
-
 		public IList<Nomenclature> GetNomenclaturesForGroupPricing(IUnitOfWork uow)
 		{
 			Nomenclature nomenclatureAlias = null;

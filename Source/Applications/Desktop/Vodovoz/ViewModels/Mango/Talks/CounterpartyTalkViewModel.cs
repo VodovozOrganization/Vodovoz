@@ -237,7 +237,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public void BottleActCommand()
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				_lifetimeScope,
 				_orderRepository,
 				_counterpartyJournalFactory,
 				_deliveryPointJournalFactory);

@@ -9,7 +9,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		public EdoLightsMatrixPanelView(EdoLightsMatrixPanelViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureWidget();
 		}
 
@@ -19,7 +19,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ybuttonOpenCounterparty.Clicked += (s, a) =>
 			{
-				if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider)
+				if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider
+					&& edoLightsMatrixInfoProvider.Counterparty != null)
 				{
 					ViewModel.OpenEdoTabInCounterparty.Execute(edoLightsMatrixInfoProvider.Counterparty.Id);
 				}

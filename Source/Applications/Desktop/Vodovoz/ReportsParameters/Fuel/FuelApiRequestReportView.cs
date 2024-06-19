@@ -1,4 +1,5 @@
 ﻿using QS.Views;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Fuel;
 namespace Vodovoz.ReportsParameters.Fuel
 {
@@ -22,6 +23,12 @@ namespace Vodovoz.ReportsParameters.Fuel
 
 			ybuttonCreate.Binding
 				.AddBinding(ViewModel, vm => vm.CanCreateReport, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yenumcomboboxRequestResult.ItemsEnum = typeof(FuelApiResponseResult);
+			yenumcomboboxRequestResult.HiddenItems = new object[] { FuelApiResponseResult.None };
+			yenumcomboboxRequestResult.Binding
+				.AddBinding(ViewModel, vm => vm.FuelApiResponseResult, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			ybuttonCreate.BindCommand(ViewModel.CreateReportCommand);

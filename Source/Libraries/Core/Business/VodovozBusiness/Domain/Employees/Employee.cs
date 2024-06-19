@@ -17,6 +17,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -41,6 +42,7 @@ namespace Vodovoz.Domain.Employees
 
 		private bool _hasAccessToWarehouseApp;
 
+		private Counterparty _counterparty;
 		private Citizenship _citizenship;
 		private Nationality _nationality;
 		private EmployeePost _post;
@@ -127,6 +129,13 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _organisationForSalary;
 			set => SetField(ref _organisationForSalary, value);
+		}
+		
+		[Display(Name = "Клиент ВВ")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
 		[Display(Name = "Водитель автомобиля типа")]
@@ -383,7 +392,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) &&
-				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users"))
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageUsers))
 			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });

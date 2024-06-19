@@ -23,8 +23,7 @@ namespace Pacs.Server.Operators
 			ILogger<OperatorController> logger,
 			OperatorServerAgent operatorAgent,
 			IPhoneController phoneController,
-			GlobalBreakController globalBreakController
-			)
+			GlobalBreakController globalBreakController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorAgent = operatorAgent ?? throw new ArgumentNullException(nameof(operatorAgent));
@@ -292,6 +291,38 @@ namespace Pacs.Server.Operators
 			}
 		}
 
+		public async Task<OperatorResult> AdminEndWorkShift(int adminId, string reason)
+		{
+			try
+			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
+				await CheckConnection();
+
+				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndWorkShift))
+				{
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить смену");
+				}
+
+				if(reason.IsNullOrWhiteSpace())
+				{
+					return new OperatorResult(GetResultContent(), "Основание должно быть заполнено");
+				}
+
+				await _operatorAgent.AdminEndWorkShift(adminId, reason);
+				return new OperatorResult(GetResultContent());
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке администратором {AdminId} завершить смену оператора {OperatorId}.",
+					adminId, _operatorAgent.OperatorId);
+				return new OperatorResult(GetResultContent(), ex.Message);
+			}
+		}
+
 		public async Task<OperatorResult> ChangePhone(string phoneNumber)
 		{
 			try
@@ -419,6 +450,7 @@ namespace Pacs.Server.Operators
 				State = _operatorAgent.OperatorState,
 				BreakAvailability = _operatorAgent.BreakAvailability,
 			};
+
 			return content;
 		}
 

@@ -1121,14 +1121,14 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result != null;
 		}
 
-		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		public IList<VodovozOrder> GetOrdersForTrueMark(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocument = null;
+			TrueMarkDocument trueMarkApiDocument = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1180,7 +1180,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocument = null;
+			TrueMarkDocument trueMarkApiDocument = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1203,7 +1203,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = query.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(() => trueMarkApiDocument.IsSuccess == false)
-				.And(() => trueMarkApiDocument.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal)
+				.And(() => trueMarkApiDocument.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.And(Restrictions.Disjunction()
@@ -1259,7 +1259,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+			TrueMarkDocument trueMarkApiDocumentAlias = null;
 			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 			Organization organizationAlias = null;
 			TrueMarkCancellationDto resultAlias = null;
@@ -1276,7 +1276,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
 				.Where(() => trueMarkApiDocumentAlias.Order.Id == orderAlias.Id)
-				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation)
 				.Select(Projections.Id());
 
 			var organizationInnSubquery = QueryOver.Of<Organization>()

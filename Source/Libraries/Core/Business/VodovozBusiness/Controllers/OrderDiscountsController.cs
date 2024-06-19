@@ -12,11 +12,11 @@ namespace Vodovoz.Controllers
 {
 	public class OrderDiscountsController : IOrderDiscountsController
 	{
-		private readonly INomenclatureFixedPriceProvider _fixedPriceProvider;
+		private readonly INomenclatureFixedPriceController _fixedPriceController;
 
-		public OrderDiscountsController(INomenclatureFixedPriceProvider fixedPriceProvider)
+		public OrderDiscountsController(INomenclatureFixedPriceController fixedPriceController)
 		{
-			_fixedPriceProvider = fixedPriceProvider ?? throw new ArgumentNullException(nameof(fixedPriceProvider));
+			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 		}
 
 		/// <summary>
@@ -117,14 +117,14 @@ namespace Vodovoz.Controllers
 			{
 				if(orderItem.Order.Client != null)
 				{
-					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.Client, orderItem.Nomenclature, orderItem.TotalCountInOrder);
+					return _fixedPriceController.ContainsFixedPrice(orderItem.Order.Client, orderItem.Nomenclature, orderItem.TotalCountInOrder);
 				}
 			}
 			else
 			{
 				if(orderItem.Order.DeliveryPoint != null)
 				{
-					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.DeliveryPoint, orderItem.Nomenclature, orderItem.TotalCountInOrder);
+					return _fixedPriceController.ContainsFixedPrice(orderItem.Order.DeliveryPoint, orderItem.Nomenclature, orderItem.TotalCountInOrder);
 				}
 			}
 

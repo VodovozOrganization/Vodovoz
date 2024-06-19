@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -56,12 +56,14 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Application;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Mango;
 using Vodovoz.Application.Pacs;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
+using Vodovoz.Controllers;
 using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
@@ -79,6 +81,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
@@ -110,6 +113,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
+using Vodovoz.Services.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Counterparty;
@@ -122,6 +126,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
+using Vodovoz.Validation;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Factories;
@@ -150,6 +155,7 @@ using FuelControl.Library;
 using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 
 namespace Vodovoz
 {
@@ -208,6 +214,7 @@ namespace Vodovoz
 
 					//GtkUI
 					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
+					builder.RegisterType<GtkYesNoCancelQuestionInteractive>().As<IYesNoCancelQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.RegisterType<DeleteEntityGUIService>().AsSelf().As<IDeleteEntityService>();
@@ -312,7 +319,6 @@ namespace Vodovoz
 						.InstancePerLifetimeScope();
 
 					builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
-
 					builder.RegisterType<SmsNotifier>().As<ISmsNotifier>();
 
 					#region Adapters & Factories
@@ -324,7 +330,6 @@ namespace Vodovoz
 
 					builder.RegisterAssemblyTypes(
 							Assembly.GetExecutingAssembly(),
-							Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
 							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
 						.Where(t => t.Name.EndsWith("Factory")
 							&& t.GetInterfaces()
@@ -344,18 +349,7 @@ namespace Vodovoz
 
 					#region Controllers
 
-					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
-						.Where(t => (t.Name.EndsWith("Controller") || t.Name.EndsWith("Handler"))
-							&& t.GetInterfaces()
-								.Where(i => i.Name == $"I{t.Name}")
-								.FirstOrDefault() != null)
-						.As((s) => s.GetTypeInfo()
-							.GetInterfaces()
-							.Where(i => i.Name == $"I{s.Name}")
-							.First());
-
 					builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
-					builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
 					builder.RegisterType<StringHandler>().As<IStringHandler>();
 
 					#endregion
@@ -403,24 +397,6 @@ namespace Vodovoz
 					builder.Register(context => CallTaskSingletonFactory.GetInstance()).As<ICallTaskFactory>();
 
 					builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
-
-					#endregion
-
-					#region Репозитории
-
-					builder.RegisterAssemblyTypes(
-						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),
-						Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder))
-						)
-						.Where(t => t.Name.EndsWith("Repository")
-							&& t.GetInterfaces()
-								.Where(i => i.Name == $"I{t.Name}")
-								.FirstOrDefault() != null)
-						.As((s) => s.GetTypeInfo()
-							.GetInterfaces()
-							.Where(i => i.Name == $"I{s.Name}")
-							.First())
-						.SingleInstance();
 
 					#endregion
 
@@ -721,6 +697,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
 						.AddFuelControl(hostingContext)

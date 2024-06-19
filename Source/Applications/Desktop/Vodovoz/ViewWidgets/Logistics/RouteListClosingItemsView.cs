@@ -36,6 +36,7 @@ namespace Vodovoz
 		private int goodsColumnsCount = -1;
 
 		public event RowActivatedHandler OnClosingItemActivated;
+		public event EventHandler<int> BottlesReturnedEdited;
 
 		public RouteListClosingItemsView()
 		{
@@ -203,6 +204,7 @@ namespace Vodovoz
 			config
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
+					.EditedEvent(OnBottlesReturnedEdited)
 				.AddSetter((cell, node) => cell.Editable = (node.IsDelivered()))
 				.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
@@ -291,6 +293,18 @@ namespace Vodovoz
 				});
 
 			ytreeviewItems.ColumnsConfig = config.Finish();
+		}
+
+		private void OnBottlesReturnedEdited(object o, EditedArgs args)
+		{
+			bool isNumeric = int.TryParse(args.NewText, out int bottlesReturned);
+
+			if(!isNumeric)
+			{
+				return;
+			}
+
+			BottlesReturnedEdited(o, bottlesReturned);
 		}
 
 		private void YTreeViewItemsOnlineOrderEdited(object o, EditedArgs args) {

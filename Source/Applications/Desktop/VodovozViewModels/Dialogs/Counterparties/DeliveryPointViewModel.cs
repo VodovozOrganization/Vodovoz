@@ -28,6 +28,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Settings.Common;
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IGlobalSettings _globalSettings;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
+		private readonly INomenclatureFixedPriceRepository _fixedPriceRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private bool _isInformationActive;
 		private bool _isFixedPricesActive;
@@ -87,7 +89,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			NomenclatureFixedPriceController nomenclatureFixedPriceController,
+			INomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
 			IEntityUoWBuilder uowBuilder,
@@ -100,6 +102,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			IDeliveryRepository deliveryRepository,
 			IGlobalSettings globalSettings,
 			IPhoneTypeSettings phoneTypeSettings,
+			INomenclatureFixedPriceRepository fixedPriceRepository,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -138,6 +141,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
+			_fixedPriceRepository = fixedPriceRepository ?? throw new ArgumentNullException(nameof(fixedPriceRepository));;
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -201,6 +205,23 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				() => Entity.Counterparty != null);
 
 			AllActiveDistrictsWithBorders = scheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
+			TryAddEmployeeFixedPrices();
+		}
+
+		private void TryAddEmployeeFixedPrices()
+		{
+			if(Entity.Id > 0)
+			{
+				return;
+			}
+
+			var employeeFixedPrices =
+				_fixedPriceRepository.GetEmployeesNomenclatureFixedPricesByCounterpartyId(UoW, Entity.Counterparty.Id);
+
+			foreach(var fixedPrice in employeeFixedPrices)
+			{
+				_fixedPricesModel.AddFixedPrice(fixedPrice.Nomenclature, fixedPrice.Price, fixedPrice.MinCount);
+			}
 		}
 
 		#region Свойства

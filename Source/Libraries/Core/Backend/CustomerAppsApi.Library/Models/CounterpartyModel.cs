@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Validators;

@@ -867,13 +867,14 @@ namespace Vodovoz.Domain.Sale
 		/// 2) Правила доставки на текущий день недели
 		/// 3) Правила доставки района
 		/// </summary>
-		public virtual decimal GetDeliveryPrice(OrderStateKey orderStateKey, decimal eShopGoodsSum)
+		public virtual decimal GetDeliveryPrice(ComparerDeliveryPrice comparerDeliveryPrice, decimal eShopGoodsSum)
 		{
-			if(orderStateKey.Order.DeliveryDate.HasValue)
+			if(comparerDeliveryPrice.DeliveryDate.HasValue)
 			{
-				if(orderStateKey.Order.DeliveryDate.Value.Date == DateTime.Today && TodayDistrictRuleItems.Any())
+				if(comparerDeliveryPrice.DeliveryDate.Value.Date == DateTime.Today && TodayDistrictRuleItems.Any())
 				{
-					var todayDeliveryRules = TodayDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+					var todayDeliveryRules =
+						TodayDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
 					if(todayDeliveryRules.Any())
 					{
@@ -888,12 +889,15 @@ namespace Vodovoz.Domain.Sale
 
 					return 0m;
 				}
-
-				var dayOfWeekRules = GetWeekDayRuleItemCollectionByWeekDayName(ConvertDayOfWeekToWeekDayName(orderStateKey.Order.DeliveryDate.Value.DayOfWeek));
-
+				
+				var dayOfWeekRules =
+					GetWeekDayRuleItemCollectionByWeekDayName(
+						ConvertDayOfWeekToWeekDayName(comparerDeliveryPrice.DeliveryDate.Value.DayOfWeek));
+				
 				if(dayOfWeekRules.Any())
 				{
-					var dayOfWeekDeliveryRules = dayOfWeekRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+					var dayOfWeekDeliveryRules = 
+						dayOfWeekRules.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
 					if(dayOfWeekDeliveryRules.Any())
 					{
@@ -911,7 +915,7 @@ namespace Vodovoz.Domain.Sale
 			}
 
 			var commonDeliveryRules =
-				CommonDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+				CommonDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
 			if(commonDeliveryRules.Any())
 			{
