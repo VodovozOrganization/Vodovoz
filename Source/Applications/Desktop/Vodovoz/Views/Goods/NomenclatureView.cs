@@ -474,7 +474,7 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
-			ViewModel.Entity.PropertyChanged += Entity_PropertyChanged;
+			ViewModel.Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			//make actions menu
 			ConfigureActionsMenu();
@@ -1087,7 +1087,7 @@ namespace Vodovoz.Views.Goods
 			ViewModel.Entity.BottleCapColor = $"#{colorRed}{colorGreen}{colorBlue}";
 		}
 
-		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.Entity.ProductGroup))
 				nomenclaturecharacteristicsview1.RefreshWidgets();
@@ -1231,6 +1231,46 @@ namespace Vodovoz.Views.Goods
 		}
 
 		#endregion
+		
+		private void UnsubscribePricesViews()
+		{
+			if(pricesView != null)
+			{
+				pricesView.PricesList.ElementAdded -= PriceAdded;
+				pricesView.PricesList.ElementRemoved -= PriceRemoved;
+				pricesView.PricesList.ElementChanged -= PriceRowChanged;
+				pricesView.PricesList.PropertyOfElementChanged -= PricePropertyChanged;
+			}
+
+			if(alternativePricesView != null)
+			{
+				alternativePricesView.PricesList.ElementAdded -= PriceAdded;
+				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
+				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
+				alternativePricesView.PricesList.PropertyOfElementChanged -= PricePropertyChanged;
+			}
+		}
+		
+		private void UnsubscribeSitesAndAppsTabWidgets()
+		{
+			entryOnlineDiscountMobileApp.Changed -= OnNumericEntryChanged;
+			entryOnlineDiscountVodovozWebSite.Changed -= OnNumericEntryChanged;
+			entryOnlineDiscountKulerSaleWebSite.Changed -= OnNumericEntryChanged;
+			listCmbOnlineCategory.Changed -= OnOnlineCategoryChanged;
+			entryLengthOnline.Changed -= OnNumericEntryChanged;
+			entryWidthOnline.Changed -= OnNumericEntryChanged;
+			entryHeightOnline.Changed -= OnNumericEntryChanged;
+			entryWeightOnline.Changed -= OnNumericWithDotFractionalPartChanged;
+			entryHeatingPowerOnline.Changed -= OnNumericEntryChanged;
+			entryHeatingProductivityOnline.Changed -= OnNumericWithDotFractionalPartChanged;
+			entryHeatingTemperatureOnlineFrom.Changed -= OnNumericEntryChanged;
+			entryHeatingTemperatureOnlineTo.Changed -= OnNumericEntryChanged;
+			entryCoolingPowerOnline.Changed -= OnNumericEntryChanged;
+			entryCoolingProductivityOnline.Changed -= OnNumericWithDotFractionalPartChanged;
+			entryCoolingTemperatureOnlineFrom.Changed -= OnNumericEntryChanged;
+			entryCoolingTemperatureOnlineTo.Changed -= OnNumericEntryChanged;
+			entryLockerRefrigeratorVolumeOnline.Changed -= OnNumericEntryChanged;
+		}
 
 		public override void Destroy()
 		{
@@ -1240,22 +1280,15 @@ namespace Vodovoz.Views.Goods
 
 		public override void Dispose()
 		{
-			if(pricesView != null)
-			{
-				pricesView.PricesList.ElementAdded -= PriceAdded;
-				pricesView.PricesList.ElementRemoved -= PriceRemoved;
-				pricesView.PricesList.ElementChanged -= PriceRowChanged;
-			}
-
-			if(alternativePricesView != null)
-			{
-				alternativePricesView.PricesList.ElementAdded -= PriceAdded;
-				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
-				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
-			}
-
 			checkIsArchive.Released -= OnCheckIsArchiveReleased;
-
+			radioEquipment.Toggled -= OnRadioEquipmentToggled;
+			radioPrice.Toggled -= OnRadioPriceToggled;
+			radioSitesAndApps.Toggled -= OnSitesAndAppsToggled;
+			enumCategory.Changed -= ViewModel.OnEnumCategoryChanged;
+			enumCategory.ChangedByUser -= ViewModel.OnEnumCategoryChangedByUser;
+			ViewModel.Entity.PropertyChanged -= OnEntityPropertyChanged;
+			UnsubscribePricesViews();
+			UnsubscribeSitesAndAppsTabWidgets();
 			base.Dispose();
 		}
 	}
