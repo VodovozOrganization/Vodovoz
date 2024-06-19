@@ -1,7 +1,6 @@
 ﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
-using Pacs.Core.Messages.Events;
 using Pacs.Server.Breaks;
 using Pacs.Server.Phones;
 using QS.DomainModel.UoW;
@@ -27,7 +26,7 @@ namespace Pacs.Server.Operators
 		private readonly IOperatorNotifier _operatorNotifier;
 		private readonly IPhoneController _phoneController;
 		private readonly IGlobalBreakController _globalBreakController;
-		private readonly OperatorBreakController _operatorBreakController;
+		private readonly IOperatorBreakAvailabilityService _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
 		private Timer _timer;
@@ -51,8 +50,6 @@ namespace Pacs.Server.Operators
 		public OperatorSession Session { get; private set; }
 		public OperatorState OperatorState { get; private set; }
 
-		public OperatorBreakAvailability BreakAvailability { get; private set; }
-
 		public OperatorServerStateMachine(
 			int operatorId,
 			ILogger<OperatorServerStateMachine> logger,
@@ -61,7 +58,6 @@ namespace Pacs.Server.Operators
 			IOperatorNotifier operatorNotifier,
 			IPhoneController phoneController,
 			IGlobalBreakController globalBreakController,
-			OperatorBreakController operatorBreakController,
 			IUnitOfWorkFactory uowFactory)
 		{
 			OperatorId = operatorId;
@@ -71,7 +67,6 @@ namespace Pacs.Server.Operators
 			_operatorNotifier = operatorNotifier ?? throw new ArgumentNullException(nameof(operatorNotifier));
 			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
 			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
-			_operatorBreakController = operatorBreakController ?? throw new ArgumentNullException(nameof(operatorBreakController));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			_timer = new Timer();
@@ -81,16 +76,7 @@ namespace Pacs.Server.Operators
 
 			LoadOperatorState(OperatorId);
 
-			BreakAvailability = _operatorBreakController.GetBreakAvailability();
-			_operatorBreakController.BreakAvailabilityChanged += BreakAvailabilityChanged;
-
 			ConfigureStateMachine();
-		}
-
-		private void BreakAvailabilityChanged(object sender, OperatorBreakAvailability newBreakAvailability)
-		{
-			BreakAvailability = newBreakAvailability;
-			_operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
 		#region Initialization
@@ -108,8 +94,6 @@ namespace Pacs.Server.Operators
 				Session = OperatorState.Session;
 				StartCheckInactivity();
 			}
-
-			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 		}
 
 		private void CreateNew(int operatorId)
@@ -247,9 +231,6 @@ namespace Pacs.Server.Operators
 			{
 				_globalBreakController.UpdateBreakAvailability();
 			}
-
-			BreakAvailability = _operatorBreakController.GetBreakAvailability();
-			await _operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
 		private async Task SaveState()

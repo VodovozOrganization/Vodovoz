@@ -19,7 +19,7 @@ namespace Pacs.Server.Operators
 		private readonly ILogger<OperatorStateService> _logger;
 		private readonly IOperatorServerStateMachineFactory _operatorStateMachineFactory;
 		private readonly IGlobalBreakController _globalBreakController;
-		private readonly OperatorBreakController _operatorBreakController;
+		private readonly IOperatorBreakAvailabilityService _operatorBreakAvailabilityService;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IPhoneController _phoneController;
 		private readonly IOperatorRepository _operatorRepository;
@@ -32,7 +32,7 @@ namespace Pacs.Server.Operators
 			ILogger<OperatorStateService> logger,
 			IOperatorServerStateMachineFactory operatorStateMachineFactory,
 			IGlobalBreakController globalBreakController,
-			OperatorBreakController operatorBreakController,
+			IOperatorBreakAvailabilityService operatorBreakAvailabilityService,
 			IPacsRepository pacsRepository,
 			IPhoneController phoneController,
 			IOperatorRepository operatorRepository)
@@ -43,8 +43,8 @@ namespace Pacs.Server.Operators
 				?? throw new ArgumentNullException(nameof(operatorStateMachineFactory));
 			_globalBreakController = globalBreakController
 				?? throw new ArgumentNullException(nameof(globalBreakController));
-			_operatorBreakController = operatorBreakController
-				?? throw new ArgumentNullException(nameof(operatorBreakController));
+			_operatorBreakAvailabilityService = operatorBreakAvailabilityService
+				?? throw new ArgumentNullException(nameof(operatorBreakAvailabilityService));
 			_pacsRepository = pacsRepository
 				?? throw new ArgumentNullException(nameof(pacsRepository));
 			_phoneController = phoneController
@@ -549,10 +549,12 @@ namespace Pacs.Server.Operators
 
 		private OperatorStateEvent GetResultContent(OperatorServerStateMachine operatorServerStateMachine)
 		{
+			var currentBreakAviability = _operatorBreakAvailabilityService.GetBreakAvailability(operatorServerStateMachine.OperatorId);
+
 			var content = new OperatorStateEvent
 			{
 				State = operatorServerStateMachine.OperatorState,
-				BreakAvailability = operatorServerStateMachine.BreakAvailability,
+				BreakAvailability = currentBreakAviability,
 			};
 
 			return content;
@@ -564,6 +566,8 @@ namespace Pacs.Server.Operators
 			bool canStartGlobal;
 			bool canStart;
 
+			var currentBreakAviability = _operatorBreakAvailabilityService.GetBreakAvailability(operatorServerStateMachine.OperatorId);
+
 			if(breakType == OperatorBreakType.Long)
 			{
 				canStartGlobal = _globalBreakController.BreakAvailability.LongBreakAvailable;
@@ -573,11 +577,11 @@ namespace Pacs.Server.Operators
 					description = _globalBreakController.BreakAvailability.LongBreakDescription;
 				}
 
-				canStart = operatorServerStateMachine.BreakAvailability.LongBreakAvailable;
+				canStart = currentBreakAviability.LongBreakAvailable;
 
 				if(!canStart)
 				{
-					description = operatorServerStateMachine.BreakAvailability.LongBreakDescription;
+					description = currentBreakAviability.LongBreakDescription;
 				}
 			}
 			else
@@ -589,11 +593,11 @@ namespace Pacs.Server.Operators
 					description = _globalBreakController.BreakAvailability.ShortBreakDescription;
 				}
 
-				canStart = operatorServerStateMachine.BreakAvailability.ShortBreakAvailable;
+				canStart = currentBreakAviability.ShortBreakAvailable;
 				
 				if(!canStart)
 				{
-					description = operatorServerStateMachine.BreakAvailability.ShortBreakDescription;
+					description = currentBreakAviability.ShortBreakDescription;
 				}
 			}
 

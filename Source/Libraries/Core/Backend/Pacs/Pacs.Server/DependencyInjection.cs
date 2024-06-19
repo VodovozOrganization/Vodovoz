@@ -25,6 +25,7 @@ namespace Pacs.Server
 				.AddSingleton<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
 				.AddSingleton<IPacsRepository, PacsRepository>()
 				.AddSingleton<IGlobalBreakController, GlobalBreakController>()
+				.AddSingleton<IOperatorBreakAvailabilityService, OperatorBreakAvailabilityService>();
 				;
 
 			services.AddPacsMassTransit(

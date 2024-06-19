@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Events;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
@@ -8,66 +9,130 @@ using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Breaks
 {
-	public class OperatorBreakController
+	public class OperatorBreakAvailabilityService : IOperatorBreakAvailabilityService
 	{
-		private readonly ILogger<OperatorBreakController> _logger;
+		private readonly ILogger<OperatorBreakAvailabilityService> _logger;
 		private readonly IGlobalBreakController _globalController;
 		private readonly IPacsRepository _repository;
-		private OperatorBreakAvailability _breakAvailability;
 		private IPacsDomainSettings _settings;
-		private int _operatorId;
+
+		private readonly ConcurrentDictionary<int, OperatorBreakAvailability> _operatorBreakAvailabilityCache;
 
 		public event EventHandler<OperatorBreakAvailability> BreakAvailabilityChanged;
 
-		public OperatorBreakController(int operatorId, ILogger<OperatorBreakController> logger, IGlobalBreakController globalController, IPacsRepository repository)
+		public OperatorBreakAvailabilityService(
+			ILogger<OperatorBreakAvailabilityService> logger,
+			IGlobalBreakController globalController,
+			IPacsRepository repository)
 		{
-			_operatorId = operatorId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_globalController = globalController ?? throw new ArgumentNullException(nameof(globalController));
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
-			_breakAvailability = new OperatorBreakAvailability();
+			_operatorBreakAvailabilityCache = new ConcurrentDictionary<int, OperatorBreakAvailability>();
+
 			_settings = _repository.GetPacsDomainSettings();
 			_globalController.SettingsChanged += OnSettingsChanged;
+		}
+
+		public void WarmUpCacheForOperatorIds(params int[] operatorIds)
+		{
+			foreach(int operatorId in operatorIds)
+			{
+				var breakAviability = GetBreakAvailability(operatorId);
+
+				_operatorBreakAvailabilityCache.TryAdd(operatorId, breakAviability);
+			}
 		}
 
 		private void OnSettingsChanged(object sender, SettingsChangedEventArgs e)
 		{
 			_settings = e.Settings;
-			UpdateBreakStates(e.AllOperatorsBreakStates);
-		}
 
-		internal void UpdateBreakStates(IEnumerable<OperatorState> breakStates)
-		{
-			var states = breakStates.Where(x => x.OperatorId == _operatorId);
-			var newBreakAvailability = GetNewBreakAvailability(states);
-
-			if(!_breakAvailability.Equals(newBreakAvailability))
+			foreach(var operatorId in _operatorBreakAvailabilityCache.Keys)
 			{
-				_breakAvailability = newBreakAvailability;
-				BreakAvailabilityChanged?.Invoke(this, _breakAvailability);
+				UpdateBreakStates(operatorId, e.AllOperatorsBreakStates);
 			}
 		}
 
-		internal OperatorBreakAvailability GetBreakAvailability()
+		internal void UpdateBreakStates(int operatorId, IEnumerable<OperatorState> breakStates)
 		{
-			var states = _repository.GetOperatorBreakStates(_operatorId, DateTime.Today);
-			var newBreakAvailability = GetNewBreakAvailability(states);
+			var states = breakStates.Where(x => x.OperatorId == operatorId);
 
-			if(!_breakAvailability.Equals(newBreakAvailability))
+			var newBreakAvailability = GetNewBreakAvailability(operatorId, states);
+
+			if(!_operatorBreakAvailabilityCache.TryGetValue(operatorId, out OperatorBreakAvailability breakAvailability))
 			{
-				_breakAvailability = newBreakAvailability;
+				if(_operatorBreakAvailabilityCache.TryAdd(operatorId, newBreakAvailability))
+				{
+					BreakAvailabilityChanged?.Invoke(this, newBreakAvailability);
+					return;
+				}
+				else
+				{
+					_logger.LogWarning(
+						"Ошибка обновления доступности перерыва, не удалось заменить значение {@OldBreakAviability} новым значением {@NewBreakAviability}",
+						breakAvailability,
+						newBreakAvailability);
+				}
 			}
 
-			return _breakAvailability;
+			if(!breakAvailability.Equals(newBreakAvailability))
+			{
+				if(_operatorBreakAvailabilityCache.TryUpdate(operatorId, newBreakAvailability, breakAvailability))
+				{
+					BreakAvailabilityChanged?.Invoke(this, newBreakAvailability);
+				}
+				else
+				{
+					_logger.LogWarning(
+						"Ошибка обновления доступности перерыва, не удалось заменить значение {@OldBreakAviability} новым значением {@NewBreakAviability}",
+						breakAvailability,
+						newBreakAvailability);
+				}
+			}
 		}
 
-		private OperatorBreakAvailability GetNewBreakAvailability(IEnumerable<OperatorState> states)
+		public OperatorBreakAvailability GetBreakAvailability(int operatorId)
 		{
-			var breakAvailability = new OperatorBreakAvailability();
-			breakAvailability.OperatorId = _operatorId;
+			var states = _repository.GetOperatorBreakStates(operatorId, DateTime.Today);
+
+			if(!_operatorBreakAvailabilityCache.TryGetValue(operatorId, out OperatorBreakAvailability breakAvailability))
+			{
+				breakAvailability = GetNewBreakAvailability(operatorId, states);
+
+				return breakAvailability;
+			}
+
+			var newBreakAvailability = GetNewBreakAvailability(operatorId, states);
+
+			if(!breakAvailability.Equals(newBreakAvailability))
+			{
+				if(_operatorBreakAvailabilityCache.TryUpdate(operatorId, newBreakAvailability, breakAvailability))
+				{
+					breakAvailability = newBreakAvailability;
+				}
+				else
+				{
+					_logger.LogWarning(
+						"Ошибка обновления доступности перерыва, не удалось заменить значение {@OldBreakAviability} новым значением {@NewBreakAviability}",
+						breakAvailability,
+						newBreakAvailability);
+				}
+			}
+
+			return breakAvailability;
+		}
+
+		private OperatorBreakAvailability GetNewBreakAvailability(int operatorId, IEnumerable<OperatorState> states)
+		{
+			var breakAvailability = new OperatorBreakAvailability
+			{
+				OperatorId = operatorId
+			};
 
 			var longLimitValidated = ValidateLongBreakLimitRestriction(states, _settings);
+
 			if(!longLimitValidated)
 			{
 				breakAvailability.LongBreakAvailable = false;
@@ -78,7 +143,9 @@ namespace Pacs.Server.Breaks
 
 			var now = DateTime.Now;
 			_logger.LogDebug("Breask allowed at {Date}, now: {DateNow}", shortBreakAllowedAt, now);
+
 			var shortLimitValidated = shortBreakAllowedAt <= now;
+
 			if(!shortLimitValidated)
 			{
 				breakAvailability.ShortBreakAvailable = false;
@@ -99,6 +166,7 @@ namespace Pacs.Server.Breaks
 				.Where(x => x.BreakType == OperatorBreakType.Long);
 
 			bool allowByLimit = breaksByType.Count() < actualSettings.LongBreakCountPerDay;
+
 			return allowByLimit;
 		}
 
@@ -117,11 +185,14 @@ namespace Pacs.Server.Breaks
 			{
 				var now = DateTime.Now;
 				_logger.LogDebug("Returned date {Date}", now);
+
 				return now;
 			}
 
 			var allowedTime = lastShortBreak.Started + actualSettings.ShortBreakDuration + actualSettings.ShortBreakInterval;
+
 			_logger.LogDebug("Returned date {Date}", allowedTime);
+
 			return allowedTime;
 		}
 	}

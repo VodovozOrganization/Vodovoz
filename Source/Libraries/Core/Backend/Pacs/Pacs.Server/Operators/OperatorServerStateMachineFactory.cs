@@ -21,7 +21,6 @@ namespace Pacs.Server.Operators
 		public OperatorServerStateMachine CreateOperatorAgent(int operatorId)
 		{
 			var operatorServerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorServerStateMachine>>();
-			var operatorBreakControllerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorBreakController>>();
 			var pacsSettings = _serviceProvider.GetRequiredService<IPacsSettings>();
 			var operatorRepository = _serviceProvider.GetRequiredService<IOperatorRepository>();
 			var operatorNotifier = _serviceProvider.GetRequiredService<IOperatorNotifier>();
@@ -29,7 +28,7 @@ namespace Pacs.Server.Operators
 			var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 			var pacsRepository = _serviceProvider.GetRequiredService<IPacsRepository>();
 			var globalBreakController = _serviceProvider.GetRequiredService<IGlobalBreakController>();
-			var breakController = new OperatorBreakController(operatorId, operatorBreakControllerLogger, globalBreakController, pacsRepository);
+
 			return new OperatorServerStateMachine(
 				operatorId,
 				operatorServerLogger,
@@ -38,7 +37,6 @@ namespace Pacs.Server.Operators
 				operatorNotifier,
 				phoneController,
 				globalBreakController,
-				breakController,
 				uowFactory);
 		}
 	}
