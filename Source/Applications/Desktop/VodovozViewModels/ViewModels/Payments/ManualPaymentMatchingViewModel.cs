@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private ManualPaymentMatchingViewModelAllocatedNode _selectedAllocatedNode;
 		private decimal _allocatedSum;
 		private decimal _currentBalance;
-		private decimal _previousCounterpartyDebt;
 		private decimal _counterpartyTotalDebt;
 		private decimal _counterpartyClosingDocumentsOrdersDebt;
 		private decimal _counterpartyWaitingForPaymentOrdersDebt;
