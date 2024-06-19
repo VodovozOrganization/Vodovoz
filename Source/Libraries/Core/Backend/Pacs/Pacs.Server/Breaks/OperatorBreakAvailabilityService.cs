@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Events;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
@@ -16,10 +15,6 @@ namespace Pacs.Server.Breaks
 		private readonly IPacsRepository _repository;
 		private IPacsDomainSettings _settings;
 
-		private readonly ConcurrentDictionary<int, OperatorBreakAvailability> _operatorBreakAvailabilityCache;
-
-		public event EventHandler<OperatorBreakAvailability> BreakAvailabilityChanged;
-
 		public OperatorBreakAvailabilityService(
 			ILogger<OperatorBreakAvailabilityService> logger,
 			IGlobalBreakController globalController,
@@ -29,99 +24,20 @@ namespace Pacs.Server.Breaks
 			_globalController = globalController ?? throw new ArgumentNullException(nameof(globalController));
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
-			_operatorBreakAvailabilityCache = new ConcurrentDictionary<int, OperatorBreakAvailability>();
-
 			_settings = _repository.GetPacsDomainSettings();
 			_globalController.SettingsChanged += OnSettingsChanged;
-		}
-
-		public void WarmUpCacheForOperatorIds(params int[] operatorIds)
-		{
-			foreach(int operatorId in operatorIds)
-			{
-				var breakAviability = GetBreakAvailability(operatorId);
-
-				_operatorBreakAvailabilityCache.TryAdd(operatorId, breakAviability);
-			}
 		}
 
 		private void OnSettingsChanged(object sender, SettingsChangedEventArgs e)
 		{
 			_settings = e.Settings;
-
-			foreach(var operatorId in _operatorBreakAvailabilityCache.Keys)
-			{
-				UpdateBreakStates(operatorId, e.AllOperatorsBreakStates);
-			}
-		}
-
-		internal void UpdateBreakStates(int operatorId, IEnumerable<OperatorState> breakStates)
-		{
-			var states = breakStates.Where(x => x.OperatorId == operatorId);
-
-			var newBreakAvailability = GetNewBreakAvailability(operatorId, states);
-
-			if(!_operatorBreakAvailabilityCache.TryGetValue(operatorId, out OperatorBreakAvailability breakAvailability))
-			{
-				if(_operatorBreakAvailabilityCache.TryAdd(operatorId, newBreakAvailability))
-				{
-					BreakAvailabilityChanged?.Invoke(this, newBreakAvailability);
-					return;
-				}
-				else
-				{
-					_logger.LogWarning(
-						"Ошибка обновления доступности перерыва, не удалось заменить значение {@OldBreakAviability} новым значением {@NewBreakAviability}",
-						breakAvailability,
-						newBreakAvailability);
-				}
-			}
-
-			if(!breakAvailability.Equals(newBreakAvailability))
-			{
-				if(_operatorBreakAvailabilityCache.TryUpdate(operatorId, newBreakAvailability, breakAvailability))
-				{
-					BreakAvailabilityChanged?.Invoke(this, newBreakAvailability);
-				}
-				else
-				{
-					_logger.LogWarning(
-						"Ошибка обновления доступности перерыва, не удалось заменить значение {@OldBreakAviability} новым значением {@NewBreakAviability}",
-						breakAvailability,
-						newBreakAvailability);
-				}
-			}
 		}
 
 		public OperatorBreakAvailability GetBreakAvailability(int operatorId)
 		{
-			var states = _repository.GetOperatorBreakStates(operatorId, DateTime.Today);
+			var states = _repository.GetOperatorBreakStates(operatorId, DateTime.Now.AddHours(-8));
 
-			if(!_operatorBreakAvailabilityCache.TryGetValue(operatorId, out OperatorBreakAvailability breakAvailability))
-			{
-				breakAvailability = GetNewBreakAvailability(operatorId, states);
-
-				return breakAvailability;
-			}
-
-			var newBreakAvailability = GetNewBreakAvailability(operatorId, states);
-
-			if(!breakAvailability.Equals(newBreakAvailability))
-			{
-				if(_operatorBreakAvailabilityCache.TryUpdate(operatorId, newBreakAvailability, breakAvailability))
-				{
-					breakAvailability = newBreakAvailability;
-				}
-				else
-				{
-					_logger.LogWarning(
-						"Ошибка обновления доступности перерыва, не удалось заменить значение {@OldBreakAviability} новым значением {@NewBreakAviability}",
-						breakAvailability,
-						newBreakAvailability);
-				}
-			}
-
-			return breakAvailability;
+			return GetNewBreakAvailability(operatorId, states);
 		}
 
 		private OperatorBreakAvailability GetNewBreakAvailability(int operatorId, IEnumerable<OperatorState> states)
