@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.FastPayments;
+﻿using System.Text.Json.Serialization;
+using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration
 {
@@ -18,6 +19,7 @@ namespace FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration
 		/// <summary>
 		/// Статус платежа
 		/// </summary>
+		[JsonIgnore]
 		public FastPaymentStatus? FastPaymentStatus { get; set; }
 		/// <summary>
 		/// Сообщение об ошибке/проблеме
