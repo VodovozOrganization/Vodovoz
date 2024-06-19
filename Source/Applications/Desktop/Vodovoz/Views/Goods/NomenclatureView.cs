@@ -714,7 +714,7 @@ namespace Vodovoz.Views.Goods
 			entryWeightOnline.Binding
 				.AddBinding(ViewModel.Entity, e => e.WeightOnline, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
-			entryWeightOnline.Changed += OnNumericWithFractionalPartChanged;
+			entryWeightOnline.Changed += OnNumericWithDotFractionalPartChanged;
 			
 			#region Онлайн характеристики воды
 
@@ -825,7 +825,7 @@ namespace Vodovoz.Views.Goods
 			entryHeatingProductivityOnline.Binding
 				.AddBinding(ViewModel.Entity, e => e.HeatingProductivity, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
-			entryHeatingProductivityOnline.Changed += OnNumericWithFractionalPartChanged;
+			entryHeatingProductivityOnline.Changed += OnNumericWithDotFractionalPartChanged;
 			
 			enumHeatingProductivityUnitsOnline.ShowSpecialStateNot = true;
 			enumHeatingProductivityUnitsOnline.ItemsEnum = typeof(ProductivityUnits);
@@ -915,7 +915,7 @@ namespace Vodovoz.Views.Goods
 			entryCoolingProductivityOnline.Binding
 				.AddBinding(ViewModel.Entity, e => e.CoolingProductivity, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
-			entryCoolingProductivityOnline.Changed += OnNumericWithFractionalPartChanged;
+			entryCoolingProductivityOnline.Changed += OnNumericWithDotFractionalPartChanged;
 
 			enumCoolingProductivityUnitsOnline.ShowSpecialStateNot = true;
 			enumCoolingProductivityUnitsOnline.ItemsEnum = typeof(ProductivityUnits);
@@ -1052,14 +1052,17 @@ namespace Vodovoz.Views.Goods
 			}
 		}
 
-		private void OnPriceWithoutDiscountChanged(object sender, EventArgs e) => OnNumericWithFractionalPartChanged(sender, e);
+		private void OnPriceWithoutDiscountChanged(object sender, EventArgs e) => OnNumericWithFractionalPartChanged(sender, e, true);
 		
-		private void OnNumericWithFractionalPartChanged(object sender, EventArgs e)
+		private void OnNumericWithDotFractionalPartChanged(object sender, EventArgs e) =>
+			OnNumericWithFractionalPartChanged(sender, e, false);
+		
+		private void OnNumericWithFractionalPartChanged(object sender, EventArgs e, bool isCommaSeparator)
 		{
 			var entry = sender as Entry;
 			var chars = entry.Text.ToCharArray();
 			
-			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars, 2);
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars, 2, isCommaSeparator);
 			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
 		}
 
