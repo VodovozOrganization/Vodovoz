@@ -12,7 +12,7 @@ namespace Vodovoz.Converters
 				return null;
 			}
 			
-			return $"{length}*{width}*{height}";
+			return $"{length}*{width}*{height}(мм)";
 		}
 		
 		public string GetWeightString(decimal? weight)
@@ -32,7 +32,7 @@ namespace Vodovoz.Converters
 				return null;
 			}
 			
-			var units = powerUnits?.GetEnumTitle();
+			var units = powerUnits?.GetEnumShortTitle();
 			
 			return $"{power}{units}";
 		}
@@ -48,7 +48,7 @@ namespace Vodovoz.Converters
 			}
 			
 			var sign = productivitySign?.GetEnumTitle();
-			var units = productivityUnits?.GetEnumTitle();
+			var units = productivityUnits?.GetEnumShortTitle();
 			
 			return $"{sign} {productivity}{units}";
 		}
@@ -57,17 +57,17 @@ namespace Vodovoz.Converters
 		{
 			if(fromValue.HasValue && toValue.HasValue)
 			{
-				return $"{fromValue}-{toValue}C";
+				return $"{fromValue}-{toValue}(\u00b0C)";
 			}
 
 			if(!fromValue.HasValue && toValue.HasValue)
 			{
-				return $"до {toValue}C";
+				return $"до {toValue}\u00b0C";
 			}
 		
 			if(fromValue.HasValue && !toValue.HasValue)
 			{
-				return $"от {fromValue}C";
+				return $"от {fromValue}\u00b0C";
 			}
 
 			return null;
