@@ -28,7 +28,7 @@ namespace Pacs.Server.Operators
 			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
 			var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 			var pacsRepository = _serviceProvider.GetRequiredService<IPacsRepository>();
-			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
+			var globalBreakController = _serviceProvider.GetRequiredService<IGlobalBreakController>();
 			var breakController = new OperatorBreakController(operatorId, operatorBreakControllerLogger, globalBreakController, pacsRepository);
 			return new OperatorServerStateMachine(
 				operatorId,

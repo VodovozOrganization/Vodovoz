@@ -26,7 +26,7 @@ namespace Pacs.Server.Operators
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
 		private readonly IPhoneController _phoneController;
-		private readonly GlobalBreakController _globalBreakController;
+		private readonly IGlobalBreakController _globalBreakController;
 		private readonly OperatorBreakController _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
@@ -60,7 +60,7 @@ namespace Pacs.Server.Operators
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
 			IPhoneController phoneController,
-			GlobalBreakController globalBreakController,
+			IGlobalBreakController globalBreakController,
 			OperatorBreakController operatorBreakController,
 			IUnitOfWorkFactory uowFactory)
 		{

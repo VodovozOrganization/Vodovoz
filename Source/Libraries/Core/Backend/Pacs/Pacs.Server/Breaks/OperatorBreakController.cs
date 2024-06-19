@@ -11,7 +11,7 @@ namespace Pacs.Server.Breaks
 	public class OperatorBreakController
 	{
 		private readonly ILogger<OperatorBreakController> _logger;
-		private readonly GlobalBreakController _globalController;
+		private readonly IGlobalBreakController _globalController;
 		private readonly IPacsRepository _repository;
 		private OperatorBreakAvailability _breakAvailability;
 		private IPacsDomainSettings _settings;
@@ -19,7 +19,7 @@ namespace Pacs.Server.Breaks
 
 		public event EventHandler<OperatorBreakAvailability> BreakAvailabilityChanged;
 
-		public OperatorBreakController(int operatorId, ILogger<OperatorBreakController> logger, GlobalBreakController globalController, IPacsRepository repository)
+		public OperatorBreakController(int operatorId, ILogger<OperatorBreakController> logger, IGlobalBreakController globalController, IPacsRepository repository)
 		{
 			_operatorId = operatorId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

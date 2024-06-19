@@ -19,13 +19,12 @@ namespace Pacs.Server
 				.AddSingleton<IPhoneController, PhoneController>()
 				.AddSingleton<IOperatorRepository, OperatorRepository>()
 				.AddSingleton<IOperatorAgentFactory, OperatorAgentFactory>()
-				.AddSingleton<IOperatorControllerFactory, OperatorControllerFactory>()
 				.AddSingleton<IOperatorStateService, OperatorStateService>()
 				.AddSingleton<IOperatorNotifier, OperatorNotifier>()
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
 				.AddSingleton<IPacsRepository, PacsRepository>()
-				.AddSingleton<GlobalBreakController>()
+				.AddSingleton<IGlobalBreakController, GlobalBreakController>()
 				;
 
 			services.AddPacsMassTransit(
