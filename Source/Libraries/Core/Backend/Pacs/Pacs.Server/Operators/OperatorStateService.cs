@@ -17,7 +17,7 @@ namespace Pacs.Server.Operators
 	public class OperatorStateService : IOperatorStateService
 	{
 		private readonly ILogger<OperatorStateService> _logger;
-		private readonly IOperatorAgentFactory _operatorStateMachineFactory;
+		private readonly IOperatorServerStateMachineFactory _operatorStateMachineFactory;
 		private readonly IGlobalBreakController _globalBreakController;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IPhoneController _phoneController;
@@ -29,7 +29,7 @@ namespace Pacs.Server.Operators
 
 		public OperatorStateService(
 			ILogger<OperatorStateService> logger,
-			IOperatorAgentFactory operatorStateMachineFactory,
+			IOperatorServerStateMachineFactory operatorStateMachineFactory,
 			IGlobalBreakController globalBreakController,
 			IPacsRepository pacsRepository,
 			IPhoneController phoneController,

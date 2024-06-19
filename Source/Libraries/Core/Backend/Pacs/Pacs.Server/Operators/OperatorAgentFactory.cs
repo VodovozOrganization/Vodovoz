@@ -9,11 +9,11 @@ using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Server.Operators
 {
-	public class OperatorAgentFactory : IOperatorAgentFactory
+	public class OperatorServerStateMachineFactory : IOperatorServerStateMachineFactory
 	{
 		private readonly IServiceProvider _serviceProvider;
 
-		public OperatorAgentFactory(IServiceProvider serviceProvider)
+		public OperatorServerStateMachineFactory(IServiceProvider serviceProvider)
 		{
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}

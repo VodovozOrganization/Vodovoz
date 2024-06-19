@@ -18,7 +18,7 @@ namespace Pacs.Server
 			services
 				.AddSingleton<IPhoneController, PhoneController>()
 				.AddSingleton<IOperatorRepository, OperatorRepository>()
-				.AddSingleton<IOperatorAgentFactory, OperatorAgentFactory>()
+				.AddSingleton<IOperatorServerStateMachineFactory, OperatorServerStateMachineFactory>()
 				.AddSingleton<IOperatorStateService, OperatorStateService>()
 				.AddSingleton<IOperatorNotifier, OperatorNotifier>()
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
