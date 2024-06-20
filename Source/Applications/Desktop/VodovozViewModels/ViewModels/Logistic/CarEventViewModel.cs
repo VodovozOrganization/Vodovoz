@@ -211,6 +211,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
+			if(UoW.IsNew && Entity.CarEventType.Id == _carEventSettings.TechInspectCarEventTypeId)
+			{
+				Entity.Car.TechInspectForKm = null;
+			}
+
 			base.SaveAndClose();
 		}
 
