@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Counterparties
 		private bool _canCreateTask = false;
 		private string _deliveryPointOrSelfDeliveryDebt;
 		private string _bottleReserve;
-		private string _deliveryPointOldComments;
+		private string _oldComments;
 		private string _counterpartyDebt;
 		private readonly IOrderOrganizationProviderFactory _orderOrganizationProviderFactory;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
@@ -154,7 +154,9 @@ namespace Vodovoz.ViewModels.Counterparties
 			CancelLastCommentCommand = new DelegateCommand(CancelLastComment);
 
 			CreateNewOrderCommand = new DelegateCommand(CreateNewOrder);
-			CreateNewTaskCommand = new DelegateCommand(CreateNewTask);
+
+			CreateNewTaskCommand = new DelegateCommand(CreateNewTask, () => CanCreateNewTask);
+			CreateNewTaskCommand.CanExecuteChangedWith(this, vm => vm.CanCreateNewTask);
 
 			SaveCommand = new DelegateCommand(() => SaveAndClose());
 			CloseCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
@@ -199,10 +201,10 @@ namespace Vodovoz.ViewModels.Counterparties
 			private set => SetField(ref _bottleReserve, value);
 		}
 
-		public string DeliveryPointOldComments
+		public string OldComments
 		{
-			get => _deliveryPointOldComments;
-			private set => SetField(ref _deliveryPointOldComments, value);
+			get => _oldComments;
+			private set => SetField(ref _oldComments, value);
 		}
 
 		public string CounterpartyDebt
@@ -226,6 +228,8 @@ namespace Vodovoz.ViewModels.Counterparties
 		public bool CanCreateReportByDeliveryPoint => Entity.DeliveryPoint != null;
 
 		public bool CanChengeDeliveryPoint => Entity.Counterparty != null;
+
+		public bool CanCreateNewTask => Entity.Id != 0;
 
 		public void SetCounterpartyById(int counterpartyId)
 		{
@@ -273,8 +277,9 @@ namespace Vodovoz.ViewModels.Counterparties
 				return;
 			}
 
-			Entity.Comment =
-				Entity.Comment.Replace(_lastComment, string.Empty);
+			var lastIndexOfComment = Entity.Comment.LastIndexOf(_lastComment);
+
+			Entity.Comment = Entity.Comment.Substring(0, lastIndexOfComment);
 
 			_lastComment = string.Empty;
 		}
@@ -309,11 +314,19 @@ namespace Vodovoz.ViewModels.Counterparties
 					Entity.AssignedEmployee != null
 					? vm.UoW.GetById<Employee>(Entity.AssignedEmployee.Id)
 					: null;
+
+				vm.UpdateCounterpartyInformation();
+				vm.UpdateDeliveryPointInformation();
 			});
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			if(e.PropertyName == nameof(Entity.Id))
+			{
+				OnPropertyChanged(nameof(CanCreateNewTask));
+			}
+
 			if(e.PropertyName == nameof(Entity.Counterparty))
 			{
 				UpdateCounterpartyInformation();
@@ -324,7 +337,7 @@ namespace Vodovoz.ViewModels.Counterparties
 						Entity.Counterparty.DeliveryPoints.First();
 				}
 
-				OnPropertyChanged(() => CanCreateReportByCounterparty);
+				OnPropertyChanged(nameof(CanCreateReportByCounterparty));
 				DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
 				return;
 			}
@@ -333,20 +346,20 @@ namespace Vodovoz.ViewModels.Counterparties
 			{
 				UpdateDeliveryPointInformation();
 
-				OnPropertyChanged(() => CanCreateReportByDeliveryPoint);
+				OnPropertyChanged(nameof(CanCreateReportByDeliveryPoint));
 				return;
 			}
 
 			if(e.PropertyName == nameof(Entity.TaskCreator))
 			{
-				OnPropertyChanged(() => TaskCreatorString);
+				OnPropertyChanged(nameof(TaskCreatorString));
 
 				return;
 			}
 
 			if(e.PropertyName == nameof(Entity.CompleteDate))
 			{
-				OnPropertyChanged(() => TaskCompletedAtString);
+				OnPropertyChanged(nameof(TaskCompletedAtString));
 
 				return;
 			}
@@ -382,13 +395,13 @@ namespace Vodovoz.ViewModels.Counterparties
 				DeliveryPointPhonesViewModel.PhonesList =
 					Entity.DeliveryPoint.ObservablePhones;
 
-				DeliveryPointOldComments = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
+				OldComments = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			}
 			else
 			{
 				DeliveryPointOrSelfDeliveryDebt = string.Empty;
 				BottleReserve = string.Empty;
-				DeliveryPointOldComments = Entity.Comment;
+				OldComments = Entity.Comment;
 				DeliveryPointPhonesViewModel.PhonesList = null;
 			}
 		}

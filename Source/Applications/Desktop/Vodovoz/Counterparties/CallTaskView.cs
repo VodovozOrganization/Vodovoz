@@ -104,7 +104,7 @@ namespace Vodovoz.Counterparties
 				.InitializeFromSource();
 
 			ytextviewOldComments.Binding
-				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.OldComments, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			ViewModel.SetCreateReportByCounterpartyLegacyCallback(() =>
