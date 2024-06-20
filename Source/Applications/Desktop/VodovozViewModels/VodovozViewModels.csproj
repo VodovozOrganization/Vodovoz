@@ -678,6 +678,7 @@
     <Compile Include="ViewModels\Reports\Cars\CarInsurancesReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\CarTechInspectReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReport.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReport.ExportToExcel.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReportRow.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\DeliveryType.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\Indicator.cs" />
