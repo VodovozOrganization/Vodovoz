@@ -101,6 +101,7 @@ namespace Vodovoz.Representations
 
 			filterViewModel.Journal = this;
 			JournalFilter = _filterViewModel;
+			filterViewModel.OnFiltered += (s, e) => Refresh();
 
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
