@@ -84,7 +84,7 @@ namespace Vodovoz.Counterparties
 
 			entityentryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<CallTask>(ViewModel, null, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope)
 				.ForProperty(x => x.Counterparty)
-				.UseTdiEntityDialog()
+				.UseTdiDialog<CounterpartyDlg>()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
 
