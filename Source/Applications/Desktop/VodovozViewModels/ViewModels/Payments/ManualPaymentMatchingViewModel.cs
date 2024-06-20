@@ -772,7 +772,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				: default;
 
 			CounterpartyClosingDocumentsOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebt(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
+				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
 				: default;
 		}
 

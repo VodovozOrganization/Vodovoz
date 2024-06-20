@@ -782,18 +782,20 @@ namespace Vodovoz.EntityRepositories.Orders
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
-		public decimal GetCounterpartyClosingDocumentsOrdersDebt(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
 			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
 				uow,
 				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
