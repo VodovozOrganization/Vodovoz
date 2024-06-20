@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
+using Pacs.Core.Messages.Events;
 using Pacs.Server.Operators;
 using System;
 using System.Threading.Tasks; 
@@ -96,6 +97,14 @@ namespace Pacs.Operators.Server
 			_logger.LogTrace("Завершение перерыва оператора {OperatorId}", command.OperatorId);
 
 			return await _operatorStateService.EndBreak(command.OperatorId);
+		}
+
+		[HttpGet("break-availability")]
+		public async Task<OperatorBreakAvailability> GetBreakAvailabilityAsync(int operatorId)
+		{
+			_logger.LogTrace("Обновление возможности начать перерыв оператора {OperatorId}", operatorId);
+
+			return await _operatorStateService.GetBreakAvailability(operatorId);
 		}
 	}
 }

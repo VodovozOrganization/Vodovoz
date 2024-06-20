@@ -9,28 +9,27 @@ using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Server.Operators
 {
-	public class OperatorAgentFactory : IOperatorAgentFactory
+	public class OperatorServerStateMachineFactory : IOperatorServerStateMachineFactory
 	{
 		private readonly IServiceProvider _serviceProvider;
 
-		public OperatorAgentFactory(IServiceProvider serviceProvider)
+		public OperatorServerStateMachineFactory(IServiceProvider serviceProvider)
 		{
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
-		public OperatorServerAgent CreateOperatorAgent(int operatorId)
+		public OperatorServerStateMachine CreateOperatorAgent(int operatorId)
 		{
-			var operatorServerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorServerAgent>>();
-			var operatorBreakControllerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorBreakController>>();
+			var operatorServerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorServerStateMachine>>();
 			var pacsSettings = _serviceProvider.GetRequiredService<IPacsSettings>();
 			var operatorRepository = _serviceProvider.GetRequiredService<IOperatorRepository>();
 			var operatorNotifier = _serviceProvider.GetRequiredService<IOperatorNotifier>();
 			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
 			var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 			var pacsRepository = _serviceProvider.GetRequiredService<IPacsRepository>();
-			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
-			var breakController = new OperatorBreakController(operatorId, operatorBreakControllerLogger, globalBreakController, pacsRepository);
-			return new OperatorServerAgent(
+			var globalBreakController = _serviceProvider.GetRequiredService<IGlobalBreakController>();
+
+			return new OperatorServerStateMachine(
 				operatorId,
 				operatorServerLogger,
 				pacsSettings,
@@ -38,7 +37,6 @@ namespace Pacs.Server.Operators
 				operatorNotifier,
 				phoneController,
 				globalBreakController,
-				breakController,
 				uowFactory);
 		}
 	}
