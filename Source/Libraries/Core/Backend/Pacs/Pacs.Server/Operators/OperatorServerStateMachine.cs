@@ -1,7 +1,6 @@
 ﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
-using Pacs.Core.Messages.Events;
 using Pacs.Server.Breaks;
 using Pacs.Server.Phones;
 using QS.DomainModel.UoW;
@@ -19,15 +18,15 @@ using Timer = System.Timers.Timer;
 
 namespace Pacs.Server.Operators
 {
-	public partial class OperatorServerAgent : IDisposable
+	public partial class OperatorServerStateMachine : IDisposable
 	{
-		private readonly ILogger<OperatorServerAgent> _logger;
+		private readonly ILogger<OperatorServerStateMachine> _logger;
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
 		private readonly IPhoneController _phoneController;
-		private readonly GlobalBreakController _globalBreakController;
-		private readonly OperatorBreakController _operatorBreakController;
+		private readonly IGlobalBreakController _globalBreakController;
+		private readonly IOperatorBreakAvailabilityService _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
 		private Timer _timer;
@@ -51,17 +50,14 @@ namespace Pacs.Server.Operators
 		public OperatorSession Session { get; private set; }
 		public OperatorState OperatorState { get; private set; }
 
-		public OperatorBreakAvailability BreakAvailability { get; private set; }
-
-		public OperatorServerAgent(
+		public OperatorServerStateMachine(
 			int operatorId,
-			ILogger<OperatorServerAgent> logger,
+			ILogger<OperatorServerStateMachine> logger,
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
 			IPhoneController phoneController,
-			GlobalBreakController globalBreakController,
-			OperatorBreakController operatorBreakController,
+			IGlobalBreakController globalBreakController,
 			IUnitOfWorkFactory uowFactory)
 		{
 			OperatorId = operatorId;
@@ -71,7 +67,6 @@ namespace Pacs.Server.Operators
 			_operatorNotifier = operatorNotifier ?? throw new ArgumentNullException(nameof(operatorNotifier));
 			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
 			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
-			_operatorBreakController = operatorBreakController ?? throw new ArgumentNullException(nameof(operatorBreakController));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			_timer = new Timer();
@@ -81,16 +76,7 @@ namespace Pacs.Server.Operators
 
 			LoadOperatorState(OperatorId);
 
-			BreakAvailability = _operatorBreakController.GetBreakAvailability();
-			_operatorBreakController.BreakAvailabilityChanged += BreakAvailabilityChanged;
-
 			ConfigureStateMachine();
-		}
-
-		private void BreakAvailabilityChanged(object sender, OperatorBreakAvailability newBreakAvailability)
-		{
-			BreakAvailability = newBreakAvailability;
-			_operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
 		#region Initialization
@@ -108,8 +94,6 @@ namespace Pacs.Server.Operators
 				Session = OperatorState.Session;
 				StartCheckInactivity();
 			}
-
-			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 		}
 
 		private void CreateNew(int operatorId)
@@ -124,9 +108,12 @@ namespace Pacs.Server.Operators
 
 		private void ConfigureStateMachine()
 		{
-			_machine = new StateMachine(() => OperatorState.State, ChangeState, FiringMode.Queued);
+			_machine = new StateMachine(
+				() => OperatorState.State,
+				ChangeState,
+				FiringMode.Queued);
 
-			OperatorStateAgent.ConfigureBaseStates(_machine);
+			OperatorStateMachine.ConfigureBaseStates(_machine);
 
 			_takeCallTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.TakeCall);
 			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);
@@ -215,7 +202,7 @@ namespace Pacs.Server.Operators
 
 		public bool CanChangedBy(OperatorTrigger trigger)
 		{
-			return _machine.CanFire(ConvertTrigger(trigger));
+			return _machine.CanFire(trigger.ToOperatorStateTrigger());
 		}
 
 		#region Save
@@ -229,7 +216,7 @@ namespace Pacs.Server.Operators
 					"Необходимо проверить настройки состояний.");
 			}
 
-			OperatorState.Trigger = ConvertTrigger(transition.Trigger);
+			OperatorState.Trigger = transition.Trigger.ToOperatorTrigger();
 
 			if(OperatorState.WorkShift != null
 				&& OperatorState.WorkShift.Ended.HasValue
@@ -244,9 +231,6 @@ namespace Pacs.Server.Operators
 			{
 				_globalBreakController.UpdateBreakAvailability();
 			}
-
-			BreakAvailability = _operatorBreakController.GetBreakAvailability();
-			await _operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
 		private async Task SaveState()
@@ -543,6 +527,7 @@ namespace Pacs.Server.Operators
 			{
 				BreakChangedBy = BreakChangedBy.Operator,
 			};
+
 			await _machine.FireAsync(_endBreakTrigger, args);
 		}
 
@@ -554,6 +539,7 @@ namespace Pacs.Server.Operators
 				AdminId = adminId,
 				Reason = reason
 			};
+
 			await _machine.FireAsync(_endBreakTrigger, args);
 		}
 
@@ -565,6 +551,7 @@ namespace Pacs.Server.Operators
 				AdminId = adminId,
 				Reason = reason
 			};
+
 			await _machine.FireAsync(_endWorkShiftTrigger, args);
 		}
 
@@ -650,71 +637,6 @@ namespace Pacs.Server.Operators
 		}
 
 		#endregion
-
-		#region Private structures
-
-		private OperatorTrigger ConvertTrigger(OperatorStateTrigger trigger)
-		{
-			switch(trigger)
-			{
-				case OperatorStateTrigger.Connect:
-					return OperatorTrigger.Connect;
-				case OperatorStateTrigger.StartWorkShift:
-					return OperatorTrigger.StartWorkShift;
-				case OperatorStateTrigger.TakeCall:
-					return OperatorTrigger.TakeCall;
-				case OperatorStateTrigger.EndCall:
-					return OperatorTrigger.EndCall;
-				case OperatorStateTrigger.StartBreak:
-					return OperatorTrigger.StartBreak;
-				case OperatorStateTrigger.EndBreak:
-					return OperatorTrigger.EndBreak;
-				case OperatorStateTrigger.ChangePhone:
-					return OperatorTrigger.ChangePhone;
-				case OperatorStateTrigger.EndWorkShift:
-					return OperatorTrigger.EndWorkShift;
-				case OperatorStateTrigger.Disconnect:
-					return OperatorTrigger.Disconnect;
-				case OperatorStateTrigger.KeepAlive:
-				case OperatorStateTrigger.CheckInactivity:
-				default:
-					throw new InvalidOperationException(
-						$"Триггер {trigger} не конвертируется в тип {nameof(OperatorTrigger)}, " +
-						$"так как не предусмотрено его сохранение. " +
-						$"Необходимо проверить настройки состояний.");
-			}
-		}
-
-		private OperatorStateTrigger ConvertTrigger(OperatorTrigger trigger)
-		{
-			switch(trigger)
-			{
-				case OperatorTrigger.Connect:
-					return OperatorStateTrigger.Connect;
-				case OperatorTrigger.StartWorkShift:
-					return OperatorStateTrigger.StartWorkShift;
-				case OperatorTrigger.TakeCall:
-					return OperatorStateTrigger.TakeCall;
-				case OperatorTrigger.EndCall:
-					return OperatorStateTrigger.EndCall;
-				case OperatorTrigger.StartBreak:
-					return OperatorStateTrigger.StartBreak;
-				case OperatorTrigger.EndBreak:
-					return OperatorStateTrigger.EndBreak;
-				case OperatorTrigger.ChangePhone:
-					return OperatorStateTrigger.ChangePhone;
-				case OperatorTrigger.EndWorkShift:
-					return OperatorStateTrigger.EndWorkShift;
-				case OperatorTrigger.Disconnect:
-					return OperatorStateTrigger.Disconnect;
-				default:
-					throw new InvalidOperationException(
-						$"Неизвестный триггер {trigger}. " +
-						$"Необходимо проверить настройки состояний.");
-			}
-		}
-
-		#endregion Private structures
 
 		public void Dispose()
 		{
