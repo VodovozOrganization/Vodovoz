@@ -2069,17 +2069,20 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual void UpdateDeliveryItem(Nomenclature nomenclature, decimal price)
 		{
-			var deliveryItem = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+			//Т.к. запускается пересчет различных параметров, который может привести к добавлению платной доставки
+			//создание строки с платной доставкой лучше запускать до ее поиска в коллекции
+			var newDeliveryItem = OrderItem.CreateDeliveryOrderItem(this, nomenclature, price);
+			var currentDeliveryItem = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
 			if(price > 0)
 			{
-				AddOrUpdateDeliveryItem(deliveryItem, nomenclature, price);
+				AddOrUpdateDeliveryItem(currentDeliveryItem, newDeliveryItem, price);
 				return;
 			}
 			
-			if(deliveryItem != null)
+			if(currentDeliveryItem != null)
 			{
-				RemoveOrderItem(deliveryItem);
+				RemoveOrderItem(currentDeliveryItem);
 			}
 		}
 
@@ -2134,22 +2137,20 @@ namespace Vodovoz.Domain.Orders
 			orderItem?.SetCount(newCount);
 		}
 		
-		private void AddOrUpdateDeliveryItem(OrderItem deliveryItem, Nomenclature nomenclature, decimal price)
+		private void AddOrUpdateDeliveryItem(OrderItem currentDeliveryItem, OrderItem newDeliveryItem, decimal price)
 		{
-			var deliveryPriceItem = OrderItem.CreateDeliveryOrderItem(this, nomenclature, price);
-
-			if(deliveryItem is null)
+			if(currentDeliveryItem is null)
 			{
-				AddOrderItem(deliveryPriceItem);
+				AddOrderItem(newDeliveryItem);
 				return;
 			}
 
-			if(deliveryItem.Price == price)
+			if(currentDeliveryItem.Price == price)
 			{
 				return;
 			}
 
-			deliveryItem.SetPrice(price);
+			currentDeliveryItem.SetPrice(price);
 		}
 
 		#endregion

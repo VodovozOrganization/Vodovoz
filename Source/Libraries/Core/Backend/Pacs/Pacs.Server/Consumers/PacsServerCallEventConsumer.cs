@@ -10,11 +10,11 @@ namespace Pacs.Server.Consumers
 {
 	public class PacsServerCallEventConsumer : IConsumer<PacsCallEvent>
 	{
-		private readonly IOperatorControllerProvider _operatorControllerProvider;
+		private readonly IOperatorStateService _operatorStateService;
 
-		public PacsServerCallEventConsumer(IOperatorControllerProvider operatorControllerProvider)
+		public PacsServerCallEventConsumer(IOperatorStateService operatorControllerProvider)
 		{
-			_operatorControllerProvider = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
+			_operatorStateService = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
 		}
 
 		public async Task Consume(ConsumeContext<PacsCallEvent> context)
@@ -27,24 +27,19 @@ namespace Pacs.Server.Consumers
 			}
 
 			var connectedSubCall = call.SubCalls.FirstOrDefault(x => x.WasConnected);
-			if(connectedSubCall == null)
-			{
-				return;
-			}
 
-			var operatorController = _operatorControllerProvider.GetOperatorController(connectedSubCall.ToExtension);
-			if(operatorController == null)
+			if(connectedSubCall == null)
 			{
 				return;
 			}
 
 			if(call.Status == CallStatus.Connected)
 			{
-				await operatorController.TakeCall(connectedSubCall.CallId);
+				await _operatorStateService.TakeCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
 			}
 			else
 			{
-				await operatorController.EndCall(connectedSubCall.CallId);
+				await _operatorStateService.EndCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
 			}
 		}
 	}

@@ -300,7 +300,7 @@ namespace Vodovoz
 
 					builder.RegisterModule<CashReceiptClientChannelModule>();
 
-					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
+					builder.RegisterType<OperatorStateMachine>().As<IOperatorStateMachine>();
 					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
 					builder.RegisterType<OperatorClient>().As<IOperatorClient>();
 

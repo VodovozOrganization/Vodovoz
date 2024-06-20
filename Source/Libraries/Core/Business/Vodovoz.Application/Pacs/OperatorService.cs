@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Vodovoz.Application.Mango;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
@@ -35,7 +36,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly IOperatorClient _client;
 		private readonly IMangoManager _mangoManager;
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
-		private readonly IOperatorStateAgent _operatorStateAgent;
+		private readonly IOperatorStateMachine _operatorStateAgent;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IObservable<GlobalBreakAvailabilityEvent> _globalBreakPublisher;
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
@@ -68,14 +69,13 @@ namespace Vodovoz.Application.Pacs
 			IEmployeeService employeeService,
 			IOperatorClient operatorClient,
 			IMangoManager mangoManager,
-			IOperatorStateAgent operatorStateAgent,
+			IOperatorStateMachine operatorStateAgent,
 			IPacsRepository pacsRepository,
 			IObservable<GlobalBreakAvailabilityEvent> globalBreakPublisher,
 			OperatorSettingsConsumer operatorSettingsConsumer,
 			IObservable<OperatorsOnBreakEvent> operatorsOnBreakPublisher,
 			IPacsEmployeeProvider pacsEmployeeProvider,
-			OperatorKeepAliveController operatorKeepAliveController
-		)
+			OperatorKeepAliveController operatorKeepAliveController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -93,7 +93,7 @@ namespace Vodovoz.Application.Pacs
 			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
-			_delayedBreakUpdateTimer.Elapsed += (s, e) => UpdateBreakInfo();
+			_delayedBreakUpdateTimer.Elapsed += async (s, e) => await OnBreakAvailabilityTimerElapsedAsync(s, e);
 
 			_employee = _employeeService.GetEmployeeForCurrentUser();
 
@@ -111,6 +111,12 @@ namespace Vodovoz.Application.Pacs
 			{
 				UpdateMango();
 			}
+		}
+
+		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
+		{
+			await RefreshBreakAvailability();
+			UpdateBreakInfo();
 		}
 
 		public bool IsInitialized { get; }
@@ -197,10 +203,23 @@ namespace Vodovoz.Application.Pacs
 			{
 				OperatorState = stateEvent.State;
 			}
+
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
 			{
 				BreakAvailability = stateEvent.BreakAvailability;
 			}
+		}
+
+		public async Task RefreshBreakAvailability()
+		{
+			if(OperatorState is null)
+			{
+				return;
+			}
+
+			var globalBreakAvailability = await _client.GetOperatorBreakAvailability(OperatorState.OperatorId);
+
+			BreakAvailability = globalBreakAvailability;
 		}
 
 		private void SubscribeEvents()
@@ -238,6 +257,7 @@ namespace Vodovoz.Application.Pacs
 					OnPropertyChanged(nameof(CanStartWorkShift));
 					OnPropertyChanged(nameof(CanEndWorkShift));
 
+					UpdateBreakInfo();
 					UpdateLongBreak();
 					UpdateShortBreak();
 					UpdateEndBreak();
@@ -290,6 +310,7 @@ namespace Vodovoz.Application.Pacs
 				UpdateShortBreak();
 			}
 		}
+
 		public GlobalBreakAvailabilityEvent GlobalBreakAvailability
 		{
 			get => _globalBreakAvailability;
@@ -300,7 +321,6 @@ namespace Vodovoz.Application.Pacs
 				UpdateBreakInfo();
 				UpdateLongBreak();
 				UpdateShortBreak();
-
 			}
 		}
 
@@ -320,18 +340,20 @@ namespace Vodovoz.Application.Pacs
 		private void StartDelayedBreakUpdate()
 		{
 			_delayedBreakUpdateTimer.Stop();
+
 			if(BreakAvailability.ShortBreakSupposedlyAvailableAfter == null)
 			{
 				return;
 			}
 
 			var interval = BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value - DateTime.Now;
+
 			if(interval < TimeSpan.Zero)
 			{
 				return;
 			}
 
-			interval.Add(TimeSpan.FromSeconds(1));
+			interval.Add(TimeSpan.FromSeconds(2));
 
 			_delayedBreakUpdateTimer.Interval = interval.TotalMilliseconds;
 			_delayedBreakUpdateTimer.AutoReset = false;
@@ -455,10 +477,10 @@ namespace Vodovoz.Application.Pacs
 
 		private void UpdateShortBreak()
 		{
-			var breakUnavailable = !BreakAvailability.ShortBreakAvailable
-			|| !GlobalBreakAvailability.ShortBreakAvailable;
+			var breakAvailable = BreakAvailability.ShortBreakAvailable
+				&& GlobalBreakAvailability.ShortBreakAvailable;
 
-			CanStartShortBreak = _operatorStateAgent.CanStartBreak && !breakUnavailable;
+			CanStartShortBreak = _operatorStateAgent.CanStartBreak && breakAvailable;
 
 			if(_operatorStateAgent.CanStartBreak && CanStartShortBreak)
 			{
