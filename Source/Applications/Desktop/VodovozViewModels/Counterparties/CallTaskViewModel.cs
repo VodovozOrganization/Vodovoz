@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
+using QS.Tdi;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
@@ -30,7 +31,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Counterparties
 {
-	public class CallTaskViewModel : EntityDialogViewModelBase<CallTask>
+	public class CallTaskViewModel : EntityDialogViewModelBase<CallTask>, ISaveable, IHasChanges
 	{
 		private Action _openReportByCounterpartyLegacyCallback;
 		private Action _openReportByDeliveryPointLegacyCallback;
@@ -51,6 +52,8 @@ namespace Vodovoz.ViewModels.Counterparties
 		private string _lastComment;
 		private Action _createNewOrderLegacyCallback;
 		private string _comment;
+
+		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public CallTaskViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -404,6 +407,19 @@ namespace Vodovoz.ViewModels.Counterparties
 				OldComments = Entity.Comment;
 				DeliveryPointPhonesViewModel.PhonesList = null;
 			}
+		}
+
+		bool ISaveable.Save()
+		{
+			base.Save();
+			EntitySaved?.Invoke(this, new EntitySavedEventArgs(Entity));
+			return true;
+		}
+
+		void ISaveable.SaveAndClose()
+		{
+			SaveAndClose();
+			EntitySaved?.Invoke(this, new EntitySavedEventArgs(Entity));
 		}
 	}
 }
