@@ -112,11 +112,4 @@ namespace Vodovoz.EntityRepositories.Profitability
 				.SingleOrDefault();
 		}
 	}
-
-	public class AverageMileageCarsByTypeOfUseNode
-	{
-		public CarTypeOfUse CarTypeOfUse { get; set; }
-		public decimal Distance { get; set; }
-		public int CountCars { get; set; }
-	}
 }
