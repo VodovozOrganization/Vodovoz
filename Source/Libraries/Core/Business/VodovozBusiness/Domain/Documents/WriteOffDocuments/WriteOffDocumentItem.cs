@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			set => SetField(ref _cullingCategory, value);
 		}
 
-		[Range(typeof(decimal), "1")]
+		[Range(typeof(decimal), "1", ErrorMessage = "Количество должно быть больше 1")]
 		[Display(Name = "Количество")]
 		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal Amount

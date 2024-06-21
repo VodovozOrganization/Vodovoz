@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Store
 
 		decimal amount;
 
-		[Range(typeof(decimal), "1")]
+		[Range(typeof(decimal), "1", ErrorMessage = "Количество должно быть больше 1")]
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
