@@ -384,11 +384,5 @@ namespace Vodovoz.EntityRepositories
 		}
 
 		#endregion
-
-		private class GuidCounterpartyEmailNode
-		{
-			public int CounterpartyId { get; set; }
-			public BulkEmailEvent.BulkEmailEventType? BulkEmailEventType { get; set; }
-		}
 	}
 }

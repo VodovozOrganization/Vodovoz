@@ -34,7 +34,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
-	public class RouteListRepository : IRouteListRepository
+	public partial class RouteListRepository : IRouteListRepository
 	{
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
@@ -1362,26 +1362,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsInG(paidDeliveriesNomenclaturesIds)
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
-		}
-
-		public class RouteListProfitabilitySpendings
-		{
-			public decimal TotalSales { get; set; }
-			public decimal TotalPurchaseSpending { get; set; }
-			public decimal TotalInnerDeliverySpending { get; set; }
-			public decimal TotalAddressDeliverySpending { get; set; }
-			public decimal TotalWarehouseSpending { get; set; }
-			public decimal TotalAdministrativeSpending { get; set; }
-
-			public decimal GetTotalSpending()
-			{
-				return
-				TotalPurchaseSpending +
-				TotalInnerDeliverySpending +
-				TotalAddressDeliverySpending +
-				TotalWarehouseSpending +
-				TotalAdministrativeSpending;
-			}
 		}
 
 		public RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg)
