@@ -128,5 +128,8 @@ namespace DateTimeHelpers
 		{
 			return _calendar.AddWeeks(dateTime, weeks);
 		}
+
+		public static DateTime Max(DateTime dateTime, DateTime otherDateTime)
+			=> dateTime > otherDateTime ? dateTime : otherDateTime;
 	}
 }

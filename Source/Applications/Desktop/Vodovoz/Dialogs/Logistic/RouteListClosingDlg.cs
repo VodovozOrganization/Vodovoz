@@ -1,18 +1,19 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using Microsoft.Extensions.Logging;
 using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
 using QS.Utilities.Debug;
 using QS.Utilities.Extensions;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -42,6 +43,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
@@ -49,38 +51,26 @@ using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using QS.Utilities.Debug;
-using Vodovoz.Extensions;
-using QS.Navigation;
-using Vodovoz.ViewModels.Employees;
-using Microsoft.Extensions.Logging;
-using Vodovoz.ViewModels.Logistic;
-using QS.Services;
-using QS.Dialog;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Domain.Orders;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using QS.Dialog.Gtk;
-using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz
 {
@@ -311,6 +301,7 @@ namespace Vodovoz
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
+			routeListAddressesView.BottlesReturnedEdited += OnBottlesReturnedEdited;
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			ReloadReturnedToWarehouse();
@@ -393,11 +384,29 @@ namespace Vodovoz
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
-			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
-
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private void OnBottlesReturnedEdited(object sender, int bottlesReturned)
+		{
+			var node = routeListAddressesView.GetSelectedRouteListItem();
+			node.BottlesReturned = bottlesReturned;
+			CreateBottlesReturnFreeBalanceOperations(node);
+		}
+
+		private void CreateBottlesReturnFreeBalanceOperations(RouteListItem node)
+		{
+			if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
+			{
+				_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+
+			ReloadDiscrepancies();
 		}
 
 		private IEntityEntryViewModel BuildCarEntryViewModel()
@@ -449,22 +458,6 @@ namespace Vodovoz
 			var hasStatusForCloseAdvance = routeListStatusesForCloseAdvance.Contains(Entity.Status);
 
 			ybuttonCashChangeReturn.Sensitive = hasUnclosedAdvances && hasStatusForCloseAdvance;
-		}
-
-		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(RouteListItem.BottlesReturned))
-			{
-				var node = routeListAddressesView.GetSelectedRouteListItem();
-
-				if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
-				{
-					_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
-				}
-
-				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
-					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
-			}
 		}
 
 		private void UpdateSensitivity()
@@ -799,8 +792,21 @@ namespace Vodovoz
 				_addressKeepingDocumentItemsCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
 			}
 
+			RouteListItemStatus oldAddressStatus;
+
+			using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Получение сохранённого статуса адреса"))
+			{
+				oldAddressStatus = uow.GetById<RouteListItem>(node.Id).Status;
+			}
+
+			var isFromRouteListClosingNewUndelivery = RouteListItem.GetUndeliveryStatuses().Contains(node.Status)
+				&& !RouteListItem.GetUndeliveryStatuses().Contains(oldAddressStatus);
+
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
-				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, node, _addressKeepingDocumentItemsCacheList[node.Id],
+				isFromRouteListClosingUndelivery: isFromRouteListClosingNewUndelivery);
+
+			CreateBottlesReturnFreeBalanceOperations(node);
 
 			ReloadDiscrepancies();
 
@@ -1423,7 +1429,7 @@ namespace Vodovoz
 				);
 			}
 
-			text.Add($"Номер топливной карты: {Entity.Car.FuelCardNumber}");
+			text.Add($"Номер топливной карты: {Entity.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}
@@ -1515,6 +1521,7 @@ namespace Vodovoz
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
+			routeListAddressesView.BottlesReturnedEdited -= OnBottlesReturnedEdited;
 			base.Destroy();
 		}
 
@@ -1609,6 +1616,13 @@ namespace Vodovoz
 			if(fd == null) {
 				return;
 			}
+
+			if(fd.FuelLimitLitersAmount > 0 || fd.FuelLimit != null)
+			{
+				MessageDialogHelper.RunErrorDialog("Нельзя удалить талоны по которым выдавались топливные лимиты");
+				return;
+			}
+
 			Entity.ObservableFuelDocuments.Remove(fd);
 		}
 
@@ -1628,6 +1642,11 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IFuelControlSettings>(),
+				_lifetimeScope.Resolve<IGuiDispatcher>(),
+				_lifetimeScope.Resolve<IUserSettingsService>(),
+				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 				_lifetimeScope
 				));
 		}
@@ -1648,6 +1667,11 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
 				_financialCategoriesGroupsSettings,
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
+				_lifetimeScope.Resolve<IFuelApiService>(),
+				_lifetimeScope.Resolve<IFuelControlSettings>(),
+				_lifetimeScope.Resolve<IGuiDispatcher>(),
+				_lifetimeScope.Resolve<IUserSettingsService>(),
+				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
 				_lifetimeScope
 				));
 		}

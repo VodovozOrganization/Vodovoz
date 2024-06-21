@@ -51,10 +51,19 @@ namespace Vodovoz.Services
 			return OrderDocumentRulesRepository.GetSetOfDocumets(_orderStateKey);
 		}
 
-		public Result SendUpdToEmailOnFinishIfNeeded(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IDeliveryScheduleSettings deliveryScheduleSettings)
+		public Result SendUpdToEmailOnFinishIfNeeded(
+			IUnitOfWork uow,
+			Order order,
+			IEmailRepository emailRepository,
+			IOrderRepository orderRepository,
+			IDeliveryScheduleSettings deliveryScheduleSettings)
 		{
+			var threeMonthLeft = DateTime.Today.AddMonths(-3);
+			
 			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings)
-				&& !emailRepository.HasSendedEmailForUpd(order.Id))
+				&& !emailRepository.HasSendedEmailForUpd(order.Id)
+				&& (order.DeliveryDate is null || order.DeliveryDate >= threeMonthLeft)
+				&& !orderRepository.HasSignedUpdDocumentFromEdo(uow, order.Id))
 			{
 				return SendUpdToEmail(uow, order);
 			}

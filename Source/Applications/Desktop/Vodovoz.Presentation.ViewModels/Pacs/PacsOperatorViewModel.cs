@@ -1,4 +1,6 @@
 ﻿using Core.Infrastructure;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using QS.Commands;
 using QS.Dialog;
@@ -18,6 +20,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class PacsOperatorViewModel : WidgetViewModelBase
 	{
+		private readonly ILogger<PacsOperatorViewModel> _logger;
 		private readonly OperatorService _operatorService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IInteractiveService _interactiveService;
@@ -32,12 +35,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private string _breakInfo;
 
 		public PacsOperatorViewModel(
+			ILogger<PacsOperatorViewModel> logger,
 			OperatorService operatorService,
 			IEmployeeService employeeService,
 			IInteractiveService interactiveService,
 			IGuiDispatcher guiDispatcher,
 			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorService = operatorService ?? throw new ArgumentNullException(nameof(operatorService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -100,6 +105,24 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			set => SetField(ref _phoneNumber, value);
 		}
 
+		public virtual string CurrentOperatorId =>
+			_operatorService.OperatorState?.OperatorId is null
+			? "Номер оператора: -"
+			: $"Номер оператора: {_operatorService.OperatorState?.OperatorId ?? 0}";
+
+		public virtual string WorkShiftId =>
+			_operatorService.OperatorState?.WorkShift?.Id is null
+			? "Номер смены: -"
+			: $"Номер смены: {_operatorService.OperatorState?.WorkShift?.Id ?? 0}";
+
+		public virtual string CurrentOperatorStatus =>
+			_operatorService.OperatorState is null
+			? "Статус оператора: -"
+			: $"Статус оператора: {_operatorService.OperatorState.State.GetEnumTitle()}";
+
+		public virtual string ShortBreaksUsedCount =>
+			$"Количество использованных малых перерывов: 0";
+
 		public virtual IEnumerable<string> AvailablePhones
 		{
 			get => _availablePhones;
@@ -113,9 +136,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			&& _operatorService.CanChangePhone;
 
 		public bool CanStartLongBreak => _operatorService.CanStartLongBreak && !_operatorService.BreakInProgress;
+
 		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
+
 		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
+
 		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
+
 		public bool CanEndWorkShift => _operatorService.CanEndWorkShift;
 
 		public virtual string BreakInfo
@@ -133,6 +160,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					case nameof(OperatorService.OperatorState):
 						PhoneNumber = _operatorService.OperatorState?.PhoneNumber;
 						OnPropertyChanged(nameof(CanChangePhone));
+						OnPropertyChanged(nameof(CurrentOperatorId));
+						OnPropertyChanged(nameof(CurrentOperatorStatus));
 						break;
 					case nameof(OperatorService.OperatorsOnBreak):
 						PrepareOperatorsOnBreakViewModels();
@@ -144,6 +173,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 						break;
 					case nameof(OperatorService.CanStartWorkShift):
 						OnPropertyChanged(nameof(CanStartWorkShift));
+						OnPropertyChanged(nameof(WorkShiftId));
 						break;
 					case nameof(OperatorService.CanChangePhone):
 						OnPropertyChanged(nameof(CanChangePhone));
@@ -168,10 +198,16 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					case nameof(OperatorService.BreakInProgress):
 						OnPropertyChanged(nameof(CanStartLongBreak));
 						OnPropertyChanged(nameof(CanStartShortBreak));
+						OnPropertyChanged(nameof(ShortBreaksUsedCount));
 						OnPropertyChanged(nameof(CanEndBreak));
 						break;
 					case nameof(OperatorService.CanEndWorkShift):
 						OnPropertyChanged(nameof(CanEndWorkShift));
+						OnPropertyChanged(nameof(WorkShiftId));
+						break;
+					case nameof(OperatorService.MangoPhone):
+						PhoneNumber = _operatorService.OperatorState?.PhoneNumber;
+						OnPropertyChanged(nameof(PhoneNumber));
 						break;
 					default:
 						break;
@@ -210,7 +246,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при начале смены: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при начале смены: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -246,7 +288,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при завершении смены: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при завершении смены: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -264,7 +312,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при смене номера телефона: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при смене номера телефона: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -281,7 +335,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при начале длинного перерыва: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при начале длинного перерыва: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -298,7 +358,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при начале короткого перерыва: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при начале короткого перерыва: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 
@@ -315,7 +381,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
+				_logger.LogError(ex, "Произошла ошибка при завершении перерыва: {ExceptionMessage}", ex.Message);
 				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при завершении перерыва: {ExceptionMessage}", ex.Message);
+				throw;
 			}
 		}
 

@@ -4,6 +4,7 @@ using CustomerAppsApi.Library.Dto;
 using Gamma.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerAppsApi.Library.Services
 {

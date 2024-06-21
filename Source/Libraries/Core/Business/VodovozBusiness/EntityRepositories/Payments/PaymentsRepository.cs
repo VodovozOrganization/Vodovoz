@@ -121,15 +121,7 @@ namespace Vodovoz.EntityRepositories.Payments
 			return distributedPayments;
 		}
 
-		public Payment GetNotCancelledRefundedPayment(IUnitOfWork uow, int orderId)
-		{
-			return uow.Session.QueryOver<Payment>()
-				.Where(p => p.RefundPaymentFromOrderId == orderId)
-				.And(p => p.Status != PaymentState.Cancelled)
-				.SingleOrDefault();
-		}
-		
-		public IList<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
+		public IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<Payment>()
 				.Where(p => p.RefundPaymentFromOrderId == orderId)

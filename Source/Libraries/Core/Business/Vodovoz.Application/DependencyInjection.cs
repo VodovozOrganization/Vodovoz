@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Application.Complaints;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.RouteOptimization;
@@ -6,8 +7,10 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Services;
+using Vodovoz.Domain.Service;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Services.Orders;
 
 namespace Vodovoz.Application
 {
@@ -23,6 +26,22 @@ namespace Vodovoz.Application
 			.AddScoped<IRouteListService, RouteListService>()
 			.AddScoped<IPaymentService, PaymentService>()
 			.AddScoped<IOrderService, OrderService>()
-			.AddScoped<INomenclatureService, NomenclatureService>();
+			.AddScoped<INomenclatureService, NomenclatureService>()
+			.AddScoped<IComplaintService, ComplaintService>()
+			.AddOrderServicesDependencies()
+		;
+		
+		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
+			.AddScoped<IOrderService, OrderService>()
+			.AddOrderServicesDependencies()
+			;
+
+		private static IServiceCollection AddOrderServicesDependencies(this IServiceCollection services) => services
+			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
+			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
+			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
+			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
+			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
+		;
 	}
 }

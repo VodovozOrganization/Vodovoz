@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 
 namespace LogisticsEventsApi.Controllers
 {
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
+	[OnlyOneSession]
 	[Route("/api/")]
 	public class WarehouseEventsController : ControllerBase
 	{

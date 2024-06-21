@@ -1,0 +1,28 @@
+﻿using System;
+using QS.Project.Journal;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Orders;
+
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
+{
+	public class OnlineOrdersJournalNode : JournalEntityNodeBase
+	{
+		public override string Title => string.Empty;
+
+		public string CounterpartyName { get; set; }
+		public string CompiledAddress { get; set; }
+		public DateTime DeliveryDate { get; set; }
+		public bool IsSelfDelivery { get; set; }
+		public bool IsFastDelivery { get; set; }
+		public string DeliveryTime { get; set; }
+		public OnlineOrderStatus OnlineOrderStatus { get; set; }
+		public string ManagerWorkWith { get; set; }
+		public Core.Domain.Clients.Source Source { get; set; }
+		public decimal OnlineOrderSum { get; set; }
+		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
+		public int? OnlinePayment { get; set; }
+		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
+		public bool IsNeedConfirmationByCall { get; set; }
+		public int? OrderId { get; set; }
+	}
+}

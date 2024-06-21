@@ -8,6 +8,7 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OperatorNode> config) =>
 			config
+				.AddColumn("#").AddNumericRenderer(node => node.Id)
 				.AddColumn("Оператор").AddTextRenderer(node => node.Title)
 				.AddColumn("График").AddTextRenderer(node => node.WorkshiftName)
 				.AddColumn("Включен").AddToggleRenderer(node => node.PacsEnabled).Editing(false)

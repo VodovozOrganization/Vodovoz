@@ -17,6 +17,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -44,7 +45,8 @@ namespace Vodovoz.ViewModels.Employees
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope
+			ILifetimeScope lifetimeScope,
+			ICarEventRepository carEventRepository
 		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -60,6 +62,18 @@ namespace Vodovoz.ViewModels.Employees
 			ConfigureEntityPropertyChanges();
 
 			RouteListViewModel = BuildRouteListEntityViewModel();
+
+			ConfigureCarEvent(carEventRepository);
+		}
+
+		private void ConfigureCarEvent(ICarEventRepository carEventRepository)
+		{
+			var carEvents = carEventRepository.GetCarEventsByFine(UoW, Entity.Id);
+			
+			if(carEvents.Any())
+			{
+				CarEvent = $"Взыскано по событию ТС: {string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}";
+			}
 		}
 
 		public Employee CurrentEmployee
@@ -143,6 +157,8 @@ namespace Vodovoz.ViewModels.Employees
 				CalculateMoneyFromLiters();
 			}
 		}
+
+		public string CarEvent { get; private set; }
 
 		public IEntityEntryViewModel RouteListViewModel { get; }
 
@@ -376,7 +392,7 @@ namespace Vodovoz.ViewModels.Employees
 
 		#region DeleteFineItemCommand
 
-		public DelegateCommand<FineItem> DeleteFineItemCommand { get; private set; }
+		public DelegateCommand<FineItem> DeleteFineItemCommand { get; private set; }		
 
 		private void CreateDeleteFineItemCommand()
 		{

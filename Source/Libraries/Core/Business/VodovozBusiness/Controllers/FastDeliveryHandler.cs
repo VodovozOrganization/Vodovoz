@@ -1,0 +1,139 @@
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.FastDelivery;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Errors;
+using Vodovoz.Models;
+using Vodovoz.NotificationRecievers;
+using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.Validation;
+
+namespace Vodovoz.Controllers
+{
+	public class FastDeliveryHandler
+	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IDriverApiSettings _driverApiSettings;
+		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
+		private readonly IFastDeliveryValidator _fastDeliveryValidator;
+
+		public FastDeliveryHandler(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IDeliveryRepository deliveryRepository,
+			IDriverApiSettings driverApiSettings,
+			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
+			IFastDeliveryValidator fastDeliveryValidator)
+		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
+			_routeListAddressKeepingDocumentController =
+				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
+			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));
+		}
+		
+		private DriverAPIHelper _driverApiHelper;
+
+		public virtual DriverAPIHelper DriverApiHelper
+		{
+			get
+			{
+				if(_driverApiHelper is null)
+				{
+					var driverApiConfig = new DriverApiHelperConfiguration
+					{
+						ApiBase = _driverApiSettings.ApiBase,
+						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
+						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI,
+						NotifyOfCashRequestForDriverIsGivenForTakeUri = _driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri
+					};
+					_driverApiHelper = new DriverAPIHelper(new LoggerFactory().CreateLogger<DriverAPIHelper>(), driverApiConfig);
+				}
+
+				return _driverApiHelper;
+			}
+		}
+		
+		public RouteList RouteListToAddFastDeliveryOrder { get; private set; }
+		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; private set; }
+
+		public Result CheckFastDelivery(IUnitOfWork uow, Order order)
+		{
+			RouteListToAddFastDeliveryOrder = null;
+			FastDeliveryAvailabilityHistory = null;
+			
+			if(order.IsFastDelivery)
+			{
+				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(order);
+
+				if(fastDeliveryValidationResult.IsFailure)
+				{
+					return Result.Failure(fastDeliveryValidationResult.Errors);
+				}
+				
+				FastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
+					uow,
+					(double)order.DeliveryPoint.Latitude.Value,
+					(double)order.DeliveryPoint.Longitude.Value,
+					isGetClosestByRoute: true,
+					order.GetAllGoodsToDeliver(),
+					order.DeliveryPoint.District.TariffZone.Id
+				);
+
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(FastDeliveryAvailabilityHistory);
+
+				RouteListToAddFastDeliveryOrder = FastDeliveryAvailabilityHistory.Items
+					.FirstOrDefault(x => x.IsValidToFastDelivery)
+					?.RouteList;
+
+				if(RouteListToAddFastDeliveryOrder is null)
+				{
+					return Result.Failure(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing);
+				}
+			}
+			
+			return Result.Success();
+		}
+
+		public void TryAddOrderToRouteListAndNotifyDriver(IUnitOfWork uow, Order order, ICallTaskWorker callTaskWorker)
+		{
+			RouteListItem fastDeliveryAddress = null;
+
+			if(RouteListToAddFastDeliveryOrder != null)
+			{
+				uow.Session.Refresh(RouteListToAddFastDeliveryOrder);
+				fastDeliveryAddress = RouteListToAddFastDeliveryOrder.AddAddressFromOrder(order);
+				
+				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
+				order.UpdateDocuments();
+			}
+
+			if(fastDeliveryAddress != null)
+			{
+				uow.Session.Save(fastDeliveryAddress);
+
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+					uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
+			}
+			
+			NotifyDriverOfFastDeliveryOrderAdded(order.Id);
+		}
+
+		public void NotifyDriverOfFastDeliveryOrderAdded(int orderId)
+		{
+			if(RouteListToAddFastDeliveryOrder != null && DriverApiSettings.NotificationsEnabled)
+			{
+				DriverApiHelper.NotifyOfFastDeliveryOrderAdded(orderId);
+			}
+		}
+	}
+}

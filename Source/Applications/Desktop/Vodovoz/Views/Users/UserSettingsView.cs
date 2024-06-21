@@ -18,7 +18,8 @@ namespace Vodovoz.Views.Users
 	[ToolboxItem(true)]
 	public partial class UserSettingsView : TabViewBase<UserSettingsViewModel>
 	{
-		public UserSettingsView(UserSettingsViewModel viewModel) : base(viewModel) {
+		public UserSettingsView(UserSettingsViewModel viewModel) : base(viewModel)
+		{
 			Build();
 			ConfigureDlg();
 		}
@@ -87,7 +88,7 @@ namespace Vodovoz.Views.Users
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
-			if (ViewModel.IsUserFromOkk)
+			if(ViewModel.IsUserFromOkk)
 			{
 				complaintsFrame.Sensitive = false;
 			}
@@ -100,20 +101,53 @@ namespace Vodovoz.Views.Users
 					var useEmployeeSubdivision = ViewModel.Entity.UseEmployeeSubdivision;
 					entrySubdivision.Sensitive = !useEmployeeSubdivision;
 
-					if (useEmployeeSubdivision)
+					if(useEmployeeSubdivision)
 					{
 						entrySubdivision.ViewModel.Entity = null;
 					}
 				};
 			}
 
+			#region FuelControlApi
+
+			frameFuelControl.Visible = true;
+
+			yentryFuelApiLogin.Binding
+				.AddBinding(ViewModel.Entity, e => e.FuelControlApiLogin, w => w.Text)
+				.InitializeFromSource();
+
+			yentryFuelApiPassword.Binding
+				.AddBinding(ViewModel.Entity, e => e.FuelControlApiPassword, w => w.Text)
+				.InitializeFromSource();
+
+			yentryFuelApiKey.Binding
+				.AddBinding(ViewModel.Entity, e => e.FuelControlApiKey, w => w.Text)
+				.InitializeFromSource();
+
+			yentrySessionId.Binding
+				.AddBinding(ViewModel.Entity, e => e.FuelControlApiSessionId, w => w.Text)
+				.InitializeFromSource();
+
+			datepickerFuelApiSessionExpirationDate.Binding
+				.AddBinding(ViewModel.Entity, e => e.FuelControlApiSessionExpirationDate, w => w.DateOrNull)
+				.InitializeFromSource();
+
+			ybuttonLogin.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsUserHasAuthDataForFuelControlApi, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonLogin.BindCommand(ViewModel.FuelControlApiLoginCommand);
+
+			#endregion
+
 			#region Обновление фиксы
 
+			lblUpdateFixedPricesTitle.LabelProp = @"<b>Обновление фиксы 19л воды</b>";
 			btnUpdateFixedPrices.Clicked += (sender, args) => UpdateFixedPrices();
 			btnUpdateFixedPrices.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanUpdateFixedPrices && !vm.IsFixedPricesUpdating, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			spinBtnIncrementFixedPrices.Binding
 				.AddBinding(ViewModel, vm => vm.IncrementFixedPrices, w => w.ValueAsDecimal)
 				.InitializeFromSource();
@@ -155,7 +189,7 @@ namespace Vodovoz.Views.Users
 			}
 			if(!ViewModel.InteractiveService.Question(
 				"Вы уверены, что хотите обновить всю фиксу контрагентов и точек доставки для 19л воды?\n" +
-					"Обновление займет больше 5мин"))
+					"Обновление может занять больше 5мин"))
 			{
 				return;
 			}
@@ -176,7 +210,7 @@ namespace Vodovoz.Views.Users
 				}
 			});
 		}
-		
+
 		public override void Destroy()
 		{
 			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;

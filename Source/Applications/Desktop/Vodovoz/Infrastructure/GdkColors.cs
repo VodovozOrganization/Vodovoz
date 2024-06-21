@@ -86,6 +86,7 @@ namespace Vodovoz.Infrastructure
 		public static Color DarkRed { get; } = new Color(110, 19, 0);
 		public static Color Pink { get; } = IsLight ? new Color(0xff, 0xc0, 0xc0) : new Color(164, 123, 123);
 		public static Color LightYellow2 { get; } = new Color(255, 243, 199);
+		public static Color YellowMustard { get; } = IsLight ? LightYellow2: new Color(193, 157, 39);
 		public static Color Orange { get; } = new Color(0xfc, 0x66, 0x00);
 		public static Color DarkGreen { get; } = new Color(32, 100, 17);
 		public static Color CadetBlue { get; } = IsLight ? new Color(95, 158, 160) : new Color(140, 178, 179);

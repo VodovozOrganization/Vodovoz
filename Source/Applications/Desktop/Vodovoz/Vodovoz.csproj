@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -422,7 +422,11 @@
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
+    <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\InnerPhonesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\MileageWriteOffJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\MileageWriteOffReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OperatorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
     <Compile Include="MessagesHostedService.cs" />
@@ -477,6 +481,8 @@
     <Compile Include="JournalColumnsConfigs\ClientBalanceJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelTypeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OnlineOrderCancellationReasonsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OnlineOrdersJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrganizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
@@ -2018,6 +2024,12 @@
     <Compile Include="Views\Pacs\PacsWorkShiftView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsWorkShiftView.cs" />
     <Compile Include="ReportsParameters\OrderStatisticsByWeekReportType.cs" />
+    <Compile Include="Views\Orders\OnlineOrderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderView.cs" />
+    <Compile Include="Views\Orders\OnlineOrderCancellationReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderCancellationReasonView.cs" />
+    <Compile Include="Filters\GtkViews\OnlineOrdersJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OnlineOrdersJournalFilterView.cs" />
     <Compile Include="ReportsParameters\Logistic\CarOwnershipReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarOwnershipReportView.cs" />
     <Compile Include="Views\Logistic\RouteColumnView.cs" />
@@ -2050,11 +2062,39 @@
     <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
     <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
+    <Compile Include="Views\Fuel\FuelCardView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Fuel.FuelCardView.cs" />
+    <Compile Include="Filters\GtkViews\FuelCardJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FuelCardJournalFilterView.cs" />
+    <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Fuel.FuelApiRequestReportView.cs" />
+    <Compile Include="Filters\GtkViews\MileageWriteOffJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.MileageWriteOffJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\MileageWriteOffReasonJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.MileageWriteOffReasonJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\MileageWriteOffView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.MileageWriteOffView.cs" />
+    <Compile Include="Views\Logistic\MileageWriteOffReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.MileageWriteOffReasonView.cs" />
+    <Compile Include="Views\Logistic\FuelCardVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FuelCardVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorFilterView.cs" />
+    <Compile Include="Views\Pacs\OperatorFilterView.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReportParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.Reports.CarIsNotAtLineReportParametersView.cs" />
+    <Compile Include="Views\Logistic\CarInsuranceVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionView.cs" />
+    <Compile Include="Views\Logistic\CarInsuranceVersionEditingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionEditingView.cs" />
+    <Compile Include="Views\Logistic\CarVersionEditingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionEditingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="ReportsParameters\Fuel\" />
+    <Folder Include="Logistic\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2409,6 +2449,14 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
+      <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
+      <Name>TrueMark.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMarkApi.Client\TrueMarkApi.Client.csproj">
+      <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
+      <Name>TrueMarkApi.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
       <Name>Vodovoz.Core.Application</Name>
@@ -2437,10 +2485,6 @@
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
       <Name>Vodovoz.Settings</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj">
-      <Project>{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66}</Project>
-      <Name>TrueMarkApi.Library</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
       <Name>VodovozBusiness</Name>
@@ -2448,6 +2492,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
       <Project>{eb928475-6d2b-4fef-a314-d75bccef3ad0}</Project>
       <Name>EdoService.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
+      <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
+      <Name>FuelControl.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
@@ -2633,6 +2681,10 @@
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>
       <Name>Vodovoz.Presentation.ViewModels</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.Views\Vodovoz.Presentation.Views\Vodovoz.Presentation.Views.csproj">
+      <Project>{2ddf3b3d-ff28-424f-ac31-2dc9265a02ff}</Project>
+      <Name>Vodovoz.Presentation.Views</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</Project>
       <Name>VodovozViewModels</Name>
@@ -2656,13 +2708,10 @@
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_many.png" />
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_nationality.png" />
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_pass.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="icons\common\empty16.png" />
     <EmbeddedResource Include="icons\common\folder16.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="icons\common\fire16.png" />
+    <EmbeddedResource Include="icons\common\green_circle16.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\1s_work.xml" />

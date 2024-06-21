@@ -1,9 +1,12 @@
 ﻿using System;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Factories;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Models
 {

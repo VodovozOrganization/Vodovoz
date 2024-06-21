@@ -12,9 +12,12 @@ namespace Vodovoz.Models
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly Counterparty _counterparty;
-		private readonly NomenclatureFixedPriceController _fixedPriceController;
+		private readonly INomenclatureFixedPriceController _fixedPriceController;
 
-		public CounterpartyFixedPricesModel(IUnitOfWork uow, Counterparty counterparty, NomenclatureFixedPriceController fixedPriceController)
+		public CounterpartyFixedPricesModel(
+			IUnitOfWork uow,
+			Counterparty counterparty,
+			INomenclatureFixedPriceController fixedPriceController)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));
@@ -48,7 +51,7 @@ namespace Vodovoz.Models
 				throw new ArgumentNullException(nameof(nomenclature));
 			}
 
-			_fixedPriceController.AddFixedPrice(_uow, _counterparty, nomenclature, fixedPrice, minCount);
+			_fixedPriceController.AddFixedPrice(_counterparty, nomenclature, fixedPrice, minCount);
 		}
 
 		public void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice, int minCount)

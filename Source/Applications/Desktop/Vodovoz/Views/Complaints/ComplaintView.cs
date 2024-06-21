@@ -47,11 +47,15 @@ namespace Vodovoz.Views.Complaints
 			labelName.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
-
+			
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
 			if (!ViewModel.CanClose)
 			{
 				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.Closed });
+			}
+			if(ViewModel.Entity.Status != ComplaintStatuses.NotTakenInProcess)
+			{
+				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.NotTakenInProcess });
 			}
 
 			_lastStatus = ViewModel.Status;

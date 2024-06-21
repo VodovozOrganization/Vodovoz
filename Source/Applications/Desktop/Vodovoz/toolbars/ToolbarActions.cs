@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -77,6 +77,7 @@ public partial class MainWindow : Window
 	Action ActionUndeliveredOrders;
 	Action ActionCashReceiptsJournal;
 	Action ActionOrdersWithReceiptJournal;
+	Action OnlineOrdersJournalAction;
 
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
@@ -145,6 +146,7 @@ public partial class MainWindow : Window
 
 	//ТрО
 	private Action ActionCarEventsJournal;
+	private Action ActionMileageWriteOffJournal;
 
 	//Отдел продаж
 	private Action ActionSalesOrdersJournal;
@@ -170,13 +172,14 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
+		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
 		
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
-		
+
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -242,6 +245,7 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
+		ActionMileageWriteOffJournal = new Action("ActionMileageWriteOffJournal", "Пробег без МЛ", null, "table");
 
 		//Отдел продаж
 		ActionSalesOrdersJournal = new Action("ActionSalesOrdersJournal", "Журнал заказов", null, "table");
@@ -267,6 +271,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionUndeliveredOrders, null);
 		w1.Add(ActionCashReceiptsJournal, null);
 		w1.Add(ActionOrdersWithReceiptJournal, null);
+		w1.Add(OnlineOrdersJournalAction, null);
 		
 		//
 		w1.Add(ActionServiceClaims, null);
@@ -343,6 +348,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionCar, null);
+		w1.Add(ActionMileageWriteOffJournal, null);
 
 		//Отдел продаж
 		w1.Add(ActionSalesOrdersJournal, null);
@@ -354,8 +360,8 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevision, null);
 		w1.Add(ActionExportTo1c, null);
 		w1.Add(ActionOldExportTo1c, null);
-		w1.Add(ActionExportCounterpartiesTo1c, null); 
-		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null); 
+		w1.Add(ActionExportCounterpartiesTo1c, null);
+		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
 
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
@@ -367,7 +373,8 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
 		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
-		
+		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
+
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
@@ -434,6 +441,7 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
+		ActionMileageWriteOffJournal.Activated += OnActionMileageWriteOffJournalActivated;
 
 		//Отдел продаж
 		ActionSalesOrdersJournal.Activated += OnActionSalesOrdersJournalActivated;
@@ -818,7 +826,7 @@ public partial class MainWindow : Window
 	{
 		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 		Action<NomenclatureStockFilterViewModel> filterParams = null;
-		
+
 		if(_accessOnlyToWarehouseAndComplaints && defaultWarehouse != null)
 		{
 			filterParams = f =>
@@ -831,7 +839,7 @@ public partial class MainWindow : Window
 		{
 			filterParams = f => f.ShowArchive = true;
 		}
-		
+
 		NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
 			null, filterParams);
 	}
@@ -942,5 +950,10 @@ public partial class MainWindow : Window
 			   null,
 			   filter => filter.IsForSalesDepartment = true,
 			   OpenPageOptions.IgnoreHash);
+	}
+	
+	private void OnOnlineOrdersJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrdersJournalViewModel>(null);
 	}
 }

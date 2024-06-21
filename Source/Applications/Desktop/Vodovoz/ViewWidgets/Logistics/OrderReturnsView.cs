@@ -71,7 +71,7 @@ namespace Vodovoz
 		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
+		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
 		private List<OrderItemReturnsNode> _itemsToClient;
 
@@ -539,7 +539,7 @@ namespace Vodovoz
 				vm =>
 				{
 					vm.Saved += OnUndeliveryViewModelSaved;
-					vm.Initialize(UoW, _routeListItem.Order.Id);					
+					vm.Initialize(UoW, _routeListItem.Order.Id, isFromRouteListClosing: true);					
 				}
 				).ViewModel;
 		}
@@ -557,7 +557,6 @@ namespace Vodovoz
 			}
 
 			UoW.Save(_routeListItem);
-			UoW.Commit();
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)

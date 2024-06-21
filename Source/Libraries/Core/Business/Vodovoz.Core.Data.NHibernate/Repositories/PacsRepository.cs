@@ -82,7 +82,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			}
 		}
 
-		public IEnumerable<OperatorState> GetOperators(DateTime from)
+		public IEnumerable<OperatorState> GetOperatorStatesFrom(DateTime from)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{

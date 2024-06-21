@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -86,6 +88,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 			?? (_observableCarFuelVersions = new GenericObservableList<CarFuelVersion>(CarFuelVersions));
 
 		public virtual string Title => $"{CarManufacturer.Name} {Name}";
+
+		public virtual CarFuelVersion GetCarFuelVersionOnDate(DateTime date)
+		{
+			return ObservableCarFuelVersions.FirstOrDefault(x =>
+					x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

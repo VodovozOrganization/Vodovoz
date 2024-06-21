@@ -40,6 +40,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string TimeString => Date.ToString("t");
 
 		public ComplaintStatuses Status { get; set; }
+		public bool IsNeedWork { get; set; }
 		public string StatusString => Status.GetEnumTitle();
 
 		public string WorkInSubdivision { get; set; }

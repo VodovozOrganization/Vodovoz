@@ -123,7 +123,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			SubdivisionQualityServiceShortName =
 				UoW.GetById<Subdivision>(_subdivisionSettings.QualityServiceSubdivisionId).ShortName ?? "?";
 			SubdivisionAuditDepartmentShortName =
-				UoW.GetById<Subdivision>(_subdivisionSettings.AuditDepartmentSubdivisionId).ShortName ?? "?";
+				UoW.GetById<Subdivision>(_subdivisionSettings.AuditDepartmentSubdivisionId)?.ShortName ?? "?";
 			
 			RegisterComplaints();
 
@@ -326,6 +326,17 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
 				.Select(resultCommentProjection);
 
+			var isNeedWorkSubquery = QueryOver.Of(() => discussionAlias)
+				.Where(() => discussionAlias.Status == ComplaintDiscussionStatuses.InProcess)
+				.Where(() => discussionAlias.Complaint.Id == complaintAlias.Id)
+				.Select(Projections.Id())
+				.Take(1);
+
+			var isNeedWorkProjection = Projections.Conditional(
+				Restrictions.Gt(Projections.SubQuery(isNeedWorkSubquery),0),
+				Projections.Constant(true),
+				Projections.Constant(false));
+
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
@@ -517,7 +528,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
 				.SelectSubQuery(resultOfArrangementCommentsSubquery).WithAlias(() => resultAlias.ArrangementText)
 				.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
-				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
+				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)				
+				.Select(isNeedWorkProjection).WithAlias(() => resultAlias.IsNeedWork)
 			);
 
 			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())

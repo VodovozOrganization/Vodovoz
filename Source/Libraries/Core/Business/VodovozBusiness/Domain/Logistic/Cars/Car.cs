@@ -28,6 +28,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<CarVersion> _observableCarVersions;
 		private IList<OdometerReading> _odometerReadings = new List<OdometerReading>();
 		private GenericObservableList<OdometerReading> _observableOdometerReadings;
+		private IList<FuelCardVersion> _fuelCardVersions = new List<FuelCardVersion>();
+		private GenericObservableList<FuelCardVersion> _observableFuelCardVersions;
+		private IList<CarInsurance> _carInsurances = new List<CarInsurance>();
+		private GenericObservableList<CarInsurance> _observableCarInsurances;
 		private string _carcase;
 		private string _chassisNumber;
 		private string _color;
@@ -57,6 +61,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private ArchivingReason? _archivingReason;
 		private int _leftUntilTechInspect;
 		private IncomeChannel _incomeChannel;
+		private bool _isKaskoInsuranceNotRelevant = true;
 
 		public virtual int Id { get; set; }
 
@@ -111,6 +116,24 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings
 			?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
+
+		public virtual IList<FuelCardVersion> FuelCardVersions
+		{
+			get => _fuelCardVersions;
+			set => SetField(ref _fuelCardVersions, value);
+		}
+
+		public virtual GenericObservableList<FuelCardVersion> ObservableFuelCardVersions => _observableFuelCardVersions
+			?? (_observableFuelCardVersions = new GenericObservableList<FuelCardVersion>(FuelCardVersions));
+
+		public virtual IList<CarInsurance> CarInsurances
+		{
+			get => _carInsurances;
+			set => SetField(ref _carInsurances, value);
+		}
+
+		public virtual GenericObservableList<CarInsurance> ObservableCarInsurances => _observableCarInsurances
+			?? (_observableCarInsurances = new GenericObservableList<CarInsurance>(CarInsurances));
 
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber
@@ -260,13 +283,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
-		[Display(Name = "Номер топливной карты")]
-		public virtual string FuelCardNumber
-		{
-			get => _fuelCardNumber;
-			set => SetField(ref _fuelCardNumber, value);
-		}
-
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -312,6 +328,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _incomeChannel, value);
 		}
 
+		[Display(Name = "Страховка Каско не актуальна для данного ТС")]
+		public virtual bool IsKaskoInsuranceNotRelevant
+		{
+			get => _isKaskoInsuranceNotRelevant;
+			set => SetField(ref _isKaskoInsuranceNotRelevant, value);
+		}
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
@@ -333,6 +356,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 			var currentDateTime = DateTime.Now;
 			return ObservableCarVersions.FirstOrDefault(x =>
 				x.StartDate <= currentDateTime && (x.EndDate == null || x.EndDate >= currentDateTime));
+		}
+
+		public virtual FuelCardVersion GetCurrentActiveFuelCardVersion()
+		{
+			return GetActiveFuelCardVersionOnDate(DateTime.Now);
+		}
+
+		public virtual FuelCardVersion GetActiveFuelCardVersionOnDate(DateTime date)
+		{
+			return ObservableFuelCardVersions.FirstOrDefault(x =>
+				x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
 		}
 
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };

@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+using FluentNHibernate.Utils;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -7,7 +8,6 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -23,6 +23,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -759,23 +760,135 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId)
 		{
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(uow, counterpartyId);
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(uow, counterpartyId);
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId)
+		{
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow,
+				counterpartyId,
+				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment });
+
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow,
+				counterpartyId,
+				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment });
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+		{
+			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		public decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+		{
+			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		private decimal GetCounterpartyNotFullyPaidOrdersSum(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<OrderStatus> includeOrderStatuses = null,
+			IEnumerable<int> includeDeliveryScheduleIds = null,
+			IEnumerable<OrderStatus> excludeOrderStatuses = null,
+			IEnumerable<int> excludeDeliveryScheduleIds = null)
+		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
-			PaymentItem paymentItemAlias = null;
-			CashlessMovementOperation cashlessMovOperationAlias = null;
 
-			var total = uow.Session.QueryOver(() => orderAlias)
+			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
-				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid);
+
+			if(includeOrderStatuses != null)
+			{
+				query.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), includeOrderStatuses.ToArray()));
+			}
+
+			if(includeDeliveryScheduleIds != null)
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.DeliverySchedule.Id),
+					includeDeliveryScheduleIds.ToArray()));
+			}
+
+			if(excludeOrderStatuses != null)
+			{
+				query.Where(Restrictions.Not(
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), excludeOrderStatuses.ToArray())));
+			}
+
+			if(excludeDeliveryScheduleIds != null)
+			{
+
+				query.Where(
+					Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => orderAlias.DeliverySchedule.Id), excludeDeliveryScheduleIds.ToArray()))));
+			}
+
+			var total = query
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
 
-			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
+			return total;
+		}
+
+		private decimal GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<OrderStatus> includeOrderStatuses = null,
+			IEnumerable<int> includeDeliveryScheduleIds = null,
+			IEnumerable<OrderStatus> excludeOrderStatuses = null,
+			IEnumerable<int> excludeDeliveryScheduleIds = null)
+		{
+			VodovozOrder orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessMovOperationAlias = null;
+
+			var query = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -783,11 +896,41 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
-				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled);
+
+			if(includeOrderStatuses != null)
+			{
+				query.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), includeOrderStatuses.ToArray()));
+			}
+
+			if(includeDeliveryScheduleIds != null)
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.DeliverySchedule.Id),
+					includeDeliveryScheduleIds.ToArray()));
+			}
+
+			if(excludeOrderStatuses != null)
+			{
+				query.Where(Restrictions.Not(
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), excludeOrderStatuses.ToArray())));
+			}
+
+			if(excludeDeliveryScheduleIds != null)
+			{
+
+				query.Where(
+					Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => orderAlias.DeliverySchedule.Id), excludeDeliveryScheduleIds.ToArray()))));
+			}
+
+			var totalPaymentsSum = query
 				.Select(Projections.Sum(() => cashlessMovOperationAlias.Expense))
 				.SingleOrDefault<decimal>();
 
-			return total - totalPayPartiallyPaidOrders;
+			return totalPaymentsSum;
 		}
 
 		public bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId)
@@ -1108,14 +1251,25 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 		}
 
-		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		public bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId)
+		{
+			var result = uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.Order.Id == orderId)
+				.And(x => x.Type == Type.Upd)
+				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+				.Take(1);
+
+			return result != null;
+		}
+
+		public IList<VodovozOrder> GetOrdersForTrueMark(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocument = null;
+			TrueMarkDocument trueMarkApiDocument = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1167,7 +1321,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocument = null;
+			TrueMarkDocument trueMarkApiDocument = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1190,7 +1344,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = query.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(() => trueMarkApiDocument.IsSuccess == false)
-				.And(() => trueMarkApiDocument.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal)
+				.And(() => trueMarkApiDocument.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.And(Restrictions.Disjunction()
@@ -1246,7 +1400,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+			TrueMarkDocument trueMarkApiDocumentAlias = null;
 			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 			Organization organizationAlias = null;
 			TrueMarkCancellationDto resultAlias = null;
@@ -1263,7 +1417,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
 				.Where(() => trueMarkApiDocumentAlias.Order.Id == orderAlias.Id)
-				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation)
 				.Select(Projections.Id());
 
 			var organizationInnSubquery = QueryOver.Of<Organization>()
@@ -1636,77 +1790,5 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
-
-		public class NotFullyPaidOrderNode
-		{
-			public int Id { get; set; }
-			public DateTime? OrderDeliveryDate { get; set; }
-			public DateTime? OrderCreationDate { get; set; }
-			public decimal OrderSum { get; set; }
-			public decimal AllocatedSum { get; set; }
-		}
-
-		public class OrderOnDayNode
-		{
-			public int OrderId { get; set; }
-			public OrderStatus OrderStatus { get; set; }
-			public decimal? DeliveryPointLatitude { get; set; }
-			public decimal? DeliveryPointLongitude { get; set; }
-			public string DeliveryPointShortAddress { get; set; }
-			public string DeliveryPointCompiledAddress { get; set; }
-			public Point DeliveryPointNetTopologyPoint { get; set; }
-			public int DeliveryPointDistrictId { get; set; }
-			public LogisticsRequirements LogisticsRequirements { get; set; }
-			public OrderAddressType OrderAddressType { get; set; }
-			public DeliverySchedule DeliverySchedule { get; set; }
-			public int Total19LBottlesToDeliver { get; set; }
-			public int Total6LBottlesToDeliver { get; set; }
-			public int Total1500mlBottlesToDeliver { get; set; }
-			public int Total600mlBottlesToDeliver { get; set; }
-			public int Total500mlBottlesToDeliver { get; set; }
-			public int? BottlesReturn { get; set; }
-			public string OrderComment { get; set; }
-			public string DeliveryPointComment { get; set; }
-			public string CommentManager { get; set; }
-			public string ODZComment { get; set; }
-			public string OPComment { get; set; }
-			public string DriverMobileAppComment { get; set; }
-			public bool IsCoolerAddedToOrder { get; set; }
-			public bool IsSmallBottlesAddedToOrder { get; set; }
-		}
-	}
-
-	public class OrderOnDayFilters
-	{
-		public DateTime DateForRouting { get; set; }
-		public bool ShowCompleted { get; set; }
-		public bool FastDeliveryEnabled { get; set; }
-		public IEnumerable<OrderAddressType> OrderAddressTypes { get; set; }
-		public int ClosingDocumentDeliveryScheduleId { get; set; }
-		public int[] GeographicGroupIds { get; set; }
-		public DeliveryScheduleFilterType DeliveryScheduleType { get; set; }
-		public TimeSpan DeliveryFromTime { get; set; }
-		public TimeSpan DeliveryToTime { get; set; }
-		public int MinBottles19L { get; set; }
-		public int MaxBottles19L { get; set; }
-	}
-
-	public enum DeliveryScheduleFilterType
-	{
-		[Display(Name = "Начало доставки")]
-		DeliveryStart = 0,
-		[Display(Name = "Окончание доставки")]
-		DeliveryEnd = 1,
-		[Display(Name = "Строгое попадание")]
-		DeliveryStartAndEnd = 2,
-		[Display(Name = "Время создания заказа")]
-		OrderCreateDate = 3
-	}
-
-	public class TrueMarkCancellationDto
-	{
-		public int OrderId { get; set; }
-		public string OrganizationInn { get; set; }
-		public Guid DocGuid { get; set; }
 	}
 }
