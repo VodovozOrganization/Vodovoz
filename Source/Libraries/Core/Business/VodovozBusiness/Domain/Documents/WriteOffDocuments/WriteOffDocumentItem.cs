@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -6,7 +7,6 @@ using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using RangeAttribute = Vodovoz.Attributes.RangeAttribute;
 
 namespace Vodovoz.Domain.Documents.WriteOffDocuments
 {
@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		NominativePlural = "строки списания",
 		Nominative = "строка списания")]
 	[HistoryTrace]
-	public abstract class WriteOffDocumentItem: PropertyChangedBase, IDomainObject
+	public abstract class WriteOffDocumentItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private Nomenclature _nomenclature;
 		private CullingCategory _cullingCategory;
@@ -43,7 +43,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			set => SetField(ref _cullingCategory, value);
 		}
 
-		[Range(typeof(decimal), "1", ErrorMessage = "Количество должно быть больше 1")]
 		[Display(Name = "Количество")]
 		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal Amount
@@ -92,6 +91,8 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		public abstract WriteOffDocumentItemType Type { get; }
 		public abstract AccountingType AccountingType { get; }
 
+		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 		public virtual string InventoryNumber => "-";
 		public virtual string CullingCategoryString => CullingCategory != null ? CullingCategory.Name : "-";
@@ -114,7 +115,12 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			GoodsAccountingOperation.Nomenclature = Nomenclature;
 		}
 
-		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Amount < 1)
+			{
+				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
+			}
+		}
 	}
 }
-
