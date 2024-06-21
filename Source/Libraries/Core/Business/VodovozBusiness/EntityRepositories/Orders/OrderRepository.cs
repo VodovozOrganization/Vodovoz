@@ -1,5 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -7,7 +6,6 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -1647,77 +1645,5 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
-
-		public class NotFullyPaidOrderNode
-		{
-			public int Id { get; set; }
-			public DateTime? OrderDeliveryDate { get; set; }
-			public DateTime? OrderCreationDate { get; set; }
-			public decimal OrderSum { get; set; }
-			public decimal AllocatedSum { get; set; }
-		}
-
-		public class OrderOnDayNode
-		{
-			public int OrderId { get; set; }
-			public OrderStatus OrderStatus { get; set; }
-			public decimal? DeliveryPointLatitude { get; set; }
-			public decimal? DeliveryPointLongitude { get; set; }
-			public string DeliveryPointShortAddress { get; set; }
-			public string DeliveryPointCompiledAddress { get; set; }
-			public Point DeliveryPointNetTopologyPoint { get; set; }
-			public int DeliveryPointDistrictId { get; set; }
-			public LogisticsRequirements LogisticsRequirements { get; set; }
-			public OrderAddressType OrderAddressType { get; set; }
-			public DeliverySchedule DeliverySchedule { get; set; }
-			public int Total19LBottlesToDeliver { get; set; }
-			public int Total6LBottlesToDeliver { get; set; }
-			public int Total1500mlBottlesToDeliver { get; set; }
-			public int Total600mlBottlesToDeliver { get; set; }
-			public int Total500mlBottlesToDeliver { get; set; }
-			public int? BottlesReturn { get; set; }
-			public string OrderComment { get; set; }
-			public string DeliveryPointComment { get; set; }
-			public string CommentManager { get; set; }
-			public string ODZComment { get; set; }
-			public string OPComment { get; set; }
-			public string DriverMobileAppComment { get; set; }
-			public bool IsCoolerAddedToOrder { get; set; }
-			public bool IsSmallBottlesAddedToOrder { get; set; }
-		}
-	}
-
-	public class OrderOnDayFilters
-	{
-		public DateTime DateForRouting { get; set; }
-		public bool ShowCompleted { get; set; }
-		public bool FastDeliveryEnabled { get; set; }
-		public IEnumerable<OrderAddressType> OrderAddressTypes { get; set; }
-		public int ClosingDocumentDeliveryScheduleId { get; set; }
-		public int[] GeographicGroupIds { get; set; }
-		public DeliveryScheduleFilterType DeliveryScheduleType { get; set; }
-		public TimeSpan DeliveryFromTime { get; set; }
-		public TimeSpan DeliveryToTime { get; set; }
-		public int MinBottles19L { get; set; }
-		public int MaxBottles19L { get; set; }
-	}
-
-	public enum DeliveryScheduleFilterType
-	{
-		[Display(Name = "Начало доставки")]
-		DeliveryStart = 0,
-		[Display(Name = "Окончание доставки")]
-		DeliveryEnd = 1,
-		[Display(Name = "Строгое попадание")]
-		DeliveryStartAndEnd = 2,
-		[Display(Name = "Время создания заказа")]
-		OrderCreateDate = 3
-	}
-
-	public class TrueMarkCancellationDto
-	{
-		public int OrderId { get; set; }
-		public string OrganizationInn { get; set; }
-		public Guid DocGuid { get; set; }
 	}
 }
