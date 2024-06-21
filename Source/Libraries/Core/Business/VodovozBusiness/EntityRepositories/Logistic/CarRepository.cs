@@ -1,12 +1,17 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -142,5 +147,204 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return carTechInspects;
 		}
+
+		public async Task<IList<CarEventData>> GetCarEvents(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
+			CarOwnType carOwnType,
+			Car car,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				CarEvent carEventAlias = null;
+				Car carAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+				Employee assignedDriverAlias = null;
+				CarEventType carEventTypeAlias = null;
+				CarEventData carEventDataAlias = null;
+
+				var query = uow.Session.QueryOver(() => carEventAlias)
+					.Inner.JoinAlias(() => carEventAlias.Car, () => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+							&& carVersionAlias.StartDate <= carEventAlias.StartDate &&
+							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= carEventAlias.StartDate))
+					.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
+					.Where(() => carEventAlias.StartDate <= endDate && carEventAlias.EndDate >= startDate && !carEventAlias.DoNotShowInOperation)
+					.Where(() => !carAlias.IsArchive)
+					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+
+				if(car != null)
+				{
+					query.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					query.Where(Restrictions.In(Projections.Property(() => carModelAlias.Id), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
+				}
+
+				var result = query.SelectList(list => list
+					.Select(() => carEventAlias.Id).WithAlias(() => carEventDataAlias.EventId)
+					.Select(() => carAlias.Id).WithAlias(() => carEventDataAlias.CarId)
+					.Select(() => carEventAlias.StartDate).WithAlias(() => carEventDataAlias.StartDate)
+					.Select(() => carEventAlias.EndDate).WithAlias(() => carEventDataAlias.EndDate)
+					.Select(() => carEventTypeAlias.ShortName).WithAlias(() => carEventDataAlias.EventTypeShortName))
+					.TransformUsing(Transformers.AliasToBean<CarEventData>())
+					.List<CarEventData>();
+
+				return result;
+			},
+				cancellationToken);
+		}
+
+		public async Task<IList<Car>> GetCarsWithoutData(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
+			CarOwnType carOwnType,
+			Car car,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				Car carAlias = null;
+				Employee assignedDriverAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+
+				var carsQuery = uow.Session.QueryOver(() => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+						&& carVersionAlias.StartDate <= endDate
+							  && (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= startDate))
+					.Where(() => !carAlias.IsArchive)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					carsQuery.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+				if(car != null)
+				{
+					carsQuery.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					carsQuery.Where(Restrictions.In(Projections.Property(() => carModelAlias.Id), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					carsQuery.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
+				}
+
+				carsQuery.Fetch(SelectMode.Fetch, x => x.GeographicGroups);
+
+				return carsQuery.List<Car>();
+			},
+			cancellationToken);
+		}
+
+		public async Task<IDictionary<(int CarId, int Day), IEnumerable<RouteListItem>>> GetNotPriorityDistrictsAddresses(
+			IUnitOfWork unitOfWork,
+			IList<int> routeListsIds,
+			CancellationToken cancellationToken)
+		{
+			var carsRouteListAddresses =
+				from rla in unitOfWork.Session.Query<RouteListItem>()
+				join rl in unitOfWork.Session.Query<RouteList>() on rla.RouteList.Id equals rl.Id
+				join empl in unitOfWork.Session.Query<Employee>() on rl.Driver.Id equals empl.Id into drivers
+				from driver in drivers.DefaultIfEmpty()
+				join o in unitOfWork.Session.Query<Order>() on rla.Order.Id equals o.Id into orders
+				from order in orders.DefaultIfEmpty()
+				where
+				routeListsIds.Contains(rl.Id)
+				&& (driver == null || !driver.DriverDistrictPrioritySets.Any(ddps =>
+				ddps.DateActivated <= rl.Date && (ddps.DateDeactivated == null || ddps.DateDeactivated >= rl.Date)
+				&& ddps.DriverDistrictPriorities.Any(ddp => ddp.District.Id == order.DeliveryPoint.District.Id)))
+				select new { CarId = rl.Car.Id, Day = rl.Date.Day, Address = rla };
+
+			var carsRouteListAddressesGroup = (await carsRouteListAddresses.ToListAsync(cancellationToken))
+				.GroupBy(rl => (rl.CarId, rl.Day))
+				.ToDictionary(g => g.Key, g => g.Select(item => item.Address));
+
+			return carsRouteListAddressesGroup;
+		}
+
+		public IQueryable<Car> GetCarsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListIds)
+		{
+			var cars =
+				from rl in unitOfWork.Session.Query<RouteList>()
+				join car in unitOfWork.Session.Query<Car>() on rl.Car.Id equals car.Id
+				where routeListIds.Contains(rl.Id)
+				orderby car.Id
+				select car;
+
+			return cars.Distinct();
+		}
+
+		public IQueryable<OdometerReading> GetOdometerReadingByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds)
+		{
+			var odometerReading =
+				unitOfWork.Session.Query<OdometerReading>()
+				.Where(or => carsIds.Contains(or.Car.Id));
+
+			return odometerReading;
+		}
+
+		public IDictionary<int, string> GetCarsGeoGroups(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>
+			unitOfWork.Session.Query<Car>()
+			.Where(c => carsIds.Contains(c.Id))
+			.Select(c => new { CarId = c.Id, GeoGroups = string.Join(", ", c.GeographicGroups.Select(g => g.Name)) })
+			.ToDictionary(c => c.CarId, c => c.GeoGroups);
+
+		public async Task<IDictionary<int, string>> GetDriversNamesByCars(
+			IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken)
+		{
+			var driversNames =
+				from car in unitOfWork.Session.Query<Car>()
+				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
+				from driver in drivers.DefaultIfEmpty()
+				where carsIds.Contains(car.Id)
+				select new { CarId = car.Id, DriverName = driver == null ? "-" : driver.ShortName };
+
+			return (await driversNames.ToListAsync(cancellationToken))
+				.GroupBy(g => g.CarId)
+				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
+		}
+
+		public IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>
+			unitOfWork.Session.Query<Car>()
+			.Where(c => carsIds.Contains(c.Id))
+			.Distinct();
 	}
 }
