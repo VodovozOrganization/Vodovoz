@@ -4,9 +4,9 @@
 	{
 		internal sealed class LateDto
 		{
-			internal int LessThan5Minutes { get; set; }
-			internal int LessThan30Minutes { get; set; }
-			internal int MoreThan30Minutes { get; set; }
+			internal decimal LessThan5Minutes { get; set; }
+			internal decimal LessThan30Minutes { get; set; }
+			internal decimal MoreThan30Minutes { get; set; }
 		}
 	}
 }

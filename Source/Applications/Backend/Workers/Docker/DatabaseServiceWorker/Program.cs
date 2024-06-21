@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,8 +8,10 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
@@ -66,8 +68,10 @@ namespace DatabaseServiceWorker
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
 						.ConfigurePowerBiExportWorker(hostContext)
 						.ConfigureTextInspectWorker(hostContext)
-						.AddFuelTransactionsControlWorker(hostContext)
-						;
+						.AddFuelTransactionsControlWorker(hostContext)												
+						.AddSingleton<IDeliveryRepository, DeliveryRepository>()
+						.AddSingleton<IScheduleRestrictionRepository, ScheduleRestrictionRepository>()
+						;					
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
