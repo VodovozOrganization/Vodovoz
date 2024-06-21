@@ -359,13 +359,15 @@ namespace Vodovoz.Views.Orders
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
 			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
-				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity);
+				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity, OpenPageOptions.AsSlave);
 			page.PageClosed += OnOrderTabClosed;
 		}
 		
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
-			var dlg = (sender as ITdiPage).TdiTab as OrderDlg;
+			var page = sender as ITdiPage;
+			page.PageClosed -= OnOrderTabClosed;
+			var dlg = page.TdiTab as OrderDlg;
 
 			if(dlg.Entity.Id > 0)
 			{
