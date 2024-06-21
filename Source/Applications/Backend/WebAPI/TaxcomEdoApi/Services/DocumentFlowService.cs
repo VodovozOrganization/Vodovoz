@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -31,6 +31,8 @@ using Vodovoz.Tools.Orders;
 using VodovozHealthCheck.Dto;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Vodovoz.Domain.Payments;
+using QS.Services;
 
 namespace TaxcomEdoApi.Services
 {
@@ -156,9 +158,13 @@ namespace TaxcomEdoApi.Services
 					_logger.LogInformation("Создаем УПД по заказу №{OrderId}", order.Id);
 					try
 					{
+						var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
+							.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
+							.Distinct();
+
 						var updXml = _edoUpdFactory.CreateNewUpdXml(
-							order, _warrantOptions, edoAccountId, _certificate.Subject);
-						
+							order, _warrantOptions, edoAccountId, _certificate.Subject, orderPayments);
+
 						var container = new TaxcomContainer
 						{
 							SignMode = DocumentSignMode.UseSpecifiedCertificate
@@ -176,7 +182,7 @@ namespace TaxcomEdoApi.Services
 
 						container.Documents.Add(upd);
 						upd.AddCertificateForSign(_certificate.Thumbprint);
-						
+
 						//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
 						//чтобы отправка шла без прикрепления доверки
 						if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
