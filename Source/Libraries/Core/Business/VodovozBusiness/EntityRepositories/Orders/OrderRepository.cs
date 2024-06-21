@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+﻿using FluentNHibernate.Utils;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -23,6 +24,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -759,23 +761,135 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId)
 		{
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(uow, counterpartyId);
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(uow, counterpartyId);
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId)
+		{
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow,
+				counterpartyId,
+				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment });
+
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow,
+				counterpartyId,
+				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment });
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+		{
+			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		public decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+		{
+			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow,
+				counterpartyId,
+				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+
+			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
+		}
+
+		private decimal GetCounterpartyNotFullyPaidOrdersSum(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<OrderStatus> includeOrderStatuses = null,
+			IEnumerable<int> includeDeliveryScheduleIds = null,
+			IEnumerable<OrderStatus> excludeOrderStatuses = null,
+			IEnumerable<int> excludeDeliveryScheduleIds = null)
+		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
-			PaymentItem paymentItemAlias = null;
-			CashlessMovementOperation cashlessMovOperationAlias = null;
 
-			var total = uow.Session.QueryOver(() => orderAlias)
+			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
-				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid);
+
+			if(includeOrderStatuses != null)
+			{
+				query.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), includeOrderStatuses.ToArray()));
+			}
+
+			if(includeDeliveryScheduleIds != null)
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.DeliverySchedule.Id),
+					includeDeliveryScheduleIds.ToArray()));
+			}
+
+			if(excludeOrderStatuses != null)
+			{
+				query.Where(Restrictions.Not(
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), excludeOrderStatuses.ToArray())));
+			}
+
+			if(excludeDeliveryScheduleIds != null)
+			{
+
+				query.Where(
+					Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => orderAlias.DeliverySchedule.Id), excludeDeliveryScheduleIds.ToArray()))));
+			}
+
+			var total = query
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
 
-			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
+			return total;
+		}
+
+		private decimal GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<OrderStatus> includeOrderStatuses = null,
+			IEnumerable<int> includeDeliveryScheduleIds = null,
+			IEnumerable<OrderStatus> excludeOrderStatuses = null,
+			IEnumerable<int> excludeDeliveryScheduleIds = null)
+		{
+			VodovozOrder orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessMovOperationAlias = null;
+
+			var query = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -783,11 +897,41 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
-				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled);
+
+			if(includeOrderStatuses != null)
+			{
+				query.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), includeOrderStatuses.ToArray()));
+			}
+
+			if(includeDeliveryScheduleIds != null)
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.DeliverySchedule.Id),
+					includeDeliveryScheduleIds.ToArray()));
+			}
+
+			if(excludeOrderStatuses != null)
+			{
+				query.Where(Restrictions.Not(
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), excludeOrderStatuses.ToArray())));
+			}
+
+			if(excludeDeliveryScheduleIds != null)
+			{
+
+				query.Where(
+					Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => orderAlias.DeliverySchedule.Id), excludeDeliveryScheduleIds.ToArray()))));
+			}
+
+			var totalPaymentsSum = query
 				.Select(Projections.Sum(() => cashlessMovOperationAlias.Expense))
 				.SingleOrDefault<decimal>();
 
-			return total - totalPayPartiallyPaidOrders;
+			return totalPaymentsSum;
 		}
 
 		public bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId)
@@ -1107,7 +1251,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(x => x.Order.Id == orderId)
 				.List();
 		}
-		
+
 		public bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId)
 		{
 			var result = uow.Session.QueryOver<EdoContainer>()
@@ -1115,7 +1259,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(x => x.Type == Type.Upd)
 				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 				.Take(1);
-			
+
 			return result != null;
 		}
 

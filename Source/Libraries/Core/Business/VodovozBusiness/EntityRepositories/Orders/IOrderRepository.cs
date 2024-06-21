@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Settings;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
@@ -105,7 +105,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
 		QueryOver<Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, Order orderBaseAlias = null, bool excludeTrucks = false);
-		
+
 		IList<Order> GetOrdersToExport1c8(IUnitOfWork uow, IOrderSettings orderSettings, Export1cMode mode, DateTime startDate, DateTime endDate, int? organizationId = null);
 
 		QueryOver<Order> GetSelfDeliveryOrdersForPaymentQuery();
@@ -127,7 +127,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
-
+		decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId);
+		decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
+		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
