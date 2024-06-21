@@ -219,5 +219,20 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 				.Select(Projections.Entity(() => oldOrderAlias))
 				.SingleOrDefault<Order>();
 		}
+
+		public IQueryable<UndeliveredOrder> GetUndeliveriesForOrders(IUnitOfWork unitOfWork, IList<int> ordersIds)
+		{
+			var undeliveredOrder =
+				from uo in unitOfWork.Session.Query<UndeliveredOrder>()
+				join guilty in unitOfWork.Session.Query<GuiltyInUndelivery>() on uo.Id equals guilty.UndeliveredOrder.Id
+				join s in unitOfWork.Session.Query<Subdivision>() on guilty.GuiltyDepartment.Id equals s.Id into subdivisions
+				from subdivision in subdivisions.DefaultIfEmpty()
+				where
+				ordersIds.Contains(uo.OldOrder.Id)
+				&& (guilty.GuiltySide == GuiltyTypes.Driver || guilty.GuiltyDepartment.SubdivisionType == SubdivisionType.Logistic)
+				select uo;
+
+			return undeliveredOrder;
+		}
 	}
 }
