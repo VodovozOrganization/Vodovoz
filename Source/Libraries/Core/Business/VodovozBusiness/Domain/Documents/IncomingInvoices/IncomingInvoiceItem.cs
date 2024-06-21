@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using RangeAttribute = Vodovoz.Attributes.RangeAttribute;
 
 namespace Vodovoz.Domain.Documents.IncomingInvoices
 {
@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
-		[Min(1)]
+		[Range(typeof(decimal), "1", ErrorMessage = "Количество должно быть больше 1")]
 		[Display(Name = "Количество")]
 		public virtual decimal Amount
 		{
@@ -52,7 +52,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
-		[Min(0)]
+		[Range(typeof(decimal), "0", ErrorMessage = "Цена должна быть больше 0")]
 		[Display(Name = "Цена")]
 		public virtual decimal PrimeCost
 		{

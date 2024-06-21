@@ -1,12 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using RangeAttribute = Vodovoz.Attributes.RangeAttribute;
 
 namespace Vodovoz.Domain.Documents.WriteOffDocuments
 {
@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			set => SetField(ref _cullingCategory, value);
 		}
 
-		[Min(1)]
+		[Range(typeof(decimal), "1")]
 		[Display(Name = "Количество")]
 		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal Amount

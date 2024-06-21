@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using DataAnnotationsExtensions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -11,6 +10,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using RangeAttribute = Vodovoz.Attributes.RangeAttribute;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -36,7 +36,7 @@ namespace Vodovoz.Domain.Documents
 
 		int amount;
 
-		[Min(1)]
+		[Range(typeof(decimal), "1", ErrorMessage = "Количество должно быть больше 1")]
 		[Display(Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
+using RangeAttribute = Vodovoz.Attributes.RangeAttribute;
 
 namespace Vodovoz.Domain.Store
 {
@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Store
 
 		decimal amount;
 
-		[Min (1)]
+		[Range(typeof(decimal), "1")]
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
