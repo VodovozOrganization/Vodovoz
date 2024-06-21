@@ -169,12 +169,4 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 	}
-
-	public class ClientEquipmentNode
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public string ShortName { get; set; }
-		public int Count { get; set; }
-	}
 }

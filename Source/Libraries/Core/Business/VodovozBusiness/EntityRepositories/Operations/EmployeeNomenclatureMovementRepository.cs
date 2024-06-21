@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 
-namespace Vodovoz.EntityRepositories.Operations 
+namespace Vodovoz.EntityRepositories.Operations
 {
-    public class EmployeeNomenclatureMovementRepository : IEmployeeNomenclatureMovementRepository
+	public class EmployeeNomenclatureMovementRepository : IEmployeeNomenclatureMovementRepository
     {
         public int GetDriverTerminalBalance(IUnitOfWork uow, int driverId, int terminalId) {
             Nomenclature nomenclatureAlias = null;
@@ -58,12 +58,5 @@ namespace Vodovoz.EntityRepositories.Operations
                       .TransformUsing(Transformers.AliasToBean<EmployeeBalanceNode>())
                       .SingleOrDefault<EmployeeBalanceNode>();
         }
-    }
-    
-    public class EmployeeBalanceNode
-    {
-        public int NomenclatureId { get; set; }
-        public string NomenclatureName { get; set; }
-        public decimal Amount { get; set; }
     }
 }
