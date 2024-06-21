@@ -72,12 +72,5 @@ namespace Vodovoz.EntityRepositories.Operations
 				.Deposits ?? 0;
 			return deposits;
 		}
-
-		class DepositsQueryResult
-		{
-			public decimal Received { get; set; }
-			public decimal Refund { get; set; }
-			public decimal Deposits => Received - Refund;
-		}
 	}
 }
