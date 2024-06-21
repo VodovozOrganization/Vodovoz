@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using System.Collections.Generic;
 using System.Drawing;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Extensions;
 using static Vodovoz.EntityRepositories.Logistic.CarRepository;
 

@@ -541,17 +541,4 @@ namespace Vodovoz.EntityRepositories.Goods
 			.List<NamedDomainObjectNode>();
 		}
 	}
-
-	public class NomenclatureAmountNode
-	{
-		public int NomenclatureId { get; set; }
-		public Nomenclature Nomenclature { get; set; }
-		public decimal Amount { get; set; }
-	}
-
-	public class RouteExpensesNode
-	{
-		public decimal AdministrativeExpenses { get; set; }
-		public decimal RouteListExpenses { get; set; }
-	}
 }
