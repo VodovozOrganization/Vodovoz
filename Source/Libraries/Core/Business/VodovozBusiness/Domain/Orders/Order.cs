@@ -1855,6 +1855,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => string.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 
+		public virtual bool IsOrderCashlessAndPaid =>
+			PaymentType == PaymentType.Cashless
+			&& (OrderPaymentStatus == OrderPaymentStatus.Paid || OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid);
+
 		public virtual int Total19LBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
 									   x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);

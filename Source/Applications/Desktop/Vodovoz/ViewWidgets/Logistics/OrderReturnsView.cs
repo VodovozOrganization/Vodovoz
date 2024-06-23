@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -611,7 +611,8 @@ namespace Vodovoz
 
 		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
-			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty))
+			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty)
+				|| _orderNode.Client?.Id == _routeListItem.Order.Client?.Id)
 			{
 				return;
 			}
@@ -654,6 +655,17 @@ namespace Vodovoz
 		{
 			if(clientEntry.ViewModel.Entity == null)
 			{
+				return;
+			}
+
+			if(_orderNode.Client?.Id != _routeListItem.Order.Client?.Id
+				&& _routeListItem?.Order?.IsOrderCashlessAndPaid == true)
+			{
+				clientEntry.ViewModel.Entity = _routeListItem?.Order?.Client;
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.");
+
 				return;
 			}
 
