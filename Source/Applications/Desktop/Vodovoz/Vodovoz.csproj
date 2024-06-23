@@ -1150,8 +1150,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
     <Compile Include="Dialogs\ImageLoaderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
-    <Compile Include="ReportsParameters\Sales\OrderCreationDateReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
+    <Compile Include="ReportsParameters\Sales\OrderCreationDateReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReportView.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport.cs" />
     <Compile Include="Dialogs\CallTaskDlg.cs" />

@@ -9,6 +9,8 @@ using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -32,19 +34,19 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
-	public class RouteListRepository : IRouteListRepository
+	public partial class RouteListRepository : IRouteListRepository
 	{
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
-		
+
 		public RouteListRepository(ISettingsController settingsController, IStockRepository stockRepository, INomenclatureSettings nomenclatureSettings)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
-		
+
 		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, DateTime? date = null, RouteListStatus? status = null)
 		{
 			RouteList routeListAlias = null;
@@ -72,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
 					  .Where(() => routeListAlias.Driver == driver);
 
-			if (status != null)
+			if(status != null)
 			{
 				query.Where(() => routeListAlias.Status == status);
 			}
@@ -151,7 +153,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Fetch(SelectMode.Fetch, () => orderItemAlias.Nomenclature)
 				.Future();
 
-			
+
 			var routeLists = mainQuery.ToList();
 
 			return routeLists;
@@ -172,7 +174,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.WhereRestrictionOn(() => printHistoryAlias.Id).IsNull();
 			}
 
-			if(geographicGroupsIds.Any()) {
+			if(geographicGroupsIds.Any())
+			{
 				var routeListsWithGeoGroupsSubquery = QueryOver.Of<RouteList>()
 					.Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
 					.Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
@@ -189,7 +192,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			ISubdivisionRepository subdivisionRepository = null,
 			Warehouse warehouse = null)
 		{
-			if (subdivisionRepository == null && warehouse != null)
+			if(subdivisionRepository == null && warehouse != null)
 			{
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
@@ -198,10 +201,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			GoodsInRouteListResultWithSpecialRequirements terminal = null;
 
-			if (warehouse != null)
+			if(warehouse != null)
 			{
 				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
-				if (cashSubdivisions.Contains(warehouse.OwningSubdivision))
+				if(cashSubdivisions.Contains(warehouse.OwningSubdivision))
 				{
 					terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList, warehouse);
 					if(routeList.AdditionalLoadingDocument != null)
@@ -243,19 +246,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return result
 				.GroupBy(x => new
-					{
-						x.NomenclatureId,
-						x.ExpireDatePercent,
-						x.OwnType
-					}
+				{
+					x.NomenclatureId,
+					x.ExpireDatePercent,
+					x.OwnType
+				}
 				).Select(list => new GoodsInRouteListResultWithSpecialRequirements()
-					{
-						NomenclatureName = list.First().NomenclatureName,
-						NomenclatureId = list.Key.NomenclatureId,
-						OwnType = list.Key.OwnType,
-						ExpireDatePercent = list.Key.ExpireDatePercent,
-						Amount = list.Sum(x => x.Amount)
-					}
+				{
+					NomenclatureName = list.First().NomenclatureName,
+					NomenclatureId = list.Key.NomenclatureId,
+					OwnType = list.Key.OwnType,
+					ExpireDatePercent = list.Key.ExpireDatePercent,
+					Amount = list.Sum(x => x.Amount)
+				}
 				).ToList();
 		}
 
@@ -265,25 +268,30 @@ namespace Vodovoz.EntityRepositories.Logistic
 			ISubdivisionRepository subdivisionRepository = null,
 			Warehouse warehouse = null)
 		{
-			if(subdivisionRepository == null && warehouse != null) {
+			if(subdivisionRepository == null && warehouse != null)
+			{
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
 
 			List<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
 
-			if(warehouse != null) {
+			if(warehouse != null)
+			{
 				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
-				if(cashSubdivisions.Contains(warehouse.OwningSubdivision)) {
+				if(cashSubdivisions.Contains(warehouse.OwningSubdivision))
+				{
 					var terminal = GetTerminalInRL(uow, routeList, warehouse);
 					if(terminal != null)
 						result.Add(terminal);
 				}
-				else {
+				else
+				{
 					result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
 					result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
 				}
 			}
-			else {
+			else
+			{
 				result.AddRange(GetGoodsInRLWithoutEquipments(uow, routeList).ToList());
 				result.AddRange(GetEquipmentsInRL(uow, routeList).ToList());
 
@@ -308,10 +316,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return result
 				.GroupBy(x => x.NomenclatureId, x => x.Amount)
-				.Select(x => new GoodsInRouteListResult {
-						NomenclatureId = x.Key,
-						Amount = x.Sum()
-					}
+				.Select(x => new GoodsInRouteListResult
+				{
+					NomenclatureId = x.Key,
+					Amount = x.Sum()
+				}
 				)
 				.ToList();
 		}
@@ -328,7 +337,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => r.TransferedTo == null &&
-				            (!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
+							(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -375,12 +384,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 								Restrictions.Where(() => counterpartyAlias.SpecialExpireDatePercentCheck),
 								Restrictions.Where(() => orderItemNomenclatureAlias.Category == NomenclatureCategory.water)
 							),
-							Projections.SqlFunction( 
+							Projections.SqlFunction(
 								new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' >', ?2, '% срока годности')"),
 								NHibernateUtil.String,
 								Projections.Property(() => orderItemNomenclatureAlias.Name),
 								Projections.Cast(NHibernateUtil.String, Projections.Property(() => counterpartyAlias.SpecialExpireDatePercent))
-							), 
+							),
 							Projections.Property(() => orderItemNomenclatureAlias.Name)
 						)
 					)
@@ -456,7 +465,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias);
-				
+
 			return orderEquipmentsQuery
 				.SelectList(list => list
 				   .SelectGroup(() => orderEquipmentNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -466,10 +475,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
 		}
-		
-		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null) {
+
+		public GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
+		{
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
-			
+
 			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
@@ -484,19 +494,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return null;
 			}
 
-			if (needTerminal || loadedTerminal.Any()) {
+			if(needTerminal || loadedTerminal.Any())
+			{
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
 
-				if(warehouse == null) {
-					return new GoodsInRouteListResult {
+				if(warehouse == null)
+				{
+					return new GoodsInRouteListResult
+					{
 						NomenclatureId = terminalId,
 						Amount = amount
 					};
 				}
 
-				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, new []{ warehouse.Id }).Any()) {
-					return new GoodsInRouteListResult {
+				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, new[] { warehouse.Id }).Any())
+				{
+					return new GoodsInRouteListResult
+					{
 						NomenclatureId = terminalId,
 						Amount = amount
 					};
@@ -506,7 +521,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
-		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId, RouteListItemStatus [] excludeAddressStatuses = null)
+		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId, RouteListItemStatus[] excludeAddressStatuses = null)
 		{
 			GoodsInRouteListResult resultAlias = null;
 			VodovozOrder orderAlias = null;
@@ -522,7 +537,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => routeListItemAlias.RouteList.Id == routeListId)
 				.And(() => routeListItemAlias.TransferedTo == null
-				           && (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType != AddressTransferType.NeedToReload))
+						   && (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType != AddressTransferType.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => orderItemsAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
@@ -533,7 +548,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => routeListItemAlias.TransferedTo == null
-				           && (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType != AddressTransferType.NeedToReload))
+						   && (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType != AddressTransferType.NeedToReload))
 				.And(() => routeListItemAlias.RouteList.Id == routeListId)
 				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.SelectList(list => list
@@ -609,12 +624,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 									.And(x => x.RouteList.Id == routeList.Id)
 									.List();
 
-			if (needTerminal || loadedTerminal.Any())
+			if(needTerminal || loadedTerminal.Any())
 			{
 				var terminal = uow.GetById<Nomenclature>(terminalId);
 				int amount = 1;
 
-				if (warehouse == null)
+				if(warehouse == null)
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{
@@ -624,7 +639,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					};
 				}
 
-				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, new []{ warehouse.Id }).Any())
+				if(_stockRepository.NomenclatureInStock(uow, new int[] { terminal.Id }, new[] { warehouse.Id }).Any())
 				{
 					return new GoodsInRouteListResultWithSpecialRequirements
 					{
@@ -663,7 +678,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<GoodsInRouteListResultToDivide>();
 			return loadedlist;
 		}
-		
+
 		public IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
 			CarLoadDocument docAlias = null;
@@ -672,7 +687,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var loadedQuery = uow.Session.QueryOver<CarLoadDocument>(() => docAlias)
 				.Where(d => d.RouteList.Id == routeList.Id);
-			
+
 			if(excludeDoc != null)
 				loadedQuery.Where(d => d.Id != excludeDoc.Id);
 
@@ -689,12 +704,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public IEnumerable<GoodsInRouteListResult> AllGoodsDelivered(IUnitOfWork uow, RouteList routeList, DeliveryDirection? deliveryDirection = null)
 		{
 			if(routeList == null) throw new ArgumentNullException(nameof(routeList));
-			
+
 			IList<GoodsInRouteListResult> result = new List<GoodsInRouteListResult>();
-			if(!routeList.Addresses.Any()) {
+			if(!routeList.Addresses.Any())
+			{
 				return result;
 			}
-			
+
 			DeliveryDocument docAlias = null;
 			DeliveryDocumentItem docItemsAlias = null;
 			GoodsInRouteListResult resultNodeAlias = null;
@@ -707,14 +723,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			{
 				query.Where(() => docItemsAlias.Direction == deliveryDirection);
 			}
-			
+
 			result = query
 				.SelectList(list => list
 					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
 					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => resultNodeAlias.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
-			
+
 			return result;
 		}
 
@@ -796,18 +812,20 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return deliveryDocuments.SelectMany(d => d.Items.Where(x => x.Direction == DeliveryDirection.ToClient))
 				.GroupBy(i => i.Nomenclature.Id,
 					(nomenclatureId, items) =>
-						new GoodsInRouteListResult {
+						new GoodsInRouteListResult
+						{
 							NomenclatureId = nomenclatureId,
 							Amount = items.Sum(x => x.Amount)
 						});
 		}
-		
+
 		public IEnumerable<GoodsInRouteListResult> AllGoodsReceivedFromClient(IEnumerable<DeliveryDocument> deliveryDocuments)
 		{
 			return deliveryDocuments.SelectMany(d => d.Items.Where(x => x.Direction == DeliveryDirection.FromClient))
 				.GroupBy(i => i.Nomenclature.Id,
 					(nomenclatureId, items) =>
-						new GoodsInRouteListResult {
+						new GoodsInRouteListResult
+						{
 							NomenclatureId = nomenclatureId,
 							Amount = items.Sum(x => x.Amount)
 						});
@@ -842,7 +860,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList)
 		{
-			var types = new[] {PrintedDocumentType.RouteList, PrintedDocumentType.ClosedRouteList};
+			var types = new[] { PrintedDocumentType.RouteList, PrintedDocumentType.ClosedRouteList };
 			return uow.Session.Query<DocumentPrintHistory>()
 				.Where(dph => types.Contains(dph.DocumentType) && dph.RouteList.Id == routeList.Id).ToList();
 		}
@@ -858,7 +876,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			GoodsInRouteListResult resultNodeAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var query  = uow.Session.QueryOver(() => transferDocAlias)
+			var query = uow.Session.QueryOver(() => transferDocAlias)
 				.JoinAlias(() => transferDocAlias.AddressTransferDocumentItems, () => transferDocItemAlias)
 				.JoinAlias(() => transferDocItemAlias.DriverNomenclatureTransferDocumentItems, () => driverTransferDocItemAlias)
 				.Where(() => transferDocAlias.RouteListFrom.Id == routeList.Id);
@@ -880,7 +898,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.SelectSum(() => driverTransferDocItemAlias.Amount).WithAlias(() => resultNodeAlias.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
-			
+
 			return result;
 		}
 
@@ -915,7 +933,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.SelectSum(() => driverTransferDocItemAlias.Amount).WithAlias(() => resultNodeAlias.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
-			
+
 			return result;
 		}
 
@@ -933,11 +951,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => !nomenclatureAlias.IsSerial);
 
-			if(categories != null) {
+			if(categories != null)
+			{
 				returnableQuery.Where(() => nomenclatureAlias.Category.IsIn(categories));
 			}
 
-			if(excludeNomenclatureIds != null) {
+			if(excludeNomenclatureIds != null)
+			{
 				returnableQuery.Where(() => !nomenclatureAlias.Id.IsIn(excludeNomenclatureIds));
 			}
 
@@ -949,7 +969,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
 				.List<ReturnsNode>();
-			
+
 			DomainHelper.FillPropertyByEntity<ReturnsNode, Nomenclature>(uow, result, x => x.NomenclatureId, (node, nom) => node.Nomenclature = nom);
 			return result.ToList();
 		}
@@ -992,7 +1012,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return result;
 		}
 
-		public int BottlesUnloadedByCarUnloadedDocuments(IUnitOfWork uow, int emptyBottleId, int routeListId, params int[] exceptDocumentIds) {
+		public int BottlesUnloadedByCarUnloadedDocuments(IUnitOfWork uow, int emptyBottleId, int routeListId, params int[] exceptDocumentIds)
+		{
 
 			GoodsAccountingOperation movementOperationAlias = null;
 
@@ -1057,7 +1078,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public bool RouteListWasChanged(RouteList routeList)
 		{
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			{
 				var actualRouteList = uow.GetById<RouteList>(routeList.Id);
 				return actualRouteList.Version != routeList.Version;
 			}
@@ -1120,7 +1142,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 						).WithAlias(() => keyValuePairAlias.Value)
 				).TransformUsing(Transformers.AliasToBean<KeyValuePair<string, int>>()).List<KeyValuePair<string, int>>();
 		}
-		
+
 		public bool RouteListContainsGivenFuelLiters(IUnitOfWork uow, int routeListId)
 		{
 			var result = false;
@@ -1134,7 +1156,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			{
 				var litersGiven = operation.LitersGived;
 				var payedLiters = operation.PayedLiters;
-				
+
 				if(litersGiven > 0 || payedLiters > 0)
 				{
 					result = true;
@@ -1289,7 +1311,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				return result.Any();
 			}
 		}
-		
+
 		public decimal GetRouteListTotalSalesGoodsWeight(IUnitOfWork uow, int routeListId)
 		{
 			VodovozOrder orderAlias = null;
@@ -1312,7 +1334,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Select(Projections.Sum(weightProjection));
-			
+
 			var total = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
 				NHibernateUtil.Decimal,
@@ -1326,12 +1348,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return result;
 		}
-		
+
 		public decimal GetRouteListPaidDeliveriesSum(IUnitOfWork uow, int routeListId, IEnumerable<int> paidDeliveriesNomenclaturesIds)
 		{
 			OrderItem orderItemAlias = null;
 			VodovozOrder orderAlias = null;
-			
+
 			return uow.Session.QueryOver<RouteListItem>()
 				.Where(rla => rla.RouteList.Id == routeListId)
 				.And(rla => rla.Status != RouteListItemStatus.Transfered)
@@ -1340,26 +1362,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsInG(paidDeliveriesNomenclaturesIds)
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
-		}
-
-		public class RouteListProfitabilitySpendings
-		{
-			public decimal TotalSales { get; set; }
-			public decimal TotalPurchaseSpending { get; set; }
-			public decimal TotalInnerDeliverySpending { get; set; }
-			public decimal TotalAddressDeliverySpending { get; set; }
-			public decimal TotalWarehouseSpending { get; set; }
-			public decimal TotalAdministrativeSpending { get; set; }
-
-			public decimal GetTotalSpending()
-			{
-				return
-				TotalPurchaseSpending +
-				TotalInnerDeliverySpending +
-				TotalAddressDeliverySpending +
-				TotalWarehouseSpending +
-				TotalAdministrativeSpending;
-			}
 		}
 
 		public RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg)
@@ -1490,7 +1492,7 @@ FROM
 		{
 			OrderItem orderItemAlias = null;
 			VodovozOrder orderAlias = null;
-			
+
 			return uow.Session.QueryOver<RouteListItem>()
 				.Where(rla => rla.RouteList.Id == routeListId)
 				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
@@ -1574,9 +1576,180 @@ FROM
 				_settingsController.CreateOrUpdateSetting(GetCargoDailyNormParameterName(cargoDailyNorm.Key), cargoDailyNorm.Value.ToString());
 			}
 		}
+
+		public async Task<IList<RouteList>> GetCarsRouteListsForPeriod(
+			IUnitOfWork uow,
+			CarTypeOfUse? carTypeOfUse,
+			CarOwnType carOwnType,
+			Car car,
+			int[] includedCarModelIds,
+			int[] excludedCarModelIds,
+			DateTime startDate,
+			DateTime endDate,
+			bool isOnlyCarsWithCompletedFastDelivery,
+			bool isOnlyCarsWithCompletedCommonDelivery,
+			CancellationToken cancellationToken)
+		{
+			return await Task.Run(() =>
+			{
+				RouteList routeListAlias = null;
+				RouteListItem routeListAddressAlias = null;
+				VodovozOrder orderAlias = null;
+				Car carAlias = null;
+				CarModel carModelAlias = null;
+				CarVersion carVersionAlias = null;
+				Employee assignedDriverAlias = null;
+
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Inner.JoinAlias(() => routeListAlias.Car, () => carAlias)
+					.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Left.JoinAlias(() => carAlias.Driver, () => assignedDriverAlias)
+					.JoinEntityAlias(() => carVersionAlias,
+						() => carVersionAlias.Car.Id == carAlias.Id
+							&& carVersionAlias.StartDate <= routeListAlias.Date &&
+							(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
+					.Where(() => routeListAlias.Date >= startDate && routeListAlias.Date < endDate)
+					.Where(() => !carAlias.IsArchive)
+					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
+					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
+					.And(() => carVersionAlias.CarOwnType == carOwnType);
+
+				if(carTypeOfUse != null)
+				{
+					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
+				}
+
+				if(car != null)
+				{
+					query.Where(() => carAlias.Id == car.Id);
+				}
+
+				if(includedCarModelIds.Any())
+				{
+					query.Where(Restrictions.In(Projections.Property(() => carModelAlias.Id), includedCarModelIds));
+				}
+
+				if(excludedCarModelIds.Any())
+				{
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
+				}
+
+				var completedFastDeliveryAddressesSubquery =
+					QueryOver.Of(() => routeListAddressAlias)
+					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
+					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
+					.And(() => orderAlias.IsFastDelivery)
+					.Select(rla => rla.Id)
+					.Take(1);
+
+				var completedCommonAddressesSubquery =
+					QueryOver.Of(() => routeListAddressAlias)
+					.Left.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
+					.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => routeListAddressAlias.Status == RouteListItemStatus.Completed)
+					.And(() => !orderAlias.IsFastDelivery)
+					.Select(rla => rla.Id)
+					.Take(1);
+
+				if(isOnlyCarsWithCompletedFastDelivery && !isOnlyCarsWithCompletedCommonDelivery)
+				{
+					query.Where(Restrictions.IsNotNull(Projections.SubQuery(completedFastDeliveryAddressesSubquery)));
+				}
+
+				if(isOnlyCarsWithCompletedCommonDelivery && !isOnlyCarsWithCompletedFastDelivery)
+				{
+					query.Where(Restrictions.IsNotNull(Projections.SubQuery(completedCommonAddressesSubquery)));
+				}
+
+				return query
+					.OrderBy(() => carAlias.Id).Asc
+					.ThenBy(() => routeListAlias.Id).Asc
+					.TransformUsing(Transformers.DistinctRootEntity)
+					.List<RouteList>();
+			},
+				cancellationToken
+			);
+		}
+
+		public IQueryable<ExploitationReportRouteListDataNode> GetExploitationReportRouteListDataNodes(
+			IUnitOfWork unitOfWork,
+			IEnumerable<int> routeListsIds)
+		{
+			var data =
+				from rl in unitOfWork.Session.Query<RouteList>()
+				join rla in unitOfWork.Session.Query<RouteListItem>() on rl.Id equals rla.RouteList.Id
+				join car in unitOfWork.Session.Query<Car>() on rl.Car.Id equals car.Id
+				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
+				join o in unitOfWork.Session.Query<VodovozOrder>() on rla.Order.Id equals o.Id into orders
+				from order in orders.DefaultIfEmpty()
+				join oi in unitOfWork.Session.Query<OrderItem>() on order.Id equals oi.Order.Id into orderItems
+				from orderItem in orderItems.DefaultIfEmpty()
+				join n in unitOfWork.Session.Query<Nomenclature>() on (orderItem == null ? 0 : orderItem.Nomenclature.Id) equals n.Id into nomenclatures
+				from nomenclature in nomenclatures.DefaultIfEmpty()
+				join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
+				join d in unitOfWork.Session.Query<District>() on deliveryPoint.District.Id equals d.Id into districts
+				from district in districts.DefaultIfEmpty()
+				join ds in unitOfWork.Session.Query<DeliverySchedule>() on order.DeliverySchedule.Id equals ds.Id into deliverySchedules
+				from deliverySchedule in deliverySchedules.DefaultIfEmpty()
+				where routeListsIds.Contains(rl.Id)
+
+				select new ExploitationReportRouteListDataNode
+				{
+					RouteListId = rla.RouteList.Id,
+					RouteListDate = rl.Date,
+					RouteListForwarderId = rl.Forwarder.Id,
+					RouteListConfirmedDistance = rl.ConfirmedDistance,
+					CarId = car.Id,
+					CarTypeOfuse = carModel.CarTypeOfUse,
+					CarMaxBottles = car.MaxBottles,
+					CarMaxVolume = carModel.MaxVolume,
+					CarMaxWeight = carModel.MaxWeight,
+					AddressId = rla.Id,
+					IsAddressWasTransfered = rla.WasTransfered,
+					AddressStatus = rla.Status,
+					AddressStatusLastUpdate = rla.StatusLastUpdate,
+					OrderId = order.Id,
+					OrderIsFastDelivery = order.IsFastDelivery,
+					OrderItemCount = orderItem.Count,
+					OrderItemActualCount = orderItem.ActualCount,
+					IsNomenclatureWater19L = nomenclature == null ? false : nomenclature.IsWater19L,
+					NomenclatureWeight = nomenclature == null ? 0 : nomenclature.Weight,
+					NomenclatureVolume = nomenclature == null ? 0 : nomenclature.Volume,
+					DeliveryPointId = deliveryPoint.Id,
+					DeliveryPointDistrictId = deliveryPoint.District.Id,
+					DeliveryPointWageDistrictId = district.WageDistrict.Id,
+					OrderDeliveryScheduleTo = deliverySchedule.To
+				};
+
+			return data;
+		}
+
+		public IQueryable<int> GetOrderIdsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds)
+		{
+			var ordersIds =
+				from rla in unitOfWork.Session.Query<RouteListItem>()
+				join order in unitOfWork.Session.Query<VodovozOrder>() on rla.Order.Id equals order.Id
+				where routeListsIds.Contains(rla.RouteList.Id)
+				orderby order.Id
+				select order.Id;
+
+			return ordersIds.Distinct();
+		}
+
+		public decimal GetCarsConfirmedDistanceForPeriod(IUnitOfWork unitOfWork, int carId, DateTime startDate, DateTime endDate)
+		{
+			return unitOfWork.Session.QueryOver<RouteList>()
+				.Where(routeList => routeList.Car.Id == carId
+					&& routeList.Date >= startDate
+					&& routeList.Date < endDate
+					&& routeList.ConfirmedDistance > 0)
+				.Select(Projections.Sum<RouteList>(routeList => routeList.ConfirmedDistance))
+				.SingleOrDefault<decimal>();
+		}
 	}
 
-	#region DTO
+#region DTO
 
 	public class ReturnsNode
 	{
@@ -1589,16 +1762,19 @@ FROM
 		public bool Trackable { get; set; }
 		public EquipmentKind EquipmentKind { get; set; }
 		public DefectSource DefectSource { get; set; }
-		
-		public string Serial {
-			get {
+
+		public string Serial
+		{
+			get
+			{
 				if(Trackable)
 					return Id > 0 ? Id.ToString() : "(не определен)";
 				return string.Empty;
 			}
 		}
 
-		public bool Returned {
+		public bool Returned
+		{
 			get => Amount > 0;
 			set => Amount = value ? 1 : 0;
 		}

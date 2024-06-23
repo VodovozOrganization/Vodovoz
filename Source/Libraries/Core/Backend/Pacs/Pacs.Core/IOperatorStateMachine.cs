@@ -2,7 +2,7 @@
 
 namespace Pacs.Core
 {
-	public interface IOperatorStateAgent
+	public interface IOperatorStateMachine
 	{
 		OperatorState OperatorState { get; set; }
 

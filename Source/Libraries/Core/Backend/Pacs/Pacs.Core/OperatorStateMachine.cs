@@ -1,5 +1,4 @@
-﻿using Pacs.Core.Messages.Commands;
-using Stateless;
+﻿using Stateless;
 using System.Linq;
 using Vodovoz.Core.Domain.Pacs;
 using StateMachine = Stateless.StateMachine<
@@ -8,12 +7,12 @@ using StateMachine = Stateless.StateMachine<
 
 namespace Pacs.Core
 {
-	public class OperatorStateAgent : IOperatorStateAgent
+	public class OperatorStateMachine : IOperatorStateMachine
 	{
 		private StateMachine _machine;
 		public OperatorState OperatorState { get; set; }
 
-		public OperatorStateAgent()
+		public OperatorStateMachine()
 		{
 			ConfigureStateMachine();
 		}
@@ -70,6 +69,7 @@ namespace Pacs.Core
 			{
 				return;
 			}
+
 			OperatorState.State = newState;
 		}
 

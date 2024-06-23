@@ -205,6 +205,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 						OnPropertyChanged(nameof(CanEndWorkShift));
 						OnPropertyChanged(nameof(WorkShiftId));
 						break;
+					case nameof(OperatorService.MangoPhone):
+						PhoneNumber = _operatorService.OperatorState?.PhoneNumber;
+						OnPropertyChanged(nameof(PhoneNumber));
+						break;
 					default:
 						break;
 				}

@@ -78,7 +78,8 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IOrganizationRepository organizationRepository,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			Action<RouteListJournalFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			TabName = "Работа кассы с МЛ";
@@ -97,6 +98,11 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
+			if(filterParams != null)
+			{
+				filterViewModel.ConfigureWithoutFiltering(filterParams);
+			} 
+			
 			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}

@@ -2,7 +2,7 @@
 
 namespace Pacs.Server.Operators
 {
-	public partial class OperatorServerAgent
+	public partial class OperatorServerStateMachine
 	{
 		private class WorkShiftEndArgs
 		{

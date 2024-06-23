@@ -5,40 +5,38 @@ using Pacs.Server.Phones;
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Server.Operators
 {
-	public class OperatorAgentFactory : IOperatorAgentFactory
+	public class OperatorServerStateMachineFactory : IOperatorServerStateMachineFactory
 	{
 		private readonly IServiceProvider _serviceProvider;
 
-		public OperatorAgentFactory(IServiceProvider serviceProvider)
+		public OperatorServerStateMachineFactory(IServiceProvider serviceProvider)
 		{
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
-		public OperatorServerAgent CreateOperatorAgent(int operatorId)
+		public OperatorServerStateMachine CreateOperatorAgent(int operatorId)
 		{
-			var logger = _serviceProvider.GetRequiredService<ILogger<OperatorServerAgent>>();
+			var operatorServerLogger = _serviceProvider.GetRequiredService<ILogger<OperatorServerStateMachine>>();
 			var pacsSettings = _serviceProvider.GetRequiredService<IPacsSettings>();
 			var operatorRepository = _serviceProvider.GetRequiredService<IOperatorRepository>();
 			var operatorNotifier = _serviceProvider.GetRequiredService<IOperatorNotifier>();
 			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
 			var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 			var pacsRepository = _serviceProvider.GetRequiredService<IPacsRepository>();
-			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
-			var breakController = new OperatorBreakController(operatorId, globalBreakController, pacsRepository);
-			return new OperatorServerAgent(
+			var globalBreakController = _serviceProvider.GetRequiredService<IGlobalBreakController>();
+
+			return new OperatorServerStateMachine(
 				operatorId,
-				logger,
+				operatorServerLogger,
 				pacsSettings,
 				operatorRepository,
 				operatorNotifier,
 				phoneController,
 				globalBreakController,
-				breakController,
 				uowFactory);
 		}
 	}

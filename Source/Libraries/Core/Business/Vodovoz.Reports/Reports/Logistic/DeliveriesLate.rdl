@@ -24,9 +24,9 @@
            route_list_addresses.status_last_update) AS delivered_time,
 IF(is_fast_delivery,
 		TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update),
-			(IF(@interval_select_mode = 'Transfer',
+			(IF(@interval_select_mode = 'RouteListItemTransfered',
 				route_list_addresses.creation_date,
-				IF(@interval_select_mode = 'FirstAddress',
+				IF(@interval_select_mode = 'AddedInFirstRouteList',
 					(SELECT rla.creation_date FROM route_list_addresses rla WHERE rla.order_id = orders.id ORDER BY creation_date LIMIT 1),
 					orders.create_date
 					)
@@ -179,7 +179,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </Fields>
     </DataSet>
     <DataSet Name="LatenessSummary">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	Sum(Delays.delay &lt; '00:05:00') AS LessThan5Minutes,
@@ -195,9 +195,9 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
 	           route_list_addresses.status_last_update) AS delivered_time,
 		IF(is_fast_delivery,
 			TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update),
-				(IF(@interval_select_mode = 'Transfer',
+				(IF(@interval_select_mode = 'RouteListItemTransfered',
 					route_list_addresses.creation_date,
-					IF(@interval_select_mode = 'FirstAddress',
+					IF(@interval_select_mode = 'AddedInFirstRouteList',
 						(SELECT rla.creation_date FROM route_list_addresses rla WHERE rla.order_id = orders.id ORDER BY creation_date LIMIT 1),
 						orders.create_date
 						)
@@ -258,7 +258,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="LessThan5Minutes">
           <DataField>LessThan5Minutes</DataField>
           <TypeName>System.String</TypeName>
