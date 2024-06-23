@@ -336,9 +336,8 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			var authorsOfResultCommentsSubquery = QueryOver.Of(() => resultCommentAuthorAlias)
 				.JoinEntityAlias(() => resultOfComplaintResultCommentAlias,
-					() => resultOfComplaintResultCommentAlias.Author.Id == resultCommentAuthorAlias.Id
-						&& resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					() => resultOfComplaintResultCommentAlias.Author.Id == resultCommentAuthorAlias.Id)
+				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
 				.Select(authorsOfResultCommentsProjection);
 
 			var isNeedWorkSubquery = QueryOver.Of(() => discussionAlias)
