@@ -181,7 +181,6 @@ public partial class MainWindow
 			null,
 			filter =>
 			{
-				filter.IsForRetail = true;
 				filter.StartDate = DateTime.Today.AddMonths(-2);
 				filter.EndDate = DateTime.Today;
 			},
