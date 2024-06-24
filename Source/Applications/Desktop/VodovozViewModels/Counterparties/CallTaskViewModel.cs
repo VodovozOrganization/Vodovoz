@@ -340,6 +340,11 @@ namespace Vodovoz.ViewModels.Counterparties
 						Entity.Counterparty.DeliveryPoints.First();
 				}
 
+				if(Entity.Counterparty is null)
+				{
+					Entity.DeliveryPoint = null;
+				}
+
 				OnPropertyChanged(nameof(CanCreateReportByCounterparty));
 				DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
 				return;
