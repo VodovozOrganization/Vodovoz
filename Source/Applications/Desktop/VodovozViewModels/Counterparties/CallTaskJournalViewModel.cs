@@ -194,6 +194,11 @@ namespace Vodovoz.ViewModels.Counterparties
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient));
 
+			tasksQuery.Where(GetSearchCriterion(
+				() => callTaskAlias.Id,
+				() => counterpartyAlias.Name,
+				() => callTaskAlias.TaskState,
+				() => deliveryPointAlias.ShortAddress));
 
 			IProjection GetSortResultExpression()
 			{
