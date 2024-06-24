@@ -822,6 +822,7 @@ namespace Vodovoz
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
+			entityVMEntryClient.BeforeChangeByUser += OnClientBeforeChangeByUser;
 
 			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
 			evmeContactPhone.Binding.AddSource(Entity)
@@ -1109,6 +1110,20 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+		}
+
+		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
+		{
+			if(Entity.Client != null && Entity.IsOrderCashlessAndPaid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+
+				e.CanChange = false;
+				return;
+			}
+			e.CanChange = true;
 		}
 
 		private void UpdateCallBeforeArrivalMinutesSelectedItem()

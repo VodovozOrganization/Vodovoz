@@ -664,7 +664,7 @@ namespace Vodovoz
 				clientEntry.ViewModel.Entity = _routeListItem?.Order?.Client;
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					Order.IsCashlessOrderPaidMessage);
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
 
 				return;
 			}

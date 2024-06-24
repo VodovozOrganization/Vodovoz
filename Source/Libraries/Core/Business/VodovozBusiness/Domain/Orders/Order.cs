@@ -134,9 +134,6 @@ namespace Vodovoz.Domain.Orders
 
 		#region Cвойства
 
-		public static string IsCashlessOrderPaidMessage =>
-			"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.";
-
 		public virtual int Id { get; set; }
 
 		public virtual IInteractiveService InteractiveService { get; set; }
@@ -246,18 +243,6 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя изменить клиента для заполненного заказа.");
-					return;
-				}
-				else if(_client != null && IsOrderCashlessAndPaid)
-				{
-					OnPropertyChanged(nameof(Client));
-
-					if(InteractiveService == null)
-					{
-						throw new InvalidOperationException(IsCashlessOrderPaidMessage);
-					}
-
-					InteractiveService.ShowMessage(ImportanceLevel.Warning, IsCashlessOrderPaidMessage);
 					return;
 				}
 				var oldClient = _client;
