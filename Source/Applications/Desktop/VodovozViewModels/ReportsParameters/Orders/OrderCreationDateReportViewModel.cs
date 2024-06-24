@@ -79,6 +79,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public override ReportInfo ReportInfo => new ReportInfo
 		{
+			Title = Title,
 			Identifier = "Sales.OrderCreationDateReport",
 			Parameters = Parameters
 		};
