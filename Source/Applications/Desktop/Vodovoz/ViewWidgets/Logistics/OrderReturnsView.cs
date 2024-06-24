@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -664,7 +664,7 @@ namespace Vodovoz
 				clientEntry.ViewModel.Entity = _routeListItem?.Order?.Client;
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.");
+					Order.IsCashlessOrderPaidMessage);
 
 				return;
 			}
