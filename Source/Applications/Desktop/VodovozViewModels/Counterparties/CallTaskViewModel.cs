@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -340,7 +340,7 @@ namespace Vodovoz.ViewModels.Counterparties
 						Entity.Counterparty.DeliveryPoints.First();
 				}
 
-				if(Entity.Counterparty is null)
+				if(Entity.Counterparty is null || !Entity.Counterparty.DeliveryPoints.Contains(Entity.DeliveryPoint))
 				{
 					Entity.DeliveryPoint = null;
 				}
