@@ -1,4 +1,4 @@
-using FluentNHibernate.Utils;
+﻿using FluentNHibernate.Utils;
 using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
@@ -1249,6 +1249,20 @@ namespace Vodovoz.EntityRepositories.Orders
 			return uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.Order.Id == orderId)
 				.List();
+		}
+
+		public IEnumerable<Payment> GetOrderPayments(IUnitOfWork uow, int orderId)
+		{
+			Payment paymentAlias = null;
+			PaymentItem paymentItemAlias = null;
+
+			var payments = uow.Session.QueryOver(() => paymentAlias)
+				.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias)
+				.Where(() => paymentItemAlias.Order.Id == orderId)
+				.TransformUsing(Transformers.DistinctRootEntity)
+				.List<Payment>();
+
+			return payments;
 		}
 
 		public bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId)
