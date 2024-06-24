@@ -273,14 +273,7 @@ namespace Vodovoz
 
 			_orderNode = new OrderNode(_routeListItem.Order);
 
-			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
-
-			clientEntry.ViewModel = builder.ForProperty(x => x.Client)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
-				.Finish();
-			clientEntry.ViewModel.Changed += OnClientEntryViewModelChanged;
-			clientEntry.ViewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
+			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
 			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
 			ConfigureDeliveryPointRefference(_orderNode.Client);
@@ -396,7 +389,23 @@ namespace Vodovoz
 			OnlineOrderVisible();
 			OnClientEntryViewModelChanged(null, null);
 		}
-		
+
+		private IEntityEntryViewModel GetClientEntityEntryViewModel()
+		{
+			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
+
+			var viewModel = builder.ForProperty(x => x.Client)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			viewModel.Changed += OnClientEntryViewModelChanged;
+			viewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
+			viewModel.BeforeChangeByUser += OnClientBeforeChangeByUser;
+
+			return viewModel;
+		}
+
 		private IEnumerable<PaymentFrom> GetActivePaymentFromWithSelected(IDomainObject selectedPaymentFrom)
 		{
 			var selectedPaymentFromId = selectedPaymentFrom?.Id ?? 0; 
@@ -609,10 +618,23 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
+		{
+			if(_orderNode.Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+
+				e.CanChange = false;
+				return;
+			}
+			e.CanChange = true;
+		}
+
 		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
-			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty)
-				|| _orderNode.Client?.Id == _routeListItem.Order.Client?.Id)
+			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty))
 			{
 				return;
 			}
@@ -655,17 +677,6 @@ namespace Vodovoz
 		{
 			if(clientEntry.ViewModel.Entity == null)
 			{
-				return;
-			}
-
-			if(_orderNode.Client?.Id != _routeListItem.Order.Client?.Id
-				&& _routeListItem?.Order?.IsOrderCashlessAndPaid == true)
-			{
-				clientEntry.ViewModel.Entity = _routeListItem?.Order?.Client;
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
-
 				return;
 			}
 
