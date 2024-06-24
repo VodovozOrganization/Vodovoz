@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -948,7 +948,12 @@ public partial class MainWindow : Window
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			   null,
-			   filter => filter.IsForSalesDepartment = true,
+			   filter =>
+			   {
+				   filter.IsForSalesDepartment = true;
+				   filter.StartDate = DateTime.Today.AddMonths(-2);
+				   filter.EndDate = DateTime.Today;
+			   },
 			   OpenPageOptions.IgnoreHash);
 	}
 	
