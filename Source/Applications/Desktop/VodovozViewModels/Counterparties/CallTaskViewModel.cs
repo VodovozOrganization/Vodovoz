@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -327,6 +328,8 @@ namespace Vodovoz.ViewModels.Counterparties
 					Entity.AssignedEmployee != null
 					? vm.UoW.GetById<Employee>(Entity.AssignedEmployee.Id)
 					: null;
+
+				vm.Entity.EndActivePeriod = DateTime.Now.LatestDayTime();
 
 				vm.UpdateCounterpartyInformation();
 				vm.UpdateDeliveryPointInformation();
