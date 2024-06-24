@@ -1,5 +1,6 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -299,6 +300,15 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		private void CreateNewOrder()
 		{
+			if(Entity.Counterparty is null)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для оформления заказа требуется заполненный контрагент в задаче",
+					"Ошибка");
+				return;
+			}
+
 			_createNewOrderLegacyCallback.Invoke();
 		}
 
