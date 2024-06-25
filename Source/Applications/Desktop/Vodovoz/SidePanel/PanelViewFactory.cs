@@ -9,9 +9,13 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Delivery;
@@ -34,12 +38,17 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.CounterpartyView:
 					return new CounterpartyPanelView(ServicesConfig.CommonServices);
 				case PanelViewType.DeliveryPointView:
-					return new DeliveryPointPanelView(ServicesConfig.CommonServices);
+					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
+					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
+					var depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
+					var orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+					return new DeliveryPointPanelView(ServicesConfig.CommonServices, deliveryPointRepository, bottlesRepository, depositRepository, orderRepository);
 				case PanelViewType.DeliveryPricePanelView:
 					var deliveryPriceCalculator = ScopeProvider.Scope.Resolve<IDeliveryPriceCalculator>();
 					return new DeliveryPricePanelView(deliveryPriceCalculator);
 				case PanelViewType.UndeliveredOrdersPanelView:
-					return new UndeliveredOrdersPanelView();
+					var undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
+					return new UndeliveredOrdersPanelView(undeliveredOrdersRepository);
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
