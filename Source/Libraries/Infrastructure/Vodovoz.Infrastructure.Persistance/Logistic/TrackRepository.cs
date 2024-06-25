@@ -7,12 +7,11 @@ using NHibernate.Transform;
 using Vodovoz.Domain.Logistic;
 using NHibernate.Persister.Entity;
 using Vodovoz.Core.Domain;
-using Vodovoz.Services;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class TrackRepository : ITrackRepository
+	internal sealed class TrackRepository : ITrackRepository
 	{
 		public Track GetTrackByRouteListId(IUnitOfWork unitOfWork, int routeListId)
 		{

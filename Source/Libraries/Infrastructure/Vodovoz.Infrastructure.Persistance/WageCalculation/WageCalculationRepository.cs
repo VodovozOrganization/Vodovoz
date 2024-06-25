@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz.Infrastructure.Persistance.WageCalculation
 {
-	public class WageCalculationRepository : IWageCalculationRepository
+	internal sealed class WageCalculationRepository : IWageCalculationRepository
 	{
 		public IEnumerable<WageDistrict> AllWageDistricts(IUnitOfWork uow, bool hideArchive = true)
 		{

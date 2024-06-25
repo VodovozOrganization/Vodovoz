@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using Vodovoz.EntityRepositories.Cash.Requests;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash.Requests
 {
-	public class CashRequestRepository : ICashRequestRepository
+	internal sealed class CashRequestRepository : ICashRequestRepository
 	{
 		public IList<CashRequestSumItem> GetCashRequestSumItemsForCashRequest(IUnitOfWork uow, int cashRequestId)
 		{

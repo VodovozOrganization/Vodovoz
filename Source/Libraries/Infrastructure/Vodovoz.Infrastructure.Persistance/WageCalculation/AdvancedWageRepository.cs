@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz.Infrastructure.Persistance.WageCalculation
 {
-	public class AdvancedWageRepository : IAdvancedWageRepository
+	internal sealed class AdvancedWageRepository : IAdvancedWageRepository
 	{
 		public IEnumerable<AdvancedWageParameter> GetRootParameter(IUnitOfWork uow, WageRate wageRate)
 		{

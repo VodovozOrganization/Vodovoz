@@ -17,7 +17,7 @@ using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods
 {
-	public partial class NomenclatureInstanceRepository : INomenclatureInstanceRepository
+	internal sealed class NomenclatureInstanceRepository : INomenclatureInstanceRepository
 	{
 		public InventoryNomenclatureInstance GetInventoryNomenclatureInstance(IUnitOfWork uow, int id)
 			=> uow.GetById<InventoryNomenclatureInstance>(id);

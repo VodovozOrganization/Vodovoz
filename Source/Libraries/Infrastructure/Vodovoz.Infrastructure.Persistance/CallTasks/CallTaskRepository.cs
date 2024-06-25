@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -7,7 +6,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 
 namespace Vodovoz.Infrastructure.Persistance.CallTasks
 {
-	public class CallTaskRepository : ICallTaskRepository
+	internal sealed class CallTaskRepository : ICallTaskRepository
 	{
 		public string GetCommentsByDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, CallTask currentCallTask)
 		{

@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods
 {
-	public class NomenclaturePricesRepository : INomenclaturePricesRepository
+	internal sealed class NomenclaturePricesRepository : INomenclaturePricesRepository
 	{
 		public IList<Nomenclature> GetNomenclaturesForGroupPricing(IUnitOfWork uow)
 		{

@@ -13,7 +13,7 @@ using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Infrastructure.Persistance.Sale
 {
-	public class ScheduleRestrictionRepository : IScheduleRestrictionRepository
+	internal sealed class ScheduleRestrictionRepository : IScheduleRestrictionRepository
 	{
 		public QueryOver<District> GetDistrictsWithBorder()
 		{

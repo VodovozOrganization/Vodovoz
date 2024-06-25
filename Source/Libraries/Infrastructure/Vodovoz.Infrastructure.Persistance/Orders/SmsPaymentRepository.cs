@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
-	public class SmsPaymentRepository : ISmsPaymentRepository
+	internal sealed class SmsPaymentRepository : ISmsPaymentRepository
 	{
 		public IList<SmsPayment> GetSmsPaymentsForOrder(IUnitOfWork uow, int orderId, SmsPaymentStatus[] excludeStatuses = null)
 		{

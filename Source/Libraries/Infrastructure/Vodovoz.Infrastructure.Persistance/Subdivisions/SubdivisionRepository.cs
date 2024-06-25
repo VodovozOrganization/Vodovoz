@@ -18,7 +18,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.Infrastructure.Persistance.Subdivisions
 {
-	public class SubdivisionRepository : ISubdivisionRepository
+	internal sealed class SubdivisionRepository : ISubdivisionRepository
 	{
 		private readonly ISettingsController _settingsController;
 

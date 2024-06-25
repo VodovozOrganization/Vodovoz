@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 
 namespace Vodovoz.Infrastructure.Persistance.Complaints.ComplaintResults
 {
-	public class ComplaintResultsRepository : IComplaintResultsRepository
+	internal sealed class ComplaintResultsRepository : IComplaintResultsRepository
 	{
 		public IEnumerable<ComplaintResultOfCounterparty> GetActiveResultsOfCounterparty(IUnitOfWork uow) =>
 			uow.Session.QueryOver<ComplaintResultOfCounterparty>().Where(x => !x.IsArchive).List();

@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class CompletedDriverWarehouseEventRepository : ICompletedDriverWarehouseEventRepository
+	internal sealed class CompletedDriverWarehouseEventRepository : ICompletedDriverWarehouseEventRepository
 	{
 		public bool HasCompletedEventsByEventId(IUnitOfWork uow, int eventId)
 		{

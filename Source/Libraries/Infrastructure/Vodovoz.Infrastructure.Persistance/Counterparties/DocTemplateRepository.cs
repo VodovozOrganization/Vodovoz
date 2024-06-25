@@ -9,7 +9,7 @@ using Vodovoz.Errors;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class DocTemplateRepository : IDocTemplateRepository
+	internal sealed class DocTemplateRepository : IDocTemplateRepository
 	{
 		public DocTemplate GetTemplate(IUnitOfWork uow, TemplateType type, Organization org, ContractType contractType)
 		{

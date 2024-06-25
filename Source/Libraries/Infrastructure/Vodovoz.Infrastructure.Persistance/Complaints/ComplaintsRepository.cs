@@ -11,7 +11,7 @@ using Vodovoz.EntityRepositories.Complaints;
 
 namespace Vodovoz.Infrastructure.Persistance.Complaints
 {
-	public class ComplaintsRepository : IComplaintsRepository
+	internal sealed class ComplaintsRepository : IComplaintsRepository
 	{
 		public IList<object[]> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{

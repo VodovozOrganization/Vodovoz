@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class DeliveryShiftRepository : IDeliveryShiftRepository
+	internal sealed class DeliveryShiftRepository : IDeliveryShiftRepository
 	{
 		public IList<DeliveryShift> ActiveShifts(IUnitOfWork uow)
 		{

@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
-	public class OnlineOrderStatusUpdatedNotificationRepository : IOnlineOrderStatusUpdatedNotificationRepository
+	internal sealed class OnlineOrderStatusUpdatedNotificationRepository : IOnlineOrderStatusUpdatedNotificationRepository
 	{
 		public IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(IUnitOfWork uow, int days)
 		{

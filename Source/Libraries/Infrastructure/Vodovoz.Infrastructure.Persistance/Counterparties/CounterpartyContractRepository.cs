@@ -13,9 +13,8 @@ using Vodovoz.Tools;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-
 	//Необходима смена репозитория на модель, так как по сути происходит логика смены договора
-	public class CounterpartyContractRepository : ICounterpartyContractRepository
+	internal sealed class CounterpartyContractRepository : ICounterpartyContractRepository
 	{
 		private readonly IOrganizationProvider _organizationProvider;
 		private readonly ICashReceiptRepository _cashReceiptRepository;

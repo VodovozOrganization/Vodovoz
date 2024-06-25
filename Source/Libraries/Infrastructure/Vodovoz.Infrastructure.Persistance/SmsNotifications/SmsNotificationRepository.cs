@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.SmsNotifications;
 
 namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 {
-	public class SmsNotificationRepository : ISmsNotificationRepository
+	internal sealed class SmsNotificationRepository : ISmsNotificationRepository
 	{
 		public IEnumerable<NewClientSmsNotification> GetUnsendedNewClientSmsNotifications(IUnitOfWork uow)
 		{

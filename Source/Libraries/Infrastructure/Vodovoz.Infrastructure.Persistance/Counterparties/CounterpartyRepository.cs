@@ -19,7 +19,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class CounterpartyRepository : ICounterpartyRepository
+	internal sealed class CounterpartyRepository : ICounterpartyRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 

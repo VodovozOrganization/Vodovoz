@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Flyers;
 
 namespace Vodovoz.Infrastructure.Persistance.Flyers
 {
-	public class FlyerRepository : IFlyerRepository
+	internal sealed class FlyerRepository : IFlyerRepository
 	{
 		public IList<int> GetAllFlyersNomenclaturesIds(IUnitOfWork uow)
 		{

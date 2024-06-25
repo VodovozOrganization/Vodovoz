@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
 {
-	public class TrueMarkRepository : ITrueMarkRepository
+	internal sealed class TrueMarkRepository : ITrueMarkRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 

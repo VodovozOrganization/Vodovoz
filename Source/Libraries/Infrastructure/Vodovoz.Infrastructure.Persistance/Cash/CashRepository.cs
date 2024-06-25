@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -16,7 +14,7 @@ using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	public class CashRepository : ICashRepository
+	internal sealed class CashRepository : ICashRepository
 	{
 		public decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null)
 		{

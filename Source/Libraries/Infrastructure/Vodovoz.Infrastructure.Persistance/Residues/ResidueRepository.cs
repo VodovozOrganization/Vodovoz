@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Residues;
 
 namespace Vodovoz.Infrastructure.Persistance.Residues
 {
-	public class ResidueRepository : IResidueRepository
+	internal sealed class ResidueRepository : IResidueRepository
 	{
 		public IList<Residue> GetResidueByCounterpary(IUnitOfWork uow, Counterparty counterparty, int count = int.MaxValue)
 		{

@@ -4,16 +4,14 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Equipments;
 
 namespace Vodovoz.Infrastructure.Persistance.Equipments
 {
-	public class EquipmentRepository : IEquipmentRepository
+	internal sealed class EquipmentRepository : IEquipmentRepository
 	{
 		#region С серийными номерами
 
@@ -213,4 +211,3 @@ namespace Vodovoz.Infrastructure.Persistance.Equipments
 		#endregion
 	}
 }
-

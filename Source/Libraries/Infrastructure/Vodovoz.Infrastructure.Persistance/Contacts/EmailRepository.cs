@@ -9,7 +9,6 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
@@ -19,7 +18,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
-	public class EmailRepository : IEmailRepository
+	internal sealed class EmailRepository : IEmailRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 

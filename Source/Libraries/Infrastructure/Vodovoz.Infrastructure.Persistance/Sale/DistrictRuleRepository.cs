@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Infrastructure.Persistance.Sale
 {
-	public class DistrictRuleRepository : IDistrictRuleRepository
+	internal sealed class DistrictRuleRepository : IDistrictRuleRepository
 	{
 		public QueryOver<DeliveryPriceRule> GetQueryOverWithAllDeliveryPriceRules()
 		{

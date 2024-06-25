@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations
 {
-	public class MoneyRepository : IMoneyRepository
+	internal sealed class MoneyRepository : IMoneyRepository
 	{
 		public CounterpartyDebtQueryResult GetCounterpartyBalanceResult(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
 		{

@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.Infrastructure.Persistance.Permissions
 {
-	public class UserRoleRepository : IUserRoleRepository
+	internal sealed class UserRoleRepository : IUserRoleRepository
 	{
 		public IList<AvailableDatabase> GetAllAvailableDatabases(IUnitOfWork uow) => uow.GetAll<AvailableDatabase>().ToList();
 		public IList<UserRole> GetAllUserRoles(IUnitOfWork uow) => uow.GetAll<UserRole>().ToList();

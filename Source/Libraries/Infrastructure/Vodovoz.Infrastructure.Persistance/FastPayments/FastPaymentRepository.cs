@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 
 namespace Vodovoz.Infrastructure.Persistance.FastPayments
 {
-	public class FastPaymentRepository : IFastPaymentRepository
+	internal sealed class FastPaymentRepository : IFastPaymentRepository
 	{
 		public IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOrder(IUnitOfWork uow, int orderId)
 		{

@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class CarEventRepository : ICarEventRepository
+	internal sealed class CarEventRepository : ICarEventRepository
 	{
 		public IEnumerable<CarEvent> Get(IUnitOfWork unitOfWork, Expression<Func<CarEvent, bool>> predicate = null)
 		{

@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
-	public class PaymentFromRepository : IPaymentFromRepository
+	internal sealed class PaymentFromRepository : IPaymentFromRepository
 	{
 		public PaymentFrom GetDuplicatePaymentFromByName(IUnitOfWork uow, int id, string name)
 		{

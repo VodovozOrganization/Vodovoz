@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Profitability;
 
 namespace Vodovoz.Infrastructure.Persistance.Profitability
 {
-	public class RouteListProfitabilityRepository : IRouteListProfitabilityRepository
+	internal sealed class RouteListProfitabilityRepository : IRouteListProfitabilityRepository
 	{
 		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesByCalculatedMonth(IUnitOfWork uow, DateTime date)
 		{

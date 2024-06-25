@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
-using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -32,7 +31,7 @@ using Vodovoz.EntityRepositories.Delivery;
 
 namespace Vodovoz.Infrastructure.Persistance.Delivery
 {
-	public class DeliveryRepository : IDeliveryRepository
+	internal sealed class DeliveryRepository : IDeliveryRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;

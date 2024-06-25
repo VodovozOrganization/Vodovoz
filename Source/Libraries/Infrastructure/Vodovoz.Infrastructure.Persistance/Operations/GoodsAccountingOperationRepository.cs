@@ -3,7 +3,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations
 {
-	public class GoodsAccountingOperationRepository
+	internal sealed class GoodsAccountingOperationRepository
 	{
 		public static ICriterion GetGoodsAccountingOperationCriterionByStorage(OperationType operationType, int storageId)
 		{

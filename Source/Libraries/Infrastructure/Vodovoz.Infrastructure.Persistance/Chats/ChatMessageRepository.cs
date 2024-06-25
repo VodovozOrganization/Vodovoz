@@ -12,7 +12,7 @@ using Vodovoz.EntityRepositories.Chats;
 
 namespace Vodovoz.Infrastructure.Persistance.Chats
 {
-	public class ChatMessageRepository : IChatMessageRepository
+	internal sealed class ChatMessageRepository : IChatMessageRepository
 	{
 		public IList<ChatMessage> GetChatMessagesForPeriod(IUnitOfWork uow, Chat chat, int days)
 		{

@@ -20,7 +20,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
 {
-	public class PaymentsRepository : IPaymentsRepository
+	internal sealed class PaymentsRepository : IPaymentsRepository
 	{
 		public IList<PaymentByCardOnlineNode> GetPaymentsByTwoMonths(IUnitOfWork uow, DateTime date)
 		{

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -18,7 +18,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
-	public class PromotionalSetRepository : IPromotionalSetRepository
+	internal sealed class PromotionalSetRepository : IPromotionalSetRepository
 	{
 		internal static Func<IUnitOfWork, VodovozOrder, bool, Dictionary<int, int[]>> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap;
 		/// <summary>

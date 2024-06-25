@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.DiscountReasons;
 
 namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 {
-	public class DiscountReasonRepository : IDiscountReasonRepository
+	internal sealed class DiscountReasonRepository : IDiscountReasonRepository
 	{
 		/// <summary>
 		/// Возврат отсортированного списка скидок

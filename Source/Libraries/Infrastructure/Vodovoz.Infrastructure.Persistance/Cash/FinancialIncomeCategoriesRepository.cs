@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	public class FinancialIncomeCategoriesRepository : IFinancialIncomeCategoriesRepository
+	internal sealed class FinancialIncomeCategoriesRepository : IFinancialIncomeCategoriesRepository
 	{
 		public IEnumerable<FinancialIncomeCategory> Get(IUnitOfWork unitOfWork, Expression<Func<FinancialIncomeCategory, bool>> predicate)
 		{

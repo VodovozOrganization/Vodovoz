@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.BasicHandbooks;
 
 namespace Vodovoz.Infrastructure.Persistance.BasicHandbooks
 {
-	public class CullingCategoryRepository : ICullingCategoryRepository
+	internal sealed class CullingCategoryRepository : ICullingCategoryRepository
 	{
 		public IList<CullingCategory> GetAllCullingCategories(IUnitOfWork uow) => uow.GetAll<CullingCategory>().ToList();
 	}
