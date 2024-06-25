@@ -1,7 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using static Vodovoz.EntityRepositories.Operations.MoneyRepository;
 
 namespace Vodovoz.EntityRepositories.Operations
 {

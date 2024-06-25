@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using static Vodovoz.EntityRepositories.Logistic.CarRepository;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
