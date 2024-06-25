@@ -55,6 +55,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IExpenseSettings _expenseSettings;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -71,6 +72,7 @@ namespace Vodovoz.JournalViewModels
 			IRouteListRepository routeListRepository,
 			IFuelRepository fuelRepository,
 			ICallTaskRepository callTaskRepository,
+			ICallTaskWorker callTaskWorker,
 			IExpenseSettings expenseSettings,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ISubdivisionRepository subdivisionRepository,
@@ -87,6 +89,7 @@ namespace Vodovoz.JournalViewModels
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -393,17 +396,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected void InitPopupActions()
 		{
-			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
-			var callTaskWorker = new CallTaskWorker(
-				UnitOfWorkFactory,
-				CallTaskSingletonFactory.GetInstance(),
-				_callTaskRepository,
-				new OrderRepository(),
-				new EmployeeRepository(),
-				employeeSettings,
-				commonServices.UserService,
-				ErrorReporter.Instance);
-
 			PopupActionsList.Add(new JournalAction(
 				"Закрытие МЛ",
 				(selectedItems) => selectedItems.Any(x => _closingDlgStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
@@ -505,7 +497,7 @@ namespace Vodovoz.JournalViewModels
 									isSlaveTabActive = true;
 									return;
 								}
-								routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
+								routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
 								uowLocal.Save(routeList);
 								if(isSlaveTabActive)
 								{
