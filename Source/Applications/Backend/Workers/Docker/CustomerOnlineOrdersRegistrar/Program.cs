@@ -13,6 +13,7 @@ using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -42,6 +43,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
+						.AddInfrastructure()
 						.AddCustomerOrdersApiLibrary()
 						.AddApplicationOrderServices()
 						.AddStaticScopeForEntity()

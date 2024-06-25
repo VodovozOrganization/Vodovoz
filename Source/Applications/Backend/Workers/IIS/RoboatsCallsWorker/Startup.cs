@@ -18,6 +18,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace RoboatsCallsWorker
 {
@@ -54,6 +55,7 @@ namespace RoboatsCallsWorker
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddInfrastructure()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
