@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -25,7 +25,7 @@ namespace Vodovoz.Additions.Logistic
 	public static class PrintRouteListHelper
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private static readonly IRouteColumnRepository _routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 		private static readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
@@ -223,7 +223,7 @@ namespace Vodovoz.Additions.Logistic
 			{
 				var qrPlacer = new EventsQrPlacer(
 					new CustomReportFactory(new CustomPropertiesFactory(), new CustomReportItemFactory(), new RdlTextBoxFactory()),
-					new DriverWarehouseEventRepository());
+					ScopeProvider.Scope.Resolve<IDriverWarehouseEventRepository>());
 
 				qrPlacer.AddQrEventForDocument(uow, routeList.Id, ref RdlText);
 			}
