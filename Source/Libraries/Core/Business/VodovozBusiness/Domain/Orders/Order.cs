@@ -2905,7 +2905,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Принятие оплаты самовывоза по безналичному расчету
 		/// </summary>
-		public virtual void SelfDeliveryAcceptCashlessPaid(CallTaskWorker callTaskWorker)
+		public virtual void SelfDeliveryAcceptCashlessPaid(ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery)
 				return;
@@ -3115,7 +3115,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanSetOrderAsAccepted => EditableOrderStatuses.Contains(OrderStatus);
 
-		public virtual void EditOrder(CallTaskWorker callTaskWorker)
+		public virtual void EditOrder(ICallTaskWorker callTaskWorker)
 		{
 			//Нельзя редактировать заказ с самовывозом
 			if(SelfDelivery)
