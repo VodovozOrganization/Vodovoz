@@ -21,7 +21,7 @@ namespace Vodovoz.Tools.Logistic
 	/// </summary>
 	public class RouteGeometryCalculator : IDistanceCalculator, IDisposable
 	{
-		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IGlobalSettings _globalSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUnitOfWork _uow;
@@ -34,10 +34,11 @@ namespace Vodovoz.Tools.Logistic
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
 
-		public RouteGeometryCalculator(IUnitOfWorkFactory uowFactory, IGlobalSettings globalSettings)
+		public RouteGeometryCalculator(IUnitOfWorkFactory uowFactory, IGlobalSettings globalSettings, ICachedDistanceRepository cachedDistanceRepository)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_uow = _uowFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 		}
 

@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.Entity;
@@ -86,7 +87,7 @@ namespace Vodovoz.Domain.Orders
 			if(!IsForZeroDebt)
 				return true;
 
-			BottlesRepository bottlesRepository = new BottlesRepository();
+			IBottlesRepository bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
 
 			BottlesMovementOperation bottlesMovementAlias = null;
 			Order orderAlias = null;
