@@ -2010,7 +2010,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract(true);
 		}
 
-		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
+		private IOrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
 		private CounterpartyContractRepository counterpartyContractRepository;
 		private ICounterpartyContractFactory counterpartyContractFactory;

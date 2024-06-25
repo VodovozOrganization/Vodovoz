@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
@@ -13,6 +13,7 @@ using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -49,6 +50,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
+						.AddInfrastructure()
 						
 						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()

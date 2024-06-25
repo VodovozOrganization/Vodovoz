@@ -75,6 +75,13 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.SortingDirectionType.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.SortingParamType.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.TaskFilterDateType.cs" />
+    <Compile Include="Counterparties\CallTaskJournalViewModel.CallTaskJournalNode.cs" />
+    <Compile Include="Counterparties\CallTaskJournalViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskViewModel.cs" />
     <Compile Include="Counterparties\ClientBalanceFilterViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.StartClassificationCalculationEventArgs.cs" />

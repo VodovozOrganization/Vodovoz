@@ -156,6 +156,7 @@ using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz
 {
@@ -696,6 +697,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddInfrastructure()
 						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
