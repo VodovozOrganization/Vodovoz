@@ -27,10 +27,10 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly IDepositRepository _depositRepository = new DepositRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IDepositRepository _depositRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
@@ -40,9 +40,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		private bool _textviewcommentBufferChanged = false;
 		private bool _textviewcommentLogistBufferChanged = false;
 
-		public DeliveryPointPanelView(ICommonServices commonServices)
+		public DeliveryPointPanelView(
+			ICommonServices commonServices,
+			IDeliveryPointRepository deliveryPointRepository,
+			IBottlesRepository bottlesRepository,
+			IDepositRepository depositRepository,
+			IOrderRepository orderRepository)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+
 			Build();
 			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
 			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
