@@ -44,18 +44,22 @@ namespace Vodovoz.SidePanel
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
 					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
+					var employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
 					return new CallTaskPanelView(
 						employeeSettings,
-						new EmployeeRepository(),
+						employeeRepository,
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
 					var complaintSettigs = ScopeProvider.Scope.Resolve<IComplaintSettings>();
-					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), complaintSettigs);
+					var complaintsRepository = ScopeProvider.Scope.Resolve<IComplaintsRepository>();
+					var complaintResultsRepository = ScopeProvider.Scope.Resolve<IComplaintResultsRepository>();
+					return new ComplaintPanelView(complaintsRepository, complaintResultsRepository, complaintSettigs);
 				case PanelViewType.SmsSendPanelView:
 					var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
+					var fastPaymentRepository = ScopeProvider.Scope.Resolve<IFastPaymentRepository>();
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,
-						new FastPaymentRepository(),
+						fastPaymentRepository,
 						fastPaymentSettings);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
@@ -63,9 +67,10 @@ namespace Vodovoz.SidePanel
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
 					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+					var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 					return new CashInfoPanelView(
 						ServicesConfig.UnitOfWorkFactory,
-						new CashRepository(),
+						cashRepository,
 						subdivisionRepository,
 						new UserRepository());
 				case PanelViewType.EdoLightsMatrixPanelView:
