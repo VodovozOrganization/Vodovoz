@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class OrderAgreement : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
-		private readonly IWaterPricesRepository _waterPricesRepository = ScopeProvider.Scope.Resolve<IWaterPricesRepository>();
+		private IWaterPricesRepository _waterPricesRepository => ScopeProvider.Scope.Resolve<IWaterPricesRepository>();
 		
 		#region implemented abstract members of OrderDocument
 
