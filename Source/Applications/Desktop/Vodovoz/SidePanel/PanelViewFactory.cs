@@ -33,16 +33,16 @@ namespace Vodovoz.SidePanel
 	{
 		public static Widget Create(PanelViewType type)
 		{
+			var orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+
 			switch(type)
 			{
 				case PanelViewType.CounterpartyView:
-					var orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
 					return new CounterpartyPanelView(ServicesConfig.CommonServices, orderRepository);
 				case PanelViewType.DeliveryPointView:
 					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
 					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
 					var depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
-					var orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
 					return new DeliveryPointPanelView(ServicesConfig.CommonServices, deliveryPointRepository, bottlesRepository, depositRepository, orderRepository);
 				case PanelViewType.DeliveryPricePanelView:
 					var deliveryPriceCalculator = ScopeProvider.Scope.Resolve<IDeliveryPriceCalculator>();
