@@ -36,12 +36,12 @@ namespace Vodovoz.Counterparties
 
 			comboboxImpotanceType.ItemsEnum = typeof(ImportanceDegreeType);
 			comboboxImpotanceType.Binding
-				.AddBinding(ViewModel.Entity, e => e.ImportanceDegree, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.Entity, e => e.ImportanceDegree, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			TaskStateComboBox.ItemsEnum = typeof(CallTaskStatus);
 			TaskStateComboBox.Binding
-				.AddBinding(ViewModel.Entity, s => s.TaskState, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.Entity, s => s.TaskState, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			IsTaskCompleteButton.Binding
