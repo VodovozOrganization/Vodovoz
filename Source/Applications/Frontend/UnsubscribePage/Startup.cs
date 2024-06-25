@@ -26,6 +26,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using VodovozHealthCheck;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace UnsubscribePage
 {
@@ -62,6 +63,7 @@ namespace UnsubscribePage
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				.ConfigureHealthCheckService<UnsubscribePageHealthCheck>()
 				;
@@ -74,10 +76,6 @@ namespace UnsubscribePage
 		{
 			builder.RegisterType<UnsubscribeViewModelFactory>()
 				.As<IUnsubscribeViewModelFactory>()
-				.SingleInstance();
-
-			builder.RegisterType<EmailRepository>()
-				.As<IEmailRepository>()
 				.SingleInstance();
 
 			builder.RegisterType<EmailSettings>()
