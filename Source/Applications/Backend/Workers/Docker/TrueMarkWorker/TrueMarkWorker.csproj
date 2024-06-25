@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>
 </Project>
