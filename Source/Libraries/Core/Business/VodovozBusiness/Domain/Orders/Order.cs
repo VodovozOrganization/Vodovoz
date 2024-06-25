@@ -2019,7 +2019,6 @@ namespace Vodovoz.Domain.Orders
 
 		private IOrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
-		private CounterpartyContractRepository counterpartyContractRepository;
 		private ICounterpartyContractFactory counterpartyContractFactory;
 
 		/// <summary>
@@ -2062,7 +2061,7 @@ namespace Vodovoz.Domain.Orders
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, _counterpartyContractRepository);
 			}
 			
-			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory, organization);
+			UpdateOrCreateContract(UoW, _counterpartyContractRepository, counterpartyContractFactory, organization);
 		}
 
 		private void UpdateContractDocument()
