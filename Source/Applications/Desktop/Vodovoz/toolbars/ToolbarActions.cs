@@ -672,8 +672,7 @@ public partial class MainWindow : Window
 	{
 		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 		var employeeService = _autofacScope.Resolve<IEmployeeService>();
-		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
-			uowFactory, PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
+		var entityExtendedPermissionValidator = _autofacScope.Resolve<IEntityExtendedPermissionValidator>();
 
 		var employeeFilter = new EmployeeFilterViewModel
 		{
