@@ -10,6 +10,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
 using Vodovoz.ReportsParameters;
@@ -444,9 +445,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnForShipmentReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = _autofacScope.BeginLifetimeScope();
+
+		var geographicGroupRepository = scope.Resolve<IGeographicGroupRepository>();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<NomenclatureForShipment>(),
-			() => new QSReport.ReportViewDlg(new NomenclatureForShipment()));
+			() => new QSReport.ReportViewDlg(new NomenclatureForShipment(geographicGroupRepository)));
+
+		tab.TabClosed += (s, eargs) =>
+		{
+			scope?.Dispose();
+		};
 	}
 
 	/// <summary>
