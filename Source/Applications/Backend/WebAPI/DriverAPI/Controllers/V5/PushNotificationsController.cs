@@ -329,9 +329,6 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
 		{
-			var targetDriverFirebaseToken =
-				_apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-
 			var targetAddress = _routeListItemRepository
 				.Get(
 					unitOfWork,
@@ -343,8 +340,18 @@ namespace DriverAPI.Controllers.V5
 			if(targetAddress is null)
 			{
 				_logger.LogError("Не найдена цель переноса заказа {OrderId}", orderId);
-				return Problem($"Не найдена цель переноса заказа {orderId}");
+
+				return Problem($"Не найдена цель переноса заказа {orderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
+
+			if(targetAddress.RouteList.Driver is null)
+			{
+				_logger.LogError("Не найден водитель цели переноса заказа {OrderId}", orderId);
+
+				return Problem($"Не найден водитель цели переноса заказа {orderId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
+			var targetDriverFirebaseToken = _employeeService.GetDriverPushTokenById(targetAddress.RouteList.Driver.Id);
 
 			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
 
@@ -353,32 +360,83 @@ namespace DriverAPI.Controllers.V5
 			if(previousItemResult.IsFailure)
 			{
 				_logger.LogError("Не найден предыдущий адрес МЛ заказа {OrderId}", orderId);
-				return Problem($"Не найден предыдущий адрес МЛ заказа {orderId}");
+
+				return Problem($"Не найден предыдущий адрес МЛ заказа {orderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			var previousItemDriverFirebaseToken = previousItemResult.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+			var previousItemDriverFirebaseToken = _employeeService.GetDriverPushTokenById(previousItemResult.Value.RouteList.Driver.Id);
+
+			var message = string.Empty;
+
+			var previousItemDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(previousItemDriverFirebaseToken);
+			var targetDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(targetDriverFirebaseToken);
+
+			if(!previousItemDriverFirebaseTokenFound)
+			{
+				message += $"Не найден токен водителя МЛ из которого переносится заказ, водитель не будет оповещен\n";
+			}
+
+			if(!targetDriverFirebaseTokenFound)
+			{
+				message += $"Не найден токен водителя МЛ которому переносится заказ, водитель не будет оповещен\n";
+			}
 
 			if(source.IsFailure)
 			{
-				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+				if(previousItemDriverFirebaseTokenFound)
+				{
+					await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+				}
 
-				await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+				if(targetDriverFirebaseTokenFound)
+				{
+					await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+				}
 
-				return NoContent();
+				if(previousItemDriverFirebaseTokenFound && targetDriverFirebaseTokenFound)
+				{
+					return NoContent();
+				}
+				else
+				{
+					return Problem(message.Trim('\n'), statusCode: StatusCodes.Status202Accepted);
+				}
 			}
 
 			if(previousItemResult.Value.RouteList.Id != source.Value.RouteList.Id)
 			{
-				await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+				if(previousItemDriverFirebaseTokenFound)
+				{
+					await _firebaseCloudMessagingService.SendMessage(previousItemDriverFirebaseToken, "Веселый водовоз", $"Перенос заказа №{orderId} отменен");
+				}
 			}
 
-			var sourceDriverFirebaseToken = source.Value.RouteList.Driver.ExternalApplicationsUsers.FirstOrDefault().Token;
+			var sourceDriverFirebaseToken = _employeeService.GetDriverPushTokenById(source.Value.RouteList.Driver.Id);
 
-			await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+			var sourceDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(sourceDriverFirebaseToken);
 
-			await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
+			if(sourceDriverFirebaseTokenFound)
+			{
+				await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+			}
+			else
+			{
+				message += $"Не найден токен водителя МЛ источника переноса заказ, водитель не будет оповещен\n";
+			}
 
-			return NoContent();
+			if(targetDriverFirebaseTokenFound)
+			{
+				await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
+			}
+
+			if(message == string.Empty)
+			{
+				return NoContent();
+			}
+			else
+			{
+				return Problem(message.Trim('\n'), statusCode: StatusCodes.Status202Accepted);
+			}
 		}
 	}
 }
