@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NotificationRecievers;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace DriverAPI.Library
 {
@@ -57,6 +58,7 @@ namespace DriverAPI.Library
 
 			services.AddBusiness(configuration)
 				.AddApplication()
+				.AddInfrastructure()
 				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
 				.AddFirebaseCloudMessaging(configuration);
