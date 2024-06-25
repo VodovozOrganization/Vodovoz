@@ -101,12 +101,17 @@ namespace Vodovoz.Representations
 
 			filterViewModel.Journal = this;
 			JournalFilter = _filterViewModel;
-			filterViewModel.OnFiltered += (s, e) => Refresh();
+			filterViewModel.OnFiltered += OnFilterFiltered;
 
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
 			CreatePopupActions();
+		}
+
+		private void OnFilterFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		public override string FooterInfo
@@ -1082,6 +1087,13 @@ namespace Vodovoz.Representations
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
 			return resultQuery;
+		}
+
+		public override void Dispose()
+		{
+			DataLoader.ItemsListUpdated -= UpdateFooterInfo;
+
+			base.Dispose();
 		}
 	}
 }

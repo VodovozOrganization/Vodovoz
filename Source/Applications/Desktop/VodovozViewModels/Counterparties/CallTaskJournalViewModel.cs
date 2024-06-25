@@ -53,7 +53,6 @@ namespace Vodovoz.ViewModels.Counterparties
 			JournalFilter = _filterViewModel;
 
 			_filterViewModel.OnFiltered += OnFilterRefiltered;
-			_filterViewModel.SetAndRefilterAtOnce();
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 			CreatePopupActions();
@@ -432,6 +431,13 @@ namespace Vodovoz.ViewModels.Counterparties
 			});
 
 			UoW.Commit();
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterRefiltered;
+			DataLoader.ItemsListUpdated -= OnDataLoaderItemsListUpdated;
+			base.Dispose();
 		}
 	}
 }
