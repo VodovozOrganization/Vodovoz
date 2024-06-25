@@ -47,7 +47,6 @@ using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
-using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
