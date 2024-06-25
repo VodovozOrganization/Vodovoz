@@ -11,7 +11,7 @@ using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.Infrastructure.Persistance.Sale
 {
-	public class GeographicGroupRepository : IGeographicGroupRepository
+	internal sealed class GeographicGroupRepository : IGeographicGroupRepository
 	{
 		public GeoGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{

@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class AtWorkRepository : IAtWorkRepository
+	internal sealed class AtWorkRepository : IAtWorkRepository
 	{
 		public IList<AtWorkDriver> GetDriversAtDay(IUnitOfWork uow, DateTime date, IEnumerable<AtWorkDriver.DriverStatus> driverStatuses = null, IEnumerable<CarTypeOfUse> carTypesOfUse = null,
 			 IEnumerable<CarOwnType> carOwnTypes = null, int[] geoGroupIds = null)

@@ -13,7 +13,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations
 {
-	public partial class BottlesRepository : IBottlesRepository
+	internal sealed class BottlesRepository : IBottlesRepository
 	{
 		public int GetBottlesDebtAtCounterparty(IUnitOfWork uow, Counterparty counterparty, DateTime? before = null)
 		{

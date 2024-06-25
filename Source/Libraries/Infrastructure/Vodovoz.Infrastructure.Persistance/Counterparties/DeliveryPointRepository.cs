@@ -12,7 +12,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class DeliveryPointRepository : IDeliveryPointRepository
+	internal sealed class DeliveryPointRepository : IDeliveryPointRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 

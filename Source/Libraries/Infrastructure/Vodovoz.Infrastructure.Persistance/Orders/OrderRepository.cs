@@ -1,5 +1,3 @@
-using FluentNHibernate.Utils;
-using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -33,7 +31,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
-	public partial class OrderRepository : IOrderRepository
+	internal sealed class OrderRepository : IOrderRepository
 	{
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{

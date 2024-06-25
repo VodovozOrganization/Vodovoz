@@ -12,7 +12,7 @@ using Vodovoz.EntityRepositories.Profitability;
 
 namespace Vodovoz.Infrastructure.Persistance.Profitability
 {
-	public class ProfitabilityConstantsRepository : IProfitabilityConstantsRepository
+	internal sealed class ProfitabilityConstantsRepository : IProfitabilityConstantsRepository
 	{
 		public ProfitabilityConstants GetLastProfitabilityConstants(IUnitOfWork uow)
 		{

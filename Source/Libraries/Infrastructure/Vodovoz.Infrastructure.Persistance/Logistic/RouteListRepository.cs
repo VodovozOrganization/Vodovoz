@@ -35,7 +35,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public partial class RouteListRepository : IRouteListRepository
+	internal sealed class RouteListRepository : IRouteListRepository
 	{
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;

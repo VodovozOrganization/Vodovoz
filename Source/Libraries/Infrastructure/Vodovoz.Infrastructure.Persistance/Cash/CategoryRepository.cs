@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	public class CategoryRepository : ICategoryRepository
+	internal sealed class CategoryRepository : ICategoryRepository
 	{
 		public IList<ExpenseCategory> ExpenseSelfDeliveryCategories(IUnitOfWork uow)
 		{

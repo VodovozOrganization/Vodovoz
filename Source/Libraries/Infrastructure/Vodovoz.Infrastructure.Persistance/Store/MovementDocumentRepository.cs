@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.UoW;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using NHibernate;
 using NHibernate.Criterion;
@@ -10,7 +9,7 @@ using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
-	public class MovementDocumentRepository : IMovementDocumentRepository
+	internal sealed class MovementDocumentRepository : IMovementDocumentRepository
 	{
 		public int GetSendedMovementDocumentsToWarehouseBySubdivision(IUnitOfWork uow, int subdivisionId)
 		{

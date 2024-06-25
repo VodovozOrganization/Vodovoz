@@ -13,7 +13,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
-	public class PhoneRepository : IPhoneRepository
+	internal sealed class PhoneRepository : IPhoneRepository
 	{
 		#region PhoneType
 

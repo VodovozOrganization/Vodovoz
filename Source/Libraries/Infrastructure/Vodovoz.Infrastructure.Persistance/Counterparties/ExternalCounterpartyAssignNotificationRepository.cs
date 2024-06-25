@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class ExternalCounterpartyAssignNotificationRepository : IExternalCounterpartyAssignNotificationRepository
+	internal sealed class ExternalCounterpartyAssignNotificationRepository : IExternalCounterpartyAssignNotificationRepository
 	{
 		public IList<ExternalCounterpartyAssignNotification> GetNotificationsForSend(IUnitOfWork uow, int days)
 		{

@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class ExternalCounterpartyMatchingRepository : IExternalCounterpartyMatchingRepository
+	internal sealed class ExternalCounterpartyMatchingRepository : IExternalCounterpartyMatchingRepository
 	{
 		public bool ExternalCounterpartyMatchingExists(IUnitOfWork uow, Guid externalCounterpartyGuid, string phoneNumber)
 		{

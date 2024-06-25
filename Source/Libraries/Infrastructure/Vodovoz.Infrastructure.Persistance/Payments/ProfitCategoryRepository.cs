@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
 {
-	public class ProfitCategoryRepository : IProfitCategoryRepository
+	internal sealed class ProfitCategoryRepository : IProfitCategoryRepository
 	{
 		public IEnumerable<ProfitCategory> GetAllProfitCategories(IUnitOfWork uow)
 		{

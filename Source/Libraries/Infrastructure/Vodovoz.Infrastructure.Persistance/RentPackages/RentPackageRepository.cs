@@ -11,7 +11,7 @@ using Vodovoz.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.RentPackages
 {
-	public class RentPackageRepository : IRentPackageRepository
+	internal sealed class RentPackageRepository : IRentPackageRepository
 	{
 		public FreeRentPackage GetFreeRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind)
 		{

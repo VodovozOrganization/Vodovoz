@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
@@ -11,9 +10,8 @@ using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods
 {
-	public class NomenclatureFixedPriceRepository : INomenclatureFixedPriceRepository
+	internal sealed class NomenclatureFixedPriceRepository : INomenclatureFixedPriceRepository
 	{
-
 		public IEnumerable<NomenclatureFixedPrice> GetEmployeesNomenclatureFixedPrices(IUnitOfWork uow)
 		{
 			var result = from fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()

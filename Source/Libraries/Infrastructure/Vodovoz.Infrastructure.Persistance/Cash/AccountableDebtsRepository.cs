@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	public class AccountableDebtsRepository : IAccountableDebtsRepository
+	internal sealed class AccountableDebtsRepository : IAccountableDebtsRepository
 	{
 		public decimal EmployeeDebt(IUnitOfWork uow, Employee accountable)
 		{

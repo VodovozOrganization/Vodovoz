@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
-	public class UserRepository : IUserRepository
+	internal sealed class UserRepository : IUserRepository
 	{
 		public User GetCurrentUser(IUnitOfWork uow)
 		{

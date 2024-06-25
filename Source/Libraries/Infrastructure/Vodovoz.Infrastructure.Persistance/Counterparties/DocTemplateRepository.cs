@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class DocTemplateRepository : IDocTemplateRepository
+	internal sealed class DocTemplateRepository : IDocTemplateRepository
 	{
 		/// <summary>
 		/// Получаем первый подходящий шаболон документа по указанным критериям.
@@ -41,4 +41,3 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 	}
 }
-

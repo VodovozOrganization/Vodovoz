@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class ArchivedTrackPointRepository : IArchivedTrackPointRepository
+	internal sealed class ArchivedTrackPointRepository : IArchivedTrackPointRepository
 	{
 		public DateTime GetMaxOldTrackPointDate(IUnitOfWork uow)
 		{

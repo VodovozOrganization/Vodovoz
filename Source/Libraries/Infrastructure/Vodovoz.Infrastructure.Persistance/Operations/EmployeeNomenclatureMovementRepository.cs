@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations
 {
-	public class EmployeeNomenclatureMovementRepository : IEmployeeNomenclatureMovementRepository
+	internal sealed class EmployeeNomenclatureMovementRepository : IEmployeeNomenclatureMovementRepository
 	{
 		public int GetDriverTerminalBalance(IUnitOfWork uow, int driverId, int terminalId)
 		{

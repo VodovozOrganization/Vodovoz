@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Chats;
 
 namespace Vodovoz.Infrastructure.Persistance.Chats
 {
-	public class ChatRepository : IChatRepository
+	internal sealed class ChatRepository : IChatRepository
 	{
 		public Chat GetChatForDriver(IUnitOfWork uow, Employee driver)
 		{

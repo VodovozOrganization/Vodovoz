@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories.HistoryChanges;
 
 namespace Vodovoz.Infrastructure.Persistance.HistoryChanges
 {
-	public class ArchivedHistoryChangesRepository : IArchivedHistoryChangesRepository
+	internal sealed class ArchivedHistoryChangesRepository : IArchivedHistoryChangesRepository
 	{
 		public ArchivedChangedEntity GetLastOldChangedEntity(IUnitOfWork uow)
 		{

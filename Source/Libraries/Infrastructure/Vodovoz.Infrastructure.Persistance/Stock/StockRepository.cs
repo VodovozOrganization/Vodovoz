@@ -16,7 +16,7 @@ using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Infrastructure.Persistance.Stock
 {
-	public class StockRepository : IStockRepository
+	internal sealed class StockRepository : IStockRepository
 	{
 		public decimal NomenclatureReserved(IUnitOfWork uow, int nomenclatureId)
 		{

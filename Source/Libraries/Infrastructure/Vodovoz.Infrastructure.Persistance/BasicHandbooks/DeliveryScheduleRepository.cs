@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.BasicHandbooks;
 
 namespace Vodovoz.Infrastructure.Persistance.BasicHandbooks
 {
-	public class DeliveryScheduleRepository : IDeliveryScheduleRepository
+	internal sealed class DeliveryScheduleRepository : IDeliveryScheduleRepository
 	{
 		public QueryOver<DeliverySchedule> AllQuery()
 		{

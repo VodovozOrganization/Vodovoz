@@ -15,7 +15,7 @@ using Vodovoz.EntityRepositories.Fuel;
 
 namespace Vodovoz.Infrastructure.Persistance.Fuel
 {
-	public class FuelRepository : IFuelRepository
+	internal sealed class FuelRepository : IFuelRepository
 	{
 		public Dictionary<FuelType, decimal> GetAllFuelsBalance(IUnitOfWork uow)
 		{

@@ -17,7 +17,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.Infrastructure.Persistance.Permissions
 {
-	public class PermissionRepository : IPermissionRepository
+	internal sealed class PermissionRepository : IPermissionRepository
 	{
 		public IEnumerable<SubdivisionPermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, IPermissionExtensionStore permissionExtensionStore)
 		{

@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories.Suppliers;
 
 namespace Vodovoz.Infrastructure.Persistance.Suppliers
 {
-	public class SupplierPriceItemsRepository : ISupplierPriceItemsRepository
+	internal sealed class SupplierPriceItemsRepository : ISupplierPriceItemsRepository
 	{
 		public IEnumerable<SupplierPriceItem> GetSupplierPriceItemsForNomenclature(IUnitOfWork uow, Nomenclature nomenclature, SupplierOrderingType orderingType, AvailabilityForSale[] availabilityForSale, bool withDelayOnly)
 		{

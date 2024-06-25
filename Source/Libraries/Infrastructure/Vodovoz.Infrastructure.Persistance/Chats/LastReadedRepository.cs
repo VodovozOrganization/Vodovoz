@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Chats;
 
 namespace Vodovoz.Infrastructure.Persistance.Chats
 {
-	public class LastReadedRepository : ILastReadedRepository
+	internal sealed class LastReadedRepository : ILastReadedRepository
 	{
 		public LastReadedMessage GetLastReadedMessageForEmployee(IUnitOfWork uow, Chat chat, Employee employee)
 		{

@@ -15,7 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
 {
-	public class EmployeeRepository : IEmployeeRepository
+	internal sealed class EmployeeRepository : IEmployeeRepository
 	{
 		public EmployeeRepository()
 		{

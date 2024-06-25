@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class WaterPricesRepository : IWaterPricesRepository
+	internal sealed class WaterPricesRepository : IWaterPricesRepository
 	{
 		public List<WaterPriceNode> GetWaterPrices(IUnitOfWork uow)
 		{

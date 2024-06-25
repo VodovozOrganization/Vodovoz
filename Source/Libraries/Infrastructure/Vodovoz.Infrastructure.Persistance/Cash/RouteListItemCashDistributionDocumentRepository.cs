@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	public class RouteListItemCashDistributionDocumentRepository : IRouteListItemCashDistributionDocumentRepository
+	internal sealed class RouteListItemCashDistributionDocumentRepository : IRouteListItemCashDistributionDocumentRepository
 	{
 		public decimal GetDistributedAmountOnRouteList(IUnitOfWork uow, int routeListId)
 		{

@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations
 {
-	public class DepositRepository : IDepositRepository
+	internal sealed class DepositRepository : IDepositRepository
 	{
 		/// <summary>
 		/// Получаем текущие депозиты для точки

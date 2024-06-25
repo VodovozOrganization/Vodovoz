@@ -16,7 +16,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 {
-	public class UndeliveredOrdersRepository : IUndeliveredOrdersRepository
+	internal sealed class UndeliveredOrdersRepository : IUndeliveredOrdersRepository
 	{
 		public Dictionary<GuiltyTypes, int> GetDictionaryWithUndeliveriesCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{

@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.ServiceClaims;
 
 namespace Vodovoz.Infrastructure.Persistance.ServiceClaims
 {
-	public class ServiceClaimRepository : IServiceClaimRepository
+	internal sealed class ServiceClaimRepository : IServiceClaimRepository
 	{
 		public IList<ServiceClaim> GetServiceClaimForOrder(IUnitOfWork uow, Domain.Orders.Order order)
 		{

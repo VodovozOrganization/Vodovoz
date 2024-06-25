@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations
 {
-	public class WagesMovementRepository : IWagesMovementRepository
+	internal sealed class WagesMovementRepository : IWagesMovementRepository
 	{
 		public decimal GetCurrentEmployeeWageBalance(IUnitOfWork uow, int employeeId)
 		{

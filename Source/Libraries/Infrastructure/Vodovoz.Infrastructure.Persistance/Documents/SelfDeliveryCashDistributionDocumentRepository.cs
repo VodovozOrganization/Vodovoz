@@ -1,10 +1,10 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Documents;
 
 namespace Vodovoz.Infrastructure.Persistance.Documents
 {
-	public class SelfDeliveryCashDistributionDocumentRepository : ISelfDeliveryCashDistributionDocumentRepository
+	internal sealed class SelfDeliveryCashDistributionDocumentRepository : ISelfDeliveryCashDistributionDocumentRepository
 	{
 		public SelfDeliveryCashDistributionDocument GetSelfDeliveryCashDistributionDocument(IUnitOfWork uow,
 			int selfDeliveryOrderId)

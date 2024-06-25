@@ -11,7 +11,7 @@ using Vodovoz.Repository.Store;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
-	public class CarUnloadRepository : ICarUnloadRepository
+	internal sealed class CarUnloadRepository : ICarUnloadRepository
 	{
 		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse, CarUnloadDocument excludeDoc)
 		{

@@ -20,7 +20,7 @@ using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods
 {
-	public class NomenclatureRepository : INomenclatureRepository
+	internal sealed class NomenclatureRepository : INomenclatureRepository
 	{
 		private readonly INomenclatureSettings _nomenclatureSettings;
 

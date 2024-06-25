@@ -10,7 +10,7 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class CachedDistanceRepository : ICachedDistanceRepository
+	internal sealed class CachedDistanceRepository : ICachedDistanceRepository
 	{
 		public IList<CachedDistance> GetCache(IUnitOfWork uow, long[] hash)
 		{

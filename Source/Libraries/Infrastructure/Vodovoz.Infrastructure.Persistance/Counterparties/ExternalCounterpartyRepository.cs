@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
-	public class ExternalCounterpartyRepository : IExternalCounterpartyRepository
+	internal sealed class ExternalCounterpartyRepository : IExternalCounterpartyRepository
 	{
 		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, Guid externalCounterpartyId, CounterpartyFrom counterpartyFrom)
 		{

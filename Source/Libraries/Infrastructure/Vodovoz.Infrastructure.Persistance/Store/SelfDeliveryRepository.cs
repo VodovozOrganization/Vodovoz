@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
-	public class SelfDeliveryRepository : ISelfDeliveryRepository
+	internal sealed class SelfDeliveryRepository : ISelfDeliveryRepository
 	{
 		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument excludeDoc)
 		{

@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Equipments;
 
 namespace Vodovoz.Infrastructure.Persistance.Equipments
 {
-	public class EquipmentKindRepository : IEquipmentKindRepository
+	internal sealed class EquipmentKindRepository : IEquipmentKindRepository
 	{
 		public List<EquipmentKind> GetPaidRentEquipmentKinds(IUnitOfWork uow)
 		{
@@ -19,4 +19,3 @@ namespace Vodovoz.Infrastructure.Persistance.Equipments
 		}
 	}
 }
-

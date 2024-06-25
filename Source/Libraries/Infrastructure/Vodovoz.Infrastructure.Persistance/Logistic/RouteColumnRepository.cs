@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class RouteColumnRepository : IRouteColumnRepository
+	internal sealed class RouteColumnRepository : IRouteColumnRepository
 	{
 		public IList<RouteColumn> ActiveColumns(IUnitOfWork uow)
 		{
@@ -21,4 +21,3 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		}
 	}
 }
-

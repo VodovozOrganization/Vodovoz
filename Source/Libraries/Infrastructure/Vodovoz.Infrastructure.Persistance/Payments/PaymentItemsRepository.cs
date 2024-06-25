@@ -7,7 +7,7 @@ using Vodovoz.EntityRepositories.Payments;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
 {
-	public class PaymentItemsRepository : IPaymentItemsRepository
+	internal sealed class PaymentItemsRepository : IPaymentItemsRepository
 	{
 		public IList<PaymentItem> GetAllocatedPaymentItemsForOrder(IUnitOfWork uow, int orderId)
 		{

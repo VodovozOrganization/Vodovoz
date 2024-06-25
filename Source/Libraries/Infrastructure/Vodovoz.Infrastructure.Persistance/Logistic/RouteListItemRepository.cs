@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class RouteListItemRepository : IRouteListItemRepository
+	internal sealed class RouteListItemRepository : IRouteListItemRepository
 	{
 		public RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Domain.Orders.Order order)
 		{

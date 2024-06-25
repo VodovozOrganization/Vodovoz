@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -7,7 +7,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -18,7 +17,7 @@ using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
-	public class WarehouseRepository : IWarehouseRepository
+	internal sealed class WarehouseRepository : IWarehouseRepository
 	{
 		public IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{

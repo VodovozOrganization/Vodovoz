@@ -5,8 +5,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Dialect.Function;
-using NPOI.SS.Formula.Functions;
 using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -20,7 +18,7 @@ using Vodovoz.EntityRepositories.Roboats;
 
 namespace Vodovoz.Infrastructure.Persistance.Roboats
 {
-	public class RoboatsRepository : IRoboatsRepository
+	internal sealed class RoboatsRepository : IRoboatsRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IRoboatsSettings _roboatsSettings;

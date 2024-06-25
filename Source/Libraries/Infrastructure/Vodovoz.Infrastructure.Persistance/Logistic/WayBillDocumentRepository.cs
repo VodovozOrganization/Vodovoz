@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using NHibernate;
 using NHibernate.SqlCommand;
@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public class WayBillDocumentRepository : IWayBillDocumentRepository
+	internal sealed class WayBillDocumentRepository : IWayBillDocumentRepository
 	{
 		public IList<Order> GetOrdersForWayBillDocuments(IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{

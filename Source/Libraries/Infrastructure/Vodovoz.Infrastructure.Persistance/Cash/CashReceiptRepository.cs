@@ -2,7 +2,6 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
-using NPOI.SS.Formula.Functions;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using System;
@@ -18,7 +17,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	public class CashReceiptRepository : ICashReceiptRepository
+	internal sealed class CashReceiptRepository : ICashReceiptRepository
 	{
 		private OrderItem _orderItemAlias = null;
 		private VodovozOrder _orderAlias = null;

@@ -16,7 +16,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
-	public partial class CarRepository : ICarRepository
+	internal sealed class CarRepository : ICarRepository
 	{
 		public Car GetCarByDriver(IUnitOfWork uow, Employee driver)
 		{

@@ -9,7 +9,7 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Infrastructure.Persistance.Organizations
 {
-	public class OrganizationRepository : IOrganizationRepository
+	internal sealed class OrganizationRepository : IOrganizationRepository
 	{
 		private readonly IOrganizationSettings _organizationSettings;
 
