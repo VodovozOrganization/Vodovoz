@@ -37,6 +37,7 @@ namespace Vodovoz
 	{
 		private IRouteColumnRepository _routeColumnRepository;
 		private IOrderRepository _orderRepository;
+		private IRouteListItemRepository _routeListItemRepository;
 
 		private int _goodsColumnsCount = -1;
 		private bool _isEditable = true;
@@ -100,6 +101,7 @@ namespace Vodovoz
 		{
 			_routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 			_orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+			_routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
 		}
 
 		public void SubscribeOnChanges()
@@ -323,7 +325,7 @@ namespace Vodovoz
 		{
 			foreach(var selectedRouteListItem in _selectedRouteListItems)
 			{
-				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, new RouteListItemRepository()))
+				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, _routeListItemRepository))
 				{
 					ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message, "Невозможно удалить");
 				}
@@ -556,6 +558,7 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			_routeColumnRepository = null;
+			_routeListItemRepository = null;
 			_orderRepository = null;
 			base.Destroy();
 		}

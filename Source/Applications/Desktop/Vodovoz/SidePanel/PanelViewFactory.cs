@@ -36,7 +36,8 @@ namespace Vodovoz.SidePanel
 			switch(type)
 			{
 				case PanelViewType.CounterpartyView:
-					return new CounterpartyPanelView(ServicesConfig.CommonServices);
+					var orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+					return new CounterpartyPanelView(ServicesConfig.CommonServices, orderRepository);
 				case PanelViewType.DeliveryPointView:
 					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
 					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
@@ -77,11 +78,12 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.CashInfoPanelView:
 					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 					var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
+					var userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
 					return new CashInfoPanelView(
 						ServicesConfig.UnitOfWorkFactory,
 						cashRepository,
 						subdivisionRepository,
-						new UserRepository());
+						userRepository);
 				case PanelViewType.EdoLightsMatrixPanelView:
 					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 					IGtkTabsOpener gtkTabsOpener = new GtkTabsOpener();
