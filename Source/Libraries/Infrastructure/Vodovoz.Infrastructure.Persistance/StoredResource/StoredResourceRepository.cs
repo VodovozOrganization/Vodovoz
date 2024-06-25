@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories.StoredResourceRepository;
+using VodovozStoredResource = Vodovoz.Domain.StoredResources.StoredResource;
 
 namespace Vodovoz.Infrastructure.Persistance.StoredResource
 {
@@ -15,14 +16,14 @@ namespace Vodovoz.Infrastructure.Persistance.StoredResource
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public IList<StoredResource> GetAllSignatures()
+		public IList<VodovozStoredResource> GetAllSignatures()
 		{
-			IList<StoredResource> result;
+			IList<VodovozStoredResource> result;
 			using(var uow = _uowFactory.CreateWithoutRoot($"Получение подписей"))
 			{
-				result = uow.Session.QueryOver<StoredResource>()
+				result = uow.Session.QueryOver<VodovozStoredResource>()
 				   .Where(sr => sr.ImageType == ImageType.Signature)
-				   .List<StoredResource>();
+				   .List<VodovozStoredResource>();
 			}
 			return result;
 		}
