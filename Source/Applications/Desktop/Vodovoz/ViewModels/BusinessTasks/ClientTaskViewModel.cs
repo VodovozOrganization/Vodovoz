@@ -8,6 +8,7 @@ using QS.ViewModels;
 using QSReport;
 using System;
 using System.Linq;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Comments;
@@ -173,8 +174,18 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
-			return new PhonesViewModel(phoneTypeSettings, phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
+			var phoneTypeSettings = _lifetimeScope.Resolve<IPhoneTypeSettings>();
+			var externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
+			
+			return new PhonesViewModel(
+				phoneTypeSettings,
+				phoneRepository,
+				UoW,
+				_contactsParameters,
+				_roboAtsCounterpartyJournalFactory,
+				CommonServices,
+				externalCounterpartyController)
+			{
 				ReadOnly = true
 			};
 		}

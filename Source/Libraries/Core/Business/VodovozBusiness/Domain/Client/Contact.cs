@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Contacts;
 
@@ -19,6 +19,8 @@ namespace Vodovoz.Domain.Client
 	[EntityPermission]
 	public class Contact : PropertyChangedBase, IDomainObject
 	{
+		private GenericObservableList<Phone> _observablePhones;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -83,14 +85,17 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		[Display (Name = "Телефоны")]
-		public virtual IList<Phone> Phones { get; set; }
+		[Display(Name = "Телефоны")]
+		public virtual IList<Phone> Phones { get; set; } = new List<Phone>();
 
 		[Display(Name = "E-mail адреса")]
 		public virtual IList<Email> Emails { get; set; } = new List<Email>();
 
 		[Display (Name = "Точки доставки")]
 		public virtual IList<DeliveryPoint> DeliveryPoints { get; set; }
+
+		public virtual GenericObservableList<Phone> ObservablePhones => _observablePhones
+			?? (_observablePhones = new GenericObservableList<Phone>(Phones));
 
 		#endregion
 

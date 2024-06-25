@@ -6,6 +6,7 @@ using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
 {
+	[HistoryTrace]
 	public class ExternalCounterparty : PropertyChangedBase, IDomainObject
 	{
 		private Guid _externalCounterpartyId;
@@ -51,14 +52,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _isArchive, value);
 		}
 
+		[Display(Name = "Откуда клиент")]
 		public virtual CounterpartyFrom CounterpartyFrom { get; }
-	}
-
-	public enum CounterpartyFrom
-	{
-		[Display(Name = "Мобильное приложение")]
-		MobileApp = 54,
-		[Display(Name = "Сайт")]
-		WebSite = 55
 	}
 }

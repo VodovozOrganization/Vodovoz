@@ -1,48 +1,57 @@
-﻿using NLog;
-using QS.DomainModel.UoW;
+﻿using Autofac;
+using NLog;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Validation;
+using QS.Services;
 using QS.ViewModels.Extension;
 using System;
-using System.Collections.Generic;
-using Vodovoz.Domain.Contacts;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz
 {
 	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>, IAskSaveOnCloseViewModel
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
+		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
+		private IPhoneRepository _phoneRepository;
+		private ICommonServices _commonServices;
+		private IExternalCounterpartyController _externalCounterpartyController;
+		private IContactSettings _contactsSettings;
+		private IPhoneTypeSettings _phoneTypeSettings;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private PhonesViewModel _phonesViewModel;
 
-		public override bool HasChanges {
-			get {
-				phonesview1.RemoveEmpty();
+		public override bool HasChanges
+		 {
+			get
+			{
+				_phonesViewModel.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
 		}
 
-		public OrganizationDlg ()
+		public OrganizationDlg()
 		{
-			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
-			ConfigureDlg ();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Organization>();
+			ConfigureDlg();
 		}
 
-		public OrganizationDlg (int id)
+		public OrganizationDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Organization> (id);
-			ConfigureDlg ();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Organization>(id);
+			ConfigureDlg();
 		}
 
-		public OrganizationDlg (Organization sub) : this (sub.Id)
+		public OrganizationDlg(Organization sub) : this(sub.Id)
 		{
 
 		}
@@ -53,8 +62,9 @@ namespace Vodovoz
 
 		public bool AskSaveOnClose => IsCanEditEntity;
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
+			ResolveDependencies();
 			notebookMain.Visible = IsCanEditEntity || permissionResult.CanRead;
 
 			accountsview1.CanEdit = IsCanEditEntity;
@@ -80,10 +90,18 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(UoW, Entity);
 
-			phonesview1.UoW = UoWGeneric;
-			if (UoWGeneric.Root.Phones == null)
-				UoWGeneric.Root.Phones = new List<Phone> ();
-			phonesview1.Phones = UoWGeneric.Root.Phones;
+			_phonesViewModel =
+				new PhonesViewModel(
+					_phoneTypeSettings,
+					_phoneRepository,
+					UoW,
+					_contactsSettings,
+					_commonServices,
+					_externalCounterpartyController)
+				{
+					PhonesList = UoWGeneric.Root.ObservablePhones
+				};
+			phonesView.ViewModel = _phonesViewModel;
 
 			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, IsCanEditEntity);
 			versionsView.ViewModel = organizationVersionsViewModel;
@@ -98,28 +116,57 @@ namespace Vodovoz
 			}
 
 			logger.Info ("Сохраняем организацию...");
-			try {
-				phonesview1.RemoveEmpty();
-				UoWGeneric.Save ();
+
+			try
+			{
+				_phonesViewModel.RemoveEmpty();
+				UoWGeneric.Save();
 				return true;
-			} catch (Exception ex) {
+			}
+			catch(Exception ex)
+			{
 				string text = "Организация не сохранилась...";
-				logger.Error (ex, text);
-				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex, text);
+				logger.Error(ex, text);
+				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex, text);
 				return false;
 			}
 		}
 
 		protected void OnRadioTabInfoToggled (object sender, EventArgs e)
 		{
-			if (radioTabInfo.Active)
+			if(radioTabInfo.Active)
+			{
 				notebookMain.CurrentPage = 0;
+			}
 		}
 
 		protected void OnRadioTabAccountsToggled (object sender, EventArgs e)
 		{
-			if (radioTabAccounts.Active)
+			if(radioTabAccounts.Active)
+			{
 				notebookMain.CurrentPage = 1;
+			}
+		}
+
+		private void ResolveDependencies()
+		{
+			_organizationVersionsViewModelFactory = _lifetimeScope.Resolve<IOrganizationVersionsViewModelFactory>();
+			_phoneRepository = _lifetimeScope.Resolve<IPhoneRepository>();
+			_commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
+			_contactsSettings = _lifetimeScope.Resolve<IContactSettings>();
+			_phoneTypeSettings = _lifetimeScope.Resolve<IPhoneTypeSettings>();
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+
+			base.Destroy();
 		}
 	}
 }
