@@ -35,8 +35,8 @@ namespace Vodovoz
 	[ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private IRouteColumnRepository _routeColumnRepository;
+		private IOrderRepository _orderRepository;
 
 		private int _goodsColumnsCount = -1;
 		private bool _isEditable = true;
@@ -88,10 +88,18 @@ namespace Vodovoz
 
 		public RouteListCreateItemsView()
 		{
+			ResolveDependencies();
 			Build();
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 			ytreeviewItems.Selection.Mode = SelectionMode.Multiple;
+		}
+
+		[Obsolete("Удалить при разрешении проблем с контейнером")]
+		private void ResolveDependencies()
+		{
+			_routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
+			_orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
 		}
 
 		public void SubscribeOnChanges()
@@ -543,6 +551,13 @@ namespace Vodovoz
 			{
 				buttonOpenOrder.Click();
 			}
+		}
+
+		public override void Destroy()
+		{
+			_routeColumnRepository = null;
+			_orderRepository = null;
+			base.Destroy();
 		}
 	}
 }

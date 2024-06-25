@@ -24,10 +24,11 @@ namespace Vodovoz
 		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeleteByPresetPermission;
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
+		private IDeliveryPointRepository _deliveryPointRepository;
 
 		public DeliveryPointsManagementView()
 		{
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 			Build();
 
 			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
@@ -171,6 +172,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_deliveryPointRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();
