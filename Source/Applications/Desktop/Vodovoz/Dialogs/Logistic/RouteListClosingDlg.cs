@@ -38,6 +38,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -106,6 +107,8 @@ namespace Vodovoz
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
 		private IPermissionRepository _permissionRepository;
+		private IFlyerRepository _flyerRepository;
+
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
@@ -204,6 +207,8 @@ namespace Vodovoz
 			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+
+			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
 		}
 
 		private void ConfigureDlg()
@@ -760,6 +765,7 @@ namespace Vodovoz
 				_orderSettings,
 				_nomenclatureOnlineSettings,
 				_deliveryRulesSettings,
+				_flyerRepository,
 				NavigationManager,
 				_lifetimeScope);
 			dlg.ConfigureForRouteListAddress(node);
