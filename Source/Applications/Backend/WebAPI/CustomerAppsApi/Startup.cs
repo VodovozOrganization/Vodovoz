@@ -1,4 +1,4 @@
-using CustomerAppsApi.HealthChecks;
+﻿using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +16,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerAppsApi
 {
@@ -62,7 +63,7 @@ namespace CustomerAppsApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-
+				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
 				.AddHttpClient()

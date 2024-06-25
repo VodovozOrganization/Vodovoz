@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
@@ -30,10 +31,6 @@ namespace DatabaseServiceWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureContainer<ContainerBuilder>(builder =>
 				{
-					builder.RegisterType<TrackRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchivedTrackPointRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchivedHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<CachedDistanceRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<DataArchiver>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<FastDeliveryAvailabilityHistoryModel>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<FastDeliveryAvailabilityHistorySettings>().AsImplementedInterfaces().SingleInstance();
@@ -59,6 +56,7 @@ namespace DatabaseServiceWorker
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
@@ -68,10 +66,9 @@ namespace DatabaseServiceWorker
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
 						.ConfigurePowerBiExportWorker(hostContext)
 						.ConfigureTextInspectWorker(hostContext)
-						.AddFuelTransactionsControlWorker(hostContext)												
-						.AddSingleton<IDeliveryRepository, DeliveryRepository>()
-						.AddSingleton<IScheduleRestrictionRepository, ScheduleRestrictionRepository>()
-						;					
+						.AddFuelTransactionsControlWorker(hostContext)
+
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
