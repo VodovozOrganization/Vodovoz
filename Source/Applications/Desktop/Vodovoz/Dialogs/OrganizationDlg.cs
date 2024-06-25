@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Autofac;
+using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 
@@ -18,7 +20,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
+			= new OrganizationVersionsViewModelFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager), ScopeProvider.Scope.Resolve<IStoredResourceRepository>());
 
 		public override bool HasChanges {
 			get {
