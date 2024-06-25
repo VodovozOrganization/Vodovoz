@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
@@ -34,7 +34,6 @@ namespace Vodovoz
 			.RegisterClassesByInterfaces("Factory")
 			
 			.ConfigureBusinessOptions(configuration)
-			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
 			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
