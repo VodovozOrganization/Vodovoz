@@ -328,7 +328,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return canUseVAT;
 		}
 		
-		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
+		private IOrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
 
 		private Organization GetOrganization()

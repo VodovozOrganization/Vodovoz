@@ -532,12 +532,7 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			"CRM",
-			() => new TasksView(
-								new EmployeeJournalFactory(NavigationManager),
-								new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory)), null
-		);
+		NavigationManager.OpenViewModel<CallTaskJournalViewModel>(null);
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
