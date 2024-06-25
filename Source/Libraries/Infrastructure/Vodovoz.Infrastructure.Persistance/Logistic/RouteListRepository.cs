@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -1749,68 +1748,4 @@ FROM
 				.SingleOrDefault<decimal>();
 		}
 	}
-
-	#region DTO
-
-	public class ReturnsNode
-	{
-		public int Id { get; set; }
-		public Nomenclature Nomenclature { get; set; }
-		public NomenclatureCategory NomenclatureCategory { get; set; }
-		public int NomenclatureId { get; set; }
-		public string Name { get; set; }
-		public decimal Amount { get; set; }
-		public bool Trackable { get; set; }
-		public EquipmentKind EquipmentKind { get; set; }
-		public DefectSource DefectSource { get; set; }
-
-		public string Serial
-		{
-			get
-			{
-				if(Trackable)
-					return Id > 0 ? Id.ToString() : "(не определен)";
-				return string.Empty;
-			}
-		}
-
-		public bool Returned
-		{
-			get => Amount > 0;
-			set => Amount = value ? 1 : 0;
-		}
-	}
-
-	public class GoodsInRouteListResult
-	{
-		public int NomenclatureId { get; set; }
-		public decimal Amount { get; set; }
-
-		public bool IsArchive { get; set; }
-	}
-
-	public class GoodsInRouteListResultToDivide
-	{
-		public int NomenclatureId { get; set; }
-		public decimal Amount { get; set; }
-		public decimal? ExpireDatePercent { get; set; } = null;
-		public OwnTypes OwnType { get; set; }
-	}
-
-	public class GoodsInRouteListResultWithSpecialRequirements
-	{
-		public int NomenclatureId { get; set; }
-		public string NomenclatureName { get; set; }
-		public OwnTypes OwnType { get; set; }
-		public decimal? ExpireDatePercent { get; set; } = null;
-		public decimal Amount { get; set; }
-	}
-
-	public class NewDriverAdvanceRouteListNode
-	{
-		public int Id { get; set; }
-		public DateTime Date { get; set; }
-	}
-
-	#endregion
 }
