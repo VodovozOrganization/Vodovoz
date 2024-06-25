@@ -5,24 +5,25 @@ using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Settings.Logistics;
 using VodovozInfrastructure.Versions;
 
-namespace Vodovoz.EntityRepositories.Sale
+namespace Vodovoz.Infrastructure.Persistance.Sale
 {
 	public class GeographicGroupRepository : IGeographicGroupRepository
 	{
 		public GeoGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{
 			GeoGroup gg = null;
-			
+
 			if(lat.HasValue && lon.HasValue)
 			{
 				var point = new Point(lat.Value, lon.Value);
 				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))?
-				           .GeographicGroup;
+						   .GeographicGroup;
 			}
-			
+
 			return gg;
 		}
 
@@ -85,8 +86,8 @@ namespace Vodovoz.EntityRepositories.Sale
 			GeoGroup geoGroupAlias = null;
 
 			var query = uow.Session.QueryOver(() => geoGroupAlias)
-				.Where(() => geoGroupAlias.Id != geographicGroupSettings.EastGeographicGroupId); 
-			
+				.Where(() => geoGroupAlias.Id != geographicGroupSettings.EastGeographicGroupId);
+
 			return query.List();
 		}
 	}

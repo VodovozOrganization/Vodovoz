@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class DeliveryShiftRepository : IDeliveryShiftRepository
 	{

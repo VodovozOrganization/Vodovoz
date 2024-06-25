@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class AtWorkRepository : IAtWorkRepository
 	{
@@ -18,12 +19,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
 
-			var query = QueryOver.Of(()=> atWorkDriverAlias)
+			var query = QueryOver.Of(() => atWorkDriverAlias)
 				.Left.JoinAlias(() => atWorkDriverAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarVersions, () => carVersionAlias)
 				.Where(x => x.Date == date);
 
-			if (driverStatuses != null)
+			if(driverStatuses != null)
 			{
 				query.WhereRestrictionOn(awd => awd.Status).IsIn(driverStatuses.ToArray());
 			}
@@ -41,7 +42,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				query
 					.Where(() => carVersionAlias.StartDate <= date)
 					.Where(Restrictions.Or(
-						Restrictions.Where(() => carVersionAlias.EndDate == null), 
+						Restrictions.Where(() => carVersionAlias.EndDate == null),
 						Restrictions.Where(() => carVersionAlias.EndDate >= date)))
 					.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsIn(carOwnTypes.ToArray());
 			}

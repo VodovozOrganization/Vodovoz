@@ -9,8 +9,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 
-namespace Vodovoz.EntityRepositories.Sale
+namespace Vodovoz.Infrastructure.Persistance.Sale
 {
 	public class ScheduleRestrictionRepository : IScheduleRestrictionRepository
 	{

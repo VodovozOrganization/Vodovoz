@@ -4,8 +4,9 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Operations;
 
-namespace Vodovoz.EntityRepositories.Operations
+namespace Vodovoz.Infrastructure.Persistance.Operations
 {
 	public class MoneyRepository : IMoneyRepository
 	{
@@ -13,9 +14,9 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			MoneyMovementOperation operationAlias = null;
 			CounterpartyDebtQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<MoneyMovementOperation>(() => operationAlias)
+			var queryResult = UoW.Session.QueryOver(() => operationAlias)
 										 .Where(() => operationAlias.Counterparty.Id == counterparty.Id);
-			
+
 			if(before.HasValue)
 			{
 				queryResult.Where(() => operationAlias.OperationTime < before);
@@ -27,7 +28,7 @@ namespace Vodovoz.EntityRepositories.Operations
 					.SelectSum(() => operationAlias.Money).WithAlias(() => result.Payed)
 					.SelectSum(() => operationAlias.Deposit).WithAlias(() => result.Deposit)
 				).TransformUsing(Transformers.AliasToBean<CounterpartyDebtQueryResult>()).List<CounterpartyDebtQueryResult>();
-			
+
 			return debt.FirstOrDefault();
 		}
 

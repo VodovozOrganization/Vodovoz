@@ -15,8 +15,9 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories.Counterparties;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class CounterpartyRepository : ICounterpartyRepository
 	{
@@ -175,15 +176,15 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			var counterpartiesHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.Counterparty != null && p.Counterparty.Id != currentCounterpartyId && !p.Counterparty.IsArchive)
-				.Select(p => new { Number = p.Number, Message = $"Карточка контрагента {p.Counterparty.FullName}" })
+				.Select(p => new { p.Number, Message = $"Карточка контрагента {p.Counterparty.FullName}" })
 				.ToList().Distinct();
 
 			var counterpartiesByDeliveryPointsHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.DeliveryPoint != null && p.DeliveryPoint.IsActive && p.DeliveryPoint.Counterparty != null)
-				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint })
-				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d, c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
+				.Select(c => new { c.Number, c.DeliveryPoint })
+				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d, c) => new { d.Number, d.DeliveryPoint, Counterparty = c })
 				.Where(dc => dc.Counterparty != null && !dc.Counterparty.IsArchive && dc.Counterparty.Id != currentCounterpartyId)
-				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" })
+				.Select(dc => new { dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" })
 				.ToList().Distinct();
 
 
@@ -258,7 +259,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			Counterparty counterpartyAlias = null;
 			CounterpartyTo1CNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias)
+			var query = uow.Session.QueryOver(() => counterpartyAlias)
 						   .Left.JoinAlias(() => counterpartyAlias.Emails, () => emailAlias)
 						   .Where(c => c.INN != "")
 						   .SelectList(list => list
@@ -278,7 +279,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 									  )
 						   .TransformUsing(Transformers.AliasToBean<CounterpartyTo1CNode>())
 						   .List<CounterpartyTo1CNode>();
-			return query.Where(x => !String.IsNullOrEmpty(x.EMails) || !String.IsNullOrEmpty(x.Phones)).ToList();
+			return query.Where(x => !string.IsNullOrEmpty(x.EMails) || !string.IsNullOrEmpty(x.Phones)).ToList();
 		}
 
 		public IList<Counterparty> GetDealers()
@@ -370,17 +371,17 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				(
 					clientsGroups.Key.CleintId,
 					clientsGroups.Sum(data =>
-							(data.Nomenclature != null && data.Item != null
+							data.Nomenclature != null && data.Item != null
 								&& data.Nomenclature.Category == NomenclatureCategory.water
-								&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
+								&& data.Nomenclature.TareVolume == TareVolume.Vol19L
 							? data.Item.Count
 							: 0),
 					clientsGroups.Select(data =>
 							data.Order.Id).Distinct().Count(),
 					clientsGroups.Sum(data =>
-							(data.Item != null
+							data.Item != null
 							? (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney
-							: 0)),
+							: 0),
 					calculationSettings);
 
 			return query;
@@ -401,7 +402,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 								   && order.PaymentType == PaymentType.Cashless
 								   && counterparty.PersonType == PersonType.legal
 								   && counterparty.Id == counterpartyId
-								   && (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
+								   && (maxDeliveryDate == default || order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate)
 								   let orderSum = (decimal?)order.OrderItems.Sum(oi => oi.ActualSum) ?? 0m
 								   select orderSum;
 
@@ -436,7 +437,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				&& order.PaymentType == PaymentType.Cashless
 				&& counterparty.PersonType == PersonType.legal
 				&& (counterpartyId == default || counterparty.Id == counterpartyId)
-				&& (maxDeliveryDate == default || (order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate))
+				&& (maxDeliveryDate == default || order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate)
 				&& orderActualSum > 0
 				select new
 				{

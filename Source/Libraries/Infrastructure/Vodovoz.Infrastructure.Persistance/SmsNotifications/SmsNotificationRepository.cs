@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sms;
+using Vodovoz.EntityRepositories.SmsNotifications;
 
-namespace Vodovoz.EntityRepositories.SmsNotifications
+namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 {
 	public class SmsNotificationRepository : ISmsNotificationRepository
 	{

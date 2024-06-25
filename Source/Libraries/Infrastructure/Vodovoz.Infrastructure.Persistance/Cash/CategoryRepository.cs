@@ -2,8 +2,9 @@
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using Vodovoz.Domain.Cash;
+using Vodovoz.EntityRepositories.Cash;
 
-namespace Vodovoz.EntityRepositories.Cash
+namespace Vodovoz.Infrastructure.Persistance.Cash
 {
 	public class CategoryRepository : ICategoryRepository
 	{

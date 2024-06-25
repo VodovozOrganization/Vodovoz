@@ -11,8 +11,9 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Employees;
 
-namespace Vodovoz.EntityRepositories.Employees
+namespace Vodovoz.Infrastructure.Persistance.Employees
 {
 	public class EmployeeRepository : IEmployeeRepository
 	{
@@ -43,7 +44,7 @@ namespace Vodovoz.EntityRepositories.Employees
 			Employee employeeAlias = null;
 			ExternalApplicationUser externalAppUserAlias = null;
 
-			return uow.Session.QueryOver<Employee>(() => employeeAlias)
+			return uow.Session.QueryOver(() => employeeAlias)
 				.JoinAlias(() => employeeAlias.ExternalApplicationsUsers, () => externalAppUserAlias)
 				.Where(() => externalAppUserAlias.SessionKey == authKey)
 				.Where(() => employeeAlias.Status != EmployeeStatus.IsFired)
@@ -56,7 +57,7 @@ namespace Vodovoz.EntityRepositories.Employees
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
 			ExternalApplicationUser externalAppUserAlias = null;
-			
+
 			return uow.Session.QueryOver<Employee>()
 				.JoinAlias(e => e.ExternalApplicationsUsers, () => externalAppUserAlias)
 				.Where(e => externalAppUserAlias.Login == login)
@@ -110,7 +111,7 @@ namespace Vodovoz.EntityRepositories.Employees
 		{
 			EmployeeWorkChart ewcAlias = null;
 
-			return uow.Session.QueryOver<EmployeeWorkChart>(() => ewcAlias)
+			return uow.Session.QueryOver(() => ewcAlias)
 				.Where(() => ewcAlias.Employee.Id == employee.Id)
 				.Where(() => ewcAlias.Date.Month == date.Month)
 				.Where(() => ewcAlias.Date.Year == date.Year)
@@ -127,13 +128,13 @@ namespace Vodovoz.EntityRepositories.Employees
 			int orderId,
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
-			Vodovoz.Domain.Orders.Order vodovozOrderAlias = null;
+			Domain.Orders.Order vodovozOrderAlias = null;
 			RouteListItem routeListAddressAlias = null;
 			RouteList routeListAlias = null;
 			Employee employeeAlias = null;
 			ExternalApplicationUser externalApplicationUserAlias = null;
 
-			return uow.Session.QueryOver<RouteListItem>(() => routeListAddressAlias)
+			return uow.Session.QueryOver(() => routeListAddressAlias)
 				.Inner.JoinAlias(() => routeListAddressAlias.RouteList, () => routeListAlias)
 				.Inner.JoinAlias(() => routeListAddressAlias.Order, () => vodovozOrderAlias)
 				.Inner.JoinAlias(() => routeListAlias.Driver, () => employeeAlias)
@@ -164,12 +165,12 @@ namespace Vodovoz.EntityRepositories.Employees
 		public IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow)
 		{
 			var query = from externalUser in uow.Session.Query<ExternalApplicationUser>()
-				join employee in uow.Session.Query<Employee>()
-					on externalUser.Employee.Id equals employee.Id
-				where externalUser.Token != null
-					&& externalUser.Token.Length > 2
-					&& externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
-				select employee;
+						join employee in uow.Session.Query<Employee>()
+							on externalUser.Employee.Id equals employee.Id
+						where externalUser.Token != null
+							&& externalUser.Token.Length > 2
+							&& externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
+						select employee;
 
 			return query.ToList();
 		}
@@ -188,13 +189,13 @@ namespace Vodovoz.EntityRepositories.Employees
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				var oldEmployeeCounterparty = (from employee in uow.Session.Query<Employee>()
-						join counterparty in uow.Session.Query<Counterparty>()
-							on employee.Counterparty.Id equals counterparty.Id into oldCounterparties
-						from oldCounterparty in oldCounterparties.DefaultIfEmpty()
-						where employee.Id == employeeId
-						select oldCounterparty)
+											   join counterparty in uow.Session.Query<Counterparty>()
+												   on employee.Counterparty.Id equals counterparty.Id into oldCounterparties
+											   from oldCounterparty in oldCounterparties.DefaultIfEmpty()
+											   where employee.Id == employeeId
+											   select oldCounterparty)
 					.SingleOrDefault();
-				
+
 				return oldEmployeeCounterparty?.Id;
 			}
 		}

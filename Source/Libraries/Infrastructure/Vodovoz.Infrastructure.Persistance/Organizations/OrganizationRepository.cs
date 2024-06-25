@@ -4,9 +4,10 @@ using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Organizations;
 
-namespace Vodovoz.EntityRepositories.Organizations
+namespace Vodovoz.Infrastructure.Persistance.Organizations
 {
 	public class OrganizationRepository : IOrganizationRepository
 	{
@@ -38,7 +39,7 @@ namespace Vodovoz.EntityRepositories.Organizations
 			}
 
 			Account accountAlias = null;
-			
+
 			return uow.Session.QueryOver<Organization>()
 				.JoinAlias(org => org.Accounts, () => accountAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(org => accountAlias.Number == accountNumber)
@@ -52,11 +53,11 @@ namespace Vodovoz.EntityRepositories.Organizations
 				.Where(org => org.Id == organizationId)
 				.SingleOrDefault();
 		}
-		
+
 		public Organization GetPaymentFromOrganizationById(IUnitOfWork uow, int paymentFromId)
 		{
 			Organization organizationAlias = null;
-			
+
 			return uow.Session.QueryOver<PaymentFrom>()
 				.Left.JoinAlias(pf => pf.OrganizationForOnlinePayments, () => organizationAlias)
 				.Where(pf => pf.Id == paymentFromId)

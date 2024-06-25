@@ -4,8 +4,9 @@ using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class DocTemplateRepository : IDocTemplateRepository
 	{
@@ -19,7 +20,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(x => x.Organization == org)
 				.Where(x => x.ContractType == contractType)
 				.List<DocTemplate>();
-			
+
 			return templates.FirstOrDefault();
 		}
 
@@ -28,7 +29,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return uow.Session.QueryOver<DocTemplate>()
 				.Where(x => x.TemplateType == type)
 				.Where(x => x.Organization == org)
-				      .List<DocTemplate>().OfType<IDocTemplate>().ToList();
+					  .List<DocTemplate>().OfType<IDocTemplate>().ToList();
 		}
 
 		public DocTemplate GetFirstAvailableTemplate(IUnitOfWork uow, TemplateType type, Organization org)

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories.Counterparties;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class ExternalCounterpartyRepository : IExternalCounterpartyRepository
 	{
@@ -16,12 +17,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.And(ec => !ec.IsArchive)
 				.SingleOrDefault();
 		}
-		
+
 		public ExternalCounterparty GetExternalCounterparty(
 			IUnitOfWork uow, Guid externalCounterpartyId, string phoneNumber, CounterpartyFrom counterpartyFrom)
 		{
 			Phone phoneAlias = null;
-			
+
 			return uow.Session.QueryOver<ExternalCounterparty>()
 				.JoinAlias(ec => ec.Phone, () => phoneAlias)
 				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
@@ -30,11 +31,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.And(() => phoneAlias.DigitsNumber == phoneNumber)
 				.SingleOrDefault();
 		}
-		
+
 		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom)
 		{
 			Phone phoneAlias = null;
-			
+
 			return uow.Session.QueryOver<ExternalCounterparty>()
 				.JoinAlias(ec => ec.Phone, () => phoneAlias)
 				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
@@ -42,7 +43,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.And(() => phoneAlias.DigitsNumber == phoneNumber)
 				.SingleOrDefault();
 		}
-		
+
 		public IList<ExternalCounterparty> GetExternalCounterpartyByEmail(IUnitOfWork uow, int emailId)
 		{
 			return uow.Session.QueryOver<ExternalCounterparty>()

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Specifications;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.Infrastructure.Persistance
 {
 	public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class, IDomainObject
 	{

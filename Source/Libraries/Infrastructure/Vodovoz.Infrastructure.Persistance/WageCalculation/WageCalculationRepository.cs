@@ -5,8 +5,9 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.WageCalculation;
 
-namespace Vodovoz.EntityRepositories.WageCalculation
+namespace Vodovoz.Infrastructure.Persistance.WageCalculation
 {
 	public class WageCalculationRepository : IWageCalculationRepository
 	{
@@ -34,15 +35,15 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		{
 			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
 				.Where(x => x.IsDefaultLevel);
-			
+
 			return query.Take(1).SingleOrDefault();
 		}
-		
+
 		public WageDistrictLevelRates DefaultLevelForNewEmployeesOnOurCars(IUnitOfWork uow)
 		{
 			var query = uow.Session.QueryOver<WageDistrictLevelRates>()
 				.Where(x => x.IsDefaultLevelForOurCars);
-			
+
 			return query.Take(1).SingleOrDefault();
 		}
 
@@ -56,11 +57,13 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 
 		public IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee)
 		{
-			if(uow == null) {
+			if(uow == null)
+			{
 				throw new ArgumentNullException(nameof(uow));
 			}
 
-			if(employee == null) {
+			if(employee == null)
+			{
 				throw new ArgumentNullException(nameof(employee));
 			}
 

@@ -5,8 +5,9 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories.Suppliers;
 
-namespace Vodovoz.EntityRepositories.Suppliers
+namespace Vodovoz.Infrastructure.Persistance.Suppliers
 {
 	public class SupplierPriceItemsRepository : ISupplierPriceItemsRepository
 	{
@@ -24,7 +25,8 @@ namespace Vodovoz.EntityRepositories.Suppliers
 				query.JoinAlias(i => i.Supplier, () => counterpartyAlias)
 					 .Where(() => counterpartyAlias.DelayDaysForProviders > 0);
 
-			switch(orderingType) {
+			switch(orderingType)
+			{
 				case SupplierOrderingType.All:
 					return query.List();
 				case SupplierOrderingType.TheCheapest:

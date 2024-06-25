@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories.StoredResourceRepository;
 
-namespace Vodovoz.EntityRepositories.StoredResourceRepository
+namespace Vodovoz.Infrastructure.Persistance.StoredResource
 {
 	public class StoredResourceRepository : IStoredResourceRepository
 	{

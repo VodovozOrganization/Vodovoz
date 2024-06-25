@@ -5,8 +5,9 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Counterparties;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class WaterPricesRepository : IWaterPricesRepository
 	{
@@ -15,7 +16,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			List<WaterPriceNode> result = new List<WaterPriceNode>();
 
 			var waterPrintNom = GetPrintableWaterNomenclatures(uow);
-			
+
 			if(!waterPrintNom.Any())
 			{
 				return result;
@@ -26,7 +27,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			NomenclaturePrice nomenclaturePriceAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			var resultPrices =
-			uow.Session.QueryOver<NomenclaturePrice>(() => nomenclaturePriceAlias)
+			uow.Session.QueryOver(() => nomenclaturePriceAlias)
 			   .Left.JoinAlias(() => nomenclaturePriceAlias.Nomenclature, () => nomenclatureAlias)
 			   .WhereRestrictionOn(() => nomenclatureAlias.Id).IsIn(waterPrintNom.Select(x => x.Id).ToArray())
 			   .SelectList(list => list
@@ -107,12 +108,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 						   .Select(() => waterPrintNom.Count() > 4 ? waterPrintNom[4].Id : 0).WithAlias(() => nodeAlias.Id5)
 			   ).TransformUsing(Transformers.AliasToBean<WaterPriceNode>())
 			   .List<WaterPriceNode>();
-			
+
 			foreach(var item in resultPrices)
 			{
 				result.Add(item);
 			}
-			
+
 			return result;
 		}
 
@@ -123,9 +124,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var waterPrintNom = GetPrintableWaterNomenclatures(uow);
 
 			//Шапка с названиями
-			result.Add(new WaterPriceNode() {
+			result.Add(new WaterPriceNode()
+			{
 				StringCount = "Бутыли 19 л",
-				Water1 = waterPrintNom.Any()? waterPrintNom[0].OfficialName : "",
+				Water1 = waterPrintNom.Any() ? waterPrintNom[0].OfficialName : "",
 				Water2 = waterPrintNom.Count() > 1 ? waterPrintNom[1].OfficialName : "",
 				Water3 = waterPrintNom.Count() > 2 ? waterPrintNom[2].OfficialName : "",
 				Water4 = waterPrintNom.Count() > 3 ? waterPrintNom[3].OfficialName : "",
@@ -141,7 +143,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 										.Where(x => x.CanPrintPrice)
 										.Where(x => !x.IsArchive)
 										.Where(x => x.Category == NomenclatureCategory.water).List();
-			
+
 			return waterNomenclatures.Where(x => x.NomenclaturePrice.Any())
 												  .OrderBy(x => x.NomenclaturePrice.Min(y => y.Price))
 												  .Distinct()
@@ -153,7 +155,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			var completeTable = GetWaterPricesHeader(uow);
 			completeTable.AddRange(GetWaterPrices(uow));
-			
+
 			return completeTable;
 		}
 	}

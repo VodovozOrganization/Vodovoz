@@ -2,8 +2,9 @@
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 
-namespace Vodovoz.EntityRepositories.DiscountReasons
+namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 {
 	public class DiscountReasonRepository : IDiscountReasonRepository
 	{
@@ -28,7 +29,7 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 				.Asc()
 				.List();
 		}
-		
+
 		public IList<DiscountReason> GetActiveDiscountReasonsWithoutPremiums(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<DiscountReason>()

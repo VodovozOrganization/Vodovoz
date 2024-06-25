@@ -6,8 +6,9 @@ using QS.Project.DB;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.HistoryChanges;
+using Vodovoz.EntityRepositories;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.Infrastructure.Persistance
 {
 	public class UserRepository : IUserRepository
 	{
@@ -65,7 +66,7 @@ namespace Vodovoz.EntityRepositories
 		public void GiveSelectPrivilegesToArchiveDataBase(IUnitOfWork uow, string login)
 		{
 			var archivedChangedEntitySchema = OrmConfig.FindMappingByShortClassName(nameof(ArchivedChangedEntity)).Table.Schema;
-			
+
 			var sql = $"GRANT Select ON `{archivedChangedEntitySchema}`.* TO '{login}'";
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
@@ -75,19 +76,19 @@ namespace Vodovoz.EntityRepositories
 			var sql = $"SET PASSWORD FOR '{login}' = PASSWORD('{password}')";
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
-		
+
 		public void CreateUser(IUnitOfWork uow, string login, string password)
 		{
 			var query = $"CREATE USER '{login}' IDENTIFIED BY '{password}'";
 			uow.Session.CreateSQLQuery(query).ExecuteUpdate();
 		}
-		
+
 		public void DropUser(IUnitOfWork uow, string login)
 		{
 			var query = $"DROP USER '{login}'";
 			uow.Session.CreateSQLQuery(query).ExecuteUpdate();
 		}
-		
+
 		public void GrantPrivilegesToUser(IUnitOfWork uow, string privileges, string tableName, string login)
 		{
 			var query = $"GRANT {privileges} ON `{tableName}`.* TO '{login}'";

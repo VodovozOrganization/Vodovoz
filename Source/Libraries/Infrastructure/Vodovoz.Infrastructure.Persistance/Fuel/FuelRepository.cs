@@ -11,8 +11,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Fuel;
 
-namespace Vodovoz.EntityRepositories.Fuel
+namespace Vodovoz.Infrastructure.Persistance.Fuel
 {
 	public class FuelRepository : IFuelRepository
 	{
@@ -27,17 +28,17 @@ namespace Vodovoz.EntityRepositories.Fuel
 			FuelExpenseOperation fuelExpenseOperationAlias = null;
 			FuelIncomeOperation fuelIncomeOperationAlias = null;
 
-			var fuelExpenseSubquery = QueryOver.Of<FuelExpenseOperation>(() => fuelExpenseOperationAlias)
+			var fuelExpenseSubquery = QueryOver.Of(() => fuelExpenseOperationAlias)
 				.Where(Restrictions.Where(() => fuelExpenseOperationAlias.FuelType.Id == fuelTypeAlias.Id))
 				.Select(Projections.Sum(Projections.Property(() => fuelExpenseOperationAlias.FuelLiters)))
 				.DetachedCriteria;
 
-			var fuelIncomeSubquery = QueryOver.Of<FuelIncomeOperation>(() => fuelIncomeOperationAlias)
+			var fuelIncomeSubquery = QueryOver.Of(() => fuelIncomeOperationAlias)
 				.Where(Restrictions.Where(() => fuelIncomeOperationAlias.FuelType.Id == fuelTypeAlias.Id))
 				.Select(Projections.Sum(Projections.Property(() => fuelIncomeOperationAlias.FuelLiters)))
 				.DetachedCriteria;
 
-			var resultList = uow.Session.QueryOver<FuelType>(() => fuelTypeAlias)
+			var resultList = uow.Session.QueryOver(() => fuelTypeAlias)
 				.SelectList(list => list
 					.SelectGroup(() => fuelTypeAlias.Id)
 					.Select(
@@ -78,21 +79,21 @@ namespace Vodovoz.EntityRepositories.Fuel
 			Subdivision expenseSubdivisionAlias = null;
 			Subdivision incomeSubdivisionAlias = null;
 
-			var fuelExpenseSubquery = QueryOver.Of<FuelExpenseOperation>(() => fuelExpenseOperationAlias)
+			var fuelExpenseSubquery = QueryOver.Of(() => fuelExpenseOperationAlias)
 				.Left.JoinAlias(() => fuelExpenseOperationAlias.RelatedToSubdivision, () => expenseSubdivisionAlias)
 				.Where(() => fuelExpenseOperationAlias.FuelType.Id == fuelTypeAlias.Id)
 				.Where(() => expenseSubdivisionAlias.Id == subdivision.Id)
 				.Select(Projections.Sum(Projections.Property(() => fuelExpenseOperationAlias.FuelLiters)))
 				.DetachedCriteria;
 
-			var fuelIncomeSubquery = QueryOver.Of<FuelIncomeOperation>(() => fuelIncomeOperationAlias)
+			var fuelIncomeSubquery = QueryOver.Of(() => fuelIncomeOperationAlias)
 				.Left.JoinAlias(() => fuelIncomeOperationAlias.RelatedToSubdivision, () => incomeSubdivisionAlias)
 				.Where(Restrictions.Where(() => fuelIncomeOperationAlias.FuelType.Id == fuelTypeAlias.Id))
 				.Where(() => incomeSubdivisionAlias.Id == subdivision.Id)
 				.Select(Projections.Sum(Projections.Property(() => fuelIncomeOperationAlias.FuelLiters)))
 				.DetachedCriteria;
 
-			var resultList = uow.Session.QueryOver<FuelType>(() => fuelTypeAlias)
+			var resultList = uow.Session.QueryOver(() => fuelTypeAlias)
 				.SelectList(list => list
 					.SelectGroup(() => fuelTypeAlias.Id)
 					.Select(
@@ -130,14 +131,14 @@ namespace Vodovoz.EntityRepositories.Fuel
 			FuelExpenseOperation fuelExpenseOperationAlias = null;
 			FuelType fuelTypeAlias = null;
 
-			var fuelExpenseSubquery = QueryOver.Of<FuelExpenseOperation>(() => fuelExpenseOperationAlias)
+			var fuelExpenseSubquery = QueryOver.Of(() => fuelExpenseOperationAlias)
 				.Left.JoinAlias(() => fuelExpenseOperationAlias.FuelType, () => fuelTypeAlias)
 				.Where(() => fuelTypeAlias.Id == fuelType.Id)
 				.Select(Projections.Sum(Projections.Property<FuelExpenseOperation>(x => x.FuelLiters)))
 				.DetachedCriteria;
 
 			FuelIncomeOperation fuelIncomeOperationAlias = null;
-			var balance = uow.Session.QueryOver<FuelIncomeOperation>(() => fuelIncomeOperationAlias)
+			var balance = uow.Session.QueryOver(() => fuelIncomeOperationAlias)
 				.Left.JoinAlias(() => fuelIncomeOperationAlias.FuelType, () => fuelTypeAlias)
 				.Where(() => fuelTypeAlias.Id == fuelType.Id)
 				.Select(Projections.SqlFunction(
@@ -235,7 +236,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 			FuelType fuelTypeAlias = null;
 			Subdivision cashSubdivision = null;
 
-			var fuelExpenseSubquery = QueryOver.Of<FuelExpenseOperation>(() => fuelExpenseOperationAlias)
+			var fuelExpenseSubquery = QueryOver.Of(() => fuelExpenseOperationAlias)
 				.Left.JoinAlias(() => fuelExpenseOperationAlias.RelatedToSubdivision, () => cashSubdivision)
 				.Left.JoinAlias(() => fuelExpenseOperationAlias.FuelType, () => fuelTypeAlias)
 				.Where(() => cashSubdivision.Id == subdivision.Id)
@@ -244,7 +245,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 				.DetachedCriteria;
 
 			FuelIncomeOperation fuelIncomeOperationAlias = null;
-			var balance = uow.Session.QueryOver<FuelIncomeOperation>(() => fuelIncomeOperationAlias)
+			var balance = uow.Session.QueryOver(() => fuelIncomeOperationAlias)
 				.Left.JoinAlias(() => fuelIncomeOperationAlias.RelatedToSubdivision, () => cashSubdivision)
 				.Left.JoinAlias(() => fuelIncomeOperationAlias.FuelType, () => fuelTypeAlias)
 				.Where(() => cashSubdivision.Id == subdivision.Id)

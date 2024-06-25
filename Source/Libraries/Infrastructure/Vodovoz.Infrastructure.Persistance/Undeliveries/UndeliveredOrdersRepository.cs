@@ -11,9 +11,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Undeliveries
+namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 {
 	public class UndeliveredOrdersRepository : IUndeliveredOrdersRepository
 	{
@@ -23,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			Order orderAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
-			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias);
+			var query = uow.Session.QueryOver(() => undeliveredOrderAlias);
 
 			if(start != null && end != null)
 			{
@@ -50,7 +51,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			Order orderAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
-			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+			var query = uow.Session.QueryOver(() => undeliveredOrderAlias)
 						   .Left.JoinAlias(u => u.OldOrder, () => orderAlias);
 
 			if(start != null && end != null)
@@ -77,7 +78,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			Order orderAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
-			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+			var query = uow.Session.QueryOver(() => undeliveredOrderAlias)
 						   .Where(() => guiltyInUndeliveryAlias.GuiltySide == GuiltyTypes.Department)
 						   .Left.JoinAlias(u => u.OldOrder, () => orderAlias)
 						   .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
@@ -109,7 +110,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			var query = uow.Session.QueryOver<UndeliveredOrder>()
 						   .Where(u => u.OldOrder == order)
 						   .List<UndeliveredOrder>();
-			
+
 			return query;
 		}
 
@@ -119,13 +120,13 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 
-			var query = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+			var query = uow.Session.QueryOver(() => routeListItemAlias)
 						   .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 						   .Where(() => routeListAlias.Driver == driver)
 						   .Left.JoinQueryOver(() => routeListItemAlias.Order, () => orderAlias);
-			
+
 			var q = query.List().Select(i => i.Order.Id);
-			
+
 			return q.ToList();
 		}
 
@@ -136,7 +137,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			Order orderAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 
-			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+			var query = uow.Session.QueryOver(() => undeliveredOrderAlias)
 							  .Left.JoinAlias(u => u.OldOrder, () => orderAlias)
 							  .Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
 							  .Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
@@ -177,7 +178,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 		  .List<object[]>()
 		  .GroupBy(x => x[1])
 		  .Select(r => new[] { r.Key, r.Count(), i++ })
-	      .ToList();
+		  .ToList();
 
 			return result;
 		}
@@ -189,7 +190,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 
 			var subquery = QueryOver.Of<UndeliveredOrder>()
 				.Left.JoinAlias(u => u.OldOrder, () => orderAlias);
-			
+
 			if(start != null && end != null)
 			{
 				subquery.Where(() => orderAlias.DeliveryDate >= start)

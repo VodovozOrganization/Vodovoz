@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Cash;
 
-namespace Vodovoz.EntityRepositories.Cash
+namespace Vodovoz.Infrastructure.Persistance.Cash
 {
 	public class AccountableDebtsRepository : IAccountableDebtsRepository
 	{

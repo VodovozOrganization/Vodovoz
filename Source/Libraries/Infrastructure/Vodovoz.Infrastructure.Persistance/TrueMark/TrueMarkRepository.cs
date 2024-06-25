@@ -6,8 +6,9 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.TrueMark;
 
-namespace Vodovoz.EntityRepositories.TrueMark
+namespace Vodovoz.Infrastructure.Persistance.TrueMark
 {
 	public class TrueMarkRepository : ITrueMarkRepository
 	{

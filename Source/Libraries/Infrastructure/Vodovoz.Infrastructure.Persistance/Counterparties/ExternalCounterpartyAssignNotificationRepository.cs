@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class ExternalCounterpartyAssignNotificationRepository : IExternalCounterpartyAssignNotificationRepository
 	{

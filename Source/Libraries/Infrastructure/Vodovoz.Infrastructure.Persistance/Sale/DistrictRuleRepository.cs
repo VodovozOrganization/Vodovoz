@@ -5,8 +5,9 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 
-namespace Vodovoz.EntityRepositories.Sale
+namespace Vodovoz.Infrastructure.Persistance.Sale
 {
 	public class DistrictRuleRepository : IDistrictRuleRepository
 	{

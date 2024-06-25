@@ -28,8 +28,9 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.EntityRepositories.Delivery;
 
-namespace Vodovoz.EntityRepositories.Delivery
+namespace Vodovoz.Infrastructure.Persistance.Delivery
 {
 	public class DeliveryRepository : IDeliveryRepository
 	{
@@ -73,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			District districtAlias = null;
 			DistrictsSet districtsSetAlias = null;
 
-			var query = uow.Session.QueryOver<District>(() => districtAlias)
+			var query = uow.Session.QueryOver(() => districtAlias)
 				.Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
 				.Where(x => x.DistrictBorder != null);
 
@@ -119,7 +120,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			District districtAlias = null;
 			DistrictsSet districtsSetAlias = null;
 
-			var districtsWithBorders = uow.Session.QueryOver<District>(() => districtAlias)
+			var districtsWithBorders = uow.Session.QueryOver(() => districtAlias)
 				.Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
 				.Where(x => x.DistrictBorder != null)
 				.And(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
@@ -151,7 +152,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			double pi = Math.PI;
 			double m = 1 / (2 * pi / 360 * earth) / 1000; //1 meter in degree
 
-			double newLatitude = lat + (metersToAdd * m);
+			double newLatitude = lat + metersToAdd * m;
 
 			return newLatitude;
 		}
@@ -185,7 +186,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var maxFastOrdersPerSpecificTime = _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 
 			var maxTimeForFastDeliveryTimespan = _deliveryRulesSettings.MaxTimeForFastDelivery;
-			
+
 			//Переводим всё в минуты
 			var trackPointTimeOffset = (int)_deliveryRulesSettings.MaxTimeOffsetForLatestTrackPoint.TotalMinutes;
 			var maxTimeForFastDelivery = (int)maxTimeForFastDeliveryTimespan.TotalMinutes;
@@ -235,7 +236,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			if(tariffZone == null || !tariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
 				fastDeliveryAvailabilityHistory.AdditionalInformation =
-					new List<string> {"Не найден район, у района отсутствует тарифная зона, либо недоступна экспресс-доставка в текущее время."};
+					new List<string> { "Не найден район, у района отсутствует тарифная зона, либо недоступна экспресс-доставка в текущее время." };
 
 				return fastDeliveryAvailabilityHistory;
 			}
@@ -262,7 +263,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			RouteListNomenclatureAmount loadDocumentsAmountAlias = null;
 
 			DeliveryFreeBalanceOperation freeBalanceOperation = null;
-			
+
 			var date = DateTime.Now;
 
 			var lastTimeTrackQuery = QueryOver.Of(() => tpInner)
@@ -274,7 +275,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					&& (v.EndDate == null || v.EndDate > date))
 				.Select(v => v.Value)
 				.Take(1);
-			
+
 			var routeListFastDeliveryMaxDistance = QueryOver.Of<RouteListFastDeliveryMaxDistance>()
 				.Where(d =>
 					d.RouteList.Id == rl.Id
@@ -282,7 +283,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					&& (d.EndDate == null || d.EndDate > date))
 				.Select(d => d.Distance)
 				.Take(1);
-			
+
 			//МЛ только в пути и с погруженным запасом
 			var routeListNodes = uow.Session.QueryOver(() => rl)
 				.JoinEntityAlias(() => t, () => t.RouteList.Id == rl.Id)
@@ -304,9 +305,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				)
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryVerificationDetailsNode>())
 				.List<FastDeliveryVerificationDetailsNode>();
-			
+
 			var routeListIds = routeListNodes.Select(x => x.RouteList.Id).ToArray();
-			
+
 			//Не более определённого кол-ва заказов с быстрой доставкой
 			var routeListMaxFastDeliveryOrdersCount = QueryOver.Of<RouteListMaxFastDeliveryOrders>()
 				.Where(d =>
@@ -315,7 +316,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					&& (d.EndDate == null || d.EndDate > date))
 				.Select(d => d.MaxOrders)
 				.Take(1);
-			
+
 			var maxFastDeliveryOrdersCount = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Int32, "IFNULL(?1, ?2)"),
 				NHibernateUtil.Int32,
@@ -341,7 +342,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				)
 				.TransformUsing(Transformers.AliasToBean<RouteListFastDeliveriesCountNode>())
 				.List<RouteListFastDeliveriesCountNode>();
-			
+
 			DeliveryPoint deliveryPointAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			AddressInfoForFastDelivery addressInfoAlias = null;
@@ -352,14 +353,14 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water)
 				.Select(Projections.Sum(() => oi.Count));
-			
+
 			var itemsSummaryWeight = QueryOver.Of(() => oi)
 				.JoinAlias(() => oi.Nomenclature, () => nomenclatureAlias)
 				.Where(() => oi.Order.Id == o.Id)
 				.And(() => nomenclatureAlias.TareVolume != TareVolume.Vol19L
 					|| nomenclatureAlias.Category != NomenclatureCategory.water)
 				.Select(Projections.Sum(() => nomenclatureAlias.Weight * oi.Count));
-			
+
 			var equipmentsSummaryWeight = QueryOver.Of(() => oe)
 				.JoinAlias(() => oe.Nomenclature, () => nomenclatureAlias)
 				.Where(() => oe.Order.Id == o.Id)
@@ -383,10 +384,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.TransformUsing(Transformers.AliasToBean<AddressInfoForFastDelivery>())
 				.List<AddressInfoForFastDelivery>()
 				.ToLookup(x => x.RouteListId);
-			
+
 			var rlsFastDeliveriesCount =
 				routeListFastDeliveriesCount.ToDictionary(x => x.RouteListId);
-			
+
 			var freeBalances = uow.Session.QueryOver(() => freeBalanceOperation)
 				.WhereRestrictionOn(() => freeBalanceOperation.RouteList.Id).IsIn(routeListIds)
 				.WhereRestrictionOn(() => freeBalanceOperation.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
@@ -396,7 +397,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => ordersAmountAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
 				.List<RouteListNomenclatureAmount>();
-			
+
 			var i = 0;
 
 			if(isRequestFromDesktopApp)
@@ -442,7 +443,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					routeListNodes = routeListNodes.Take(i).ToList();
 				}
 			}
-			
+
 			if(routeListNodes.Any())
 			{
 				fastDeliveryAvailabilityHistory.Items = fastDeliveryHistoryConverter
@@ -450,7 +451,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			}
 
 			return fastDeliveryAvailabilityHistory;
-			
+
 			//Последняя координата в указанном радиусе
 			void UpdateDistanceAndLastCoordinateTimeParameters(FastDeliveryVerificationDetailsNode node)
 			{
@@ -459,7 +460,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var proposedRoute = OsrmClientFactory.Instance
 					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll)?.Routes?
 					.FirstOrDefault();
-				
+
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;
 				node.DistanceByRoadToClient.ParameterValue = decimal.Round((decimal)(proposedRoute?.TotalDistance ?? int.MaxValue) / 1000, 2);
 
@@ -504,7 +505,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			{
 				var fastDeliveriesInfo = rlsFastDeliveriesCount[node.RouteListId];
 				var unclosedFastDeliveryAddresses = fastDeliveriesInfo.UnclosedFastDeliveryAddresses;
-				
+
 				node.UnClosedFastDeliveries.ParameterValue = unclosedFastDeliveryAddresses;
 
 				var routeListMaxFastDeliveryOrders = fastDeliveriesInfo.MaxFastDeliveryOrdersCount;
@@ -519,7 +520,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					node.IsValidRLToFastDelivery = false;
 				}
 			}
-			
+
 			//Время доставки следующего (текущего) заказа позволяет взять быструю доставку
 			void UpdateRemainingTimeForShipmentNewOrder(FastDeliveryVerificationDetailsNode node)
 			{
@@ -528,7 +529,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var addresses = addressesLookup.Contains(node.RouteListId)
 					? addressesLookup[node.RouteListId]
 					: Array.Empty<AddressInfoForFastDelivery>();
-				
+
 				var orderedEnRouteAddresses = addresses
 					.Where(x => x.AddressStatus == RouteListItemStatus.EnRoute)
 					.OrderBy(x => x.IndexInRoute)
@@ -573,7 +574,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					//(Суммарный вес прочих товаров / кол-во кг, которое водитель может унести в одной руке + кол-во 19л) / 2 руки * время выгрузки в 2 руках 2 бутылей или товара
 					var unloadTime = (goodsSummaryWeight / driverGoodWeightLiftPerHand + water19Count) / 2 * driverUnloadTime;
 					var neededTime2 = maxTimeForFastDelivery - (int)unloadTime;
-					
+
 					if(neededTime2 < minTimeForNewOrder)
 					{
 						node.RemainingTimeForShipmentNewOrder.ParameterValue = new TimeSpan(0, neededTime2, 0);
@@ -592,7 +593,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					node.RemainingTimeForShipmentNewOrder.IsValidParameter = true;
 				}
 			}
-			
+
 			//Выбираем МЛ, в котором хватает запаса номенклатур на поступивший быстрый заказ
 			void UpdateRouteListBalanceParameter(FastDeliveryVerificationDetailsNode node)
 			{
@@ -677,7 +678,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime,
 			IGeneralSettings generalSettings, int complaintDetalizationId)
 		{
-			var fastDeliveryIntervalFrom = generalSettings.FastDeliveryIntervalFrom;			
+			var fastDeliveryIntervalFrom = generalSettings.FastDeliveryIntervalFrom;
 			var fastDeliveryMaximumPermissibleLate = generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
 			var maxTimeForFastDelivery = _deliveryRulesSettings.MaxTimeForFastDelivery;
 			var maxTimeForFastDeliveryWithLateMinutes = maxTimeForFastDelivery.TotalMinutes + fastDeliveryMaximumPermissibleLate;

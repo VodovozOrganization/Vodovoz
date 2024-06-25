@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
+using Vodovoz.EntityRepositories.WageCalculation;
 
-namespace Vodovoz.EntityRepositories.WageCalculation
+namespace Vodovoz.Infrastructure.Persistance.WageCalculation
 {
 	public class AdvancedWageRepository : IAdvancedWageRepository
 	{
-		public IEnumerable<AdvancedWageParameter> GetRootParameter(IUnitOfWork uow,WageRate wageRate)
+		public IEnumerable<AdvancedWageParameter> GetRootParameter(IUnitOfWork uow, WageRate wageRate)
 		{
 			if(uow == null)
 				throw new ArgumentNullException(nameof(uow));
@@ -22,7 +23,7 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 						.List();
 		}
 
-		public IEnumerable<AdvancedWageParameter> GetChildParameters(IUnitOfWork uow,AdvancedWageParameter parentParameter)
+		public IEnumerable<AdvancedWageParameter> GetChildParameters(IUnitOfWork uow, AdvancedWageParameter parentParameter)
 		{
 			if(uow == null)
 				throw new ArgumentNullException(nameof(uow));

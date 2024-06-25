@@ -7,10 +7,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
 using Vodovoz.Tools;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 
 	//Необходима смена репозитория на модель, так как по сути происходит логика смены договора
@@ -21,7 +22,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		public CounterpartyContractRepository(IOrganizationProvider organizationProvider, ICashReceiptRepository cashReceiptRepository)
 		{
-			this._organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
+			_organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
@@ -150,10 +151,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<CounterpartyContract> GetActiveContractsWithOrganization(IUnitOfWork uow, Counterparty counterparty, Organization org, ContractType type)
 		{
 			return uow.Session.QueryOver<CounterpartyContract>()
-				.Where(co => (co.Counterparty.Id == counterparty.Id &&
+				.Where(co => co.Counterparty.Id == counterparty.Id &&
 				   !co.IsArchive &&
 				   !co.OnCancellation &&
-				   co.Organization.Id == org.Id)
+				   co.Organization.Id == org.Id
 				   && co.ContractType == type)
 				.List();
 		}

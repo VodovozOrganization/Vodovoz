@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Utils;
+using FluentNHibernate.Utils;
 using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
@@ -22,6 +22,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
@@ -30,7 +31,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Orders
+namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	public partial class OrderRepository : IOrderRepository
 	{

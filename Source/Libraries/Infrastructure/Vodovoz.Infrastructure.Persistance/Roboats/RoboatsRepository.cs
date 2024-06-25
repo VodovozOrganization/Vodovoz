@@ -16,8 +16,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Roboats;
+using Vodovoz.EntityRepositories.Roboats;
 
-namespace Vodovoz.EntityRepositories.Roboats
+namespace Vodovoz.Infrastructure.Persistance.Roboats
 {
 	public class RoboatsRepository : IRoboatsRepository
 	{
@@ -283,7 +284,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 				IQueryOver<Order, Order> CreateLastOrdersBaseQuery()
 				{
 					var baseQuery = uow.Session.QueryOver(() => orderAlias)
-						.Where(Restrictions.In(Projections.Property(() => orderAlias.Id),lastOrdersByDeliveryPoints.ToArray()));
+						.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()));
 					if(deliveryPointId.HasValue)
 					{
 						baseQuery.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointId.Value);
@@ -507,7 +508,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 			{
 				return null;
 			}
-			
+
 			return uow.Session.QueryOver<RoboAtsCounterpartyName>()
 				.Where(Restrictions.Eq(
 					CustomProjections.Lower<RoboAtsCounterpartyName>(rn => rn.Name),
@@ -515,14 +516,14 @@ namespace Vodovoz.EntityRepositories.Roboats
 				.Take(1)
 				.SingleOrDefault();
 		}
-		
+
 		public RoboAtsCounterpartyPatronymic GetCounterpartyPatronymic(IUnitOfWork uow, string patronymic)
 		{
 			if(string.IsNullOrWhiteSpace(patronymic))
 			{
 				return null;
 			}
-			
+
 			return uow.Session.QueryOver<RoboAtsCounterpartyPatronymic>()
 				.Where(Restrictions.Eq(
 					CustomProjections.Lower<RoboAtsCounterpartyPatronymic>(rp => rp.Patronymic),

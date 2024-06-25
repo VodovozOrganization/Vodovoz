@@ -12,15 +12,17 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 
-namespace Vodovoz.EntityRepositories.Cash
+namespace Vodovoz.Infrastructure.Persistance.Cash
 {
 	public class CashRepository : ICashRepository
 	{
 		public decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null)
 		{
 			var query = uow.Session.QueryOver<Income>().Where(x => x.Order.Id == orderId);
-			if(excludedIncomeDoc != null) {
+			if(excludedIncomeDoc != null)
+			{
 				query.Where(x => x.Id != excludedIncomeDoc);
 			}
 			return query.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
@@ -29,40 +31,42 @@ namespace Vodovoz.EntityRepositories.Cash
 		public decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId, int? excludedExpenseDoc = null)
 		{
 			var query = uow.Session.QueryOver<Expense>().Where(x => x.Order.Id == orderId);
-			if(excludedExpenseDoc != null) {
+			if(excludedExpenseDoc != null)
+			{
 				query.Where(x => x.Id != excludedExpenseDoc);
 			}
 			return query.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
 		}
-		
-		public bool OrderHasIncome(IUnitOfWork uow, int orderId) {
+
+		public bool OrderHasIncome(IUnitOfWork uow, int orderId)
+		{
 			var query = uow.Session.QueryOver<Income>()
-			               .Where(x => x.Order.Id == orderId)
-			               .List();
+						   .Where(x => x.Order.Id == orderId)
+						   .List();
 
 			return query.Any();
 		}
 
-		public decimal CurrentCash (IUnitOfWork uow)
+		public decimal CurrentCash(IUnitOfWork uow)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()
-				.Select (Projections.Sum<Expense> (o => o.Money)).SingleOrDefault<decimal> ();
+				.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
 
 			decimal income = uow.Session.QueryOver<Income>()
-				.Select (Projections.Sum<Income> (o => o.Money)).SingleOrDefault<decimal> ();
+				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
 		}
-		
-		public decimal CurrentCashForOrganization (IUnitOfWork uow, Organization organization)
+
+		public decimal CurrentCashForOrganization(IUnitOfWork uow, Organization organization)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()
 				.Where(x => x.Organisation == organization)
-				.Select (Projections.Sum<Expense> (o => o.Money)).SingleOrDefault<decimal> ();
+				.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
 
 			decimal income = uow.Session.QueryOver<Income>()
 				.Where(x => x.Organisation == organization)
-				.Select (Projections.Sum<Income> (o => o.Money)).SingleOrDefault<decimal> ();
+				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
 		}
@@ -74,7 +78,7 @@ namespace Vodovoz.EntityRepositories.Cash
 			OperationNode resultAlias = null;
 
 			var query = uow.Session.QueryOver(() => organizationAlias)
-				.JoinEntityAlias(() => operationAlias, 
+				.JoinEntityAlias(() => operationAlias,
 					() => organizationAlias.Id == operationAlias.Organisation.Id,
 					JoinType.LeftOuterJoin
 				)
@@ -154,13 +158,13 @@ namespace Vodovoz.EntityRepositories.Cash
 		public decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()
-			                     .Where(exp => exp.RouteListClosing.Id == routeListId)
-			                     .Where(exp => exp.TypeOperation == ExpenseType.Expense)
+								 .Where(exp => exp.RouteListClosing.Id == routeListId)
+								 .Where(exp => exp.TypeOperation == ExpenseType.Expense)
 								 .Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
 
 			decimal income = uow.Session.QueryOver<Income>()
-			                    .Where(exp => exp.RouteListClosing.Id == routeListId)
-			                    .Where(exp => exp.TypeOperation == IncomeType.DriverReport)
+								.Where(exp => exp.RouteListClosing.Id == routeListId)
+								.Where(exp => exp.TypeOperation == IncomeType.DriverReport)
 								.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
@@ -217,7 +221,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		{
 			CashTransferOperation cashTransferOperationAlias = null;
 			CashTransferDocumentBase cashTransferDocumentAlias = null;
-			return uow.Session.QueryOver<CashTransferDocumentBase>(() => cashTransferDocumentAlias)
+			return uow.Session.QueryOver(() => cashTransferDocumentAlias)
 				.Left.JoinAlias(() => cashTransferDocumentAlias.CashTransferOperation, () => cashTransferOperationAlias)
 				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.Received)
 				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.New)

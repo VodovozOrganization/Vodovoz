@@ -4,8 +4,9 @@ using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.EntityRepositories.FastPayments;
 
-namespace Vodovoz.EntityRepositories.FastPayments
+namespace Vodovoz.Infrastructure.Persistance.FastPayments
 {
 	public class FastPaymentRepository : IFastPaymentRepository
 	{
@@ -17,7 +18,7 @@ namespace Vodovoz.EntityRepositories.FastPayments
 				.OrderBy(fp => fp.FastPaymentStatus).Desc
 				.List();
 		}
-		
+
 		public IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(
 			IUnitOfWork uow, int onlineOrderId, decimal onlineOrderSum)
 		{
@@ -54,27 +55,27 @@ namespace Vodovoz.EntityRepositories.FastPayments
 				.GetExecutableQueryOver(uow.Session)
 				.SingleOrDefault();
 		}
-		
+
 		public FastPayment GetFastPaymentByGuid(IUnitOfWork uow, Guid fastPaymentGuid)
 		{
 			return uow.Session.QueryOver<FastPayment>()
 				.Where(fp => fp.FastPaymentGuid == fastPaymentGuid)
 				.SingleOrDefault();
 		}
-		
+
 		public bool FastPaymentWithTicketExists(IUnitOfWork uow, string ticket)
 		{
 			var fastPayment = GetFastPaymentByTicket(uow, ticket);
 			return fastPayment != null;
 		}
-		
+
 		public IEnumerable<FastPayment> GetAllProcessingFastPayments(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<FastPayment>()
 				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Processing)
 				.List();
 		}
-		
+
 		public FastPayment GetProcessingPaymentForOrder(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<FastPayment>()

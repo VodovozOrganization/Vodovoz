@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Flyers;
 
-namespace Vodovoz.EntityRepositories.Flyers
+namespace Vodovoz.Infrastructure.Persistance.Flyers
 {
 	public class FlyerRepository : IFlyerRepository
 	{
@@ -16,7 +17,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 				.JoinAlias(f => f.FlyerNomenclature, () => flyerNomenclatureAlias)
 				.SelectList(list => list.Select(() => flyerNomenclatureAlias.Id))
 				.List<int>();
-			
+
 			return query;
 		}
 
@@ -31,10 +32,10 @@ namespace Vodovoz.EntityRepositories.Flyers
 				.Where(() => flyerActionTimeAlias.StartDate <= deliveryDate)
 				.And(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > deliveryDate)
 				.List();
-			
+
 			return query;
 		}
-		
+
 		public IList<int> GetAllActiveFlyersNomenclaturesIdsByDate(IUnitOfWork uow, DateTime? deliveryDate)
 		{
 			if(deliveryDate == null)
@@ -52,7 +53,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 				.And(() => flyerActionTimeAlias.StartDate <= deliveryDate.Value)
 				.SelectList(list => list.Select(() => flyerNomenclatureAlias.Id))
 				.List<int>();
-			
+
 			return query;
 		}
 
@@ -64,7 +65,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 				.JoinAlias(f => f.FlyerNomenclature, () => flyerNomenclatureAlias)
 				.Where(() => flyerNomenclatureAlias.Id == nomenclatureId)
 				.SingleOrDefault();
-			
+
 			return query != null;
 		}
 	}

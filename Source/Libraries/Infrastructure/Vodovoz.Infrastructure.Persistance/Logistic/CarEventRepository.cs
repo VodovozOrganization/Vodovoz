@@ -6,8 +6,9 @@ using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class CarEventRepository : ICarEventRepository
 	{
@@ -41,7 +42,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarEvent carEventAlias = null;
 			Fine finesAlias = null;
 
-			return uow.Session.QueryOver<CarEvent>(() => carEventAlias)
+			return uow.Session.QueryOver(() => carEventAlias)
 				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
 				.Where(() => finesAlias.Id == fineId)
 				.List();

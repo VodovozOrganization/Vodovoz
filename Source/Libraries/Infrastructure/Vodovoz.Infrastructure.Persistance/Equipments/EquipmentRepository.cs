@@ -9,8 +9,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Equipments;
 
-namespace Vodovoz.EntityRepositories.Equipments
+namespace Vodovoz.Infrastructure.Persistance.Equipments
 {
 	public class EquipmentRepository : IEquipmentRepository
 	{
@@ -22,7 +23,7 @@ namespace Vodovoz.EntityRepositories.Equipments
 			var query = QueryOver.Of<Equipment>()
 				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Kind.IsIn(kinds));
-			
+
 			return query;
 		}
 
@@ -43,7 +44,7 @@ namespace Vodovoz.EntityRepositories.Equipments
 				exceptIDs = new int[0];
 			}
 
-			return (count > 0) ? AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
+			return count > 0 ? AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
 				.Where(eq => eq.Nomenclature.Id == nomenclature.Id)
 				.Where(eq => !eq.OnDuty)
 				.Where(eq => !eq.Id.IsIn(exceptIDs))
@@ -106,7 +107,7 @@ namespace Vodovoz.EntityRepositories.Equipments
 
 		public QueryOver<Equipment, Equipment> AvailableEquipmentQuery()
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Domain.Orders.Order orderAlias = null;
 			Equipment equipmentAlias = null;
 			WarehouseBulkGoodsAccountingOperation operationAddAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
@@ -125,7 +126,7 @@ namespace Vodovoz.EntityRepositories.Equipments
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select(Projections.Property(() => orderEquipmentAlias.Equipment.Id));
 
-			return QueryOver.Of<Equipment>(() => equipmentAlias)
+			return QueryOver.Of(() => equipmentAlias)
 				.Where(equipmentInStockCriterion)
 				.Where(e => e.AssignedToClient == null)
 				.WithSubquery.WhereProperty(() => equipmentAlias.Id).NotIn(subqueryAllReservedEquipment);
@@ -148,22 +149,22 @@ namespace Vodovoz.EntityRepositories.Equipments
 			CounterpartyMovementOperation operationAlias = null;
 			CounterpartyMovementOperation subsequentOperationAlias = null;
 
-			var subsequentOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation>(() => subsequentOperationAlias)
+			var subsequentOperationsSubquery = QueryOver.Of(() => subsequentOperationAlias)
 				.Where(() => operationAlias.Id < subsequentOperationAlias.Id && operationAlias.Equipment == subsequentOperationAlias.Equipment)
 				.Select(op => op.Id);
 
-			var availableEquipmentIDsSubquery = QueryOver.Of<CounterpartyMovementOperation>(() => operationAlias)
+			var availableEquipmentIDsSubquery = QueryOver.Of(() => operationAlias)
 				.WithSubquery.WhereNotExists(subsequentOperationsSubquery)
 				.Where(() => operationAlias.IncomingCounterparty.Id == client.Id);
-			
+
 			if(deliveryPoint != null)
 			{
 				availableEquipmentIDsSubquery.Where(() => operationAlias.IncomingDeliveryPoint.Id == deliveryPoint.Id);
 			}
 
 			availableEquipmentIDsSubquery.Select(op => op.Equipment.Id);
-			
-			return QueryOver.Of<Equipment>(() => equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(availableEquipmentIDsSubquery);
+
+			return QueryOver.Of(() => equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(availableEquipmentIDsSubquery);
 		}
 
 		public IList<Equipment> GetEquipmentAtDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint)

@@ -7,22 +7,23 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Goods;
 
-namespace Vodovoz.EntityRepositories.Goods
+namespace Vodovoz.Infrastructure.Persistance.Goods
 {
 	public class NomenclatureFixedPriceRepository : INomenclatureFixedPriceRepository
 	{
-		
+
 		public IEnumerable<NomenclatureFixedPrice> GetEmployeesNomenclatureFixedPrices(IUnitOfWork uow)
 		{
 			var result = from fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
-				where fixedPrice.IsEmployeeFixedPrice
-				orderby fixedPrice.Nomenclature.Id
-				select fixedPrice;
-			
+						 where fixedPrice.IsEmployeeFixedPrice
+						 orderby fixedPrice.Nomenclature.Id
+						 select fixedPrice;
+
 			return result.ToArray();
 		}
-		
+
 		public IEnumerable<NomenclatureFixedPrice> GetEmployeesNomenclatureFixedPricesByCounterpartyId(IUnitOfWork uow, int counterpartyId)
 		{
 			var counterpartiesFixedPrices =
@@ -49,7 +50,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return counterpartiesFixedPrices.ToArray();
 		}
-		
+
 		public IEnumerable<NomenclatureFixedPrice> GetAllFixedPricesFromEmployeeCounterpartiesDeliveryPoints(IUnitOfWork uow)
 		{
 			var deliveryPointFixedPrices =
@@ -62,7 +63,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return deliveryPointFixedPrices.ToArray();
 		}
-		
+
 		public IEnumerable<int> GetWorkingEmployeeCounterpartiesIds(IUnitOfWork uow)
 		{
 			var counterpartiesIds =
@@ -74,7 +75,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return counterpartiesIds.ToArray();
 		}
-		
+
 		public IEnumerable<int> GetWorkingEmployeeCounterpartiesDeliveryPointsIds(IUnitOfWork uow)
 		{
 			var deliveryPointIds =
@@ -86,7 +87,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return deliveryPointIds.ToArray();
 		}
-		
+
 		public IReadOnlyList<NomenclatureFixedPrice> GetFixedPricesFor19LWater(IUnitOfWork uow)
 		{
 			Nomenclature nomenclatureAlias = null;

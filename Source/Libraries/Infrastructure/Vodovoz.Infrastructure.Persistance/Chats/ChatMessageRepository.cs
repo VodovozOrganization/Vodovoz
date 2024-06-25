@@ -8,8 +8,9 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Chats;
 
-namespace Vodovoz.EntityRepositories.Chats
+namespace Vodovoz.Infrastructure.Persistance.Chats
 {
 	public class ChatMessageRepository : IChatMessageRepository
 	{
@@ -17,7 +18,7 @@ namespace Vodovoz.EntityRepositories.Chats
 		{
 			ChatMessage chatMessageAlias = null;
 
-			return uow.Session.QueryOver<ChatMessage>(() => chatMessageAlias)
+			return uow.Session.QueryOver(() => chatMessageAlias)
 				.Where(() => chatMessageAlias.Chat.Id == chat.Id)
 				.Where(() => chatMessageAlias.DateTime >= DateTime.Today.AddDays(-days))
 				.OrderBy(() => chatMessageAlias.DateTime).Asc
@@ -32,8 +33,8 @@ namespace Vodovoz.EntityRepositories.Chats
 			Employee driverAlias = null;
 			UnreadedChatDTO resultAlias = null;
 
-			var chatQuery = uow.Session.QueryOver<Chat>(() => chatAlias);
-			
+			var chatQuery = uow.Session.QueryOver(() => chatAlias);
+
 			if(!accessLogisticChat)
 			{
 				chatQuery.Where(x => x.ChatType != ChatType.DriverAndLogists);
@@ -41,25 +42,25 @@ namespace Vodovoz.EntityRepositories.Chats
 
 			var resultList = chatQuery.JoinAlias(() => chatAlias.LastReaded, () => lastReadedAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin, Restrictions.Where(() => lastReadedAlias.Employee.Id == forEmployee.Id))
 									  .JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
-			                          .JoinAlias(() => chatAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => (lastReadedAlias.LastDateTime == null && chatMessageAlias.DateTime > forEmployee.CreationDate) || 
-							  (lastReadedAlias.LastDateTime != null && chatMessageAlias.DateTime > lastReadedAlias.LastDateTime))
+									  .JoinAlias(() => chatAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where(() => lastReadedAlias.LastDateTime == null && chatMessageAlias.DateTime > forEmployee.CreationDate ||
+							  lastReadedAlias.LastDateTime != null && chatMessageAlias.DateTime > lastReadedAlias.LastDateTime)
 				.SelectList(list => list
-			                .SelectGroup(() => chatAlias.Id).WithAlias(() => resultAlias.ChatId)
-			                .Select (() => chatAlias.ChatType).WithAlias (() => resultAlias.ChatType)
-			                .Select (() => driverAlias.Id).WithAlias (() => resultAlias.EmployeeId)
-			                .Select (() => driverAlias.LastName).WithAlias (() => resultAlias.EmployeeLastName)
-			                .Select (() => driverAlias.Name).WithAlias (() => resultAlias.EmployeeName)
-			                .Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
-			                .SelectCount(() => chatMessageAlias.Id).WithAlias (() => resultAlias.UnreadedMessagesTotal)
-			                .Select(Projections.SqlFunction ( //Использована проекция, так как при вызове встроенной функции тип получатеся bool
-				                new SQLFunctionTemplate (NHibernateUtil.Int32, "SUM( ?1 )"),
-				                NHibernateUtil.Int32,
-				                Projections.Property (() => chatMessageAlias.IsAutoCeated)))
-			                .WithAlias (() => resultAlias.UnreadedMessagesAuto)
-				).TransformUsing (Transformers.AliasToBean<UnreadedChatDTO> ())
+							.SelectGroup(() => chatAlias.Id).WithAlias(() => resultAlias.ChatId)
+							.Select(() => chatAlias.ChatType).WithAlias(() => resultAlias.ChatType)
+							.Select(() => driverAlias.Id).WithAlias(() => resultAlias.EmployeeId)
+							.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.EmployeeLastName)
+							.Select(() => driverAlias.Name).WithAlias(() => resultAlias.EmployeeName)
+							.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
+							.SelectCount(() => chatMessageAlias.Id).WithAlias(() => resultAlias.UnreadedMessagesTotal)
+							.Select(Projections.SqlFunction( //Использована проекция, так как при вызове встроенной функции тип получатеся bool
+								new SQLFunctionTemplate(NHibernateUtil.Int32, "SUM( ?1 )"),
+								NHibernateUtil.Int32,
+								Projections.Property(() => chatMessageAlias.IsAutoCeated)))
+							.WithAlias(() => resultAlias.UnreadedMessagesAuto)
+				).TransformUsing(Transformers.AliasToBean<UnreadedChatDTO>())
 				.List<UnreadedChatDTO>();
-			
+
 			return resultList;
 		}
 
@@ -67,9 +68,9 @@ namespace Vodovoz.EntityRepositories.Chats
 		{
 			ChatMessage chatMessageAlias = null;
 			Chat chatAlias = null;
-			
+
 			//TODO Когда будут другие типы чатов - нужно будет дописать.
-			var resultList = uow.Session.QueryOver<Chat>(() => chatAlias)
+			var resultList = uow.Session.QueryOver(() => chatAlias)
 				.JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
 				.Where(() => chatAlias.ChatType == ChatType.DriverAndLogists)
 				.SelectList(list => list
@@ -77,8 +78,8 @@ namespace Vodovoz.EntityRepositories.Chats
 					.SelectMax(() => chatMessageAlias.Id)
 				)
 				.List<object[]>();
-			
-			return resultList.ToDictionary(x => (int) x[0], y => (int)y[1]);
+
+			return resultList.ToDictionary(x => (int)x[0], y => (int)y[1]);
 		}
 	}
 }

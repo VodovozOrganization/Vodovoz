@@ -12,10 +12,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Settings.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Cash
+namespace Vodovoz.Infrastructure.Persistance.Cash
 {
 	public class CashReceiptRepository : ICashReceiptRepository
 	{
@@ -130,14 +131,14 @@ namespace Vodovoz.EntityRepositories.Cash
 					.Where(GetDeliveryDateRestriction())
 					;
 
-				var result = 
+				var result =
 					query.SelectList(list => list
 							.SelectGroup(() => _orderAlias.Id))
 						.List<int>();
 				return result;
 			}
 		}
-		
+
 		/// <summary>
 		/// Получение Id доставляемых заказов, которые удовлетворяют условиям, но на них не были созданы чеки
 		/// (как вариант: заказ закрыт из программы ДВ, а не из водительского приложения)
@@ -158,7 +159,7 @@ namespace Vodovoz.EntityRepositories.Cash
 					.And(GetOrderStatusRestriction())
 					.And(() => !_orderAlias.SelfDelivery);
 
-				var result = 
+				var result =
 					query.SelectList(list => list
 							.SelectGroup(() => _orderAlias.Id))
 						.List<int>();
@@ -238,7 +239,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		{
 			CashReceipt receiptAlias = null;
 
-			var result =uow.Session.QueryOver(() => receiptAlias)
+			var result = uow.Session.QueryOver(() => receiptAlias)
 				.Where(() => receiptAlias.Order.Id == orderId)
 				.List();
 
@@ -286,12 +287,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			var deliveryPointCategoryQuery = uow.Session.QueryOver(() => deliveryPointCategoryAlias)
 				.Future<DeliveryPointCategory>();
 
-			 var codesQuery = uow.Session.QueryOver(() => receiptAlias)
-				.Left.JoinAlias(() => receiptAlias.ScannedCodes, () => productCodeAlias)
-				.Where(receiptRestriction)
-				.Fetch(SelectMode.Fetch, () => productCodeAlias.SourceCode)
-				.Fetch(SelectMode.Fetch, () => productCodeAlias.ResultCode)
-				.Future<CashReceipt>();
+			var codesQuery = uow.Session.QueryOver(() => receiptAlias)
+			   .Left.JoinAlias(() => receiptAlias.ScannedCodes, () => productCodeAlias)
+			   .Where(receiptRestriction)
+			   .Fetch(SelectMode.Fetch, () => productCodeAlias.SourceCode)
+			   .Fetch(SelectMode.Fetch, () => productCodeAlias.ResultCode)
+			   .Future<CashReceipt>();
 
 			var sourceCodesQuery = uow.Session.QueryOver(() => waterSourceCodeAlias)
 				.JoinEntityAlias(() => productCodeAlias, () => waterSourceCodeAlias.Id == productCodeAlias.ResultCode.Id, JoinType.LeftOuterJoin)
@@ -423,14 +424,14 @@ namespace Vodovoz.EntityRepositories.Cash
 				return result;
 			}
 		}
-		
+
 		public int GetCashReceiptsCountForOrder(IUnitOfWork uow, int orderId)
 		{
 			var result = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Select(Projections.Count(Projections.Id()))
 				.SingleOrDefault<int>();
-			
+
 			return result;
 		}
 	}

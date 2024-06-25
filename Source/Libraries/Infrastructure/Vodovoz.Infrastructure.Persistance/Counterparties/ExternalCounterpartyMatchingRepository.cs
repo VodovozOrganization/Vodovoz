@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class ExternalCounterpartyMatchingRepository : IExternalCounterpartyMatchingRepository
 	{
@@ -12,7 +13,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			return GetExternalCounterpartyMatching(uow, externalCounterpartyGuid, phoneNumber).Any();
 		}
-		
+
 		public IEnumerable<ExternalCounterpartyMatching> GetExternalCounterpartyMatching(
 			IUnitOfWork uow, Guid externalCounterpartyGuid, string phoneNumber)
 		{

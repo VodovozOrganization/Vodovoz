@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Profitability;
+using Vodovoz.EntityRepositories.Profitability;
 
-namespace Vodovoz.EntityRepositories.Profitability
+namespace Vodovoz.Infrastructure.Persistance.Profitability
 {
 	public class RouteListProfitabilityRepository : IRouteListProfitabilityRepository
 	{
@@ -21,7 +22,7 @@ namespace Vodovoz.EntityRepositories.Profitability
 
 			return query;
 		}
-		
+
 		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesByDate(IUnitOfWork uow, DateTime date)
 		{
 			RouteList resultAlias = null;
@@ -34,7 +35,7 @@ namespace Vodovoz.EntityRepositories.Profitability
 
 			return query;
 		}
-		
+
 		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesBetweenDates(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
 		{
 			RouteList resultAlias = null;
