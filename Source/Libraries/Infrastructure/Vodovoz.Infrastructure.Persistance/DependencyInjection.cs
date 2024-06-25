@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
@@ -7,7 +8,7 @@ namespace Vodovoz.Infrastructure.Persistance
 	{
 		public static IServiceCollection AddInfrastructure(this IServiceCollection services)
 			=> services
-				//.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)) // Закомментировано до переноса
+				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 				.AddRepositories();
 
 		public static IServiceCollection AddRepositories(this IServiceCollection services)
