@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
@@ -24,7 +25,7 @@ namespace Vodovoz.Additions.Printing
 	/// </summary>
 	public class EntityDocumentsPrinter : IEntityDocumentsPrinter
 	{
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private readonly IDocTemplateRepository _docTemplateRepository = ScopeProvider.Scope.Resolve<IDocTemplateRepository>();
 		private IDictionary<OrderDocumentType, bool> _showSignaturesAndStampsOfDocument;
 		private bool? _hideSignaturesAndStamps = null;
 		private bool _cancelPrinting = false;
