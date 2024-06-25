@@ -1875,8 +1875,22 @@ namespace Vodovoz.Domain.Logistic
 									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(orderSettings);
-							orderValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
+
+							orderValidationContext.InitializeServiceProvider(type =>
+							{
+								if(type == typeof(IOrderSettings))
+								{
+									return orderSettings;
+								}
+
+								if(type == typeof(IDeliveryRulesSettings))
+								{
+									return deliveryRulesSettings;
+								}
+
+								return null;
+							});
+								
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)

@@ -26,6 +26,7 @@ using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi.BuildVersion;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 using VodovozHealthCheck;
@@ -81,6 +82,7 @@ namespace DriverAPI
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 

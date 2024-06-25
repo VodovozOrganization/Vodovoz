@@ -66,7 +66,6 @@ namespace RoboatsCallsWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<SettingsController>().As<ISettingsController>();
 			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 

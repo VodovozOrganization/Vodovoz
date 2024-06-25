@@ -52,7 +52,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddBusiness(hostContext.Configuration)
 						.AddInfrastructure()
 						
-						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
 						.AddSingleton(_ => new JsonSerializerOptions
 						{

@@ -97,7 +97,7 @@ namespace Vodovoz.Domain.Goods.Rent
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 					typeof(IRentPackageRepository)) is IRentPackageRepository rentPackageRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(rentPackageRepository)}");
