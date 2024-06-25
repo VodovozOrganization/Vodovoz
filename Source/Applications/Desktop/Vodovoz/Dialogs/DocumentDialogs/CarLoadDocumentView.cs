@@ -17,7 +17,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 

@@ -27,14 +27,15 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
+		private IEmployeeRepository _employeeRepository;
+		private IUserRepository _userRepository;
+		private IStoreDocumentHelper _storeDocumentHelper;
 
 		public INavigationManager NavigationManager { get; private set; }
 
 		public IncomingWaterDlg()
 		{
+			ResolveDependencies();
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -53,6 +54,7 @@ namespace Vodovoz
 
 		public IncomingWaterDlg(int id)
 		{
+			ResolveDependencies();
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
 			
@@ -61,6 +63,13 @@ namespace Vodovoz
 
 		public IncomingWaterDlg(IncomingWater sub) : this(sub.Id)
 		{
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 		}
 
 		void ConfigureDlg()
@@ -209,6 +218,9 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
+			_userRepository = null;
+			_storeDocumentHelper = null;
 			base.Destroy();
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;

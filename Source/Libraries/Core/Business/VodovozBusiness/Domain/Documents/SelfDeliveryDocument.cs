@@ -314,7 +314,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
+		public virtual bool FullyShiped(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, ICallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
 			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
