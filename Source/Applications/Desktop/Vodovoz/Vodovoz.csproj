@@ -2671,6 +2671,10 @@
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj">
+      <Project>{7204b9bb-efdb-4148-91c1-193b48b9293b}</Project>
+      <Name>Vodovoz.Infrastructure.Persistance</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
       <Name>Vodovoz.Data.NHibernate</Name>

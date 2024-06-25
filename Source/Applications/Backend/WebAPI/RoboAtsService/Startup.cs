@@ -27,6 +27,7 @@ using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace RoboatsService
 {
@@ -72,7 +73,8 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddApplication();
-			services.AddBusiness(Configuration);
+			services.AddBusiness(Configuration)
+				.AddInfrastructure();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
