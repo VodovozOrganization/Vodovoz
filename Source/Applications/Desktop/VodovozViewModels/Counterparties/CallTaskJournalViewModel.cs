@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			if(filterConfigurationAction != null)
 			{
-				_filterViewModel.SetAndRefilterAtOnce(filterConfigurationAction);
+				_filterViewModel.ConfigureWithoutFiltering(filterConfigurationAction);
 			}
 
 			JournalFilter = _filterViewModel;
