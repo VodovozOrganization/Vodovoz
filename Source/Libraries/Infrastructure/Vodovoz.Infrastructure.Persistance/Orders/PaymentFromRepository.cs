@@ -1,8 +1,9 @@
 ﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 
-namespace Vodovoz.EntityRepositories.Orders
+namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	public class PaymentFromRepository : IPaymentFromRepository
 	{

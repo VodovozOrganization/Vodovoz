@@ -2,8 +2,9 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 
-namespace Vodovoz.EntityRepositories.BasicHandbooks
+namespace Vodovoz.Infrastructure.Persistance.BasicHandbooks
 {
 	public class CullingCategoryRepository : ICullingCategoryRepository
 	{

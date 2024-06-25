@@ -7,9 +7,10 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class DeliveryPointRepository : IDeliveryPointRepository
 	{
@@ -23,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <summary>
 		/// Запрос ищет точку доставки в контрагенте по коду 1с или целиком по адресной строке.
 		/// </summary>
-		public DeliveryPoint GetByAddress1c(IUnitOfWork uow, Domain.Client.Counterparty counterparty, string address1cCode, string address1c)
+		public DeliveryPoint GetByAddress1c(IUnitOfWork uow, Counterparty counterparty, string address1cCode, string address1c)
 		{
 			if(string.IsNullOrWhiteSpace(address1c) || counterparty != null)
 			{
@@ -32,7 +33,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			return uow.Session.QueryOver<DeliveryPoint>()
 					  .Where(x => x.Counterparty.Id == counterparty.Id)
-					  .Where(dp => (dp.Code1c != null && dp.Code1c == address1cCode) || dp.Address1c == address1c)
+					  .Where(dp => dp.Code1c != null && dp.Code1c == address1cCode || dp.Address1c == address1c)
 					  .Take(1)
 					  .SingleOrDefault();
 		}
@@ -43,7 +44,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var notConfirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
+			var notConfirmedQueryResult = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.Where(() => start < orderAlias.DeliveryDate && orderAlias.DeliveryDate < end)
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Canceled)
@@ -52,7 +53,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && !nomenclatureAlias.IsDisposableTare)
 				.Select(Projections.Sum(() => orderItemAlias.Count)).List<decimal?>();
 
-			var confirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
+			var confirmedQueryResult = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.Where(() => start < orderAlias.DeliveryDate && orderAlias.DeliveryDate < end)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
@@ -74,7 +75,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var confirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
+			var confirmedQueryResult = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
@@ -115,7 +116,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				DeliveryPoint deliveryPointAlias = null;
 				NomenclatureFixedPrice fixedPriceAlias = null;
 
-				result = uow.Session.QueryOver<NomenclatureFixedPrice>(() => fixedPriceAlias)
+				result = uow.Session.QueryOver(() => fixedPriceAlias)
 					.Inner.JoinAlias(() => fixedPriceAlias.DeliveryPoint, () => deliveryPointAlias)
 					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
 					.SelectList(list => list.SelectGroup(() => deliveryPointAlias.ShortAddress))
@@ -131,7 +132,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 
-			var result = uow.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias)
+			var result = uow.Session.QueryOver(() => deliveryPointAlias)
 									.JoinAlias(() => deliveryPointAlias.Counterparty, () => counterpartyAlias)
 									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
 											  && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
@@ -142,11 +143,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			return result.Count() == 0;
 		}
-		
+
 		public IEnumerable<DeliveryPointForSendNode> GetDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId)
 		{
 			DeliveryPointForSendNode resultAlias = null;
-			
+
 			var result = uow.Session.QueryOver<DeliveryPoint>()
 				.Where(dp => dp.Counterparty.Id == counterpartyId)
 				.SelectList(list => list

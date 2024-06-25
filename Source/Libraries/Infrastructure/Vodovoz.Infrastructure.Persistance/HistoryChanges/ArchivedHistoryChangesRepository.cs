@@ -5,8 +5,9 @@ using NHibernate.Persister.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog.Domain;
 using Vodovoz.Domain.HistoryChanges;
+using Vodovoz.EntityRepositories.HistoryChanges;
 
-namespace Vodovoz.EntityRepositories.HistoryChanges
+namespace Vodovoz.Infrastructure.Persistance.HistoryChanges
 {
 	public class ArchivedHistoryChangesRepository : IArchivedHistoryChangesRepository
 	{
@@ -15,7 +16,7 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			var lastOldChangedEntityId = uow.Session.QueryOver<ArchivedChangedEntity>()
 				.Select(Projections.Max<ArchivedChangedEntity>(oce => oce.Id))
 				.SingleOrDefault<int>();
-			
+
 			return lastOldChangedEntityId == 0
 				? null
 				: uow.GetById<ArchivedChangedEntity>(lastOldChangedEntityId);
@@ -43,7 +44,7 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 				+ $"WHERE {_changedEntityAlias}.{dateTimeColumn} BETWEEN '{dateTimeFrom:yyyy-MM-dd}' AND '{dateTimeTo:yyyy-MM-dd HH:mm:ss}');";
 			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
 		}
-		
+
 		public void ArchiveChangedEntities(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
 			var _changedEntityAlias = "hce";

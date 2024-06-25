@@ -13,21 +13,23 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Nodes;
 using Vodovoz.Settings.Nomenclature;
 
-namespace Vodovoz.EntityRepositories.Goods
+namespace Vodovoz.Infrastructure.Persistance.Goods
 {
 	public class NomenclatureRepository : INomenclatureRepository
 	{
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
-		public NomenclatureRepository(INomenclatureSettings nomenclatureSettings) {
-			this._nomenclatureSettings = nomenclatureSettings ?? 
+		public NomenclatureRepository(INomenclatureSettings nomenclatureSettings)
+		{
+			_nomenclatureSettings = nomenclatureSettings ??
 				throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
-		
+
 		public QueryOver<Nomenclature> NomenclatureForProductMaterialsQuery()
 		{
 			return QueryOver.Of<Nomenclature>()
@@ -138,11 +140,12 @@ namespace Vodovoz.EntityRepositories.Goods
 								.Take(1)
 								.SingleOrDefault<string>();
 			int id = 0;
-			if(!String.IsNullOrEmpty(lastCode1c)) {
+			if(!string.IsNullOrEmpty(lastCode1c))
+			{
 				id = int.Parse(lastCode1c.Replace(Nomenclature.PrefixOfCode1c, ""));//Тут специально падаем в эксепшен если не смогли распарсить, подума 5 раз, пережде чем заменить на TryParse
 			}
 			id++;
-			string format = new String('0', Nomenclature.LengthOfCode1c - Nomenclature.PrefixOfCode1c.Length);
+			string format = new string('0', Nomenclature.LengthOfCode1c - Nomenclature.PrefixOfCode1c.Length);
 			return Nomenclature.PrefixOfCode1c + id.ToString(format);
 		}
 
@@ -151,7 +154,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			return QueryOver.Of<Nomenclature>()
 							.Where(n => n.ProductGroup.Id.IsIn(groupsIds));
 		}
-		
+
 		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
@@ -170,7 +173,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			Nomenclature nomenclatureAlias = null;
 
 			var nomenclatureList = GetAllNonSerialEquipmentForRent(uow, kind);
-			
+
 			//Выбираются только доступные на складе и еще не выбранные в диалоге
 			var availableNomenclature = nomenclatureList.Where(x => x.Available > 0)
 				.Where(x => !excludeNomenclatures.Contains(x.Id))
@@ -181,8 +184,8 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Where(() => nomenclatureAlias.IsDuty)
 				.WhereRestrictionOn(() => nomenclatureAlias.Id)
 				.IsIn(availableNomenclature.Select(x => x.Id).ToArray()).List();
-			
-			if(duty.Any()) 
+
+			if(duty.Any())
 			{
 				return duty.First();
 			}
@@ -192,8 +195,8 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Where(() => nomenclatureAlias.RentPriority)
 				.WhereRestrictionOn(() => nomenclatureAlias.Id)
 				.IsIn(availableNomenclature.Select(x => x.Id).ToArray()).List();
-			
-			if(priority.Any()) 
+
+			if(priority.Any())
 			{
 				return priority.First();
 			}
@@ -202,10 +205,10 @@ namespace Vodovoz.EntityRepositories.Goods
 			var any = uow.Session.QueryOver(() => nomenclatureAlias)
 				.WhereRestrictionOn(() => nomenclatureAlias.Id)
 				.IsIn(availableNomenclature.Select(x => x.Id).ToArray()).List();
-			
+
 			return any.FirstOrDefault();
 		}
-		
+
 		/// <summary>
 		/// Возвращает список всего оборудования определенного типа для аренды
 		/// </summary>
@@ -215,7 +218,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.GetExecutableQueryOver(uow.Session)
 				.List<NomenclatureForRentNode>();
 		}
-		
+
 		/// <summary>
 		/// Запрос выбирающий количество добавленное на склад, отгруженное со склада 
 		/// и зарезервированное в заказах каждой номенклатуры по выбранному типу оборудования
@@ -231,10 +234,10 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount));
 
 			//Подзапрос выбирающий по номенклатуре количество зарезервированное в заказах до отгрузки со склада
-			Vodovoz.Domain.Orders.Order localOrderAlias = null;
+			Domain.Orders.Order localOrderAlias = null;
 			OrderEquipment localOrderEquipmentAlias = null;
 			Equipment localEquipmentAlias = null;
-			
+
 			var subqueryReserved = QueryOver.Of(() => localOrderAlias)
 				.JoinAlias(() => localOrderAlias.OrderEquipments, () => localOrderEquipmentAlias)
 				.JoinAlias(() => localOrderEquipmentAlias.Equipment, () => localEquipmentAlias)
@@ -254,7 +257,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			var query = QueryOver.Of(() => nomenclatureAlias)
 							 .JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 							 .JoinAlias(() => nomenclatureAlias.Kind, () => equipmentKindAlias);
-			
+
 			if(kind != null)
 			{
 				query = query.Where(() => equipmentKindAlias.Id == kind.Id);
@@ -263,9 +266,9 @@ namespace Vodovoz.EntityRepositories.Goods
 			query = query.SelectList(
 				list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-		            .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-		            .Select(() => equipmentKindAlias.Id).WithAlias(() => resultAlias.TypeId)
-		            .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => equipmentKindAlias.Id).WithAlias(() => resultAlias.TypeId)
+					.Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 					.SelectSubQuery(subqueryBalance).WithAlias(() => resultAlias.InStock)
@@ -286,17 +289,20 @@ namespace Vodovoz.EntityRepositories.Goods
 		public Dictionary<Nomenclature, IList<Certificate>> GetDictionaryWithCertificatesForNomenclatures(IUnitOfWork uow, Nomenclature[] nomenclatures)
 		{
 			Dictionary<Nomenclature, IList<Certificate>> dict = new Dictionary<Nomenclature, IList<Certificate>>();
-			foreach(var n in nomenclatures) {
+			foreach(var n in nomenclatures)
+			{
 				Nomenclature nomenclatureAlias = null;
 				var certificates = uow.Session.QueryOver<Certificate>()
 									   .Left.JoinAlias(c => c.Nomenclatures, () => nomenclatureAlias)
 									   .Where(() => nomenclatureAlias.Id == n.Id)
 									   .List()
 									   ;
-				if(certificates.Any()) {
+				if(certificates.Any())
+				{
 					if(!dict.ContainsKey(n))
 						dict.Add(n, certificates);
-					else {
+					else
+					{
 						foreach(Certificate certificate in certificates)
 							dict[n].Add(certificate);
 					}
@@ -403,7 +409,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		{
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureOnlineParametersNode resultAlias = null;
-			
+
 			return uow.Session.QueryOver<NomenclatureOnlineParameters>()
 				.Left.JoinAlias(p => p.Nomenclature, () => nomenclatureAlias)
 				.Where(p => p.Type == parameterType)
@@ -418,13 +424,13 @@ namespace Vodovoz.EntityRepositories.Goods
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlineParametersNode>())
 				.List<NomenclatureOnlineParametersNode>();
 		}
-		
+
 		public IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds)
 		{
 			NomenclaturePriceBase nomenclaturePriceAlias = null;
 			NomenclatureOnlinePriceNode resultAlias = null;
-			
+
 			return uow.Session.QueryOver<NomenclatureOnlinePrice>()
 				.Left.JoinAlias(p => p.NomenclaturePrice, () => nomenclaturePriceAlias)
 				.WhereRestrictionOn(p => p.NomenclatureOnlineParameters.Id).IsInG(onlineParametersIds)
@@ -437,7 +443,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlinePriceNode>())
 				.List<NomenclatureOnlinePriceNode>();
 		}
-		
+
 		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
@@ -448,7 +454,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			NomenclatureOnlineCategory nomenclatureOnlineCategoryAlias = null;
 			NomenclatureOnlineParameters onlineParametersAlias = null;
 			OnlineNomenclatureNode resultAlias = null;
-			
+
 			var query = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Left.JoinAlias(n => n.NomenclatureOnlineGroup, () => nomenclatureOnlineGroupAlias)
 				.Left.JoinAlias(n => n.NomenclatureOnlineCategory, () => nomenclatureOnlineCategoryAlias)
@@ -463,7 +469,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					() => onlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null)
 				.Where(n => !n.IsArchive);
-			
+
 			var queryBuilder = new QueryOverProjectionBuilder<Nomenclature>()
 				.Select(n => n.Id).WithAlias(() => resultAlias.ErpId)
 				.Select(n => n.OnlineName).WithAlias(() => resultAlias.OnlineName)
@@ -514,7 +520,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			query.SelectList(builder => queryBuilder)
 			.TransformUsing(Transformers.AliasToBean<OnlineNomenclatureNode>());
-			
+
 			return query.List<OnlineNomenclatureNode>();
 		}
 
@@ -533,7 +539,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			{
 				query.Where(p => !p.IsArchive);
 			}
-			
+
 			return query.SelectList(list => list
 				.Select(Projections.Distinct(Projections.Property(() => promoSetAlias.Id)).WithAlias(() => resultAlias.Id))
 				.Select(p => p.Name).WithAlias(() => resultAlias.Name))

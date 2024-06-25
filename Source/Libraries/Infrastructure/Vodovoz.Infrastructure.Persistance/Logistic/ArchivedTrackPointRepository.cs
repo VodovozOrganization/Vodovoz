@@ -4,8 +4,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class ArchivedTrackPointRepository : IArchivedTrackPointRepository
 	{

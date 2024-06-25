@@ -2,8 +2,9 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class RouteColumnRepository : IRouteColumnRepository
 	{

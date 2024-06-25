@@ -2,8 +2,9 @@
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 
-namespace Vodovoz.EntityRepositories.BasicHandbooks
+namespace Vodovoz.Infrastructure.Persistance.BasicHandbooks
 {
 	public class DeliveryScheduleRepository : IDeliveryScheduleRepository
 	{

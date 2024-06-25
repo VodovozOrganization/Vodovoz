@@ -3,8 +3,9 @@ using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Goods;
 
-namespace Vodovoz.EntityRepositories.Goods
+namespace Vodovoz.Infrastructure.Persistance.Goods
 {
 	public class NomenclaturePricesRepository : INomenclaturePricesRepository
 	{

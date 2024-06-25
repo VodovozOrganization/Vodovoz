@@ -6,9 +6,10 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.Rent;
+using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.Nodes;
 
-namespace Vodovoz.EntityRepositories.RentPackages
+namespace Vodovoz.Infrastructure.Persistance.RentPackages
 {
 	public class RentPackageRepository : IRentPackageRepository
 	{
@@ -17,7 +18,7 @@ namespace Vodovoz.EntityRepositories.RentPackages
 			var package = uow.Session.QueryOver<FreeRentPackage>()
 				.Where(p => p.EquipmentKind == equipmentKind)
 				.SingleOrDefault();
-			
+
 			return package;
 		}
 
@@ -44,13 +45,13 @@ namespace Vodovoz.EntityRepositories.RentPackages
 
 			return query.List<FreeRentPackageWithOnlineParametersNode>();
 		}
-		
+
 		public PaidRentPackage GetPaidRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind)
 		{
 			var package = uow.Session.QueryOver<PaidRentPackage>()
 				.Where(p => p.EquipmentKind == equipmentKind)
 				.SingleOrDefault();
-			
+
 			return package;
 		}
 
@@ -61,7 +62,7 @@ namespace Vodovoz.EntityRepositories.RentPackages
 				.Select(p => p.EquipmentKind)
 				.Distinct()
 				.ToList();
-			
+
 			return availableTypes;
 		}
 	}

@@ -8,9 +8,10 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Operations
+namespace Vodovoz.Infrastructure.Persistance.Operations
 {
 	public partial class BottlesRepository : IBottlesRepository
 	{
@@ -18,10 +19,10 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
-			
-			var queryResult = uow.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+
+			var queryResult = uow.Session.QueryOver(() => operationAlias)
 				.Where(() => operationAlias.Counterparty == counterparty);
-			
+
 			if(before.HasValue)
 			{
 				queryResult.Where(() => operationAlias.OperationTime < before);
@@ -39,10 +40,10 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
-			
-			var queryResult = uow.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+
+			var queryResult = uow.Session.QueryOver(() => operationAlias)
 				.Where(() => operationAlias.DeliveryPoint == deliveryPoint);
-			
+
 			if(before.HasValue)
 			{
 				queryResult.Where(() => operationAlias.OperationTime < before);
@@ -65,11 +66,11 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
-			
-			var queryResult = uow.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+
+			var queryResult = uow.Session.QueryOver(() => operationAlias)
 				 .Where(() => operationAlias.Counterparty == counterparty)
 				 .Where(() => operationAlias.DeliveryPoint == deliveryPoint);
-			
+
 			if(before.HasValue)
 			{
 				queryResult.Where(() => operationAlias.OperationTime < before);

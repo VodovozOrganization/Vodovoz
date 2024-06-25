@@ -4,8 +4,9 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Operations;
 
-namespace Vodovoz.EntityRepositories.Operations
+namespace Vodovoz.Infrastructure.Persistance.Operations
 {
 	public class DepositRepository : IDepositRepository
 	{
@@ -17,7 +18,7 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			DepositOperation operationAlias = null;
 			DepositsQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<DepositOperation>(() => operationAlias)
+			var queryResult = UoW.Session.QueryOver(() => operationAlias)
 				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id);
 			if(before.HasValue)
 				queryResult.Where(() => operationAlias.OperationTime < before);
@@ -36,7 +37,7 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			DepositOperation operationAlias = null;
 			DepositsQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<DepositOperation>(() => operationAlias)
+			var queryResult = UoW.Session.QueryOver(() => operationAlias)
 				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
 			if(before.HasValue)
 				queryResult.Where(() => operationAlias.OperationTime < before);

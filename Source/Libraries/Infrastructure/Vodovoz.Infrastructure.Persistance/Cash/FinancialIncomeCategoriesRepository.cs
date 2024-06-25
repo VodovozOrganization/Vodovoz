@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.EntityRepositories.Cash;
 
-namespace Vodovoz.EntityRepositories.Cash
+namespace Vodovoz.Infrastructure.Persistance.Cash
 {
 	public class FinancialIncomeCategoriesRepository : IFinancialIncomeCategoriesRepository
 	{

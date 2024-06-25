@@ -4,8 +4,9 @@ using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 
-namespace Vodovoz.EntityRepositories.Permissions
+namespace Vodovoz.Infrastructure.Persistance.Permissions
 {
 	public class UserRoleRepository : IUserRoleRepository
 	{
@@ -25,13 +26,13 @@ namespace Vodovoz.EntityRepositories.Permissions
 		{
 			return uow.GetById<UserRole>(id);
 		}
-		
+
 		public void CreateUserRoleIfNotExists(IUnitOfWork uow, string role)
 		{
 			var sql = $"CREATE ROLE IF NOT EXISTS '{role}'";
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
-		
+
 		public void GrantPrivilegeToRole(IUnitOfWork uow, string privilege, string role)
 		{
 			var sql = $"GRANT {privilege} TO '{role}'";
@@ -63,7 +64,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 			var sql = $"GRANT '{role}' TO '{login}' {adminOption}";
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
-		
+
 		public void RevokeRoleFromUser(IUnitOfWork uow, string role, string login)
 		{
 			var sql = $"REVOKE '{role}' FROM '{login}'";

@@ -8,8 +8,9 @@ using Vodovoz.Domain.Logistic;
 using NHibernate.Persister.Entity;
 using Vodovoz.Core.Domain;
 using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class TrackRepository : ITrackRepository
 	{
@@ -42,7 +43,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			DriverPosition result = null;
 			RouteList routeListsAlias = null;
 
-			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
+			var lastTimeTrackQuery = QueryOver.Of(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
 
 			if(beforeTime.HasValue)
@@ -128,7 +129,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			DriverPosition result = null;
 			RouteList routeListsAlias = null;
 
-			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
+			var lastTimeTrackQuery = QueryOver.Of(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
 
 			if(beforeTime.HasValue)

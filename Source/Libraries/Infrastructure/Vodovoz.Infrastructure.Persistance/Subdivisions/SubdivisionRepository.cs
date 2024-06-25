@@ -14,8 +14,9 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 using Vodovoz.Settings;
+using Vodovoz.EntityRepositories.Subdivisions;
 
-namespace Vodovoz.EntityRepositories.Subdivisions
+namespace Vodovoz.Infrastructure.Persistance.Subdivisions
 {
 	public class SubdivisionRepository : ISubdivisionRepository
 	{
@@ -25,7 +26,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
-		
+
 		/// <summary>
 		/// Список подразделений в которых произодится работа с указанными документами
 		/// </summary>
@@ -33,7 +34,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		{
 			Subdivision subdivisionAlias = null;
 			TypeOfEntity typeOfEntityAlias = null;
-			return uow.Session.QueryOver<Subdivision>(() => subdivisionAlias)
+			return uow.Session.QueryOver(() => subdivisionAlias)
 				.Left.JoinAlias(() => subdivisionAlias.DocumentTypes, () => typeOfEntityAlias)
 				.WhereRestrictionOn(() => typeOfEntityAlias.Type).IsIn(documentTypes.Select(x => x.Name).ToArray())
 				.List()
@@ -52,7 +53,8 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
 			var validationResult = EntitySubdivisionForUserPermissionValidator.Validate(uow, user.Id, cashDocumentTypes);
 			var subdivisionsList = new List<Subdivision>();
-			foreach(var item in cashDocumentTypes) {
+			foreach(var item in cashDocumentTypes)
+			{
 				subdivisionsList.AddRange(validationResult
 					.Where(x => x.GetPermission(item).Read)
 					.Select(x => x.Subdivision)
@@ -64,7 +66,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		public Subdivision GetQCDepartment(IUnitOfWork uow)
 		{
 			var qcDep = "номер_отдела_ОКК";
-			
+
 			if(!_settingsController.ContainsSetting(qcDep))
 			{
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
@@ -118,7 +120,8 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 			var validationResult = EntitySubdivisionForUserPermissionValidator.Validate(uow, documentsTypes);
 
 			var subdivisionsList = new List<Subdivision>();
-			foreach(var item in documentsTypes) {
+			foreach(var item in documentsTypes)
+			{
 				subdivisionsList.AddRange(validationResult
 					.Where(x => x.GetPermission(item).Read)
 					.Select(x => x.Subdivision)
@@ -127,7 +130,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 
 			return subdivisionsList.Distinct();
 		}
-		
+
 		public IEnumerable<int> GetAllSubdivisionsIds(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<Subdivision>()
@@ -152,9 +155,9 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 			CarModel carModel = null;
 			CarVersion carVersion = null;
 			NamedDomainObjectNode resultAlias = null;
-			
+
 			var availableSubdivisions = uow.Session
-				.QueryOver<Subdivision>(() => subdivision)
+				.QueryOver(() => subdivision)
 				.JoinEntityAlias(() => driverEmployee, () => driverEmployee.Subdivision.Id == subdivision.Id)
 				.JoinEntityAlias(() => car, () => car.Driver.Id == driverEmployee.Id)
 				.JoinAlias(() => car.CarModel, () => carModel)
@@ -173,7 +176,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 				.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
 				.OrderBy(() => subdivision.Name).Asc
 				.List<NamedDomainObjectNode>();
-			
+
 			return availableSubdivisions;
 		}
 	}

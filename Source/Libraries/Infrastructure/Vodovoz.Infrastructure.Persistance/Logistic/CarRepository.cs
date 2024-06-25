@@ -11,9 +11,10 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public partial class CarRepository : ICarRepository
 	{
@@ -184,7 +185,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
 					.Where(() => carEventAlias.StartDate <= endDate && carEventAlias.EndDate >= startDate && !carEventAlias.DoNotShowInOperation)
 					.Where(() => !carAlias.IsArchive)
-					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
 					.And(() => carVersionAlias.CarOwnType == carOwnType);
 
@@ -249,7 +250,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 							  && (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= startDate))
 					.Where(() => !carAlias.IsArchive)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
-					.And(() => carModelAlias.CarTypeOfUse != Domain.Logistic.Cars.CarTypeOfUse.Truck)
+					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => carVersionAlias.CarOwnType == carOwnType);
 
 				if(carTypeOfUse != null)
@@ -295,7 +296,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				&& (driver == null || !driver.DriverDistrictPrioritySets.Any(ddps =>
 				ddps.DateActivated <= rl.Date && (ddps.DateDeactivated == null || ddps.DateDeactivated >= rl.Date)
 				&& ddps.DriverDistrictPriorities.Any(ddp => ddp.District.Id == order.DeliveryPoint.District.Id)))
-				select new { CarId = rl.Car.Id, Day = rl.Date.Day, Address = rla };
+				select new { CarId = rl.Car.Id, rl.Date.Day, Address = rla };
 
 			var carsRouteListAddressesGroup = (await carsRouteListAddresses.ToListAsync(cancellationToken))
 				.GroupBy(rl => (rl.CarId, rl.Day))

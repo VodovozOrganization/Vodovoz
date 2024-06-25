@@ -8,27 +8,28 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Profitability;
 
-namespace Vodovoz.EntityRepositories.Profitability
+namespace Vodovoz.Infrastructure.Persistance.Profitability
 {
 	public class ProfitabilityConstantsRepository : IProfitabilityConstantsRepository
 	{
 		public ProfitabilityConstants GetLastProfitabilityConstants(IUnitOfWork uow)
 		{
-			var lastCalculatedMonth =  uow.Session.QueryOver<ProfitabilityConstants>()
+			var lastCalculatedMonth = uow.Session.QueryOver<ProfitabilityConstants>()
 				.Select(Projections.Max<ProfitabilityConstants>(pc => pc.CalculatedMonth))
 				.SingleOrDefault<DateTime?>();
 
 			return lastCalculatedMonth != null ? GetProfitabilityConstantsByCalculatedMonth(uow, lastCalculatedMonth.Value) : null;
 		}
-		
+
 		public ProfitabilityConstants GetProfitabilityConstantsByCalculatedMonth(IUnitOfWork uow, DateTime calculatedMonth)
 		{
 			return uow.Session.QueryOver<ProfitabilityConstants>()
 				.Where(pc => pc.CalculatedMonth == calculatedMonth)
 				.SingleOrDefault();
 		}
-		
+
 		public bool ProfitabilityConstantsByCalculatedMonthExists(IUnitOfWork uow, DateTime monthFrom, DateTime monthTo)
 		{
 			return uow.Session.QueryOver<ProfitabilityConstants>()
@@ -88,8 +89,8 @@ namespace Vodovoz.EntityRepositories.Profitability
 		public ProfitabilityConstants GetNearestProfitabilityConstantsByDate(IUnitOfWork uow, DateTime date)
 		{
 			var profitabilityConstants = (GetProfitabilityConstantsByCalculatedMonth(uow, date) ??
-			                          GetEarlyProfitabilityConstantsByCalculatedMonth(uow, date)) ??
-			                         GetLateProfitabilityConstantsByCalculatedMonth(uow, date);
+									  GetEarlyProfitabilityConstantsByCalculatedMonth(uow, date)) ??
+									 GetLateProfitabilityConstantsByCalculatedMonth(uow, date);
 
 			return profitabilityConstants;
 		}
@@ -102,7 +103,7 @@ namespace Vodovoz.EntityRepositories.Profitability
 				.Take(1)
 				.SingleOrDefault();
 		}
-		
+
 		private ProfitabilityConstants GetLateProfitabilityConstantsByCalculatedMonth(IUnitOfWork uow, DateTime date)
 		{
 			return uow.Session.QueryOver<ProfitabilityConstants>()

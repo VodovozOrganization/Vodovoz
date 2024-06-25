@@ -2,8 +2,9 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.EntityRepositories.Orders;
 
-namespace Vodovoz.EntityRepositories.Orders
+namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	public class SmsPaymentRepository : ISmsPaymentRepository
 	{

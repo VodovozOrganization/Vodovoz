@@ -12,10 +12,11 @@ using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Nodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Orders
+namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	public class PromotionalSetRepository : IPromotionalSetRepository
 	{
@@ -88,16 +89,16 @@ namespace Vodovoz.EntityRepositories.Orders
 					&& ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
 					&& deliveryPointAlias.Id != deliveryPoint.Id)
 				.List<VodovozOrder>();
-			
+
 			return result.Count != 0;
 		}
-		
+
 		public IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			PromotionalSet promotionalSetAlias = null;
 			PromotionalSetOnlineParametersNode resultAlias = null;
-			
+
 			return uow.Session.QueryOver<PromotionalSetOnlineParameters>()
 				.Left.JoinAlias(p => p.PromotionalSet, () => promotionalSetAlias)
 				.Where(p => p.Type == parameterType)
@@ -114,7 +115,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.TransformUsing(Transformers.AliasToBean<PromotionalSetOnlineParametersNode>())
 				.List<PromotionalSetOnlineParametersNode>();
 		}
-		
+
 		public IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType,

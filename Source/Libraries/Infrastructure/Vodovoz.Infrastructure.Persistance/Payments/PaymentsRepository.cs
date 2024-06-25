@@ -13,18 +13,19 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Payments
+namespace Vodovoz.Infrastructure.Persistance.Payments
 {
 	public class PaymentsRepository : IPaymentsRepository
 	{
 		public IList<PaymentByCardOnlineNode> GetPaymentsByTwoMonths(IUnitOfWork uow, DateTime date)
 		{
 			PaymentByCardOnlineNode resultAlias = null;
-			
+
 			return uow.Session.QueryOver<PaymentByCardOnline>()
 				.Where(x => x.DateAndTime >= date.AddMonths(-1))
 				.And(x => x.DateAndTime <= date.AddMonths(+1))
@@ -65,7 +66,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(() => organizationAlias.INN == organisationInn)
 				.And(p => !p.IsManuallyCreated)
 				.SingleOrDefault<Payment>();
-			
+
 			return payment != null;
 		}
 
@@ -90,7 +91,7 @@ namespace Vodovoz.EntityRepositories.Payments
 
 			return income - expense;
 		}
-		
+
 		public int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId)
 		{
 			return uow.Session.QueryOver<Payment>()
@@ -128,7 +129,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(p => p.Status != PaymentState.Cancelled)
 				.List();
 		}
-		
+
 		public IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments)
 		{
@@ -141,7 +142,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(p => p.Organization.Id == organizationId);
 
 			if(allocateCompletedPayments)
-			{ 
+			{
 				query.And(p => p.Status == PaymentState.completed);
 			}
 			else
@@ -155,7 +156,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				Projections.Property(() => paymentAlias.Total),
 				Projections.Sum(() => paymentItemAlias.Sum),
 				Projections.Constant(0));
-			
+
 			var unAllocatedSum = QueryOver.Of(() => paymentItemAlias)
 				.Where(pi => pi.Payment.Id == paymentAlias.Id)
 				.And(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
@@ -198,7 +199,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
 				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Income));
-			
+
 			var expense = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
@@ -211,7 +212,7 @@ namespace Vodovoz.EntityRepositories.Payments
 						Projections.SubQuery(expense));
 
 			var orderSumProjection = OrderProjections.GetOrderSumProjection();
-			
+
 			var totalNotPaidOrders = QueryOver.Of(() => orderAlias)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
@@ -244,13 +245,13 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(() => orderAlias2.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => deliveryScheduleAlias2.Id != closingDocumentDeliveryScheduleId)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
-			
+
 			var counterpartyDebtProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
 				NHibernateUtil.Decimal,
 					Projections.SubQuery(totalNotPaidOrders),
 					Projections.SubQuery(totalPayPartiallyPaidOrders),
 					Projections.Constant(0));
-			
+
 			return query.SelectList(list => list
 				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 				.SelectGroup(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
@@ -265,7 +266,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.TransformUsing(Transformers.AliasToBean<UnallocatedBalancesJournalNode>())
 				.SetTimeout(180);
 		}
-		
+
 		public bool PaymentFromAvangardExists(IUnitOfWork uow, DateTime paidDate, int orderNum, decimal orderSum)
 		{
 			var payment = uow.Session.QueryOver<PaymentFromAvangard>()
@@ -273,7 +274,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(p => p.PaidDate == paidDate)
 				.And(p => p.TotalSum == orderSum)
 				.SingleOrDefault<PaymentFromAvangard>();
-			
+
 			return payment != null;
 		}
 

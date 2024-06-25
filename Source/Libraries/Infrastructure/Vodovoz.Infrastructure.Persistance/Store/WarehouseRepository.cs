@@ -13,9 +13,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Store;
 using VodovozInfrastructure.Versions;
 
-namespace Vodovoz.EntityRepositories.Store
+namespace Vodovoz.Infrastructure.Persistance.Store
 {
 	public class WarehouseRepository : IWarehouseRepository
 	{
@@ -40,7 +41,7 @@ namespace Vodovoz.EntityRepositories.Store
 			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
 			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
-			
+
 			var query = uow.Session.QueryOver(() => nomenclatureAlias);
 			IProjection nomenclatureBalance = null;
 
@@ -59,7 +60,7 @@ namespace Vodovoz.EntityRepositories.Store
 					() => employeeBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
 					JoinType.LeftOuterJoin)
 					.Where(() => employeeBulkOperationAlias.Employee.Id == storageId);
-				
+
 				nomenclatureBalance = Projections.Sum(() => employeeBulkOperationAlias.Amount);
 			}
 			else if(operationType == OperationType.CarBulkGoodsAccountingOperation)
@@ -68,15 +69,15 @@ namespace Vodovoz.EntityRepositories.Store
 					() => carBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
 					JoinType.LeftOuterJoin)
 					.Where(() => carBulkOperationAlias.Car.Id == storageId);
-				
+
 				nomenclatureBalance = Projections.Sum(() => carBulkOperationAlias.Amount);
 			}
-			
+
 			var stockProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
 				nomenclatureBalance);
-			
+
 			return query.AndRestrictionOn(() => nomenclatureAlias.Id).IsIn(nomenclatureIds.ToArray())
 				.And(() => !nomenclatureAlias.HasInventoryAccounting)
 				.SelectList(list => list
@@ -88,7 +89,8 @@ namespace Vodovoz.EntityRepositories.Store
 
 		public IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId)
 		{
-			if(uow == null) {
+			if(uow == null)
+			{
 				throw new ArgumentNullException(nameof(uow));
 			}
 
@@ -113,7 +115,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.List()
 				.Any();
 		}
-		
+
 		public int GetTotalShippedKgByWarehousesAndProductGroups(
 			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds)
 		{

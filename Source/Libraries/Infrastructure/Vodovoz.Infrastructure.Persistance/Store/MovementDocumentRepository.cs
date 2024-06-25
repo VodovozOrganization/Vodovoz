@@ -6,8 +6,9 @@ using NHibernate.Criterion;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using System.Linq;
 using System.Collections.Generic;
+using Vodovoz.EntityRepositories.Store;
 
-namespace Vodovoz.EntityRepositories.Store
+namespace Vodovoz.Infrastructure.Persistance.Store
 {
 	public class MovementDocumentRepository : IMovementDocumentRepository
 	{
@@ -31,7 +32,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.Select(w => w.Id);
 
 			var docsCount = uow.GetAll<MovementDocument>()
-				.Where(d => 
+				.Where(d =>
 					d.Status == MovementDocumentStatus.Sended
 					&& warehousesIds.Contains(d.ToWarehouse.Id)
 					&& !subdivisionWarehouses.Contains(d.ToWarehouse.Id))

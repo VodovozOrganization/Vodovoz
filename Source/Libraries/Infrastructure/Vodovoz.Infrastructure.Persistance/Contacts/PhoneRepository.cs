@@ -8,9 +8,10 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
 	public class PhoneRepository : IPhoneRepository
 	{
@@ -37,22 +38,26 @@ namespace Vodovoz.EntityRepositories
 		/// </summary>
 		/// <returns>Counterparty / DeliveryPoint / Employee.</returns>
 		/// <param name="digitsPhone">Digits phone.</param>
-		public object[] GetObjectByPhone(IUnitOfWork uow, string digitsPhone) 
+		public object[] GetObjectByPhone(IUnitOfWork uow, string digitsPhone)
 		{
 			string number = digitsPhone.Substring(digitsPhone.Length - Math.Min(10, digitsPhone.Length));
 			var sql = "SELECT * FROM phones WHERE digits_number = @phone";
-			var list = uow.Session.Connection.Query(sql, new {phone  = number});
+			var list = uow.Session.Connection.Query(sql, new { phone = number });
 			ArrayList _list = new ArrayList();
-			foreach(var phone in list) {
-				if(phone.counterparty_id != null) {
+			foreach(var phone in list)
+			{
+				if(phone.counterparty_id != null)
+				{
 					Counterparty client = uow.GetById<Counterparty>((int)phone.counterparty_id);
 					_list.Add(client);
 				}
-				if(phone.delivery_point_id != null) {
+				if(phone.delivery_point_id != null)
+				{
 					DeliveryPoint deliveryPoint = uow.GetById<DeliveryPoint>((int)phone.delivery_point_id);
 					_list.Add(deliveryPoint);
 				}
-				if(phone.employee_id != null) {
+				if(phone.employee_id != null)
+				{
 					Employee employee = uow.GetById<Employee>((int)phone.employee_id);
 					_list.Add(employee);
 				}
@@ -91,19 +96,19 @@ namespace Vodovoz.EntityRepositories
 				.Select(o => o.Id)
 				.OrderBy(o => o.DeliveryDate).Desc
 				.Take(1);
-			
+
 			var lastOrderIdForDeliveryPoint = QueryOver.Of(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.Select(o => o.Id)
 				.OrderBy(o => o.DeliveryDate).Desc
 				.Take(1);
-			
+
 			var lastOrderDeliveryDateForCounterparty = QueryOver.Of(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
 				.Select(o => o.DeliveryDate)
 				.OrderBy(o => o.DeliveryDate).Desc
 				.Take(1);
-			
+
 			var lastOrderDeliveryDateForDeliveryPoint = QueryOver.Of(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.Select(o => o.DeliveryDate)

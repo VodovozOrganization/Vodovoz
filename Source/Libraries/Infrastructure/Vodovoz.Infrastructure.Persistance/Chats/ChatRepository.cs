@@ -3,8 +3,9 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Chats;
 
-namespace Vodovoz.EntityRepositories.Chats
+namespace Vodovoz.Infrastructure.Persistance.Chats
 {
 	public class ChatRepository : IChatRepository
 	{
@@ -12,7 +13,7 @@ namespace Vodovoz.EntityRepositories.Chats
 		{
 			Chat chatAlias = null;
 
-			return uow.Session.QueryOver<Chat>(() => chatAlias)
+			return uow.Session.QueryOver(() => chatAlias)
 				.Where(() => chatAlias.ChatType == ChatType.DriverAndLogists)
 				.Where(() => chatAlias.Driver.Id == driver.Id)
 				.SingleOrDefault();
@@ -22,13 +23,13 @@ namespace Vodovoz.EntityRepositories.Chats
 		{
 			Chat chatAlias = null;
 
-			if (ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician))
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician))
 			{
-				return uow.Session.QueryOver<Chat>(() => chatAlias)
+				return uow.Session.QueryOver(() => chatAlias)
 				.Where(() => chatAlias.ChatType == ChatType.DriverAndLogists)
 				.List();
 			}
-			
+
 			return null;
 		}
 	}

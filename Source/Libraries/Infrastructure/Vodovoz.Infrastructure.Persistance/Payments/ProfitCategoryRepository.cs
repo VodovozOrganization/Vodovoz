@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories.Payments;
 
-namespace Vodovoz.EntityRepositories.Payments
+namespace Vodovoz.Infrastructure.Persistance.Payments
 {
 	public class ProfitCategoryRepository : IProfitCategoryRepository
 	{

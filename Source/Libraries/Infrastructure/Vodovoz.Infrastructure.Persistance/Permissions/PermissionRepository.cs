@@ -12,9 +12,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 
-namespace Vodovoz.EntityRepositories.Permissions
+namespace Vodovoz.Infrastructure.Persistance.Permissions
 {
 	public class PermissionRepository : IPermissionRepository
 	{
@@ -24,12 +25,14 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.Where(x => x.Subdivision.Id == subdivisionId)
 				.List();
 
-			foreach(var item in basePermission) {
+			foreach(var item in basePermission)
+			{
 				var node = new SubdivisionPermissionNode();
 				node.EntitySubdivisionOnlyPermission = item;
 				node.TypeOfEntity = item.TypeOfEntity;
 				node.EntityPermissionExtended = new List<EntitySubdivisionPermissionExtended>();
-				foreach(var extension in permissionExtensionStore.PermissionExtensions) {
+				foreach(var extension in permissionExtensionStore.PermissionExtensions)
+				{
 					EntitySubdivisionPermissionExtended permissionExtendedAlias = null;
 
 					var permission = uow.Session.QueryOver(() => permissionExtendedAlias)
@@ -38,7 +41,8 @@ namespace Vodovoz.EntityRepositories.Permissions
 						.And(x => x.TypeOfEntity.Id == node.TypeOfEntity.Id)
 						.Take(1)?.List()?.FirstOrDefault();
 
-					if(permission != null) {
+					if(permission != null)
+					{
 						node.EntityPermissionExtended.Add(permission);
 						continue;
 					}
@@ -111,7 +115,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.SingleOrDefault();
 		}
 
-		public bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository , IEmployeeRepository employeeRepository, IUserService userService)
+		public bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository, IEmployeeRepository employeeRepository, IUserService userService)
 		{
 			return userService.GetCurrentUser().IsAdmin
 				|| subdivisionRepository.GetCashSubdivisions(uow).Contains(employeeRepository.GetEmployeeForCurrentUser(uow).Subdivision);
@@ -131,7 +135,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 						.List();
 		}
 
-		public HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission)
+		public HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, User user, string permission)
 		{
 			return uow.Session.QueryOver<HierarchicalPresetUserPermission>()
 					.Where(x => x.User.Id == user.Id && x.PermissionName == permission)
@@ -144,7 +148,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.GetExecutableQueryOver(uow.Session)
 				.List();
 		}
-		
+
 		public IList<HierarchicalPresetPermissionBase> GetAllPresetUserPermissionBase(IUnitOfWork uow, int userId)
 		{
 			return GetPresetUserPermissionByUserId(userId)
@@ -158,14 +162,14 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.Where(x => x.User.Id == userId)
 				.List<WarehousePermissionBase>();
 		}
-		
+
 		public IEnumerable<EntityUserPermission> GetAllEntityUserPermissions(IUnitOfWork uow, int userId)
 		{
 			return uow.Session.QueryOver<EntityUserPermission>()
 				.Where(x => x.User.Id == userId)
 				.List();
 		}
-		
+
 		public IEnumerable<EntityUserPermissionExtended> GetAllEntityUserPermissionsExtended(IUnitOfWork uow, int userId)
 		{
 			return uow.Session.QueryOver<EntityUserPermissionExtended>()
@@ -182,7 +186,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.And(x => x.WarehousePermissionType == warehousePermissionsType)
 				.SingleOrDefault();
 		}
-		
+
 		public SubdivisionWarehousePermission GetSubdivisionWarehousePermission(
 			IUnitOfWork uow, int subdivisionId, int warehouseId, WarehousePermissionsType warehousePermissionsType)
 		{
@@ -192,7 +196,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.And(x => x.WarehousePermissionType == warehousePermissionsType)
 				.SingleOrDefault();
 		}
-		
+
 		public IList<UserNode> GetUsersWithActivePresetPermission(IUnitOfWork uow, string permissionName)
 		{
 			Subdivision subdivisionAlias = null;
@@ -217,7 +221,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.TransformUsing(Transformers.AliasToBean<UserNode>())
 				.List<UserNode>();
 		}
-		
+
 		public IList<UserPresetPermissionWithSubdivisionNode> GetUsersWithSubdivisionsPresetPermission(IUnitOfWork uow)
 		{
 			return GetUsersWithSubdivisions()
@@ -225,7 +229,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.TransformUsing(Transformers.AliasToBean<UserPresetPermissionWithSubdivisionNode>())
 				.List<UserPresetPermissionWithSubdivisionNode>();
 		}
-		
+
 		public IList<UserEntityExtendedPermissionWithSubdivisionNode> GetUsersWithSubdivisionsEntityPermission(IUnitOfWork uow)
 		{
 			return GetUsersWithSubdivisions()
@@ -303,7 +307,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 			return QueryOver.Of<HierarchicalPresetUserPermission>()
 				.Where(x => x.User.Id == userId);
 		}
-		
+
 		private QueryOver<Employee, Employee> GetUsersWithSubdivisions()
 		{
 			Employee employeeAlias = null;

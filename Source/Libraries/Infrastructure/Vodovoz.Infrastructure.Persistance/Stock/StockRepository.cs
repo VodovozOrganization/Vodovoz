@@ -11,33 +11,34 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 
-namespace Vodovoz.EntityRepositories.Stock
+namespace Vodovoz.Infrastructure.Persistance.Stock
 {
 	public class StockRepository : IStockRepository
 	{
 		public decimal NomenclatureReserved(IUnitOfWork uow, int nomenclatureId)
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 
-			return uow.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			return uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted)
 				.Select(Projections.Sum(() => orderItemsAlias.Count)).SingleOrDefault<decimal>();
 		}
-		
+
 		public decimal GetStockForNomenclature(IUnitOfWork uow, int nomenclatureId)
 		{
 			NomenclatureStockNode resultAlias = null;
-			
+
 			var stockProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
 				Projections.Sum<GoodsAccountingOperation>(op => op.Amount));
-			
+
 			var queryResult = uow.Session.QueryOver<GoodsAccountingOperation>()
 				.Where(op => op.Nomenclature.Id == nomenclatureId)
 				.SelectList(list => list
@@ -46,10 +47,10 @@ namespace Vodovoz.EntityRepositories.Stock
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
 				.SingleOrDefault<NomenclatureStockNode>();
-				
+
 			return queryResult.Stock;
 		}
-		
+
 		public Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow,
 			int[] nomenclatureIds,
@@ -107,10 +108,10 @@ namespace Vodovoz.EntityRepositories.Stock
 			NomenclatureStockNode resultAlias = null;
 
 			var query = uow.Session.QueryOver(() => nomenclatureAlias);
-			
+
 			IProjection balanceProjection = null;
 			IProjection operationTimeProjection = null;
-			
+
 			switch(storageType)
 			{
 				case StorageType.Employee:
@@ -125,7 +126,7 @@ namespace Vodovoz.EntityRepositories.Stock
 					query.JoinEntityAlias(() => carBulkOperationAlias,
 							() => nomenclatureAlias.Id == carBulkOperationAlias.Nomenclature.Id
 								&& carBulkOperationAlias.Car.Id == storageId);
-					
+
 					balanceProjection = Projections.Sum(() => carBulkOperationAlias.Amount);
 					operationTimeProjection = Projections.Property(() => carBulkOperationAlias.OperationTime);
 					break;
@@ -133,7 +134,7 @@ namespace Vodovoz.EntityRepositories.Stock
 					query.JoinEntityAlias(() => warehouseBulkOperationAlias,
 						() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id
 							&& warehouseBulkOperationAlias.Warehouse.Id == storageId);
-					
+
 					balanceProjection = Projections.Sum(() => warehouseBulkOperationAlias.Amount);
 					operationTimeProjection = Projections.Property(() => warehouseBulkOperationAlias.OperationTime);
 					break;
@@ -143,7 +144,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			{
 				query.WhereRestrictionOn(() => nomenclatureAlias.Category).IsInG(nomenclatureTypeToInclude);
 			}
-			
+
 			if(productGroupToInclude != null && productGroupToInclude.Any())
 			{
 				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupToInclude);
@@ -158,7 +159,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			{
 				query.WhereRestrictionOn(() => nomenclatureAlias.Category).Not.IsInG(nomenclatureTypeToExclude);
 			}
-			
+
 			if(productGroupToExclude != null && productGroupToExclude.Any())
 			{
 				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup).Not.IsInG(productGroupToExclude);

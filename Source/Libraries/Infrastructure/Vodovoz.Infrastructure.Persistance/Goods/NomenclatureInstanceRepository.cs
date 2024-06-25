@@ -13,8 +13,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
 
-namespace Vodovoz.EntityRepositories.Goods
+namespace Vodovoz.Infrastructure.Persistance.Goods
 {
 	public partial class NomenclatureInstanceRepository : INomenclatureInstanceRepository
 	{
@@ -42,10 +43,10 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			var query = uow.Session.QueryOver(() => instanceAlias)
 				.JoinAlias(() => instanceAlias.Nomenclature, () => nomenclatureAlias);
-				
+
 			IProjection balanceProjection = null;
 			IProjection operationTimeProjection = null;
-			
+
 			switch(storageType)
 			{
 				case StorageType.Employee:
@@ -60,7 +61,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					query.JoinEntityAlias(() => carInstanceOperationAlias,
 						() => instanceAlias.Id == carInstanceOperationAlias.InventoryNomenclatureInstance.Id
 							&& carInstanceOperationAlias.Car.Id == storageId);
-					
+
 					balanceProjection = Projections.Sum(() => carInstanceOperationAlias.Amount);
 					operationTimeProjection = Projections.Property(() => carInstanceOperationAlias.OperationTime);
 					break;
@@ -68,7 +69,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					query.JoinEntityAlias(() => warehouseInstanceOperationAlias,
 						() => instanceAlias.Id == warehouseInstanceOperationAlias.InventoryNomenclatureInstance.Id
 							&& warehouseInstanceOperationAlias.Warehouse.Id == storageId);
-					
+
 					balanceProjection = Projections.Sum(() => warehouseInstanceOperationAlias.Amount);
 					operationTimeProjection = Projections.Property(() => warehouseInstanceOperationAlias.OperationTime);
 					break;
@@ -103,7 +104,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			{
 				query.AndRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).Not.IsInG(productGroupToExclude);
 			}
-			
+
 			if(onDate.HasValue)
 			{
 				query.Where(Restrictions.Lt(operationTimeProjection, onDate.Value));
@@ -132,7 +133,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Select(Projections.Sum(() => operationAlias.Amount))
 				.SingleOrDefault<decimal>();
 		}
-		
+
 		public IList<InstanceOnStorageData> GetOtherInstancesOnStorageBalance(
 			IUnitOfWork uow, StorageType storageType, int storageId, int[] instanceIds, DateTime? date = null)
 		{
@@ -159,7 +160,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					{
 						query.Where(() => employeeOperationAlias.OperationTime <= date);
 					}
-					
+
 					balanceProjection = Projections.Sum(() => employeeOperationAlias.Amount);
 					break;
 				case StorageType.Car:
@@ -167,12 +168,12 @@ namespace Vodovoz.EntityRepositories.Goods
 						() => carOperationAlias,
 						() => instanceAlias.Id == carOperationAlias.InventoryNomenclatureInstance.Id
 							&& carOperationAlias.Car.Id == storageId);
-					
+
 					if(date.HasValue)
 					{
 						query.Where(() => carOperationAlias.OperationTime <= date);
 					}
-					
+
 					balanceProjection = Projections.Sum(() => carOperationAlias.Amount);
 					break;
 				default:
@@ -180,16 +181,16 @@ namespace Vodovoz.EntityRepositories.Goods
 						() => warehouseOperationAlias,
 						() => instanceAlias.Id == warehouseOperationAlias.InventoryNomenclatureInstance.Id
 							&& warehouseOperationAlias.Warehouse.Id == storageId);
-					
+
 					if(date.HasValue)
 					{
 						query.Where(() => warehouseOperationAlias.OperationTime <= date);
 					}
-					
+
 					balanceProjection = Projections.Sum(() => warehouseOperationAlias.Amount);
 					break;
 			}
-			
+
 			return query.Where(Restrictions.Gt(balanceProjection, 0))
 				.AndRestrictionOn(() => instanceAlias.Id).Not.IsIn(instanceIds)
 				.SelectList(list => list
@@ -217,7 +218,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			var warehouseProjection = CustomProjections.Concat(
 				Projections.Constant("Склад: "),
 				Projections.Property(() => warehouseAlias.Name));
-			
+
 			var employeeStorageProjection = CustomProjections.Concat(
 				Projections.Constant("Сотрудник: "),
 				Projections.Property(() => employeeStorageAlias.Id),
@@ -235,7 +236,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					Projections.Property(() => employeeStorageAlias.Patronymic)),
 				Projections.Constant(".")
 			);
-			
+
 			var carStorageProjection = CustomProjections.Concat(
 				Projections.Constant("Автомобиль: "),
 				Projections.Property(() => carStorageAlias.Id),
@@ -279,7 +280,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.OrderBy(() => instanceAlias.Id).Asc
 				.ThenBy(() => employeeInstanceOperationAlias.Employee.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<InstanceOnStorageData>());
-			
+
 			var instanceBalanceByCarsQuery = uow.Session.QueryOver(() => carInstanceOperationAlias)
 				.JoinAlias(o => o.InventoryNomenclatureInstance, () => instanceAlias)
 				.JoinAlias(() => instanceAlias.Nomenclature, () => nomenclatureAlias)
@@ -322,7 +323,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			var warehousesResult = instanceBalanceByWarehousesQuery.List<InstanceOnStorageData>();
 			var employeesResult = instanceBalanceByEmployeesQuery.List<InstanceOnStorageData>();
 			var carsResult = instanceBalanceByCarsQuery.List<InstanceOnStorageData>();
-			
+
 			var result =
 				warehousesResult
 					.Concat(employeesResult)

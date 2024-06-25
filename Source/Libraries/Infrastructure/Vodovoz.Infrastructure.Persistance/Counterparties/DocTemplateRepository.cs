@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Errors;
 
-namespace Vodovoz.EntityRepositories.Counterparties
+namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class DocTemplateRepository : IDocTemplateRepository
 	{
@@ -17,7 +18,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(x => x.Organization == org)
 				.Where(x => x.ContractType == contractType)
 				.List<DocTemplate>();
-			
+
 			return templates.FirstOrDefault();
 		}
 

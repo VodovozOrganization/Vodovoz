@@ -25,6 +25,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.NHibernateProjections.Orders;
@@ -32,7 +33,7 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Nomenclature;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public partial class RouteListRepository : IRouteListRepository
 	{
@@ -51,7 +52,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Where(() => routeListAlias.Driver == driver);
 
 			if(date != null)
@@ -71,7 +72,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+			var query = uow.Session.QueryOver(() => routeListAlias)
 					  .Where(() => routeListAlias.Driver == driver);
 
 			if(status != null)
@@ -341,7 +342,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
-			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+			var orderitemsQuery = uow.Session.QueryOver(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
@@ -370,7 +371,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
-			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+			var orderitemsQuery = uow.Session.QueryOver(() => orderItemsAlias)
 					.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 					.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 					.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
@@ -418,7 +419,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Nomenclature orderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
-			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
+			var ordersQuery = QueryOver.Of(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => r.TransferedTo == null &&
@@ -426,7 +427,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
-			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+			var orderEquipmentsQuery = uow.Session.QueryOver(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias);
@@ -453,7 +454,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Nomenclature orderEquipmentNomenclatureAlias = null;
 
 			//Выбирается список Id заказов находящихся в МЛ
-			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
+			var ordersQuery = QueryOver.Of(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
 				.Where(r => r.TransferedTo == null &&
@@ -461,7 +462,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
-			var orderEquipmentsQuery = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+			var orderEquipmentsQuery = uow.Session.QueryOver(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias);
@@ -531,7 +532,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			List<GoodsInRouteListResult> goodsInRouteListResults = new List<GoodsInRouteListResult>();
 
-			var items = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+			var items = uow.Session.QueryOver(() => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
@@ -543,7 +544,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>());
 
-			var equipment = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+			var equipment = uow.Session.QueryOver(() => orderEquipmentAlias)
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
@@ -659,7 +660,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarLoadDocumentItem docItemsAlias = null;
 			GoodsInRouteListResultToDivide inCarLoads = null;
 
-			var loadedQuery = uow.Session.QueryOver<CarLoadDocument>(() => docAlias)
+			var loadedQuery = uow.Session.QueryOver(() => docAlias)
 				.Where(d => d.RouteList.Id == routeList.Id);
 
 			if(excludeDoc != null)
@@ -685,7 +686,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarLoadDocumentItem docItemsAlias = null;
 			GoodsInRouteListResult inCarLoads = null;
 
-			var loadedQuery = uow.Session.QueryOver<CarLoadDocument>(() => docAlias)
+			var loadedQuery = uow.Session.QueryOver(() => docAlias)
 				.Where(d => d.RouteList.Id == routeList.Id);
 
 			if(excludeDoc != null)
@@ -715,7 +716,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			DeliveryDocumentItem docItemsAlias = null;
 			GoodsInRouteListResult resultNodeAlias = null;
 
-			var query = uow.Session.QueryOver<DeliveryDocument>(() => docAlias)
+			var query = uow.Session.QueryOver(() => docAlias)
 				.Inner.JoinAlias(d => d.Items, () => docItemsAlias)
 				.WhereRestrictionOn(d => d.RouteListItem.Id).IsIn(routeList.Addresses.Select(x => x.Id).ToArray());
 
@@ -986,7 +987,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
 			WarehouseBulkGoodsAccountingOperation movementOperationAlias = null;
 
-			var returnableQuery = QueryOver.Of<CarUnloadDocument>(() => carUnloadAlias)
+			var returnableQuery = QueryOver.Of(() => carUnloadAlias)
 				.JoinAlias(() => carUnloadAlias.Items, () => carUnloadItemsAlias)
 				.JoinAlias(() => carUnloadItemsAlias.GoodsAccountingOperation, () => movementOperationAlias)
 				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
@@ -1256,7 +1257,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Where(x => x.Car.Id == carId);
 
 			Disjunction periodsDisjunction = new Disjunction();
@@ -1283,7 +1284,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias);
+			var query = uow.Session.QueryOver(() => routeListAlias);
 
 			if(routeListIds.Length > 0)
 			{
@@ -1685,7 +1686,7 @@ FROM
 				from order in orders.DefaultIfEmpty()
 				join oi in unitOfWork.Session.Query<OrderItem>() on order.Id equals oi.Order.Id into orderItems
 				from orderItem in orderItems.DefaultIfEmpty()
-				join n in unitOfWork.Session.Query<Nomenclature>() on (orderItem == null ? 0 : orderItem.Nomenclature.Id) equals n.Id into nomenclatures
+				join n in unitOfWork.Session.Query<Nomenclature>() on orderItem == null ? 0 : orderItem.Nomenclature.Id equals n.Id into nomenclatures
 				from nomenclature in nomenclatures.DefaultIfEmpty()
 				join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
 				join d in unitOfWork.Session.Query<District>() on deliveryPoint.District.Id equals d.Id into districts
@@ -1749,7 +1750,7 @@ FROM
 		}
 	}
 
-#region DTO
+	#region DTO
 
 	public class ReturnsNode
 	{

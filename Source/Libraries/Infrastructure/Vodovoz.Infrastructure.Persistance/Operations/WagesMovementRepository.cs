@@ -2,8 +2,9 @@
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Operations;
 
-namespace Vodovoz.EntityRepositories.Operations
+namespace Vodovoz.Infrastructure.Persistance.Operations
 {
 	public class WagesMovementRepository : IWagesMovementRepository
 	{

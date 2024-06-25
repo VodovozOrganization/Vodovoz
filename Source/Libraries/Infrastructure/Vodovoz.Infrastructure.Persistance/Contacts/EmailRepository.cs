@@ -12,11 +12,12 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.EntityRepositories
+namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
 	public class EmailRepository : IEmailRepository
 	{
@@ -107,7 +108,7 @@ namespace Vodovoz.EntityRepositories
 			{
 				return false;
 			}
-			
+
 			var result = (
 				from order in uow.GetAll<Order>()
 				from address in uow.GetAll<RouteListItem>().Where(a => a.Order.Id == order.Id).DefaultIfEmpty()
@@ -115,16 +116,16 @@ namespace Vodovoz.EntityRepositories
 					order.Id == currentOrder.Id
 					&& (
 						order.IsFastDelivery
-						|| (
-								address.Status != RouteListItemStatus.Transfered							
+						||
+								address.Status != RouteListItemStatus.Transfered
 								&& address.AddressTransferType == AddressTransferType.FromFreeBalance
-							)
-						|| (
+
+						||
 								(
-									(isForBill && !order.Client.NeedSendBillByEdo) || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
+									isForBill && !order.Client.NeedSendBillByEdo || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
 								)
 								&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-							)
+
 						)
 				select order.Id)
 			.Any();
@@ -151,7 +152,7 @@ namespace Vodovoz.EntityRepositories
 						.Select(Projections.Max(() => storedEmailAlias.SendDate))
 						.SingleOrDefault<DateTime>();
 
-					if(lastSendTime != default(DateTime))
+					if(lastSendTime != default)
 					{
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
@@ -167,7 +168,7 @@ namespace Vodovoz.EntityRepositories
 						.Select(Projections.Max(() => storedEmailAlias.SendDate))
 						.SingleOrDefault<DateTime>();
 
-					if(lastSendTime != default(DateTime))
+					if(lastSendTime != default)
 					{
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
@@ -183,7 +184,7 @@ namespace Vodovoz.EntityRepositories
 						.Select(Projections.Max(() => storedEmailAlias.SendDate))
 						.SingleOrDefault<DateTime>();
 
-					if(lastSendTime != default(DateTime))
+					if(lastSendTime != default)
 					{
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
@@ -199,7 +200,7 @@ namespace Vodovoz.EntityRepositories
 						.Select(Projections.Max(() => storedEmailAlias.SendDate))
 						.SingleOrDefault<DateTime>();
 
-					if(lastSendTime != default(DateTime))
+					if(lastSendTime != default)
 					{
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
@@ -284,7 +285,7 @@ namespace Vodovoz.EntityRepositories
 					return email;
 				}
 			}
-			
+
 			return email;
 		}
 
@@ -294,28 +295,28 @@ namespace Vodovoz.EntityRepositories
 				.GetExecutableQueryOver(uow.Session)
 				.SingleOrDefault();
 		}
-		
+
 		private Email GetWorkEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
 		{
 			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.Work)
 				.GetExecutableQueryOver(uow.Session)
 				.SingleOrDefault();
 		}
-		
+
 		private Email GetPersonalEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
 		{
 			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.Personal)
 				.GetExecutableQueryOver(uow.Session)
 				.SingleOrDefault();
 		}
-		
+
 		private Email GetReceiptsEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
 		{
 			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.ForReceipts)
 				.GetExecutableQueryOver(uow.Session)
 				.SingleOrDefault();
 		}
-		
+
 		private QueryOver<Email> GetEmailByTypeForExternalCounterparty(int counterpartyId, EmailPurpose emailPurpose)
 		{
 			EmailType emailTypeAlias = null;
@@ -326,14 +327,14 @@ namespace Vodovoz.EntityRepositories
 				.And(() => emailTypeAlias.EmailPurpose == emailPurpose)
 				.Take(1);
 		}
-		
+
 		private Email GetEmailWithoutTypeForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
 		{
 			return GetEmailWithoutTypeForExternalCounterparty(counterpartyId)
 				.GetExecutableQueryOver(uow.Session)
 				.SingleOrDefault();
 		}
-		
+
 		private QueryOver<Email> GetEmailWithoutTypeForExternalCounterparty(int counterpartyId)
 		{
 			EmailType emailTypeAlias = null;
@@ -368,7 +369,7 @@ namespace Vodovoz.EntityRepositories
 		{
 			return uow.Session.QueryOver<EmailType>().List<EmailType>();
 		}
-		
+
 		public EmailType GetEmailTypeForReceipts(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<EmailType>()

@@ -4,28 +4,30 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Store;
 
-namespace Vodovoz.EntityRepositories.Store
+namespace Vodovoz.Infrastructure.Persistance.Store
 {
 	public class SelfDeliveryRepository : ISelfDeliveryRepository
 	{
-		public Dictionary<int,decimal> NomenclatureUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument excludeDoc)
+		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument excludeDoc)
 		{
 			SelfDeliveryDocument docAlias = null;
 			SelfDeliveryDocumentItem docItemsAlias = null;
 
 			ItemInStock inUnload = null;
-			var unloadedlist = uow.Session.QueryOver<SelfDeliveryDocument> (() => docAlias)
-				.Where (d => d.Order.Id == order.Id)
+			var unloadedlist = uow.Session.QueryOver(() => docAlias)
+				.Where(d => d.Order.Id == order.Id)
 				.Where(d => d.Id != excludeDoc.Id)
 				.JoinAlias(d => d.Items, () => docItemsAlias)
-				.SelectList (list => list
-					.SelectGroup (() => docItemsAlias.Nomenclature.Id).WithAlias (() => inUnload.Id)
-					.SelectSum (() => docItemsAlias.Amount).WithAlias (() => inUnload.Added)
-				).TransformUsing (Transformers.PassThrough).List<object[]> ();
-			var result = new Dictionary<int,decimal> ();
-			foreach (var unloadedItem in unloadedlist) {
-				result.Add ((int) unloadedItem[0], (decimal) unloadedItem[1]);
+				.SelectList(list => list
+					.SelectGroup(() => docItemsAlias.Nomenclature.Id).WithAlias(() => inUnload.Id)
+					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inUnload.Added)
+				).TransformUsing(Transformers.PassThrough).List<object[]>();
+			var result = new Dictionary<int, decimal>();
+			foreach(var unloadedItem in unloadedlist)
+			{
+				result.Add((int)unloadedItem[0], (decimal)unloadedItem[1]);
 			}
 			return result;
 		}
@@ -36,7 +38,7 @@ namespace Vodovoz.EntityRepositories.Store
 			SelfDeliveryDocumentItem docItemsAlias = null;
 
 			ItemInStock inLoaded = null;
-			var loadedlist = uow.Session.QueryOver<SelfDeliveryDocument>(() => docAlias)
+			var loadedlist = uow.Session.QueryOver(() => docAlias)
 				.Where(d => d.Order.Id == order.Id)
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList(list => list
@@ -44,7 +46,8 @@ namespace Vodovoz.EntityRepositories.Store
 				   .SelectSum(() => docItemsAlias.Amount).WithAlias(() => inLoaded.Added)
 				).TransformUsing(Transformers.PassThrough).List<object[]>();
 			var result = new Dictionary<int, decimal>();
-			foreach(var loadedItem in loadedlist) {
+			foreach(var loadedItem in loadedlist)
+			{
 				result.Add((int)loadedItem[0], (decimal)loadedItem[1]);
 			}
 			return result;
@@ -68,8 +71,10 @@ namespace Vodovoz.EntityRepositories.Store
 				.GroupBy(o => (int)o[0], o => (decimal)o[1])
 				.ToDictionary(g => g.Key, g => g.Sum());
 
-			if(notSavedDoc != null && notSavedDoc.Id <= 0) {
-				foreach(var i in notSavedDoc.Items) {
+			if(notSavedDoc != null && notSavedDoc.Id <= 0)
+			{
+				foreach(var i in notSavedDoc.Items)
+				{
 					if(unloadedDict.ContainsKey(i.Nomenclature.Id))
 						unloadedDict[i.Nomenclature.Id] += i.Amount;
 					else

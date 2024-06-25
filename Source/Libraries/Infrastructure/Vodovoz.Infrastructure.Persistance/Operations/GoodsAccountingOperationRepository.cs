@@ -1,7 +1,7 @@
 ﻿using NHibernate.Criterion;
 using Vodovoz.Domain.Operations;
 
-namespace Vodovoz.EntityRepositories.Operations
+namespace Vodovoz.Infrastructure.Persistance.Operations
 {
 	public class GoodsAccountingOperationRepository
 	{

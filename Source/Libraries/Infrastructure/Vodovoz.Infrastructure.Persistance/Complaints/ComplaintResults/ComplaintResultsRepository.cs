@@ -6,8 +6,9 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 
-namespace Vodovoz.EntityRepositories.Complaints.ComplaintResults
+namespace Vodovoz.Infrastructure.Persistance.Complaints.ComplaintResults
 {
 	public class ComplaintResultsRepository : IComplaintResultsRepository
 	{
@@ -20,28 +21,28 @@ namespace Vodovoz.EntityRepositories.Complaints.ComplaintResults
 				.Where(x => !x.IsArchive || x.Id == resultId)
 				.List();
 		}
-		
+
 		public IEnumerable<ComplaintResultOfCounterparty> GetAllResultsOfCounterparty(IUnitOfWork uow) =>
 			uow.GetAll<ComplaintResultOfCounterparty>();
 
 		public IEnumerable<ComplaintResultOfEmployees> GetActiveResultsOfEmployees(IUnitOfWork uow) =>
 			uow.Session.QueryOver<ComplaintResultOfEmployees>().Where(x => !x.IsArchive).List();
-		
+
 		public IEnumerable<ComplaintResultOfEmployees> GetActiveResultsOfEmployeesWithSelectedResult(IUnitOfWork uow, int resultId)
 		{
 			return uow.Session.QueryOver<ComplaintResultOfEmployees>()
 				.Where(x => !x.IsArchive || x.Id == resultId)
 				.List();
 		}
-		
+
 		public IEnumerable<ComplaintResultOfEmployees> GetAllResultsOfEmployees(IUnitOfWork uow) =>
 			uow.GetAll<ComplaintResultOfEmployees>();
-		
+
 		public IList<ClosedComplaintResultNode> GetComplaintsResultsOfCounterparty(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{
 			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
 			ClosedComplaintResultNode resultAlias = null;
-			
+
 			var query = uow.Session.QueryOver<Complaint>()
 				.Left.JoinAlias(c => c.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
 				.Where(c => c.Status == ComplaintStatuses.Closed);
@@ -57,7 +58,7 @@ namespace Vodovoz.EntityRepositories.Complaints.ComplaintResults
 				.TransformUsing(Transformers.AliasToBean<ClosedComplaintResultNode>())
 				.List<ClosedComplaintResultNode>();
 		}
-		
+
 		public IList<ClosedComplaintResultNode> GetComplaintsResultsOfEmployees(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{
 			ComplaintResultOfEmployees resultOfEmployeesAlias = null;

@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
-namespace Vodovoz.EntityRepositories.Logistic
+namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	public class RouteListItemRepository : IRouteListItemRepository
 	{
@@ -20,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .Where(() => routeListItemAlias.Order.Id == order.Id)
 					  .SingleOrDefault();
 		}
-		
+
 		public IList<RouteListItem> GetRouteListItemsForOrder(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<RouteListItem>()
@@ -107,7 +108,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
 
-			var result = uow.Session.QueryOver(() => addressTransferDocumentItemAlias)				
+			var result = uow.Session.QueryOver(() => addressTransferDocumentItemAlias)
 				.Where(() => addressTransferDocumentItemAlias.OldAddress.Id == oldAddressId)
 				.And(() => addressTransferDocumentItemAlias.NewAddress.Id == newAddressId)
 				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
@@ -122,7 +123,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			if(routeListItem.Status == RouteListItemStatus.Transfered)
 				return false;
 			RouteListItemStatus[] undeliveryStatus = RouteListItem.GetUndeliveryStatuses();
-			foreach(var status in undeliveryStatus) {
+			foreach(var status in undeliveryStatus)
+			{
 				if(routeListItem.Status == status)
 					return false;
 			}
@@ -137,7 +139,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return anotherRouteListItem != null;
 		}
 
-		public bool CurrentRouteListHasOrderDuplicate(IUnitOfWork uow, RouteListItem routeListItem, int [] actualRouteListItemIds)
+		public bool CurrentRouteListHasOrderDuplicate(IUnitOfWork uow, RouteListItem routeListItem, int[] actualRouteListItemIds)
 		{
 			if(routeListItem.Status == RouteListItemStatus.Transfered)
 			{

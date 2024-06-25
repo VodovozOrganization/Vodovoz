@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.CallTasks;
 
-namespace Vodovoz.EntityRepositories.CallTasks
+namespace Vodovoz.Infrastructure.Persistance.CallTasks
 {
 	public class CallTaskRepository : ICallTaskRepository
 	{
 		public string GetCommentsByDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, CallTask currentCallTask)
 		{
 			CallTask callTaskAlias = null;
-			string comments = String.Empty;
+			string comments = string.Empty;
 			var tasks = UoW.Session.QueryOver(() => callTaskAlias)
 				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 				.And(x => x.Id != currentCallTask.Id)

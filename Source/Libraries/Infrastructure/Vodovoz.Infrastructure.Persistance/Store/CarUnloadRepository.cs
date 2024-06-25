@@ -7,8 +7,9 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Store;
 
-namespace Vodovoz.Repository.Store
+namespace Vodovoz.Infrastructure.Persistance.Store
 {
 	public class CarUnloadRepository : ICarUnloadRepository
 	{
@@ -18,7 +19,7 @@ namespace Vodovoz.Repository.Store
 			CarUnloadDocumentItem docItemsAlias = null;
 			GoodsAccountingOperation movementOperationAlias = null;
 
-			var unloadedlist = UoW.Session.QueryOver<CarUnloadDocument>(() => docAlias)
+			var unloadedlist = UoW.Session.QueryOver(() => docAlias)
 								  .Where(d => d.RouteList.Id == routeList.Id)
 								  .Where(d => d.Warehouse.Id == warehouse.Id)
 								  .Where(d => d.Id != excludeDoc.Id)
@@ -31,7 +32,7 @@ namespace Vodovoz.Repository.Store
 			return unloadedlist.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
 		}
 
-		public bool IsUniqueDocumentAtDay(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int documentId)
+		public bool IsUniqueDocumentAtDay(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse, int documentId)
 		{
 			if(documentId != 0)
 				return true;
@@ -40,7 +41,7 @@ namespace Vodovoz.Repository.Store
 			var end = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59).AddTicks(59);
 
 			CarUnloadDocument carUnloadDocument = null;
-			var getSimilarCarUnloadDoc = QueryOver.Of<CarUnloadDocument>(() => carUnloadDocument)
+			var getSimilarCarUnloadDoc = QueryOver.Of(() => carUnloadDocument)
 									.Where(() => carUnloadDocument.RouteList.Id == routeList.Id)
 									.And(() => carUnloadDocument.Warehouse.Id == warehouse.Id)
 									.And(() => start <= carUnloadDocument.TimeStamp)
