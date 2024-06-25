@@ -293,18 +293,18 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			if(!(validationContext.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
+			if(!(validationContext.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
 					subdivisionSettings))
 			{
 				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionSettings)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
+			if(!(validationContext.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
 			}

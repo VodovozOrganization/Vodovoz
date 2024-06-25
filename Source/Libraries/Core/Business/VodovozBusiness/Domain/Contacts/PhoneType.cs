@@ -48,8 +48,22 @@ namespace Vodovoz.Domain.Contacts
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object> {
 				{"Reason", nameof(ConfigureValidationContext)}
 			});
-			context.ServiceContainer.AddService(typeof(IUnitOfWork), uow);
-			context.ServiceContainer.AddService(typeof(IPhoneRepository), phoneRepository);
+
+			context.InitializeServiceProvider(type =>
+			{
+				if(type == typeof(IUnitOfWork))
+				{
+					return uow;
+				}
+
+				if (type == typeof(IPhoneRepository))
+				{
+					return phoneRepository;
+				}
+
+				return null;
+			});
+
 			return context;
 		}
 

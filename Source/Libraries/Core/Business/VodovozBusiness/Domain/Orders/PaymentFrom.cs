@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -33,13 +33,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 				typeof(IPaymentFromRepository)) is IPaymentFromRepository paymentFromRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(paymentFromRepository)}");
 			}
-
-			if(!(validationContext.ServiceContainer.GetService(
+			
+			if(!(validationContext.GetService(
 				typeof(IOrderSettings)) is IOrderSettings orderSettings))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderSettings)}");
