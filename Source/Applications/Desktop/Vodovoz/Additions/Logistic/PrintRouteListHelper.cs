@@ -27,6 +27,7 @@ namespace Vodovoz.Additions.Logistic
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 		private static readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
+		private static readonly ICachedDistanceRepository _cachedDistanceRepository = ScopeProvider.Scope.Resolve<ICachedDistanceRepository>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";
@@ -311,7 +312,7 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
-		public static ReportInfo GetRDLRouteMap(IUnitOfWork uow, RouteList routeList, bool batchPrint)
+		public static ReportInfo GetRDLRouteMap(IUnitOfWork uow, RouteList routeList, ICachedDistanceRepository cachedDistanceRepository, bool batchPrint)
 		{
 			string documentName = "RouteMap";
 
@@ -332,7 +333,7 @@ namespace Vodovoz.Additions.Logistic
 			GMapOverlay routeOverlay = new GMapOverlay("route");
 			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
-			using(var calc = new RouteGeometryCalculator(uowFactory, globalSettings))
+			using(var calc = new RouteGeometryCalculator(uowFactory, globalSettings, cachedDistanceRepository))
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}
@@ -423,7 +424,7 @@ namespace Vodovoz.Additions.Logistic
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
 				case RouteListPrintableDocuments.RouteMap:
-					return GetRDLRouteMap(uow, routeList, batchPrint);
+					return GetRDLRouteMap(uow, routeList, _cachedDistanceRepository, batchPrint);
 				case RouteListPrintableDocuments.TimeList:
 					return GetRDLTimeList(routeList.Id);
 				case RouteListPrintableDocuments.DailyList:
