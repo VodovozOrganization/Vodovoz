@@ -151,6 +151,8 @@ namespace Vodovoz
 		public bool IgnoreReceipt { get; private set; } = false;
 
 		public int? OrderId => _routeListItem?.Order?.Id;
+		private bool IsClientSelectedAndOrderCashlessAndPaid =>
+			_orderNode.Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
 		{
@@ -620,7 +622,7 @@ namespace Vodovoz
 
 		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
 		{
-			if(_orderNode.Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true)
+			if(IsClientSelectedAndOrderCashlessAndPaid)
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -704,6 +706,8 @@ namespace Vodovoz
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 				}
 			}
+
+			yenumcomboOrderPayment.Sensitive = !IsClientSelectedAndOrderCashlessAndPaid;
 		}
 
 		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)
