@@ -707,7 +707,7 @@ namespace Vodovoz
 				}
 			}
 
-			yenumcomboOrderPayment.Sensitive = !IsClientSelectedAndOrderCashlessAndPaid;
+			yenumcomboOrderPayment.Sensitive = !IsClientSelectedAndOrderCashlessAndPaid && _routeListItem.Status != RouteListItemStatus.Transfered;
 		}
 
 		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)
