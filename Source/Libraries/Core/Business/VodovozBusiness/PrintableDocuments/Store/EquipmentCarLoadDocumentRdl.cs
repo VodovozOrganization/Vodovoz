@@ -1,7 +1,7 @@
 ﻿using QS.Print;
 using QS.Report;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.PrintableDocuments.Store
@@ -9,12 +9,10 @@ namespace Vodovoz.PrintableDocuments.Store
 	public class EquipmentCarLoadDocumentRdl : IPrintableRDLDocument
 	{
 		private readonly CarLoadDocument _carLoadDocument;
-		private readonly ReportInfo _reportInfo;
 
-		public EquipmentCarLoadDocumentRdl(CarLoadDocument carLoadDocument, ReportInfo reportInfo)
+		public EquipmentCarLoadDocumentRdl(CarLoadDocument carLoadDocument)
 		{
 			_carLoadDocument = carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
-			_reportInfo = reportInfo ?? throw new ArgumentNullException(nameof(reportInfo));
 		}
 
 		public Dictionary<object, object> Parameters { get; set; }
@@ -26,7 +24,13 @@ namespace Vodovoz.PrintableDocuments.Store
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return _reportInfo;
+			return new ReportInfo
+			{
+				Title = _carLoadDocument.Title,
+				Identifier = "Store.CarLoadDocumentEquipmentStore",
+				Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } },
+				PrintType = ReportInfo.PrintingType.MultiplePrinters
+			};
 		}
 	}
 }

@@ -24,7 +24,6 @@ namespace Vodovoz.Domain.Documents
 	public class CarLoadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 150;
-		public const string DocumentRdlPath = "Reports/Store/CarLoadDocument.rdl";
 
 		#region Сохраняемые свойства
 		

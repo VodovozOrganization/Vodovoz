@@ -10,6 +10,7 @@ using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Presentation.Reports.Factories;
+using Vodovoz.PrintableDocuments.Store;
 using Vodovoz.RDL.Elements;
 using Vodovoz.ViewModels.Infrastructure;
 
@@ -54,7 +55,7 @@ namespace Vodovoz.Additions
 			switch(eventQrDocumentType)
 			{
 				case EventQrDocumentType.CarLoadDocument:
-					rdlPath = CarLoadDocument.DocumentRdlPath;
+					rdlPath = WaterCarLoadDocumentRdl.DocumentRdlPath;
 					break;
 				case EventQrDocumentType.CarUnloadDocument:
 					rdlPath = CarUnloadDocument.DocumentRdlPath;

@@ -61,7 +61,7 @@ namespace Vodovoz.Additions.Printing
 				unitOfWork, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
 
 			var waterCarLoadDocument = new WaterCarLoadDocumentRdl(carLoadDocument, reportInfo);
-			var equipmentCarLoadDocument = new EquipmentCarLoadDocumentRdl(carLoadDocument, reportInfo);
+			var equipmentCarLoadDocument = new EquipmentCarLoadDocumentRdl(carLoadDocument);
 
 			DocumentsToPrint.Add(new SelectablePrintDocument(waterCarLoadDocument) { Selected = true });
 			DocumentsToPrint.Add(new SelectablePrintDocument(equipmentCarLoadDocument) { Selected = true });

@@ -8,6 +8,8 @@ namespace Vodovoz.PrintableDocuments.Store
 {
 	public class WaterCarLoadDocumentRdl : IPrintableRDLDocument
 	{
+		public const string DocumentRdlPath = "Reports/Store/CarLoadDocument.rdl";
+
 		private readonly CarLoadDocument _carLoadDocument;
 		private readonly ReportInfo _reportInfo;
 
