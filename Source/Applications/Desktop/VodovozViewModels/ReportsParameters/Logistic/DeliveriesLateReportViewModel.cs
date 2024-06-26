@@ -47,18 +47,18 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			LoadReport();
 		}
 
-		private IntervalSelectMode GetIntervalSelectedMode()
+		private FastDeliveryIntervalFromEnum GetIntervalSelectedMode()
 		{
 			if(IsIntervalFromFirstAddress)
 			{
-				return IntervalSelectMode.FirstAddress;
+				return FastDeliveryIntervalFromEnum.AddedInFirstRouteList;
 			}
 			if(IsIntervalFromTransferTime)
 			{
-				return IntervalSelectMode.Transfer;
+				return FastDeliveryIntervalFromEnum.RouteListItemTransfered;
 			}
 
-			return IntervalSelectMode.Create;
+			return FastDeliveryIntervalFromEnum.OrderCreated;
 		}
 
 		private OrderSelectMode GetOrderSelectMode()

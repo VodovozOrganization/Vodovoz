@@ -41,5 +41,6 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+    <ProjectReference Include="..\..\..\..\Desktop\VodovozViewModels\VodovozViewModels.csproj" />
   </ItemGroup>
 </Project>

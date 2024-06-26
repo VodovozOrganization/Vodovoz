@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -943,7 +943,7 @@ namespace Vodovoz
 				lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
-				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+				UpdateClientDefaultParam();
 
 				if((Entity.DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
 				{
@@ -1109,6 +1109,11 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+		}
+
+		public void UpdateClientDefaultParam()
+		{
+			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 		}
 
 		private void UpdateCallBeforeArrivalMinutesSelectedItem()
@@ -3691,7 +3696,7 @@ namespace Vodovoz
 			chkContractCloser.Active = false;
 			CheckForStopDelivery();
 
-			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+			UpdateClientDefaultParam();
 
 			if(DeliveryPoint != null)
 			{
