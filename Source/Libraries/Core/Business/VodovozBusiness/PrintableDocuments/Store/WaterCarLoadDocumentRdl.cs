@@ -22,7 +22,7 @@ namespace Vodovoz.PrintableDocuments.Store
 		public DocumentOrientation Orientation => DocumentOrientation.Portrait;
 		public int CopiesToPrint { get; set; } = 1;
 
-		public string Name => _carLoadDocument.Title;
+		public string Name => "Талон погрузки (склад воды)";
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{

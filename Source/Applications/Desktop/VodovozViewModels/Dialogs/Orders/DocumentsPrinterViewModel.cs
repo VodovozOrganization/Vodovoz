@@ -5,10 +5,12 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
@@ -104,11 +106,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		public void ConfigureForCarLoadDocumentsPrint(
 			IUnitOfWork unitOfWork,
+			IEventsQrPlacer eventsQrPlacer,
 			CarLoadDocument carLoadDocument)
 		{
-			//EntityDocumentsPrinter =
-			//	_entityDocumentsPrinterFactory
-			//	.CreateRouteListWithOrderDocumentsPrinter(unitOfWork, routeList, new[] { selectedType });
+			EntityDocumentsPrinter = _entityDocumentsPrinterFactory
+				.CreateCarLoadDocumentsPrinter(unitOfWork, eventsQrPlacer, carLoadDocument);
 
 			TabName = "Печать талонов погрузки";
 

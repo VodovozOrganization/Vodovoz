@@ -2,21 +2,15 @@
 using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Report;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Additions;
-using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
@@ -26,14 +20,11 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure;
-using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 
@@ -309,24 +300,10 @@ namespace Vodovoz
 			}
 
 			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
-			var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
-				UoW, Entity.Id, Entity.Title, EventQrDocumentType.CarLoadDocument);
 
-			TabParent.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-				() => new QSReport.ReportViewDlg(reportInfo),
-				this);
-
-			var entityDocumentsPrinterFactory = _lifetimeScope.Resolve<IEntityDocumentsPrinterFactory>();
-
-			var printDocumentsViewModel = new DocumentsPrinterViewModel(
-					entityDocumentsPrinterFactory,
-					ServicesConfig.InteractiveService,
-					Startup.MainWin.NavigationManager);
-
-			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(UoW, Entity);
-
+			var printDocumentsViewModel = _lifetimeScope.Resolve<DocumentsPrinterViewModel>();
 			TabParent.AddSlaveTab(this, printDocumentsViewModel);
+			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(UoW, _eventsQrPlacer, Entity);
 		}
 
 		public override void Destroy()

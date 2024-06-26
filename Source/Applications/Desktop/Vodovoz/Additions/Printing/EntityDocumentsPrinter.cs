@@ -8,11 +8,14 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using QSReport;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.PrintableDocuments.Store;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Additions.Printing
@@ -43,10 +46,25 @@ namespace Vodovoz.Additions.Printing
 		}
 
 		public EntityDocumentsPrinter(
+			IUnitOfWork unitOfWork,
+			IEventsQrPlacer eventsQrPlacer,
 			CarLoadDocument carLoadDocument)
 		{
+			if(carLoadDocument is null)
+			{
+				throw new ArgumentNullException(nameof(carLoadDocument));
+			}
+
 			DocPrinterInit();
-			//FindODTTemplates(currentOrder, orderDocumentTypesToSelect);
+
+			var reportInfo = eventsQrPlacer.AddQrEventForPrintingDocument(
+				unitOfWork, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
+
+			var waterCarLoadDocument = new WaterCarLoadDocumentRdl(carLoadDocument, reportInfo);
+			var equipmentCarLoadDocument = new EquipmentCarLoadDocumentRdl(carLoadDocument, reportInfo);
+
+			DocumentsToPrint.Add(new SelectablePrintDocument(waterCarLoadDocument) { Selected = true });
+			DocumentsToPrint.Add(new SelectablePrintDocument(equipmentCarLoadDocument) { Selected = true });
 		}
 
 		public EntityDocumentsPrinter(
