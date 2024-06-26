@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
@@ -9,9 +9,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class DocTemplateRepository : IDocTemplateRepository
 	{
-		/// <summary>
-		/// Получаем первый подходящий шаболон документа по указанным критериям.
-		/// </summary>
 		public DocTemplate GetTemplate(IUnitOfWork uow, TemplateType type, Organization org, ContractType contractType)
 		{
 			var templates = uow.Session.QueryOver<DocTemplate>()

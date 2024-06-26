@@ -9,7 +9,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 	public interface IDocTemplateRepository
 	{
 		/// <summary>
-		/// Получаем первый подходящий шаболон документа по указанным критериям.
+		/// Получаем первый подходящий шаблон документа по указанным критериям.
 		/// </summary>
 		DocTemplate GetTemplate(IUnitOfWork uow, TemplateType type, Organization org, ContractType contractType);
 
