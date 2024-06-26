@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
 using QS.ViewModels;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -17,6 +18,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		private readonly Order _currentOrder;
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
 		private RouteList _currentRouteList;
+		private CarLoadDocument _carLoadDocument;
 		private IEntityDocumentsPrinter _entityDocumentsPrinter;
 
 		public event Action PreviewDocument;
@@ -100,6 +102,22 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			DefaultPreviewDocument();
 		}
 
+		public void ConfigureForCarLoadDocumentsPrint(
+			IUnitOfWork unitOfWork,
+			CarLoadDocument carLoadDocument)
+		{
+			//EntityDocumentsPrinter =
+			//	_entityDocumentsPrinterFactory
+			//	.CreateRouteListWithOrderDocumentsPrinter(unitOfWork, routeList, new[] { selectedType });
+
+			TabName = "Печать талонов погрузки";
+
+			_carLoadDocument = carLoadDocument;
+
+			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
+			DefaultPreviewDocument();
+		}
+
 		private void Configure()
 		{
 			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
@@ -132,7 +150,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 					PreviewDocument?.Invoke();
 				}
 			}
-			else if(_currentRouteList != null) 
+			else if(_currentRouteList != null || _carLoadDocument != null) 
 			{ //если этот диалог вызван из МЛ
 				SelectedDocument = printDocuments.FirstOrDefault(x => x.Selected) ?? printDocuments.FirstOrDefault();
 				PreviewDocument?.Invoke();

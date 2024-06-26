@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using QSReport;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -39,6 +40,13 @@ namespace Vodovoz.Additions.Printing
 			_hideSignaturesAndStamps = hideSignaturesAndStamps;
 			DocPrinterInit();
 			FindODTTemplates(currentOrder, orderDocumentTypesToSelect);
+		}
+
+		public EntityDocumentsPrinter(
+			CarLoadDocument carLoadDocument)
+		{
+			DocPrinterInit();
+			//FindODTTemplates(currentOrder, orderDocumentTypesToSelect);
 		}
 
 		public EntityDocumentsPrinter(

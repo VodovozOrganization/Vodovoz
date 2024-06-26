@@ -31,7 +31,9 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 
@@ -314,6 +316,17 @@ namespace Vodovoz
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
 				() => new QSReport.ReportViewDlg(reportInfo),
 				this);
+
+			var entityDocumentsPrinterFactory = _lifetimeScope.Resolve<IEntityDocumentsPrinterFactory>();
+
+			var printDocumentsViewModel = new DocumentsPrinterViewModel(
+					entityDocumentsPrinterFactory,
+					ServicesConfig.InteractiveService,
+					Startup.MainWin.NavigationManager);
+
+			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(UoW, Entity);
+
+			TabParent.AddSlaveTab(this, printDocumentsViewModel);
 		}
 
 		public override void Destroy()
