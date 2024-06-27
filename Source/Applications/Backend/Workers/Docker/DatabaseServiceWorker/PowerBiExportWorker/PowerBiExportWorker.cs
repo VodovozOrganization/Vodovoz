@@ -7,7 +7,13 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 
 namespace DatabaseServiceWorker
 {
@@ -17,16 +23,33 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<PowerBiExportWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<PowerBiExportOptions> _options;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IGeneralSettings _generalSettings;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly ITrackRepository _trackRepository;
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 
 		public PowerBiExportWorker(
 			ILogger<PowerBiExportWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOptions<PowerBiExportOptions> options)
+			IOptions<PowerBiExportOptions> options,
+			INomenclatureSettings nomenclatureSettings,
+			IGeneralSettings generalSettings,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDeliveryRepository deliveryRepository,
+			ITrackRepository trackRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Interval = _options.Value.Interval;
 		}
 
@@ -63,7 +86,7 @@ namespace DatabaseServiceWorker
 
 			try
 			{
-				ReadFromDbAndExportToFile();
+				ReadFromDbAndExportToFile(stoppingToken);
 			}
 			catch(Exception e)
 			{
@@ -83,7 +106,7 @@ namespace DatabaseServiceWorker
 			await Task.CompletedTask;
 		}
 
-		private void ReadFromDbAndExportToFile()
+		private void ReadFromDbAndExportToFile(CancellationToken stoppingToken)
 		{
 			var smbPath = $"smb://{_options.Value.Login}:{_options.Value.Password}@{_options.Value.ExportPath}";
 
@@ -103,7 +126,7 @@ namespace DatabaseServiceWorker
 					{
 						for(DateTime date = _options.Value.StartDate; date < DateTime.Now.Date; date = date.AddDays(1))
 						{
-							ReadDataFromDbAndExportToExcel(uow, excelWorkbook, date);
+							ReadDataFromDbAndExportToExcel(uow, excelWorkbook, date, _nomenclatureSettings, stoppingToken);
 						}
 					}
 

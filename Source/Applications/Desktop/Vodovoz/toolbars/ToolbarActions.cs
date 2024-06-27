@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -532,12 +532,7 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			"CRM",
-			() => new TasksView(
-								new EmployeeJournalFactory(NavigationManager),
-								new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory)), null
-		);
+		NavigationManager.OpenViewModel<CallTaskJournalViewModel>(null);
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
@@ -948,7 +943,12 @@ public partial class MainWindow : Window
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			   null,
-			   filter => filter.IsForSalesDepartment = true,
+			   filter =>
+			   {
+				   filter.IsForSalesDepartment = true;
+				   filter.StartDate = DateTime.Today.AddMonths(-2);
+				   filter.EndDate = DateTime.Today;
+			   },
 			   OpenPageOptions.IgnoreHash);
 	}
 	

@@ -200,6 +200,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			Responsible responsibleAlias = null;
 			ComplaintArrangementComment resultOfComplaintArrangemenCommentAlias = null;
 			ComplaintResultComment resultOfComplaintResultCommentAlias = null;
+			Employee resultCommentAuthorAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -310,6 +311,13 @@ namespace Vodovoz.Journals.JournalViewModels
 						Projections.Constant(" || ")
 						);
 
+			var authorsOfResultCommentsProjection = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						EmployeeProjections.GetEmployeeFullNameProjection(),
+						Projections.Constant(", ")
+						);
+
 			var resultOfCounterpartySubquery = QueryOver.Of(() => resultOfCounterpartyAlias)
 				.Where(() => resultOfCounterpartyAlias.Id == complaintAlias.ComplaintResultOfCounterparty.Id)
 				.Select(Projections.Property(() => resultOfCounterpartyAlias.Name));
@@ -325,6 +333,12 @@ namespace Vodovoz.Journals.JournalViewModels
 			var resultOfResultCommentsSubquery = QueryOver.Of(() => resultOfComplaintResultCommentAlias)
 				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
 				.Select(resultCommentProjection);
+
+			var authorsOfResultCommentsSubquery = QueryOver.Of(() => resultCommentAuthorAlias)
+				.JoinEntityAlias(() => resultOfComplaintResultCommentAlias,
+					() => resultOfComplaintResultCommentAlias.Author.Id == resultCommentAuthorAlias.Id)
+				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
+				.Select(authorsOfResultCommentsProjection);
 
 			var isNeedWorkSubquery = QueryOver.Of(() => discussionAlias)
 				.Where(() => discussionAlias.Status == ComplaintDiscussionStatuses.InProcess)
@@ -524,6 +538,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintDelatizationAlias.Name).WithAlias(() => resultAlias.ComplaintDetalizationString)
 				.Select(() => complaintDelatizationAlias.IsArchive).WithAlias(() => resultAlias.ComplaintDetalizationIsArchive)
 				.SelectSubQuery(resultOfResultCommentsSubquery).WithAlias(() => resultAlias.ResultText)
+				.SelectSubQuery(authorsOfResultCommentsSubquery).WithAlias(() => resultAlias.ResultCommentsAuthors)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
 				.SelectSubQuery(resultOfArrangementCommentsSubquery).WithAlias(() => resultAlias.ArrangementText)

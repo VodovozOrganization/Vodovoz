@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
 
@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Store
 		NominativePlural = "материалы спецификации",
 		Nominative = "материал спецификации"
 	)]
-	public class ProductSpecificationMaterial : PropertyChangedBase, IDomainObject
+	public class ProductSpecificationMaterial : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -26,7 +26,6 @@ namespace Vodovoz.Domain.Store
 
 		decimal amount;
 
-		[Min (1)]
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
@@ -52,13 +51,21 @@ namespace Vodovoz.Domain.Store
 
 		public virtual string Title{
 			get{
-				return String.Format("Материал <{0}> из спецификации на производства", Material.Name);
+				return $"Материал <{Material.Name}> из спецификации на производства";
 			}
 		}
 
 		public ProductSpecificationMaterial ()
 		{
 			
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Amount < 1)
+			{
+				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
+			}
 		}
 	}
 }
