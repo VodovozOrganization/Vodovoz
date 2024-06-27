@@ -118,6 +118,7 @@ namespace DatabaseServiceWorker
 
 			var query = uow.Session
 				.CreateSQLQuery(sql)
+				.SetTimeout(300)
 				.SetParameter("date", date);
 
 			return query.UniqueResult<decimal>();
