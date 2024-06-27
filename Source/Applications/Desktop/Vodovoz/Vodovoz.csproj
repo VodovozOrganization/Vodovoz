@@ -2087,6 +2087,8 @@
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskView.cs" />
     <Compile Include="Views\Print\PrintDocumentsSelectablePrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.PrintDocumentsSelectablePrinterView.cs" />
+    <Compile Include="ViewWidgets\Users\DocumentsPrinterSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
