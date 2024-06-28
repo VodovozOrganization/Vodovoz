@@ -18,9 +18,6 @@ namespace Vodovoz.ViewModels.Dialogs.Print
 		private CarLoadDocument _carLoadDocument;
 		private IEntityDocumentsPrinter _entityDocumentsPrinter;
 
-		public event Action PreviewDocument;
-		public event EventHandler DocumentsPrinted;
-
 		public PrintDocumentsSelectablePrinterViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -34,10 +31,15 @@ namespace Vodovoz.ViewModels.Dialogs.Print
 
 			PrintSelectedCommand = new DelegateCommand(PrintSelected);
 			CancelCommand = new DelegateCommand(Cancel);
+			ReportPrintedCommand = new DelegateCommand(OnReportPrinted);
 		}
+
+		public event Action PreviewDocument;
+		public event EventHandler DocumentsPrinted;
 
 		public DelegateCommand PrintSelectedCommand;
 		public DelegateCommand CancelCommand;
+		public DelegateCommand ReportPrintedCommand;
 
 		public IEntityDocumentsPrinter EntityDocumentsPrinter
 		{
@@ -81,12 +83,21 @@ namespace Vodovoz.ViewModels.Dialogs.Print
 
 		private void PrintSelected() => EntityDocumentsPrinter.Print();
 		private void Cancel() => Close(false, CloseSource.Cancel);
-
-		public void ReportViewerOnReportPrinted(object o, EventArgs args) => DocumentsPrinted?.Invoke(o, args);
+		private void OnReportPrinted() => DocumentsPrinted?.Invoke(this, new PrintEventArgs(SelectedDocument?.Document));
 
 		private void OnDocumentsPrinted(object sender, EventArgs e)
 		{
 			DocumentsPrinted?.Invoke(sender, e);
 		}
+	}
+
+	public class PrintEventArgs : EventArgs
+	{
+		public PrintEventArgs(IPrintableDocument document)
+		{
+			Document = document;
+		}
+
+		public IPrintableDocument Document { get; }
 	}
 }

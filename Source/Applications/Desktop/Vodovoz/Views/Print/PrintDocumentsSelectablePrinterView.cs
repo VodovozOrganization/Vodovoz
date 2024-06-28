@@ -54,6 +54,9 @@ namespace Vodovoz.Views.Print
 					.AddNumericRenderer(x => x.Copies)
 					.Editing()
 					.Adjustment(new Adjustment(0, 0, 10000, 1, 100, 0))
+				.AddColumn("Принтер")
+				.AddColumn("Ориентация")
+				.AddColumn("")
 				.RowCells()
 				.Finish();
 
@@ -99,11 +102,15 @@ namespace Vodovoz.Views.Print
 			}
 		}
 
-		private void ReportViewerOnReportPrinted(object sender, EventArgs e) =>
-			ViewModel.ReportViewerOnReportPrinted(this, new EndPrintArgs { Args = new object[] { ViewModel.SelectedDocument.Document } });
+		private void ReportViewerOnReportPrinted(object sender, EventArgs e) => ViewModel.ReportPrintedCommand.Execute();
 
 		public override void Destroy()
 		{
+			if(reportviewer != null)
+			{
+				reportviewer.ReportPrinted -= ReportViewerOnReportPrinted;
+			}
+
 			ViewModel.PreviewDocument -= PreviewDocument;
 			base.Destroy();
 		}
