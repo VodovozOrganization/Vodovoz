@@ -219,25 +219,34 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref acceptedOrderEmployee, value);
 		}
 
-		private Counterparty client;
+		private Counterparty _client;
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
-			get => client;
-			set {
-				if(value == client)
+			get => _client;
+			set
+			{
+				if(value == _client)
+				{
 					return;
-				if(_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				}
+
+				if(_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
+				{
 					OnChangeCounterparty(value);
-				} else if(client != null && !CanChangeContractor()) {
+				}
+				else if(_client != null && !CanChangeContractor())
+				{
 					OnPropertyChanged(nameof(Client));
 					if(InteractiveService == null)
+					{
 						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+					}
 
 					InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
-				var oldClient = client;
-				if(SetField(ref client, value, () => Client)) {
+				var oldClient = _client;
+				if(SetField(ref _client, value, () => Client)) {
 					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
 						//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
@@ -1240,6 +1249,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _dontArriveBeforeInterval, value);
 		}
 
+		public virtual bool IsOrderCashlessAndPaid =>
+			PaymentType == PaymentType.Cashless
+			&& (OrderPaymentStatus == OrderPaymentStatus.Paid || OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid);
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1252,7 +1265,7 @@ namespace Vodovoz.Domain.Orders
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{
 			var order = new Order {
-				client = service.Counterparty,
+				_client = service.Counterparty,
 				DeliveryPoint = service.DeliveryPoint,
 				DeliveryDate = service.ServiceStartDate,
 				PaymentType = service.Payment,
