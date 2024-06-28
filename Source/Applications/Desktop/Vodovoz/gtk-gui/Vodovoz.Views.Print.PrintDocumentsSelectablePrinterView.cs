@@ -20,6 +20,10 @@ namespace Vodovoz.Views.Print
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonSavePrinterSettings;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonSetPrinterSettings;
+
 		private global::fyiReporting.RdlGtkViewer.ReportViewer reportviewer;
 
 		protected virtual void Build()
@@ -84,16 +88,42 @@ namespace Vodovoz.Views.Print
 			w8.Position = 1;
 			w8.Expand = false;
 			w8.Fill = false;
-			this.vboxDocuments.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hboxButtons]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.yhboxMain.Add(this.vboxDocuments);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.vboxDocuments]));
-			w10.Position = 0;
+			// Container child hboxButtons.Gtk.Box+BoxChild
+			this.ybuttonSavePrinterSettings = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSavePrinterSettings.CanFocus = true;
+			this.ybuttonSavePrinterSettings.Name = "ybuttonSavePrinterSettings";
+			this.ybuttonSavePrinterSettings.UseUnderline = true;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
+			this.ybuttonSavePrinterSettings.Image = w9;
+			this.hboxButtons.Add(this.ybuttonSavePrinterSettings);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonSavePrinterSettings]));
+			w10.PackType = ((global::Gtk.PackType)(1));
+			w10.Position = 3;
 			w10.Expand = false;
 			w10.Fill = false;
+			// Container child hboxButtons.Gtk.Box+BoxChild
+			this.ybuttonSetPrinterSettings = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSetPrinterSettings.CanFocus = true;
+			this.ybuttonSetPrinterSettings.Name = "ybuttonSetPrinterSettings";
+			this.ybuttonSetPrinterSettings.UseUnderline = true;
+			global::Gtk.Image w11 = new global::Gtk.Image();
+			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-properties", global::Gtk.IconSize.Menu);
+			this.ybuttonSetPrinterSettings.Image = w11;
+			this.hboxButtons.Add(this.ybuttonSetPrinterSettings);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonSetPrinterSettings]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 4;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.vboxDocuments.Add(this.hboxButtons);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hboxButtons]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.yhboxMain.Add(this.vboxDocuments);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.vboxDocuments]));
+			w14.Position = 0;
 			// Container child yhboxMain.Gtk.Box+BoxChild
 			this.reportviewer = new global::fyiReporting.RdlGtkViewer.ReportViewer();
 			this.reportviewer.WidthRequest = 0;
@@ -103,8 +133,8 @@ namespace Vodovoz.Views.Print
 			this.reportviewer.ShowErrors = false;
 			this.reportviewer.ShowParameters = false;
 			this.yhboxMain.Add(this.reportviewer);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.reportviewer]));
-			w11.Position = 1;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.reportviewer]));
+			w15.Position = 1;
 			this.Add(this.yhboxMain);
 			if ((this.Child != null))
 			{
