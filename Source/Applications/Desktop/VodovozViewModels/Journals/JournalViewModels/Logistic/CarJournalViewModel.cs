@@ -79,8 +79,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(Car),
 				typeof(CarModel),
 				typeof(Employee),
-				typeof(CarVersion)
-				);
+				typeof(CarVersion));
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
@@ -209,11 +208,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			#endregion
 
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
-				Restrictions.Disjunction()
-					.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
-					.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
-					.Add(isOsagoExpiresRestriction)
-					.Add(isKaskoExpiresRestriction),
+				Restrictions.Conjunction()
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => carModelAlias.CarTypeOfUse), CarTypeOfUse.Loader)))
+					.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => carAlias.Id), _carEventSettings.CarsExcludedFromReportsIds)))
+					.Add(Restrictions.Disjunction()
+						.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+						.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
+						.Add(isOsagoExpiresRestriction)
+						.Add(isKaskoExpiresRestriction)),
 				Projections.Constant(true),
 				Projections.Constant(false));
 
