@@ -218,9 +218,6 @@ namespace Vodovoz.Application.Orders.Services
 		private void AddNomenclature(Order order, Product onlineOrderItem)
 		{
 			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
-			//временный костыль для исправления расчета цены, пока не протестили основное решение
-			order.RecalculateItemsPrice();
-			order.UpdateRentsCount();
 		}
 
 		private void AddFreeRentPackages(Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)

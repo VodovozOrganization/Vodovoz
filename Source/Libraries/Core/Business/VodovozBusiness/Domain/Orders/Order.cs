@@ -2115,6 +2115,7 @@ namespace Vodovoz.Domain.Orders
 			orderItem.IsAlternativePrice = canApplyAlternativePrice;
 
 			ObservableOrderItems.Add(orderItem);
+			Recalculate();
 			UpdateContract();
 		}
 
@@ -4901,6 +4902,12 @@ namespace Vodovoz.Domain.Orders
 		{
 			CommentOPManagerUpdatedAt = DateTime.Now;
 			CommentOPManagerChangedBy = editor;
+		}
+		
+		private void Recalculate()
+		{
+			RecalculateItemsPrice();
+			UpdateRentsCount();
 		}
 
 		#endregion

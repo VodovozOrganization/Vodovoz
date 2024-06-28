@@ -770,12 +770,10 @@ namespace Vodovoz.Domain.Orders
 			RecalculateVAT();
 		}
 
-		protected internal virtual void RecalculateAll()
+		protected internal virtual void RecalculateDiscountAndVat()
 		{
-			Order?.RecalculateItemsPrice();
 			RecalculateDiscount();
 			CalculateVATType();
-			Order?.UpdateRentsCount();
 		}
 
 		internal static OrderItem CreateNewDailyRentServiceItem(Order order, PaidRentPackage paidRentPackage)
