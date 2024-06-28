@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -391,7 +391,40 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
+
+			bool canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanCreate;
+			bool canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanUpdate;
+			bool canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+					(selected) => canCreate,
+					(selected) => VisibleCreateAction,
+					(selected) => CreateEntityDialog(),
+					"Insert"
+					);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+					(selected) => canEdit && selected.Any(),
+					(selected) => VisibleEditAction,
+					(selected) => selected.Cast<CallTaskJournalNode>().ToList().ForEach(EditEntityDialog)
+					);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+
+			var deleteAction = new JournalAction("Удалить",
+					(selected) => canDelete && selected.Any(),
+					(selected) => VisibleDeleteAction,
+					(selected) => DeleteEntities(selected.Cast<CallTaskJournalNode>().ToArray()),
+					"Delete"
+					);
+			NodeActionsList.Add(deleteAction);
+
 			NodeActionsList.Add(new JournalAction(
 				"Экспорт",
 				nodes => true,
