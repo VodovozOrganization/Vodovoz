@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj" />
+    <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
   </ItemGroup>
