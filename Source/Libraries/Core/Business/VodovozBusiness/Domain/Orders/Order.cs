@@ -749,28 +749,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private Organization _ourOrganization;
-		[Display(Name = "Наша организация")]
-		public virtual Organization OurOrganization
-		{
-			get => _ourOrganization;
-			set => SetField(ref _ourOrganization, value);
-		}
-
-		[Display(Name = "Район города склада самовывоза")]
-		public virtual GeoGroup SelfDeliveryGeoGroup
-		{
-			get => _selfDeliveryGeoGroup;
-			set => SetField(ref _selfDeliveryGeoGroup, value);
-		}
-		
-		[Display(Name = "Не приезжать раньше интервала")]
-		public virtual bool DontArriveBeforeInterval
-		{
-			get => _dontArriveBeforeInterval;
-			set => SetField(ref _dontArriveBeforeInterval, value);
-		}
-
 		public virtual bool IsOrderCashlessAndPaid =>
 			PaymentType == PaymentType.Cashless
 			&& (OrderPaymentStatus == OrderPaymentStatus.Paid || OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid);

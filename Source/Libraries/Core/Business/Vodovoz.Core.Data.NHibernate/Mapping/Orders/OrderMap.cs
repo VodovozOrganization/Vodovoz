@@ -1,9 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
-using NHibernate.Properties;
 using NHibernate.Type;
-using System;
 using Vodovoz.Core.Domain.Orders;
-using static NHibernate.Properties.FieldAccessor;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
