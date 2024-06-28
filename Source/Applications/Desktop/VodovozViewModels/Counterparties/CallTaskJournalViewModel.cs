@@ -56,6 +56,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 			CreatePopupActions();
+
+			SelectionMode = JournalSelectionMode.Multiple;
 		}
 
 		public override string FooterInfo { get; set; }
@@ -392,18 +394,34 @@ namespace Vodovoz.ViewModels.Counterparties
 			base.CreateNodeActions();
 			NodeActionsList.Add(new JournalAction(
 				"Экспорт",
-				(nodes) => true,
-				(nodes) => true,
-				(nodes) => ExportTasks()));
+				nodes => true,
+				nodes => true,
+				nodes => ExportTasks()));
+
+			NodeActionsList.Add(new JournalAction(
+				"Массовое редактирование",
+				nodes => nodes.Count() > 1,
+				nodes => true,
+				nodes =>
+				{
+					NavigationManager.OpenViewModel<CallTaskMassEditViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						viewModel => viewModel
+							.AddTasks(nodes
+								.Cast<CallTaskJournalNode>()
+								.Select(ct => ct.Id)));
+				}));
 		}
 
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Clear();
-			PopupActionsList.Add(new JournalAction("Отметить как важное",
-				(_) => true,
-				(_) => true,
-				(selectedItems) =>
+			PopupActionsList.Add(new JournalAction(
+				"Отметить как важное",
+				nodes => nodes.Count() == 1,
+				_ => true,
+				selectedItems =>
 				{
 					var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
 					ChangeEnitity((task) => task.ImportanceDegree = ImportanceDegreeType.Important, selectedNodes.ToArray());
