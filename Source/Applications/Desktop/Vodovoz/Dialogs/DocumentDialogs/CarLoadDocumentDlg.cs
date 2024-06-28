@@ -24,6 +24,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Dialogs.Print;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
@@ -301,7 +302,7 @@ namespace Vodovoz
 
 			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
 
-			var printDocumentsViewModel = _lifetimeScope.Resolve<DocumentsPrinterViewModel>();
+			var printDocumentsViewModel = _lifetimeScope.Resolve<PrintDocumentsSelectablePrinterViewModel>();
 			TabParent.AddSlaveTab(this, printDocumentsViewModel);
 			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(UoW, _eventsQrPlacer, Entity);
 		}
