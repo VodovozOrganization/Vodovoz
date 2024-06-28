@@ -26,8 +26,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IEnumerable<int> selectedCarEventTypesIds,
 			IEnumerable<CarTypeOfUse> selectedCarTypeOfUse,
 			IEnumerable<CarOwnType> selectedCarOwnTypes);
-		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType);
-		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId);
+		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType, IEnumerable<int> excludeCarIds);
+		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId, IEnumerable<int> excludeCarIds);
 		Task<IList<CarEventData>> GetCarEvents(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
 			CarOwnType carOwnType, Car car, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
 		Task<IList<Car>> GetCarsWithoutData(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
