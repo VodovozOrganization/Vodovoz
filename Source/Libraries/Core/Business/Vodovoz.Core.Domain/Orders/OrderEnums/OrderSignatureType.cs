@@ -4,13 +4,13 @@ namespace Vodovoz.Domain.Orders
 {
 	public enum OrderSignatureType
 	{
-		[Display (Name = "По печати")]
+		[Display(Name = "По печати")]
 		BySeal,
-		[Display (Name = "По доверенности")]
+		[Display(Name = "По доверенности")]
 		ByProxy,
-		[Display (Name = "Доверенность на адресе")]
+		[Display(Name = "Доверенность на адресе")]
 		ProxyOnDeliveryPoint,
-        [Display (Name = "Подпись/расшифровка")]
-        SignatureTranscript
-    }
+		[Display(Name = "Подпись/расшифровка")]
+		SignatureTranscript
+	}
 }

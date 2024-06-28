@@ -87,7 +87,6 @@ namespace Vodovoz.Core.Domain.Orders
 
 		public virtual IUnitOfWork UoW { set; get; }
 
-
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -562,20 +561,17 @@ namespace Vodovoz.Core.Domain.Orders
 
 		#region Вычисляемые свойства
 
-		public virtual bool IsUndeliveredStatus => 
-			OrderStatus == OrderStatus.Canceled 
-			|| OrderStatus == OrderStatus.DeliveryCanceled 
+		public virtual bool IsUndeliveredStatus =>
+			OrderStatus == OrderStatus.Canceled
+			|| OrderStatus == OrderStatus.DeliveryCanceled
 			|| OrderStatus == OrderStatus.NotDelivered;
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
 		#endregion Вычисляемые свойства
 
-		public override string ToString() => IsLoadedFrom1C ? 
-			string.Format("Заказ №{0}({1})", Id, Code1c) 
+		public override string ToString() => IsLoadedFrom1C ?
+			string.Format("Заказ №{0}({1})", Id, Code1c)
 			: string.Format("Заказ №{0}", Id);
-
-
-
 	}
 }
