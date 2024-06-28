@@ -50,8 +50,10 @@ namespace Vodovoz.ViewModels.Counterparties
 						typeof(CallTask),
 						userService.GetCurrentUser().Id).CanUpdate)
 			{
-				throw new InvalidOperationException("У вас нет прав для доступа к этому дмалогу");
+				throw new AbortCreatingPageException("У вас нет прав для доступа к этому дмалогу", "Ошибка доступа!");
 			}
+
+			Title = "Массовое редактирование задач на обзвон";
 
 			_unitOfWorkFactory = unitOfWorkFactory
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
