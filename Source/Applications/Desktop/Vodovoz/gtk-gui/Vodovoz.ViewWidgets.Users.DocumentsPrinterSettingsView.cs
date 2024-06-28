@@ -12,6 +12,8 @@ namespace Vodovoz.ViewWidgets.Users
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddToList;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonConfigurePrinter;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonRemoveFromList;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxDocumentType;
@@ -26,7 +28,7 @@ namespace Vodovoz.ViewWidgets.Users
 			this.ytableMain = new global::Gamma.GtkWidgets.yTable();
 			this.ytableMain.Name = "ytableMain";
 			this.ytableMain.NRows = ((uint)(2));
-			this.ytableMain.NColumns = ((uint)(4));
+			this.ytableMain.NColumns = ((uint)(5));
 			this.ytableMain.RowSpacing = ((uint)(6));
 			this.ytableMain.ColumnSpacing = ((uint)(6));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -40,7 +42,7 @@ namespace Vodovoz.ViewWidgets.Users
 			this.GtkScrolledWindow.Add(this.ytreeviewWarehouses);
 			this.ytableMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
-			w2.RightAttach = ((uint)(4));
+			w2.RightAttach = ((uint)(5));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ybuttonAddToList = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAddToList.CanFocus = true;
@@ -56,19 +58,33 @@ namespace Vodovoz.ViewWidgets.Users
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableMain.Gtk.Table+TableChild
+			this.ybuttonConfigurePrinter = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonConfigurePrinter.CanFocus = true;
+			this.ybuttonConfigurePrinter.Name = "ybuttonConfigurePrinter";
+			this.ybuttonConfigurePrinter.UseUnderline = true;
+			this.ybuttonConfigurePrinter.Label = global::Mono.Unix.Catalog.GetString("Настроить");
+			this.ytableMain.Add(this.ybuttonConfigurePrinter);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonConfigurePrinter]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableMain.Gtk.Table+TableChild
 			this.ybuttonRemoveFromList = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonRemoveFromList.CanFocus = true;
 			this.ybuttonRemoveFromList.Name = "ybuttonRemoveFromList";
 			this.ybuttonRemoveFromList.UseUnderline = true;
 			this.ybuttonRemoveFromList.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.ytableMain.Add(this.ybuttonRemoveFromList);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonRemoveFromList]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(3));
-			w4.RightAttach = ((uint)(4));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonRemoveFromList]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(4));
+			w5.RightAttach = ((uint)(5));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.yenumcomboboxDocumentType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxDocumentType.Name = "yenumcomboboxDocumentType";
@@ -77,11 +93,11 @@ namespace Vodovoz.ViewWidgets.Users
 			this.yenumcomboboxDocumentType.UseShortTitle = false;
 			this.yenumcomboboxDocumentType.DefaultFirst = false;
 			this.ytableMain.Add(this.yenumcomboboxDocumentType);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yenumcomboboxDocumentType]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yenumcomboboxDocumentType]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.Add(this.ytableMain);
 			if ((this.Child != null))
 			{
