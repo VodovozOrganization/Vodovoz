@@ -400,7 +400,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			NodeActionsList.Add(new JournalAction(
 				"Массовое редактирование",
-				nodes => nodes.Count() > 1,
+				nodes => CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanUpdate
+					&& nodes.Count() > 1,
 				nodes => true,
 				nodes =>
 				{
