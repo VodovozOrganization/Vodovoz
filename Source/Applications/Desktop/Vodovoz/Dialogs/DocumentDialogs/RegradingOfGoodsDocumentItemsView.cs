@@ -38,6 +38,8 @@ namespace Vodovoz
 
 		public RegradingOfGoodsDocumentItemsView()
 		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
 			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
 			this.Build();
 			var basePrimary = GdkColors.PrimaryBase;
@@ -49,8 +51,6 @@ namespace Vodovoz
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
-
-			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
