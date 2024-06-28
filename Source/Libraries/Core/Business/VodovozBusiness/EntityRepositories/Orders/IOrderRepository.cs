@@ -149,7 +149,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
-		IList<Order> GetCashlessOrdersForEdoSendUpd(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		IEnumerable<Order> GetCashlessOrdersForEdoSendUpd(
+			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
