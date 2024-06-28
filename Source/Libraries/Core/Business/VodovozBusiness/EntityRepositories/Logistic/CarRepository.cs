@@ -78,18 +78,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List<CarEvent>();
 		}
 
-		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType)
+		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType, IEnumerable<int> excludeCarIds)
 		{
 			var carInsurances =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
-				join cm in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals cm.Id into carModels
-				from carModel in carModels.DefaultIfEmpty()
+				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
 				where
-				!car.IsArchive
-				&& carVersion.StartDate <= DateTime.Now
-				&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
-				&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
+					!car.IsArchive
+					&& !excludeCarIds.Contains(car.Id)
+					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& carVersion.StartDate <= DateTime.Now
+					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
+					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
 
 				select new CarInsuranceNode
 				{
@@ -111,25 +112,27 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return carInsurances;
 		}
 
-		public IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId)
+		public IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId, IEnumerable<int> excludeCarIds)
 		{
 			var carTechInspects =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
-				join cm in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals cm.Id into carModels
-				from carModel in carModels.DefaultIfEmpty()
+				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
 				where
-				!car.IsArchive
-				&& carVersion.StartDate <= DateTime.Now
-				&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
-				&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
+					!car.IsArchive
+					&& !excludeCarIds.Contains(car.Id)
+					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& carVersion.StartDate <= DateTime.Now
+					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
+					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
 
 				let lastTechInspectOdometer =
-				(from ce in unitOfWork.Session.Query<CarEvent>()
-				 where ce.Car.Id == car.Id && ce.CarEventType.Id == techInspectCarEventTypeId
-				 orderby ce.StartDate descending
-				 select ce.Odometer
-				).FirstOrDefault()
+					(from ce in unitOfWork.Session.Query<CarEvent>()
+					 where ce.Car.Id == car.Id && ce.CarEventType.Id == techInspectCarEventTypeId
+					 orderby ce.StartDate descending
+					 select ce.Odometer
+					)
+					.FirstOrDefault()
 
 				select new CarTechInspectNode
 				{
