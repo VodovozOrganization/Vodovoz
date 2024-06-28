@@ -12,13 +12,19 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using DateTimeHelpers;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Counterparties
 {
 	public class CallTaskMassEditViewModel : DialogViewModelBase, IDisposable, IHasChanges, ISaveable
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IInteractiveService _interactiveService;
 		private IUnitOfWork _unitOfWork;
 		private Employee _assignedEmployee;
 		private CallTaskStatus? _callTaskStatus;
@@ -28,7 +34,9 @@ namespace Vodovoz.ViewModels.Counterparties
 		public CallTaskMassEditViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IPermissionService permissionService,
+			ViewModelEEVMBuilder<Employee> attachedEmployyeeViewModelEEVMBuilder,
 			IUserService userService,
+			IInteractiveService interactiveService,
 			INavigationManager navigation)
 			: base(navigation)
 		{
@@ -47,10 +55,22 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			_unitOfWorkFactory = unitOfWorkFactory
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-
+			_interactiveService = interactiveService
+				?? throw new ArgumentNullException(nameof(interactiveService));
 			_unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Tasks = new GenericObservableList<CallTask>();
+
+			AttachedEmployeeViewModel = attachedEmployyeeViewModelEEVMBuilder
+				.SetUnitOfWork(_unitOfWork)
+				.SetViewModel(this)
+				.ForProperty(this, e => e.AssignedEmployee)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = EmployeeCategory.office;
+				})
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
 
 			SaveCommand = new DelegateCommand(() => SaveAndClose(), () => HasChanges);
 			SaveCommand.CanExecuteChangedWith(this, x => x.HasChanges);
@@ -75,9 +95,13 @@ namespace Vodovoz.ViewModels.Counterparties
 				ResetEndActivePeriod,
 				() => NeedToChangeEndActivePeriod);
 			ResetEndActivePeriodCommand.CanExecuteChangedWith(this, x => x.NeedToChangeEndActivePeriod);
+
+			ShowInformationCommand = new DelegateCommand(ShowInformation);
 		}
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
+
+		public IEntityEntryViewModel AttachedEmployeeViewModel { get; }
 
 		public GenericObservableList<CallTask> Tasks { get; }
 
@@ -133,12 +157,15 @@ namespace Vodovoz.ViewModels.Counterparties
 		public DelegateCommand ResetCallTaskStatusCommand { get; }
 		public DelegateCommand ResetIsTaskCompleteCommand { get; }
 		public DelegateCommand ResetEndActivePeriodCommand { get; }
+		public DelegateCommand ShowInformationCommand { get; }
 
 		public void AddTasks(IEnumerable<int> ids)
 		{
+			var existingTasksIds = Tasks.Select(t => t.Id).ToArray();
+
 			var tasksToAdd = _unitOfWork.Session.Query<CallTask>()
 				.Where(x => ids.Contains(x.Id)
-					&& !Tasks.Any(t => t.Id == x.Id))
+					&& !existingTasksIds.Contains(x.Id))
 				.ToList();
 
 			foreach(var task in tasksToAdd)
@@ -159,12 +186,25 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		private void ResetIsTaskComplete()
 		{
+			IsTaskComplete = false;
 			IsTaskComplete = null;
 		}
 
 		private void ResetEndActivePeriod()
 		{
 			EndActivePeriod = null;
+		}
+
+		private void ShowInformation()
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"У каждого элемента для изменения в задаче на обзвон слева есть кнопка с иконкой восклицательного знака\n" +
+				"Если кнопка не активна - изменение в данном поле не будет применено\n" +
+				"Если кнопка активна - данное изменение будет применено ко всем выбранным задачам на обзвон\n" +
+				"\n" +
+				"Изменения вносятся после нажатия кнопки сохранить",
+				"Информация");
 		}
 
 		public void Dispose()
@@ -198,7 +238,7 @@ namespace Vodovoz.ViewModels.Counterparties
 
 				if(NeedToChangeEndActivePeriod)
 				{
-					task.EndActivePeriod = EndActivePeriod.Value.LatestDayTime();
+					task.EndActivePeriod = EndActivePeriod.Value;
 				}
 
 				_unitOfWork.Save(task);
