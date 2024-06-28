@@ -31,8 +31,8 @@ namespace Vodovoz.Core.Domain.Orders
 		private DateTime _billDate = DateTime.Now;
 		private string _deliverySchedule1c;
 		private bool _payAfterShipment;
-		private string _odzComment;
-		private string _opComment;
+		private string _oDZComment;
+		private string _oPComment;
 		private DateTime? _commentOPManagerUpdatedAt;
 		private int? _callBeforeArrivalMinutes;
 		private bool? _isDoNotMakeCallBeforeArrival;
@@ -165,8 +165,8 @@ namespace Vodovoz.Core.Domain.Orders
 		[Display(Name = "Комментарий ОДЗ")]
 		public virtual string ODZComment
 		{
-			get => _odzComment;
-			set => SetField(ref _odzComment, value);
+			get => _oDZComment;
+			set => SetField(ref _oDZComment, value);
 		}
 
 		#region OPComment
@@ -174,8 +174,8 @@ namespace Vodovoz.Core.Domain.Orders
 		[Display(Name = "Комментарий ОП")]
 		public virtual string OPComment
 		{
-			get => _opComment;
-			set => SetField(ref _opComment, value);
+			get => _oPComment;
+			set => SetField(ref _oPComment, value);
 		}
 
 		[Display(Name = "Последнее изменение комментария менеджера")]
