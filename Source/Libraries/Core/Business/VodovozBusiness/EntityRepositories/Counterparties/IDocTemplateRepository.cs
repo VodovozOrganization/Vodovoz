@@ -3,6 +3,7 @@ using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Errors;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -13,7 +14,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// </summary>
 		DocTemplate GetTemplate(IUnitOfWork uow, TemplateType type, Organization org, ContractType contractType);
 
+		Result<IDocTemplate> GetMatchingTemplate(IUnitOfWork uow, TemplateType templateType, Organization organization, ContractType? contractType = null);
+
 		IList<IDocTemplate> GetAvailableTemplates(IUnitOfWork uow, TemplateType type, Organization org);
+
 		DocTemplate GetFirstAvailableTemplate(IUnitOfWork uow, TemplateType type, Organization org);
 	}
 }

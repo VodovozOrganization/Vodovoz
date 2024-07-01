@@ -37,6 +37,11 @@ using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
+using Vodovoz.Domain.Documents;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Infrastructure.Print;
+using ClosedXML.Report.Utils;
+using QS.DocTemplates;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -54,7 +59,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly IDocTemplateRepository _documentTemplateRepository;
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
+		private readonly IDocumentPrinter _documentPrinter;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -70,11 +77,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
 			IFuelRepository fuelRepository,
+			IDocTemplateRepository documentTemplateRepository,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
 			CarInsuranceManagementViewModel insuranceManagementViewModel,
-			CarVersionsManagementViewModel carVersionsManagementViewModel)
+			CarVersionsManagementViewModel carVersionsManagementViewModel,
+			IDocumentPrinter documentPrinter)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -93,6 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_documentTemplateRepository = documentTemplateRepository ?? throw new ArgumentNullException(nameof(documentTemplateRepository));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 
 			TabName = "Автомобиль";
@@ -174,6 +184,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
+			CreateRentalContractCommand = new DelegateCommand(CreateRentalContract);
+			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -225,6 +237,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionEditingViewModel CarInsuranceVersionEditingViewModel { get; }
+
+		public DelegateCommand AddGeoGroupCommand { get; }
+		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
+		public DelegateCommand CreateRentalContractCommand { get; }
 
 		protected override bool BeforeSave()
 		{
@@ -450,9 +466,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Add GeoGroup
 
-		public DelegateCommand AddGeoGroupCommand { get; }
-		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
-
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
 		public int UpcomingTechInspectKm { get; private set; }
@@ -513,6 +526,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
 				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
 			});
+		}
+		
+		private void CreateRentalContract()
+		{
+			var contract = CarRentalContract.Create(UoW, _documentTemplateRepository, Entity, Entity.CarVersions.LastOrDefault()?.CarOwnerOrganization, Entity.Driver);
+			_documentPrinter.PrintAllODTDocuments(new[] { contract });
 		}
 
 		public override void Dispose()
