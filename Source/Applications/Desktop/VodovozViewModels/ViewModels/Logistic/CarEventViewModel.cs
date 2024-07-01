@@ -214,6 +214,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(UoW.IsNew && Entity.CarEventType.Id == _carEventSettings.TechInspectCarEventTypeId)
 			{
 				Entity.Car.TechInspectForKm = null;
+				UoW.Save(Entity.Car);
 			}
 
 			base.SaveAndClose();
