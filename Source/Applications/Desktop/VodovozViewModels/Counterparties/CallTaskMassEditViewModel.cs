@@ -107,8 +107,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public GenericObservableList<CallTask> Tasks { get; }
 
-		[PropertyChangedAlso(nameof(HasChanges))]
-		[PropertyChangedAlso(nameof(NeedToChangeAssignedEmployee))]
+		[PropertyChangedAlso(nameof(HasChanges),
+			nameof(NeedToChangeAssignedEmployee))]
 		public Employee AssignedEmployee
 		{
 			get => _assignedEmployee;
@@ -117,8 +117,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public bool NeedToChangeAssignedEmployee => AssignedEmployee != null;
 
-		[PropertyChangedAlso(nameof(HasChanges))]
-		[PropertyChangedAlso(nameof(NeedToChangeCallTaskStatus))]
+		[PropertyChangedAlso(nameof(HasChanges),
+			nameof(NeedToChangeCallTaskStatus))]
 		public CallTaskStatus? CallTaskStatus
 		{
 			get => _callTaskStatus;
@@ -127,8 +127,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public bool NeedToChangeCallTaskStatus => CallTaskStatus != null;
 
-		[PropertyChangedAlso(nameof(HasChanges))]
-		[PropertyChangedAlso(nameof(NeedToChangeIsTaskComplete))]
+		[PropertyChangedAlso(nameof(HasChanges),
+			nameof(NeedToChangeIsTaskComplete))]
 		public bool? IsTaskComplete
 		{
 			get => _isTaskComplete;
@@ -137,8 +137,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public bool NeedToChangeIsTaskComplete => IsTaskComplete != null;
 
-		[PropertyChangedAlso(nameof(HasChanges))]
-		[PropertyChangedAlso(nameof(NeedToChangeEndActivePeriod))]
+		[PropertyChangedAlso(nameof(HasChanges),
+			nameof(NeedToChangeEndActivePeriod))]
 		public DateTime? EndActivePeriod
 		{
 			get => _endActivePeriod;
@@ -209,11 +209,6 @@ namespace Vodovoz.ViewModels.Counterparties
 				"Информация");
 		}
 
-		public void Dispose()
-		{
-			_unitOfWork?.Dispose();
-		}
-
 		public bool Save()
 		{
 			if(!HasChanges)
@@ -254,6 +249,11 @@ namespace Vodovoz.ViewModels.Counterparties
 		{
 			Save();
 			Close(false, CloseSource.Save);
+		}
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
 		}
 	}
 }
