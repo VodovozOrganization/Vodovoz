@@ -187,6 +187,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
+			if(UoW.IsNew && Entity.CarEventType.Id == _carEventSettings.TechInspectCarEventTypeId)
+			{
+				Entity.Car.TechInspectForKm = null;
+				UoW.Save(Entity.Car);
+			}
+
 			if(CanChangeWithClosedPeriod)
 			{
 				if(InCorrectPeriod(Entity.EndDate) || AskQuestion("Вы уверенны что хотите сохранить изменения в закрытом периоде?"))
@@ -209,12 +215,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				ShowWarningMessage($"С {_startNewPeriodDay + 1} числа текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа текущего месяца");
 				return;
-			}
-
-			if(UoW.IsNew && Entity.CarEventType.Id == _carEventSettings.TechInspectCarEventTypeId)
-			{
-				Entity.Car.TechInspectForKm = null;
-				UoW.Save(Entity.Car);
 			}
 
 			base.SaveAndClose();
