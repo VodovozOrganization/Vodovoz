@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -44,6 +45,7 @@ namespace Vodovoz.Representations
 		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
 		private readonly IDebtorsSettings _debtorsParameters;
+		private readonly ILogger<BulkEmailViewModel> _loggerBulkEmailViewModel;
 		private readonly DebtorsJournalFilterViewModel _filterViewModel;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICommonServices _commonServices;
@@ -59,6 +61,7 @@ namespace Vodovoz.Representations
 		private string _footerInfo = "Идёт загрузка данных...";
 
 		public DebtorsJournalViewModel(
+			ILogger<BulkEmailViewModel> loggerBulkEmailViewModel,
 			DebtorsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -90,6 +93,7 @@ namespace Vodovoz.Representations
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
+			_loggerBulkEmailViewModel = loggerBulkEmailViewModel ?? throw new ArgumentNullException(nameof(loggerBulkEmailViewModel));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -585,6 +589,7 @@ namespace Vodovoz.Representations
 				selectedItems =>
 				{
 					var bulkEmailViewModel = new BulkEmailViewModel(
+						_loggerBulkEmailViewModel,
 						null,
 						UnitOfWorkFactory,
 						ItemsQuery,

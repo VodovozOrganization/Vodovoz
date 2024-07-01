@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels
 	public class BulkEmailViewModel : DialogViewModelBase
 	{
 		private readonly IUnitOfWork _uow;
+		private readonly ILogger<BulkEmailViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmailSettings _emailSettings;
 		private readonly ICommonServices _commonServices;
@@ -61,10 +62,11 @@ namespace Vodovoz.ViewModels.ViewModels
 		private int _monthsSinceUnsubscribing;
 		private bool _includeOldUnsubscribed;
 
-		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
+		public BulkEmailViewModel(ILogger<BulkEmailViewModel> logger, INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
 			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailSettings emailSettings,
 			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
@@ -306,11 +308,12 @@ namespace Vodovoz.ViewModels.ViewModels
 
 							try
 							{
-								SendEmail(email.Address, counterparty.FullName, storedEmail);
 								unitOfWork.Commit();
+								SendEmail(email.Address, counterparty.FullName, storedEmail);
 							}
 							catch(Exception e)
 							{
+								_logger.LogError(e, "Ошибка при отправке письма контрагенту {CounterpartyFullName}", counterparty?.FullName);
 								sendingErrors += $"{ counterparty.FullName }; ";
 							}
 						}
