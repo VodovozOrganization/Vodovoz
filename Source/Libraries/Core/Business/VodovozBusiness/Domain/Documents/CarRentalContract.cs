@@ -1,14 +1,18 @@
-﻿using QS.DocTemplates;
+﻿using Newtonsoft.Json.Linq;
+using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Errors;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Documents
@@ -57,10 +61,10 @@ namespace Vodovoz.Domain.Documents
 			var passport = driver.Documents
 				.FirstOrDefault(x => x.Document == EmployeeDocumentType.Passport);
 
-			DriverPassportSerie = passport.PassportSeria;
-			DriverPassportNumber = passport.PassportNumber;
-			DriverRegistrationAddress = driver.AddressRegistration;
-			DriverResidentialAddress = driver.AddressCurrent;
+			DriverPassportSerie = passport?.PassportSeria;
+			DriverPassportNumber = passport?.PassportNumber;
+			DriverRegistrationAddress = driver?.AddressRegistration;
+			DriverResidentialAddress = driver?.AddressCurrent;
 
 			OrganizationFullName = organization.FullName;
 			OrganizationAddress = activeOrganizationVersion.Address;
@@ -121,14 +125,72 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion Printing
 
-		public static CarRentalContract Create(
+		public static Result<CarRentalContract> Create(
 			IUnitOfWork unitOfWork,
 			IDocTemplateRepository docTemplateRepository,
 			Car car,
 			Organization organization,
 			Employee driver)
 		{
+			var validationResults = ValidateParameters(car, organization, driver);
+
+			if(validationResults.Any())
+			{
+				return Result.Failure<CarRentalContract>(validationResults.Select(ve => new Error("ValidationError", ve.ErrorMessage)));
+			}
+
 			return new CarRentalContract(unitOfWork, docTemplateRepository, car, organization, driver);
+		}
+
+		private static IEnumerable<ValidationResult> ValidateParameters(
+			Car car,
+			Organization organization,
+			Employee driver)
+		{
+			if(car is null)
+			{
+				yield return new ValidationResult("Не указан автомобиль", new string[] { nameof(car) });
+			}
+
+			if(car.CarModel is null)
+			{
+				yield return new ValidationResult("Не указана модель автомобиля", new string[] { nameof(car.CarModel) });
+			}
+
+			if(organization is null)
+			{
+				yield return new ValidationResult("Не указана организация", new string[] { nameof(organization) });
+			}
+
+			if(organization.ActiveOrganizationVersion is null)
+			{
+				yield return new ValidationResult("В организации отсутствует активная версия", new string[] { nameof(organization.ActiveOrganizationVersion) });
+			}
+
+			if(organization.ActiveOrganizationVersion.Leader is null)
+			{
+				yield return new ValidationResult("В организации не указан руководитель", new string[] { nameof(organization.ActiveOrganizationVersion.Leader) });
+			}
+
+			if(organization.DefaultAccount is null)
+			{
+				yield return new ValidationResult("В организации не указан основной банковский счет", new string[] { nameof(organization.DefaultAccount) });
+			}
+
+			if(organization.DefaultAccount.InBank is null)
+			{
+				yield return new ValidationResult("В организации не указан банк в основном банковском счету", new string[] { nameof(organization.DefaultAccount.InBank) });
+			}
+
+			if(organization.DefaultAccount.InBank.DefaultCorAccount is null)
+			{
+				yield return new ValidationResult("В организации не указан основной корреспондентский счет в банке в основном банковском счету", new string[] { nameof(organization.DefaultAccount.InBank.DefaultCorAccount) });
+			}
+
+			if(driver is null)
+			{
+				yield return new ValidationResult("Не указан водитель", new string[] { nameof(driver) });
+			}
 		}
 	}
 }

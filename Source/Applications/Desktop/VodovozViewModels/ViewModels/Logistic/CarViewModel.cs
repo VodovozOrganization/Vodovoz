@@ -564,7 +564,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateRentalContract()
 		{
 			var contract = CarRentalContract.Create(UoW, _documentTemplateRepository, Entity, Entity.CarVersions.LastOrDefault()?.CarOwnerOrganization, Entity.Driver);
-			_documentPrinter.PrintAllODTDocuments(new[] { contract });
+
+			if(contract.IsFailure)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", contract.Errors.Select(e => e.Message)));
+				return;
+			}
+
+			_documentPrinter.PrintAllODTDocuments(new[] { contract.Value });
 		}
 
 		private void OnEntityPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
