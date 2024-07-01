@@ -18,6 +18,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Zabbix.Sender;
 
 namespace FastDeliveryLateWorker
 {
@@ -28,6 +29,7 @@ namespace FastDeliveryLateWorker
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IOrderSettings _orderSettings;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -45,7 +47,8 @@ namespace FastDeliveryLateWorker
 			IGenericRepository<ComplaintDetalization> complaintDetalizationRepository,
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -57,6 +60,7 @@ namespace FastDeliveryLateWorker
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override void OnStartService()
@@ -93,6 +97,8 @@ namespace FastDeliveryLateWorker
 			try
 			{
 				CreateComplaintsForFasteDeliveryLateOrders();
+
+				await _zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception e)
 			{

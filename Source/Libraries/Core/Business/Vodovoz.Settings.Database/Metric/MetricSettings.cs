@@ -12,8 +12,7 @@ namespace Vodovoz.Settings.Database.Metric
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
-		public string ZabbixServer => _settingsController.GetStringValue(nameof(ZabbixServer));
-
-		//public string ZabbixHealthMetricName => _settingsController.GetStringValue(nameof(ZabbixHealthMetricName));
+		public string ZabbixHost => _settingsController.GetStringValue(nameof(ZabbixHost));
+		public string ZabbixUrl => _settingsController.GetStringValue(nameof(ZabbixUrl));
 	}
 }

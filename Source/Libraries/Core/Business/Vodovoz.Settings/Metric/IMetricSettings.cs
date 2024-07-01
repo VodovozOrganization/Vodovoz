@@ -2,7 +2,7 @@
 {
 	public interface IMetricSettings
 	{
-		string ZabbixServer { get; }
-		//string ZabbixHealthMetricName { get; }
+		string ZabbixHost { get; }
+		string ZabbixUrl{ get; }
 	}
 }
