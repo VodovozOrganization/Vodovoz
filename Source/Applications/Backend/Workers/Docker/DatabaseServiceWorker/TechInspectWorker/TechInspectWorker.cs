@@ -159,10 +159,18 @@ namespace DatabaseServiceWorker
 							select rl.ConfirmedDistance
 						).Sum()
 
+					let isTechInspectForKmManual = c.TechInspectForKm != null
+
+					let techInspectForKm = isTechInspectForKmManual
+						? c.TechInspectForKm
+						: (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0)
+
+					let leftUntilTechInspect = techInspectForKm - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0)
+
 					select new
 					{
 						Car = c,
-						LeftUntilTechInspect = (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0) - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0)
+						LeftUntilTechInspect = leftUntilTechInspect,
 					}
 				).ToList();
 
