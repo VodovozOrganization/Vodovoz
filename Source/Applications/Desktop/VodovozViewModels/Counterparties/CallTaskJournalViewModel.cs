@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -56,6 +56,8 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 			CreatePopupActions();
+
+			SelectionMode = JournalSelectionMode.Multiple;
 		}
 
 		public override string FooterInfo { get; set; }
@@ -389,21 +391,71 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
+
+			bool canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanCreate;
+			bool canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanUpdate;
+			bool canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+					(selected) => canCreate,
+					(selected) => VisibleCreateAction,
+					(selected) => CreateEntityDialog(),
+					"Insert"
+					);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+					(selected) => canEdit && selected.Any(),
+					(selected) => VisibleEditAction,
+					(selected) => selected.Cast<CallTaskJournalNode>().ToList().ForEach(EditEntityDialog)
+					);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+
+			var deleteAction = new JournalAction("Удалить",
+					(selected) => canDelete && selected.Any(),
+					(selected) => VisibleDeleteAction,
+					(selected) => DeleteEntities(selected.Cast<CallTaskJournalNode>().ToArray()),
+					"Delete"
+					);
+			NodeActionsList.Add(deleteAction);
+
 			NodeActionsList.Add(new JournalAction(
 				"Экспорт",
-				(nodes) => true,
-				(nodes) => true,
-				(nodes) => ExportTasks()));
+				nodes => true,
+				nodes => true,
+				nodes => ExportTasks()));
+
+			NodeActionsList.Add(new JournalAction(
+				"Массовое редактирование",
+				nodes => CurrentPermissionService.ValidateEntityPermission(typeof(CallTask)).CanUpdate
+					&& nodes.Count() > 1,
+				nodes => true,
+				nodes =>
+				{
+					NavigationManager.OpenViewModel<CallTaskMassEditViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						viewModel => viewModel
+							.AddTasks(nodes
+								.Cast<CallTaskJournalNode>()
+								.Select(ct => ct.Id)));
+				}));
 		}
 
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Clear();
-			PopupActionsList.Add(new JournalAction("Отметить как важное",
-				(_) => true,
-				(_) => true,
-				(selectedItems) =>
+			PopupActionsList.Add(new JournalAction(
+				"Отметить как важное",
+				nodes => nodes.Count() == 1,
+				_ => true,
+				selectedItems =>
 				{
 					var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
 					ChangeEnitity((task) => task.ImportanceDegree = ImportanceDegreeType.Important, selectedNodes.ToArray());
