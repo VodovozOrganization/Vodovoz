@@ -21,6 +21,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Database;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace ExternalCounterpartyAssignNotifier
 {
@@ -55,10 +56,10 @@ namespace ExternalCounterpartyAssignNotifier
 					)
 					.AddDatabaseConnection()
 					.AddCore()
+					.AddInfrastructure()
 					.AddTrackedUoW()
 
 					.AddHostedService<ExternalCounterpartyAssignNotifier>()
-					.AddSingleton<IExternalCounterpartyAssignNotificationRepository, ExternalCounterpartyAssignNotificationRepository>()
 
 					.AddSingleton(provider => new JsonSerializerOptions
 					{

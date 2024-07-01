@@ -40,6 +40,7 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     </ItemGroup>
 

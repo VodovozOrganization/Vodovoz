@@ -38,6 +38,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -105,6 +106,8 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
+		private IPermissionRepository _permissionRepository;
+		private IFlyerRepository _flyerRepository;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
@@ -201,7 +204,11 @@ namespace Vodovoz
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
 			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
 
+			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
+
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+
+			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
 		}
 
 		private void ConfigureDlg()
@@ -230,7 +237,7 @@ namespace Vodovoz
 				HasChanges = true;
 			};
 
-			canCloseRoutelist = new PermissionRepository()
+			canCloseRoutelist = _permissionRepository
 				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService) && _canEdit;
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
@@ -758,6 +765,7 @@ namespace Vodovoz
 				_orderSettings,
 				_nomenclatureOnlineSettings,
 				_deliveryRulesSettings,
+				_flyerRepository,
 				NavigationManager,
 				_lifetimeScope);
 			dlg.ConfigureForRouteListAddress(node);

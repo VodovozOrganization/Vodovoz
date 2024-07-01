@@ -7,6 +7,7 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -44,6 +45,7 @@ namespace Vodovoz.SmsInformerWorker
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddSmsInformerWorker(hostContext);
 

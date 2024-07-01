@@ -26,7 +26,7 @@ namespace Dialogs.Logistic
 	public partial class TrackOnMapWnd : Gtk.Window
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly ITrackRepository _trackRepository = ScopeProvider.Scope.Resolve<ITrackRepository>();
 		private readonly IGlobalSettings _globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
 
 		#region Поля

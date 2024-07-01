@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 
@@ -51,6 +52,7 @@ namespace CashReceiptPrepareWorker
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 
@@ -63,18 +65,6 @@ namespace CashReceiptPrepareWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<TrueMarkRepository>()
-				.As<ITrueMarkRepository>()
-				.SingleInstance();
-
-			builder.RegisterType<OrderRepository>()
-				.As<IOrderRepository>()
-				.SingleInstance();
-			
-			builder.RegisterType<OrganizationRepository>()
-				.As<IOrganizationRepository>()
-				.SingleInstance();
-
 			builder.RegisterType<CashReceiptFactory>()
 				.As<ICashReceiptFactory>()
 				.SingleInstance();
@@ -86,10 +76,6 @@ namespace CashReceiptPrepareWorker
 			builder.RegisterType<OrderReceiptCreatorFactory>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-
-			builder.RegisterType<CashReceiptRepository>()
-				.As<ICashReceiptRepository>()
-				.InstancePerDependency();
 
 			builder.RegisterType<TrueMarkCodesChecker>()
 				.AsSelf()

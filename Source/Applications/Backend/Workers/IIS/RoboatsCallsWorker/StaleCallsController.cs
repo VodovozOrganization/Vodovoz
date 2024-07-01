@@ -11,10 +11,10 @@ namespace RoboatsCallsWorker
 	{
 		private readonly ILogger<StaleCallsController> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly RoboatsRepository _roboatsRepository;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
 
-		public StaleCallsController(ILogger<StaleCallsController> logger, IUnitOfWorkFactory uowFactory, RoboatsRepository roboatsRepository, IRoboatsSettings roboatsSettings)
+		public StaleCallsController(ILogger<StaleCallsController> logger, IUnitOfWorkFactory uowFactory, IRoboatsRepository roboatsRepository, IRoboatsSettings roboatsSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

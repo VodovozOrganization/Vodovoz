@@ -41,18 +41,20 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
 
-		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+		private IEmployeeRepository _employeeRepository;
+		private IStockRepository _stockRepository;
+		private IBottlesRepository _bottlesRepository;
+		private IStoreDocumentHelper _storeDocumentHelper;
+		private INomenclatureRepository _nomenclatureRepository;
+
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		private GeoGroup _warehouseGeoGroup;
 
 		public SelfDeliveryDocumentDlg()
 		{
+			ResolveDependencies();
 			Build();
 
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
@@ -84,6 +86,7 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(int id)
 		{
+			ResolveDependencies();
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
@@ -99,6 +102,15 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(SelfDeliveryDocument sub) : this(sub.Id)
 		{
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
+			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
+			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 		}
 
 		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
@@ -276,19 +288,17 @@ namespace Vodovoz
 			Entity.UpdateOperations(UoW);
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
-			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
-			INomenclatureSettings nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
-			var callTaskWorker = new CallTaskWorker(
-				ServicesConfig.UnitOfWorkFactory,
-				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
-				new OrderRepository(),
-				_employeeRepository,
-				employeeSettings,
-				ServicesConfig.CommonServices.UserService,
-				ErrorReporter.Instance);
-			if(Entity.FullyShiped(UoW, nomenclatureSettings, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
+			var employeeSettings = _lifetimeScope.Resolve<IEmployeeSettings>();
+			var nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
+			var callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+			var cashRepository = _lifetimeScope.Resolve<ICashRepository>();
+			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
+			var selfDeliveryRepository = _lifetimeScope.Resolve<ISelfDeliveryRepository>();
+
+			if(Entity.FullyShiped(UoW, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker))
+			{
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
+			}
 
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
@@ -406,6 +416,11 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
+			_stockRepository = null;
+			_bottlesRepository = null;
+			_storeDocumentHelper = null;
+			_nomenclatureRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

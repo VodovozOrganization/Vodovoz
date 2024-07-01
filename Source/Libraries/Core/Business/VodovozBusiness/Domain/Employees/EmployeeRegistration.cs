@@ -50,7 +50,7 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			if(!(validationContext.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
 			}

@@ -11,6 +11,7 @@ using TrueMarkCodesWorker;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 
@@ -48,6 +49,7 @@ namespace TrueMarkCodePoolCheckWorker
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				.AddHostedService<CodePoolCheckWorker>()
 				;
@@ -58,10 +60,6 @@ namespace TrueMarkCodePoolCheckWorker
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-
-			builder.RegisterType<TrueMarkRepository>()
-				.As<ITrueMarkRepository>()
-				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkCodesChecker>()
 				.AsSelf()

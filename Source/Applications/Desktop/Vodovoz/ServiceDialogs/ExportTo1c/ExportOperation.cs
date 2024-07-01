@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSProjectsLib;
@@ -11,7 +12,7 @@ namespace Vodovoz.ExportTo1c
 {
 	public class ExportOperation : IDisposable
     {
-	    private readonly IOrderRepository _orderRepository = new OrderRepository();
+	    private readonly IOrderRepository _orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
         private readonly IUnitOfWork uow;
         private readonly DateTime start;
         private readonly DateTime end;

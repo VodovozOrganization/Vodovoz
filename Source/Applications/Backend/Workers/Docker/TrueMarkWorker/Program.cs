@@ -11,6 +11,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace TrueMarkApi
 {
@@ -49,6 +50,7 @@ namespace TrueMarkApi
 					services
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddStaticHistoryTracker()
 						;
@@ -56,11 +58,6 @@ namespace TrueMarkApi
 					services
 						.AddHostedService<TrueMarkWorker>()
 						.ConfigureTrueMarkWorker(hostContext)
-						;
-
-					services
-						.AddSingleton<IOrderRepository, OrderRepository>()
-						.AddSingleton<IOrganizationRepository, OrganizationRepository>()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
