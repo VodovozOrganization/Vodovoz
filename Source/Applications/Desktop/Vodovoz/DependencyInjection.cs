@@ -16,8 +16,10 @@ using QS.DomainModel.Entity.PresetPermissions;
 using QS.Services;
 using System;
 using System.Net.Http.Headers;
+using Vodovoz.Core;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Pacs;
 using Vodovoz.ViewModels;
@@ -35,7 +37,8 @@ namespace Vodovoz
 			services.AddSingleton<IPermissionService, PermissionService>()
 				.AddSingleton<IEntityExtendedPermissionValidator, EntityExtendedPermissionValidator>()
 				.AddSingleton<IWarehousePermissionValidator, WarehousePermissionValidator>()
-				.AddSingleton<IPermissionExtensionStore>(sp => PermissionExtensionSingletonStore.GetInstance());
+				.AddSingleton<IPermissionExtensionStore>(sp => PermissionExtensionSingletonStore.GetInstance())
+				.AddScoped<IDocumentPrinter, DocumentPrinter>();
 
 			services.AddSingleton<IEntityPermissionValidator, Vodovoz.Domain.Permissions.EntityPermissionValidator>()
 				.AddSingleton<IPresetPermissionValidator, Vodovoz.Domain.Permissions.HierarchicalPresetPermissionValidator>();
