@@ -822,6 +822,7 @@ namespace Vodovoz
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
+			entityVMEntryClient.BeforeChangeByUser += OnClientBeforeChangeByUser;
 
 			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
 			evmeContactPhone.Binding.AddSource(Entity)
@@ -1114,6 +1115,20 @@ namespace Vodovoz
 		public void UpdateClientDefaultParam()
 		{
 			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+		}
+
+		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
+		{
+			if(Entity.Client != null && Entity.IsOrderCashlessAndPaid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+
+				e.CanChange = false;
+				return;
+			}
+			e.CanChange = true;
 		}
 
 		private void UpdateCallBeforeArrivalMinutesSelectedItem()
@@ -4238,7 +4253,7 @@ namespace Vodovoz
 		private void UpdateUIState()
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
-			buttonSelectPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
+			buttonSelectPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active && !Entity.IsOrderCashlessAndPaid;
 			if(entryDeliveryPoint.ViewModel != null)
 			{
 				entryDeliveryPoint.ViewModel.IsEditable = val;

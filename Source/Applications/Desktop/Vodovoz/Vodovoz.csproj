@@ -2085,6 +2085,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionEditingView.cs" />
     <Compile Include="Counterparties\CallTaskView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskView.cs" />
+    <Compile Include="Counterparties\CallTaskMassEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskMassEditView.cs" />
     <Compile Include="Views\Print\PrintDocumentsSelectablePrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.PrintDocumentsSelectablePrinterView.cs" />
     <Compile Include="ViewWidgets\Users\DocumentsPrinterSettingsView.cs" />

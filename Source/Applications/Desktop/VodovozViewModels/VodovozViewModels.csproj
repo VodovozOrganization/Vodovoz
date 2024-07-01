@@ -81,6 +81,7 @@
     <Compile Include="Counterparties\CallTaskFilterViewModel.TaskFilterDateType.cs" />
     <Compile Include="Counterparties\CallTaskJournalViewModel.CallTaskJournalNode.cs" />
     <Compile Include="Counterparties\CallTaskJournalViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskMassEditViewModel.cs" />
     <Compile Include="Counterparties\CallTaskViewModel.cs" />
     <Compile Include="Counterparties\ClientBalanceFilterViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.cs" />
