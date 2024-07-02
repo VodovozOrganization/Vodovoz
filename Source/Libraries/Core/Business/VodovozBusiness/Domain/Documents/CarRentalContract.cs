@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Errors;
+using Vodovoz.Errors.Documents;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Documents
@@ -150,7 +151,9 @@ namespace Vodovoz.Domain.Documents
 				return Result.Failure<CarRentalContract>(validationResults.Select(ve => new Error("ValidationError", ve.ErrorMessage)));
 			}
 
-			return new CarRentalContract(unitOfWork, docTemplateResult.Value, car, organization, driver);
+			var contract = new CarRentalContract(unitOfWork, docTemplateResult.Value, car, organization, driver);
+			contract.PrepareTemplate(unitOfWork, docTemplateRepository);
+			return contract;
 		}
 
 		private static IEnumerable<ValidationResult> ValidateParameters(
