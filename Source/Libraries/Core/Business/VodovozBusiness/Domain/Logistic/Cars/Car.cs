@@ -62,6 +62,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private int _leftUntilTechInspect;
 		private IncomeChannel _incomeChannel;
 		private bool _isKaskoInsuranceNotRelevant = true;
+		private int? _techInspectForKm;
 
 		public virtual int Id { get; set; }
 
@@ -319,6 +320,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _leftUntilTechInspect;
 			set => SetField(ref _leftUntilTechInspect, value);
+		}
+
+		[Display(Name = "ТО на км")]
+		public virtual int? TechInspectForKm
+		{
+			get => _techInspectForKm;
+			set => SetField(ref _techInspectForKm, value);
 		}
 
 		[Display(Name = "Канал поступления")]

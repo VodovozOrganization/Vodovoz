@@ -187,6 +187,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
+			if(UoW.IsNew && Entity.CarEventType.Id == _carEventSettings.TechInspectCarEventTypeId)
+			{
+				Entity.Car.TechInspectForKm = null;
+				UoW.Save(Entity.Car);
+			}
+
 			if(CanChangeWithClosedPeriod)
 			{
 				if(InCorrectPeriod(Entity.EndDate) || AskQuestion("Вы уверенны что хотите сохранить изменения в закрытом периоде?"))
