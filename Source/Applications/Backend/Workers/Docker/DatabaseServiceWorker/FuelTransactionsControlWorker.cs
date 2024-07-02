@@ -12,6 +12,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Zabbix.Sender;
 using VodovozInfrastructure.Utils;
 
 namespace DatabaseServiceWorker
@@ -31,6 +32,7 @@ namespace DatabaseServiceWorker
 		private readonly IFuelControlTransactionsDataService _fuelControlTransactionsDataService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IFuelControlSettings _fuelControlSettings;
+		private readonly IZabbixSender _zabbixSender;
 
 		public FuelTransactionsControlWorker(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -39,7 +41,8 @@ namespace DatabaseServiceWorker
 			IFuelControlAuthorizationService authorizationService,
 			IFuelControlTransactionsDataService fuelControlTransactionsDataService,
 			IFuelRepository fuelRepository,
-			IFuelControlSettings fuelControlSettings)
+			IFuelControlSettings fuelControlSettings,
+			IZabbixSender zabbixSender)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -48,6 +51,7 @@ namespace DatabaseServiceWorker
 			_fuelControlTransactionsDataService = fuelControlTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelControlTransactionsDataService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override TimeSpan Interval => _options.Value.ScanInterval;
@@ -73,6 +77,8 @@ namespace DatabaseServiceWorker
 			await MonthlyFuelTransactionsUpdate(uow, stoppingToken);
 
 			_isWorkInProgress = false;
+
+			await _zabbixSender.SendIsHealthyAsync();
 		}
 
 		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow, CancellationToken cancellationToken)

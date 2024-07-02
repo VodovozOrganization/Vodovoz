@@ -22,13 +22,15 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Infrastructure;
+using Vodovoz.Zabbix.Sender;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace TrueMarkApi
+namespace TrueMarkWorker
 {
 	public partial class TrueMarkWorker : TimerBackgroundServiceBase
 	{
 		private readonly IOptions<TrueMarkWorkerOptions> _options;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly IHttpClientFactory _httpClientClientFactory;
 		private readonly ILogger<TrueMarkWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -45,13 +47,15 @@ namespace TrueMarkApi
 			IOrganizationRepository organizationRepository,
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
-			IOptions<TrueMarkWorkerOptions> options)
+			IOptions<TrueMarkWorkerOptions> options,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_httpClientClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
 			Interval = options.Value.Interval;
@@ -92,6 +96,8 @@ namespace TrueMarkApi
 			try
 			{
 				await WorkAsync(stoppingToken);
+
+				await _zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception e)
 			{

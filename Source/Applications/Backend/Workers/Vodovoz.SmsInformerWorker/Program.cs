@@ -7,6 +7,7 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Zabbix.Sender;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -45,7 +46,9 @@ namespace Vodovoz.SmsInformerWorker
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-						.AddSmsInformerWorker(hostContext);
+						.AddSmsInformerWorker(hostContext)
+						.ConfigureZabbixSender("SmsInformerWorker")
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
