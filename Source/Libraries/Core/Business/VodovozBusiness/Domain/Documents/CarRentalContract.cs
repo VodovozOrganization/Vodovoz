@@ -20,23 +20,16 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Nominative = "Договор аренды автомобиля")]
 	public class CarRentalContract : IPrintableOdtDocument
 	{
-		private IDocTemplate _template;
+		private readonly IDocTemplate _template;
 
 		private CarRentalContract(
 			IUnitOfWork unitOfWork,
-			IDocTemplateRepository docTemplateRepository,
+			IDocTemplate template,
 			Car car,
 			Organization organization,
 			Employee driver)
 		{
-			docTemplateRepository
-				.GetMatchingTemplate(
-					unitOfWork,
-					TemplateType.CarRentalContract,
-					organization)
-				.Match(
-					template => _template = template,
-					errors => throw new InvalidOperationException(string.Join(", ", errors.Select(x => x.Message))));
+			_template = template;
 
 			CarChasisColor = car.Color;
 			CarModel = car.CarModel.Name;
@@ -132,6 +125,17 @@ namespace Vodovoz.Domain.Documents
 			Organization organization,
 			Employee driver)
 		{
+			var docTemplateResult = docTemplateRepository
+				.GetMatchingTemplate(
+					unitOfWork,
+					TemplateType.CarRentalContract,
+					organization);
+
+			if(docTemplateResult.IsFailure)
+			{
+				return Result.Failure<CarRentalContract>(Errors.Documents.DocumentTemplate.NotFound);
+			}
+
 			var validationResults = ValidateParameters(car, organization, driver);
 
 			if(validationResults.Any())
@@ -139,7 +143,7 @@ namespace Vodovoz.Domain.Documents
 				return Result.Failure<CarRentalContract>(validationResults.Select(ve => new Error("ValidationError", ve.ErrorMessage)));
 			}
 
-			return new CarRentalContract(unitOfWork, docTemplateRepository, car, organization, driver);
+			return new CarRentalContract(unitOfWork, docTemplateResult.Value, car, organization, driver);
 		}
 
 		private static IEnumerable<ValidationResult> ValidateParameters(
