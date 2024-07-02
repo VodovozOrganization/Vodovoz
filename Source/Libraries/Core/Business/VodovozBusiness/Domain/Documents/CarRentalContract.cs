@@ -7,9 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Errors;
@@ -18,7 +20,7 @@ using Vodovoz.Tools;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Nominative = "Договор аренды автомобиля")]
-	public class CarRentalContract : IPrintableOdtDocument
+	public class CarRentalContract : IPrintableOdtDocument, ITemplateOdtDocument
 	{
 		private readonly IDocTemplate _template;
 
@@ -115,6 +117,11 @@ namespace Vodovoz.Domain.Documents
 		public string Name => typeof(CarRentalContract).GetClassUserFriendlyName().Nominative;
 
 		public IDocTemplate GetTemplate() => _template;
+
+		public void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
+		{
+			((CarRentalContractParser)_template.DocParser).RootObject = this;
+		}
 
 		#endregion Printing
 
