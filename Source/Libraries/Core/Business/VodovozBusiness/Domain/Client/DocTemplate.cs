@@ -150,6 +150,8 @@ namespace Vodovoz.Domain.Client
 					return new EmployeeContractParser();
 				case TemplateType.WayBill:
 					return new WayBillDocumentParser();
+				case TemplateType.CarRentalContract:
+					return new CarRentalContractParser();
 				default:
 					throw new NotImplementedException(String.Format("Тип шаблона {0}, не реализован.", type));
 			}
