@@ -38,10 +38,11 @@ namespace Vodovoz.Domain.Documents
 			CarModel = car.CarModel.Name;
 			CarModelReleaseYear = car.ManufactureYear;
 			CarRegistrationNumber = car.RegistrationNumber;
-			CarVINNumber = car.VIN;
+			CarVinNumber = car.VIN;
 
 			var activeOrganizationVersion = organization.ActiveOrganizationVersion;
 
+			CeoFioGenitive = activeOrganizationVersion.Leader.FullName;
 			CeoFio = activeOrganizationVersion.Leader.FullName;
 			CeoFioShort = activeOrganizationVersion.LeaderShortName;
 
@@ -50,6 +51,8 @@ namespace Vodovoz.Domain.Documents
 			CreatedAtDay = today.Day;
 			CreatedAtMonth = $"{today:M}";
 			CreatedAtYear = today.Year;
+
+			EndYear = today.AddYears(1).Year;
 
 			DriverBirthDate = $"{driver.BirthdayDate:dd M yyyy}";
 			DriverFio = driver.FullName;
@@ -62,6 +65,7 @@ namespace Vodovoz.Domain.Documents
 			DriverRegistrationAddress = driver?.AddressRegistration;
 			DriverResidentialAddress = driver?.AddressCurrent;
 
+			OrganizationName = organization.Name;
 			OrganizationFullName = organization.FullName;
 			OrganizationAddress = activeOrganizationVersion.Address;
 			OrganizationBankName = organization.DefaultAccount.InBank.Name;
@@ -79,22 +83,22 @@ namespace Vodovoz.Domain.Documents
 		public string CarModel { get; }
 		public string CarModelReleaseYear { get; }
 		public string CarRegistrationNumber { get; }
-		public string CarVINNumber { get; }
-
+		public string CarVinNumber { get; }
+		public string CeoFioGenitive { get; }
 		public string CeoFio { get; }
 		public string CeoFioShort { get; }
 
 		public int CreatedAtDay { get; }
 		public string CreatedAtMonth { get; }
 		public int CreatedAtYear { get; }
-
+		public int EndYear { get; }
 		public string DriverBirthDate { get; }
 		public string DriverFio { get; }
 		public string DriverPassportSerie { get; }
 		public string DriverPassportNumber { get; }
 		public string DriverRegistrationAddress { get; }
 		public string DriverResidentialAddress { get; }
-
+		public string OrganizationName { get; }
 		public string OrganizationFullName { get; }
 		public string OrganizationAddress { get; }
 		public string OrganizationBankName { get; }
