@@ -486,9 +486,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public int UpcomingTechInspectLeft { get; private set; }
 
-		public void ShowErrorMwssage(string message)
+		public void ShowErrorMessage(string message)
 		{
-			ShowErrorMessage(message);
+			base.ShowErrorMessage(message);
 		}
 
 		private void AddGeoGroup()

@@ -164,7 +164,7 @@ namespace Vodovoz.Views.Logistic
 
 			if(ViewModel.UpcomingTechInspectKmCalculated < newValue)
 			{
-				ViewModel.ShowErrorMwssage("Нельзя установить значение более расчетного");
+				ViewModel.ShowErrorMessage("Нельзя установить значение более расчетного");
 				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
 				return;
 			}
@@ -202,6 +202,13 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.Entity.ObservableGeographicGroups.Remove(selectedObj);
 			}
+		}
+
+		public override void Destroy()
+		{
+			yentryUpcomingTechInspectKm.Changed -= OnUpcomingTechInspectKmChanged;
+
+			base.Destroy();
 		}
 	}
 }
