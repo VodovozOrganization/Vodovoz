@@ -71,14 +71,14 @@ namespace EmailPrepareWorker
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-					services.AddSingleton<ISettingsController, SettingsController>()
-						.AddSingleton<IEmailSettings, EmailSettings>()
-						.AddSingleton<ISettingsController, SettingsController>()
-						.AddSingleton<IEmailRepository, EmailRepository>()
-						.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>()
-						.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
-						.AddSingleton<IDocTemplateRepository, DocTemplateRepository>()
-						.AddSingleton<IOrderRepository, OrderRepository>();
+					services.AddScoped<ISettingsController, SettingsController>()
+						.AddScoped<IEmailSettings, EmailSettings>()
+						.AddScoped<ISettingsController, SettingsController>()
+						.AddScoped<IEmailRepository, EmailRepository>()
+						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
+						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
+						.AddScoped<IDocTemplateRepository, DocTemplateRepository>()
+						.AddScoped<IOrderRepository, OrderRepository>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});
