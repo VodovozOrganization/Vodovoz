@@ -3,10 +3,11 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.PrintableDocuments.Store
 {
-	public class EquipmentCarLoadDocumentRdl : IPrintableRDLDocument
+	public class EquipmentCarLoadDocumentRdl : ICustomPrinterPrintDocument
 	{
 		private readonly CarLoadDocument _carLoadDocument;
 
@@ -20,7 +21,9 @@ namespace Vodovoz.PrintableDocuments.Store
 		public DocumentOrientation Orientation => DocumentOrientation.Portrait;
 		public int CopiesToPrint { get; set; } = 1;
 
-		public string Name => "Талон погрузки (склад оборудования)";
+		public string Name => DocumentType.GetEnumDisplayName();
+
+		public CustomPrinterPrintDocumentType DocumentType => CustomPrinterPrintDocumentType.EquipmentCarLoadDocument;
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
