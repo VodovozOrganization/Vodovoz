@@ -19,7 +19,6 @@ namespace Vodovoz.SmsInformerWorker
 	internal class UndeliveryNotApprovedSmsInformerWorker : SmsInformerWorkerBase
 	{
 		private readonly ISmsNotificationRepository _smsNotificationRepository;
-		private readonly IZabbixSender _zabbixSender;
 
 		public UndeliveryNotApprovedSmsInformerWorker(
 			IOptions<SmsInformerOptions> options,
@@ -30,12 +29,10 @@ namespace Vodovoz.SmsInformerWorker
 			ISmsBalanceNotifier smsBalanceNotifier,
 			ILowBalanceNotificationService lowBalanceNotificationService,
 			IZabbixSender zabbixSender)
-			: base(options, logger, unitOfWorkFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService)
+			: base(options, logger, unitOfWorkFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService, zabbixSender)
 		{
 			_smsNotificationRepository = smsNotificationRepository
 				?? throw new ArgumentNullException(nameof(smsNotificationRepository));
-			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
-			_zabbixSender.SetWorkerName(nameof(UndeliveryNotApprovedSmsInformerWorker));
 		}
 
 		public override void SendNotification(SmsNotification notification)
@@ -57,8 +54,6 @@ namespace Vodovoz.SmsInformerWorker
 					notification.ErrorDescription = result.GetEnumTitle();
 					notification.Status = SmsNotificationStatus.Error;
 				}
-
-				_zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception ex)
 			{
