@@ -178,29 +178,32 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult("Не указана организация", new string[] { nameof(organization) });
 			}
 
-			if(organization.ActiveOrganizationVersion is null)
+			if(organization != null)
 			{
-				yield return new ValidationResult("В организации отсутствует активная версия", new string[] { nameof(organization.ActiveOrganizationVersion) });
-			}
+				if(organization.ActiveOrganizationVersion is null)
+				{
+					yield return new ValidationResult("В организации отсутствует активная версия", new string[] { nameof(organization.ActiveOrganizationVersion) });
+				}
 
-			if(organization.ActiveOrganizationVersion.Leader is null)
-			{
-				yield return new ValidationResult("В организации не указан руководитель", new string[] { nameof(organization.ActiveOrganizationVersion.Leader) });
-			}
+				if(organization.ActiveOrganizationVersion.Leader is null)
+				{
+					yield return new ValidationResult("В организации не указан руководитель", new string[] { nameof(organization.ActiveOrganizationVersion.Leader) });
+				}
 
-			if(organization.DefaultAccount is null)
-			{
-				yield return new ValidationResult("В организации не указан основной банковский счет", new string[] { nameof(organization.DefaultAccount) });
-			}
+				if(organization.DefaultAccount is null)
+				{
+					yield return new ValidationResult("В организации не указан основной банковский счет", new string[] { nameof(organization.DefaultAccount) });
+				}
 
-			if(organization.DefaultAccount.InBank is null)
-			{
-				yield return new ValidationResult("В организации не указан банк в основном банковском счету", new string[] { nameof(organization.DefaultAccount.InBank) });
-			}
+				if(organization.DefaultAccount.InBank is null)
+				{
+					yield return new ValidationResult("В организации не указан банк в основном банковском счету", new string[] { nameof(organization.DefaultAccount.InBank) });
+				}
 
-			if(organization.DefaultAccount.InBank.DefaultCorAccount is null)
-			{
-				yield return new ValidationResult("В организации не указан основной корреспондентский счет в банке в основном банковском счету", new string[] { nameof(organization.DefaultAccount.InBank.DefaultCorAccount) });
+				if(organization.DefaultAccount.InBank.DefaultCorAccount is null)
+				{
+					yield return new ValidationResult("В организации не указан основной корреспондентский счет в банке в основном банковском счету", new string[] { nameof(organization.DefaultAccount.InBank.DefaultCorAccount) });
+				}
 			}
 
 			if(driver is null)
