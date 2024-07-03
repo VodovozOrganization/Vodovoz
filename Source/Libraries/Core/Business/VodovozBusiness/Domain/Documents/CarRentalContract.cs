@@ -1,4 +1,5 @@
-﻿using QS.DocTemplates;
+﻿using DateTimeHelpers;
+using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -15,7 +16,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Errors;
 using Vodovoz.Tools;
-using DateTimeHelpers;
 
 namespace Vodovoz.Domain.Documents
 {
