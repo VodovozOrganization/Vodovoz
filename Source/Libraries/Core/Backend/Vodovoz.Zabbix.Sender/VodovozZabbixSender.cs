@@ -20,6 +20,11 @@ namespace Vodovoz.Zabbix.Sender
 
 		public async Task<bool> SendIsHealthyAsync(bool isHealthy = true)
 		{
+			if(!_metricSettings.ZabbixNeedSendMetrics)
+			{
+				return false;
+			}
+
 			var healthy = isHealthy.ToString();
 
 			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixUrl);

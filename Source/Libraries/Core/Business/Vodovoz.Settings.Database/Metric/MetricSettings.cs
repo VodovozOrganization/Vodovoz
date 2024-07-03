@@ -14,5 +14,6 @@ namespace Vodovoz.Settings.Database.Metric
 
 		public string ZabbixHost => _settingsController.GetStringValue(nameof(ZabbixHost));
 		public string ZabbixUrl => _settingsController.GetStringValue(nameof(ZabbixUrl));
+		public bool ZabbixNeedSendMetrics => _settingsController.GetBoolValue(nameof(ZabbixNeedSendMetrics));
 	}
 }
