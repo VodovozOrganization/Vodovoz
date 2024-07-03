@@ -1,12 +1,18 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System.ComponentModel;
+using Vodovoz.ViewModels.Widgets.Print;
 namespace Vodovoz.ViewWidgets.Users
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DocumentsPrinterSettingsView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class DocumentsPrinterSettingsView : WidgetViewBase<DocumentsPrinterSettingsViewModel>
 	{
 		public DocumentsPrinterSettingsView()
 		{
-			this.Build();
+			Build();
+		}
+
+		protected override void ConfigureWidget()
+		{
 		}
 	}
 }
