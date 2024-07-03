@@ -561,7 +561,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		private void CreateRentalContract()
 		{
-			var contract = CarRentalContract.Create(UoW, _documentTemplateRepository, Entity, Entity.CarVersions.LastOrDefault()?.CarOwnerOrganization, Entity.Driver);
+			var contract = CarRentalContract.Create(UoW, _documentTemplateRepository, Entity, Entity.CarVersions.LastOrDefault(x => x is null)?.CarOwnerOrganization, Entity.Driver);
 
 			if(contract.IsFailure)
 			{
