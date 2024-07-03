@@ -662,6 +662,7 @@ namespace Vodovoz
 						.AddCoreDataNHibernate()
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
+						.AddNHibernateConventions()
 						.AddDatabaseInfo()
 						.AddDatabaseSingletonSettings()
 						.AddCore()
