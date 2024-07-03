@@ -30,7 +30,6 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.CreatedAtDay, nameof(CarRentalContract.CreatedAtDay), PatternFieldType.FString);
 			AddField(x => x.CreatedAtMonth, nameof(CarRentalContract.CreatedAtMonth), PatternFieldType.FString);
 			AddField(x => x.CreatedAtYear, nameof(CarRentalContract.CreatedAtYear), PatternFieldType.FNumber);
-			AddField(x => x.EndYear, nameof(CarRentalContract.EndYear), PatternFieldType.FString);
 
 			// Driver
 

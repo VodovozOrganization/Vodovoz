@@ -50,8 +50,6 @@ namespace Vodovoz.Domain.Documents
 			CreatedAtMonth = today.GetRuMonthGenetive();
 			CreatedAtYear = today.Year.ToString();
 
-			EndYear = today.AddYears(1).Year.ToString();
-
 			DriverBirthDate = $"{driver.BirthdayDate:dd MMMM yyyy}";
 			DriverFio = driver.FullName;
 
@@ -88,7 +86,6 @@ namespace Vodovoz.Domain.Documents
 		public string CreatedAtDay { get; }
 		public string CreatedAtMonth { get; }
 		public string CreatedAtYear { get; }
-		public string EndYear { get; }
 
 		public string DriverBirthDate { get; }
 		public string DriverFio { get; }
