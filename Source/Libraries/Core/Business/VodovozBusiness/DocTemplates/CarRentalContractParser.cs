@@ -35,6 +35,7 @@ namespace Vodovoz.DocTemplates
 
 			AddField(x => x.DriverBirthDate, nameof(CarRentalContract.DriverBirthDate), PatternFieldType.FString);
 			AddField(x => x.DriverFio, nameof(CarRentalContract.DriverFio), PatternFieldType.FString);
+			AddField(x => x.DriverFioGenitive, nameof(CarRentalContract.DriverFioGenitive), PatternFieldType.FString);
 
 			// Driver passport
 

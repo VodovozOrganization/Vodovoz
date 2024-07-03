@@ -52,6 +52,7 @@ namespace Vodovoz.Domain.Documents
 
 			DriverBirthDate = $"{driver.BirthdayDate:dd MMMM yyyy}";
 			DriverFio = driver.FullName;
+			DriverFioGenitive = driver.FullName;
 
 			var passport = driver.Documents
 				.FirstOrDefault(x => x.Document == EmployeeDocumentType.Passport);
@@ -89,6 +90,7 @@ namespace Vodovoz.Domain.Documents
 
 		public string DriverBirthDate { get; }
 		public string DriverFio { get; }
+		public string DriverFioGenitive { get; }
 		public string DriverPassportSerie { get; }
 		public string DriverPassportNumber { get; }
 		public string DriverRegistrationAddress { get; }
