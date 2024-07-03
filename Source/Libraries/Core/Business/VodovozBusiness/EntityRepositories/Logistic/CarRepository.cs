@@ -144,6 +144,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 						: "",
 					LastOdometerReading = car.OdometerReadings.OrderByDescending(r => r.StartDate).FirstOrDefault(),
 					LastTechInspectOdometer = lastTechInspectOdometer,
+					ManualTechInspectForKm = car.TechInspectForKm,
 					TeсhInspectInterval = carModel.TeсhInspectInterval,
 					LeftUntilTechInspectKm = car.LeftUntilTechInspect
 				};
