@@ -12,6 +12,7 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.Infrastructure;
 using Vodovoz.SmsInformerWorker.Options;
 using Vodovoz.SmsInformerWorker.Services;
+using Vodovoz.Zabbix.Sender;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -23,6 +24,7 @@ namespace Vodovoz.SmsInformerWorker
 		protected readonly ISmsSender _smsSender;
 		private readonly ISmsBalanceNotifier _smsBalanceNotifier;
 		private readonly ILowBalanceNotificationService _lowBalanceNotificationService;
+		private readonly IZabbixSender _zabbixSender;
 		protected bool _sendingInProgress = false;
 
 		public SmsInformerWorkerBase(
@@ -31,7 +33,8 @@ namespace Vodovoz.SmsInformerWorker
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISmsSender smsSender,
 			ISmsBalanceNotifier smsBalanceNotifier,
-			ILowBalanceNotificationService lowBalanceNotificationService)
+			ILowBalanceNotificationService lowBalanceNotificationService,
+			IZabbixSender zabbixSender)
 		{
 			if(options is null)
 			{
@@ -50,7 +53,7 @@ namespace Vodovoz.SmsInformerWorker
 				?? throw new ArgumentNullException(nameof(smsBalanceNotifier));
 			_lowBalanceNotificationService = lowBalanceNotificationService
 				?? throw new ArgumentNullException(nameof(lowBalanceNotificationService));
-
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_smsBalanceNotifier.OnBalanceChange -= _lowBalanceNotificationService.BalanceNotifierOnBalanceChange;
 			_smsBalanceNotifier.OnBalanceChange += _lowBalanceNotificationService.BalanceNotifierOnBalanceChange;
 
@@ -79,6 +82,8 @@ namespace Vodovoz.SmsInformerWorker
 
 		private void SendNewNotifications()
 		{
+			_zabbixSender.SendIsHealthyAsync();
+
 			if(_sendingInProgress)
 			{
 				_logger.LogWarning("Отменена отправка до завершения предыдущей. Проверьте настройки интервала отправки и состояние провайдера отправки сообщений");
