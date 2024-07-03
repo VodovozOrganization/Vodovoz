@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -613,7 +613,22 @@ GROUP BY
 UNION
 SELECT
     'Сотрудники компании' AS car_type,
-    SUM(IFNULL(fwdi.liters, 0)) as lites_by_fuel_write_off_document,
+    (SELECT SUM(IFNULL(fwdi.liters, 0))
+		FROM
+		    fuel_writeoff_documents fwd
+		    LEFT JOIN
+		        fuel_writeoff_document_items fwdi ON fwdi.fuel_writeoff_document_id = fwd.id
+		    LEFT JOIN employees e ON fwd.employee_id = e.id 
+		    LEFT JOIN cars c ON c.driver_id = e.id    
+			LEFT JOIN car_models cm ON c.model_id = cm.id
+			LEFT JOIN car_versions cv ON c.id = cv.car_id
+				AND cv.start_date &lt;= fwd.date 
+			    AND (cv.end_date IS NULL OR cv.end_date &gt;= fwd.date)
+		WHERE
+		    fwd.date &gt;= @start_date
+		  	AND fwd.date &lt; @end_date
+		    AND ((0 IN (@include_car_models) OR (cm.id IN (@include_car_models))) AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models))))
+    ) as lites_by_fuel_write_off_document,
     0 AS fuel_limit_liters_gived,
     0 AS payed_for_fuel,
     0 AS cashless_payed_for_fuel,
@@ -623,21 +638,6 @@ SELECT
     IFNULL(
     	(SELECT SUM(total_sum) FROM fuel_transactions_info WHERE driver_category = 'office'),
     	0) as fuel_received_total_sum
-FROM
-    fuel_writeoff_documents fwd
-    LEFT JOIN
-        fuel_writeoff_document_items fwdi ON fwdi.fuel_writeoff_document_id = fwd.id
-    LEFT JOIN employees e ON fwd.employee_id = e.id 
-    LEFT JOIN cars c ON c.driver_id = e.id    
-	LEFT JOIN car_models cm ON c.model_id = cm.id
-	LEFT JOIN car_versions cv ON c.id = cv.car_id
-		AND cv.start_date &lt;= fwd.date 
-	    AND (cv.end_date IS NULL OR cv.end_date &gt;= fwd.date)
-WHERE
-    fwd.date &gt;= @start_date
-  	AND fwd.date &lt; @end_date
-    AND ((0 IN (@include_car_models) OR (cm.id IN (@include_car_models))) AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models))))
-HAVING COUNT(fwdi.id) &gt; 0
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
