@@ -1,6 +1,6 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using RoboatsService.Monitoring;
 using System;
 using System.Collections.Generic;

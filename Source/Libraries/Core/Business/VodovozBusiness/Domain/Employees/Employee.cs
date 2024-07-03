@@ -7,6 +7,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
@@ -19,6 +20,7 @@ using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -55,7 +57,7 @@ namespace Vodovoz.Domain.Employees
 
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
-		private IList<Account> _accounts = new List<Account>();
+		private IObservableList<Account> _accounts = new ObservableList<Account>();
 		private IList<Attachment> _attachments = new List<Attachment>();
 		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
 		private IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
@@ -251,26 +253,22 @@ namespace Vodovoz.Domain.Employees
 
 		#region IAccountOwner implementation
 
-		public virtual IList<Account> Accounts
+		public virtual IObservableList<Account> Accounts
 		{
 			get => _accounts;
 			set => SetField(ref _accounts, value);
 		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Account> ObservableAccounts =>
-			_observableAccounts ?? (_observableAccounts = new GenericObservableList<Account>(Accounts));
 
 		[Display(Name = "Основной счет")]
 		public virtual Account DefaultAccount
 		{
 			get
 			{
-				return ObservableAccounts.FirstOrDefault(x => x.IsDefault);
+				return Accounts.FirstOrDefault(x => x.IsDefault);
 			}
 			set
 			{
-				Account oldDefAccount = ObservableAccounts.FirstOrDefault(x => x.IsDefault);
+				Account oldDefAccount = Accounts.FirstOrDefault(x => x.IsDefault);
 				if(oldDefAccount != null && value != null && oldDefAccount.Id != value.Id)
 				{
 					oldDefAccount.IsDefault = false;
@@ -281,7 +279,7 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void AddAccount(Account account)
 		{
-			ObservableAccounts.Add(account);
+			Accounts.Add(account);
 			account.Owner = this;
 			if(DefaultAccount == null)
 				account.IsDefault = true;
