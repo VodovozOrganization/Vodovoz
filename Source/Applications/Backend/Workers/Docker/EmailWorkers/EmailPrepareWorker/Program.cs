@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using EmailPrepareWorker.Prepares;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,11 +72,8 @@ namespace EmailPrepareWorker
 					services.AddScoped<ISettingsController, SettingsController>()
 						.AddScoped<IEmailSettings, EmailSettings>()
 						.AddScoped<ISettingsController, SettingsController>()
-						.AddScoped<IEmailRepository, EmailRepository>()
 						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
-						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
-						.AddScoped<IDocTemplateRepository, DocTemplateRepository>()
-						.AddScoped<IOrderRepository, OrderRepository>();
+						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});
