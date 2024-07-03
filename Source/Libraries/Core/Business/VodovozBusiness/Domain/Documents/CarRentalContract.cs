@@ -50,11 +50,11 @@ namespace Vodovoz.Domain.Documents
 			CreatedAtMonth = today.GetRuMonthGenetive();
 			CreatedAtYear = today.Year.ToString();
 
-			DriverBirthDate = $"{driver.BirthdayDate:dd MMMM yyyy}";
-			DriverFio = driver.FullName;
-			DriverFioGenitive = driver.FullName;
+			DriverBirthDate = driver?.BirthdayDate?.ToString("dd MMMM yyyy");
+			DriverFio = driver?.FullName;
+			DriverFioGenitive = driver?.FullName;
 
-			var passport = driver.Documents
+			var passport = driver?.Documents
 				.FirstOrDefault(x => x.Document == EmployeeDocumentType.Passport);
 
 			DriverPassportSerie = passport?.PassportSeria;
@@ -208,11 +208,6 @@ namespace Vodovoz.Domain.Documents
 						}
 					}
 				}
-			}
-
-			if(driver is null)
-			{
-				yield return new ValidationResult("Не указан водитель", new string[] { nameof(driver) });
 			}
 		}
 	}

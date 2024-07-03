@@ -33,16 +33,42 @@ namespace Vodovoz.DocTemplates
 
 			// Driver
 
-			AddField(x => x.DriverBirthDate, nameof(CarRentalContract.DriverBirthDate), PatternFieldType.FString);
-			AddField(x => x.DriverFio, nameof(CarRentalContract.DriverFio), PatternFieldType.FString);
-			AddField(x => x.DriverFioGenitive, nameof(CarRentalContract.DriverFioGenitive), PatternFieldType.FString);
+			if(RootObject.DriverBirthDate != null)
+			{
+				AddField(x => x.DriverBirthDate, nameof(CarRentalContract.DriverBirthDate), PatternFieldType.FString);
+			}
+
+			if(RootObject.DriverFio != null)
+			{
+				AddField(x => x.DriverFio, nameof(CarRentalContract.DriverFio), PatternFieldType.FString);
+			}
+
+			if(RootObject.DriverFioGenitive != null)
+			{
+				AddField(x => x.DriverFioGenitive, nameof(CarRentalContract.DriverFioGenitive), PatternFieldType.FString);
+			}
 
 			// Driver passport
 
-			AddField(x => x.DriverPassportSerie, nameof(CarRentalContract.DriverPassportSerie), PatternFieldType.FString);
-			AddField(x => x.DriverPassportNumber, nameof(CarRentalContract.DriverPassportNumber), PatternFieldType.FString);
-			AddField(x => x.DriverRegistrationAddress, nameof(CarRentalContract.DriverRegistrationAddress), PatternFieldType.FString);
-			AddField(x => x.DriverResidentialAddress, nameof(CarRentalContract.DriverResidentialAddress), PatternFieldType.FString);
+			if(RootObject.DriverPassportSerie != null)
+			{
+				AddField(x => x.DriverPassportSerie, nameof(CarRentalContract.DriverPassportSerie), PatternFieldType.FString);
+			}
+
+			if(RootObject.DriverPassportNumber != null)
+			{
+				AddField(x => x.DriverPassportNumber, nameof(CarRentalContract.DriverPassportNumber), PatternFieldType.FString);
+			}
+
+			if(RootObject.DriverRegistrationAddress != null)
+			{
+				AddField(x => x.DriverRegistrationAddress, nameof(CarRentalContract.DriverRegistrationAddress), PatternFieldType.FString);
+			}
+
+			if(RootObject.DriverResidentialAddress != null)
+			{
+				AddField(x => x.DriverResidentialAddress, nameof(CarRentalContract.DriverResidentialAddress), PatternFieldType.FString);
+			}
 
 			// Organization
 
