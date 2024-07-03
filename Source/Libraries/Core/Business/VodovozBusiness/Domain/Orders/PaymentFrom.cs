@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
@@ -18,14 +19,11 @@ namespace Vodovoz.Domain.Orders
 		Nominative = "место, откуда проведена оплата")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PaymentFrom : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class PaymentFrom : PaymentFromEntity, IValidatableObject
 	{
 		private Organization _organizationForOnlinePayments;
-		
-		public virtual int Id { get; set; }
-		public virtual string Name { get; set; }
-		public virtual bool IsArchive { get; set; }
 
+		[Display(Name = "Организация для онлайн оплаты")]
 		public virtual Organization OrganizationForOnlinePayments
 		{
 			get => _organizationForOnlinePayments;
@@ -38,15 +36,15 @@ namespace Vodovoz.Domain.Orders
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IPaymentFromRepository)) is IPaymentFromRepository paymentFromRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(paymentFromRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(paymentFromRepository)}");
 			}
-			
+
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IOrderSettings)) is IOrderSettings orderSettings))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderSettings) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderSettings)}");
 			}
-			
+
 			if(string.IsNullOrWhiteSpace(Name))
 			{
 				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });

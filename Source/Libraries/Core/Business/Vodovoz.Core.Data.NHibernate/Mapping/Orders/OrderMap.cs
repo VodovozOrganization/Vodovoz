@@ -204,6 +204,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Map(x => x.DontArriveBeforeInterval)
 				.Column("dont_arrive_before_interval");
+
+			References(x => x.PaymentByCardFrom)
+				.Column("payment_from_id");
 		}
 	}
 }
