@@ -21,6 +21,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Database;
+using Vodovoz.Zabbix.Sender;
 
 namespace ExternalCounterpartyAssignNotifier
 {
@@ -43,6 +44,8 @@ namespace ExternalCounterpartyAssignNotifier
 						logging.AddNLog();
 						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					})
+
+					.ConfigureZabbixSender(nameof(ExternalCounterpartyAssignNotifier))
 
 					.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,

@@ -16,7 +16,7 @@ using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
 using QS.HistoryLog;
 using Vodovoz.Tools.Orders;
-
+using Vodovoz.Zabbix.Sender;
 
 namespace FastDeliveryLateWorker
 {
@@ -65,6 +65,8 @@ namespace FastDeliveryLateWorker
 						.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.AddScoped<OrderStateKey>()
 						;
+
+					services.ConfigureZabbixSender(nameof(FastDeliveryLateWorker));
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});

@@ -14,6 +14,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -23,6 +24,7 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<PowerBiExportWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<PowerBiExportOptions> _options;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
@@ -34,6 +36,7 @@ namespace DatabaseServiceWorker
 			ILogger<PowerBiExportWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptions<PowerBiExportOptions> options,
+			IZabbixSender zabbixSender,
 			INomenclatureSettings nomenclatureSettings,
 			IGeneralSettings generalSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
@@ -50,6 +53,7 @@ namespace DatabaseServiceWorker
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			Interval = _options.Value.Interval;
 		}
 
@@ -87,6 +91,8 @@ namespace DatabaseServiceWorker
 			try
 			{
 				ReadFromDbAndExportToFile(stoppingToken);
+				
+				await _zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception e)
 			{
