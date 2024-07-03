@@ -9,6 +9,7 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.SmsInformerWorker.Options;
 using Vodovoz.SmsInformerWorker.Services;
+using Vodovoz.Zabbix.Sender;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -18,6 +19,7 @@ namespace Vodovoz.SmsInformerWorker
 	internal class UndeliveryNotApprovedSmsInformerWorker : SmsInformerWorkerBase
 	{
 		private readonly ISmsNotificationRepository _smsNotificationRepository;
+		private readonly IZabbixSender _zabbixSender;
 
 		public UndeliveryNotApprovedSmsInformerWorker(
 			IOptions<SmsInformerOptions> options,
@@ -26,11 +28,14 @@ namespace Vodovoz.SmsInformerWorker
 			ISmsSender smsSender,
 			ISmsNotificationRepository smsNotificationRepository,
 			ISmsBalanceNotifier smsBalanceNotifier,
-			ILowBalanceNotificationService lowBalanceNotificationService)
+			ILowBalanceNotificationService lowBalanceNotificationService,
+			IZabbixSender zabbixSender)
 			: base(options, logger, unitOfWorkFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService)
 		{
 			_smsNotificationRepository = smsNotificationRepository
 				?? throw new ArgumentNullException(nameof(smsNotificationRepository));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
+			_zabbixSender.SetWorkerName(nameof(UndeliveryNotApprovedSmsInformerWorker));
 		}
 
 		public override void SendNotification(SmsNotification notification)
@@ -52,6 +57,8 @@ namespace Vodovoz.SmsInformerWorker
 					notification.ErrorDescription = result.GetEnumTitle();
 					notification.Status = SmsNotificationStatus.Error;
 				}
+
+				_zabbixSender.SendIsHealthyAsync();
 			}
 			catch(Exception ex)
 			{

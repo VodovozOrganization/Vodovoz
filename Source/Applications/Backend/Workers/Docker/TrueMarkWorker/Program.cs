@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
-using TrueMarkWorker;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Zabbix.Sender;
 
-namespace TrueMarkApi
+namespace TrueMarkWorker
 {
 	public class Program
 	{
@@ -62,6 +62,8 @@ namespace TrueMarkApi
 						.AddSingleton<IOrderRepository, OrderRepository>()
 						.AddSingleton<IOrganizationRepository, OrganizationRepository>()
 						;
+
+					services.ConfigureZabbixSender(nameof(TrueMarkWorker));
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
