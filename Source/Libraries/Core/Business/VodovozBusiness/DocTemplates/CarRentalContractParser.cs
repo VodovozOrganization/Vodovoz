@@ -18,18 +18,19 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.CarModel, nameof(CarRentalContract.CarModel), PatternFieldType.FString);
 			AddField(x => x.CarModelReleaseYear, nameof(CarRentalContract.CarModelReleaseYear), PatternFieldType.FString);
 			AddField(x => x.CarRegistrationNumber, nameof(CarRentalContract.CarRegistrationNumber), PatternFieldType.FString);
-			AddField(x => x.CarVINNumber, nameof(CarRentalContract.CarVINNumber), PatternFieldType.FString);
+			AddField(x => x.CarVinNumber, nameof(CarRentalContract.CarVinNumber), PatternFieldType.FString);
 
 			// Ceo
 
-			AddField(x => x.CeoFio, nameof(CarRentalContract.CeoFio), PatternFieldType.FString);
+			AddField(x => x.CeoFioGenitive, nameof(CarRentalContract.CeoFioGenitive), PatternFieldType.FString);
 			AddField(x => x.CeoFioShort, nameof(CarRentalContract.CeoFioShort), PatternFieldType.FString);
 
 			// Date
 
-			AddField(x => x.CreatedAtDay, nameof(CarRentalContract.CreatedAtDay), PatternFieldType.FNumber);
+			AddField(x => x.CreatedAtDay, nameof(CarRentalContract.CreatedAtDay), PatternFieldType.FString);
 			AddField(x => x.CreatedAtMonth, nameof(CarRentalContract.CreatedAtMonth), PatternFieldType.FString);
 			AddField(x => x.CreatedAtYear, nameof(CarRentalContract.CreatedAtYear), PatternFieldType.FNumber);
+			AddField(x => x.EndYear, nameof(CarRentalContract.EndYear), PatternFieldType.FString);
 
 			// Driver
 
@@ -45,9 +46,9 @@ namespace Vodovoz.DocTemplates
 
 			// Organization
 
+			AddField(x => x.OrganizationName, nameof(CarRentalContract.OrganizationName), PatternFieldType.FString);
 			AddField(x => x.OrganizationFullName, nameof(CarRentalContract.OrganizationFullName), PatternFieldType.FString);
 			AddField(x => x.OrganizationAddress, nameof(CarRentalContract.OrganizationAddress), PatternFieldType.FString);
-
 
 			AddField(x => x.OrganizationCheckingAccount, nameof(CarRentalContract.OrganizationCheckingAccount), PatternFieldType.FString);
 			AddField(x => x.OrganizationInn, nameof(CarRentalContract.OrganizationInn), PatternFieldType.FString);

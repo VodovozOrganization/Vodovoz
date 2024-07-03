@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using QS.DocTemplates;
+﻿using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
@@ -15,8 +14,8 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Errors;
-using Vodovoz.Errors.Documents;
 using Vodovoz.Tools;
+using DateTimeHelpers;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -36,25 +35,24 @@ namespace Vodovoz.Domain.Documents
 
 			CarChasisColor = car.Color;
 			CarModel = car.CarModel.Name;
-			CarModelReleaseYear = car.ManufactureYear;
+			CarModelReleaseYear = car.ManufactureYear ?? "-";
 			CarRegistrationNumber = car.RegistrationNumber;
 			CarVinNumber = car.VIN;
 
 			var activeOrganizationVersion = organization.ActiveOrganizationVersion;
 
 			CeoFioGenitive = activeOrganizationVersion.Leader.FullName;
-			CeoFio = activeOrganizationVersion.Leader.FullName;
 			CeoFioShort = activeOrganizationVersion.LeaderShortName;
 
 			var today = DateTime.Today;
 
-			CreatedAtDay = today.Day;
-			CreatedAtMonth = $"{today:M}";
-			CreatedAtYear = today.Year;
+			CreatedAtDay = today.Day.ToString();
+			CreatedAtMonth = today.GetRuMonthGenetive();
+			CreatedAtYear = today.Year.ToString();
 
-			EndYear = today.AddYears(1).Year;
+			EndYear = today.AddYears(1).Year.ToString();
 
-			DriverBirthDate = $"{driver.BirthdayDate:dd M yyyy}";
+			DriverBirthDate = $"{driver.BirthdayDate:dd MMMM yyyy}";
 			DriverFio = driver.FullName;
 
 			var passport = driver.Documents
@@ -85,13 +83,13 @@ namespace Vodovoz.Domain.Documents
 		public string CarRegistrationNumber { get; }
 		public string CarVinNumber { get; }
 		public string CeoFioGenitive { get; }
-		public string CeoFio { get; }
 		public string CeoFioShort { get; }
 
-		public int CreatedAtDay { get; }
+		public string CreatedAtDay { get; }
 		public string CreatedAtMonth { get; }
-		public int CreatedAtYear { get; }
-		public int EndYear { get; }
+		public string CreatedAtYear { get; }
+		public string EndYear { get; }
+
 		public string DriverBirthDate { get; }
 		public string DriverFio { get; }
 		public string DriverPassportSerie { get; }
