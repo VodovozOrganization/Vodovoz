@@ -116,7 +116,7 @@ namespace Vodovoz.Domain.Documents
 
 		public DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		public int CopiesToPrint { get; set; }
+		public int CopiesToPrint { get; set; } = 1;
 
 		public string Name => typeof(CarRentalContract).GetClassUserFriendlyName().Nominative;
 
