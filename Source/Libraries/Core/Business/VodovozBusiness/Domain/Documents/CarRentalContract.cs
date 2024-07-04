@@ -65,7 +65,7 @@ namespace Vodovoz.Domain.Documents
 
 			OrganizationName = organization.Name;
 			OrganizationFullName = organization.FullName;
-			OrganizationAddress = activeOrganizationVersion.Address;
+			OrganizationAddress = activeOrganizationVersion.JurAddress;
 			OrganizationBankName = organization.DefaultAccount.InBank.Name;
 			OrganizationBankCity = organization.DefaultAccount.InBank.City;
 			OrganizationBankBik = organization.DefaultAccount.InBank.Bik;
