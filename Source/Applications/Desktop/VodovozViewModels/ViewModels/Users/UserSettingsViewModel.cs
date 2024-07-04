@@ -23,6 +23,7 @@ using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.Widgets.Print;
 using Vodovoz.ViewModels.Widgets.Users;
 
 namespace Vodovoz.ViewModels.Users
@@ -60,7 +61,8 @@ namespace Vodovoz.ViewModels.Users
 			ISubdivisionRepository subdivisionRepository,
 			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository,
 			IFuelApiService fuelApiService,
-			IGuiDispatcher guiDispatcher)
+			IGuiDispatcher guiDispatcher,
+			DocumentsPrinterSettingsViewModel documentsPrinterSettingsViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -76,6 +78,7 @@ namespace Vodovoz.ViewModels.Users
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			DocumentsPrinterSettingsViewModel = documentsPrinterSettingsViewModel ?? throw new ArgumentNullException(nameof(documentsPrinterSettingsViewModel));
 			InteractiveService = commonServices.InteractiveService;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
@@ -99,6 +102,8 @@ namespace Vodovoz.ViewModels.Users
 			SubdivisionViewModel = BuildSubdivisionViewModel();
 
 			FuelControlApiLoginCommand = new DelegateCommand(async () => await FuelControlApiLogin(), () => Entity.IsUserHasAuthDataForFuelControlApi);
+
+			DocumentsPrinterSettingsViewModel.UserSettings = Entity;
 		}
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
@@ -161,6 +166,8 @@ namespace Vodovoz.ViewModels.Users
 		public IList<CashSubdivisionSortingSettings> SubdivisionSortingSettings => Entity.ObservableCashSubdivisionSortingSettings;
 
 		public WarehousesUserSelectionViewModel WarehousesUserSelectionViewModel => _warehousesUserSelectionViewModel;
+
+		public DocumentsPrinterSettingsViewModel DocumentsPrinterSettingsViewModel { get; }
 
 		public DelegateCommand FuelControlApiLoginCommand { get; }
 
