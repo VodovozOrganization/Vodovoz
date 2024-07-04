@@ -13,6 +13,7 @@ using QS.Project.DB;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Converters;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
@@ -112,6 +113,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
