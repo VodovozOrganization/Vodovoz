@@ -43,6 +43,11 @@ namespace Vodovoz.DocTemplates
 				AddField(x => x.DriverFio, nameof(CarRentalContract.DriverFio), PatternFieldType.FString);
 			}
 
+			if(RootObject.DriverFioShort != null)
+			{
+				AddField(x => x.DriverFioShort, nameof(CarRentalContract.DriverFioShort), PatternFieldType.FString);
+			}
+
 			if(RootObject.DriverFioGenitive != null)
 			{
 				AddField(x => x.DriverFioGenitive, nameof(CarRentalContract.DriverFioGenitive), PatternFieldType.FString);
