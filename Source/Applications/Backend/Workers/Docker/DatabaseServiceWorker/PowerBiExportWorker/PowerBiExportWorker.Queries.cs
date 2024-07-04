@@ -5,6 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryAdditionalLoadingReportViewModel;
 
@@ -124,7 +130,7 @@ namespace DatabaseServiceWorker
 			return query.UniqueResult<decimal>();
 		}
 
-		private LateDto GetLates(IUnitOfWork uow, DateTime date)
+		private LateDto GetLates(IGeneralSettings generalSettings, IUnitOfWork uow, DateTime date)
 		{
 			var sql = " SELECT Sum(Delays.delay < '00:05:00') AS LessThan5Minutes," +
 				" Sum(Delays.delay < '00:30:00' AND Delays.delay >= '00:05:00') AS LessThan30Minutes," +
@@ -150,7 +156,7 @@ namespace DatabaseServiceWorker
 			var query = uow.Session
 				.CreateSQLQuery(sql)
 				.SetParameter("date", date)
-				.SetParameter("interval_select_mode", _generalSettings.FastDeliveryIntervalFrom.ToString())
+				.SetParameter("interval_select_mode", generalSettings.FastDeliveryIntervalFrom.ToString())
 				.SetResultTransformer(Transformers.AliasToBean(typeof(LateDto)));
 			;			
 
@@ -188,22 +194,29 @@ namespace DatabaseServiceWorker
 			return query.UniqueResult<Int64>();
 		}		
 
-		private async Task<CoverageDto> GetCoverageAsync(IUnitOfWork uow, DateTime date, CancellationToken cancellationToken)
+		private async Task<CoverageDto> GetCoverageAsync(
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IUnitOfWork uow,
+			IDeliveryRepository deliveryRepository,
+			ITrackRepository trackRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			DateTime date,
+			CancellationToken cancellationToken)
 		{
 			var startTime = new TimeSpan(10, 0, 0);
 			var endTime = new TimeSpan(21, 0, 0);
 
 			var grouping = await FastDeliveryPercentCoverageReport.GetData(
-						uow,
-						date,
-						date,
-						startTime,
-						endTime,
-						_deliveryRulesSettings,
-						_deliveryRepository,
-						_trackRepository,
-						_scheduleRestrictionRepository,
-						cancellationToken);
+				uow,
+				date,
+				date,
+				startTime,
+				endTime,
+				deliveryRulesSettings,
+				deliveryRepository,
+				trackRepository,
+				scheduleRestrictionRepository,
+				cancellationToken);
 
 			var report = FastDeliveryPercentCoverageReport.Create(date, date, startTime, endTime, grouping);
 
@@ -215,7 +228,7 @@ namespace DatabaseServiceWorker
 			};
 		}
 
-		private FastDeliveryFailDto GetFastDeliveryFails(IUnitOfWork uow, DateTime date)
+		private FastDeliveryFailDto GetFastDeliveryFails(INomenclatureSettings nomenclatureSettings, IUnitOfWork uow, DateTime date)
 		{
 			var starDate = date.Add(new TimeSpan(0, 0, 0));
 			var endDate = date.Add(new TimeSpan(23, 59, 59));
@@ -242,7 +255,7 @@ namespace DatabaseServiceWorker
 				.CreateSQLQuery(sql)
 				.SetParameter("start_date", starDate)
 				.SetParameter("end_date", endDate)
-				.SetParameter("prodct_group_id", _nomenclatureSettings.PromotionalNomenclatureGroupId)
+				.SetParameter("prodct_group_id", nomenclatureSettings.PromotionalNomenclatureGroupId)
 				.SetResultTransformer(Transformers.AliasToBean(typeof(FastDeliveryFailDto)))
 				;
 
