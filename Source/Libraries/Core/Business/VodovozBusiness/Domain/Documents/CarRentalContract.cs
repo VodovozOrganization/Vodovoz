@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Documents
 			_template = template;
 
 			CarChasisColor = car.Color;
-			CarModel = car.CarModel.Name;
+			CarModel = car.CarModel.Title;
 			CarModelReleaseYear = car.ManufactureYear ?? "-";
 			CarRegistrationNumber = car.RegistrationNumber;
 			CarVinNumber = car.VIN;
