@@ -5,6 +5,7 @@ using System.Linq;
 using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Print;
 using QSReport;
 using Vodovoz.Additions.Logistic;
@@ -195,7 +196,7 @@ namespace Vodovoz.Additions.Printing
 		{
 			MultiDocPrinter = new MultipleDocumentPrinter 
 			{
-				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(DocumentsToPrint)
+				PrintableDocuments = new ObservableList<SelectablePrintDocument>(DocumentsToPrint)
 			};
 			
 			MultiDocPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
