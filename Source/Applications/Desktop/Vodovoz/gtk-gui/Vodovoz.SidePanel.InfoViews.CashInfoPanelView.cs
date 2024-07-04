@@ -10,7 +10,13 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Label labelTitle;
 
-		private global::Vodovoz.WrapLabel labelInfo;
+		private global::Gamma.GtkWidgets.yLabel ylabelInfoTop;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTreeView yTreeView;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelInfoBottom;
 
 		private global::Gtk.HSeparator hseparatorBottom;
 
@@ -44,24 +50,46 @@ namespace Vodovoz.SidePanel.InfoViews
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.labelInfo = new global::Vodovoz.WrapLabel();
-			this.labelInfo.Name = "labelInfo";
-			this.labelInfo.LabelProp = global::Mono.Unix.Catalog.GetString("info");
-			this.labelInfo.Selectable = true;
-			this.vbox1.Add(this.labelInfo);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelInfo]));
+			this.ylabelInfoTop = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelInfoTop.Name = "ylabelInfoTop";
+			this.ylabelInfoTop.LabelProp = global::Mono.Unix.Catalog.GetString("TopInfo");
+			this.vbox1.Add(this.ylabelInfoTop);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelInfoTop]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.yTreeView = new global::Gamma.GtkWidgets.yTreeView();
+			this.yTreeView.CanFocus = true;
+			this.yTreeView.Name = "yTreeView";
+			this.GtkScrolledWindow.Add(this.yTreeView);
+			this.vbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w5.Position = 3;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelInfoBottom = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelInfoBottom.Name = "ylabelInfoBottom";
+			this.ylabelInfoBottom.LabelProp = global::Mono.Unix.Catalog.GetString("BottomInfo");
+			this.vbox1.Add(this.ylabelInfoBottom);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelInfoBottom]));
+			w6.Position = 4;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparatorBottom = new global::Gtk.HSeparator();
 			this.hseparatorBottom.HeightRequest = 2;
 			this.hseparatorBottom.Name = "hseparatorBottom";
 			this.vbox1.Add(this.hseparatorBottom);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorBottom]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorBottom]));
+			w7.Position = 5;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

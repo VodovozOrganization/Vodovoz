@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -26,7 +26,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			IUserRepository userRepository)
 		{
 			this.Build();
-			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
+			/*_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser();
@@ -44,7 +44,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_sortedSubdivisionsIds = settings.CashSubdivisionSortingSettings
 				.OrderBy(x => x.SortingIndex)
 				.Select(x => x.CashSubdivision.Id)
-				.ToList();
+				.ToList();*/
 		}
 
 		#region IPanelView implementation
@@ -60,10 +60,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(InfoProvider is IDocumentsInfoProvider documentsInfoProvider)
 			{
 				var filter = documentsInfoProvider.DocumentsFilterViewModel;
-				labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
+				//labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
 			}
 		}
 
+		/*
 		private string GetAllCashSummaryInfo(DocumentsFilterViewModel filter)
 		{
 			if(filter == null)
@@ -101,14 +102,15 @@ namespace Vodovoz.SidePanel.InfoViews
 			var separatedCash = selectedSubdivisionsIds != null && selectedSubdivisionsIds.Any() ? $"\r\n\tИз них: {allCashString}" : "";
 			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
 			return total + separatedCash + cashInTransferringMessage;
-		}
+		}*/
 
 		#endregion
-
+/*
 		public override void Destroy()
 		{
 			_uow?.Dispose();
 			base.Destroy();
 		}
+		*/
 	}
 }
