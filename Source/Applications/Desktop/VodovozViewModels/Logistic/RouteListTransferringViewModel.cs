@@ -734,10 +734,15 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.AddressId.Value)
 				.ToList();
 
-			var ordersToRestore = SelectedTargetRouteListAddresses.Cast<RouteListItemNode>()
+			var ordersToRestore = SelectedTargetRouteListAddresses
+				.Cast<RouteListItemNode>()
 				.Where(x => x.AddressStatus != RouteListItemStatus.Transfered)
 				.Select(x => x.OrderId)
 				.ToList();
+
+			var selectedHandToHandNodes = SelectedTargetRouteListAddresses
+				.Cast<RouteListItemNode>()
+				.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title + " > возврат переноса адресов"))
 			{
@@ -773,10 +778,6 @@ namespace Vodovoz.ViewModels.Logistic
 								}
 							}
 						}
-
-						var selectedHandToHandNodes = SelectedTargetRouteListAddresses
-							.Cast<RouteListItemNode>()
-							.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
 
 						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
 					}
