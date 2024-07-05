@@ -625,7 +625,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
 		[Display(Name = "Залоги заказа")]
-		public virtual IList<OrderDepositItem> OrderDepositItems {
+		public virtual new IList<OrderDepositItem> OrderDepositItems {
 			get => orderDepositItems;
 			set => SetField(ref orderDepositItems, value, () => OrderDepositItems);
 		}

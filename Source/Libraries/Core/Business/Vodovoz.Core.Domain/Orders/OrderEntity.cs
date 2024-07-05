@@ -88,6 +88,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private PaymentType _paymentType;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
+		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
 
 
 		public virtual IUnitOfWork UoW { set; get; }
@@ -585,6 +586,13 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _orderItems;
 			set => SetField(ref _orderItems, value);
+		}
+
+		[Display(Name = "Залоги заказа")]
+		public virtual IObservableList<OrderDepositItemEntity> OrderDepositItems
+		{
+			get => _orderDepositItems;
+			set => SetField(ref _orderDepositItems, value);
 		}
 
 		#region Вычисляемые свойства
