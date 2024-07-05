@@ -4,7 +4,7 @@ using QS.Print;
 using QS.Report;
 using QS.Views.Dialog;
 using System;
-using Vodovoz.ViewModels.Dialogs.Print;
+using Vodovoz.ViewModels.Print;
 namespace Vodovoz.Views.Print
 {
 	public partial class PrintDocumentsSelectablePrinterView : DialogViewBase<PrintDocumentsSelectablePrinterViewModel>

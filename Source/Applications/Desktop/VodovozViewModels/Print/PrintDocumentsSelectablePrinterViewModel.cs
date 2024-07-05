@@ -10,7 +10,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
-namespace Vodovoz.ViewModels.Dialogs.Print
+namespace Vodovoz.ViewModels.Print
 {
 	public class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{

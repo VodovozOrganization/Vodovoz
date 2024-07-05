@@ -24,10 +24,10 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Orders;
-using Vodovoz.ViewModels.Dialogs.Print;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Print;
 
 namespace Vodovoz
 {
