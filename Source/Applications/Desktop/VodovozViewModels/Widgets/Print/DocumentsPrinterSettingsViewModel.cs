@@ -1,7 +1,6 @@
 ﻿using QS.Commands;
-using QS.Dialog;
 using QS.DomainModel.Entity;
-using QS.Services;
+using QS.Navigation;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,24 +9,20 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.PrintableDocuments;
+using Vodovoz.ViewModels.Print;
 
 namespace Vodovoz.ViewModels.Widgets.Print
 {
 	public class DocumentsPrinterSettingsViewModel : WidgetViewModelBase
 	{
-		private readonly IInteractiveService _interactiveService;
+		private readonly INavigationManager _navigationManager;
 		private UserSettings _userSettings;
 		private CustomPrinterPrintDocumentType? _selectedDocumentType;
 		private DocumentPrinterSetting _selectedPrinterSetting;
 
-		public DocumentsPrinterSettingsViewModel(ICommonServices commonServices)
+		public DocumentsPrinterSettingsViewModel(INavigationManager navigationManager)
 		{
-			if(commonServices is null)
-			{
-				throw new ArgumentNullException(nameof(commonServices));
-			}
-
-			_interactiveService = commonServices.InteractiveService;
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			AddPrinterSettingCommand = new DelegateCommand(AddPrinterSetting, () => CanAddPrinterSetting);
 			ConfigurePrinterSettingCommand = new DelegateCommand(ConfigurePrinterSetting, () => CanConfigurePrinterSetting);
@@ -88,8 +83,7 @@ namespace Vodovoz.ViewModels.Widgets.Print
 			var newPrinterSetting = new DocumentPrinterSetting
 			{
 				UserSettings = UserSettings,
-				DocumentType = SelectedDocumentType.Value,
-				PrinterName = "NewPrinter"
+				DocumentType = SelectedDocumentType.Value
 			};
 
 			UserSettings.ObservableDocumentPrinterSettings.Add(newPrinterSetting);
@@ -102,6 +96,8 @@ namespace Vodovoz.ViewModels.Widgets.Print
 			{
 				return;
 			}
+
+			OpenPrinterSelectionDialog();
 		}
 
 		private void RemovePrinterSetting()
@@ -113,6 +109,28 @@ namespace Vodovoz.ViewModels.Widgets.Print
 
 			UserSettings.ObservableDocumentPrinterSettings.Remove(SelectedPrinterSetting);
 			SelectedDocumentType = null;
+		}
+
+		private void OpenPrinterSelectionDialog()
+		{
+			var printerSelectionViewModel = _navigationManager.OpenViewModel<PrinterSelectionViewModel>(null).ViewModel;
+
+			printerSelectionViewModel.Initialize(
+				SelectedPrinterSetting.PrinterName,
+				SelectedPrinterSetting.NumberOfCopies);
+
+			printerSelectionViewModel.PrinterSelected += OnPrinterSelected;
+		}
+
+		private void OnPrinterSelected(object sender, PrinterSelectedEventArgs e)
+		{
+			if(SelectedPrinterSetting is null)
+			{
+				return;
+			}
+
+			SelectedPrinterSetting.PrinterName = e.PrinterName;
+			SelectedPrinterSetting.NumberOfCopies = e.NumberOfCopies;
 		}
 	}
 }

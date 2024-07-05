@@ -49,9 +49,9 @@ namespace Vodovoz.ViewWidgets.Users
 		private void ConfigureTreeView()
 		{
 			ytreeviewPrinterSettings.ColumnsConfig = FluentColumnsConfig<DocumentPrinterSetting>.Create()
-				.AddColumn("Документ").AddEnumRenderer(x => x.DocumentType).XAlign(0f)
-				.AddColumn("Копий").AddTextRenderer(x => x.NumberOfCopies.ToString()).XAlign(0.5f)
-				.AddColumn("Принтер").AddTextRenderer(x => x.PrinterName).XAlign(0.5f)
+				.AddColumn("Документ").HeaderAlignment(0.5f).AddEnumRenderer(x => x.DocumentType).XAlign(0f)
+				.AddColumn("Копий").HeaderAlignment(0.5f).AddTextRenderer(x => x.NumberOfCopies.ToString()).XAlign(0.5f)
+				.AddColumn("Принтер").HeaderAlignment(0.5f).AddTextRenderer(x => x.PrinterName).XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 
