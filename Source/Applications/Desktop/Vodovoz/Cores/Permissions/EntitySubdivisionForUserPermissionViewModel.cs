@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
@@ -12,7 +13,7 @@ namespace Vodovoz.Core.Permissions
 {
 	public class EntitySubdivisionForUserPermissionViewModel
 	{
-		private readonly IPermissionRepository _permissionRepository = new PermissionRepository();
+		private readonly IPermissionRepository _permissionRepository = ScopeProvider.Scope.Resolve<IPermissionRepository>();
 		private readonly IList<EntitySubdivisionForUserPermission> _deletionPermissionList = new List<EntitySubdivisionForUserPermission>();
 		private IList<EntitySubdivisionForUserPermission> _originalPermissionList;
 		private IList<TypeOfEntity> _originalTypeOfEntityList;

@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
@@ -21,7 +21,6 @@ using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Settings.Pacs;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure.Services;
 
@@ -30,7 +29,8 @@ namespace Vodovoz
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddWaterDeliveryDesktop(this IServiceCollection services) =>
-			services.AddVodovozViewModels();
+			services.AddVodovozViewModels()
+				.AddDocumentPrinter();
 
 		public static IServiceCollection AddPermissionValidation(this IServiceCollection services)
 		{
@@ -45,6 +45,9 @@ namespace Vodovoz
 
 			return services;
 		}
+
+		public static IServiceCollection AddDocumentPrinter(this IServiceCollection services) =>
+			services.AddScoped<IDocumentPrinter, DocumentPrinter>();
 
 		public static IServiceCollection AddPacs(this IServiceCollection services)
 		{

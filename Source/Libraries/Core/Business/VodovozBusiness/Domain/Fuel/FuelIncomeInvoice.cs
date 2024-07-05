@@ -110,7 +110,15 @@ namespace Vodovoz.Domain.Fuel
 			}
 
 			var validationContext = new ValidationContext(this);
-			validationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			validationContext.InitializeServiceProvider(type =>
+			{
+				if(type == typeof(IFuelRepository))
+				{
+					return fuelRepository;
+				}
+				return null;
+			});
+
 			string exceptionMessage = this.RaiseValidationAndGetResult(validationContext);
 			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
 				throw new ValidationException(exceptionMessage);

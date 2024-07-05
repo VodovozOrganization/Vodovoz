@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +10,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
 
 namespace TrueMarkWorker
@@ -49,6 +50,7 @@ namespace TrueMarkWorker
 					services
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddStaticHistoryTracker()
 						;
@@ -56,11 +58,6 @@ namespace TrueMarkWorker
 					services
 						.AddHostedService<TrueMarkWorker>()
 						.ConfigureTrueMarkWorker(hostContext)
-						;
-
-					services
-						.AddSingleton<IOrderRepository, OrderRepository>()
-						.AddSingleton<IOrganizationRepository, OrganizationRepository>()
 						;
 
 					services.ConfigureZabbixSender(nameof(TrueMarkWorker));
