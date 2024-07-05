@@ -1,11 +1,11 @@
-﻿using QS.Dialog;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Contracts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -84,6 +84,11 @@ namespace Vodovoz.Core.Domain.Orders
 		private OrderSource _orderSource = OrderSource.VodovozApp;
 		private DefaultDocumentType? _documentType;
 		private DateTime? _deliveryDate;
+		private PaymentFromEntity _paymentByCardFrom;
+		private PaymentType _paymentType;
+
+		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
+
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -550,13 +555,36 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _documentType, value);
 		}
 
-
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
 		public virtual DateTime? DeliveryDate
 		{
 			get => _deliveryDate;
-			set => throw new NotSupportedException("В этом классе пока что не поддерживается запись, надо использовать Order");
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliveryDate, value);
+		}
+
+		[Display(Name = "Место, откуда проведена оплата")]
+		public virtual PaymentFromEntity PaymentByCardFrom
+		{
+			get => _paymentByCardFrom;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _paymentByCardFrom, value);
+		}
+
+		[Display(Name = "Форма оплаты")]
+		public virtual PaymentType PaymentType
+		{
+			get => _paymentType;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _paymentType, value);
+		}
+
+		[Display(Name = "Строки заказа")]
+		public virtual IObservableList<OrderItemEntity> OrderItems
+		{
+			get => _orderItems;
+			set => SetField(ref _orderItems, value);
 		}
 
 		#region Вычисляемые свойства
@@ -570,8 +598,16 @@ namespace Vodovoz.Core.Domain.Orders
 
 		#endregion Вычисляемые свойства
 
-		public override string ToString() => IsLoadedFrom1C ?
-			string.Format("Заказ №{0}({1})", Id, Code1c)
-			: string.Format("Заказ №{0}", Id);
+		public override string ToString()
+		{
+			if(IsLoadedFrom1C)
+			{
+				return string.Format("Заказ №{0}({1})", Id, Code1c);
+			}
+			else
+			{
+				return string.Format("Заказ №{0}", Id);
+			} 
+		}
 	}
 }

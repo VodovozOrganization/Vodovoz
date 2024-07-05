@@ -313,7 +313,7 @@ namespace Vodovoz.Domain.Orders
 		private PaymentType _paymentType;
 
 		[Display(Name = "Форма оплаты")]
-		public virtual PaymentType PaymentType {
+		public virtual new PaymentType PaymentType {
 			get => _paymentType;
 			set {
 				if(value != _paymentType && SetField(ref _paymentType, value)) 
@@ -384,12 +384,12 @@ namespace Vodovoz.Domain.Orders
 		private PaymentFrom _paymentByCardFrom;
 
 		[Display(Name = "Место, откуда проведена оплата")]
-		public virtual PaymentFrom PaymentByCardFrom
+		public virtual new PaymentFrom PaymentByCardFrom
 		{
 			get => _paymentByCardFrom;
 			set
 			{
-				if(SetField(ref _paymentByCardFrom, value, () => PaymentByCardFrom))
+				if(SetField(ref _paymentByCardFrom, value))
 				{
 					UpdateContract();
 				}
@@ -658,7 +658,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderItem> orderItems = new List<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
-		public virtual IList<OrderItem> OrderItems {
+		public virtual new IList<OrderItem> OrderItems {
 			get => orderItems;
 			set => SetField(ref orderItems, value, () => OrderItems);
 		}

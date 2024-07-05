@@ -2,7 +2,7 @@
 using NHibernate.Type;
 using Vodovoz.Core.Domain.Orders;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
+namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 {
 	public class OrderMap : ClassMap<OrderEntity>
 	{
@@ -204,6 +204,15 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Map(x => x.DontArriveBeforeInterval)
 				.Column("dont_arrive_before_interval");
+
+			References(x => x.PaymentByCardFrom)
+				.Column("payment_from_id");
+
+			HasMany(x => x.OrderItems)
+				.KeyColumn("order_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
 		}
 	}
 }
