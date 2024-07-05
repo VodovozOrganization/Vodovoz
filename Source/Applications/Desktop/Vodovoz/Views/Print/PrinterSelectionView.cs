@@ -19,6 +19,10 @@ namespace Vodovoz.Views.Print
 				.AddBinding(ViewModel, vm => vm.DialogHeader, w => w.Text)
 				.InitializeFromSource();
 
+			yspinbuttonNumberOfCopies.Binding
+				.AddBinding(ViewModel, vm => vm.NumberOfCopies, w => w.ValueAsInt)
+				.InitializeFromSource();
+
 			ytreeviewPrinters.ColumnsConfig = FluentColumnsConfig<string>.Create()
 				.AddColumn("Принтер").HeaderAlignment(0.5f).AddTextRenderer(x => x).XAlign(0f)
 				.AddColumn("")

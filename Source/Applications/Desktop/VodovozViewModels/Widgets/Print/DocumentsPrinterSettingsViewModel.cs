@@ -8,6 +8,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.ViewModels.Print;
 
@@ -115,9 +116,10 @@ namespace Vodovoz.ViewModels.Widgets.Print
 		{
 			var printerSelectionViewModel = _navigationManager.OpenViewModel<PrinterSelectionViewModel>(null).ViewModel;
 
-			printerSelectionViewModel.Initialize(
+			printerSelectionViewModel.ConfigureDialog(
 				SelectedPrinterSetting.PrinterName,
-				SelectedPrinterSetting.NumberOfCopies);
+				SelectedPrinterSetting.NumberOfCopies,
+				$"Тип документа: {SelectedPrinterSetting.DocumentType.GetEnumDisplayName()}");
 
 			printerSelectionViewModel.PrinterSelected += OnPrinterSelected;
 		}

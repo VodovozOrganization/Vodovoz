@@ -4,9 +4,9 @@ namespace Vodovoz.PrintableDocuments
 {
 	public enum CustomPrinterPrintDocumentType
 	{
-		[Display(Name = "Талон погрузки (склад воды)")]
+		[Display(Name = "Талон погрузки (вода)")]
 		WaterCarLoadDocument,
-		[Display(Name = "Талон погрузки (склад оборудования)")]
+		[Display(Name = "Талон погрузки (оборуд.)")]
 		EquipmentCarLoadDocument
 	}
 }

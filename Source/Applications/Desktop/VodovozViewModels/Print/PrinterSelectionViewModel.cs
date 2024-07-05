@@ -22,6 +22,8 @@ namespace Vodovoz.ViewModels.Print
 
 			SelectPrinterCommand = new DelegateCommand(SelectPrinter, () => CanSelectPrinter);
 			CancelCommand = new DelegateCommand(Cancel);
+
+			Title = "Выбор принтера";
 		}
 
 		public event EventHandler<PrinterSelectedEventArgs> PrinterSelected;
@@ -56,7 +58,7 @@ namespace Vodovoz.ViewModels.Print
 			!string.IsNullOrEmpty(_selectedPrinter)
 			&& NumberOfCopies > 0;
 
-		public void Initialize(string selectedPrinterName, int numberOfCopies)
+		public void ConfigureDialog(string selectedPrinterName, int numberOfCopies, string dialogHeader = null)
 		{
 			if(numberOfCopies < 1)
 			{
@@ -67,6 +69,8 @@ namespace Vodovoz.ViewModels.Print
 			{
 				SelectedPrinter = Printers.Where(p => p == selectedPrinterName).FirstOrDefault();
 			}
+
+			DialogHeader = dialogHeader;
 
 			NumberOfCopies = numberOfCopies;
 		}
