@@ -8,6 +8,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		public OrderItemMap()
 		{
 			Table("order_items");
+			Not.LazyLoad();
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
