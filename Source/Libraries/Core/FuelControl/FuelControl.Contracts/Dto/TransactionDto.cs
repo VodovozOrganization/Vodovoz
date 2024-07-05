@@ -70,6 +70,7 @@ namespace FuelControl.Contracts.Dto
 
 		/// <summary>
 		/// ID прямой транзакции
+		/// Тип точно не известен. В документации указан string, иногда прилетает long, в остальных случаях null
 		/// </summary>
 		[JsonPropertyName("stor_transaction_id")]
 		public object StorTransactionId { get; set; }
