@@ -14,6 +14,14 @@ namespace Vodovoz.Views.Print
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewPrinters;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxPrinterSettings;
+
+		private global::Gamma.GtkWidgets.yTable ytablePrinterSettings;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelNumberOfCopies;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonNumberOfCopies;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxButtons;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
@@ -55,9 +63,53 @@ namespace Vodovoz.Views.Print
 			this.yhboxPrinters.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxPrinters[this.GtkScrolledWindow]));
 			w3.Position = 0;
+			// Container child yhboxPrinters.Gtk.Box+BoxChild
+			this.yvboxPrinterSettings = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxPrinterSettings.Name = "yvboxPrinterSettings";
+			this.yvboxPrinterSettings.Spacing = 6;
+			// Container child yvboxPrinterSettings.Gtk.Box+BoxChild
+			this.ytablePrinterSettings = new global::Gamma.GtkWidgets.yTable();
+			this.ytablePrinterSettings.Name = "ytablePrinterSettings";
+			this.ytablePrinterSettings.NColumns = ((uint)(2));
+			this.ytablePrinterSettings.RowSpacing = ((uint)(6));
+			this.ytablePrinterSettings.ColumnSpacing = ((uint)(6));
+			// Container child ytablePrinterSettings.Gtk.Table+TableChild
+			this.ylabelNumberOfCopies = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNumberOfCopies.Name = "ylabelNumberOfCopies";
+			this.ylabelNumberOfCopies.Xalign = 1F;
+			this.ylabelNumberOfCopies.LabelProp = global::Mono.Unix.Catalog.GetString("Копий:");
+			this.ytablePrinterSettings.Add(this.ylabelNumberOfCopies);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytablePrinterSettings[this.ylabelNumberOfCopies]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytablePrinterSettings.Gtk.Table+TableChild
+			this.yspinbuttonNumberOfCopies = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonNumberOfCopies.CanFocus = true;
+			this.yspinbuttonNumberOfCopies.Name = "yspinbuttonNumberOfCopies";
+			this.yspinbuttonNumberOfCopies.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonNumberOfCopies.ClimbRate = 1D;
+			this.yspinbuttonNumberOfCopies.Numeric = true;
+			this.yspinbuttonNumberOfCopies.ValueAsDecimal = 0m;
+			this.yspinbuttonNumberOfCopies.ValueAsInt = 0;
+			this.ytablePrinterSettings.Add(this.yspinbuttonNumberOfCopies);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytablePrinterSettings[this.yspinbuttonNumberOfCopies]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(0));
+			this.yvboxPrinterSettings.Add(this.ytablePrinterSettings);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxPrinterSettings[this.ytablePrinterSettings]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.yhboxPrinters.Add(this.yvboxPrinterSettings);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxPrinters[this.yvboxPrinterSettings]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.yvboxMain.Add(this.yhboxPrinters);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxPrinters]));
-			w4.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxPrinters]));
+			w8.Position = 1;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxButtons.Name = "yhboxButtons";
@@ -68,35 +120,35 @@ namespace Vodovoz.Views.Print
 			this.ybuttonCancel.Name = "ybuttonCancel";
 			this.ybuttonCancel.UseUnderline = true;
 			this.ybuttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
-			global::Gtk.Image w5 = new global::Gtk.Image();
-			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.ybuttonCancel.Image = w5;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.ybuttonCancel.Image = w9;
 			this.yhboxButtons.Add(this.ybuttonCancel);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonCancel]));
-			w6.PackType = ((global::Gtk.PackType)(1));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonCancel]));
+			w10.PackType = ((global::Gtk.PackType)(1));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.ybuttonSelect = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSelect.CanFocus = true;
 			this.ybuttonSelect.Name = "ybuttonSelect";
 			this.ybuttonSelect.UseUnderline = true;
 			this.ybuttonSelect.Label = global::Mono.Unix.Catalog.GetString("Выбрать");
-			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.ybuttonSelect.Image = w7;
+			global::Gtk.Image w11 = new global::Gtk.Image();
+			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.ybuttonSelect.Image = w11;
 			this.yhboxButtons.Add(this.ybuttonSelect);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonSelect]));
-			w8.PackType = ((global::Gtk.PackType)(1));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonSelect]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
