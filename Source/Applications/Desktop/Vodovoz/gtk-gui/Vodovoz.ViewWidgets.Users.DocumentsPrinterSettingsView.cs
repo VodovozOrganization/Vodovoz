@@ -8,15 +8,17 @@ namespace Vodovoz.ViewWidgets.Users
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewWarehouses;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewPrinterSettings;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxButtons;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxDocumentType;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddToList;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonConfigurePrinter;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonRemoveFromList;
-
-		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxDocumentType;
 
 		protected virtual void Build()
 		{
@@ -36,68 +38,70 @@ namespace Vodovoz.ViewWidgets.Users
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewWarehouses = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewWarehouses.CanFocus = true;
-			this.ytreeviewWarehouses.Name = "ytreeviewWarehouses";
-			this.GtkScrolledWindow.Add(this.ytreeviewWarehouses);
+			this.ytreeviewPrinterSettings = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewPrinterSettings.CanFocus = true;
+			this.ytreeviewPrinterSettings.Name = "ytreeviewPrinterSettings";
+			this.GtkScrolledWindow.Add(this.ytreeviewPrinterSettings);
 			this.ytableMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
 			w2.RightAttach = ((uint)(5));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.ybuttonAddToList = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonAddToList.CanFocus = true;
-			this.ybuttonAddToList.Name = "ybuttonAddToList";
-			this.ybuttonAddToList.UseUnderline = true;
-			this.ybuttonAddToList.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.ytableMain.Add(this.ybuttonAddToList);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonAddToList]));
-			w3.TopAttach = ((uint)(1));
-			w3.BottomAttach = ((uint)(2));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child ytableMain.Gtk.Table+TableChild
-			this.ybuttonConfigurePrinter = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonConfigurePrinter.CanFocus = true;
-			this.ybuttonConfigurePrinter.Name = "ybuttonConfigurePrinter";
-			this.ybuttonConfigurePrinter.UseUnderline = true;
-			this.ybuttonConfigurePrinter.Label = global::Mono.Unix.Catalog.GetString("Настроить");
-			this.ytableMain.Add(this.ybuttonConfigurePrinter);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonConfigurePrinter]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(2));
-			w4.RightAttach = ((uint)(3));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytableMain.Gtk.Table+TableChild
-			this.ybuttonRemoveFromList = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonRemoveFromList.CanFocus = true;
-			this.ybuttonRemoveFromList.Name = "ybuttonRemoveFromList";
-			this.ybuttonRemoveFromList.UseUnderline = true;
-			this.ybuttonRemoveFromList.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			this.ytableMain.Add(this.ybuttonRemoveFromList);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonRemoveFromList]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(4));
-			w5.RightAttach = ((uint)(5));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child ytableMain.Gtk.Table+TableChild
+			this.yhboxButtons = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxButtons.Name = "yhboxButtons";
+			this.yhboxButtons.Spacing = 6;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.yenumcomboboxDocumentType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxDocumentType.Name = "yenumcomboboxDocumentType";
 			this.yenumcomboboxDocumentType.ShowSpecialStateAll = false;
 			this.yenumcomboboxDocumentType.ShowSpecialStateNot = false;
 			this.yenumcomboboxDocumentType.UseShortTitle = false;
 			this.yenumcomboboxDocumentType.DefaultFirst = false;
-			this.ytableMain.Add(this.yenumcomboboxDocumentType);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yenumcomboboxDocumentType]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(0));
+			this.yhboxButtons.Add(this.yenumcomboboxDocumentType);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.yenumcomboboxDocumentType]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonAddToList = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddToList.CanFocus = true;
+			this.ybuttonAddToList.Name = "ybuttonAddToList";
+			this.ybuttonAddToList.UseUnderline = true;
+			this.ybuttonAddToList.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			this.yhboxButtons.Add(this.ybuttonAddToList);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonAddToList]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonConfigurePrinter = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonConfigurePrinter.CanFocus = true;
+			this.ybuttonConfigurePrinter.Name = "ybuttonConfigurePrinter";
+			this.ybuttonConfigurePrinter.UseUnderline = true;
+			this.ybuttonConfigurePrinter.Label = global::Mono.Unix.Catalog.GetString("Настроить");
+			this.yhboxButtons.Add(this.ybuttonConfigurePrinter);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonConfigurePrinter]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonRemoveFromList = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonRemoveFromList.CanFocus = true;
+			this.ybuttonRemoveFromList.Name = "ybuttonRemoveFromList";
+			this.ybuttonRemoveFromList.UseUnderline = true;
+			this.ybuttonRemoveFromList.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.yhboxButtons.Add(this.ybuttonRemoveFromList);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonRemoveFromList]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 4;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.ytableMain.Add(this.yhboxButtons);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yhboxButtons]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.RightAttach = ((uint)(5));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.Add(this.ytableMain);
 			if ((this.Child != null))
 			{
