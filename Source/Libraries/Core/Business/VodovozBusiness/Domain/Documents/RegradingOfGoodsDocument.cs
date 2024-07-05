@@ -145,6 +145,12 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult("Выберите причину пересортицы для всех строк документа",
 					new[] { nameof(CarEventType) });
 			}
+
+			if(!string.IsNullOrWhiteSpace(Comment) && Comment.Length > 250)
+			{
+				yield return new ValidationResult("Длина комментария не должна превышать 250 символов",
+					new[] { nameof(Comment) });
+			}
 		}
 	}
 }
