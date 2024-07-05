@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -15,14 +15,14 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors;
 using Vodovoz.Factories;
 using Vodovoz.Models.Orders;
+using Vodovoz.Services.Orders;
+using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.Errors;
-using Vodovoz.Services.Orders;
-using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.Application.Orders.Services
 {

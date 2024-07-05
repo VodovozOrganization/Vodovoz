@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;

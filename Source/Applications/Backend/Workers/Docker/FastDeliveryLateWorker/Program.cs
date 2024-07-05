@@ -6,7 +6,6 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
@@ -17,6 +16,8 @@ using Vodovoz.Settings.Orders;
 using QS.HistoryLog;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Zabbix.Sender;
+using Vodovoz.Core.Data.Repositories;
+
 
 namespace FastDeliveryLateWorker
 {

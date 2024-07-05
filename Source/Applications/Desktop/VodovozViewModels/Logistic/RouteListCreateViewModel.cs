@@ -20,7 +20,7 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;

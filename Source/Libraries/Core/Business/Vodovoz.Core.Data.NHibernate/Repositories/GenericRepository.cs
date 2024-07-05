@@ -1,11 +1,11 @@
-﻿using QS.DomainModel.Entity;
+﻿using Core.Infrastructure.Specifications;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Core.Domain.Specifications;
+using Vodovoz.Core.Domain.Repositories;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
