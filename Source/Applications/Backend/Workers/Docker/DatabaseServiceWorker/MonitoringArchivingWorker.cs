@@ -43,7 +43,6 @@ namespace DatabaseServiceWorker
 						ArchiveMonitoring();
 						ArchiveTrackPoints();
 						DeleteDistanceCache();
-						await _zabbixSender.SendIsHealthyAsync();
 					}
 					catch(Exception e)
 					{
@@ -54,6 +53,8 @@ namespace DatabaseServiceWorker
 						_workInProgress = false;
 					}
 				}
+
+				await _zabbixSender.SendIsHealthyAsync();
 
 				_logger.LogInformation($"Ожидаем {_delayInMinutes}мин перед следующим запуском");
 				await Task.Delay(1000 * 60 * _delayInMinutes, stoppingToken);
