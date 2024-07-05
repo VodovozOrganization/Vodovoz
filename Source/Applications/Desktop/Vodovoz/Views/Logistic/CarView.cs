@@ -138,6 +138,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
+			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
