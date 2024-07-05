@@ -604,6 +604,59 @@ namespace Vodovoz.Core.Domain.Orders
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
+		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
+
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItemEntity item in OrderItems)
+				{
+					sum += item.ActualSum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveOriginalSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItemEntity item in OrderItems)
+				{
+					sum += item.Sum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public virtual decimal OrderNegativeSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderDepositItemEntity dep in OrderDepositItems)
+				{
+					sum += dep.ActualSum;
+				}
+				return sum;
+			}
+		}
+
 		#endregion Вычисляемые свойства
 
 		public override string ToString()
