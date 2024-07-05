@@ -2091,6 +2091,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Print.PrintDocumentsSelectablePrinterView.cs" />
     <Compile Include="ViewWidgets\Users\DocumentsPrinterSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView.cs" />
+    <Compile Include="Views\Print\PrinterSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.PrinterSelectionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
