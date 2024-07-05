@@ -124,6 +124,8 @@ namespace Vodovoz.Views.Print
 			this.yhboxMain.Add(this.vboxDocuments);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.vboxDocuments]));
 			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child yhboxMain.Gtk.Box+BoxChild
 			this.reportviewer = new global::fyiReporting.RdlGtkViewer.ReportViewer();
 			this.reportviewer.WidthRequest = 0;
