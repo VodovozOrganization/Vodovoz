@@ -1,8 +1,10 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -84,6 +86,9 @@ namespace Vodovoz.Core.Domain.Orders
 		private DateTime? _deliveryDate;
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
+
+		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
+
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -573,6 +578,13 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _paymentType;
 			//Нельзя устанавливать, см. логику в Order.cs
 			protected set => SetField(ref _paymentType, value);
+		}
+
+		[Display(Name = "Строки заказа")]
+		public virtual IObservableList<OrderItemEntity> OrderItems
+		{
+			get => _orderItems;
+			set => SetField(ref _orderItems, value);
 		}
 
 		#region Вычисляемые свойства
