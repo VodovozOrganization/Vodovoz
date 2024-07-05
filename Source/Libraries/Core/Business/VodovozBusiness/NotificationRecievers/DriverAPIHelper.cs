@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VodovozBusiness.NotificationRecievers;
 
 namespace Vodovoz.NotificationRecievers
 {
@@ -110,11 +111,21 @@ namespace Vodovoz.NotificationRecievers
 		{
 			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
 			{
-				if(response.IsSuccessStatusCode)
+				var responseBody = await response.Content.ReadAsAsync<ProblemDetails>();
+
+				if(response.IsSuccessStatusCode && responseBody is null)
 				{
 					return;
 				}
-				throw new DriverAPIHelperException(response.ReasonPhrase);
+
+				if(responseBody is null)
+				{
+					throw new DriverAPIHelperException(response.ReasonPhrase);
+				}
+				else
+				{
+					throw new DriverAPIHelperException(responseBody.Detail);
+				}
 			}
 		}
 	}
