@@ -20,13 +20,13 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Операция залога")]
 		public virtual DepositOperation DepositOperation {
 			get => _depositOperation;
-			set => SetField(ref _depositOperation, value, () => DepositOperation);
+			set => SetField(ref _depositOperation, value);
 		}
 
 		[Display(Name = "Номенклатура оборудования")]
 		public virtual Nomenclature EquipmentNomenclature {
 			get => _equipmentNomenclature;
-			set => SetField(ref _equipmentNomenclature, value, () => EquipmentNomenclature);
+			set => SetField(ref _equipmentNomenclature, value);
 		}
 
 		#region IOrderDepositItemWageCalculationSource implementation
