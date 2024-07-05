@@ -1412,54 +1412,6 @@ namespace Vodovoz.Domain.Orders
 			protected set {; }
 		}
 
-		/// <summary>
-		/// Полная сумма заказа
-		/// </summary>
-		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
-
-		/// <summary>
-		/// Вся положительная сумма заказа
-		/// </summary>
-		public virtual decimal OrderPositiveSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.ActualSum;
-				}
-				return sum;
-			}
-		}
-
-		/// <summary>
-		/// Вся положительная изначальная сумма заказа
-		/// </summary>
-		public virtual decimal OrderPositiveOriginalSum
-		{
-			get
-			{
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems)
-				{
-					sum += item.Sum;
-				}
-				return sum;
-			}
-		}
-
-		/// <summary>
-		/// Вся отрицательная сумма заказа
-		/// </summary>
-		public virtual decimal OrderNegativeSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					sum += dep.ActualSum;
-				}
-				return sum;
-			}
-		}
-
 		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
 		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 
@@ -4429,11 +4381,13 @@ namespace Vodovoz.Domain.Orders
 		private void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
 		}
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
 			UpdateDocuments();
 		}
 
