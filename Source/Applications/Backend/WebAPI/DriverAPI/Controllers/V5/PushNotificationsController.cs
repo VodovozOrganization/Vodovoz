@@ -325,7 +325,7 @@ namespace DriverAPI.Controllers.V5
 		/// <returns></returns>
 		[HttpPost]
 		[AllowAnonymous]
-		//[ApiExplorerSettings(IgnoreApi = true)]
+		[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
 		{
