@@ -4,6 +4,7 @@ using QS.Print;
 using QS.Report;
 using QS.Views.Dialog;
 using System;
+using Vodovoz.PrintableDocuments;
 using Vodovoz.ViewModels.Print;
 namespace Vodovoz.Views.Print
 {
@@ -19,8 +20,10 @@ namespace Vodovoz.Views.Print
 		{
 			ConfigureTree();
 
-			ybtnPrintSelected.BindCommand(ViewModel.PrintSelectedCommand);
+			ybtnPrintSelected.BindCommand(ViewModel.PrintSelectedDocumentsCommand);
 			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
+			ybuttonSetPrinterSettings.BindCommand(ViewModel.EditPrintrSettingsCommand);
+			ybuttonSavePrinterSettings.BindCommand(ViewModel.SavePrinterSettingsCommand);
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 			if(ViewModel.EntityDocumentsPrinter != null)
@@ -50,12 +53,12 @@ namespace Vodovoz.Views.Print
 					.AddToggleRenderer(x => x.Selected)
 				.AddColumn("Документ")
 					.AddTextRenderer(x => x.Document.Name)
+				.AddColumn("Принтер")
+					.AddTextRenderer(x => (x as ICustomPrinterPrintDocument) == null ? string.Empty : (x as ICustomPrinterPrintDocument).PrinterName)
 				.AddColumn("Копий")
-					.AddNumericRenderer(x => x.Copies)
+					.AddNumericRenderer(x => (x as ICustomPrinterPrintDocument) == null ? 1 : (x as ICustomPrinterPrintDocument).CopiesToPrint)
 					.Editing()
 					.Adjustment(new Adjustment(0, 0, 10000, 1, 100, 0))
-				.AddColumn("Принтер")
-				.AddColumn("Ориентация")
 				.AddColumn("")
 				.RowCells()
 				.Finish();
@@ -75,7 +78,7 @@ namespace Vodovoz.Views.Print
 
 		private void PreviewDocument()
 		{
-			if(ViewModel.SelectedDocument.Document is IPrintableRDLDocument rdldoc)
+			if(ViewModel.SelectedDocument?.Document is IPrintableRDLDocument rdldoc)
 			{
 				reportviewer.ReportPrinted -= ReportViewerOnReportPrinted;
 				reportviewer.ReportPrinted += ReportViewerOnReportPrinted;

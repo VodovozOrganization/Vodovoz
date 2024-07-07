@@ -4,6 +4,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Infrastructure.Print
 {
@@ -25,8 +26,9 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
             IList<OrderDocumentType> orderDocumentTypes = null);
 
 		IEntityDocumentsPrinter CreateCarLoadDocumentsPrinter(
-			IUnitOfWork unitOfWork,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEventsQrPlacer eventsQrPlacer,
+			IUserSettingsService userSettingsService,
 			CarLoadDocument carLoadDocument);
 	}
 }

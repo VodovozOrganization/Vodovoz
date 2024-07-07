@@ -6,6 +6,7 @@ using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Report;
 using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Core.Domain.Logistics.Drivers;
@@ -15,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.PrintableDocuments.Store;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -46,8 +48,9 @@ namespace Vodovoz.Additions.Printing
 		}
 
 		public EntityDocumentsPrinter(
-			IUnitOfWork unitOfWork,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEventsQrPlacer eventsQrPlacer,
+			IUserSettingsService userSettingsService,
 			CarLoadDocument carLoadDocument)
 		{
 			if(carLoadDocument is null)
@@ -57,11 +60,16 @@ namespace Vodovoz.Additions.Printing
 
 			DocPrinterInit();
 
-			var reportInfo = eventsQrPlacer.AddQrEventForPrintingDocument(
-				unitOfWork, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
+			ReportInfo reportInfo = new ReportInfo();
 
-			var waterCarLoadDocument = new WaterCarLoadDocumentRdl(carLoadDocument, reportInfo);
-			var equipmentCarLoadDocument = new EquipmentCarLoadDocumentRdl(carLoadDocument);
+			using(var uow = unitOfWorkFactory.CreateWithoutRoot())
+			{
+				reportInfo = eventsQrPlacer.AddQrEventForPrintingDocument(
+					uow, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
+			}
+
+			var waterCarLoadDocument = new WaterCarLoadDocumentRdl(unitOfWorkFactory, userSettingsService, carLoadDocument, reportInfo);
+			var equipmentCarLoadDocument = new EquipmentCarLoadDocumentRdl(unitOfWorkFactory, userSettingsService, carLoadDocument);
 
 			DocumentsToPrint.Add(new SelectablePrintDocument(waterCarLoadDocument) { Selected = true });
 			DocumentsToPrint.Add(new SelectablePrintDocument(equipmentCarLoadDocument) { Selected = true });
