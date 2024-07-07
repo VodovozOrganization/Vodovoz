@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Widgets.Print
 	{
 		private readonly INavigationManager _navigationManager;
 		private UserSettings _userSettings;
-		private CustomPrinterPrintDocumentType? _selectedDocumentType;
+		private CustomPrintDocumentType? _selectedDocumentType;
 		private DocumentPrinterSetting _selectedPrinterSetting;
 
 		public DocumentsPrinterSettingsViewModel(INavigationManager navigationManager)
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Widgets.Print
 		}
 
 		[PropertyChangedAlso(nameof(CanAddPrinterSetting))]
-		public CustomPrinterPrintDocumentType? SelectedDocumentType
+		public CustomPrintDocumentType? SelectedDocumentType
 		{
 			get => _selectedDocumentType;
 			set => SetField(ref _selectedDocumentType, value);

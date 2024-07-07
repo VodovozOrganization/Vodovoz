@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
 using System;
@@ -11,46 +10,17 @@ using Vodovoz.Services;
 
 namespace Vodovoz.PrintableDocuments.Store
 {
-	public class EquipmentCarLoadDocumentRdl : PropertyChangedBase, ICustomPrinterPrintDocument, IDisposable
+	public class EquipmentCarLoadDocumentRdl : PropertyChangedBase, ICustomPrintRdlDocument
 	{
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IUserSettingsService _userSettingsService;
 		private readonly CarLoadDocument _carLoadDocument;
 
 		private int _copiesToPrint;
 		private string _printerName;
 
-		public EquipmentCarLoadDocumentRdl(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IUserSettingsService userSettingsService,
-			CarLoadDocument carLoadDocument)
+		private EquipmentCarLoadDocumentRdl(CarLoadDocument carLoadDocument)
 		{
-			_unitOfWork =
-				(unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)))
-				.CreateWithoutRoot();
-			_userSettingsService =
-				userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_carLoadDocument =
 				carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
-
-			SetPrinterSettings();
-		}
-
-		private void SetPrinterSettings()
-		{
-			var savedPrinterSettings =
-				_userSettingsService.Settings.DocumentPrinterSettings
-				.Where(s => s.DocumentType == DocumentType)
-				.FirstOrDefault();
-
-			if(savedPrinterSettings is null)
-			{
-				CopiesToPrint = 1;
-				return;
-			}
-
-			CopiesToPrint = savedPrinterSettings.NumberOfCopies;
-			PrinterName = savedPrinterSettings.PrinterName;
 		}
 
 		public Dictionary<object, object> Parameters { get; set; }
@@ -71,7 +41,7 @@ namespace Vodovoz.PrintableDocuments.Store
 
 		public string Name => DocumentType.GetEnumDisplayName();
 
-		public CustomPrinterPrintDocumentType DocumentType => CustomPrinterPrintDocumentType.EquipmentCarLoadDocument;
+		public CustomPrintDocumentType DocumentType => CustomPrintDocumentType.EquipmentCarLoadDocument;
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
@@ -84,9 +54,21 @@ namespace Vodovoz.PrintableDocuments.Store
 			};
 		}
 
-		public void Dispose()
+		public static EquipmentCarLoadDocumentRdl Create(
+			IUserSettingsService userSettingsService,
+			CarLoadDocument carLoadDocument)
 		{
-			_unitOfWork?.Dispose();
+			var document = new EquipmentCarLoadDocumentRdl(carLoadDocument);
+
+			var savedPrinterSettings =
+				userSettingsService.Settings.DocumentPrinterSettings
+				.Where(s => s.DocumentType == document.DocumentType)
+				.FirstOrDefault();
+
+			document.CopiesToPrint = savedPrinterSettings is null ? 1 : savedPrinterSettings.NumberOfCopies;
+			document.PrinterName = savedPrinterSettings?.PrinterName;
+
+			return document;
 		}
 	}
 }

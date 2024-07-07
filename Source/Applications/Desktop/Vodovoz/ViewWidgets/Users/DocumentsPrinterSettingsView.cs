@@ -19,7 +19,7 @@ namespace Vodovoz.ViewWidgets.Users
 		{
 			ConfigureTreeView();
 
-			yenumcomboboxDocumentType.ItemsEnum = typeof(CustomPrinterPrintDocumentType);
+			yenumcomboboxDocumentType.ItemsEnum = typeof(CustomPrintDocumentType);
 			yenumcomboboxDocumentType.Binding
 				.AddBinding(ViewModel, w => w.SelectedDocumentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

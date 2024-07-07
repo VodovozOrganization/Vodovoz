@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Documents
 	public class DocumentPrinterSetting : PropertyChangedBase, IDomainObject
 	{
 		private UserSettings _userSettings;
-		private CustomPrinterPrintDocumentType _documentType;
+		private CustomPrintDocumentType _documentType;
 		private string _printerName;
 		private int _numberOfCopies;
 
@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display(Name = "Тип документа")]
-		public virtual CustomPrinterPrintDocumentType DocumentType
+		public virtual CustomPrintDocumentType DocumentType
 		{
 			get => _documentType;
 			set => SetField(ref _documentType, value);

@@ -2,7 +2,7 @@
 
 namespace Vodovoz.PrintableDocuments
 {
-	public enum CustomPrinterPrintDocumentType
+	public enum CustomPrintDocumentType
 	{
 		[Display(Name = "Талон погрузки (вода)")]
 		WaterCarLoadDocument,

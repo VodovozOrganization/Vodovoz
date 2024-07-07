@@ -1,11 +1,10 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using QS.Print;
 using QS.Report;
 using QS.Views.Dialog;
 using System;
-using Vodovoz.PrintableDocuments;
 using Vodovoz.ViewModels.Print;
+using static Vodovoz.ViewModels.Print.PrintDocumentsSelectablePrinterViewModel;
 namespace Vodovoz.Views.Print
 {
 	public partial class PrintDocumentsSelectablePrinterView : DialogViewBase<PrintDocumentsSelectablePrinterViewModel>
@@ -26,18 +25,14 @@ namespace Vodovoz.Views.Print
 			ybuttonSavePrinterSettings.BindCommand(ViewModel.SavePrinterSettingsCommand);
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-			if(ViewModel.EntityDocumentsPrinter != null)
-			{
-				ViewModel.PreviewDocument += PreviewDocument;
-			}
 		}
 
 		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(ViewModel.EntityDocumentsPrinter))
+			if(e.PropertyName == nameof(ViewModel.DocumentsNodes))
 			{
 				ViewModel.PreviewDocument -= PreviewDocument;
-				if(ViewModel.EntityDocumentsPrinter != null)
+				if(ViewModel.Printer != null)
 				{
 					ConfigureTree();
 					ViewModel.PreviewDocument += PreviewDocument;
@@ -48,37 +43,35 @@ namespace Vodovoz.Views.Print
 		private void ConfigureTree()
 		{
 			ytreeviewDocuments.RowActivated -= YTreeViewDocumentsOnRowActivated;
-			ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<SelectablePrintDocument>.Create()
+			ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<PrintDocumentSelectableNode>.Create()
 				.AddColumn("✓")
-					.AddToggleRenderer(x => x.Selected)
+					.AddToggleRenderer(x => x.IsSelected)
 				.AddColumn("Документ")
-					.AddTextRenderer(x => x.Document.Name)
+					.AddEnumRenderer(x => x.DocumentType)
 				.AddColumn("Принтер")
-					.AddTextRenderer(x => (x as ICustomPrinterPrintDocument) == null ? string.Empty : (x as ICustomPrinterPrintDocument).PrinterName)
+					.AddTextRenderer(x => x.PrinterName)
 				.AddColumn("Копий")
-					.AddNumericRenderer(x => (x as ICustomPrinterPrintDocument) == null ? 1 : (x as ICustomPrinterPrintDocument).CopiesToPrint)
-					.Editing()
-					.Adjustment(new Adjustment(0, 0, 10000, 1, 100, 0))
+					.AddNumericRenderer(x => x.NumberOfCopies)
 				.AddColumn("")
 				.RowCells()
 				.Finish();
 
-			if(ViewModel.EntityDocumentsPrinter != null)
+			if(ViewModel.Printer != null)
 			{
-				ytreeviewDocuments.ItemsDataSource = ViewModel.EntityDocumentsPrinter.MultiDocPrinterPrintableDocuments;
+				ytreeviewDocuments.ItemsDataSource = ViewModel.DocumentsNodes;
 			}
 			ytreeviewDocuments.RowActivated += YTreeViewDocumentsOnRowActivated;
 		}
 
 		private void YTreeViewDocumentsOnRowActivated(object o, RowActivatedArgs args)
 		{
-			ViewModel.SelectedDocument = ytreeviewDocuments.GetSelectedObject<SelectablePrintDocument>();
+			ViewModel.ActiveNode = ytreeviewDocuments.GetSelectedObject<PrintDocumentSelectableNode>();
 			PreviewDocument();
 		}
 
 		private void PreviewDocument()
 		{
-			if(ViewModel.SelectedDocument?.Document is IPrintableRDLDocument rdldoc)
+			if(ViewModel.ActiveDocument is IPrintableRDLDocument rdldoc)
 			{
 				reportviewer.ReportPrinted -= ReportViewerOnReportPrinted;
 				reportviewer.ReportPrinted += ReportViewerOnReportPrinted;

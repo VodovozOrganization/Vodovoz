@@ -35,14 +35,5 @@ namespace Vodovoz.Additions.Printing
 		{
 			return new EntityDocumentsPrinter(uow, routeList, this, routeListPrintableDocumentTypes, orderDocumentTypes);
 		}
-
-		public IEntityDocumentsPrinter CreateCarLoadDocumentsPrinter(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IEventsQrPlacer eventsQrPlacer,
-			IUserSettingsService userSettingsService,
-			CarLoadDocument carLoadDocument)
-		{
-			return new EntityDocumentsPrinter(unitOfWorkFactory, eventsQrPlacer, userSettingsService, carLoadDocument);
-		}
 	}
 }

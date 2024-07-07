@@ -1,15 +1,20 @@
-﻿using QS.Commands;
+﻿using MoreLinq;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
+using QS.Report;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
+using Vodovoz.PrintableDocuments.Store;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -18,20 +23,22 @@ namespace Vodovoz.ViewModels.Print
 {
 	public class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{
-		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
 		private readonly IUserSettingsService _userSettingsService;
+
 		private CarLoadDocument _carLoadDocument;
-		private IEntityDocumentsPrinter _entityDocumentsPrinter;
+		private IList<ICustomPrintRdlDocument> _documentsToPrint = new List<ICustomPrintRdlDocument>();
+		private GenericObservableList<PrintDocumentSelectableNode> _documentsNodes = new GenericObservableList<PrintDocumentSelectableNode>();
+		private bool _printOperationCancelled;
 
 		public PrintDocumentsSelectablePrinterViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
+			ICustomPrintRdlDocumentsPrinter documentsPrinter,
 			IUserSettingsService userSettingsService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			_entityDocumentsPrinterFactory = entityDocumentsPrinterFactory ?? throw new ArgumentNullException(nameof(entityDocumentsPrinterFactory));
+			Printer = documentsPrinter ?? throw new ArgumentNullException(nameof(documentsPrinter));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 
 			TabName = "Печать документов";
@@ -52,48 +59,88 @@ namespace Vodovoz.ViewModels.Print
 		public DelegateCommand SavePrinterSettingsCommand;
 		public DelegateCommand ReportPrintedCommand;
 
-		public IEntityDocumentsPrinter EntityDocumentsPrinter
+		public ICustomPrintRdlDocumentsPrinter Printer { get; }
+
+		public PrintDocumentSelectableNode ActiveNode { get; set; }
+		public ICustomPrintRdlDocument ActiveDocument =>
+			ActiveNode is null ? null : DocumentsToPrint.Where(d => d.DocumentType == ActiveNode.DocumentType).FirstOrDefault();
+
+		public IList<ICustomPrintRdlDocument> DocumentsToPrint
 		{
-			get => _entityDocumentsPrinter;
-			private set => SetField(ref _entityDocumentsPrinter, value);
+			get => _documentsToPrint;
+			set => SetField(ref _documentsToPrint, value);
 		}
 
-		public SelectablePrintDocument SelectedDocument { get; set; }
+		public GenericObservableList<PrintDocumentSelectableNode> DocumentsNodes
+		{
+			get => _documentsNodes;
+			set => SetField(ref _documentsNodes, value);
+		}
 
 		public void ConfigureForCarLoadDocumentsPrint(
 			IEventsQrPlacer eventsQrPlacer,
 			CarLoadDocument carLoadDocument)
 		{
-			EntityDocumentsPrinter = _entityDocumentsPrinterFactory
-				.CreateCarLoadDocumentsPrinter(UnitOfWorkFactory, eventsQrPlacer, _userSettingsService, carLoadDocument);
-
 			TabName = "Печать талонов погрузки";
 
 			_carLoadDocument = carLoadDocument;
 
-			EntityDocumentsPrinter.DocumentsPrinted += OnDocumentsPrinted;
+			ReportInfo reportInfo = eventsQrPlacer.AddQrEventForPrintingDocument(
+					UoW, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
+
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettingsService, carLoadDocument, reportInfo);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettingsService, carLoadDocument);
+
+			DocumentsToPrint.Add(waterCarLoadDocument);
+			DocumentsToPrint.Add(equipmentCarLoadDocument);
+
+			DocumentsNodes = new GenericObservableList<PrintDocumentSelectableNode>(
+				DocumentsToPrint.Select(d => new PrintDocumentSelectableNode
+				{
+					IsSelected = true,
+					DocumentType = d.DocumentType,
+					PrinterName = d.PrinterName,
+					NumberOfCopies = d.CopiesToPrint
+				})
+				.ToList());
+
+			Printer.DocumentsPrinted += OnDocumentsPrinted;
+			Printer.PrintingCanceled += OnPrintingCanceled;
 			DefaultPreviewDocument();
 		}
 
 		public void DefaultPreviewDocument()
 		{
-			if(EntityDocumentsPrinter is null)
+			if(Printer is null)
 			{
 				return;
 			}
 
-			var printDocuments = EntityDocumentsPrinter.DocumentsToPrint;
+			var printDocuments = DocumentsToPrint;
 
 			if(_carLoadDocument != null)
 			{
-				SelectedDocument = printDocuments.FirstOrDefault(x => x.Selected) ?? printDocuments.FirstOrDefault();
+				ActiveNode = DocumentsNodes.FirstOrDefault(x => x.IsSelected) ?? DocumentsNodes.FirstOrDefault();
 				PreviewDocument?.Invoke();
 			}
 		}
 
 		private void PrintSelectedDocuments()
 		{
-			EntityDocumentsPrinter.Print();
+			_printOperationCancelled = false;
+
+			var selectedDocumentTypes = DocumentsNodes.Where(d => d.IsSelected).Select(d => d.DocumentType).ToList();
+			var documentsToPrint = DocumentsToPrint.Where(d => selectedDocumentTypes.Contains(d.DocumentType)).ToList();
+
+			foreach(var document in documentsToPrint)
+			{
+				if(_printOperationCancelled)
+				{
+					return;
+				}
+
+				Printer.Print(document);
+			}
 		}
 
 		private void Cancel()
@@ -103,7 +150,7 @@ namespace Vodovoz.ViewModels.Print
 
 		private void EditPrintrSettings()
 		{
-			if(!(SelectedDocument is ICustomPrinterPrintDocument doc))
+			if(!(ActiveDocument is ICustomPrintRdlDocument doc))
 			{
 				return;
 			}
@@ -120,18 +167,21 @@ namespace Vodovoz.ViewModels.Print
 
 		private void OnPrinterSelected(object sender, PrinterSelectedEventArgs e)
 		{
-			if(!(SelectedDocument is ICustomPrinterPrintDocument doc))
+			if(!(ActiveDocument is ICustomPrintRdlDocument doc))
 			{
 				return;
 			}
 
 			doc.PrinterName = e.PrinterName;
 			doc.CopiesToPrint = e.NumberOfCopies;
+
+			ActiveNode.PrinterName = e.PrinterName;
+			ActiveNode.NumberOfCopies = e.NumberOfCopies;
 		}
 
 		private void SavePrinterSettings()
 		{
-			if(!(SelectedDocument is ICustomPrinterPrintDocument doc))
+			if(!(ActiveDocument is ICustomPrintRdlDocument doc))
 			{
 				return;
 			}
@@ -164,23 +214,35 @@ namespace Vodovoz.ViewModels.Print
 				existingPrinterSettinsForDocument.NumberOfCopies = doc.CopiesToPrint;
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateForRoot<UserSettings>(_userSettingsService.Settings.Id))
-			{
-				uow.Save(userSettings);
-			}
+			UoW.Save(userSettings);
+			UoW.Commit();
 
 			ShowInfoMessage("Настройка принтера сохранена!");
 		}
 
 		private void OnReportPrinted()
 		{
-			DocumentsPrinted?.Invoke(this, new PrintEventArgs(SelectedDocument?.Document));
+			DocumentsPrinted?.Invoke(this, new PrintEventArgs(ActiveDocument));
 		}
 
 		private void OnDocumentsPrinted(object sender, EventArgs e)
 		{
 			DocumentsPrinted?.Invoke(sender, e);
 		}
+
+		private void OnPrintingCanceled(object sender, EventArgs e)
+		{
+			_printOperationCancelled = true;
+		}
+
+		public class PrintDocumentSelectableNode
+		{
+			public bool IsSelected { get; set; }
+			public CustomPrintDocumentType DocumentType { get; set; }
+			public string PrinterName { get; set; }
+			public int NumberOfCopies { get; set; }
+		}
+
 	}
 
 	public class PrintEventArgs : EventArgs

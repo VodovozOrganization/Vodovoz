@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Infrastructure.Print
 {
@@ -24,11 +22,5 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
             RouteList routeList,
 	        RouteListPrintableDocuments[] routeListPrintableDocumentTypes,
             IList<OrderDocumentType> orderDocumentTypes = null);
-
-		IEntityDocumentsPrinter CreateCarLoadDocumentsPrinter(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IEventsQrPlacer eventsQrPlacer,
-			IUserSettingsService userSettingsService,
-			CarLoadDocument carLoadDocument);
 	}
 }
