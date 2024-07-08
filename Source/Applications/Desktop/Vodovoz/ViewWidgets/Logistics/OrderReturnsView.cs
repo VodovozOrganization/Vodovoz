@@ -63,6 +63,7 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IFlyerRepository _flyerRepository;
 		private readonly ITdiCompatibilityNavigation _tdiNavigationManager;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
@@ -110,6 +111,7 @@ namespace Vodovoz
 			IOrderSettings orderSettings,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			IFlyerRepository flyerRepository,
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope)
 		{
@@ -142,6 +144,7 @@ namespace Vodovoz
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
@@ -277,7 +280,7 @@ namespace Vodovoz
 
 			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
-			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
+			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
 			ConfigureDeliveryPointRefference(_orderNode.Client);
 
 			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);

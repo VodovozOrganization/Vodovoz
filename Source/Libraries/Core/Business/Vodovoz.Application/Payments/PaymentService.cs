@@ -12,7 +12,6 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 
 namespace Vodovoz.Application.Payments
 {

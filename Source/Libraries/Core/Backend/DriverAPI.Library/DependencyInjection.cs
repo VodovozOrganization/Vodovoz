@@ -8,19 +8,11 @@ using Vodovoz.Application;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Common;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Controllers;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
 using DriverAPI.Library.V5.Services;
 using Vodovoz.FirebaseCloudMessaging;
 using Microsoft.Extensions.Configuration;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NotificationRecievers;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace DriverAPI.Library
 {
@@ -58,22 +50,12 @@ namespace DriverAPI.Library
 
 			services.AddBusiness(configuration)
 				.AddApplication()
-				.AddInfrastructure()
 				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
 				.AddFirebaseCloudMessaging(configuration);
 
 			services
-				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-				.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
-				.AddScoped<IEmailRepository, EmailRepository>()
-				.AddScoped<IEmployeeRepository, EmployeeRepository>()
 				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
-				.AddScoped<IPaymentItemsRepository, PaymentItemsRepository>()
-				.AddScoped<IOrderRepository, OrderRepository>()
-				.AddScoped<IPaymentsRepository, PaymentsRepository>()
-				.AddScoped<IUndeliveredOrdersRepository, UndeliveredOrdersRepository>()
-				.AddScoped<ICashRepository, CashRepository>()
 				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 
 			return services;

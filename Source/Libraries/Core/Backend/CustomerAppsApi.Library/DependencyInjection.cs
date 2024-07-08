@@ -1,4 +1,4 @@
-using CustomerAppsApi.Factories;
+﻿using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -54,20 +54,6 @@ namespace CustomerAppsApi.Library
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
 			services
-				.AddSingleton<IPhoneRepository, PhoneRepository>()
-				.AddSingleton<IEmailRepository, EmailRepository>()
-				.AddSingleton<IWarehouseRepository, WarehouseRepository>()
-				.AddSingleton<IRoboatsRepository, RoboatsRepository>()
-				.AddSingleton<IBottlesRepository, BottlesRepository>()
-				.AddSingleton<INomenclatureRepository, NomenclatureRepository>()
-				.AddSingleton<IOrderRepository, OrderRepository>()
-				.AddSingleton<IStockRepository, StockRepository>()
-				.AddSingleton<IDeliveryPointRepository, DeliveryPointRepository>()
-				.AddSingleton<IDeliveryRepository, DeliveryRepository>()
-				.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>()
-				.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>()
-				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
-				.AddSingleton<IRentPackageRepository, RentPackageRepository>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
 				.AddSingleton<ISettingsController, SettingsController>()
 				.AddSingleton<ISessionProvider, DefaultSessionProvider>()
@@ -98,7 +84,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
-				.AddScoped<ICounterpartyContractRepository, CounterpartyContractRepository>()
 				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
 				.AddScoped<FastDeliveryHandler>()
 				.AddScoped<IDriverApiSettings, DriverApiSettings>()

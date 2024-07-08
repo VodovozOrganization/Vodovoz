@@ -4,6 +4,7 @@ using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.ViewModels;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -12,18 +13,22 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -35,10 +40,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
-using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
-using QS.DomainModel.Entity;
-using System.ComponentModel;
+using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -58,7 +61,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly IDocTemplateRepository _documentTemplateRepository;
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
+		private readonly IDocumentPrinter _documentPrinter;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -74,12 +79,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
 			IFuelRepository fuelRepository,
+			IDocTemplateRepository documentTemplateRepository,
 			IStringHandler stringHandler,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
 			CarInsuranceManagementViewModel insuranceManagementViewModel,
-			CarVersionsManagementViewModel carVersionsManagementViewModel)
+			CarVersionsManagementViewModel carVersionsManagementViewModel,
+			IDocumentPrinter documentPrinter)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -98,6 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_documentTemplateRepository = documentTemplateRepository ?? throw new ArgumentNullException(nameof(documentTemplateRepository));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 
@@ -174,6 +182,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
+			CreateRentalContractCommand = new DelegateCommand(CreateRentalContract);
+			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -227,6 +237,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionEditingViewModel CarInsuranceVersionEditingViewModel { get; }
+
+		public DelegateCommand AddGeoGroupCommand { get; }
+		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
+		public DelegateCommand CreateRentalContractCommand { get; }
 
 		protected override bool BeforeSave()
 		{
@@ -452,9 +466,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Add GeoGroup
 
-		public DelegateCommand AddGeoGroupCommand { get; }
-		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
-
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
 
@@ -546,6 +557,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				viewModel.Entity.ShiftChangeResidueDocumentType = Domain.Documents.ShiftChangeResidueDocumentType.Car;
 				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
 			});
+		}
+		
+		private void CreateRentalContract()
+		{
+			var actualCarVersion = Entity.CarVersions.FirstOrDefault(x => x.EndDate is null);
+
+			var contract = CarRentalContract.Create(UoW, _documentTemplateRepository, Entity, actualCarVersion?.CarOwnerOrganization, Entity.Driver);
+
+			if(contract.IsFailure)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", contract.Errors.Select(e => e.Message)));
+				return;
+			}
+
+			_documentPrinter.PrintAllODTDocuments(new[] { contract.Value });
 		}
 
 		private void OnEntityPropertyChangedHandler(object sender, PropertyChangedEventArgs e)

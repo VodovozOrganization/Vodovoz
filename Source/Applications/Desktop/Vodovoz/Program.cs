@@ -207,7 +207,6 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
-					builder.RegisterType<CashRepository>().As<ICashRepository>();
 
 					#endregion
 

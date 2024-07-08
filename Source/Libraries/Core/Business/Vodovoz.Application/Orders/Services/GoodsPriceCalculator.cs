@@ -10,7 +10,7 @@ namespace Vodovoz.Application.Orders.Services
 	public class GoodsPriceCalculator : IGoodsPriceCalculator
 	{
 		public decimal CalculateItemPrice(
-			IEnumerable<Product> products,
+			IEnumerable<IProduct> products,
 			DeliveryPoint deliveryPoint,
 			CounterpartyContract contract,
 			Nomenclature nomenclature,
@@ -42,7 +42,7 @@ namespace Vodovoz.Application.Orders.Services
 			return nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
-		private decimal GetTotalWater19LCount(IEnumerable<Product> products, bool doNotCalculateWaterFromPromoSets = false)
+		private decimal GetTotalWater19LCount(IEnumerable<IProduct> products, bool doNotCalculateWaterFromPromoSets = false)
 		{
 			var water19L = doNotCalculateWaterFromPromoSets
 				? products.Where(x => x.Nomenclature != null && x.Nomenclature.IsWater19L && x.PromoSet == null)
@@ -52,7 +52,7 @@ namespace Vodovoz.Application.Orders.Services
 		}
 		
 		private NomenclatureFixedPrice GetFixedPriceOrNull(
-			IEnumerable<Product> products,
+			IEnumerable<IProduct> products,
 			DeliveryPoint deliveryPoint,
 			CounterpartyContract contract,
 			Nomenclature nomenclature,
