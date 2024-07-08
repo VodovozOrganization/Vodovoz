@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gtk;
 using QS.Project.Services;
 using QS.Tdi;
@@ -62,12 +62,16 @@ namespace Vodovoz.SidePanel
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
+					var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
-					return new CashInfoPanelView(
+					var userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+					var cashInfoPanelViewModel = new CashInfoPanelViewModel(
 						ServicesConfig.UnitOfWorkFactory,
-						new CashRepository(),
+						ServicesConfig.CommonServices,
+						cashRepository,
 						subdivisionRepository,
-						new UserRepository());
+						userRepository);
+					return new CashInfoPanelView(cashInfoPanelViewModel);
 				case PanelViewType.EdoLightsMatrixPanelView:
 					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 					IGtkTabsOpener gtkTabsOpener = new GtkTabsOpener();
