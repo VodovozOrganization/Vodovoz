@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Gamma.GtkWidgets;
 using GMap.NET.MapProviders;
 using Gtk;
 using Microsoft.Extensions.Configuration;
@@ -86,6 +87,7 @@ namespace Vodovoz
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
+			yTreeView.TreeModelProvider = new VodovozTreeModelProvider();
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
