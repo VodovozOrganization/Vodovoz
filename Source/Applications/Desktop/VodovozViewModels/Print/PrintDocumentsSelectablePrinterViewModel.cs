@@ -200,6 +200,7 @@ namespace Vodovoz.ViewModels.Print
 
 			if(string.IsNullOrWhiteSpace(doc.PrinterName) || doc.CopiesToPrint < 1)
 			{
+				ShowErrorMessage($"Сохранение недоступно!\nНастройки принтера для документа \"{doc.DocumentType.GetEnumDisplayName()}\" не заданы!");
 				return;
 			}
 
@@ -228,7 +229,7 @@ namespace Vodovoz.ViewModels.Print
 			UoW.Save(_userSettings);
 			UoW.Commit();
 
-			ShowInfoMessage("Настройка принтера сохранена!");
+			ShowInfoMessage($"Настройки принтера для документа \"{doc.DocumentType.GetEnumDisplayName()}\" сохранены!");
 		}
 
 		private void OnReportPrinted()
