@@ -56,16 +56,17 @@ namespace Vodovoz.Views.Print
 				.RowCells()
 				.Finish();
 
-			if(ViewModel.Printer != null)
-			{
-				ytreeviewDocuments.ItemsDataSource = ViewModel.DocumentsNodes;
-			}
+			ytreeviewDocuments.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ActiveNode, w => w.SelectedRow)
+				.AddBinding(vm => vm.DocumentsNodes, w => w.ItemsDataSource)
+				.InitializeFromSource();
+
 			ytreeviewDocuments.RowActivated += YTreeViewDocumentsOnRowActivated;
 		}
 
 		private void YTreeViewDocumentsOnRowActivated(object o, RowActivatedArgs args)
 		{
-			ViewModel.ActiveNode = ytreeviewDocuments.GetSelectedObject<PrintDocumentSelectableNode>();
 			PreviewDocument();
 		}
 

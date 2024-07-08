@@ -3,7 +3,6 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Print;
 using QS.Report;
 using QS.ViewModels;
 using System;
@@ -13,19 +12,19 @@ using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.PrintableDocuments.Store;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.ViewModels.Print
 {
-	public class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
+	public partial class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly UserSettings _userSettings;
 
 		private CarLoadDocument _carLoadDocument;
 		private IList<ICustomPrintRdlDocument> _documentsToPrint = new List<ICustomPrintRdlDocument>();
@@ -37,12 +36,16 @@ namespace Vodovoz.ViewModels.Print
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICustomPrintRdlDocumentsPrinter documentsPrinter,
-			IUserSettingsService userSettingsService)
+			IUserRepository userRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(userRepository is null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
+			}
+
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Printer = documentsPrinter ?? throw new ArgumentNullException(nameof(documentsPrinter));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 
 			TabName = "Печать документов";
 
@@ -51,6 +54,8 @@ namespace Vodovoz.ViewModels.Print
 			EditPrintrSettingsCommand = new DelegateCommand(EditPrintrSettings);
 			SavePrinterSettingsCommand = new DelegateCommand(SavePrinterSettings);
 			ReportPrintedCommand = new DelegateCommand(OnReportPrinted);
+
+			_userSettings = userRepository.GetCurrentUserSettings(UoW);
 		}
 
 		public event Action PreviewDocument;
@@ -63,10 +68,12 @@ namespace Vodovoz.ViewModels.Print
 		public DelegateCommand ReportPrintedCommand;
 
 		public ICustomPrintRdlDocumentsPrinter Printer { get; }
-
 		public PrintDocumentSelectableNode ActiveNode { get; set; }
+
 		public ICustomPrintRdlDocument ActiveDocument =>
-			ActiveNode is null ? null : DocumentsToPrint.Where(d => d.DocumentType == ActiveNode.DocumentType).FirstOrDefault();
+			ActiveNode is null
+			? null
+			: DocumentsToPrint.Where(d => d.DocumentType == ActiveNode.DocumentType).FirstOrDefault();
 
 		public IList<ICustomPrintRdlDocument> DocumentsToPrint
 		{
@@ -91,8 +98,8 @@ namespace Vodovoz.ViewModels.Print
 			ReportInfo reportInfo = eventsQrPlacer.AddQrEventForPrintingDocument(
 					UoW, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
 
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettingsService, carLoadDocument, reportInfo);
-			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettingsService, carLoadDocument);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, reportInfo);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
 
 			DocumentsToPrint.Add(waterCarLoadDocument);
 			DocumentsToPrint.Add(equipmentCarLoadDocument);
@@ -180,6 +187,8 @@ namespace Vodovoz.ViewModels.Print
 
 			ActiveNode.PrinterName = e.PrinterName;
 			ActiveNode.NumberOfCopies = e.NumberOfCopies;
+
+			OnPropertyChanged(nameof(DocumentsNodes));
 		}
 
 		private void SavePrinterSettings()
@@ -194,35 +203,30 @@ namespace Vodovoz.ViewModels.Print
 				return;
 			}
 
-			using(var uowGeneric = _unitOfWorkFactory.CreateForRoot<UserSettings>(_userSettingsService.Settings.Id, "Кнопка сохранения настройки принтера"))
-			{
-				var userSettins = uowGeneric.Root;
-
-				var existingPrinterSettinsForDocument = userSettins.DocumentPrinterSettings
+			var existingPrinterSettinsForDocument = _userSettings.DocumentPrinterSettings
 					.Where(s => s.DocumentType == doc.DocumentType)
 					.FirstOrDefault();
 
-				if(existingPrinterSettinsForDocument is null)
+			if(existingPrinterSettinsForDocument is null)
+			{
+				var newDocumentPrinterSetting = new DocumentPrinterSetting
 				{
-					var newDocumentPrinterSetting = new DocumentPrinterSetting
-					{
-						UserSettings = userSettins,
-						DocumentType = doc.DocumentType,
-						PrinterName = doc.PrinterName,
-						NumberOfCopies = doc.CopiesToPrint
-					};
+					UserSettings = _userSettings,
+					DocumentType = doc.DocumentType,
+					PrinterName = doc.PrinterName,
+					NumberOfCopies = doc.CopiesToPrint
+				};
 
-					userSettins.DocumentPrinterSettings.Add(newDocumentPrinterSetting);
-				}
-				else
-				{
-					existingPrinterSettinsForDocument.PrinterName = doc.PrinterName;
-					existingPrinterSettinsForDocument.NumberOfCopies = doc.CopiesToPrint;
-				}
-
-				uowGeneric.Save();
-				uowGeneric.Commit();
+				_userSettings.DocumentPrinterSettings.Add(newDocumentPrinterSetting);
 			}
+			else
+			{
+				existingPrinterSettinsForDocument.PrinterName = doc.PrinterName;
+				existingPrinterSettinsForDocument.NumberOfCopies = doc.CopiesToPrint;
+			}
+
+			UoW.Save(_userSettings);
+			UoW.Commit();
 
 			ShowInfoMessage("Настройка принтера сохранена!");
 		}
@@ -241,24 +245,5 @@ namespace Vodovoz.ViewModels.Print
 		{
 			_printOperationCancelled = true;
 		}
-
-		public class PrintDocumentSelectableNode
-		{
-			public bool IsSelected { get; set; }
-			public CustomPrintDocumentType DocumentType { get; set; }
-			public string PrinterName { get; set; }
-			public int NumberOfCopies { get; set; }
-		}
-
-	}
-
-	public class PrintEventArgs : EventArgs
-	{
-		public PrintEventArgs(IPrintableDocument document)
-		{
-			Document = document;
-		}
-
-		public IPrintableDocument Document { get; }
 	}
 }

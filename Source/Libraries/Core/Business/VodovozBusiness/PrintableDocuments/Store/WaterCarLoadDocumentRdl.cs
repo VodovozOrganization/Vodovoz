@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
-using Vodovoz.Services;
 
 namespace Vodovoz.PrintableDocuments.Store
 {
@@ -56,14 +56,14 @@ namespace Vodovoz.PrintableDocuments.Store
 		}
 
 		public static WaterCarLoadDocumentRdl Create(
-			IUserSettingsService userSettingsService,
+			UserSettings userSettings,
 			CarLoadDocument carLoadDocument,
 			ReportInfo reportInfo)
 		{
 			var document = new WaterCarLoadDocumentRdl(carLoadDocument, reportInfo);
 
 			var savedPrinterSettings =
-				userSettingsService.Settings.DocumentPrinterSettings
+				userSettings.DocumentPrinterSettings
 				.Where(s => s.DocumentType == document.DocumentType)
 				.FirstOrDefault();
 
