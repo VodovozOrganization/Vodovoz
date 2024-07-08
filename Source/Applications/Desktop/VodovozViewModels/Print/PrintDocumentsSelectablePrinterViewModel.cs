@@ -12,6 +12,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.PrintableDocuments.Store;
@@ -23,6 +24,7 @@ namespace Vodovoz.ViewModels.Print
 {
 	public class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IUserSettingsService _userSettingsService;
 
 		private CarLoadDocument _carLoadDocument;
@@ -38,6 +40,7 @@ namespace Vodovoz.ViewModels.Print
 			IUserSettingsService userSettingsService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Printer = documentsPrinter ?? throw new ArgumentNullException(nameof(documentsPrinter));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 
@@ -191,31 +194,35 @@ namespace Vodovoz.ViewModels.Print
 				return;
 			}
 
-			var userSettings = _userSettingsService.Settings;
-
-			var existingPrinterSettinsForDocument = userSettings.DocumentPrinterSettings
-				.Where(s => s.DocumentType == doc.DocumentType)
-				.FirstOrDefault();
-
-			if(existingPrinterSettinsForDocument is null)
+			using(var uowGeneric = _unitOfWorkFactory.CreateForRoot<UserSettings>(_userSettingsService.Settings.Id, "Кнопка сохранения настройки принтера"))
 			{
-				var newDocumentPrinterSetting = new DocumentPrinterSetting
+				var userSettins = uowGeneric.Root;
+
+				var existingPrinterSettinsForDocument = userSettins.DocumentPrinterSettings
+					.Where(s => s.DocumentType == doc.DocumentType)
+					.FirstOrDefault();
+
+				if(existingPrinterSettinsForDocument is null)
 				{
-					DocumentType = doc.DocumentType,
-					PrinterName = doc.PrinterName,
-					NumberOfCopies = doc.CopiesToPrint
-				};
+					var newDocumentPrinterSetting = new DocumentPrinterSetting
+					{
+						UserSettings = userSettins,
+						DocumentType = doc.DocumentType,
+						PrinterName = doc.PrinterName,
+						NumberOfCopies = doc.CopiesToPrint
+					};
 
-				_userSettingsService.Settings.DocumentPrinterSettings.Add(newDocumentPrinterSetting);
-			}
-			else
-			{
-				existingPrinterSettinsForDocument.PrinterName = doc.PrinterName;
-				existingPrinterSettinsForDocument.NumberOfCopies = doc.CopiesToPrint;
-			}
+					userSettins.DocumentPrinterSettings.Add(newDocumentPrinterSetting);
+				}
+				else
+				{
+					existingPrinterSettinsForDocument.PrinterName = doc.PrinterName;
+					existingPrinterSettinsForDocument.NumberOfCopies = doc.CopiesToPrint;
+				}
 
-			UoW.Save(userSettings);
-			UoW.Commit();
+				uowGeneric.Save();
+				uowGeneric.Commit();
+			}
 
 			ShowInfoMessage("Настройка принтера сохранена!");
 		}

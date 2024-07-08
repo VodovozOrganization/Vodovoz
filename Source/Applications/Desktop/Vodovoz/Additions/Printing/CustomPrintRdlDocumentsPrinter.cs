@@ -1,21 +1,39 @@
-﻿using QS.Navigation;
+﻿using fyiReporting.RDL;
+using QS.DomainModel.UoW;
+using QS.Report;
+using QS.Report.Domain;
+using QS.Report.Repository;
+using QS.Services;
 using System;
-using Vodovoz.Extensions;
+using System.Drawing.Printing;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.ViewModels.Infrastructure.Print;
-using Vodovoz.ViewModels.Print;
+using static QS.Report.Domain.UserPrintSettings;
 
 namespace Vodovoz.Additions.Printing
 {
 	public class CustomPrintRdlDocumentsPrinter : ICustomPrintRdlDocumentsPrinter
 	{
-		private bool _cancelPrinting = false;
-		ICustomPrintRdlDocument _documentToPrint;
-		private readonly INavigationManager _navigationManager;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
+		private readonly IUserPrintingRepository _userPrintingRepository;
+		private readonly IUserService _userService;
 
-		public CustomPrintRdlDocumentsPrinter(INavigationManager navigationManager)
+		private bool _isPrintingInProgress;
+
+		public CustomPrintRdlDocumentsPrinter(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IUserPrintingRepository userPrintingRepository,
+			IUserService userService)
 		{
-			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_userPrintingRepository = userPrintingRepository ?? throw new ArgumentNullException(nameof(userPrintingRepository));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 		}
 
 		public event EventHandler DocumentsPrinted;
@@ -23,117 +41,63 @@ namespace Vodovoz.Additions.Printing
 
 		public void Print(ICustomPrintRdlDocument document)
 		{
-			_documentToPrint = document ?? throw new ArgumentNullException(nameof(document));
-			_cancelPrinting = false;
-
-			if(string.IsNullOrWhiteSpace(_documentToPrint.PrinterName) || _documentToPrint.CopiesToPrint < 1)
+			if(document is null)
 			{
-				OpenPrinterSelectionDialog();
+				throw new ArgumentNullException(nameof(document));
 			}
 
-			if(!_cancelPrinting)
+			var pages = GetReportPages(document.GetReportInfo());
+
+			var multiplePrintOperation = new MultiplePrintOperation(_unitOfWorkFactory, _commonServices, _userPrintingRepository);
+
+			if(IsNeedToSelectPrinterForDocument(document))
 			{
-				DocumentsPrinted?.Invoke(this, new EventArgs());
+				multiplePrintOperation.Run(pages);
 			}
 			else
 			{
-				PrintingCanceled?.Invoke(this, new EventArgs());
-			}
+				var userPrintSettings = new UserPrintSettings
+				{
+					User = _userService.GetCurrentUser(),
+					NumberOfCopies = (uint)document.CopiesToPrint,
+					PageOrientation = (PageOrientationType)Enum.Parse(typeof(PageOrientationType), document.Orientation.ToString())
+				};
 
-			_documentToPrint = null;
+				var isWindowOs = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+				multiplePrintOperation.Run(pages, document.PrinterName, userPrintSettings, isWindowOs);
+			}
 		}
 
-		//private static void Print(string printer, UserPrintSettings userPrintSettings, Pages pages, bool isWindowsOs)
-		//{
-		//	void HandlePrintBeginPrint(object o, BeginPrintArgs args)
-		//	{
-		//		var printing = (PrintOperation)o;
-		//		printing.NPages = pages.Count;
-		//	}
-
-		//	void HandlePrintDrawPage(object o, DrawPageArgs args)
-		//	{
-		//		using(var g = args.Context.CairoContext)
-		//		using(var render = new RenderCairo(g))
-		//		{
-		//			render.RunPage(pages[args.PageNr]);
-		//		}
-		//	}
-
-		//	PrintOperation printOperation = null;
-		//	PrintOperationResult result;
-
-		//	try
-		//	{
-		//		printOperation = new PrintOperation();
-		//		printOperation.Unit = Unit.Points;
-		//		printOperation.UseFullPage = true;
-		//		printOperation.AllowAsync = true;
-		//		printOperation.PrintSettings = new PrintSettings
-		//		{
-		//			Printer = printer,
-		//			Orientation = (PageOrientation)Enum.Parse(typeof(PageOrientation), userPrintSettings.PageOrientation.ToString()),
-		//			NCopies = (int)userPrintSettings.NumberOfCopies
-		//		};
-
-		//		printOperation.BeginPrint += HandlePrintBeginPrint;
-		//		printOperation.DrawPage += HandlePrintDrawPage;
-
-		//		result = printOperation.Run(PrintOperationAction.Print, null);
-		//	}
-		//	catch(Exception e) when(e.Message == "Error from StartDoc")
-		//	{
-		//		result = PrintOperationResult.Cancel;
-		//		_logger.Debug("Операция печати отменена");
-		//	}
-		//	finally
-		//	{
-		//		if(printOperation != null)
-		//		{
-		//			printOperation.BeginPrint -= HandlePrintBeginPrint;
-		//			printOperation.DrawPage -= HandlePrintDrawPage;
-		//			printOperation.Dispose();
-		//		}
-		//	}
-
-		//	if(isWindowsOs && new[] { PrintOperationResult.Apply, PrintOperationResult.InProgress }.Contains(result))
-		//	{
-		//		ShowPrinterQueue(printer);
-		//	}
-		//}
-
-		private void OpenPrinterSelectionDialog()
+		private bool IsNeedToSelectPrinterForDocument(ICustomPrintRdlDocument document)
 		{
-			if(_documentToPrint is null)
+			if(string.IsNullOrWhiteSpace(document.PrinterName) || document.CopiesToPrint < 1)
 			{
-				return;
+				return true;
 			}
 
-			var printerSelectionViewModel = _navigationManager.OpenViewModel<PrinterSelectionViewModel>(null).ViewModel;
+			var installedPrinters = PrinterSettings.InstalledPrinters.Cast<string>().ToList();
 
-			printerSelectionViewModel.ConfigureDialog(
-				_documentToPrint.PrinterName,
-				1,
-				$"Печать документа: {_documentToPrint.DocumentType.GetEnumDisplayName()}");
-
-			printerSelectionViewModel.PrinterSelected += OnPrinterSelected;
-			printerSelectionViewModel.SelectionCanceled += OnPrinterSelectionCanceled; ;
+			return !installedPrinters.Contains(document.PrinterName);
 		}
 
-		private void OnPrinterSelected(object sender, PrinterSelectedEventArgs e)
+		private Pages GetReportPages(ReportInfo reportInfo)
 		{
-			if(_documentToPrint is null)
+			var reportPath = reportInfo.GetPath();
+			var source = reportInfo.Source ?? File.ReadAllText(reportPath);
+
+			var rdlParser = new RDLParser(source)
 			{
-				return;
-			}
+				Folder = Path.GetDirectoryName(reportPath),
+				OverwriteConnectionString = reportInfo.ConnectionString,
+				OverwriteInSubreport = true
+			};
 
-			_documentToPrint.PrinterName = e.PrinterName;
-			_documentToPrint.CopiesToPrint = e.NumberOfCopies;
-		}
+			var report = rdlParser.Parse();
+			report.RunGetData(reportInfo.Parameters);
+			var pages = report.BuildPages();
 
-		private void OnPrinterSelectionCanceled(object sender, EventArgs e)
-		{
-			_cancelPrinting = true;
+			return pages;
 		}
 	}
 }
