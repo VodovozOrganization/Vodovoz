@@ -31,7 +31,7 @@ namespace TrueMarkApi
 				})
 			.ConfigureServices((hostContext, services) =>
 			{
-				services.ConfigureTrueMarkWorker(hostContext);
+				services.ConfigureTrueMarkApi(hostContext);
 			});
 	}
 }

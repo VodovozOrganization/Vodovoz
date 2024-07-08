@@ -215,7 +215,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void AddNomenclature(Order order, Product onlineOrderItem)
+		private void AddNomenclature(Order order, IProduct onlineOrderItem)
 		{
 			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
 		}

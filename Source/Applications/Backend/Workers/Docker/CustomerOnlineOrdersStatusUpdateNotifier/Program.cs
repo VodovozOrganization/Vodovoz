@@ -14,6 +14,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -36,6 +37,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 							logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
 						})
 
+						.ConfigureZabbixSender(nameof(OnlineOrdersStatusUpdatedNotifier))
+
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -52,7 +55,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddBusiness(hostContext.Configuration)
 						.AddInfrastructure()
 						
-						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
 						.AddSingleton(_ => new JsonSerializerOptions
 						{
@@ -62,7 +64,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(client =>
 						{
 							client.Timeout = TimeSpan.FromSeconds(15);
-						});
+						})
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

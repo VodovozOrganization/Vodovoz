@@ -1,6 +1,12 @@
-﻿using Gtk;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Autofac;
+using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Print;
 using QSReport;
 using System;
@@ -23,7 +29,7 @@ namespace Vodovoz.Additions.Printing
 	/// </summary>
 	public class EntityDocumentsPrinter : IEntityDocumentsPrinter
 	{
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private readonly IDocTemplateRepository _docTemplateRepository = ScopeProvider.Scope.Resolve<IDocTemplateRepository>();
 		private IDictionary<OrderDocumentType, bool> _showSignaturesAndStampsOfDocument;
 		private bool? _hideSignaturesAndStamps = null;
 		private bool _cancelPrinting = false;
@@ -195,7 +201,7 @@ namespace Vodovoz.Additions.Printing
 		{
 			MultiDocPrinter = new MultipleDocumentPrinter 
 			{
-				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(DocumentsToPrint)
+				PrintableDocuments = new ObservableList<SelectablePrintDocument>(DocumentsToPrint)
 			};
 			
 			MultiDocPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);

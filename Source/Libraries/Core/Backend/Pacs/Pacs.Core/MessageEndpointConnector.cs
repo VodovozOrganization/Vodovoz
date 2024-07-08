@@ -1,7 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using System;
 using System.Threading.Tasks;
 

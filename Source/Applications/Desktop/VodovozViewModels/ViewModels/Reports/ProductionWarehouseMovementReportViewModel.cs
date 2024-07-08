@@ -4,7 +4,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
