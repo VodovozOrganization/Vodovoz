@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Extensions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
@@ -216,9 +217,31 @@ namespace Vodovoz.ViewModels.Users
 			}
 		}
 
+		private bool IsNeedToConfigurePrinterSettings()
+		{
+			foreach(var printerSetting in Entity.ObservableDocumentPrinterSettings)
+			{
+				if(string.IsNullOrWhiteSpace(printerSetting.PrinterName) || printerSetting.NumberOfCopies < 1)
+				{
+					InteractiveService.ShowMessage(ImportanceLevel.Error,
+						$"Не заданы настройки принтера для документа типа \"{printerSetting.DocumentType.GetEnumDisplayName()}\"\n" +
+						$"Либо задайте настройки принтера, либо удалите документ из списка настроек!");
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		public override bool Save(bool close)
 		{
 			ShowNotifyIfWarehousesListChanged();
+
+			if(IsNeedToConfigurePrinterSettings())
+			{
+				return false;
+			}
 
 			return base.Save(close);
 		}
