@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
+using Expense = Vodovoz.Domain.Cash.Expense;
+using Income = Vodovoz.Domain.Cash.Income;
 
 namespace Vodovoz.EntityRepositories.Cash
 {
@@ -99,40 +99,50 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
-		}
+		}		
 
-		public IEnumerable<BalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds)
+		public IEnumerable<EmployeeBalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionsIds)
 		{
-			Subdivision subdivisionAlias = null;
-			Income incomeAlias = null;
-			Expense expenseAlias = null;
-			BalanceNode resultAlias = null;
+			var incomeEmployees =
+				from income in uow.Session.Query<Income>()
+				where subdivisionsIds.Contains(income.RelatedToSubdivision.Id)
+				group income by new
+				{
+					income.RelatedToSubdivision,
+					income.Casher,
+					income.Date.Date
+				} into g				
+				select new EmployeeBalanceNode
+				{
+					SubdivisionId = g.Key.RelatedToSubdivision.Id,
+					SubdivisionName = g.Key.RelatedToSubdivision.Name,
+					Balance = g.Sum(b => b.Money),
+					Cashier = g.Key.Casher,
+					Date = g.Key.Date
+				};
 
-			var expenseSub = QueryOver.Of(() => expenseAlias)
-				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
-				.Select(Projections.Sum<Expense>(o => o.Money));
+			var expenseEmployees =			
+				from expense in uow.Session.Query<Expense>()
+				where subdivisionsIds.Contains(expense.RelatedToSubdivision.Id)
+				group expense by new
+				{
+					expense.RelatedToSubdivision,
+					expense.Casher,
+					expense.Date.Date
+				} into g
+				select new EmployeeBalanceNode
+				{
+					SubdivisionId = g.Key.RelatedToSubdivision.Id,
+					SubdivisionName = g.Key.RelatedToSubdivision.Name,
+					Balance = - g.Sum(b => b.Money),
+					Cashier = g.Key.Casher,
+					Date = g.Key.Date
+				};
 
-			var incomeSub = QueryOver.Of(() => incomeAlias)
-				.Where(x => x.RelatedToSubdivision.Id == subdivisionAlias.Id)
-				.Select(Projections.Sum<Income>(o => o.Money));
+			var result = incomeEmployees.ToArray()
+				.Concat(expenseEmployees.ToArray());
 
-			var projection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
-				NHibernateUtil.Decimal,
-				Projections.SubQuery(incomeSub),
-				Projections.SubQuery(expenseSub)
-			);
-
-			var results = uow.Session
-				.QueryOver(() => subdivisionAlias)
-				.Where(() => subdivisionAlias.Id.IsIn(subdivisionIds)).SelectList(list => list
-					.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(projection).WithAlias(() => resultAlias.Balance)
-				)
-				.TransformUsing(Transformers.AliasToBean<BalanceNode>())
-				.List<BalanceNode>();
-			return results;
+			return result;
 		}
 
 		public Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId)
@@ -213,15 +223,22 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// <summary>
 		/// Возвращает сумму находящуюся в перемещении между кассами
 		/// </summary>
-		public decimal GetCashInTransferring(IUnitOfWork uow)
+		public decimal GetCashInTransferring(IUnitOfWork uow, DateTime? startDate = null, DateTime? endDate = null)
 		{
 			CashTransferOperation cashTransferOperationAlias = null;
 			CashTransferDocumentBase cashTransferDocumentAlias = null;
-			return uow.Session.QueryOver<CashTransferDocumentBase>(() => cashTransferDocumentAlias)
+			var result = uow.Session.QueryOver<CashTransferDocumentBase>(() => cashTransferDocumentAlias)
 				.Left.JoinAlias(() => cashTransferDocumentAlias.CashTransferOperation, () => cashTransferOperationAlias)
 				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.Received)
 				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.New)
-				.Where(() => cashTransferOperationAlias.ReceiveTime == null)
+				.Where(() => cashTransferOperationAlias.ReceiveTime == null);
+
+			if(startDate != null && endDate != null)
+			{
+				result.Where(c => c.CreationDate >= startDate && c.CreationDate <= endDate);
+			}
+			
+			return result
 				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
 				.SingleOrDefault<decimal>();
 		}

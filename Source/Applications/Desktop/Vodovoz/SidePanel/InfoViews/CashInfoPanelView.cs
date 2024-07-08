@@ -1,15 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Gamma.Binding;
+using Gamma.Binding.Core.LevelTreeConfig;
+using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
-using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -25,8 +27,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			ISubdivisionRepository subdivisionRepository,
 			IUserRepository userRepository)
 		{
-			this.Build();
-			/*_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
+			Build();
+			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser();
@@ -44,7 +46,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			_sortedSubdivisionsIds = settings.CashSubdivisionSortingSettings
 				.OrderBy(x => x.SortingIndex)
 				.Select(x => x.CashSubdivision.Id)
-				.ToList();*/
+				.ToList();
+
+			ConfigureWidget();
 		}
 
 		#region IPanelView implementation
@@ -57,19 +61,16 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
-			if(InfoProvider is IDocumentsInfoProvider documentsInfoProvider)
+			if(!(InfoProvider is IDocumentsInfoProvider documentsInfoProvider))
 			{
-				var filter = documentsInfoProvider.DocumentsFilterViewModel;
-				//labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
+				return;
 			}
-		}
 
-		/*
-		private string GetAllCashSummaryInfo(DocumentsFilterViewModel filter)
-		{
+			var filter = documentsInfoProvider.DocumentsFilterViewModel;
+
 			if(filter == null)
 			{
-				return "";
+				return;
 			}
 
 			var selectedSubdivisionsIds = filter.Subdivision != null
@@ -77,40 +78,117 @@ namespace Vodovoz.SidePanel.InfoViews
 				: filter.AvailableSubdivisions?
 					.Select(x => x.Id)
 					.ToArray();
-
-			decimal totalCash = 0;
-			var allCashString = "";
-			List<BalanceNode> distinctBalances = new List<BalanceNode>();
-
-			if(selectedSubdivisionsIds != null)
+			
+			if(selectedSubdivisionsIds == null)
 			{
-				distinctBalances = _cashRepository
-					.CurrentCashForGivenSubdivisions(_uow, selectedSubdivisionsIds)
-					.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.Id))
-					.ToList();
+				return;
 			}
 
-			var inTransferring = _cashRepository.GetCashInTransferring(_uow);
+			var cashForEmployees = _cashRepository.CurrentCashForGivenSubdivisions(_uow, selectedSubdivisionsIds)
+				.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.SubdivisionId))
+				.ToList();
 
-			foreach(var node in distinctBalances)
+			var resultBalances = new List<SubdivisionBalanceNode>();
+
+			foreach(var subdivisionGroupped in
+				cashForEmployees
+				.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate))
+				.GroupBy(g => g.SubdivisionName))
 			{
-				totalCash += node.Balance;
-				allCashString += $"\r\n{node.Name}: {CurrencyWorks.GetShortCurrencyString(node.Balance)}";
-			}
+				var parrentNode = new SubdivisionBalanceNode
+				{
+					SubdivisionName = subdivisionGroupped.FirstOrDefault().SubdivisionName,
+				};
 
-			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
-			var separatedCash = selectedSubdivisionsIds != null && selectedSubdivisionsIds.Any() ? $"\r\n\tИз них: {allCashString}" : "";
-			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
-			return total + separatedCash + cashInTransferringMessage;
-		}*/
+				var childNodes = new List<EmployeeBalanceNode>();
+
+				foreach(var cashierGroupped in
+					cashForEmployees
+					.Where(c => c.SubdivisionName == parrentNode.SubdivisionName)
+					.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate))
+					.GroupBy(g => g.Cashier))
+				{
+					var childNode = new EmployeeBalanceNode
+					{
+						Cashier = cashierGroupped.Key,
+						Balance = cashierGroupped.Sum(n => n.Balance),
+						ParentBalanceNode = parrentNode
+					};
+
+					childNodes.Add(childNode);
+				}
+
+				parrentNode.ChildResultBalanceNodes = childNodes;
+
+			resultBalances.Add(parrentNode);
+		}
+
+		var levels = LevelConfigFactory
+				.FirstLevel<SubdivisionBalanceNode, EmployeeBalanceNode>(x => x.ChildResultBalanceNodes)
+				.LastLevel(c => c.ParentBalanceNode).EndConfig();
+
+			yTreeView.YTreeModel = new LevelTreeModel<SubdivisionBalanceNode>(resultBalances, levels);
+
+			var totalCash = cashForEmployees
+				.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate))
+				.Sum(x => x.Balance);
+
+			ylabelInfoTop.Text = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}.\r\n\tИз них:";
+
+			var inTransferring = _cashRepository.GetCashInTransferring(_uow, filter.StartDate, filter.EndDate);
+			ylabelInfoBottom.Text = $"В сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}"; ;
+		}
 
 		#endregion
-/*
+
+		private void ConfigureWidget()
+		{
+			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object>()
+				.AddColumn("Ответственный")
+					.AddTextRenderer(n => GetNodeText(n))
+					.AddSetter((c, n) => c.Alignment = n is SubdivisionBalanceNode ? Pango.Alignment.Left : Pango.Alignment.Right)
+					.WrapWidth(110).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Баланс")
+					.AddTextRenderer(n => CurrencyWorks.GetShortCurrencyString(GetBalance(n)))
+					.WrapWidth(110).WrapMode(Pango.WrapMode.WordChar)
+				.Finish();
+		}
+
+		private string GetNodeText(object node)
+		{
+			if(node is SubdivisionBalanceNode balanceNode)
+			{
+				return balanceNode.SubdivisionName;
+			}
+
+			if(node is EmployeeBalanceNode resultNode)
+			{
+				return resultNode.Cashier?.GetPersonNameWithInitials() ?? "Не указано";
+			}
+
+			return "";
+		}
+
+		private decimal GetBalance(object node)
+		{
+			if(node is SubdivisionBalanceNode balanceNode)
+			{
+				return balanceNode.ChildResultBalanceNodes.Sum(x => x.Balance);
+			}
+
+			if(node is EmployeeBalanceNode resultNode)
+			{
+				return resultNode.Balance;
+			}
+
+			return 0;
+		}
+
 		public override void Destroy()
 		{
+			yTreeView?.Destroy();
 			_uow?.Dispose();
 			base.Destroy();
 		}
-		*/
 	}
 }
