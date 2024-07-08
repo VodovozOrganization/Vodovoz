@@ -99,7 +99,7 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
-		}		
+		}
 
 		public IEnumerable<EmployeeBalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionsIds)
 		{
