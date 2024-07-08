@@ -6,9 +6,17 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private global::Gtk.VBox vbox1;
 
+		private global::Gtk.HSeparator hseparatorTop1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelMainTitle;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelMainInfo;
+
+		private global::Gtk.HSeparator hseparatorTop2;
+
 		private global::Gtk.HSeparator hseparatorTop;
 
-		private global::Gtk.Label labelTitle;
+		private global::Gamma.GtkWidgets.yLabel ylabelDetalizationTitle;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelInfoTop;
 
@@ -31,33 +39,70 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hseparatorTop = new global::Gtk.HSeparator();
-			this.hseparatorTop.HeightRequest = 2;
-			this.hseparatorTop.Name = "hseparatorTop";
-			this.vbox1.Add(this.hseparatorTop);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorTop]));
+			this.hseparatorTop1 = new global::Gtk.HSeparator();
+			this.hseparatorTop1.HeightRequest = 2;
+			this.hseparatorTop1.Name = "hseparatorTop1";
+			this.vbox1.Add(this.hseparatorTop1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorTop1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.labelTitle = new global::Gtk.Label();
-			this.labelTitle.Name = "labelTitle";
-			this.labelTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>Остатки по кассам:</b></u>");
-			this.labelTitle.UseMarkup = true;
-			this.vbox1.Add(this.labelTitle);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelTitle]));
+			this.ylabelMainTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelMainTitle.Name = "ylabelMainTitle";
+			this.ylabelMainTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>Остатки по кассам:</b></u>");
+			this.ylabelMainTitle.UseMarkup = true;
+			this.vbox1.Add(this.ylabelMainTitle);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelMainTitle]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelMainInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelMainInfo.Name = "ylabelMainInfo";
+			this.ylabelMainInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Общая информация по кассам");
+			this.vbox1.Add(this.ylabelMainInfo);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelMainInfo]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparatorTop2 = new global::Gtk.HSeparator();
+			this.hseparatorTop2.HeightRequest = 2;
+			this.hseparatorTop2.Name = "hseparatorTop2";
+			this.vbox1.Add(this.hseparatorTop2);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorTop2]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparatorTop = new global::Gtk.HSeparator();
+			this.hseparatorTop.HeightRequest = 2;
+			this.hseparatorTop.Name = "hseparatorTop";
+			this.vbox1.Add(this.hseparatorTop);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorTop]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelDetalizationTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDetalizationTitle.Name = "ylabelDetalizationTitle";
+			this.ylabelDetalizationTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>Детализация за 01.01.1900-01.01.1900:</b></u>");
+			this.ylabelDetalizationTitle.UseMarkup = true;
+			this.vbox1.Add(this.ylabelDetalizationTitle);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelDetalizationTitle]));
+			w6.Position = 5;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelInfoTop = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelInfoTop.Name = "ylabelInfoTop";
 			this.ylabelInfoTop.LabelProp = global::Mono.Unix.Catalog.GetString("TopInfo");
 			this.vbox1.Add(this.ylabelInfoTop);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelInfoTop]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelInfoTop]));
+			w7.Position = 6;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -70,26 +115,26 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yTreeView.Name = "yTreeView";
 			this.GtkScrolledWindow.Add(this.yTreeView);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w5.Position = 3;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w9.Position = 7;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelInfoBottom = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelInfoBottom.Name = "ylabelInfoBottom";
 			this.ylabelInfoBottom.LabelProp = global::Mono.Unix.Catalog.GetString("BottomInfo");
 			this.vbox1.Add(this.ylabelInfoBottom);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelInfoBottom]));
-			w6.Position = 4;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelInfoBottom]));
+			w10.Position = 8;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparatorBottom = new global::Gtk.HSeparator();
 			this.hseparatorBottom.HeightRequest = 2;
 			this.hseparatorBottom.Name = "hseparatorBottom";
 			this.vbox1.Add(this.hseparatorBottom);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorBottom]));
-			w7.Position = 5;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparatorBottom]));
+			w11.Position = 9;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
