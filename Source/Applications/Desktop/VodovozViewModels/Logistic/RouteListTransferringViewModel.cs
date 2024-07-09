@@ -718,7 +718,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			_interactiveService.ShowMessage(ImportanceLevel.Warning,
 				string.Join(",\n",
-					errors.Select(e => e.Message)) +
+					errors.Select(e => e.Message)),
 				"Внимание!");
 		}
 
