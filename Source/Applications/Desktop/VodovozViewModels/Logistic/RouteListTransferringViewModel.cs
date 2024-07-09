@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
+using NPOI.HSSF.Record;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -713,6 +714,14 @@ namespace Vodovoz.ViewModels.Logistic
 				"Ошибка при переносе адресов");
 		}
 
+		private void ShowTransferWarnings(IEnumerable<Error> errors)
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Warning,
+				string.Join(",\n",
+					errors.Select(e => e.Message)) +
+				"Внимание!");
+		}
+
 		private void ShowTransferInformation(IEnumerable<string> messages)
 		{
 			if(!messages.Any())
@@ -811,11 +820,29 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var notifyingErrors = new List<Error>();
 
+			var notifyingWarnings = new List<Error>();
+
 			foreach(var orderId in selectedHandToHandNodes.Select(x => x.OrderId))
 			{
 				try
 				{
-					_routeListTransferhandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
+					var result = _routeListTransferhandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
+
+					if(result.IsSuccess)
+					{
+						continue;
+					}
+					else
+					{
+						if(result.Errors.All(x => x.Code == nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)))
+						{
+							notifyingWarnings.AddRange(result.Errors);
+						}
+						else
+						{
+							notifyingErrors.AddRange(result.Errors);
+						}
+					}
 				}
 				catch(Exception ex)
 				{
@@ -825,7 +852,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(notifyingErrors.Any())
 			{
+				notifyingErrors.AddRange(notifyingWarnings);
+				notifyingWarnings.Clear();
 				ShowTransferErrors(notifyingErrors);
+			}
+
+			if(notifyingWarnings.Any())
+			{
+				ShowTransferWarnings(notifyingWarnings);
 			}
 		}
 
