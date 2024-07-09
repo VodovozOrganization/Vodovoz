@@ -304,7 +304,7 @@ namespace Vodovoz
 
 			var printDocumentsViewModel = _lifetimeScope.Resolve<PrintDocumentsSelectablePrinterViewModel>();
 			TabParent.AddSlaveTab(this, printDocumentsViewModel);
-			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(_eventsQrPlacer, Entity);
+			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(Entity);
 		}
 
 		public override void Destroy()

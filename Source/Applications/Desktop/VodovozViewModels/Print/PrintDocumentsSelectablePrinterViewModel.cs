@@ -3,13 +3,11 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Report;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -24,6 +22,7 @@ namespace Vodovoz.ViewModels.Print
 	public partial class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly UserSettings _userSettings;
 
 		private CarLoadDocument _carLoadDocument;
@@ -36,7 +35,8 @@ namespace Vodovoz.ViewModels.Print
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICustomPrintRdlDocumentsPrinter documentsPrinter,
-			IUserRepository userRepository)
+			IUserRepository userRepository,
+			IEventsQrPlacer eventsQrPlacer)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(userRepository is null)
@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels.Print
 
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Printer = documentsPrinter ?? throw new ArgumentNullException(nameof(documentsPrinter));
+			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 
 			TabName = "Печать документов";
 
@@ -87,18 +88,13 @@ namespace Vodovoz.ViewModels.Print
 			set => SetField(ref _documentsNodes, value);
 		}
 
-		public void ConfigureForCarLoadDocumentsPrint(
-			IEventsQrPlacer eventsQrPlacer,
-			CarLoadDocument carLoadDocument)
+		public void ConfigureForCarLoadDocumentsPrint(CarLoadDocument carLoadDocument)
 		{
 			TabName = "Печать талонов погрузки";
 
 			_carLoadDocument = carLoadDocument;
 
-			ReportInfo reportInfo = eventsQrPlacer.AddQrEventForPrintingDocument(
-					UoW, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
-
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, reportInfo);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, CarLoadDocumentPlaseEventsQr);
 			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
 
 			DocumentsToPrint.Add(waterCarLoadDocument);
@@ -117,6 +113,12 @@ namespace Vodovoz.ViewModels.Print
 			Printer.DocumentsPrinted += OnDocumentsPrinted;
 			Printer.PrintingCanceled += OnPrintingCanceled;
 			DefaultPreviewDocument();
+		}
+
+		private string CarLoadDocumentPlaseEventsQr(int documentId, string reportSource)
+		{
+			return _eventsQrPlacer.AddQrEventForWaterCarLoadDocument(
+					UoW, documentId, reportSource);
 		}
 
 		public void DefaultPreviewDocument()

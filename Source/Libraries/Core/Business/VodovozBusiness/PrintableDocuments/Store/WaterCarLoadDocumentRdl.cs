@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
+using Vodovoz.Reports.Editing;
+using Vodovoz.Reports.Editing.Modifiers;
 
 namespace Vodovoz.PrintableDocuments.Store
 {
@@ -17,19 +18,18 @@ namespace Vodovoz.PrintableDocuments.Store
 		public const string DocumentRdlPath = "Reports/Store/CarLoadDocument.rdl";
 
 		private readonly CarLoadDocument _carLoadDocument;
-		private readonly ReportInfo _reportInfo;
-
+		private readonly Func<int, string, string> _qRPlacerFunc;
 		private int _copiesToPrint;
 		private string _printerName;
 
 		private WaterCarLoadDocumentRdl(
 			CarLoadDocument carLoadDocument,
-			ReportInfo reportInfo)
+			Func<int, string, string> qRPlacerFunc)
 		{
 			_carLoadDocument =
 				carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
-			_reportInfo =
-				reportInfo ?? throw new ArgumentNullException(nameof(reportInfo));
+			_qRPlacerFunc =
+				qRPlacerFunc ?? throw new ArgumentNullException(nameof(qRPlacerFunc));
 		}
 
 		public Dictionary<object, object> Parameters { get; set; }
@@ -54,80 +54,57 @@ namespace Vodovoz.PrintableDocuments.Store
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
+			var source = _qRPlacerFunc.Invoke(_carLoadDocument.Id, GetReportSource());
 
+			var reportInfo = new ReportInfo
+			{
+				Source = source,
+				Title = Name,
+				Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } },
+				PrintType = ReportInfo.PrintingType.MultiplePrinters
+			};
 
-			//var reportInfo = new ReportInfo
-			//{
-			//	Source = _source,
-			//	Parameters = Parameters,
-			//	Title = Name,
-			//	UseUserVariables = true
-			//};
-
-			//return reportInfo;
-
-			return _reportInfo;
+			return reportInfo;
 		}
 
-		//private string GetReportSource()
-		//{
-		//	var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-		//	var fileName = IsDetailed ? "ProfitabilitySalesReportDetail.rdl" : "ProfitabilitySalesReport.rdl";
-		//	var path = Path.Combine(root, "Reports", "Sales", fileName);
+		private string GetReportSource()
+		{
+			return ModifyReport(DocumentRdlPath);
+		}
 
-		//	return ModifyReport(path);
-		//}
+		private string ModifyReport(string path)
+		{
+			var modifier = GetReportModifier();
 
-		//private string ModifyReport(string path)
-		//{
-		//	var modifier = GetReportModifier();
+			using(ReportController reportController = new ReportController(path))
+			using(var reportStream = new MemoryStream())
+			{
+				reportController.AddModifier(modifier);
+				reportController.Modify();
+				reportController.Save(reportStream);
 
-		//	using(ReportController reportController = new ReportController(path))
-		//	using(var reportStream = new MemoryStream())
-		//	{
-		//		reportController.AddModifier(modifier);
-		//		reportController.Modify();
-		//		reportController.Save(reportStream);
+				using(var reader = new StreamReader(reportStream))
+				{
+					reportStream.Position = 0;
+					var outputSource = reader.ReadToEnd();
+					return outputSource;
+				}
+			}
+		}
 
-		//		using(var reader = new StreamReader(reportStream))
-		//		{
-		//			reportStream.Position = 0;
-		//			var outputSource = reader.ReadToEnd();
-		//			return outputSource;
-		//		}
-		//	}
-		//}
+		private ReportModifierBase GetReportModifier()
+		{
+			var modifier = new WaterCarLoadDocumentModifier();
 
-		//private ReportModifierBase GetReportModifier()
-		//{
-		//	ReportModifierBase result;
-		//	var groupParameters = GetGroupingParameters();
-		//	if(IsDetailed)
-		//	{
-		//		var modifier = new ProfitabilityDetailReportModifier();
-		//		modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
-		//		result = modifier;
-
-		//	}
-		//	else
-		//	{
-		//		var isRouteListGroupingTypeSelected = groupParameters.Select(x => (GroupingType)x.Value).First() == GroupingType.RouteList;
-		//		var isOnlyOneGroupingTypeSelected = groupParameters.Count() == 1;
-		//		var isShowRouteListInfo = isRouteListGroupingTypeSelected && isOnlyOneGroupingTypeSelected;
-
-		//		var modifier = new ProfitabilityReportModifier();
-		//		modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value), isShowRouteListInfo);
-		//		result = modifier;
-		//	}
-		//	return result;
-		//}
+			return modifier;
+		}
 
 		public static WaterCarLoadDocumentRdl Create(
 			UserSettings userSettings,
 			CarLoadDocument carLoadDocument,
-			ReportInfo reportInfo)
+			Func<int, string, string> qRPlacerFunc)
 		{
-			var document = new WaterCarLoadDocumentRdl(carLoadDocument, reportInfo);
+			var document = new WaterCarLoadDocumentRdl(carLoadDocument, qRPlacerFunc);
 
 			var savedPrinterSettings =
 				userSettings.DocumentPrinterSettings

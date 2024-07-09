@@ -1,10 +1,11 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml;
+using QS.DomainModel.UoW;
+using QS.Report;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using QS.DomainModel.UoW;
-using QS.Report;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
@@ -35,7 +36,7 @@ namespace Vodovoz.Additions
 		}
 
 		/// <summary>
-		/// Работает только для погрузочного и разгрузочного талонов
+		/// Работает только для разгрузочного талона
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="documentId">номер документа</param>
@@ -51,21 +52,18 @@ namespace Vodovoz.Additions
 			EventNamePosition eventNamePosition = EventNamePosition.Bottom)
 		{
 			string rdlPath = null;
-			
+
 			switch(eventQrDocumentType)
 			{
-				case EventQrDocumentType.CarLoadDocument:
-					rdlPath = WaterCarLoadDocumentRdl.DocumentRdlPath;
-					break;
 				case EventQrDocumentType.CarUnloadDocument:
 					rdlPath = CarUnloadDocument.DocumentRdlPath;
 					break;
 				default:
 					throw new InvalidOperationException("Неизвестный тип документа");
 			}
-			
+
 			AddQrEventForDocument(uow, documentId, eventQrDocumentType, ref rdlPath, eventNamePosition);
-			
+
 			return new ReportInfo
 			{
 				Title = documentTitle,
@@ -74,7 +72,7 @@ namespace Vodovoz.Additions
 				PrintType = ReportInfo.PrintingType.MultiplePrinters
 			};
 		}
-		
+
 		public bool AddQrEventForDocument(
 			IUnitOfWork uow,
 			int documentId,
@@ -90,7 +88,7 @@ namespace Vodovoz.Additions
 				rdlPath = Path.GetFullPath(rdlPath);
 				return false;
 			}
-			
+
 			var serializer = new XmlSerializer(typeof(Report));
 			Report report;
 
@@ -101,14 +99,6 @@ namespace Vodovoz.Additions
 
 			switch(eventQrDocumentType)
 			{
-				case EventQrDocumentType.CarLoadDocument:
-					var carLoadSuccess = AddQrsToCarLoadDocument(events, report, documentId, eventNamePosition);
-					if(!carLoadSuccess)
-					{
-						rdlPath = Path.GetFullPath(rdlPath);
-						return false;
-					}
-					break;
 				case EventQrDocumentType.CarUnloadDocument:
 					var carUnloadSuccess = AddQrsToBeginAndEndDocument(events, report, documentId, eventNamePosition);
 					if(!carUnloadSuccess)
@@ -118,7 +108,7 @@ namespace Vodovoz.Additions
 					}
 					break;
 			}
-			
+
 			rdlPath = Path.GetTempFileName();
 			using(var sw = new StreamWriter(rdlPath))
 			{
@@ -127,7 +117,47 @@ namespace Vodovoz.Additions
 
 			return true;
 		}
-		
+
+		public string AddQrEventForWaterCarLoadDocument(
+			IUnitOfWork uow,
+			int documentId,
+			string reportSource)
+		{
+			var incomeReportSource = reportSource;
+
+			var events =
+				_driverWarehouseEventRepository.GetActiveDriverWarehouseEventsForDocument(uow, EventQrDocumentType.CarLoadDocument);
+
+			if(!events.Any())
+			{
+				return incomeReportSource;
+			}
+
+			var serializer = new XmlSerializer(typeof(Report));
+			Report report;
+
+			using(var reader = new StringReader(reportSource))
+			{
+				report = (Report)serializer.Deserialize(reader);
+			}
+
+			var carLoadSuccess = AddQrsToCarLoadDocument(events, report, documentId);
+			if(!carLoadSuccess)
+			{
+				return incomeReportSource;
+			}
+
+			string modifiedSource = string.Empty;
+
+			using(var writer = new StringWriter())
+			{
+				serializer.Serialize(writer, report);
+				modifiedSource = writer.ToString();
+			}
+
+			return modifiedSource;
+		}
+
 		public bool AddQrEventForDocument(
 			IUnitOfWork uow,
 			int documentId,
@@ -139,7 +169,7 @@ namespace Vodovoz.Additions
 			{
 				return false;
 			}
-			
+
 			var events =
 				_driverWarehouseEventRepository.GetActiveDriverWarehouseEventsForDocument(uow, eventQrDocumentType);
 
@@ -147,7 +177,7 @@ namespace Vodovoz.Additions
 			{
 				return false;
 			}
-			
+
 			var serializer = new XmlSerializer(typeof(Report));
 			Report report;
 
@@ -161,7 +191,7 @@ namespace Vodovoz.Additions
 			{
 				return false;
 			}
-			
+
 			using(var writer = new StringWriter())
 			{
 				serializer.Serialize(writer, report);
@@ -188,10 +218,10 @@ namespace Vodovoz.Additions
 			{
 				return false;
 			}
-			
+
 			var leftLeftQr = 0m;
 			var topLeftQr = 0m;
-			
+
 			var leftRightQr = 0m;
 			var topRightQr = 0m;
 
@@ -222,7 +252,7 @@ namespace Vodovoz.Additions
 
 			return true;
 		}
-		
+
 		private bool AddQrsToBeginAndEndDocument(
 			IEnumerable<DriverWarehouseEvent> events,
 			Report report,
@@ -238,10 +268,10 @@ namespace Vodovoz.Additions
 			{
 				return false;
 			}
-			
+
 			var leftTopQr = 0m;
 			var topTopQr = 0m;
-			
+
 			var leftBottomQr = 0m;
 			var topBottomQr = 0m;
 
@@ -273,7 +303,7 @@ namespace Vodovoz.Additions
 			{
 				return;
 			}
-			
+
 			if(rectangle.ReportItems is null)
 			{
 				rectangle.ReportItems = new ReportItems();
@@ -306,7 +336,7 @@ namespace Vodovoz.Additions
 				left += qrReportItem.WidthSize;
 				top += 2 * padding;
 			}
-			
+
 			var leftEventNameBox = left + "pt";
 			var topEventNameBox = top + "pt";
 			var eventNameBox = _customReportFactory.CreateTextBox(@event.EventName, leftEventNameBox, topEventNameBox);
