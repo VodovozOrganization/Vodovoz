@@ -28,6 +28,12 @@ namespace Vodovoz.Reports.Editing.Providers
 			var table = matchedTables.First();
 			return table;
 		}
+		public static bool InsertTable(this XContainer container, XElement table, string @namespace)
+		{
+			container.Add(table);
+
+			return true;
+		}
 
 		public static bool HasGrouping(this XContainer container, string groupName, string @namespace)
 		{
