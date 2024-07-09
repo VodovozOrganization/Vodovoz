@@ -181,8 +181,10 @@ namespace Vodovoz.Additions
 			var rectangles = reportItems.Items.OfType<Rectangle>();
 			var leftRectangle = rectangles.SingleOrDefault(x => x.Name == _leftItemWithQr);
 			var rightRectangle = rectangles.SingleOrDefault(x => x.Name == _rightItemWithQr);
+			var topRectangle = rectangles.SingleOrDefault(x => x.Name == _topItemWithQr);
+			var bottomRectangle = rectangles.SingleOrDefault(x => x.Name == _bottomItemWithQr);
 
-			if(leftRectangle is null && rightRectangle is null)
+			if(leftRectangle is null && rightRectangle is null && topRectangle is null)
 			{
 				return false;
 			}
@@ -193,6 +195,12 @@ namespace Vodovoz.Additions
 			var leftRightQr = 0m;
 			var topRightQr = 0m;
 
+			var leftTopQr = 0m;
+			var topTopQr = 0m;
+
+			var leftBottomQr = 0m;
+			var topBottomQr = 0m;
+
 			foreach(var @event in events.OrderBy(x => x.QrPositionOnDocument))
 			{
 				switch(@event.QrPositionOnDocument)
@@ -202,6 +210,12 @@ namespace Vodovoz.Additions
 						break;
 					case EventQrPositionOnDocument.Right:
 						AddQrToElement(@event, rightRectangle, documentId, topRightQr, ref leftRightQr, eventNamePosition);
+						break;
+					case EventQrPositionOnDocument.Top:
+						AddQrToElement(@event, topRectangle, documentId, topTopQr, ref leftTopQr, eventNamePosition);
+						break;
+					case EventQrPositionOnDocument.Bottom:
+						AddQrToElement(@event, bottomRectangle, documentId, topBottomQr, ref leftBottomQr, eventNamePosition);
 						break;
 				}
 			}
