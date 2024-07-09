@@ -834,7 +834,7 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 					else
 					{
-						if(result.Errors.All(x => x.Code == nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)))
+						if(result.Errors.All(x => x.Code == $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"))
 						{
 							notifyingWarnings.AddRange(result.Errors);
 						}
