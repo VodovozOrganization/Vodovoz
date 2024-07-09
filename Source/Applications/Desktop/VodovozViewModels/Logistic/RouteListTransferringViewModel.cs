@@ -834,14 +834,7 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 					else
 					{
-						if(result.Errors.All(x => x.Code == $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"))
-						{
-							notifyingWarnings.AddRange(result.Errors);
-						}
-						else
-						{
-							notifyingErrors.AddRange(result.Errors);
-						}
+						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)
@@ -852,14 +845,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(notifyingErrors.Any())
 			{
-				notifyingErrors.AddRange(notifyingWarnings);
-				notifyingWarnings.Clear();
 				ShowTransferErrors(notifyingErrors);
-			}
-
-			if(notifyingWarnings.Any())
-			{
-				ShowTransferWarnings(notifyingWarnings);
 			}
 		}
 
