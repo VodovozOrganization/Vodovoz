@@ -13,13 +13,14 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
+using DateTimeHelpers;
 
 
 namespace Vodovoz.ViewModels.ViewModels.SidePanels
 {
 	public class CashInfoPanelViewModel : UoWWidgetViewModelBase
 	{
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly ICashRepository _cashRepository;
 		private List<int> _sortedSubdivisionsIds;
 		private LevelTreeModel<SubdivisionBalanceNode> _levelTreeModel;
@@ -29,27 +30,33 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 		private string _mainInfo;
 
 		public CashInfoPanelViewModel(
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICashRepository cashRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IUserRepository userRepository)
 		{
-			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Боковая панель остатков по кассам");
+
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			var currentUser = commonServices.UserService.GetCurrentUser();
-			var availableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(_uow, currentUser).ToList();
+			var availableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(_unitOfWork, currentUser).ToList();
 
 			var settings =
 				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
-				.GetCurrentUserSettings(_uow);
+				.GetCurrentUserSettings(_unitOfWork);
 
 			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions);
 			if(needSave)
 			{
-				_uow.Save(settings);
-				_uow.Commit();
+				_unitOfWork.Save(settings);
+				_unitOfWork.Commit();
 			}
 
 			_sortedSubdivisionsIds = settings.CashSubdivisionSortingSettings
@@ -75,13 +82,13 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 			{
 				var balance = node.Sum(n => n.Balance);
 				totalCash += balance;
-				allCashString += $"\r\n{node.Key}: {CurrencyWorks.GetShortCurrencyString(balance)}";
+				allCashString += $"\n{node.Key}: {CurrencyWorks.GetShortCurrencyString(balance)}";
 			}
 
 			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
-			var separatedCash = selectedSubdivisionsIds != null && selectedSubdivisionsIds.Any() ? $"\r\n\tИз них: {allCashString}" : "";
+			var separatedCash = selectedSubdivisionsIds != null && selectedSubdivisionsIds.Any() ? $"\n\tИз них: {allCashString}" : "";
 
-			var inTransferring = _cashRepository.GetCashInTransferring(_uow);
+			var inTransferring = _cashRepository.GetCashInTransferring(_unitOfWork);
 			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
 
 			MainInfo = total + separatedCash + cashInTransferringMessage;
@@ -100,12 +107,12 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 			DetalizationTitle = $"<u><b>{dateInfo}</b></u>";
 
 			var totalCash = cashForEmployees
-				.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate))
+				.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate.Value.LatestDayTime()))
 				.Sum(x => x.Balance);
 
-			DetalizationInfoTop = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}.\r\n\tИз них:";
+			DetalizationInfoTop = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}.\n\tИз них:";
 
-			var inTransferring = _cashRepository.GetCashInTransferring(_uow, filter.StartDate, filter.EndDate);
+			var inTransferring = _cashRepository.GetCashInTransferring(_unitOfWork, filter.StartDate, filter.EndDate?.LatestDayTime() ?? null);
 			DetalizationInfoBottom = $"В сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
 		}
 
@@ -115,7 +122,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 
 			foreach(var subdivisionGrouped in
 				cashForEmployees
-				.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate))
+				.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate.Value.LatestDayTime()))
 				.GroupBy(g => g.SubdivisionName))
 			{
 				var parrentNode = new SubdivisionBalanceNode
@@ -128,7 +135,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 				foreach(var cashierGrouped in
 					cashForEmployees
 					.Where(c => c.SubdivisionName == parrentNode.SubdivisionName)
-					.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate))
+					.Where(c => filter.StartDate is null || (c.Date >= filter.StartDate && c.Date <= filter.EndDate.Value.LatestDayTime()))
 					.GroupBy(g => g.Cashier))
 				{
 					var childNode = new EmployeeBalanceNode
@@ -166,7 +173,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 				return;
 			}
 
-			var cashForEmployees = _cashRepository.CurrentCashForGivenSubdivisions(_uow, selectedSubdivisionsIds)
+			var cashForEmployees = _cashRepository.CurrentCashForGivenSubdivisions(_unitOfWork, selectedSubdivisionsIds)
 				.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.SubdivisionId))
 				.ToList();
 

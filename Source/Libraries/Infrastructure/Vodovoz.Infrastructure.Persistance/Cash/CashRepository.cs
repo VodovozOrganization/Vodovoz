@@ -237,7 +237,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 
 			if(startDate != null && endDate != null)
 			{
-				result.Where(c => c.CreationDate >= startDate && c.CreationDate <= endDate);
+				result.Where(c => c.SendTime >= startDate && c.SendTime <= endDate);
 			}
 			
 			return result
