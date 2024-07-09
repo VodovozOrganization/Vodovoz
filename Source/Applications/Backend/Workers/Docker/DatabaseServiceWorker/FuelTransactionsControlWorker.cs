@@ -68,6 +68,11 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
+			if(DateTime.Now.Hour < _options.Value.TransactionsDataRequestMinHour)
+			{
+				return;
+			}
+
 			_isWorkInProgress = true;
 
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(FuelTransactionsControlWorker));
@@ -87,9 +92,13 @@ namespace DatabaseServiceWorker
 
 			var transactionsPerDayLastUpdateDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate;
 
+			var isNeedToUpdateExistingTransactions =
+				DateTime.Today.Day == _options.Value.SavedTransactionsUpdateDay
+				&& transactionsPerDayLastUpdateDate < DateTime.Today.AddDays(-1);
+
 			var startDate = transactionsPerDayLastUpdateDate.AddDays(1);
 
-			if(startDate < GeneralUtils.GetCurrentMonthStartDate())
+			if(startDate < GeneralUtils.GetCurrentMonthStartDate() || isNeedToUpdateExistingTransactions)
 			{
 				startDate = GeneralUtils.GetCurrentMonthStartDate();
 			}
@@ -104,7 +113,7 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
-			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, cancellationToken);
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, isNeedToUpdateExistingTransactions, cancellationToken);
 
 			if(isTransactionsUpdated)
 			{
@@ -135,7 +144,7 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
-			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, cancellationToken);
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, true, cancellationToken);
 
 			if(isTransactionsUpdated)
 			{
@@ -147,6 +156,7 @@ namespace DatabaseServiceWorker
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
+			bool isNeedToUpdateExistingTransactions,
 			CancellationToken cancellationToken)
 		{
 			try
@@ -171,7 +181,16 @@ namespace DatabaseServiceWorker
 
 					if(transactionsCount > 0)
 					{
-						var savedTransactionsCount = await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+						int savedTransactionsCount = default;
+
+						if(isNeedToUpdateExistingTransactions)
+						{
+							savedTransactionsCount = await _fuelRepository.SaveNewAndUpdateExistingFuelTransactions(uow, transactions);
+						}
+						else
+						{
+							savedTransactionsCount = await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+						}
 
 						_logger.LogInformation("Сохранено в базе данных {SavedTransactionsCount} транзакций",
 							savedTransactionsCount);

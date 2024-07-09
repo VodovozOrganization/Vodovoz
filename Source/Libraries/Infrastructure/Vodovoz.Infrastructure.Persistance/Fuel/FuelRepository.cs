@@ -306,6 +306,52 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 			return newTransactions.Count();
 		}
 
+		public async Task<int> SaveNewAndUpdateExistingFuelTransactions(IUnitOfWork uow, IEnumerable<FuelTransaction> fuelTransactions)
+		{
+			var transactionsDates = fuelTransactions.Select(t => t.TransactionDate.Date).Distinct().ToList();
+
+			var existingTransactions =
+				(from t in uow.Session.Query<FuelTransaction>()
+				 where t.TransactionDate >= transactionsDates.Min() && t.TransactionDate < transactionsDates.Max().AddDays(1)
+				 select t)
+				.Distinct()
+				.ToList();
+
+			int newTransactionsCount = default;
+			int updatedTransactionsCount = default;
+
+			foreach(var transaction in fuelTransactions)
+			{
+				var existingTransactionHavingSameId = existingTransactions
+					.Where(t => t.TransactionId == transaction.TransactionId)
+					.FirstOrDefault();
+
+				if(existingTransactionHavingSameId is null)
+				{
+					await uow.SaveAsync(transaction);
+					newTransactionsCount++;
+					continue;
+				}
+
+				if(existingTransactionHavingSameId.TotalSum != transaction.TotalSum)
+				{
+					existingTransactionHavingSameId.TotalSum = transaction.TotalSum;
+
+					await uow.SaveAsync(existingTransactionHavingSameId);
+					updatedTransactionsCount++;
+				}
+			}
+
+			var savedTransactionsCount = newTransactionsCount + updatedTransactionsCount;
+
+			if(savedTransactionsCount > 0)
+			{
+				await uow.CommitAsync();
+			}
+
+			return savedTransactionsCount;
+		}
+
 		public IEnumerable<FuelCard> GetFuelCardsByCardId(IUnitOfWork uow, string cardId)
 		{
 			return uow.Session.Query<FuelCard>().Where(c => c.CardId == cardId);
