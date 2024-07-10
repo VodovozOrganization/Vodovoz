@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
@@ -51,12 +51,12 @@ namespace ExternalCounterpartyAssignNotifier
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				var pastDaysForSend = _configuration.GetValue<int>("PastDaysForSend");
-				await NotifyAsync(pastDaysForSend);
+				await NotifyAsync(pastDaysForSend, stoppingToken);
 				await Task.Delay(1000 * _delayInSec, stoppingToken);
 			}
 		}
 
-		private async Task NotifyAsync(int pastDaysForSend)
+		private async Task NotifyAsync(int pastDaysForSend, CancellationToken stoppingToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -85,7 +85,7 @@ namespace ExternalCounterpartyAssignNotifier
 					}
 				}
 
-				await _zabbixSender.SendIsHealthyAsync();
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 		}
 

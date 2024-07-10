@@ -60,7 +60,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				{
 					await NotifyAsync(pastDaysForSend);
 
-					await _zabbixSender.SendIsHealthyAsync();
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				}
 				catch
 				{
