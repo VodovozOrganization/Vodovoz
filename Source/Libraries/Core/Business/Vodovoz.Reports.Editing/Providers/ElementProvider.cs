@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace Vodovoz.Reports.Editing.Providers
 {
-	public static class ElementProvider
+	public static partial class ElementProvider
 	{
 		public static XElement GetTable(this XContainer container, string tableName, string @namespace)
 		{
@@ -31,15 +31,16 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		public static bool InsertTable(this XContainer container, XElement table, string @namespace)
 		{
-			return InsertElement(container, table, @namespace);
+			return InsertElementIntoReportItems(container, table, @namespace);
 		}
 
-		private static bool InsertElement(this XContainer container, XElement element, string @namespace)
+		private static bool InsertElementIntoReportItems(XContainer container, XElement element, string @namespace)
 		{
-			var elements = container.Descendants(XName.Get(element.Name.LocalName, @namespace));
+			var elements = container.Descendants(XName.Get(element.Attribute("Name").Value, @namespace));
+
 			if(elements.Any())
 			{
-				throw new InvalidOperationException("В контейнере уже присутствует элемент с указанным именем");
+				throw new InvalidOperationException("В контейнере уже присутствует элемент с указанным именем!");
 			}
 
 			var reportItem = container.Descendants(XName.Get("ReportItems", @namespace)).FirstOrDefault();
