@@ -68,7 +68,7 @@ namespace Vodovoz.SmsInformerWorker
 
 				using var scope = _serviceScopeFactory.CreateScope();
 
-				SendNewNotifications(scope.ServiceProvider);
+				SendNewNotifications(scope.ServiceProvider, stoppingToken);
 
 				await Task.CompletedTask;
 			}
@@ -80,12 +80,12 @@ namespace Vodovoz.SmsInformerWorker
 
 		public abstract IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork, IServiceProvider serviceProvider);
 
-		private void SendNewNotifications(IServiceProvider serviceProvider)
+		private void SendNewNotifications(IServiceProvider serviceProvider, CancellationToken stoppingToken)
 		{
 			var zabbixSender = serviceProvider.GetRequiredService<IZabbixSender>();
 			var unitOfWorkFactory = serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 
-			zabbixSender.SendIsHealthyAsync();
+			zabbixSender.SendIsHealthyAsync(stoppingToken);
 
 			if(_sendingInProgress)
 			{

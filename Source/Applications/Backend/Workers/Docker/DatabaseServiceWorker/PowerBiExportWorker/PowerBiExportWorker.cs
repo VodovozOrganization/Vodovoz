@@ -91,7 +91,7 @@ namespace DatabaseServiceWorker
 					stoppingToken);
 				
 				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-				await zabbixSender.SendIsHealthyAsync();
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{
