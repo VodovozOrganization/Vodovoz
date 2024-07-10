@@ -1,4 +1,5 @@
-﻿using Vodovoz.Reports.Editing.ModifierActions;
+﻿using System.Collections.Generic;
+using Vodovoz.Reports.Editing.ModifierActions;
 
 namespace Vodovoz.Reports.Editing.Modifiers
 {
@@ -6,14 +7,35 @@ namespace Vodovoz.Reports.Editing.Modifiers
 	{
 		private const string _dataTableName = "TableData";
 
-		private static ModifierAction SetTablePositionAction(string identifier, double left, double top)
+		public void Setup()
 		{
-			return new SetTablePosition($"Table{identifier}", left, top);
+			AddActions(CopyTableAndPlaceToPositionActions(_dataTableName, "TableDataNew", 0, 670));
 		}
 
-		private static ModifierAction RemoveTableAction(string identifier)
+		private static IEnumerable<ModifierAction> CopyTableAndPlaceToPositionActions(string sourceTableName, string newTableName, double newTableLeft, double newTableTop)
 		{
-			return new RemoveTable($"Table{identifier}");
+			var actions = new List<ModifierAction>
+			{
+				CopyTableAction(sourceTableName, newTableName),
+				SetTablePositionAction(sourceTableName, newTableLeft, newTableTop)
+			};
+
+			return actions;
+		}
+
+		private static ModifierAction CopyTableAction(string sourceTableName, string newTableName)
+		{
+			return new CopyElement(sourceTableName, newTableName);
+		}
+
+		private static ModifierAction SetTablePositionAction(string tableName, double left, double top)
+		{
+			return new SetTablePosition(tableName, left, top);
+		}
+
+		private static ModifierAction RemoveTableAction(string tableName)
+		{
+			return new RemoveTable(tableName);
 		}
 	}
 }

@@ -28,9 +28,22 @@ namespace Vodovoz.Reports.Editing.Providers
 			var table = matchedTables.First();
 			return table;
 		}
+
 		public static bool InsertTable(this XContainer container, XElement table, string @namespace)
 		{
-			container.Add(table);
+			return InsertElement(container, table, @namespace);
+		}
+
+		private static bool InsertElement(this XContainer container, XElement element, string @namespace)
+		{
+			var elements = container.Descendants(XName.Get(element.Name.LocalName, @namespace));
+			if(elements.Any())
+			{
+				throw new InvalidOperationException("В контейнере уже присутствует элемент с указанным именем");
+			}
+
+			var reportItem = container.Descendants(XName.Get("ReportItems", @namespace)).FirstOrDefault();
+			reportItem.Add(element);
 
 			return true;
 		}

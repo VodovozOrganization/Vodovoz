@@ -95,7 +95,7 @@ namespace Vodovoz.PrintableDocuments.Store
 		private ReportModifierBase GetReportModifier()
 		{
 			var modifier = new WaterCarLoadDocumentModifier();
-
+			modifier.Setup();
 			return modifier;
 		}
 

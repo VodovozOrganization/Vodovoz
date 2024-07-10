@@ -28,8 +28,9 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			var @namespace = report.Root.Attribute("xmlns").Value;
 			var table = report.GetTable(_tableName, @namespace);
 
-			var leftContainer = table.Descendants(XName.Get("Left", @namespace)).FirstOrDefault();
-			var topContainer = table.Descendants(XName.Get("Top", @namespace)).FirstOrDefault();
+			var leftContainer = table.Descendants(XName.Get("Left", @namespace)).Where(e => e.Parent == table).FirstOrDefault();
+			var topContainer = table.Descendants(XName.Get("Top", @namespace)).Where(e => e.Parent == table).FirstOrDefault();
+
 
 			if(leftContainer != null)
 			{
