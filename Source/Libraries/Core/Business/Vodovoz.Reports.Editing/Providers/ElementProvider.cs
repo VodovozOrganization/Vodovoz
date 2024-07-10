@@ -29,12 +29,18 @@ namespace Vodovoz.Reports.Editing.Providers
 			return table;
 		}
 
-		public static bool InsertTable(this XContainer container, XElement table, string @namespace)
+		public static void InsertTable(this XContainer container, XElement table, string @namespace)
 		{
-			return InsertElementIntoReportItems(container, table, @namespace);
+			InsertElementIntoReportItems(container, table, @namespace);
 		}
 
-		private static bool InsertElementIntoReportItems(XContainer container, XElement element, string @namespace)
+		public static void RenameElement(this XContainer container, string oldName, string newName, string @namespace)
+		{
+			var element = CommonElementsExpressions.GetElementInContainerByName(container, oldName, @namespace);
+			element.Attribute("Name").Value = newName;
+		}
+
+		private static void InsertElementIntoReportItems(this XContainer container, XElement element, string @namespace)
 		{
 			var elements = container.Descendants(XName.Get(element.Attribute("Name").Value, @namespace));
 
@@ -45,8 +51,6 @@ namespace Vodovoz.Reports.Editing.Providers
 
 			var reportItem = container.Descendants(XName.Get("ReportItems", @namespace)).FirstOrDefault();
 			reportItem.Add(element);
-
-			return true;
 		}
 
 		public static bool HasGrouping(this XContainer container, string groupName, string @namespace)
