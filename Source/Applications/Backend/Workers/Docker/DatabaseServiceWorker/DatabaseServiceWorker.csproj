@@ -12,6 +12,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev-DatabaseServiceWorker.pubxml" />
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\master-DatabaseServiceWorker.pubxml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="appsettings.Development.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
