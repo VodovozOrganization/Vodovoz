@@ -29,6 +29,7 @@ namespace DatabaseServiceWorker
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
 				using var scope = _serviceScopeFactory.CreateScope();
+				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
 				if(DateTime.Now.Hour >= 4 && DateTime.Now.Hour < 8)
 				{
@@ -45,8 +46,6 @@ namespace DatabaseServiceWorker
 						ArchiveMonitoring(dataArchiver);
 						ArchiveTrackPoints(dataArchiver);
 						DeleteDistanceCache(dataArchiver);
-						var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-						await zabbixSender.SendIsHealthyAsync(stoppingToken);
 					}
 					catch(Exception e)
 					{
@@ -57,6 +56,8 @@ namespace DatabaseServiceWorker
 						_workInProgress = false;
 					}
 				}
+
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 
 				_logger.LogInformation($"Ожидаем {_delayInMinutes}мин перед следующим запуском");
 				await Task.Delay(1000 * 60 * _delayInMinutes, stoppingToken);
