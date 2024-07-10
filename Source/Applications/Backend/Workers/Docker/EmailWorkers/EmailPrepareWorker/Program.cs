@@ -7,14 +7,11 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Services;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
@@ -66,7 +63,8 @@ namespace EmailPrepareWorker
 					);
 
 					services.AddDatabaseConnection();
-					services.AddCore();
+					services.AddCore()
+						.AddInfrastructure();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
@@ -74,11 +72,8 @@ namespace EmailPrepareWorker
 					services.AddScoped<ISettingsController, SettingsController>()
 						.AddScoped<IEmailSettings, EmailSettings>()
 						.AddScoped<ISettingsController, SettingsController>()
-						.AddScoped<IEmailRepository, EmailRepository>()
 						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
-						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
-						.AddScoped<IDocTemplateRepository, DocTemplateRepository>()
-						.AddScoped<IOrderRepository, OrderRepository>();
+						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});

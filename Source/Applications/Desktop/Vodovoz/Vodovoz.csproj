@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -420,6 +420,9 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
+    <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
+    <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
+    <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
@@ -2092,8 +2095,6 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ReportsParameters\Fuel\" />
-    <Folder Include="Logistic\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2599,6 +2600,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.ErrorReporting\QS.ErrorReporting.csproj">
       <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
       <Name>QS.ErrorReporting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj">
+      <Project>{2A0710B2-B71B-4959-88DA-0940100E172A}</Project>
+      <Name>QS.Extensions.Observable</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
       <Project>{1c3b49fc-372c-46f7-995f-eeb44474e2de}</Project>

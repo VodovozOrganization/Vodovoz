@@ -11,10 +11,7 @@ using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.Services;
 using Vodovoz.Core.Domain.Common;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Tools.Orders;
 
 namespace TaxcomEdoApi
@@ -33,10 +30,7 @@ namespace TaxcomEdoApi
 			services.AddHostedService<AutoSendReceiveService>()
 				.AddHostedService<ContactsUpdaterService>()
 				.AddHostedService<DocumentFlowService>()
-
-				.AddSingleton<IOrderRepository, OrderRepository>()
-				.AddSingleton<IOrganizationRepository, OrganizationRepository>()
-				.AddSingleton<ICounterpartyRepository, CounterpartyRepository>()
+				.AddInfrastructure()
 
 				.AddSingleton(provider =>
 				{
@@ -70,9 +64,7 @@ namespace TaxcomEdoApi
 				.AddSingleton<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
 				.AddSingleton<IEdoContainerMainDocumentIdParser, EdoContainerMainDocumentIdParser>()
 				.AddSingleton<IUpdProductConverter, UpdProductConverter>()
-				.AddSingleton<IContactStateConverter, ContactStateConverter>()
-
-				.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+				.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
 			return services;
 		}

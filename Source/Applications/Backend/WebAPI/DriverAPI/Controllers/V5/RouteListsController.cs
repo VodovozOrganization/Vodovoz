@@ -343,7 +343,7 @@ namespace DriverAPI.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public IActionResult ConfirmRouteListAddressTransferRecieved(ConfirmRouteListAddressTransferRecievedRequest confirmRouteListAddressTransferRecievedRequest)
 		{
-			_routeListService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTime.ToLocalTime());
+			_routeListService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTimeUtc.ToLocalTime());
 			return NoContent();
 		}
 

@@ -5,6 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 
 namespace DatabaseServiceWorker
@@ -76,7 +81,12 @@ namespace DatabaseServiceWorker
 			IUnitOfWork uow,
 			XLWorkbook excelWorkbook,
 			DateTime date,
+			IGeneralSettings generalSettings,
+			IDeliveryRepository deliveryRepository,
+			ITrackRepository trackRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			INomenclatureSettings nomenclatureSettings,
+			IDeliveryRulesSettings deliveryRulesSettings,
 			CancellationToken stoppingToken)
 		{
 			var revenueDay = GetRevenues(uow, date);
@@ -86,12 +96,12 @@ namespace DatabaseServiceWorker
 			var undelivered = GetUndelivered(uow, date);
 			AddToUndeliveriesSheet(excelWorkbook.Worksheet(2), date, undelivered);
 
-			var fastDeliveryLates = GetLates(uow, date);
+			var fastDeliveryLates = GetLates(generalSettings, uow, date);
 			var numberOfFastDeliverySales = GetNumberOfFastDeliverySales(uow, date);
 			var fastDeliveryUndeliveries = GetFastDeliveryUndeliveries(uow, date);
 			var numberOfFastdeliveryComplaints = GeNumberOfFastdeliveryComplaints(uow, date);
-			var fastDeliveryCoverage = await GetCoverageAsync(uow, date, stoppingToken);
-			var fastDeliveryFails = GetFastDeliveryFails(uow, date);
+			var fastDeliveryCoverage = await GetCoverageAsync(deliveryRulesSettings, uow, deliveryRepository, trackRepository, scheduleRestrictionRepository, date, stoppingToken);
+			var fastDeliveryFails = GetFastDeliveryFails(nomenclatureSettings, uow, date);
 			var remainingBottle = GetRemainingBottle(uow, date);
 
 			AddToFastDeliverySheet(
@@ -106,7 +116,6 @@ namespace DatabaseServiceWorker
 				remainingBottle
 				);
 		}
-
 
 		private void WriteExcelStreamToFile(SmbFile file, MemoryStream memStream)
 		{

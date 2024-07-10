@@ -25,6 +25,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
@@ -37,6 +38,7 @@ namespace Vodovoz.Dialogs.Logistic
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+			_routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 		}
 
 		public RouteListControlDlg(RouteList sub) : this(sub.Id) { }
@@ -52,7 +54,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var contextItems = new Dictionary<object, object>
 			{
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+				{nameof(IRouteListItemRepository), _routeListItemRepository}
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);

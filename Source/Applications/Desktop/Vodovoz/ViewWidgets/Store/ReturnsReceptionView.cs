@@ -48,7 +48,7 @@ namespace Vodovoz
 			_nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			_nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
-			_carUnloadRepository = new CarUnloadRepository();
+			_carUnloadRepository = ScopeProvider.Scope.Resolve<ICarUnloadRepository>();
 			_subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 
 			Build();

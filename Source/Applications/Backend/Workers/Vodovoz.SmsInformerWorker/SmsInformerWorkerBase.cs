@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -18,23 +19,20 @@ namespace Vodovoz.SmsInformerWorker
 {
 	internal abstract class SmsInformerWorkerBase : TimerBackgroundServiceBase
 	{
-		protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		protected readonly ILogger<SmsInformerWorkerBase> _logger;
-
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		protected readonly ISmsSender _smsSender;
 		private readonly ISmsBalanceNotifier _smsBalanceNotifier;
 		private readonly ILowBalanceNotificationService _lowBalanceNotificationService;
-		private readonly IZabbixSender _zabbixSender;
 		protected bool _sendingInProgress = false;
 
 		public SmsInformerWorkerBase(
 			IOptions<SmsInformerOptions> options,
 			ILogger<SmsInformerWorkerBase> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IServiceScopeFactory serviceScopeFactory,
 			ISmsSender smsSender,
 			ISmsBalanceNotifier smsBalanceNotifier,
-			ILowBalanceNotificationService lowBalanceNotificationService,
-			IZabbixSender zabbixSender)
+			ILowBalanceNotificationService lowBalanceNotificationService)
 		{
 			if(options is null)
 			{
@@ -45,15 +43,15 @@ namespace Vodovoz.SmsInformerWorker
 
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory
-				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_serviceScopeFactory = serviceScopeFactory
+				?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_smsSender = smsSender
 				?? throw new ArgumentNullException(nameof(smsSender));
 			_smsBalanceNotifier = smsBalanceNotifier
 				?? throw new ArgumentNullException(nameof(smsBalanceNotifier));
 			_lowBalanceNotificationService = lowBalanceNotificationService
 				?? throw new ArgumentNullException(nameof(lowBalanceNotificationService));
-			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
+
 			_smsBalanceNotifier.OnBalanceChange -= _lowBalanceNotificationService.BalanceNotifierOnBalanceChange;
 			_smsBalanceNotifier.OnBalanceChange += _lowBalanceNotificationService.BalanceNotifierOnBalanceChange;
 
@@ -68,7 +66,9 @@ namespace Vodovoz.SmsInformerWorker
 			{
 				_logger.LogDebug("Новый вызов отправки смс уведомлений");
 
-				SendNewNotifications();
+				using var scope = _serviceScopeFactory.CreateScope();
+
+				SendNewNotifications(scope.ServiceProvider, stoppingToken);
 
 				await Task.CompletedTask;
 			}
@@ -78,11 +78,14 @@ namespace Vodovoz.SmsInformerWorker
 			}
 		}
 
-		public abstract IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork);
+		public abstract IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork, IServiceProvider serviceProvider);
 
-		private void SendNewNotifications()
+		private void SendNewNotifications(IServiceProvider serviceProvider, CancellationToken stoppingToken)
 		{
-			_zabbixSender.SendIsHealthyAsync();
+			var zabbixSender = serviceProvider.GetRequiredService<IZabbixSender>();
+			var unitOfWorkFactory = serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
+
+			zabbixSender.SendIsHealthyAsync(stoppingToken);
 
 			if(_sendingInProgress)
 			{
@@ -94,10 +97,10 @@ namespace Vodovoz.SmsInformerWorker
 
 			try
 			{
-				using var unitOfWork = _unitOfWorkFactory
+				using var unitOfWork = unitOfWorkFactory
 					.CreateWithoutRoot(nameof(SmsInformerWorkerBase));
 
-				var newNotifications = GetNotifications(unitOfWork);
+				var newNotifications = GetNotifications(unitOfWork, serviceProvider);
 
 				if(!newNotifications.Any())
 				{
@@ -128,7 +131,6 @@ namespace Vodovoz.SmsInformerWorker
 				_sendingInProgress = false;
 			}
 		}
-
 
 		public virtual void SendNotification(SmsNotification notification)
 		{

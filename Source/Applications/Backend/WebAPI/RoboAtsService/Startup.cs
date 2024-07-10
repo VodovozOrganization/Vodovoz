@@ -83,7 +83,6 @@ namespace RoboatsService
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();

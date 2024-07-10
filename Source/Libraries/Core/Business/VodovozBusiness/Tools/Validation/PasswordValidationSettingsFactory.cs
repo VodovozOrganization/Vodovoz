@@ -3,7 +3,7 @@ using System.Linq;
 using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using QS.Validation;
 
 namespace Vodovoz.Tools.Validation

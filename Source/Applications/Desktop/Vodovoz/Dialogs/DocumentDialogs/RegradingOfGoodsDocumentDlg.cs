@@ -20,13 +20,14 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
+		private IEmployeeRepository _employeeRepository;
+		private IUserRepository _userRepository;
+		private IStoreDocumentHelper _storeDocumentHelper;
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public RegradingOfGoodsDocumentDlg()
 		{
+			ResolveDependencies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument> ();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser (UoW);
@@ -44,6 +45,7 @@ namespace Vodovoz
 
 		public RegradingOfGoodsDocumentDlg (int id)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
 			
@@ -52,6 +54,13 @@ namespace Vodovoz
 
 		public RegradingOfGoodsDocumentDlg (RegradingOfGoodsDocument sub) : this (sub.Id)
 		{
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 		}
 
 		void ConfigureDlg ()
@@ -136,6 +145,10 @@ namespace Vodovoz
 		
 		protected override void OnDestroyed()
 		{
+			_employeeRepository = null;
+			_userRepository = null;
+			_storeDocumentHelper = null;
+
 			if(_lifetimeScope != null)
 			{
 				_lifetimeScope.Dispose();
