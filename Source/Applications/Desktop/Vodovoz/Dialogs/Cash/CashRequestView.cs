@@ -114,6 +114,10 @@ namespace Vodovoz.Dialogs.Cash
 				.AddBinding(vm => vm.CanGiveSum, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybtnAddSumm.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddSum, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
 			ybtnDeleteSumm.Clicked += (sender, args) => ViewModel.DeleteSumCommand.Execute();
@@ -223,7 +227,6 @@ namespace Vodovoz.Dialogs.Cash
 			if(ViewModel.Entity.PayoutRequestState == PayoutRequestState.Closed || ViewModel.IsSecurityServiceRole)
 			{
 				ytreeviewSums.Sensitive = false;
-				ybtnAddSumm.Sensitive = false;
 				ybtnAccept.Sensitive = false;
 				ybtnApprove.Sensitive = false;
 				ybtnCancel.Sensitive = false;
