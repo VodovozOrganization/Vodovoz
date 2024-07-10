@@ -3,20 +3,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
-using QS.HistoryLog;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Zabbix.Sender;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace FastDeliveryLateWorker
 {
@@ -53,6 +49,7 @@ namespace FastDeliveryLateWorker
 					services
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddStaticHistoryTracker()
 						.AddHostedService<FastDeliveryLateWorker>()
