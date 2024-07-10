@@ -61,7 +61,7 @@ namespace DatabaseServiceWorker
 				ClearFastDeliveryAvailabilityHistory();
 				_lastClearDate = DateTime.Today;
 
-				await _zabbixSender.SendIsHealthyAsync();
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{
