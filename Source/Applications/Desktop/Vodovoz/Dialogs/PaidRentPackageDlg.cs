@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Autofac;
 using NHibernate.Criterion;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -14,7 +14,7 @@ namespace Vodovoz
 	public partial class PaidRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<PaidRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IRentPackageRepository _rentPackageRepository = new RentPackageRepository();
+		private readonly IRentPackageRepository _rentPackageRepository = ScopeProvider.Scope.Resolve<IRentPackageRepository>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 
 		private ValidationContext _validationContext;

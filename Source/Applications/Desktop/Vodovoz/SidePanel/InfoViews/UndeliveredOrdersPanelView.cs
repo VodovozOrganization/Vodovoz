@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -24,11 +25,15 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class UndeliveredOrdersPanelView : Gtk.Bin, IPanelView
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		
-		public UndeliveredOrdersPanelView()
+		public UndeliveredOrdersPanelView(IUndeliveredOrdersRepository undeliveredOrdersRepository)
 		{
-			this.Build();
+			_undeliveredOrdersRepository = undeliveredOrdersRepository
+				?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+
+			Build();
+
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Ответственный")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")

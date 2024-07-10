@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -9,7 +10,6 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.SmsInformerWorker.Options;
 using Vodovoz.SmsInformerWorker.Services;
-using Vodovoz.Zabbix.Sender;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -18,31 +18,25 @@ namespace Vodovoz.SmsInformerWorker
 	/// </summary>
 	internal class NewClientSmsInformerWorker : SmsInformerWorkerBase
 	{
-		private readonly ISmsNotificationRepository _smsNotificationRepository;
-
 		public NewClientSmsInformerWorker(
 			IOptions<SmsInformerOptions> options,
 			ILogger<NewClientSmsInformerWorker> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ISmsNotificationRepository smsNotificationRepository,
+			IServiceScopeFactory serviceScopeFactory,
 			ISmsSender smsSender,
 			ISmsBalanceNotifier smsBalanceNotifier,
-			ILowBalanceNotificationService lowBalanceNotificationService,
-			IZabbixSender zabbixSender)
-			: base(options, logger, unitOfWorkFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService, zabbixSender)
+			ILowBalanceNotificationService lowBalanceNotificationService)
+			: base(options, logger, serviceScopeFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService)
 		{
-			_smsNotificationRepository = smsNotificationRepository
-				?? throw new ArgumentNullException(nameof(smsNotificationRepository));
 		}
 
-		public override IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork) =>
-			_smsNotificationRepository.GetUnsendedNewClientSmsNotifications(unitOfWork);
+		public override IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork, IServiceProvider serviceProvider) =>
+			serviceProvider.GetRequiredService<ISmsNotificationRepository>().GetUnsendedNewClientSmsNotifications(unitOfWork);
 
 		public override void SendNotification(SmsNotification notification)
 		{
 			try
 			{
-				SmsMessage smsMessage = new SmsMessage(notification.MobilePhone, notification.Id.ToString(), notification.MessageText);
+				var smsMessage = new SmsMessage(notification.MobilePhone, notification.Id.ToString(), notification.MessageText);
 
 				var result = _smsSender.SendSms(smsMessage);
 				_logger.LogInformation("Отправлено уведомление новому клиенту. Тел.: {MobilePhoneNumber}, результат: {SendingResult}", smsMessage.MobilePhoneNumber, result.GetEnumTitle());

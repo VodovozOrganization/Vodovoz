@@ -198,33 +198,33 @@ namespace Vodovoz
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
-		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
-		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
+		private readonly IDocumentPrinter _documentPrinter = ScopeProvider.Scope.Resolve<IDocumentPrinter>();
+		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = ScopeProvider.Scope.Resolve<IEntityDocumentsPrinterFactory>();
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IFlyerRepository _flyerRepository = new FlyerRepository();
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
-		private readonly IServiceClaimRepository _serviceClaimRepository = new ServiceClaimRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly ICashRepository _cashRepository = new CashRepository();
-		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+		private readonly IUserRepository _userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+		private readonly IFlyerRepository _flyerRepository = ScopeProvider.Scope.Resolve<IFlyerRepository>();
+		private readonly IDocTemplateRepository _docTemplateRepository = ScopeProvider.Scope.Resolve<IDocTemplateRepository>();
+		private readonly IServiceClaimRepository _serviceClaimRepository = ScopeProvider.Scope.Resolve<IServiceClaimRepository>();
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
+		private readonly IOrderRepository _orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+		private readonly IDiscountReasonRepository _discountReasonRepository = ScopeProvider.Scope.Resolve<IDiscountReasonRepository>();
+		private readonly IRouteListItemRepository _routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
+		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
+		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
+		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
-			= new RentPackagesJournalsViewModelsFactory(ServicesConfig.UnitOfWorkFactory, Startup.MainWin.NavigationManager);
+			= ScopeProvider.Scope.Resolve<IRentPackagesJournalsViewModelsFactory>();
 
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= ScopeProvider.Scope.Resolve<INonSerialEquipmentsForRentJournalViewModelFactory>();
 
-		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
-		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
+		private readonly IPaymentItemsRepository _paymentItemsRepository = ScopeProvider.Scope.Resolve<IPaymentItemsRepository>();
+		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
 		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
 
 		private readonly bool _canSetOurOrganization =
@@ -326,24 +326,15 @@ namespace Vodovoz
 
 		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
-		private CallTaskWorker callTaskWorker;
+		private ICallTaskWorker callTaskWorker;
 
-		public virtual CallTaskWorker CallTaskWorker
+		public virtual ICallTaskWorker CallTaskWorker
 		{
 			get
 			{
 				if(callTaskWorker == null)
 				{
-					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
-					callTaskWorker = new CallTaskWorker(
-						ServicesConfig.UnitOfWorkFactory,
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						_orderRepository,
-						_employeeRepository,
-						employeeSettings,
-						ServicesConfig.CommonServices.UserService,
-						ErrorReporter.Instance);
+					callTaskWorker = ScopeProvider.Scope.Resolve<ICallTaskWorker>();
 				}
 
 				return callTaskWorker;
@@ -478,8 +469,8 @@ namespace Vodovoz
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
+				var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
+				counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
@@ -601,8 +592,8 @@ namespace Vodovoz
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			_orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, _orderSettings);
-			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider, cashReceiptRepository);
+			var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
+			counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, ServicesConfig.UnitOfWorkFactory);
 
@@ -751,7 +742,7 @@ namespace Vodovoz
 
 			if(Entity.OrderStatus == OrderStatus.Closed)
 			{
-				entryTareReturned.Text = new BottlesRepository().GetEmptyBottlesFromClientByOrder(UoW, _nomenclatureRepository, Entity)
+				entryTareReturned.Text = ScopeProvider.Scope.Resolve<IBottlesRepository>().GetEmptyBottlesFromClientByOrder(UoW, _nomenclatureRepository, Entity)
 					.ToString();
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
@@ -822,6 +813,7 @@ namespace Vodovoz
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
+			entityVMEntryClient.BeforeChangeByUser += OnClientBeforeChangeByUser;
 
 			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
 			evmeContactPhone.Binding.AddSource(Entity)
@@ -831,7 +823,7 @@ namespace Vodovoz
 
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
-			var deliveryScheduleRepository = new DeliveryScheduleRepository();
+			var deliveryScheduleRepository = ScopeProvider.Scope.Resolve<IDeliveryScheduleRepository>();
 			var fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService,
 				ServicesConfig.CommonServices.CurrentPermissionService);
@@ -1114,6 +1106,20 @@ namespace Vodovoz
 		public void UpdateClientDefaultParam()
 		{
 			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+		}
+
+		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
+		{
+			if(Entity.Client != null && Entity.IsOrderCashlessAndPaid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+
+				e.CanChange = false;
+				return;
+			}
+			e.CanChange = true;
 		}
 
 		private void UpdateCallBeforeArrivalMinutesSelectedItem()
@@ -2664,7 +2670,7 @@ namespace Vodovoz
 				}
 
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(
-					UoW, _nomenclatureSettings, new RouteListItemRepository(), new CashRepository());
+					UoW, _nomenclatureSettings, ScopeProvider.Scope.Resolve<IRouteListItemRepository>(), ScopeProvider.Scope.Resolve<ICashRepository>());
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.Closed, CallTaskWorker);
@@ -4238,7 +4244,7 @@ namespace Vodovoz
 		private void UpdateUIState()
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
-			buttonSelectPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
+			buttonSelectPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active && !Entity.IsOrderCashlessAndPaid;
 			if(entryDeliveryPoint.ViewModel != null)
 			{
 				entryDeliveryPoint.ViewModel.IsEditable = val;

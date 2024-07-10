@@ -39,6 +39,8 @@ namespace Vodovoz.Domain.Orders
 		private GenericObservableList<UndeliveryDiscussion> _observableUndeliveryDiscussions;
 		private ISubdivisionSettings _subdivisionSettings => ScopeProvider.Scope.Resolve<ISubdivisionSettings>();
 
+		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -358,7 +360,7 @@ namespace Vodovoz.Domain.Orders
 			var comment = new UndeliveryDiscussionComment
 			{
 				Comment = text,
-				Author = new EmployeeRepository().GetEmployeeForCurrentUser(uow),
+				Author = _employeeRepository.GetEmployeeForCurrentUser(uow),
 				UndeliveryDiscussion = okkDiscussion,
 				CreationTime = DateTime.Now
 			};

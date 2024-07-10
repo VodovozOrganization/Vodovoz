@@ -54,9 +54,9 @@ namespace Vodovoz.ViewModels
 
 			var text = new List<string>();
 
-			if(productService?.EditionName != null)
+			if(productService?.CurrentEditionName != null)
 			{
-				text.Add(productService?.EditionName);
+				text.Add(productService?.CurrentEditionName);
 			}
 
 			if(_applicationInfo.IsBeta)

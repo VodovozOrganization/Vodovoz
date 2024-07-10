@@ -49,9 +49,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ICallTaskRepository _callTaskRepository;
 
 		private IUnitOfWork UoW;
 		
@@ -80,7 +81,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		public bool IsDeliveryPointChoiceRequired => 
 			Client.Phones.All(p => p.DigitsNumber != MangoManager.CurrentCall.Phone.DigitsNumber)
 			&& DeliveryPoints.Count > 1;
-		
+
 		#endregion
 
 		#region Конструкторы
@@ -98,13 +99,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
+			IEmployeeRepository employeeRepository,
+			IOrderRepository orderRepository,
+			IRouteListItemRepository routeListItemRepository,
+			ICallTaskRepository callTaskRepository,
 			int count = 5)
 		{
 			Client = client;
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			tdiNavigation = tdinavigation;
-			_routedListRepository = routedListRepository;
+			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			MangoManager = mangoManager;
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -112,6 +117,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -258,7 +267,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 				_unitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
+				_callTaskRepository,
 				_orderRepository,
 				_employeeRepository,
 				employeeSettings,

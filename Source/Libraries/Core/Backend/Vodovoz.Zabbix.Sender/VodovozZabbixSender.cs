@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Settings.Metrics;
 using ZabbixAsyncSender = ZabbixSender.Async.Sender;
@@ -18,7 +19,7 @@ namespace Vodovoz.Zabbix.Sender
 
 		public void SetWorkerName(string workerName) => _workerName = workerName ?? throw new ArgumentNullException(nameof(workerName));
 
-		public async Task<bool> SendIsHealthyAsync(bool isHealthy = true)
+		public async Task<bool> SendIsHealthyAsync(CancellationToken cancellationToken, bool isHealthy = true)
 		{
 			if(!_metricSettings.ZabbixNeedSendMetrics)
 			{
@@ -27,8 +28,8 @@ namespace Vodovoz.Zabbix.Sender
 
 			var healthy = isHealthy.ToString();
 
-			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixUrl);
-			var response = await sender.Send(_metricSettings.ZabbixHost, _workerName, "Up");
+			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixUrl, timeout: 5000);
+			var response = await sender.Send(_metricSettings.ZabbixHost, _workerName, "Up", cancellationToken);
 
 			return response.IsSuccess;			
 		}
