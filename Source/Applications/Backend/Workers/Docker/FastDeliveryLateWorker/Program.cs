@@ -57,12 +57,8 @@ namespace FastDeliveryLateWorker
 						.AddStaticHistoryTracker()
 						.AddHostedService<FastDeliveryLateWorker>()
 						.ConfigureFastDeliveryLateOptions(hostContext)
-						.AddSingleton<IDeliveryRepository, DeliveryRepository>()
-						.AddSingleton<IOrderRepository, OrderRepository>()
-						.AddSingleton<IEmployeeRepository, EmployeeRepository>()
 						.AddSingleton<IOrderSettings, OrderSettings>()
 						.AddSingleton<IEmailService, EmailService>()
-						.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.AddScoped<OrderStateKey>()
 						;
 
