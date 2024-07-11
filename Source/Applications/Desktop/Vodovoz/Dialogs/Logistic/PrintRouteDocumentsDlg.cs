@@ -3,6 +3,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate;
+using NHibernate.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -234,6 +235,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 				var selectedRoutesWithFastDelivery = _uow.GetAll<RouteList>()
 					.Where(r => selectedRoutesIds.Contains(r.Id) && r.AdditionalLoadingDocument != null)
+					.FetchMany(x => x.Addresses).ThenFetch(x => x.Order).ThenFetch(x => x.Contract).ThenFetch(x => x.Organization)
 					.Select(r => r.Id)
 					.ToList();
 
@@ -242,7 +244,7 @@ namespace Vodovoz.Dialogs.Logistic
 					if(item.Document is RouteListPrintableDocs rlPrintableDoc)
 					{
 						progressPrint.Text = $"Печатаем МЛ {rlPrintableDoc.routeList.Id} - {rlPrintableDoc.routeList.Driver.ShortName}";
-						QSMain.WaitRedraw();
+						//QSMain.WaitRedraw();
 						var rlDocTypesToPrint = new List<RouteListPrintableDocuments>();
 						OrderDocumentType[] oDocTypesToPrint = null;
 

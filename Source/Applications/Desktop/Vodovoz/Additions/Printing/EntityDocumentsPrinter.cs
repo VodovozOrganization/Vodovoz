@@ -178,13 +178,14 @@ namespace Vodovoz.Additions.Printing
 					}
 				}
 
-				DocumentsToPrint.Add(
-					new SelectablePrintDocument(item) 
-					{
-						Selected = orderDocumentTypesToSelect == null
+				var documentToPrint = new SelectablePrintDocument(item)
+				{
+					Selected = orderDocumentTypesToSelect == null
 								   || orderDocumentTypesToSelect.Contains(item.Type)
-					}
-				);
+				};
+
+				DocumentsToPrint.Add(documentToPrint);
+				MultiDocPrinter.PrintableDocuments.Add(documentToPrint);
 			}
 
 			if(msgs != null)
