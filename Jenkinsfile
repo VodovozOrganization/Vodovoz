@@ -49,6 +49,7 @@ NODE_VOD3 = "Vod3"
 NODE_VOD5 = "Vod5"
 NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
+NODE_VOD13 = "Vod13"
 NODE_WIN_BUILD = "WIN_BUILD"
 
 // 102	Настройки. Глобальные
@@ -87,6 +88,7 @@ DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
 // 108	Настройки. Развертывание
@@ -208,6 +210,7 @@ stage('Delivery'){
 		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
 
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
 		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
@@ -237,6 +240,7 @@ stage('Publish'){
 		"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
+		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
 
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
 		"PayPageAPI" : { PublishWeb("PayPageAPI") },
