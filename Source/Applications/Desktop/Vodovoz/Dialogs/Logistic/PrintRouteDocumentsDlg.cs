@@ -247,6 +247,7 @@ namespace Vodovoz.Dialogs.Logistic
 					if(item.Document is RouteListPrintableDocs rlPrintableDoc)
 					{
 						progressPrint.Text = $"Печатаем МЛ {rlPrintableDoc.routeList.Id} - {rlPrintableDoc.routeList.Driver.ShortName}";
+						QSMain.WaitRedraw();
 						var rlDocTypesToPrint = new List<RouteListPrintableDocuments>();
 						OrderDocumentType[] oDocTypesToPrint = null;
 
