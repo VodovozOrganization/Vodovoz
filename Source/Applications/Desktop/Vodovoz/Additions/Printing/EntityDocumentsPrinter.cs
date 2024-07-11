@@ -101,7 +101,7 @@ namespace Vodovoz.Additions.Printing
 						Selected = isSelected
 					};
 					
-					DocumentsToPrint.Add(doc);
+					MultiDocPrinter.PrintableDocuments.Add(doc);
 				}
 			}
 
@@ -113,7 +113,6 @@ namespace Vodovoz.Additions.Printing
 		
 		private MultipleDocumentPrinter MultiDocPrinter { get; set; }
 		public static PrintSettings PrinterSettings { get; set; }
-		public List<SelectablePrintDocument> DocumentsToPrint { get; set; } = new List<SelectablePrintDocument>();
 		public IList<SelectablePrintDocument> MultiDocPrinterPrintableDocuments => MultiDocPrinter.PrintableDocuments;
 		public string ODTTemplateNotFoundMessages { get; set; }
 
@@ -178,13 +177,13 @@ namespace Vodovoz.Additions.Printing
 					}
 				}
 
-				DocumentsToPrint.Add(
-					new SelectablePrintDocument(item) 
-					{
-						Selected = orderDocumentTypesToSelect == null
+				var documentToPrint = new SelectablePrintDocument(item)
+				{
+					Selected = orderDocumentTypesToSelect == null
 								   || orderDocumentTypesToSelect.Contains(item.Type)
-					}
-				);
+				};
+
+				MultiDocPrinter.PrintableDocuments.Add(documentToPrint);
 			}
 
 			if(msgs != null)
@@ -195,11 +194,8 @@ namespace Vodovoz.Additions.Printing
 		
 		private void DocPrinterInit()
 		{
-			MultiDocPrinter = new MultipleDocumentPrinter 
-			{
-				PrintableDocuments = new ObservableList<SelectablePrintDocument>(DocumentsToPrint)
-			};
-			
+			MultiDocPrinter = new MultipleDocumentPrinter();
+
 			MultiDocPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
 		}
