@@ -83,7 +83,7 @@ namespace DatabaseServiceWorker
 
 			_isWorkInProgress = false;
 
-			await _zabbixSender.SendIsHealthyAsync();
+			await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 		}
 
 		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow, CancellationToken cancellationToken)

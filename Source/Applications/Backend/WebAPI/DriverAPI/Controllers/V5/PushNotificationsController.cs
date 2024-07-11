@@ -373,12 +373,12 @@ namespace DriverAPI.Controllers.V5
 
 			if(!previousItemDriverFirebaseTokenFound)
 			{
-				message += $"Не найден токен водителя МЛ из которого переносится заказ, водитель не будет оповещен\n";
+				message += $"Водитель из МЛ которого переносится заказ не будет оповещен.\n";
 			}
 
 			if(!targetDriverFirebaseTokenFound)
 			{
-				message += $"Не найден токен водителя МЛ которому переносится заказ, водитель не будет оповещен\n";
+				message += $"Водитель которому переносится заказ не будет оповещен.\n";
 			}
 
 			if(source.IsFailure)
@@ -421,7 +421,7 @@ namespace DriverAPI.Controllers.V5
 			}
 			else
 			{
-				message += $"Не найден токен водителя МЛ источника переноса заказ, водитель не будет оповещен\n";
+				message += $"Водитель источника переноса заказа не будет оповещен.\n";
 			}
 
 			if(targetDriverFirebaseTokenFound)
