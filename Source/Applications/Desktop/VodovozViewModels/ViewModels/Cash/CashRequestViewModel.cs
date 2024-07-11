@@ -88,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				Dispose();
 				throw new AbortCreatingPageException("Нет прав для открытия диалога", "Невозможно открыть");
 			}
-			
+
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
 
@@ -407,6 +407,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => CanCancel);
 				OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
 				OnPropertyChanged(() => ExpenseCategoryVisibility);
+				OnPropertyChanged(() => CanAddSum);
 			}
 		}
 
@@ -493,6 +494,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 							  && UserRole == PayoutRequestUserRole.Coordinator
 							  || Entity.PayoutRequestState == PayoutRequestState.GivenForTake
 							  && UserRole == PayoutRequestUserRole.Coordinator;
+
+		public bool CanAddSum =>
+			(Entity.PayoutRequestState == PayoutRequestState.New
+			|| Entity.PayoutRequestState == PayoutRequestState.OnClarification
+			|| Entity.PayoutRequestState == PayoutRequestState.Submited
+			|| UserRole == PayoutRequestUserRole.Coordinator)
+			&& !IsSecurityServiceRole;
 
 		#endregion Permissions
 
