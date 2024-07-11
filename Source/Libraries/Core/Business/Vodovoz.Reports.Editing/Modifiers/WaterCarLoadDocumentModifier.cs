@@ -12,13 +12,13 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			AddActions(CopyTableAndPlaceToPositionActions(_dataTableName, "TableDataNew", 0, 670));
 		}
 
-		private static IEnumerable<ModifierAction> CopyTableAndPlaceToPositionActions(string sourceTableName, string newTableName, decimal newTableLeft, decimal newTableTop)
+		private static IEnumerable<ModifierAction> CopyTableAndPlaceToPositionActions(string sourceTableName, string newTableName, double newTableLeft, double newTableTop)
 		{
 			var actions = new List<ModifierAction>
 			{
 				CopyTableAction(sourceTableName, newTableName),
-				SetElementPosition(sourceTableName, newTableLeft, newTableTop),
-				AddOrderEqualTableFilter(sourceTableName, "150")
+				SetTablePositionAction(sourceTableName, newTableLeft, newTableTop),
+				AddOrderEqualTableFilterAction(sourceTableName, "150")
 			};
 
 			return actions;
@@ -26,7 +26,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 		private static ModifierAction CopyTableAction(string sourceTableName, string newTableName)
 		{
-			return new CopyElement(sourceTableName, newTableName);
+			return new CopyTable(sourceTableName, newTableName);
 		}
 
 		private static ModifierAction RemoveTableAction(string tableName)
@@ -34,32 +34,32 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return new RemoveTable(tableName);
 		}
 
-		private static ModifierAction SetElementPosition(string elementName, decimal leftPositionInPt, decimal topPositionInPt)
+		private static ModifierAction SetTablePositionAction(string elementName, double leftPositionInPt, double topPositionInPt)
 		{
-			return new SetElementPosition(elementName, leftPositionInPt, topPositionInPt);
+			return new SetTablePosition(elementName, leftPositionInPt, topPositionInPt);
 		}
 
-		private static ModifierAction MoveElementDown(string elementName, decimal offsetInPt)
+		private static ModifierAction MoveTableDownAction(string elementName, double offsetInPt)
 		{
-			return new MoveElementDown(elementName, offsetInPt);
+			return new MoveTableDown(elementName, offsetInPt);
 		}
 
-		private static ModifierAction RenameElement(string elementOldName, string elementNewName)
+		private static ModifierAction RenameTableAction(string elementOldName, string elementNewName)
 		{
-			return new RenameElement(elementOldName, elementNewName);
+			return new RenameTable(elementOldName, elementNewName);
 		}
 
-		private static ModifierAction AddOrderEqualTableFilter(string tableName, string value)
+		private static ModifierAction AddOrderEqualTableFilterAction(string tableName, string value)
 		{
-			return AddTableFilter(tableName, "={amount}", "Equal", value);
+			return AddTableFilterAction(tableName, "={amount}", "Equal", value);
 		}
 
-		private static ModifierAction AddOrderNotEqualTableFilter(string tableName, string value)
+		private static ModifierAction AddOrderNotEqualTableFilterAction(string tableName, string value)
 		{
-			return AddTableFilter(tableName, "={amount}", "NotEqual", value);
+			return AddTableFilterAction(tableName, "={amount}", "NotEqual", value);
 		}
 
-		private static ModifierAction AddTableFilter(string tableName, string expression, string @operator, string value)
+		private static ModifierAction AddTableFilterAction(string tableName, string expression, string @operator, string value)
 		{
 			return new AddTableFilter(tableName, expression, @operator, value);
 		}

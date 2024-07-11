@@ -10,32 +10,32 @@ namespace Vodovoz.Reports.Editing.Providers
 		private const string _topPositionElementName = "Top";
 		private const string _positionUnit = "pt";
 
-		public static (decimal Left, decimal Top) GetElementPosition(this XContainer container, string elementName, string @namespace)
+		public static (double Left, double Top) GetTablePosition(this XContainer container, string tableName, string @namespace)
 		{
-			var element = CommonElementsExpressions.GetElementInContainerByName(container, elementName, @namespace);
+			var table = GetTable(container, tableName, @namespace);
 
-			return GetElementPositionInPt(element, @namespace);
+			return GetElementPositionInPt(table, @namespace);
 		}
 
-		public static void SetElementPosition(this XContainer container, string elementName, string @namespace,
-			decimal leftPositionInPt, decimal topPositionInPt)
+		public static void SetTablePosition(this XContainer container, string tableName, string @namespace,
+			double leftPositionInPt, double topPositionInPt)
 		{
-			var element = CommonElementsExpressions.GetElementInContainerByName(container, elementName, @namespace);
+			var element = GetTable(container, tableName, @namespace);
 
-			SetElementLeftPositionValue(element, @namespace, leftPositionInPt);
-			SetElementTopPositionValue(element, @namespace, topPositionInPt);
+			SetElementLeftPositionValue(element, leftPositionInPt, @namespace);
+			SetElementTopPositionValue(element, topPositionInPt, @namespace);
 		}
 
-		public static void MoveElementDown(this XContainer container, string elementName, string @namespace, decimal offsetInPt)
+		public static void MoveTableDown(this XContainer container, string elementName, string @namespace, double offsetInPt)
 		{
-			var element = CommonElementsExpressions.GetElementInContainerByName(container, elementName, @namespace);
+			var table = GetTable(container, elementName, @namespace);
 
-			var topPositionValue = GetTopPositionValue(element, @namespace);
+			var topPositionValue = GetTopPositionValue(table, @namespace);
 
-			SetElementTopPositionValue(element, @namespace, topPositionValue + offsetInPt);
+			SetElementTopPositionValue(table, topPositionValue + offsetInPt, @namespace);
 		}
 
-		private static (decimal Left, decimal Top) GetElementPositionInPt(XElement element, string @namespace)
+		private static (double Left, double Top) GetElementPositionInPt(XElement element, string @namespace)
 		{
 			var leftValue = GetLeftPositionValue(element, @namespace);
 			var topValue = GetTopPositionValue(element, @namespace);
@@ -43,7 +43,7 @@ namespace Vodovoz.Reports.Editing.Providers
 			return (leftValue, topValue);
 		}
 
-		private static decimal GetLeftPositionValue(XElement element, string @namespace)
+		private static double GetLeftPositionValue(XElement element, string @namespace)
 		{
 			var positionElement = GetLeftPositionElement(element, @namespace);
 			var positionValue = GetPositionInPtElementValue(positionElement);
@@ -51,7 +51,7 @@ namespace Vodovoz.Reports.Editing.Providers
 			return positionValue;
 		}
 
-		private static decimal GetTopPositionValue(XElement element, string @namespace)
+		private static double GetTopPositionValue(XElement element, string @namespace)
 		{
 			var positionElement = GetTopPositionElement(element, @namespace);
 			var positionValue = GetPositionInPtElementValue(positionElement);
@@ -59,7 +59,7 @@ namespace Vodovoz.Reports.Editing.Providers
 			return positionValue;
 		}
 
-		private static decimal GetPositionInPtElementValue(XElement element)
+		private static double GetPositionInPtElementValue(XElement element)
 		{
 			if(element is null)
 			{
@@ -80,7 +80,7 @@ namespace Vodovoz.Reports.Editing.Providers
 				throw new InvalidOperationException(errorMessage);
 			}
 
-			if(!decimal.TryParse(postitonValue.Substring(0, postitonValue.Length - 2), out var value))
+			if(!double.TryParse(postitonValue.Substring(0, postitonValue.Length - 2), out var value))
 			{
 				throw new InvalidOperationException("Ошибка при парсинге числа в элементе позиции");
 			}
@@ -88,13 +88,13 @@ namespace Vodovoz.Reports.Editing.Providers
 			return value;
 		}
 
-		private static void SetElementLeftPositionValue(XElement element, string @namespace, decimal valueInPt)
+		private static void SetElementLeftPositionValue(XElement element, double valueInPt, string @namespace)
 		{
 			var leftPositionElement = GetLeftPositionElement(element, @namespace);
 			leftPositionElement.Value = $"{valueInPt}{_positionUnit}";
 		}
 
-		private static void SetElementTopPositionValue(XElement element, string @namespace, decimal valueInPt)
+		private static void SetElementTopPositionValue(XElement element, double valueInPt, string @namespace)
 		{
 			var topPositionElement = GetTopPositionElement(element, @namespace);
 			topPositionElement.Value = $"{valueInPt}{_positionUnit}";
@@ -102,12 +102,12 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		private static XElement GetLeftPositionElement(XElement element, string @namespace)
 		{
-			return CommonElementsExpressions.GetChildElement(element, @namespace, _leftPositionElementName);
+			return GetChildElement(element, _leftPositionElementName, @namespace);
 		}
 
 		private static XElement GetTopPositionElement(XElement element, string @namespace)
 		{
-			return CommonElementsExpressions.GetChildElement(element, @namespace, _topPositionElementName);
+			return GetChildElement(element, _topPositionElementName, @namespace);
 		}
 	}
 }

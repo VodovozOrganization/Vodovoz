@@ -31,26 +31,54 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		public static void InsertTable(this XContainer container, XElement table, string @namespace)
 		{
-			InsertElementIntoReportItems(container, table, @namespace);
+			InsertTableIntoReportItems(container, table, @namespace);
 		}
 
-		public static void RenameElement(this XContainer container, string oldName, string newName, string @namespace)
+		public static void RenameTable(this XContainer container, string oldName, string newName, string @namespace)
 		{
-			var element = CommonElementsExpressions.GetElementInContainerByName(container, oldName, @namespace);
+			var element = GetTable(container, oldName, @namespace);
 			element.Attribute("Name").Value = newName;
 		}
 
-		private static void InsertElementIntoReportItems(this XContainer container, XElement element, string @namespace)
+		private static void InsertTableIntoReportItems(this XContainer container, XElement table, string @namespace)
 		{
-			var elements = container.Descendants(XName.Get(element.Attribute("Name").Value, @namespace));
+			var newTableName = table.Attribute("Name").Value;
 
-			if(elements.Any())
+			var existingTable = container
+				.Descendants(XName.Get("Table", @namespace))
+				.Where(x => x.Attribute(XName.Get("Name")).Value == newTableName)
+				.FirstOrDefault();
+
+			if(!(existingTable is null))
 			{
-				throw new InvalidOperationException("В контейнере уже присутствует элемент с указанным именем!");
+				throw new InvalidOperationException("В контейнере уже присутствует таблица с указанным именем!");
 			}
 
 			var reportItem = container.Descendants(XName.Get("ReportItems", @namespace)).FirstOrDefault();
-			reportItem.Add(element);
+			reportItem.Add(table);
+		}
+
+		public static XElement GetChildElement(this XContainer container, string element, string @namespace)
+		{
+			if(container is null)
+			{
+				throw new ArgumentNullException(nameof(container));
+			}
+			var childElements = container.Elements(XName.Get(element, @namespace));
+
+			if(!childElements.Any())
+			{
+				var errorMessage = $"Элемент \"{element}\" не найден";
+				throw new InvalidOperationException(errorMessage);
+			}
+
+			if(childElements.Count() > 1)
+			{
+				var errorMessage = $"Найдено более одного элемента \"{element}\"";
+				throw new InvalidOperationException(errorMessage);
+			}
+
+			return childElements.First();
 		}
 
 		public static bool HasGrouping(this XContainer container, string groupName, string @namespace)

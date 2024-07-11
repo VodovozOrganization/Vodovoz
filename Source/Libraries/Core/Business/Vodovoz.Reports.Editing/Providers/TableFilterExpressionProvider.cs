@@ -11,11 +11,12 @@ namespace Vodovoz.Reports.Editing.Providers
 		{
 			var table = ElementProvider.GetTable(container, tableName, @namespace);
 
-			var filters = CommonElementsExpressions.GetChildElement(table, @namespace, _filtersElementName);
+			var filters = ElementProvider.GetChildElement(table, _filtersElementName, @namespace);
 
 			if(filters is null)
 			{
 				filters = new XElement(_filtersElementName);
+				table.Add(filters);
 			}
 
 			filters.Add(CreateFilterElement(expression, @operator, value));
@@ -33,7 +34,7 @@ namespace Vodovoz.Reports.Editing.Providers
 				operatorElement,
 				filterValuesElement);
 
-			return filterExpressionElement;
+			return filterElement;
 		}
 	}
 }
