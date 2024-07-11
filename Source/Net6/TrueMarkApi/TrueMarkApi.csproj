@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>5aa26059-d177-4fef-8deb-dbb3cb58cef7</UserSecretsId>
 	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	  <DockerfileContext>..\..\..\..</DockerfileContext>
+	  <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
 
@@ -36,21 +36,6 @@
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.0" />
+    <PackageReference Include="TrueMark.Contracts" Version="1.0.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="CryptoProCspLocalPackages\Nuget\packages\CryptoPro.Security.Cryptography.2024.4.17.nupkg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="CryptoProCspLocalPackages\Nuget\packages\CryptoPro.Security.Cryptography.Pkcs.2024.4.17.nupkg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-
 </Project>
