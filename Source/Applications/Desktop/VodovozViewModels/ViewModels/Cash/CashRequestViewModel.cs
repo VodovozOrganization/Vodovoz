@@ -407,6 +407,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => CanCancel);
 				OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
 				OnPropertyChanged(() => ExpenseCategoryVisibility);
+				OnPropertyChanged(() => CanAddSum);
 			}
 		}
 
@@ -499,7 +500,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			|| Entity.PayoutRequestState == PayoutRequestState.OnClarification
 			|| Entity.PayoutRequestState == PayoutRequestState.Submited
 			|| UserRole == PayoutRequestUserRole.Coordinator)
-			&& UserRole != PayoutRequestUserRole.SecurityService;
+			&& !IsSecurityServiceRole;
 
 		#endregion Permissions
 
