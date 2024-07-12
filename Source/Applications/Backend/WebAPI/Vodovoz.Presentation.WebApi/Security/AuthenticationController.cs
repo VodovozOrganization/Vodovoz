@@ -168,7 +168,7 @@ namespace Vodovoz.Presentation.WebApi.Security
 						.SendMessage(
 							externalApplicationUser.Token,
 							"Веселый водовоз",
-							"Ваша сессия для этого приложения была завершена.");
+							"Выполнен вход на другом устройстве");
 				}
 
 				externalApplicationUser.SessionKey = activeSessionKey;
