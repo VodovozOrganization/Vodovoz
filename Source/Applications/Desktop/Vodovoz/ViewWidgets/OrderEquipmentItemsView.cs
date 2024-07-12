@@ -151,6 +151,12 @@ namespace Vodovoz.ViewWidgets
 							case DirectionReason.RepairAndCleaning:
 								c.Text = "В ремонт и санобработку";
 								break;
+							case DirectionReason.TradeIn:
+								c.Text = "По акции \"Трейд-Ин\"";
+								break;
+							case DirectionReason.ClientGift:
+								c.Text = "Подарок от клиента";
+								break;
 							default:
 								break;
 						}
@@ -252,6 +258,12 @@ namespace Vodovoz.ViewWidgets
 							case DirectionReason.RepairAndCleaning:
 								c.Text = "В ремонт и санобработку";
 								break;
+							case DirectionReason.TradeIn:
+								c.Text = "По акции \"Трейд-Ин\"";
+								break;
+							case DirectionReason.ClientGift:
+								c.Text = "Подарок от клиента";
+								break;
 							default:
 								break;
 						}
@@ -283,10 +295,13 @@ namespace Vodovoz.ViewWidgets
 				case DirectionReason.None:
 					return true;
 				case DirectionReason.Rent:
+				case DirectionReason.TradeIn:
+				case DirectionReason.ClientGift:
 					return node.Direction == Domain.Orders.Direction.Deliver;
 				case DirectionReason.Repair:
 				case DirectionReason.Cleaning:
 				case DirectionReason.RepairAndCleaning:
+					return false;
 				default:
 					return false;
 			}

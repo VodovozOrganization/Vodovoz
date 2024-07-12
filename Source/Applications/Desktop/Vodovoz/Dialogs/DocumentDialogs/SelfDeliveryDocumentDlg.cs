@@ -198,6 +198,12 @@ namespace Vodovoz
 						case DirectionReason.RepairAndCleaning:
 							c.Text = "В ремонт и санобработку";
 							break;
+						case DirectionReason.TradeIn:
+							c.Text = "По акции \"Трейд-Ин\"";
+							break;
+						case DirectionReason.ClientGift:
+							c.Text = "Подарок от клиента";
+							break;
 						default:
 							break;
 					}
