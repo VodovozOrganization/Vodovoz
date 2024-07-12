@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -521,6 +521,8 @@ FROM
                                    WHEN order_equipment.direction_reason = 'Repair' THEN 'Ремонт'
                                    WHEN order_equipment.direction_reason = 'Cleaning' THEN 'Санобработка'
                                    WHEN order_equipment.direction_reason = 'RepairAndCleaning' THEN 'Ремонт и санобработка'
+                                   WHEN order_equipment.direction_reason = 'TradeIn' THEN 'Акция Трейд-Ин'
+                                   WHEN order_equipment.direction_reason = 'ClientGift' THEN 'Подарок клиента'
                                    ELSE ''
                                    END,
                                ', ',
@@ -547,6 +549,8 @@ FROM
                                    WHEN order_equipment.direction_reason = 'Repair' THEN 'Ремонт, '
                                    WHEN order_equipment.direction_reason = 'Cleaning' THEN 'Санобработка, '
                                    WHEN order_equipment.direction_reason = 'RepairAndCleaning' THEN 'Ремонт и санобработка, '
+                                   WHEN order_equipment.direction_reason = 'TradeIn' THEN 'Акция Трейд-Ин, '
+                                   WHEN order_equipment.direction_reason = 'ClientGift' THEN 'Подарок клиента, '
                                    ELSE ''
                                    END,
                                CASE
