@@ -235,7 +235,7 @@ namespace Vodovoz.Domain.Orders
 
 	public enum DirectionReason
 	{
-		[Display(Name = "None")]
+		[Display(Name = "")]
 		None,
 		[Display(Name = "Аренда")]
 		Rent,
