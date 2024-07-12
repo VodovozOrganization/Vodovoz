@@ -29,15 +29,12 @@ namespace CustomerOnlineOrdersRegistrar
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
-					{
-						logging.ClearProviders();
-						logging.AddNLog();
-						logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
-					});
-
 					services.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -55,8 +52,6 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddInfrastructure()
 						.AddCustomerOrdersApiLibrary()
 						.AddApplicationOrderServices()
-						.AddStaticScopeForEntity()
-						.AddStaticHistoryTracker()
 
 						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
 						
@@ -69,6 +64,9 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.ConfigureRabbitMq();
 						})
 						;
+
+					services.AddStaticScopeForEntity();
+					services.AddStaticHistoryTracker();
 				});
 	}
 }
