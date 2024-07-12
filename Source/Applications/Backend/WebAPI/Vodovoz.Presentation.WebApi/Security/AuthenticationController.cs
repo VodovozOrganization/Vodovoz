@@ -162,7 +162,7 @@ namespace Vodovoz.Presentation.WebApi.Security
 						&& _securityOptions.Value.Authorization.ApplicationUserTypes.Contains(eau.ExternalApplicationType))
 					.FirstOrDefault();
 
-				if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))
+				if(!string.IsNullOrWhiteSpace(externalApplicationUser?.Token))
 				{
 					await _firebaseCloudMessagingService
 						.SendMessage(
