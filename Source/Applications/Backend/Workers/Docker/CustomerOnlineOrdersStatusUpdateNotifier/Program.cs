@@ -28,15 +28,13 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
-						{
-							logging.ClearProviders();
-							logging.AddNLog();
-							logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
-						})
-
+					services
 						.ConfigureZabbixSender(nameof(OnlineOrdersStatusUpdatedNotifier))
 
 						.AddMappingAssemblies(
