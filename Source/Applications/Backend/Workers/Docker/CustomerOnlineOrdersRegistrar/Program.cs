@@ -6,6 +6,8 @@ using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
@@ -29,6 +31,13 @@ namespace CustomerOnlineOrdersRegistrar
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
+					services.AddLogging(logging =>
+					{
+						logging.ClearProviders();
+						logging.AddNLog();
+						logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
+					});
+
 					services.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
