@@ -31,12 +31,12 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		public static void InsertTable(this XContainer container, XElement table, string @namespace)
 		{
-			InsertTableIntoReportItems(container, table, @namespace);
+			container.InsertTableIntoReportItems(table, @namespace);
 		}
 
 		public static void RenameTable(this XContainer container, string oldName, string newName, string @namespace)
 		{
-			var element = GetTable(container, oldName, @namespace);
+			var element = container.GetTable(oldName, @namespace);
 			element.Attribute("Name").Value = newName;
 		}
 
@@ -79,6 +79,38 @@ namespace Vodovoz.Reports.Editing.Providers
 			}
 
 			return childElements.First();
+		}
+
+		public static XElement GetTextbox(this XContainer container, string elementNameAttributeValue, string @namespace)
+		{
+			return container.GetElement("Textbox", elementNameAttributeValue, @namespace);
+		}
+
+		public static XElement GetRectangle(this XContainer container, string elementNameAttributeValue, string @namespace)
+		{
+			return container.GetElement("Rectangle", elementNameAttributeValue, @namespace);
+		}
+
+		private static XElement GetElement(this XContainer container, string elementLocalName, string elementNameAttributeValue, string @namespace)
+		{
+			var elements = container.Descendants(XName.Get(elementLocalName, @namespace));
+			if(!elements.Any())
+			{
+				throw new InvalidOperationException($"В контейнере отсутствуют элементы \"{elementLocalName}\"");
+			}
+
+			var matchedElements = elements.Where(x => x.Attribute(XName.Get("Name")).Value == elementNameAttributeValue);
+			if(!matchedElements.Any())
+			{
+				throw new InvalidOperationException($"В контейнере отсутствуют элементы \"{elementLocalName}\" с именем {elementNameAttributeValue}");
+			}
+
+			if(matchedElements.Count() > 1)
+			{
+				throw new InvalidOperationException($"В контейнере присутствуют несколько элементов \"{elementLocalName}\" с именем {elementNameAttributeValue}");
+			}
+			var element = matchedElements.First();
+			return element;
 		}
 
 		public static bool HasGrouping(this XContainer container, string groupName, string @namespace)
@@ -153,28 +185,6 @@ namespace Vodovoz.Reports.Editing.Providers
 		public static IEnumerable<XElement> GetRowCells(this XContainer container, string @namespace)
 		{
 			return container.Descendants(XName.Get("TableCells", @namespace));
-		}
-
-		public static XElement GetTextbox(this XContainer container, string textBoxName, string @namespace)
-		{
-			var textBoxes = container.Descendants(XName.Get("Textbox", @namespace));
-			if(!textBoxes.Any())
-			{
-				throw new InvalidOperationException("В контейнере отсутствуют Textbox");
-			}
-
-			var matchedTextBoxes = textBoxes.Where(x => x.Attribute(XName.Get("Name")).Value == textBoxName);
-			if(!matchedTextBoxes.Any())
-			{
-				throw new InvalidOperationException($"В контейнере отсутствуют Textbox с именем {textBoxName}");
-			}
-
-			if(matchedTextBoxes.Count() > 1)
-			{
-				throw new InvalidOperationException($"В контейнере присутствуют несколько Textbox с именем {textBoxName}");
-			}
-			var textBox = matchedTextBoxes.First();
-			return textBox;
 		}
 
 		public static int GetTextBoxColumnIndex(this XContainer container, string textBoxName, string @namespace)

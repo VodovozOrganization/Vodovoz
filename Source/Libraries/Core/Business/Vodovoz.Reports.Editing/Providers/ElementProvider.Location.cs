@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Xml.Linq;
 
 namespace Vodovoz.Reports.Editing.Providers
@@ -12,7 +11,7 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		public static (double Left, double Top) GetTablePosition(this XContainer container, string tableName, string @namespace)
 		{
-			var table = GetTable(container, tableName, @namespace);
+			var table = container.GetTable(tableName, @namespace);
 
 			return GetElementPositionInPt(table, @namespace);
 		}
@@ -20,19 +19,35 @@ namespace Vodovoz.Reports.Editing.Providers
 		public static void SetTablePosition(this XContainer container, string tableName, string @namespace,
 			double leftPositionInPt, double topPositionInPt)
 		{
-			var element = GetTable(container, tableName, @namespace);
+			var element = container.GetTable(tableName, @namespace);
 
 			SetElementLeftPositionValue(element, leftPositionInPt, @namespace);
 			SetElementTopPositionValue(element, topPositionInPt, @namespace);
 		}
 
-		public static void MoveTableDown(this XContainer container, string elementName, string @namespace, double offsetInPt)
+		public static void MoveElementDown(this XContainer container, ElementType elementType,
+			string elementName, string @namespace, double offsetInPt)
 		{
-			var table = GetTable(container, elementName, @namespace);
+			XElement element;
 
-			var topPositionValue = GetTopPositionValue(table, @namespace);
+			switch(elementType)
+			{
+				case ElementType.Table:
+					element = container.GetTable(elementName, @namespace);
+					break;
+				case ElementType.Textbox:
+					element = container.GetTextbox(elementName, @namespace);
+					break;
+				case ElementType.Rectangle:
+					element = container.GetRectangle(elementName, @namespace);
+					break;
+				default:
+					throw new NotImplementedException("Неизвестный тип элемента");
+			}
 
-			SetElementTopPositionValue(table, topPositionValue + offsetInPt, @namespace);
+			var topPositionValue = GetTopPositionValue(element, @namespace);
+
+			SetElementTopPositionValue(element, topPositionValue + offsetInPt, @namespace);
 		}
 
 		private static (double Left, double Top) GetElementPositionInPt(XElement element, string @namespace)
@@ -102,12 +117,12 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		private static XElement GetLeftPositionElement(XElement element, string @namespace)
 		{
-			return GetChildElement(element, _leftPositionElementName, @namespace);
+			return element.GetChildElement(_leftPositionElementName, @namespace);
 		}
 
 		private static XElement GetTopPositionElement(XElement element, string @namespace)
 		{
-			return GetChildElement(element, _topPositionElementName, @namespace);
+			return element.GetChildElement(_topPositionElementName, @namespace);
 		}
 	}
 }

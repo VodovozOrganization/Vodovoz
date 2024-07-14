@@ -9,9 +9,9 @@ namespace Vodovoz.Reports.Editing.Providers
 		public static void AddTableFilter(this XContainer container, string tableName,
 			string expression, string @operator, string value, string @namespace)
 		{
-			var table = ElementProvider.GetTable(container, tableName, @namespace);
+			var table = container.GetTable(tableName, @namespace);
 
-			var filters = ElementProvider.GetChildElement(table, _filtersElementName, @namespace);
+			var filters = table.GetChildElement(_filtersElementName, @namespace);
 
 			if(filters is null)
 			{

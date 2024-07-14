@@ -21,6 +21,7 @@ namespace Vodovoz.PrintableDocuments.Store
 		private readonly Func<int, string, string> _qRPlacerFunc;
 		private int _copiesToPrint;
 		private string _printerName;
+		private IEnumerable<int> _separateTableOrderIds = new List<int>();
 
 		private WaterCarLoadDocumentRdl(
 			CarLoadDocument carLoadDocument,
@@ -46,6 +47,12 @@ namespace Vodovoz.PrintableDocuments.Store
 		{
 			get => _printerName;
 			set => SetField(ref _printerName, value);
+		}
+
+		public IEnumerable<int> SeparateTableOrderIds
+		{
+			get => _separateTableOrderIds;
+			set => SetField(ref _separateTableOrderIds, value);
 		}
 
 		public string Name => DocumentType.GetEnumDisplayName();
@@ -95,13 +102,14 @@ namespace Vodovoz.PrintableDocuments.Store
 		private ReportModifierBase GetReportModifier()
 		{
 			var modifier = new WaterCarLoadDocumentModifier();
-			modifier.Setup();
+			modifier.Setup(SeparateTableOrderIds);
 			return modifier;
 		}
 
 		public static WaterCarLoadDocumentRdl Create(
 			UserSettings userSettings,
 			CarLoadDocument carLoadDocument,
+			IEnumerable<int> separateTableOrderIds,
 			Func<int, string, string> qRPlacerFunc)
 		{
 			var document = new WaterCarLoadDocumentRdl(carLoadDocument, qRPlacerFunc);
@@ -113,6 +121,7 @@ namespace Vodovoz.PrintableDocuments.Store
 
 			document.CopiesToPrint = savedPrinterSettings is null ? 1 : savedPrinterSettings.NumberOfCopies;
 			document.PrinterName = savedPrinterSettings?.PrinterName;
+			document.SeparateTableOrderIds = separateTableOrderIds ?? new List<int>();
 
 			return document;
 		}
