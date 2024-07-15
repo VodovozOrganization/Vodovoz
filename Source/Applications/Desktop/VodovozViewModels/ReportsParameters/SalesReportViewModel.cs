@@ -21,6 +21,7 @@ using System.IO;
 using Vodovoz.Reports.Editing;
 using QS.DomainModel.Entity;
 using DateTimeHelpers;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
