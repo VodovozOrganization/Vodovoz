@@ -1,10 +1,10 @@
 ﻿using QS.DomainModel.UoW;
-using Vodovoz.Presentation.ViewModels.Common;
 
-namespace Vodovoz.ViewModels.Factories
+namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
 	public interface IIncludeExcludeSalesFilterFactory
 	{
 		IncludeExludeFiltersViewModel CreateSalesReportIncludeExcludeFilter(IUnitOfWork unitOfWork, bool userIsSalesRepresentative);
+		IncludeExludeFiltersViewModel CreateTurnoverOfWarehouseBalancesReportFilterViewModel(IUnitOfWork unitOfWork);
 	}
 }
