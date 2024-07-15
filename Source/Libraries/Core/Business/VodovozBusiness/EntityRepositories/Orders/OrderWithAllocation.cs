@@ -12,5 +12,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public decimal OrderSum { get; set; }
 		public decimal OrderAllocation { get; set; }
 		public bool IsMissingFromDocument { get; set; }
+		public string OrderClientName { get; set; }
+		public string OrderClientInn { get; set; }
 	}
 }
