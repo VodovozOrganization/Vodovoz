@@ -119,7 +119,9 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason
 					, true
-				).AddSetter((c, n) => {
+				)
+				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
@@ -161,7 +163,9 @@ namespace Vodovoz.ViewWidgets
 								break;
 						}
 					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+
+					c.UpdateComboList(n);
+				})
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
@@ -226,7 +230,9 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason,
 					true
-				).AddSetter((c, n) => {
+				)
+				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
@@ -268,7 +274,9 @@ namespace Vodovoz.ViewWidgets
 								break;
 						}
 					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+
+					c.UpdateComboList(n);
+				})
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
