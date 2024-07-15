@@ -129,12 +129,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string Counterparty =>
 			Entity.Counterparty is null
 				? "Клиент не указан"
-				: $"{ Entity.Counterparty.Name }";
+				: $"({ Entity.Counterparty.Id }) { Entity.Counterparty.Name }";
 
 		public string DeliveryPoint =>
 			Entity.DeliveryPoint is null
 				? "Точка доставки не указана"
-				: $"{ Entity.DeliveryPoint.CompiledAddress }";
+				: $"({ Entity.DeliveryPoint.Id }) { Entity.DeliveryPoint.CompiledAddress }";
 
 		public string DeliverySchedule =>
 			Entity.DeliverySchedule is null

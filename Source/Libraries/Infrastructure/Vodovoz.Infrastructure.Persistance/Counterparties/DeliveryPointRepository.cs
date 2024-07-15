@@ -175,6 +175,15 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return result;
 		}
 
+		public bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId)
+		{
+			var query = from deliveryPoint in uow.Session.Query<DeliveryPoint>()
+				where deliveryPoint.Id == deliveryPointId && deliveryPoint.Counterparty.Id == counterpartyId
+				select deliveryPoint.Id;
+
+			return query.Any();
+		}
+
 		private string GetBuildingNumber(string building)
 		{
 			string buildingNumber = string.Empty;

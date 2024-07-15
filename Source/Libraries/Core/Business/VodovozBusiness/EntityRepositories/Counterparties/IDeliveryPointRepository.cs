@@ -28,5 +28,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
 		IEnumerable<DeliveryPointForSendNode> GetDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId);
+		bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId);
 	}
 }

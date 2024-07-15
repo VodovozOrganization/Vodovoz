@@ -44,6 +44,16 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					validationResults.Add(Errors.Orders.OnlineOrder.IsEmptyCounterparty);
 				}
+				else
+				{
+					if(_onlineOrder.DeliveryPoint != null)
+					{
+						if()
+						{
+							validationResults.Add(Errors.Orders.OnlineOrder.DeliveryPointNotBelongCounterparty);
+						}
+					}
+				}
 				
 				if(_onlineOrder.DeliveryPoint is null)
 				{
