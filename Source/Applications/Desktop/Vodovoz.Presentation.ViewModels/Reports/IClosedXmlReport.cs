@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.ViewModels.Reports
+﻿namespace Vodovoz.Presentation.ViewModels.Reports
 {
 	public interface IClosedXmlReport
 	{
