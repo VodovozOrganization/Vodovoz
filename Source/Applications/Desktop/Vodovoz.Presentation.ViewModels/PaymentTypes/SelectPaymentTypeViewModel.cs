@@ -6,7 +6,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using ClientPaymentType = Vodovoz.Domain.Client.PaymentType;
 
-namespace Vodovoz.Presentation.ViewModels.PaymentType
+namespace Vodovoz.Presentation.ViewModels.PaymentTypes
 {
 	public partial class SelectPaymentTypeViewModel : WindowDialogViewModelBase
 	{
