@@ -9,8 +9,8 @@ using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Errors;
-using Vodovoz.ViewModels.Reports;
 using DateTimeHelpers;
+using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
