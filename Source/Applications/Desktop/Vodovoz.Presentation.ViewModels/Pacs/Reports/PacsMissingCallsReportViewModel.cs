@@ -3,7 +3,7 @@ using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
 
-namespace Vodovoz.Presentation.ViewModels.Reports.PACS
+namespace Vodovoz.Presentation.ViewModels.Pacs.Reports
 {
 	public class PacsMissingCallsReportViewModel : ReportParametersViewModelBase
 	{
