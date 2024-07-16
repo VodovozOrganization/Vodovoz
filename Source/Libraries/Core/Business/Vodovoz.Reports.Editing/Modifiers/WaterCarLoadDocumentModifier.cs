@@ -135,6 +135,11 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			actions.AddRange(CopyTableAndMoveDownActions(sourceTableName, newTableName, verticalOffset));
 
+			if(!copyFromTableWithoutQr)
+			{
+				actions.Add(SetTableHeaderHeightAction(newTableName, 140));
+			}
+
 			foreach(var orderId in orderIds)
 			{
 				actions.Add(AddOrderNotEqualTableFilterAction(newTableName, orderId.ToString()));
@@ -204,9 +209,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return new AddTableFilter(tableName, expression, @operator, value);
 		}
 
-		//private static ModifierAction SetTableHeaderAction(string tableName, string expression)
-		//{
-
-		//}
+		private static ModifierAction SetTableHeaderHeightAction(string tableName, double rowHeight)
+		{
+			return new SetTableHeaderRowHeight(tableName, rowHeight);
+		}
 	}
 }

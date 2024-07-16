@@ -112,13 +112,13 @@ namespace Vodovoz.Reports.Editing.Providers
 		private static void SetElementLeftPositionValue(XElement element, double valueInPt, string @namespace)
 		{
 			var leftPositionElement = GetLeftPositionElement(element, @namespace);
-			leftPositionElement.Value = $"{valueInPt}{_positionUnit}";
+			leftPositionElement.Value = $"{valueInPt.ToString("N2", CultureInfo.InvariantCulture)}{_positionUnit}";
 		}
 
 		private static void SetElementTopPositionValue(XElement element, double valueInPt, string @namespace)
 		{
 			var topPositionElement = GetTopPositionElement(element, @namespace);
-			topPositionElement.Value = $"{valueInPt}{_positionUnit}";
+			topPositionElement.Value = $"{valueInPt.ToString("N2", CultureInfo.InvariantCulture)}{_positionUnit}";
 		}
 
 		private static XElement GetLeftPositionElement(XElement element, string @namespace)
