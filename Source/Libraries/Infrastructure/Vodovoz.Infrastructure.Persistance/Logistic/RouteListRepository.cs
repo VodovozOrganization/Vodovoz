@@ -249,7 +249,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				{
 					x.NomenclatureId,
 					x.ExpireDatePercent,
-					x.OwnType
+					x.OwnType,
+					x.OrderId
 				}
 				).Select(list => new GoodsInRouteListResultWithSpecialRequirements()
 				{
@@ -257,7 +258,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					NomenclatureId = list.Key.NomenclatureId,
 					OwnType = list.Key.OwnType,
 					ExpireDatePercent = list.Key.ExpireDatePercent,
-					Amount = list.Sum(x => x.Amount)
+					Amount = list.Sum(x => x.Amount),
+					OrderId = list.Key.OrderId,
+					IsNeedIndividualSetOnLoad = list.FirstOrDefault().IsNeedIndividualSetOnLoad,
 				}
 				).ToList();
 		}
@@ -370,6 +373,16 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
+			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(() => orderAlias.Id == orderItemsAlias.Order.Id)
+				.Select(Projections.Conditional(
+					Restrictions.Conjunction()
+					.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
+					.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute)),
+					Projections.Constant(true),
+					Projections.Constant(false)));
+
 			var orderitemsQuery = uow.Session.QueryOver(() => orderItemsAlias)
 					.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 					.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
@@ -405,7 +418,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					)
 				).WithAlias(() => resultAlias.ExpireDatePercent)
 				.Select(() => orderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
+				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount)
+				.Select(() => orderAlias.Id).WithAlias( () => resultAlias.OrderId)
+				.SelectSubQuery(isNeedIndividualSetOnLoadSubquery).WithAlias(() => resultAlias.IsNeedIndividualSetOnLoad))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
 		}

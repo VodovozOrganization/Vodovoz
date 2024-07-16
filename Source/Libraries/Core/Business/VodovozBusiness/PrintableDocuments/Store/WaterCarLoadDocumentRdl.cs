@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
@@ -17,11 +18,16 @@ namespace Vodovoz.PrintableDocuments.Store
 	{
 		public const string DocumentRdlPath = "Reports/Store/CarLoadDocument.rdl";
 
+		private const int _vol19LBottlesOnTrayCount = 48;
+		private const int _vol6LBottlesOnTrayCount = 10;
+		private const int _vol1500mlBottlesOnTrayCount = 30;
+		private const int _vol500mlBottlesOnTrayCount = 60;
+		private const int _traysOnPallet = 3;
+
 		private readonly CarLoadDocument _carLoadDocument;
 		private readonly Func<int, string, string> _qRPlacerFunc;
 		private int _copiesToPrint;
 		private string _printerName;
-		private IEnumerable<int> _separateTableOrderIds = new List<int>();
 
 		private WaterCarLoadDocumentRdl(
 			CarLoadDocument carLoadDocument,
@@ -47,12 +53,6 @@ namespace Vodovoz.PrintableDocuments.Store
 		{
 			get => _printerName;
 			set => SetField(ref _printerName, value);
-		}
-
-		public IEnumerable<int> SeparateTableOrderIds
-		{
-			get => _separateTableOrderIds;
-			set => SetField(ref _separateTableOrderIds, value);
 		}
 
 		public string Name => DocumentType.GetEnumDisplayName();
@@ -102,14 +102,52 @@ namespace Vodovoz.PrintableDocuments.Store
 		private ReportModifierBase GetReportModifier()
 		{
 			var modifier = new WaterCarLoadDocumentModifier();
-			modifier.Setup(SeparateTableOrderIds, 6);
+			var tearOffCouponsCount = GetTearOffCouponsCount();
+
+			modifier.Setup(SeparateTableOrderIds, tearOffCouponsCount);
+
 			return modifier;
 		}
+
+		private IEnumerable<int> SeparateTableOrderIds =>
+			_carLoadDocument.Items
+			.Where(item => item.OrderId.HasValue && item.IsIndividualSetForOrder)
+			.Select(item => item.OrderId.Value)
+			.Distinct()
+			.ToList();
+
+		private int GetTearOffCouponsCount()
+		{
+			var vol19LBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol19L);
+			var vol6LBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol6L);
+			var vol1500mlBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol1500ml);
+			var vol500mlBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol500ml);
+
+			var traysCount =
+				Math.Ceiling(vol19LBottlesCount / _vol19LBottlesOnTrayCount) +
+				Math.Ceiling(vol6LBottlesCount / _vol6LBottlesOnTrayCount) +
+				Math.Ceiling(vol1500mlBottlesCount / _vol1500mlBottlesOnTrayCount) +
+				Math.Ceiling(vol500mlBottlesCount / _vol500mlBottlesOnTrayCount);
+
+			var palletsCount = Math.Ceiling(traysCount / _traysOnPallet);
+
+			var couponsCount = (int)(traysCount + palletsCount);
+
+			return couponsCount;
+		}
+
+		private decimal GetWaterBottlesCountByTareVolume(TareVolume tareVolume) =>
+			_carLoadDocument.Items
+			.Where(item =>
+				item.Nomenclature.Category == NomenclatureCategory.water
+				&& item.Nomenclature.TareVolume.HasValue
+				&& item.Nomenclature.TareVolume.Value == tareVolume)
+			.Select(item => item.Amount)
+			.Sum();
 
 		public static WaterCarLoadDocumentRdl Create(
 			UserSettings userSettings,
 			CarLoadDocument carLoadDocument,
-			IEnumerable<int> separateTableOrderIds,
 			Func<int, string, string> qRPlacerFunc)
 		{
 			var document = new WaterCarLoadDocumentRdl(carLoadDocument, qRPlacerFunc);
@@ -121,7 +159,6 @@ namespace Vodovoz.PrintableDocuments.Store
 
 			document.CopiesToPrint = savedPrinterSettings is null ? 1 : savedPrinterSettings.NumberOfCopies;
 			document.PrinterName = savedPrinterSettings?.PrinterName;
-			document.SeparateTableOrderIds = separateTableOrderIds ?? new List<int>();
 
 			return document;
 		}

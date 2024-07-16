@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace Vodovoz.Reports.Editing.Providers
@@ -95,7 +96,12 @@ namespace Vodovoz.Reports.Editing.Providers
 				throw new InvalidOperationException(errorMessage);
 			}
 
-			if(!double.TryParse(postitonValue.Substring(0, postitonValue.Length - 2), out var value))
+			var numberFormat = new NumberFormatInfo
+			{
+				NumberDecimalSeparator = "."
+			};
+
+			if(!double.TryParse(postitonValue.Substring(0, postitonValue.Length - 2), NumberStyles.Any, numberFormat, out var value))
 			{
 				throw new InvalidOperationException("Ошибка при парсинге числа в элементе позиции");
 			}

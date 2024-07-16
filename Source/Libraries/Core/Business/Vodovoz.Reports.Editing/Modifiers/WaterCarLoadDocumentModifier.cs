@@ -52,12 +52,12 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				counter++;
 			}
 
+			var offsetForNextElements = counter * _dataTableHeightInPt;
+
+			actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataTableName}_qr_common", offsetForNextElements));
+
 			if(counter > 0)
 			{
-				var offsetForNextElements = counter * _dataTableHeightInPt;
-
-				actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataTableName}_qr_common", offsetForNextElements));
-
 				actions.Add(MoveTextboxDownAction(_loadEndTextboxName, offsetForNextElements));
 				actions.Add(MoveRectangleDownAction(_loadEndQrRectangleName, offsetForNextElements));
 				actions.Add(MoveTableDownAction(_tearOffCouponTableName, offsetForNextElements));
@@ -113,12 +113,12 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				counter++;
 			}
 
+			var offsetForNextElements = counter * _dataWithoutQrTableHeightInPt;
+
+			actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataWithoutQrTableName}_common", offsetForNextElements, true));
+
 			if(counter > 0)
 			{
-				var offsetForNextElements = counter * _dataWithoutQrTableHeightInPt;
-
-				actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataWithoutQrTableName}_common", offsetForNextElements, true));
-
 				actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
 				actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
 			}

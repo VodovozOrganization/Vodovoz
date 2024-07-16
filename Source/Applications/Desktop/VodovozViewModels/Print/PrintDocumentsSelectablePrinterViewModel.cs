@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.Print
 
 			_carLoadDocument = carLoadDocument;
 
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, new List<int> { 2954625, 2954626 }, CarLoadDocumentPlaseEventsQr);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, CarLoadDocumentPlaseEventsQr);
 			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
 
 			DocumentsToPrint.Add(waterCarLoadDocument);

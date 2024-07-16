@@ -106,7 +106,9 @@ namespace Vodovoz.Domain.Documents
 						OwnType = inRoute.OwnType,
 						ExpireDatePercent = inRoute.ExpireDatePercent,
 						AmountInRouteList = inRoute.Amount,
-						Amount = inRoute.Amount
+						Amount = inRoute.Amount,
+						OrderId = inRoute.OrderId,
+						IsIndividualSetForOrder = inRoute.IsNeedIndividualSetOnLoad
 					}
 				);
 			}
