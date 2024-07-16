@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library;
@@ -50,7 +50,6 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
 						.AddInfrastructure()
-						.AddCustomerOrdersApiLibrary()
 						.AddDependenciesGroup()
 						.AddApplicationOrderServices()
 
@@ -64,10 +63,9 @@ namespace CustomerOnlineOrdersRegistrar
 
 							busConf.ConfigureRabbitMq();
 						})
-						;
 
-					services.AddStaticScopeForEntity();
-					services.AddStaticHistoryTracker();
+						.AddStaticScopeForEntity()
+						.AddStaticHistoryTracker();
 				});
 	}
 }

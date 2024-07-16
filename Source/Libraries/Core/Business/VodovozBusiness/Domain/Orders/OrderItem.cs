@@ -134,6 +134,8 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
+
 		public virtual void UpdateRentCount(int rentCount)
 		{
 			if(RentCount == rentCount)

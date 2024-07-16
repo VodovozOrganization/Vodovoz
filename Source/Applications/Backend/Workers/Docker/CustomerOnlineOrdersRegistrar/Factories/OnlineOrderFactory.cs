@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
 using QS.DomainModel.UoW;
@@ -19,7 +19,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 			{
 				Source = orderInfoDto.Source,
 				CounterpartyId = orderInfoDto.CounterpartyErpId,
-				ExternalOrderId = orderInfoDto.ExternalOrderId,
 				ExternalCounterpartyId = orderInfoDto.ExternalCounterpartyId,
 				ExternalOrderId = orderInfoDto.ExternalOrderId,
 				DeliveryPointId = orderInfoDto.DeliveryPointId,

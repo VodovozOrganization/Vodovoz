@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Dialog.Gtk;
 using QS.Project.Search;
@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core;
-using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Commons
 {
@@ -38,14 +37,6 @@ namespace Vodovoz.Commons
 			_viewModelsTypesList = GetViewModels();
 		}
 		
-		public void RegisterViews()
-		{
-			ViewModelWidgetResolver.Instance = _viewModelWidgetResolver;
-			DialogHelper.FilterWidgetResolver = _viewModelWidgetResolver;
-			
-			_viewModelWidgetResolver.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
-				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>();
-
 		public void RegisterateWidgets(params Assembly[] assemblies)
 		{
 			ViewModelWidgetResolver.Instance = _viewModelWidgetResolver;

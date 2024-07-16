@@ -55,7 +55,6 @@ namespace CustomerOrdersApi
 				.AddMemoryCache()
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
-				//.AddCustomerOrdersApiLibrary()
 				.AddHttpClient();
 		}
 

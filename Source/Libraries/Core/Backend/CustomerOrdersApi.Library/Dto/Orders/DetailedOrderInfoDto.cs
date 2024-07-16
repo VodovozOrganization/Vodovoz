@@ -55,7 +55,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 			IsRatingAvailable = false;
 		}
 		
-		public void UpdateOrderItems(IEnumerable<Product> orderItems)
+		public void UpdateOrderItems(IEnumerable<IProduct> orderItems)
 		{
 			OrderItems = orderItems
 				.Where(x => x.PromoSet == null)
@@ -71,7 +71,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 			UpdatePromoSets(orderItems);
 		}
 
-		private void UpdatePromoSets(IEnumerable<Product> orderItems)
+		private void UpdatePromoSets(IEnumerable<IProduct> orderItems)
 		{
 			var promoSetsGroup = orderItems
 				.Where(x => x.PromoSet != null)
