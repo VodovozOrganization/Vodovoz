@@ -52,10 +52,16 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(_onlineOrder.DeliveryPoint != null)
 					{
-						if(!_clientDeliveryPointsChecker.ClientDeliveryPointExists(_onlineOrder.Counterparty.Id, _onlineOrder.DeliveryPoint.Id))
+						var result =
+							_clientDeliveryPointsChecker.ClientDeliveryPointExists(
+								_onlineOrder.Counterparty.Id, _onlineOrder.DeliveryPoint.Id);
+						
+						if(!result)
 						{
 							validationResults.Add(Errors.Orders.OnlineOrder.DeliveryPointNotBelongCounterparty);
 						}
+						
+						_onlineOrder.SetDeliveryPointNotBelongCounterparty(!result);
 					}
 				}
 				

@@ -99,10 +99,10 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.Counterparty, w => w.LabelProp)
 				.InitializeFromSource();
 
-			/*lblDeliveryPoint.Selectable = true;
-			lblDeliveryPoint.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPoint, w => w.LabelProp)
-				.InitializeFromSource();*/
+			entryDeliveryPoint.ViewModel = ViewModel.DeliveryPointViewModel;
+			entryDeliveryPoint.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryPoint, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			chkIsSelfDelivery.Sensitive = false;
 			chkIsSelfDelivery.Binding
