@@ -6,6 +6,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -14,18 +15,21 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IGoodsPriceCalculator _priceCalculator;
 		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			IClientDeliveryPointsChecker clientDeliveryPointsChecker)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_clientDeliveryPointsChecker = clientDeliveryPointsChecker ?? throw new ArgumentNullException(nameof(clientDeliveryPointsChecker));
 		}
-		
+
 		public Result ValidateOnlineOrder(OnlineOrder onlineOrder)
 		{
 			_onlineOrder = onlineOrder;
@@ -48,7 +52,7 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(_onlineOrder.DeliveryPoint != null)
 					{
-						if()
+						if(!_clientDeliveryPointsChecker.ClientDeliveryPointExists(_onlineOrder.Counterparty.Id, _onlineOrder.DeliveryPoint.Id))
 						{
 							validationResults.Add(Errors.Orders.OnlineOrder.DeliveryPointNotBelongCounterparty);
 						}
