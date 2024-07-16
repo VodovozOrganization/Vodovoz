@@ -17,6 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.CounterpartyId).Column("first_counterparty_id");
 			Map(x => x.ExternalOrderId).Column("external_online_order_id");
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
+			Map(x => x.ExternalOrderId).Column("external_online_order_id");
 			Map(x => x.DeliveryPointId).Column("first_delivery_point_id");
 			Map(x => x.IsSelfDelivery).Column("is_self_delivery");
 			Map(x => x.SelfDeliveryGeoGroupId).Column("first_self_delivery_geo_group_id");
@@ -36,6 +37,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.BottlesReturn).Column("bottles_return");
 			Map(x => x.OnlineOrderSum).Column("online_order_sum");
 			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
+			Map(x => x.DontArriveBeforeInterval).Column("dont_arrive_before_interval");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

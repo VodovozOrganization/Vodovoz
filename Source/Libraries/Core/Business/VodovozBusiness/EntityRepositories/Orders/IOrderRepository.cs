@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,10 +8,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Settings;
+using Vodovoz.Domain.Payments;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -106,7 +106,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
 		QueryOver<Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, Order orderBaseAlias = null, bool excludeTrucks = false);
-		
+
 		IList<Order> GetOrdersToExport1c8(IUnitOfWork uow, IOrderSettings orderSettings, Export1cMode mode, DateTime startDate, DateTime endDate, int? organizationId = null);
 
 		QueryOver<Order> GetSelfDeliveryOrdersForPaymentQuery();
@@ -128,7 +128,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
-
+		decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId);
+		decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
+		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
@@ -147,27 +149,28 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
-		IList<Order> GetCashlessOrdersForEdoSendUpd(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		IEnumerable<Order> GetCashlessOrdersForEdoSendUpd(
+			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
-		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
+		IEnumerable<Payment> GetOrderPayments(IUnitOfWork uow, int orderId);
+		IList<Order> GetOrdersForTrueMark(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);
 		IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId);
-		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
+		IList<TrueMarkCancellationDto> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		IEnumerable<OrderDto> GetCounterpartyOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-	}
-
-	public class ClientEquipmentNode
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public string ShortName { get; set; }
-		public int Count { get; set; }
+		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
+		OrderStatus[] GetStatusesForFreeBalanceOperations();
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
+		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
+		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
+		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private bool _orderCreatingState;
+		private bool _canCancelAnyOnlineOrder;
 
 		public OnlineOrderViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -56,11 +57,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
+			SetPermissions();
 			CreateCommands();
 			CreatePropertyChangeRelations();
 			GetOnlineOrderItems();
 			ConfigureEntryViewModels();
-			ValidateOnlineOrder();
+			TryValidateOnlineOrder();
 		}
 
 		public DelegateCommand GetToWorkCommand { get; private set; }
@@ -71,23 +73,17 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
 
-		private void CreateCommands()
-		{
-			CreateGetToWorkCommand();
-			CreateCancelOnlineOrderCommand();
-			CreateOpenExternalCounterpartyMatchingCommand();
-		}
-
 		public bool CanShowId => Entity.Id > 0;
 
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
 		public bool CanGetToWork => Entity.EmployeeWorkWith is null;
+
 		public bool CanCreateOrder =>
-			OrderIsNullAndOnlineOrderNotCanceledStatus
-				&& Entity.EmployeeWorkWith != null
-				&& Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
+			OrderIsNullAndOnlineOrderNotCanceledStatus && CurrentEmployeeIsEmployeeWorkWith;
 		public bool CanCancelOnlineOrder =>
-			OrderIsNullAndOnlineOrderNotCanceledStatus && !_orderCreatingState;
+			OrderIsNullAndOnlineOrderNotCanceledStatus
+			&& !_orderCreatingState
+			&& (CurrentEmployeeIsEmployeeWorkWith || _canCancelAnyOnlineOrder);
 		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
@@ -99,7 +95,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowPromoItems => OnlineOrderPromoItems.Any();
 		public bool CanShowRentPackages => OnlineRentPackages.Any();
 		public bool CanShowCancellationReason => Entity.OnlineOrderCancellationReason != null;
-		public bool CanOpenExternalCounterpartyMatching => HasEmptyCounterpartyAndNotNullDataForMatching;
+		public bool CanOpenExternalCounterpartyMatching =>
+			HasEmptyCounterpartyAndNotNullDataForMatching && CurrentEmployeeIsEmployeeWorkWith;
 		public bool HasEmptyCounterpartyAndNotNullDataForMatching =>
 			Entity.Counterparty is null
 			&& Entity.ExternalCounterpartyId.HasValue
@@ -142,7 +139,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string DeliverySchedule =>
 			Entity.DeliverySchedule is null
 				? "Время доставки не указано"
-				: $"{ Entity.DeliverySchedule.DeliveryTime }";
+				: $"{ Entity.DeliverySchedule.Name }";
 
 		public string SelfDeliveryGeoGroup =>
 			Entity.SelfDeliveryGeoGroup is null
@@ -158,6 +155,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Entity.Trifle is null
 				? "Сдача с не указана"
 				: Entity.Trifle.ToString();
+		
+		public string CallBeforeArrivalMinutes =>
+			!Entity.CallBeforeArrivalMinutes.HasValue
+				? "Не нужен"
+				: $"{ Entity.CallBeforeArrivalMinutes }мин.";
 
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();
@@ -169,6 +171,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string ValidationErrors { get; private set; }
 		
 		public IEntityEntryViewModel CancellationReasonViewModel { get; private set; }
+		
+		private bool CurrentEmployeeIsEmployeeWorkWith =>
+			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
 			Entity.Order is null && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
 		
@@ -178,6 +183,21 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public void ShowMessage(string message, string title = null)
 		{
 			ShowInfoMessage(message, title);
+		}
+		
+		private void SetPermissions()
+		{
+			var permissionService = CommonServices.PermissionService;
+			
+			_canCancelAnyOnlineOrder =
+				permissionService.ValidateUserPresetPermission(Vodovoz.Permissions.OnlineOrder.CanCancelAnyOnlineOrder, CurrentUser.Id);
+		}
+		
+		private void CreateCommands()
+		{
+			CreateGetToWorkCommand();
+			CreateCancelOnlineOrderCommand();
+			CreateOpenExternalCounterpartyMatchingCommand();
 		}
 
 		private void CreateGetToWorkCommand()
@@ -269,6 +289,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 								});
 						}
 					}
+					else
+					{
+						ShowMessage("Не найден запрос на ручное сопоставление клиента из внешних источников");
+					}
 				});
 		}
 
@@ -282,8 +306,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			SetPropertyChangeRelation(
 				e => e.EmployeeWorkWith,
 				() => CanShowEmployeeWorkWith,
+				() => CanGetToWork,
 				() => CanCreateOrder,
-				() => EmployeeWorkWith);
+				() => CanCancelOnlineOrder,
+				() => EmployeeWorkWith,
+				() => CanOpenExternalCounterpartyMatching);
 			
 			SetPropertyChangeRelation(
 				e => e.Counterparty,
@@ -333,8 +360,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				.Finish();
 		}
 		
-		private void ValidateOnlineOrder()
+		private void TryValidateOnlineOrder()
 		{
+			if(Entity.OnlineOrderStatus != OnlineOrderStatus.New)
+			{
+				return;
+			}
+			
 			var result = _onlineOrderValidator.ValidateOnlineOrder(Entity);
 
 			if(result.IsFailure)

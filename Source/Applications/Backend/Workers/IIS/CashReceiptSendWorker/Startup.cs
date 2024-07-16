@@ -12,6 +12,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
@@ -51,11 +52,11 @@ namespace CashReceiptSendWorker
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 
@@ -67,10 +68,6 @@ namespace CashReceiptSendWorker
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-
-			builder.RegisterType<CashReceiptRepository>()
-				.As<ICashReceiptRepository>()
-				.InstancePerDependency();
 
 			builder.RegisterType<CashReceiptsSender>()
 				.AsSelf()
@@ -94,12 +91,6 @@ namespace CashReceiptSendWorker
 
 			builder.RegisterType<EmailService>()
 				.As<IEmailService>();
-
-			builder.RegisterType<EmailRepository>()
-				.As<IEmailRepository>();
-
-			builder.RegisterType<OrderRepository>()
-				.As<IOrderRepository>();
 
 			builder.RegisterType<FiscalDocumentRefresher>()
 				.AsSelf()

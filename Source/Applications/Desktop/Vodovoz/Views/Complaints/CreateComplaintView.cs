@@ -28,13 +28,19 @@ namespace Vodovoz.Views.Complaints
 			InitializeEntryViewModels();
 
 			spLstComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
-			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
-			spLstComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
+			spLstComplaintKind.Binding
+				.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEditComplaintClassification, w => w.Sensitive)
+				.InitializeFromSource();
+
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
-				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+				.AddBinding(vm => vm.ComplaintObject, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEditComplaintClassification, w => w.Sensitive)
+				.InitializeFromSource();
 
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
 using QS.DomainModel.UoW;
@@ -13,7 +13,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 {
 	public class OnlineOrderFactory : IOnlineOrderFactory
 	{
-		public OnlineOrder CreateOnlineOrder(IUnitOfWork uow, OnlineOrderInfoDto orderInfoDto)
+		public OnlineOrder CreateOnlineOrder(IUnitOfWork uow, OnlineOrderInfoDto orderInfoDto, int fastDeliveryScheduleId)
 		{
 			var onlineOrder = new OnlineOrder
 			{
@@ -21,9 +21,9 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				CounterpartyId = orderInfoDto.CounterpartyErpId,
 				ExternalOrderId = orderInfoDto.ExternalOrderId,
 				ExternalCounterpartyId = orderInfoDto.ExternalCounterpartyId,
+				ExternalOrderId = orderInfoDto.ExternalOrderId,
 				DeliveryPointId = orderInfoDto.DeliveryPointId,
 				DeliveryDate = orderInfoDto.DeliveryDate,
-				DeliveryScheduleId = orderInfoDto.DeliveryScheduleId,
 				CallBeforeArrivalMinutes = orderInfoDto.CallBeforeArrivalMinutes,
 				SelfDeliveryGeoGroupId = orderInfoDto.SelfDeliveryGeoGroupId,
 				IsSelfDelivery = orderInfoDto.IsSelfDelivery,
@@ -38,8 +38,11 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				OnlineOrderPaymentStatus = orderInfoDto.OnlineOrderPaymentStatus,
 				OnlinePaymentSource = orderInfoDto.OnlinePaymentSource,
 				OnlinePayment = orderInfoDto.OnlinePayment,
-				OnlineOrderSum = orderInfoDto.OrderSum
+				OnlineOrderSum = orderInfoDto.OrderSum,
+				DontArriveBeforeInterval = orderInfoDto.DontArriveBeforeInterval
 			};
+
+			onlineOrder.DeliveryScheduleId = onlineOrder.IsFastDelivery ? fastDeliveryScheduleId : orderInfoDto.DeliveryScheduleId;
 
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
 			AddOrderItems(uow, onlineOrder, orderInfoDto.OnlineOrderItems);

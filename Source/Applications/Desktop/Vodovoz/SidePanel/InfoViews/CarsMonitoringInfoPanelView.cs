@@ -4,7 +4,6 @@ using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Services;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -16,6 +15,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -36,7 +36,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INavigationManager _navigationManager;
 		private FilterOrdersEnum _filterOrders;
-		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
 		private IInfoProvider _infoProvider;
 
@@ -44,15 +43,23 @@ namespace Vodovoz.SidePanel.InfoViews
 		private TimeoutHandler _timeoutTimerHandler;
 		private uint _timerId;
 
+		private readonly FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
+
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			IGeneralSettings generalSettings)
 			: base()
 		{
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			if(generalSettings is null)
+			{
+				throw new ArgumentNullException(nameof(generalSettings));
 			}
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Панель мониторинга автомобилей");
@@ -87,6 +94,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddBinding(this, v => v.IsFastDeliveryOnly, w => w.Active)
 				.InitializeFromSource();
 
+			_fastDeliveryIntervalFrom = generalSettings.FastDeliveryIntervalFrom;
+
 			foreach(RadioButton button in yrbtnFilterOrdersAll.Group)
 			{
 				button.Active =
@@ -100,22 +109,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				}
 
 				button.Toggled += FilterOrdersGroupSelectionChanged;
-			}
-
-			foreach(RadioButton button in yrbtnFastDeliveryIntervalFromOrderCreated.Group)
-			{
-				button.Active =
-					button.Name == _radioButtonPrefix +
-						_groupFastDeliveryIntervalFromPrefix +
-						Enum.GetName(typeof(FastDeliveryIntervalFromEnum), FastDeliveryIntervalFrom);
-
-				if(button.Active)
-				{
-					FastDeliveryIntervalFromSelectionChanged(button, EventArgs.Empty);
-				}
-
-				button.Toggled += FastDeliveryIntervalFromSelectionChanged;
-			}
+			}			
 
 			_timeoutTimerHandler = new TimeoutHandler(RefreshNodesTimerHandler);
 			StartTimer(_timeoutTimerHandler);
@@ -152,18 +146,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			return true;
 		}
 
-		private void FastDeliveryIntervalFromSelectionChanged(object sender, EventArgs empty)
-		{
-			if(sender is RadioButton rbtn && rbtn.Active)
-			{
-				var trimmedName = rbtn.Name
-					.Replace(_radioButtonPrefix, string.Empty)
-					.Replace(_groupFastDeliveryIntervalFromPrefix, string.Empty);
-
-				FastDeliveryIntervalFrom = (FastDeliveryIntervalFromEnum)Enum.Parse(typeof(FastDeliveryIntervalFromEnum), trimmedName);
-			}
-		}
-
 		private void FilterOrdersGroupSelectionChanged(object sender, EventArgs e)
 		{
 			if(sender is RadioButton rbtn && rbtn.Active)
@@ -179,8 +161,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SetDefaults()
 		{
 			IsFastDeliveryOnly = true;
-			FilterOrders = FilterOrdersEnum.WithFastDelivery;
-			FastDeliveryIntervalFrom = FastDeliveryIntervalFromEnum.AddedInFirstRouteList;
+			FilterOrders = FilterOrdersEnum.WithFastDelivery;			
 		}
 
 		public FilterOrdersEnum FilterOrders
@@ -209,18 +190,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 		}
 
-		public FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom
-		{
-			get => _fastDeliveryIntervalFrom;
-			set
-			{
-				if(_fastDeliveryIntervalFrom != value)
-				{
-					_fastDeliveryIntervalFrom = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FastDeliveryIntervalFrom)));
-				}
-			}
-		}
+
 
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
@@ -277,13 +247,13 @@ namespace Vodovoz.SidePanel.InfoViews
 								$"{driver.Patronymic.Substring(0, 1)}."
 							 let isFastDeliveryString = o.IsFastDelivery ? "Доставка за час" : string.Empty
 							 let deliveryBefore = o.IsFastDelivery
-								? FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
-									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList ?
+								? _fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
+									_fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList ?
 										(from rlaFirst in _unitOfWork.Session.Query<RouteListItem>()
 										 where rlaFirst.Order.Id == o.Id
 										 orderby rlaFirst.CreationDate ascending
 										 select rlaFirst.CreationDate).First().Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
-									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
+									_fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
 								: rl.Date.Add(schedule.To)
 							 let address = $"{dp.Street} {dp.Building}{dp.Letter}"
 							 select new DataNode
@@ -391,13 +361,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			All,
 			WithFastDelivery,
 			WithoutFastDelivery
-		}
-
-		public enum FastDeliveryIntervalFromEnum
-		{
-			OrderCreated,
-			AddedInFirstRouteList,
-			RouteListItemTransfered
 		}
 	}
 }

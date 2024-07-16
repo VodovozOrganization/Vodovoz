@@ -12,6 +12,7 @@ using QS.HistoryLog;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Autofac.Extensions.DependencyInjection;
 using QS.Services;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace EmailStatusUpdateWorker
 {
@@ -41,11 +42,11 @@ namespace EmailStatusUpdateWorker
 						typeof(QS.HistoryLog.HistoryMain).Assembly,
 						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 						typeof(QS.Attachments.Domain.Attachment).Assembly,
-						typeof(EmployeeWithLoginMap).Assembly,
-						typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+						typeof(EmployeeWithLoginMap).Assembly
 					);
 					services.AddDatabaseConnection();
-					services.AddCore();
+					services.AddCore()
+						.AddInfrastructure();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
@@ -62,8 +63,6 @@ namespace EmailStatusUpdateWorker
 						channel.BasicQos(0, 1, false);
 						return channel;
 					});
-
-					services.AddTransient<IEmailRepository, EmailRepository>();
 
 					services.AddHostedService<EmailStatusUpdateWorker>();
 				});

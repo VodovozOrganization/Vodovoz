@@ -28,11 +28,39 @@ namespace Vodovoz.Permissions
 			public static string CanChangeCarsBottlesFromAddress => "can_change_cars_bottles_from_address";
 
 			/// <summary>
+			/// Изменение принадлежности в автомобиле
+			/// </summary>
+			[Display(
+				Name = "Изменение принадлежности в автомобиле")]
+			public static string CanChangeCarVersion => "can_change_car_version";
+
+			/// <summary>
+			/// Изменение даты старой версии в автомобиле
+			/// </summary>
+			[Display(
+				Name = "Изменение даты старой версии в автомобиле")]
+			public static string CanChangeCarVersionDate => "can_change_car_version_date";
+
+			/// <summary>
 			/// Доступ к отчету "Отчет о принадлежности ТС"
 			/// </summary>
 			[Display(
 				Name = "Доступ к отчету \"Отчет о принадлежности ТС\"")]
 			public static string HasAccessToCarOwnershipReport => "has_access_to_car_ownership_report";
+
+			/// <summary>
+			/// Доступ к настройке уведомления о приближающемся ТО
+			/// </summary>
+			[Display(
+				Name = "Доступ к настройке уведомления о приближающемся ТО")]
+			public static string CanEditTechInspectSetting => nameof(CanEditTechInspectSetting);
+
+			/// <summary>
+			/// Доступ к настройке уведомления о приближающейся страховке
+			/// </summary>
+			[Display(
+				Name = "Доступ к настройке уведомления о приближающейся страховке")]
+			public static string CanEditInsuranceNotificationsSettings => "can_edit_insurance_notifications_settings";
 		}
 	}
 }

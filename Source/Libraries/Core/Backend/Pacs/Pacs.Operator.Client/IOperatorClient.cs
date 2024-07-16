@@ -11,7 +11,7 @@ namespace Pacs.Operators.Client
 		int? OperatorId { get; }
 
 		event EventHandler<OperatorStateEvent> StateChanged;
-		Task<GlobalBreakAvailability> GetGlobalBreakAvailability();
+		Task<GlobalBreakAvailabilityEvent> GetGlobalBreakAvailability();
 		Task<OperatorsOnBreakEvent> GetOperatorsOnBreak();
 
 		Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default);
@@ -22,5 +22,6 @@ namespace Pacs.Operators.Client
 		Task<OperatorStateEvent> ChangeNumber(string phoneNumber);
 		Task<OperatorStateEvent> StartBreak(OperatorBreakType breakType, CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> EndBreak(CancellationToken cancellationToken = default);
+		Task<OperatorBreakAvailability> GetOperatorBreakAvailability(int operatorId);
 	}
 }

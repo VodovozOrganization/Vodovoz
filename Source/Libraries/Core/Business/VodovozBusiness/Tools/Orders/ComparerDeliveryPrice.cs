@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,12 +10,7 @@ namespace Vodovoz.Tools.Orders
 {
 	public abstract class ComparerDeliveryPrice
 	{
-		protected ComparerDeliveryPrice(DateTime? deliveryDate = null)
-		{
-			DeliveryDate = deliveryDate;
-		}
-		
-		public DateTime? DeliveryDate { get; }
+		public DateTime? DeliveryDate { get; protected set; }
 		
 		[Display(Name = "Сколько воды многооборотной таре 19л?")]
 		decimal NotDisposableWater19LCount { get; set; }
@@ -35,6 +30,16 @@ namespace Vodovoz.Tools.Orders
 		[Display(Name = "Сколько воды одноразовой таре 0.5л?")]
 		decimal DisposableWater500mlCount { get; set; }
 
+		public virtual void InitializeFields(Order order, OrderStatus? requiredStatus = null)
+		{
+			
+		}
+		
+		public virtual void InitializeFields(OnlineOrder onlineOrder)
+		{
+			
+		}
+
 		public virtual bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
 			var totalWater19LCount = DisposableWater19LCount + NotDisposableWater19LCount;
@@ -48,13 +53,24 @@ namespace Vodovoz.Tools.Orders
 			return !deliveryIsFree;
 		}
 		
-		protected virtual void CalculateAllWaterCount(IEnumerable<Product> products)
+		protected virtual void CalculateAllWaterCount(IEnumerable<IProduct> products)
 		{
+			ResetCounts();
 			CalculatePromoSetWaterCount(products);
 			CalculateNotPromoSetWaterCount(products);
 		}
+		
+		protected virtual void ResetCounts()
+		{
+			DisposableWater19LCount = default;
+			NotDisposableWater19LCount = default;
+			DisposableWater6LCount = default;
+			DisposableWater1500mlCount = default;
+			DisposableWater600mlCount = default;
+			DisposableWater500mlCount = default;
+		}
 
-		protected virtual void CalculatePromoSetWaterCount(IEnumerable<Product> products)
+		protected virtual void CalculatePromoSetWaterCount(IEnumerable<IProduct> products)
 		{
 			var water = products.Where(
 					x => x.PromoSet != null &&
@@ -69,17 +85,18 @@ namespace Vodovoz.Tools.Orders
 					NotDisposableWater19LCount = item.PromoSet.BottlesCountForCalculatingDeliveryPrice.Value;
 					break;
 				}
-
+				
 				CalculateWaterCount(item);
 			}
 		}
 
-		protected virtual void CalculateNotPromoSetWaterCount(IEnumerable<Product> products)
+		protected virtual void CalculateNotPromoSetWaterCount(IEnumerable<IProduct> products)
 		{
 			var water = products.Where(
-					x => x.PromoSet == null &&
-						x.Nomenclature != null &&
-						x.Nomenclature.Category == NomenclatureCategory.water)
+					x => x.PromoSet == null
+						&& x.DiscountReason?.IsPresent != true
+						&& x.Nomenclature != null
+						&& x.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();
 
 			foreach(var item in water)
@@ -88,32 +105,31 @@ namespace Vodovoz.Tools.Orders
 			}
 		}
 
-		protected virtual void CalculateWaterCount(Product product)
+		protected virtual void CalculateWaterCount(IProduct item)
 		{
-			switch(product.Nomenclature.TareVolume)
+			switch(item.Nomenclature.TareVolume)
 			{
 				case TareVolume.Vol19L:
-					if(product.Nomenclature.IsDisposableTare)
+					if(item.Nomenclature.IsDisposableTare)
 					{
-						DisposableWater19LCount += product.Count;
+						DisposableWater19LCount += item.Count;
 					}
 					else
 					{
-						NotDisposableWater19LCount += product.Count;
+						NotDisposableWater19LCount += item.Count;
 					}
-
 					break;
 				case TareVolume.Vol6L:
-					DisposableWater6LCount += product.Count;
+					DisposableWater6LCount += item.Count;
 					break;
 				case TareVolume.Vol1500ml:
-					DisposableWater1500mlCount += product.Count;
+					DisposableWater1500mlCount += item.Count;
 					break;
 				case TareVolume.Vol600ml:
-					DisposableWater600mlCount += product.Count;
+					DisposableWater600mlCount += item.Count;
 					break;
 				case TareVolume.Vol500ml:
-					DisposableWater500mlCount += product.Count;
+					DisposableWater500mlCount += item.Count;
 					break;
 			}
 		}

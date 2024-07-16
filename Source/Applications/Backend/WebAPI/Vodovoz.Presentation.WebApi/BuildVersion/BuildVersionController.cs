@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
+using Vodovoz.Presentation.WebApi.Common;
 
 namespace Vodovoz.Presentation.WebApi.BuildVersion
 {
-	public class BuildVersionController : ControllerBase
+	public class BuildVersionController : ApiControllerBase
 	{
 		private readonly Version _entryAssemblyVersion;
 
-		public BuildVersionController()
+		public BuildVersionController(ILogger<BuildVersionController> logger) : base(logger)
 		{
 			_entryAssemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
 		}

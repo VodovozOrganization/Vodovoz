@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Application.Complaints;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -36,6 +37,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionSettings _subdivisionSettings;
+		private readonly IComplaintService _complaintService;
+		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private DelegateCommand _changeDeliveryPointCommand;
@@ -58,6 +61,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IFileDialogService fileDialogService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionSettings subdivisionSettings,
+			IComplaintService complaintService,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			LifetimeScope = lifetimeScope;
@@ -68,9 +72,9 @@ namespace Vodovoz.ViewModels.Complaints
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
-
+			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
 			Entity.ComplaintType = ComplaintType.Client;
-			Entity.SetStatus(ComplaintStatuses.Checking);
+			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
 
@@ -84,6 +88,8 @@ namespace Vodovoz.ViewModels.Complaints
 			
 			InitializeEntryViewModels();
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			CanEditComplaintClassification = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
 		}
 
 		public void SetOrder(int orderId)
@@ -171,6 +177,8 @@ namespace Vodovoz.ViewModels.Complaints
 		//так как диалог только для создания рекламации
 		public bool CanEdit => PermissionResult.CanCreate;
 
+		public bool CanEditComplaintClassification { get; }
+
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 		
 		public IEnumerable<ComplaintSource> ComplaintSources {
@@ -245,24 +253,11 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		public void CheckAndSave()
+		protected override bool BeforeSave()
 		{
-			if (!HasСounterpartyDuplicateToday() ||
-				CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
-			{
-				SaveAndClose();
-			}
-		}
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity);
 
-		private bool HasСounterpartyDuplicateToday()
-		{
-			if(Entity.Counterparty == null) {
-				return false;
-			}
-			return UoW.Session.QueryOver<Complaint>()
-				.Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
-				.And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
-				.RowCount() > 0;
+			return canSave;
 		}
 		
 		private void InitializeEntryViewModels()

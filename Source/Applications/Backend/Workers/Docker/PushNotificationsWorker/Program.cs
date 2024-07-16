@@ -1,11 +1,11 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using FirebaseAdmin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 
@@ -19,7 +19,11 @@ namespace PushNotificationsWorker
 		{
 			try
 			{
-				CreateHostBuilder(args).Build().Run();
+				var host = CreateHostBuilder(args).Build();
+
+				host.Services.GetRequiredService<FirebaseApp>();
+
+				host.Run();
 			}
 			finally
 			{
@@ -47,8 +51,7 @@ namespace PushNotificationsWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(EmployeeWithLoginMap).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddCore()

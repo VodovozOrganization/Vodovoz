@@ -49,6 +49,7 @@ NODE_VOD3 = "Vod3"
 NODE_VOD5 = "Vod5"
 NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
+NODE_VOD13 = "Vod13"
 NODE_WIN_BUILD = "WIN_BUILD"
 
 // 102	Настройки. Глобальные
@@ -87,6 +88,7 @@ DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
 // 108	Настройки. Развертывание
@@ -150,14 +152,12 @@ stage('Build'){
 				stage('Build WEB'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
-						PublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/TrueMarkAPI/TrueMarkAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/TaxcomEdoApi.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
@@ -187,14 +187,12 @@ stage('Compress'){
 	parallel(
 		"Desktop" : { CompressDesktopArtifact() },
 
-		"DriverAPI" : { CompressWebArtifact("Backend/WebAPI/DriverAPI") },
 		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
 		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
 		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
 		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-		"TrueMarkAPI" : { CompressWebArtifact("Backend/WebAPI/TrueMarkAPI") },
 		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
 		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
 		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
@@ -212,15 +210,14 @@ stage('Delivery'){
 		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
 
-		"DriverAPI" : { DeliveryWebArtifact("DriverAPI") },
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
 		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		"TrueMarkAPI" : { DeliveryWebArtifact("TrueMarkAPI") },
 		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
 		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
@@ -243,15 +240,14 @@ stage('Publish'){
 		"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
+		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
 
-		"DriverAPI" : { PublishWeb("DriverAPI") },
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
 		"PayPageAPI" : { PublishWeb("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
 		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
 		"RoboatsService" : { PublishWeb("RoboatsService") },
-		"TrueMarkAPI" : { PublishWeb("TrueMarkAPI") },
 		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
 		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },

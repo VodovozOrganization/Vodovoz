@@ -64,7 +64,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private EmailTemplate GetTemplateForClosingDocumentOrder(bool hasAgreeForEdo)
 		{
 			var body = hasAgreeForEdo
-				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью."
 				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
 				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
 				  "<br>Наши данные:" +
@@ -75,7 +75,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 			var text = "Добрый день!" +
 					   $"<br>" +
-					   $"<br>Во вложении {Title} по сервисному обслуживанию" +
+					   $"<br>Во вложении {Title}." +
 					   $"<br>{body}" +
 					   "<br>" +
 					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
@@ -101,28 +101,19 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
 
-			ReportInfo reportInfo;
-
-			if(!string.IsNullOrWhiteSpace(connectionString))
+			var reportInfo = new ReportInfo(connectionString)
 			{
-				reportInfo = new ReportInfo(connectionString);
-			}
-			else
-			{
-				reportInfo = new ReportInfo();
-			}
+				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
+				Identifier = identifier,
+				Parameters = new Dictionary<string, object>
+				{
+					{ "order_id", Order.Id },
+					{ "special", false },
+					{ "hide_signature", HideSignature}
+				},
 
-			reportInfo.Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}";
-			reportInfo.Identifier = identifier;
-
-			reportInfo.Parameters = new Dictionary<string, object>
-			{
-				{ "order_id", Order.Id },
-				{ "special", false },
-				{ "hide_signature", HideSignature}
+				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
-
-			reportInfo.RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes;
 
 			return reportInfo;
 		}

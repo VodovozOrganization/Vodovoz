@@ -64,7 +64,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private EmailTemplate GetTemplateForClosingDocumentOrder(bool hasAgreeForEdo)
 		{
 			var body = hasAgreeForEdo
-				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью."
 				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
 				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
 				  "<br>Наши данные:" +
@@ -75,7 +75,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 			var text = "Добрый день!" +
 					   $"<br>" +
-					   $"<br>Во вложении {Title} по сервисному обслуживанию" +
+					   $"<br>Во вложении {Title}." +
 					   $"<br>{body}" +
 					   "<br>" +
 					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
@@ -99,8 +99,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			return new ReportInfo {
-				Title = String.Format("Особый УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
+
+			return new ReportInfo(connectionString)
+			{
+				Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}",
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },

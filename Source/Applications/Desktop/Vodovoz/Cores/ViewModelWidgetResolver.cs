@@ -182,8 +182,33 @@ namespace Vodovoz.Core
 				throw new WidgetResolveException($"Не настроено сопоставление для {footerType.Name}");
 			}
 
-			var widgetCtorInfo = _viewModelWidgets[footerType].GetConstructor(new[] { footerType });
-			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { footer });
+			var constructor = _viewModelWidgets[footerType]
+				.GetConstructors()
+				.Where(x => x
+					.GetParameters()
+					.FirstOrDefault(p => p.ParameterType == footerType) != null)
+				.FirstOrDefault();
+
+			var constructorParameterTypes = constructor
+				.GetParameters()
+				.Select(cp => cp.ParameterType);
+
+			var constructorParameters = new List<object>();
+
+			var scope = LifetimeScope.BeginLifetimeScope();
+
+			foreach(var parameterType in constructorParameterTypes)
+			{
+				if(parameterType == footer.GetType())
+				{
+					constructorParameters.Add(footer);
+					continue;
+				}
+
+				constructorParameters.Add(scope.Resolve(parameterType));
+			}
+
+			Widget widget = (Widget)constructor.Invoke(constructorParameters.ToArray());
 			return widget;
 		}
 

@@ -16,6 +16,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private string _phone;
 		private string _operator;
 		private string _state;
+		private string _result;
 
 		public DashboardCallViewModel(CallModel callModel, IGuiDispatcher guiDispatcher)
 		{
@@ -23,11 +24,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
 			_model.PropertyChanged += OnModelPropertyChanged;
-			Time = _model.CurrentState.EventTime.ToString("HH:mm:ss");
-			Phone = _model.CurrentState.FromNumber
-				+ (string.IsNullOrWhiteSpace(_model.CurrentState.FromExtension) ? "" : $" ({_model.CurrentState.FromExtension})");
+			Time = _model.Started.ToString("HH:mm:ss");
+			Phone = _model.Call.FromNumber;
 			Operator = GetOperator();
 			State = GetState();
+			Result = GetResult();
 		}
 
 		public CallModel Model => _model;
@@ -56,18 +57,26 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			private set => SetField(ref _state, value);
 		}
 
+		public virtual string Result
+		{
+			get => _result;
+			private set => SetField(ref _result, value);
+		}
+
 		private void OnModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(CallModel.CurrentState):
+				case nameof(CallModel.Call):
 					var oper = GetOperator();
 					var state = GetState();
+					var result = GetResult();
 
 					_guiDispatcher.RunInGuiTread(() =>
 					{
 						Operator = oper;
 						State = state;
+						Result = result;
 					});
 					break;
 				case nameof(CallModel.Operator):
@@ -94,7 +103,16 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private string GetState()
 		{
-			return AttributeUtil.GetEnumTitle(_model.CurrentState.CallState);
+			return AttributeUtil.GetEnumTitle(_model.Call.Status);
+		}
+
+		private string GetResult()
+		{
+			if(_model.Call.EntryResult == null)
+			{
+				return "";
+			}
+			return AttributeUtil.GetEnumTitle(_model.Call.EntryResult);
 		}
 	}
 }

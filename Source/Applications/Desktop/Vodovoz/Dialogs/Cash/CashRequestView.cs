@@ -114,6 +114,10 @@ namespace Vodovoz.Dialogs.Cash
 				.AddBinding(vm => vm.CanGiveSum, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybtnAddSumm.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddSum, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
 			ybtnEditSum.Clicked += (sender, args) => ViewModel.EditSumCommand.Execute();
 			ybtnDeleteSumm.Clicked += (sender, args) => ViewModel.DeleteSumCommand.Execute();
@@ -223,7 +227,6 @@ namespace Vodovoz.Dialogs.Cash
 			if(ViewModel.Entity.PayoutRequestState == PayoutRequestState.Closed || ViewModel.IsSecurityServiceRole)
 			{
 				ytreeviewSums.Sensitive = false;
-				ybtnAddSumm.Sensitive = false;
 				ybtnAccept.Sensitive = false;
 				ybtnApprove.Sensitive = false;
 				ybtnCancel.Sensitive = false;
@@ -247,6 +250,10 @@ namespace Vodovoz.Dialogs.Cash
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum))
 					.XAlign(0.5f)
+				.AddColumn("Остаток на выдачу")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum - n.Expenses.Sum(e => e.Money)))
+					.XAlign(0.5f)
 				.AddColumn("Дата")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Date.ToShortDateString())
@@ -262,10 +269,7 @@ namespace Vodovoz.Dialogs.Cash
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Comment)
 					.XAlign(0.5f)
-				.AddColumn("Выдано")
-					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(n => n.ObservableExpenses != null && n.ObservableExpenses.Any()).Editing(false)
-					.RowCells().AddSetter<CellRenderer>((c, n) => c.Sensitive = ViewModel.CanExecuteGive(n))
+				.RowCells().AddSetter<CellRenderer>((c, n) => c.Sensitive = ViewModel.CanExecuteGive(n))
 				.Finish();
 
 			ytreeviewSums.ItemsDataSource = ViewModel.Entity.ObservableSums;

@@ -611,7 +611,8 @@ namespace Vodovoz.ViewModels.Warehouses
 								if (nomIds != null && nomIds.Any())
 								{
 									nomIds = nomIds.Distinct().ToList();
-									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.FromWarehouse.Id);
+									nomsAmount =
+										_stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), new []{ Entity.FromWarehouse.Id });
 								}
 								foreach(var item in orderItems)
 								{

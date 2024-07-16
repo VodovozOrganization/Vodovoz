@@ -31,6 +31,8 @@ WinInstall/*
 #Environment Settings
 *appsettings.Production.json
 *appsettings.Development.json
+!Source/Applications/Backend/WebAPI/DriverAPI/appsettings.Development.json
+!Source/Applications/Backend/WebAPI/LogisticsEventsApi/appsettings.Development.json
 
 #Docker Volumes
 Services/Docker/db-data/*

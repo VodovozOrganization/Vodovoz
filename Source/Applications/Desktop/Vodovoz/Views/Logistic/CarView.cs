@@ -1,8 +1,12 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -41,8 +45,13 @@ namespace Vodovoz.Views.Logistic
 			yentryDocIssuedOrg.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedOrg, w => w.Text).InitializeFromSource();
 			ydatepickerDocIssuedDate.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
 
-			yentryFuelCardNumber.Binding.AddBinding(ViewModel.Entity, e => e.FuelCardNumber, w => w.Text).InitializeFromSource();
-			yentryFuelCardNumber.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditFuelCardNumber, w => w.Sensitive).InitializeFromSource();
+			yenumcomboboxArchivingReason.ItemsEnum = typeof(ArchivingReason);
+			yenumcomboboxArchivingReason.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.ArchivingReason, w => w.SelectedItemOrNull)
+				.AddBinding(e => e.IsArchive, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelArchivingReason.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible).InitializeFromSource();
 
 			yentryPTSNum.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
@@ -75,7 +84,7 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(e => e.ArchivingDate, w => w.DateOrNull)
 				.AddFuncBinding(e => e.ArchivingDate != null, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			textDriverInfo.Selectable = true;
 
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
@@ -88,7 +97,12 @@ namespace Vodovoz.Views.Logistic
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
+			carversioneditingview.ViewModel = ViewModel.CarVersionEditingViewModel;
 			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
+			fuelcardversionview.ViewModel = ViewModel.FuelCardVersionViewModel;
+			carinsuranceversionviewOsago.ViewModel = ViewModel.OsagoInsuranceVersionViewModel;
+			carinsuranceversionviewKasko.ViewModel = ViewModel.KaskoInsuranceVersionViewModel;
+			carinsuranceversioneditingview.ViewModel = ViewModel.CarInsuranceVersionEditingViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
@@ -99,8 +113,64 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
 			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
 
+			yentryPreviousTechInspectDate.Binding
+				.AddBinding(ViewModel, vm => vm.PreviousTechInspectDate, w => w.Text)
+				.InitializeFromSource();
+
+			yentryPreviousTechInspectOdometer.Binding
+				.AddBinding(ViewModel, vm => vm.PreviousTechInspectOdometer, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			yentryUpcomingTechInspectKm.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectKm, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			yentryUpcomingTechInspectKm.Changed += OnUpcomingTechInspectKmChanged;
+
+			yentryUpcomingTechInspectLeft.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectLeft, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			speciallistcomboboxIncomeChannel.SetRenderTextFunc<IncomeChannel>(x => x.GetEnumDisplayName());
+			speciallistcomboboxIncomeChannel.ItemsList = Enum.GetValues(typeof(IncomeChannel));
+			speciallistcomboboxIncomeChannel.Binding
+				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
+			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);
+
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+		}
+
+		private void OnUpcomingTechInspectKmChanged(object sender, EventArgs e)
+		{
+			var entry = sender as yEntry;
+			var chars = entry.Text.ToCharArray();
+
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+
+			if(string.IsNullOrWhiteSpace(text))
+			{
+				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
+				return;
+			}
+
+			if(!int.TryParse(text, out int newValue))
+			{
+				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
+				return;
+			}
+
+			if(ViewModel.UpcomingTechInspectKmCalculated < newValue)
+			{
+				ViewModel.ShowErrorMessage("Нельзя установить значение более расчетного");
+				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
+				return;
+			}
+
+			entry.Text = text;
 		}
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
@@ -133,6 +203,13 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.Entity.ObservableGeographicGroups.Remove(selectedObj);
 			}
+		}
+
+		public override void Destroy()
+		{
+			yentryUpcomingTechInspectKm.Changed -= OnUpcomingTechInspectKmChanged;
+
+			base.Destroy();
 		}
 	}
 }

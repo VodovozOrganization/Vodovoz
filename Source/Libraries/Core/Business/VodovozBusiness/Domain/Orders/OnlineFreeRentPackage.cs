@@ -1,12 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "онлайн пакеты бесплатной аренды",
-		Nominative = "онлайн пакет бесплатной аренды")]
+		NominativePlural = "Строки бесплатной аренды онлайн заказа",
+		Nominative = "Строка бесплатной аренды онлайн заказа",
+		Prepositional = "Строке бесплатной аренды онлайн заказа",
+		PrepositionalPlural = "Строках бесплатной аренды онлайн заказа"
+	)]
+	[HistoryTrace]
 	public class OnlineFreeRentPackage : PropertyChangedBase, IDomainObject
 	{
 		private int? _freeRentPackageId;

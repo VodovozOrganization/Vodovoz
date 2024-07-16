@@ -7,7 +7,7 @@ using Vodovoz.Domain.Organizations;
 
 namespace TaxcomEdoApi.Factories
 {
-	public class EdoBillFactory
+	public class EdoBillFactory : IEdoBillFactory
 	{
 		public NonformalizedDocument CreateBillDocument(Order order, byte[] attachmentFile, string attachmentName, Organization organization)
 		{

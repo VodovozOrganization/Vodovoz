@@ -45,8 +45,6 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -63,13 +61,38 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGlobalSettings _globalSettings;
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		private Employee _employee;
 		private bool _excludeTrucks;
-
-		public IUnitOfWork UoW;
+		private Employee _driverFromRouteList;
+		private AtWorkDriver[] _selectedDrivers;
+		private AtWorkForwarder _selectedForwarder;
+		private DateTime _dateForRouting = DateTime.Today;
+		private bool _hasNoChanges = true;
+		private bool _autoroutingMode;
+		private IList<AtWorkForwarder> _forwardersOnDay = new List<AtWorkForwarder>();
+		private GenericObservableList<AtWorkForwarder> _observableForwardersOnDay;
+		private IList<AtWorkDriver> _driversOnDay = new List<AtWorkDriver>();
+		private GenericObservableList<AtWorkDriver> _observableDriversOnDay;
+		private IRouteOptimizer _optimizer;
+		private IList<District> _logisticanDistricts = new List<District>();
+		private GenericObservableList<District> _observableLogisticanDistricts;
+		private bool _showCompleted;
+		private bool _showOnlyDriverOrders;
+		private int _minBottles19L;
+		private int _maxBottles19L = 9999;
+		private string _canTake;
+		private TimeSpan _deliveryFromTime = TimeSpan.Parse("00:00:00");
+		private TimeSpan _deliveryToTime = TimeSpan.Parse("23:59:59");
+		private TimeSpan _driverStartTime = TimeSpan.Parse("00:00:00");
+		private TimeSpan _driverEndTime = TimeSpan.Parse("23:59:59");
+		private DeliveryScheduleFilterType _deliveryScheduleType = DeliveryScheduleFilterType.DeliveryStart;
+		private IList<DeliverySummary> _deliverySummary = new List<DeliverySummary>();
+		private GenericObservableList<DeliverySummary> _observableDeliverySummary;
 
 		public RouteListsOnDayViewModel(
 			ILogger<RouteListsOnDayViewModel> logger,
@@ -87,11 +110,12 @@ namespace Vodovoz.ViewModels.Logistic
 			IUserRepository userRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeService employeeService,
+			IEmployeeRepository employeeRepository,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			ICarModelJournalFactory carModelJournalFactory,
 			IRouteOptimizer routeOptimizer,
 			IGlobalSettings globalSettings,
+			ICachedDistanceRepository cachedDistanceRepository,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -107,16 +131,17 @@ namespace Vodovoz.ViewModels.Logistic
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
-			CarModelJournalFactory = carModelJournalFactory;
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings);
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings, _cachedDistanceRepository);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
@@ -215,12 +240,12 @@ namespace Vodovoz.ViewModels.Logistic
 			get => _excludeTrucks;
 			set => SetField(ref _excludeTrucks, value);
 		}
+
 		public ICommonServices CommonServices { get; }
 		public ILifetimeScope LifetimeScope { get; }
 		public ICarRepository CarRepository { get; }
 		public IList<GeoGroup> GeographicGroupsExceptEast { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
-		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public IOrderRepository OrderRepository { get; }
 
 		private void CreateCommands()
@@ -375,7 +400,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 							if(driver.Employee.DefaultForwarder != null)
 							{
-								var forwarder = observableForwardersOnDay.FirstOrDefault(x => x.Employee.Id == driver.Employee.DefaultForwarder.Id);
+								var forwarder = _observableForwardersOnDay.FirstOrDefault(x => x.Employee.Id == driver.Employee.DefaultForwarder.Id);
 
 								if(forwarder == null)
 								{
@@ -547,6 +572,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#region Свойства
 
+		public IUnitOfWork UoW { get; set; }
+
 		public IList<RouteList> RoutesOnDay { get; set; }
 
 		public IList<UndeliveryOrderNode> UndeliveredOrdersOnDay { get; set; }
@@ -557,36 +584,32 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public RouteGeometryCalculator DistanceCalculator { get; }
 
-		private Employee driverFromRouteList;
 		public virtual Employee DriverFromRouteList
 		{
-			get => driverFromRouteList;
-			set => SetField(ref driverFromRouteList, value);
+			get => _driverFromRouteList;
+			set => SetField(ref _driverFromRouteList, value);
 		}
 
-		private AtWorkDriver[] selectedDrivers;
 		[PropertyChangedAlso(nameof(AreDriversSelected))]
 		public virtual AtWorkDriver[] SelectedDrivers
 		{
-			get => selectedDrivers;
-			set => SetField(ref selectedDrivers, value);
+			get => _selectedDrivers;
+			set => SetField(ref _selectedDrivers, value);
 		}
 
-		private AtWorkForwarder selectedForwarder;
 		[PropertyChangedAlso(nameof(IsForwarderSelected))]
 		public virtual AtWorkForwarder SelectedForwarder
 		{
-			get => selectedForwarder;
-			set => SetField(ref selectedForwarder, value);
+			get => _selectedForwarder;
+			set => SetField(ref _selectedForwarder, value);
 		}
 
-		private DateTime dateForRouting = DateTime.Today;
 		public DateTime DateForRouting
 		{
-			get => dateForRouting;
+			get => _dateForRouting;
 			set
 			{
-				if(SetField(ref dateForRouting, value))
+				if(SetField(ref _dateForRouting, value))
 				{
 					OnTabNameChanged();
 				}
@@ -599,177 +622,163 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool HasChanges => !HasNoChanges;
 
-		private bool hasNoChanges = true;
 		public bool HasNoChanges
 		{
-			get => hasNoChanges;
-			set => SetField(ref hasNoChanges, value);
+			get => _hasNoChanges;
+			set => SetField(ref _hasNoChanges, value);
 		}
 
-		private bool autoroutingMode;
 		public virtual bool IsAutoroutingModeActive
 		{
-			get => autoroutingMode;
-			set => SetField(ref autoroutingMode, value);
+			get => _autoroutingMode;
+			set => SetField(ref _autoroutingMode, value);
 		}
 
-		private IList<AtWorkForwarder> forwardersOnDay = new List<AtWorkForwarder>();
 		public virtual IList<AtWorkForwarder> ForwardersOnDay
 		{
-			get => forwardersOnDay;
-			set => SetField(ref forwardersOnDay, value);
+			get => _forwardersOnDay;
+			set => SetField(ref _forwardersOnDay, value);
 		}
 
-		private GenericObservableList<AtWorkForwarder> observableForwardersOnDay;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<AtWorkForwarder> ObservableForwardersOnDay
 		{
 			get
 			{
-				if(observableForwardersOnDay == null)
+				if(_observableForwardersOnDay == null)
 				{
-					observableForwardersOnDay = new GenericObservableList<AtWorkForwarder>(ForwardersOnDay);
+					_observableForwardersOnDay = new GenericObservableList<AtWorkForwarder>(ForwardersOnDay);
 				}
 
-				return observableForwardersOnDay;
+				return _observableForwardersOnDay;
 			}
 		}
 
-		private IList<AtWorkDriver> driversOnDay = new List<AtWorkDriver>();
 		public virtual IList<AtWorkDriver> DriversOnDay
 		{
-			get => driversOnDay;
-			set => SetField(ref driversOnDay, value);
+			get => _driversOnDay;
+			set => SetField(ref _driversOnDay, value);
 		}
 
-		private GenericObservableList<AtWorkDriver> observableDriversOnDay;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<AtWorkDriver> ObservableDriversOnDay
 		{
 			get
 			{
-				if(observableDriversOnDay == null)
+				if(_observableDriversOnDay == null)
 				{
-					observableDriversOnDay = new GenericObservableList<AtWorkDriver>(DriversOnDay);
+					_observableDriversOnDay = new GenericObservableList<AtWorkDriver>(DriversOnDay);
 				}
 
-				return observableDriversOnDay;
+				return _observableDriversOnDay;
 			}
 		}
 
-		private IRouteOptimizer optimizer;
 		public virtual IRouteOptimizer Optimizer
 		{
-			get => optimizer;
-			set => SetField(ref optimizer, value);
+			get => _optimizer;
+			set => SetField(ref _optimizer, value);
 		}
 
-		private IList<District> logisticanDistricts = new List<District>();
 		public virtual IList<District> LogisticanDistricts
 		{
-			get => logisticanDistricts;
-			set => SetField(ref logisticanDistricts, value);
+			get => _logisticanDistricts;
+			set => SetField(ref _logisticanDistricts, value);
 		}
 
-		private GenericObservableList<District> observableLogisticanDistricts;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<District> ObservableLogisticanDistricts
 		{
 			get
 			{
-				if(observableLogisticanDistricts == null)
+				if(_observableLogisticanDistricts == null)
 				{
-					observableLogisticanDistricts = new GenericObservableList<District>(LogisticanDistricts);
+					_observableLogisticanDistricts = new GenericObservableList<District>(LogisticanDistricts);
 				}
 
-				return observableLogisticanDistricts;
+				return _observableLogisticanDistricts;
 			}
 		}
 
-		private bool showCompleted;
 		public virtual bool ShowCompleted
 		{
-			get => showCompleted;
-			set => SetField(ref showCompleted, value);
+			get => _showCompleted;
+			set => SetField(ref _showCompleted, value);
 		}
 
-		private bool showOnlyDriverOrders;
 		public virtual bool ShowOnlyDriverOrders
 		{
-			get => showOnlyDriverOrders;
-			set => SetField(ref showOnlyDriverOrders, value);
+			get => _showOnlyDriverOrders;
+			set => SetField(ref _showOnlyDriverOrders, value);
 		}
 
-		private int minBottles19L;
 		public virtual int MinBottles19L
 		{
-			get => minBottles19L;
-			set => SetField(ref minBottles19L, value);
+			get => _minBottles19L;
+			set => SetField(ref _minBottles19L, value);
 		}
 
-		private string canTake;
+		public virtual int MaxBottles19L
+		{
+			get => _maxBottles19L;
+			set => SetField(ref _maxBottles19L, value);
+		}
+
 		public virtual string CanTake
 		{
-			get => canTake;
-			set => SetField(ref canTake, value);
+			get => _canTake;
+			set => SetField(ref _canTake, value);
 		}
 
-		private TimeSpan deliveryFromTime = TimeSpan.Parse("00:00:00");
 		public virtual TimeSpan DeliveryFromTime
 		{
-			get => deliveryFromTime;
-			set => SetField(ref deliveryFromTime, value);
+			get => _deliveryFromTime;
+			set => SetField(ref _deliveryFromTime, value);
 		}
 
-		private TimeSpan deliveryToTime = TimeSpan.Parse("23:59:59");
 		public virtual TimeSpan DeliveryToTime
 		{
-			get => deliveryToTime;
-			set => SetField(ref deliveryToTime, value);
+			get => _deliveryToTime;
+			set => SetField(ref _deliveryToTime, value);
 		}
 
-		private TimeSpan driverStartTime = TimeSpan.Parse("00:00:00");
 		public virtual TimeSpan DriverStartTime
 		{
-			get => driverStartTime;
-			set => SetField(ref driverStartTime, value);
+			get => _driverStartTime;
+			set => SetField(ref _driverStartTime, value);
 		}
 
-		private TimeSpan driverEndTime = TimeSpan.Parse("23:59:59");
 		public virtual TimeSpan DriverEndTime
 		{
-			get => driverEndTime;
-			set => SetField(ref driverEndTime, value);
+			get => _driverEndTime;
+			set => SetField(ref _driverEndTime, value);
 		}
 
-		private DeliveryScheduleFilterType deliveryScheduleType = DeliveryScheduleFilterType.DeliveryStart;
 		public virtual DeliveryScheduleFilterType DeliveryScheduleType
 		{
-			get => deliveryScheduleType;
-			set => SetField(ref deliveryScheduleType, value);
+			get => _deliveryScheduleType;
+			set => SetField(ref _deliveryScheduleType, value);
 		}
 
 		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
 
-		private IList<DeliverySummary> deliverySummary = new List<DeliverySummary>();
 		public virtual IList<DeliverySummary> DeliverySummary
 		{
-			get => deliverySummary;
-			set => SetField(ref deliverySummary, value);
+			get => _deliverySummary;
+			set => SetField(ref _deliverySummary, value);
 		}
 
-		private GenericObservableList<DeliverySummary> observableDeliverySummary;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliverySummary> ObservableDeliverySummary
 		{
 			get
 			{
-				if(observableDeliverySummary == null)
+				if(_observableDeliverySummary == null)
 				{
-					observableDeliverySummary = new GenericObservableList<DeliverySummary>(DeliverySummary);
+					_observableDeliverySummary = new GenericObservableList<DeliverySummary>(DeliverySummary);
 				}
 
-				return observableDeliverySummary;
+				return _observableDeliverySummary;
 			}
 		}
 
@@ -1358,7 +1367,7 @@ namespace Vodovoz.ViewModels.Logistic
 			int totalBottles = 0;
 			int totalAddresses = 0;
 
-			var drivers = new EmployeeRepository().GetWorkingDriversAtDay(UoW, DateForRouting);
+			var drivers = _employeeRepository.GetWorkingDriversAtDay(UoW, DateForRouting);
 
 			var cars = CarRepository.GetCarsByDrivers(UoW, drivers.Select(x => x.Id).ToArray());
 
@@ -1630,6 +1639,7 @@ namespace Vodovoz.ViewModels.Logistic
 				DeliveryToTime = DeliveryToTime,
 				ShowCompleted = ShowCompleted,
 				MinBottles19L = MinBottles19L,
+				MaxBottles19L = MaxBottles19L,
 				FastDeliveryEnabled = OrderAddressTypes.Any(x => x.IsFastDelivery && x.Selected),
 				OrderAddressTypes = OrderAddressTypes
 					.Where(x => !x.IsFastDelivery && x.Selected)
@@ -1732,7 +1742,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
 			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime, message => CommonServices.InteractiveService.Question(message));
 
-			if(optimizer.ProposedRoutes.Any())
+			if(_optimizer.ProposedRoutes.Any())
 			{
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.
 				foreach(var route in RoutesOnDay.Where(x => x.Id > 0))
@@ -1743,7 +1753,7 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 				}
 
-				foreach(var propose in optimizer.ProposedRoutes)
+				foreach(var propose in _optimizer.ProposedRoutes)
 				{
 					var rl = propose.Trip.OldRoute ?? new RouteList();
 

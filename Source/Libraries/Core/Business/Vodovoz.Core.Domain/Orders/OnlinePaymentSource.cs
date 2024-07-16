@@ -9,6 +9,8 @@ namespace Vodovoz.Core.Domain.Orders
 		[Display(Name = "Сайт ВВ по QR")]
 		FromVodovozWebSiteByQr,
 		[Display(Name = "Мобильное приложение")]
-		FromMobileApp
+		FromMobileApp,
+		[Display(Name = "Мобильное приложение по QR")]
+		FromMobileAppByQr
 	}
 }

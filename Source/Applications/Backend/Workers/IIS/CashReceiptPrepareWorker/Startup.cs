@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 using QS.Project.Core;
-using TrueMarkApi.Library;
+using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Cash;
@@ -14,8 +14,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
 namespace CashReceiptPrepareWorker
@@ -48,11 +48,11 @@ namespace CashReceiptPrepareWorker
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 
@@ -65,18 +65,6 @@ namespace CashReceiptPrepareWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<TrueMarkRepository>()
-				.As<ITrueMarkRepository>()
-				.SingleInstance();
-
-			builder.RegisterType<OrderRepository>()
-				.As<IOrderRepository>()
-				.SingleInstance();
-			
-			builder.RegisterType<OrganizationRepository>()
-				.As<IOrganizationRepository>()
-				.SingleInstance();
-
 			builder.RegisterType<CashReceiptFactory>()
 				.As<ICashReceiptFactory>()
 				.SingleInstance();
@@ -88,10 +76,6 @@ namespace CashReceiptPrepareWorker
 			builder.RegisterType<OrderReceiptCreatorFactory>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-
-			builder.RegisterType<CashReceiptRepository>()
-				.As<ICashReceiptRepository>()
-				.InstancePerDependency();
 
 			builder.RegisterType<TrueMarkCodesChecker>()
 				.AsSelf()

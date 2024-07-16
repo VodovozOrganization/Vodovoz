@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Timers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -61,7 +62,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			DataLoader = dataLoader;
 
 			Title = "Журнал онлайн заказов";
-			
+
+			SearchEnabled = false;
 			UpdateOnChanges(typeof(OnlineOrder));
 			ConfigureFilter(filterParams);
 			CreateNodeActions();
@@ -225,7 +227,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 					
 					if(endDate.HasValue)
-					{ 
+					{
 						query.Where(o => o.DeliveryDate <= endDate); 
 					}
 					break;
@@ -236,8 +238,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 					
 					if(endDate.HasValue)
-					{ 
-						query.Where(o => o.Created <= endDate); 
+					{
+						query.Where(o => o.Created <= endDate.Value.LatestDayTime()); 
 					}
 					break;
 			}

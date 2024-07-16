@@ -98,6 +98,11 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(string.IsNullOrWhiteSpace(Name))
+			{
+				yield return new ValidationResult($"Название причины должно быть заполнено");
+			}
+			
 			if(!string.IsNullOrWhiteSpace(Name) && Name.Length > _nameMaxLength)
 			{
 				yield return new ValidationResult($"Длина названия причины превышена на {_nameMaxLength - Name.Length}");

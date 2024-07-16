@@ -12,10 +12,12 @@ namespace Vodovoz.Domain.Sale
 
 		public override object Clone()
 		{
-			var newCommonDistrictRuleItem = new CommonDistrictRuleItem {
+			var newCommonDistrictRuleItem = new CommonDistrictRuleItem
+			{
 				Price = Price,
 				DeliveryPriceRule = DeliveryPriceRule
 			};
+
 			return newCommonDistrictRuleItem;
 		}
 	}

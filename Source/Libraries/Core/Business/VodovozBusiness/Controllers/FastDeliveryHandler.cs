@@ -51,8 +51,9 @@ namespace Vodovoz.Controllers
 					{
 						ApiBase = _driverApiSettings.ApiBase,
 						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedUri = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedUri = _driverApiSettings.NotifyOfWaitingTimeChangedURI
+						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI,
+						NotifyOfCashRequestForDriverIsGivenForTakeUri = _driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri
 					};
 					_driverApiHelper = new DriverAPIHelper(new LoggerFactory().CreateLogger<DriverAPIHelper>(), driverApiConfig);
 				}
@@ -84,7 +85,7 @@ namespace Vodovoz.Controllers
 					(double)order.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
 					order.GetAllGoodsToDeliver(),
-					order
+					order.DeliveryPoint.District.TariffZone.Id
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);
@@ -96,7 +97,7 @@ namespace Vodovoz.Controllers
 
 				if(RouteListToAddFastDeliveryOrder is null)
 				{
-					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
+					return Result.Failure(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
 			}
 			

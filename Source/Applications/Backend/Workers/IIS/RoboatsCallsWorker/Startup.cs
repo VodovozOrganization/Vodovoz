@@ -18,6 +18,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace RoboatsCallsWorker
 {
@@ -48,13 +49,13 @@ namespace RoboatsCallsWorker
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddBusiness()
+				.AddBusiness(Configuration)
+				.AddInfrastructure()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
@@ -65,7 +66,6 @@ namespace RoboatsCallsWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<SettingsController>().As<ISettingsController>();
 			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 

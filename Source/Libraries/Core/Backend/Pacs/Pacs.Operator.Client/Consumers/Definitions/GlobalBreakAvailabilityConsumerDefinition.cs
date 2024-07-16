@@ -34,10 +34,10 @@ namespace Pacs.Operators.Client.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;
-				rmq.Durable = true;
+				rmq.Exclusive = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<GlobalBreakAvailability>();
+				rmq.Bind<GlobalBreakAvailabilityEvent>();
 			}
 		}
 	}

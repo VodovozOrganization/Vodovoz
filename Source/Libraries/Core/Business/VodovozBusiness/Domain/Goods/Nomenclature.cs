@@ -996,7 +996,7 @@ namespace Vodovoz.Domain.Goods
 			&& TareVolume.HasValue
 			&& TareVolume.Value == Goods.TareVolume.Vol19L;
 
-		public override string ToString() => $"id ={Id} Name = {Name}";
+		public override string ToString() => $"id = {Id} Name = {Name}";
 
 		#endregion Рассчетные
 
@@ -1068,7 +1068,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(nomenclatureRepository)}");
@@ -1358,7 +1358,8 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.PromotionalProducts,
 				NomenclatureCategory.Overalls,
 				NomenclatureCategory.HouseholdInventory,
-				NomenclatureCategory.Tools
+				NomenclatureCategory.Tools,
+				NomenclatureCategory.CarParts
 			};
 		}
 

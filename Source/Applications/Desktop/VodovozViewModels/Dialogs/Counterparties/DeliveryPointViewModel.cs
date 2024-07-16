@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -26,6 +26,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Settings.Common;
@@ -46,7 +47,11 @@ using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
-	public partial class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
+	public partial class DeliveryPointViewModel
+		: EntityTabViewModelBase<DeliveryPoint>,
+		IDeliveryPointInfoProvider,
+		ITDICloseControlTab,
+		ICustomWidthInfoProvider,
 		IAskSaveOnCloseViewModel
 	{
 		private int _currentPage = 0;
@@ -65,7 +70,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IGlobalSettings _globalSettings;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
+		private readonly INomenclatureFixedPriceRepository _fixedPriceRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private bool _isInformationActive;
+		private bool _isFixedPricesActive;
+		private bool _isSitesAndAppsActive;
 		private string _districtOnMap;
 		private bool _showDistrictBorders;
 
@@ -91,6 +100,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			IDeliveryRepository deliveryRepository,
 			IGlobalSettings globalSettings,
 			IPhoneTypeSettings phoneTypeSettings,
+			INomenclatureFixedPriceRepository fixedPriceRepository,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -129,6 +139,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
+			_fixedPriceRepository = fixedPriceRepository ?? throw new ArgumentNullException(nameof(fixedPriceRepository));;
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -192,6 +203,23 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				() => Entity.Counterparty != null);
 
 			AllActiveDistrictsWithBorders = scheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
+			TryAddEmployeeFixedPrices();
+		}
+
+		private void TryAddEmployeeFixedPrices()
+		{
+			if(Entity.Id > 0)
+			{
+				return;
+			}
+
+			var employeeFixedPrices =
+				_fixedPriceRepository.GetEmployeesNomenclatureFixedPricesByCounterpartyId(UoW, Entity.Counterparty.Id);
+
+			foreach(var fixedPrice in employeeFixedPrices)
+			{
+				_fixedPricesModel.AddFixedPrice(fixedPrice.Nomenclature, fixedPrice.Price, fixedPrice.MinCount);
+			}
 		}
 
 		#region Свойства
@@ -207,6 +235,48 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		{
 			get => _currentPage;
 			private set => SetField(ref _currentPage, value);
+		}
+		
+		public bool IsInformationActive
+		{
+			get => _isInformationActive;
+			set
+			{
+				if(SetField(ref _isInformationActive, value) && value)
+				{
+					CurrentPage = 0;
+					_isFixedPricesActive = false;
+					_isSitesAndAppsActive = false;
+				}
+			}
+		}
+		
+		public bool IsFixedPricesActive
+		{
+			get => _isFixedPricesActive;
+			set
+			{
+				if(SetField(ref _isFixedPricesActive, value) && value)
+				{
+					CurrentPage = 1;
+					_isInformationActive = false;
+					_isSitesAndAppsActive = false;
+				}
+			}
+		}
+
+		public bool IsSitesAndAppsActive
+		{
+			get => _isSitesAndAppsActive;
+			set
+			{
+				if(SetField(ref _isSitesAndAppsActive, value) && value)
+				{
+					CurrentPage = 2;
+					_isInformationActive = false;
+					_isFixedPricesActive = false;
+				}
+			}
 		}
 
 		public bool IsInProcess => _isEntityInSavingProcess || _isBuildingsInLoadingProcess;
@@ -262,12 +332,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		public DeliveryPoint DeliveryPoint => Entity;
 		public PanelViewType[] InfoWidgets => _infoWidgets;
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		public int? WidthRequest => 420;
 
 		#endregion
 
 		public void OpenFixedPrices()
 		{
-			CurrentPage = 1;
+			IsFixedPricesActive = true;
 		}
 
 		public District GetAccurateDistrict() =>

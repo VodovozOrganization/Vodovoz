@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
@@ -12,17 +12,17 @@ namespace Vodovoz.Application.Orders.Services
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
 		private readonly IGoodsPriceCalculator _priceCalculator;
-		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
+		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IDeliveryPriceCalculator deliveryPriceCalculator,
+			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
-			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 		
@@ -69,28 +69,17 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			ValidateOnlineOrderItems(validationResults);
-			//CanShipPromoSets(validationResults);
-			//CanFastDelivery(validationResults);
 			
 			return !validationResults.Any() ? Result.Success() : Result.Failure(validationResults);
-		}
-
-		private void CanFastDelivery(List<Error> validationResults)
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CanShipPromoSets(List<Error> validationResults)
-		{
-			throw new NotImplementedException();
 		}
 
 		private void ValidateOnlineOrderItems(ICollection<Error> errors)
 		{
 			var archivedNomenclatures = new Dictionary<int, bool>();
 			ValidatePromoSet(archivedNomenclatures, errors);
-			ValidateOtherItemsWithoutPaidDelivery(archivedNomenclatures, errors);
+			ValidateOtherItemsWithoutDeliveries(archivedNomenclatures, errors);
 			ValidatePaidDelivery(errors);
+			ValidateFastDelivery(errors);
 			ValidateOnlineRentPackages(errors);
 		}
 
@@ -257,7 +246,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void ValidateOtherItemsWithoutPaidDelivery(IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
+		private void ValidateOtherItemsWithoutDeliveries(IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
 		{
 			var onlineOrderItemsNotPromoSet =
 				_onlineOrder.OnlineOrderItems
@@ -271,7 +260,8 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				if(onlineOrderItem.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId)
+				if(onlineOrderItem.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId
+					|| onlineOrderItem.NomenclatureId == _nomenclatureSettings.FastDeliveryNomenclatureId)
 				{
 					continue;
 				}
@@ -292,8 +282,13 @@ namespace Vodovoz.Application.Orders.Services
 				_onlineOrder.OnlineOrderItems
 					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
 
-			var deliveryPrice = _deliveryPriceCalculator.CalculateDeliveryPrice(_onlineOrder);
+			var deliveryPrice = _deliveryPriceGetter.GetDeliveryPrice(_onlineOrder);
 			var needPaidDelivery = deliveryPrice > 0;
+
+			if(paidDelivery != null)
+			{
+				paidDelivery.NomenclaturePrice = deliveryPrice;
+			}
 
 			if(needPaidDelivery && paidDelivery != null)
 			{
@@ -310,6 +305,35 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				errors.Add(Errors.Orders.OnlineOrder.NotNeedPaidDelivery);
 			}
+		}
+		
+		private void ValidateFastDelivery(ICollection<Error> errors)
+		{
+			var fastDelivery =
+				_onlineOrder.OnlineOrderItems
+					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.FastDeliveryNomenclatureId);
+			
+			if(!_onlineOrder.IsFastDelivery)
+			{
+				if(fastDelivery != null)
+				{
+					errors.Add(Errors.Orders.FastDelivery.NotNeedFastDelivery);
+				}
+				return;
+			}
+
+			if(fastDelivery is null)
+			{
+				errors.Add(Errors.Orders.FastDelivery.FastDeliveryIsMissing);
+				return;
+			}
+
+			if(_onlineOrder.DeliveryDate != DateTime.Today)
+			{
+				errors.Add(Errors.Orders.FastDelivery.InvalidDate);
+			}
+			
+			ValidatePrice(fastDelivery, errors);
 		}
 
 		private void ValidateOnlineRentPackages(ICollection<Error> errors)

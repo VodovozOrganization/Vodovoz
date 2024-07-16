@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
+using NPOI.HSSF.Record;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -12,6 +13,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -25,10 +27,12 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Errors;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -42,9 +46,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ILogger<RouteListTransferringViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IInteractiveService _interactiveService;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
-		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IUserService _userService;
@@ -53,6 +56,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IRouteListTransferhandByHandReciever _routeListTransferhandByHandReciever;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -88,7 +92,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private readonly DateTime _defaultTargetRouteListEndDate =
 			DateTime.Today.AddDays(_defaultTargetRouteListEndDateOffsetDays);
-
 		private object[] _selectedSourceRouteListAddresses = new object[] { };
 		private object[] _selectedTargetRouteListAddresses = new object[] { };
 
@@ -97,15 +100,21 @@ namespace Vodovoz.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			ILifetimeScope lifetimeScope,
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
-			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
+			INomenclatureSettings nomenclatureSettings,
 			IRouteListRepository routeListRepository,
 			IRouteListService routeListService,
 			IUserService userService,
 			IEmployeeService employeeService,
 			IGtkTabsOpener gtkTabsOpener,
-			IRouteListItemRepository routeListItemRepository)
+			IRouteListItemRepository routeListItemRepository,
+			RouteListJournalFilterViewModel sourceRouteListJournalFilterViewModel,
+			RouteListJournalFilterViewModel targetRouteListJournalFilterViewModel,
+			DeliveryFreeBalanceViewModel sourceDeliveryFreeBalanceViewModel,
+			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
+			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
+			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
+			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -114,11 +123,9 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_interactiveService = interactiveService
 				?? throw new ArgumentNullException(nameof(interactiveService));
-			_lifetimeScope = lifetimeScope
-				?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
-			_nomenclatureSettings = nomenclatureSettings 
+			_nomenclatureSettings = nomenclatureSettings
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -132,10 +139,38 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_routeListItemRepository = routeListItemRepository
 				?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			SourceRouteListJournalFilterViewModel = sourceRouteListJournalFilterViewModel
+				?? throw new ArgumentNullException(nameof(sourceRouteListJournalFilterViewModel));
+			TargetRouteListJournalFilterViewModel = targetRouteListJournalFilterViewModel
+				?? throw new ArgumentNullException(nameof(targetRouteListJournalFilterViewModel));
+			SourceRouteListDeliveryFreeBalanceViewModel = sourceDeliveryFreeBalanceViewModel
+				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
+			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
+				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
+			_routeListTransferhandByHandReciever = routeListTransferhandByHandReciever
+				?? throw new ArgumentNullException(nameof(routeListTransferhandByHandReciever));
 
-			SourceRouteListDeliveryFreeBalanceViewModel = _lifetimeScope.Resolve<DeliveryFreeBalanceViewModel>();
+			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
+			{
+				filter.DisplayableStatuses = _defaultSourceRouteListStatuses;
+				filter.StartDate = _defaultSourceRouteListStartDate;
+				filter.EndDate = _defaultSourceRouteListEndDate;
+				filter.AddressTypeNodes.ForEach(x => x.Selected = true);
+				filter.ExcludeIds = ExcludeIds;
+			});
 
-			TargetRouteListDeliveryFreeBalanceViewModel = _lifetimeScope.Resolve<DeliveryFreeBalanceViewModel>();
+			SourceRouteListJournalFilterViewModel.DisposeOnDestroy = false;
+
+			TargetRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
+			{
+				filter.DisplayableStatuses = _defaultTargetRouteListStatuses;
+				filter.StartDate = _defaultTargetRouteListStartDate;
+				filter.EndDate = _defaultTargetRouteListEndDate;
+				filter.AddressTypeNodes.ForEach(x => x.Selected = true);
+				filter.ExcludeIds = ExcludeIds;
+			});
+
+			TargetRouteListJournalFilterViewModel.DisposeOnDestroy = false;
 
 			TabName = "Перенос адресов маршрутных листов";
 
@@ -148,6 +183,34 @@ namespace Vodovoz.ViewModels.Logistic
 			TransferTerminalCommand = new DelegateCommand(TransferTerminal, () => IsTargetAndSourceRouteListsSelected);
 
 			RevertTransferTerminalCommand = new DelegateCommand(RevertTransferTerminal, () => IsTargetAndSourceRouteListsSelected);
+
+			SourceRouteListViewModel = sourceRouteListEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, vm => vm.SourceRouteList)
+				.UseViewModelDialog<RouteListCreateViewModel>()
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(SourceRouteListJournalFilterViewModel)
+				.Finish();
+
+			TargetRouteListViewModel = targetRouteListEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, vm => vm.TargetRouteList)
+				.UseViewModelDialog<RouteListCreateViewModel>()
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(TargetRouteListJournalFilterViewModel)
+				.Finish();
+
+			PropertyChanged += OnRouteListTransferringViewModelPropertyChanged;
+		}
+
+		private void OnRouteListTransferringViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(SourceRouteListId)
+				|| e.PropertyName == nameof(TargetRouteListId))
+			{
+				TargetRouteListJournalFilterViewModel.ExcludeIds = ExcludeIds;
+				SourceRouteListJournalFilterViewModel.ExcludeIds = ExcludeIds;
+			}
 		}
 
 		#region Source RouteList
@@ -219,7 +282,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		public IEntityEntryViewModel SourceRouteListViewModel { get; set; }
+		public IEntityEntryViewModel SourceRouteListViewModel { get; }
 
 		public GenericObservableList<RouteListItemNode> SourceRouteListAddresses { get; }
 			= new GenericObservableList<RouteListItemNode>();
@@ -302,7 +365,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		public IEntityEntryViewModel TargetRouteListViewModel { get; set; }
+		public IEntityEntryViewModel TargetRouteListViewModel { get; }
 
 		public GenericObservableList<RouteListItemNode> TargetRouteListAddresses { get; }
 			= new GenericObservableList<RouteListItemNode>();
@@ -370,30 +433,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CanRevertTransferTerminal => TargetRouteListDriverNomenclatureBalance.Any();
 
-		#region Temp Legacy Properties
+		public RouteListJournalFilterViewModel SourceRouteListJournalFilterViewModel { get; }
 
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public ILifetimeScope LifetimeScope => _lifetimeScope;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public RouteListStatus[] DefaultSourceRouteListStatuses => _defaultSourceRouteListStatuses;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultSourceRouteListStartDate => _defaultSourceRouteListStartDate;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultSourceRouteListEndDate => _defaultSourceRouteListEndDate;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public RouteListStatus[] DefaultTargetRouteListStatuses => _defaultTargetRouteListStatuses;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultTargetRouteListStartDate => _defaultTargetRouteListStartDate;
-
-		[Obsolete("Временное свойство, убрать при обновлении создания диалога МЛ")]
-		public DateTime DefaultTargetRouteListEndDate => _defaultTargetRouteListEndDate;
-
-		#endregion Temp Legacy Properties
+		public RouteListJournalFilterViewModel TargetRouteListJournalFilterViewModel { get; }
 
 		private void RefreshSourceRouteListAddresses()
 		{
@@ -544,21 +586,24 @@ namespace Vodovoz.ViewModels.Logistic
 
 					Result<IEnumerable<string>> addressesTransferResult = null;
 
-					var routeListAddressesWithTransferTypes = SelectedSourceRouteListAddresses
-								.Cast<RouteListItemNode>()
-								.Where(x => x.RouteListItem != null)
-								.ToDictionary(
-									x => x.AddressId.Value,
-									x => x.AddressTransferType);
+					var selectedToTransferNodesWithRouteListAddresses = SelectedSourceRouteListAddresses
+						.Cast<RouteListItemNode>()
+						.Where(x => x.RouteListItem != null);
+
+
+					var routeListAddressesWithTransferTypes = selectedToTransferNodesWithRouteListAddresses
+						.ToDictionary(
+							x => x.AddressId.Value,
+							x => x.AddressTransferType);
 
 					if(IsSourceRouteListSelected)
 					{
 						addressesTransferResult =
-						_routeListService.TransferAddressesFrom(
-							unitOfWork,
-							SourceRouteListId.Value,
-							TargetRouteListId.Value,
-							routeListAddressesWithTransferTypes);
+							_routeListService.TransferAddressesFrom(
+								unitOfWork,
+								SourceRouteListId.Value,
+								TargetRouteListId.Value,
+								routeListAddressesWithTransferTypes);
 					}
 
 					if((addressesTransferResult?.IsSuccess ?? true)
@@ -592,6 +637,11 @@ namespace Vodovoz.ViewModels.Logistic
 						{
 							ShowTransferInformation(addressesTransferResult.Value);
 						}
+
+						var selectedHandToHandNodes = selectedToTransferNodesWithRouteListAddresses
+							.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
+
+						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
 
 						return;
 					}
@@ -644,6 +694,11 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.Message)
 				.ToList();
 
+			var driverApiClientRequestIsNotSuccess = errors
+				.Where(x => x.Code == Errors.Common.DriverApiClient.RequestIsNotSuccess(x.Message))
+				.Select(x => x.Message)
+				.ToList();
+			
 			_interactiveService.ShowMessage(ImportanceLevel.Error,
 				"Перенос не был осуществлен:\n" +
 				string.Join(",\n",
@@ -653,8 +708,18 @@ namespace Vodovoz.ViewModels.Logistic
 				string.Join(",\n",
 					transferRequiresLoadingWhenRouteListEnRoute) +
 				string.Join(",\n",
-					transferNotEnoughFreeBalance),
+					transferNotEnoughFreeBalance) +
+				string.Join(",\n",
+					driverApiClientRequestIsNotSuccess),
 				"Ошибка при переносе адресов");
+		}
+
+		private void ShowTransferWarnings(IEnumerable<Error> errors)
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Warning,
+				string.Join(",\n",
+					errors.Select(e => e.Message)),
+				"Внимание!");
 		}
 
 		private void ShowTransferInformation(IEnumerable<string> messages)
@@ -678,10 +743,15 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.AddressId.Value)
 				.ToList();
 
-			var ordersToRestore = SelectedTargetRouteListAddresses.Cast<RouteListItemNode>()
+			var ordersToRestore = SelectedTargetRouteListAddresses
+				.Cast<RouteListItemNode>()
 				.Where(x => x.AddressStatus != RouteListItemStatus.Transfered)
 				.Select(x => x.OrderId)
 				.ToList();
+
+			var selectedHandToHandNodes = SelectedTargetRouteListAddresses
+				.Cast<RouteListItemNode>()
+				.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title + " > возврат переноса адресов"))
 			{
@@ -709,14 +779,16 @@ namespace Vodovoz.ViewModels.Logistic
 						{
 							foreach(var orderIds in ordersToRestore)
 							{
-								var needShowInSource = !_routeListItemRepository.GetRouteListItemsForOrder(UoW,  orderIds).Any();
+								var needShowInSource = !_routeListItemRepository.GetRouteListItemsForOrder(UoW, orderIds).Any();
 
 								if(needShowInSource)
 								{
 									AddOrderToSourceAddresses(orderIds);
-								}								
+								}
 							}
 						}
+
+						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
 					}
 
 					result.Match(
@@ -736,6 +808,44 @@ namespace Vodovoz.ViewModels.Logistic
 						transaction.Rollback();
 					}
 				}
+			}
+		}
+
+		private void NotifyOfHandToHandTransferTransfered(IEnumerable<RouteListItemNode> selectedHandToHandNodes)
+		{
+			if(!selectedHandToHandNodes.Any())
+			{
+				return;
+			}
+
+			var notifyingErrors = new List<Error>();
+
+			var notifyingWarnings = new List<Error>();
+
+			foreach(var orderId in selectedHandToHandNodes.Select(x => x.OrderId))
+			{
+				try
+				{
+					var result = _routeListTransferhandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
+
+					if(result.IsSuccess)
+					{
+						continue;
+					}
+					else
+					{
+						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+					}
+				}
+				catch(Exception ex)
+				{
+					notifyingErrors.Add(Errors.Common.DriverApiClient.RequestIsNotSuccess(ex.Message));
+				}
+			}
+
+			if(notifyingErrors.Any())
+			{
+				ShowTransferErrors(notifyingErrors);
 			}
 		}
 
@@ -896,6 +1006,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 			FillObservableDriverBalance(TargetRouteListDriverNomenclatureBalance, SourceRouteList);
 			FillObservableDriverBalance(SourceRouteListDriverNomenclatureBalance, TargetRouteList);
+		}
+
+		public override void Dispose()
+		{
+			SourceRouteListJournalFilterViewModel?.Dispose();
+			TargetRouteListJournalFilterViewModel?.Dispose();
+			OpenLegacyOrderForRouteListJournalViewModelHandler = null;
+			base.Dispose();
 		}
 	}
 }

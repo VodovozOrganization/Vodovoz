@@ -1,49 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
-using NLog;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using QS.Dialog.GtkUI;
-using QS.Project.Services;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-		
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
+		private IEmployeeRepository _employeeRepository;
+		private IRouteColumnRepository _routeColumnRepository;
 
-		public event RowActivatedHandler OnClosingItemActivated;
+		private readonly Gdk.Pixbuf _undoIcon;
+		private readonly Gdk.Pixbuf _jumpToIcon;
 
 		private Menu menu;
 
-		public GenericObservableList<RouteListItem> Items { get; set; }
-
 		private int goodsColumnsCount = -1;
+
+		public event RowActivatedHandler OnClosingItemActivated;
+		public event EventHandler<int> BottlesReturnedEdited;
+
+		public RouteListClosingItemsView()
+		{
+			ResolveDependencies();
+			Build();
+			ConfigureMenu();
+			ytreeviewItems.EnableGridLines = TreeViewGridLines.Both;
+			_undoIcon = Stetic.IconLoader.LoadIcon(this, "gtk-undo", IconSize.Menu);
+			_jumpToIcon = Stetic.IconLoader.LoadIcon(this, "gtk-jump-to", IconSize.Menu);
+		}
+
+		[Obsolete("Должен быть удален при разрешении проблем с контейнером")]
+		private void ResolveDependencies()
+		{
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			_routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
+		}
+		
+		public GenericObservableList<RouteListItem> Items { get; set; }
 
 		private IList<RouteColumn> _columnsInfo;
 
 		private IList<RouteColumn> columnsInfo {
 			get {
 				if(_columnsInfo == null && UoW != null)
+				{
 					_columnsInfo = _routeColumnRepository.ActiveColumns(UoW);
+				}
+
 				return _columnsInfo;
 			}
 		}
@@ -60,40 +82,45 @@ namespace Vodovoz
 
 		public IUnitOfWork UoW { get; set; }
 		public bool CanChangeDriverSurcharge = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_driver_surcharge");
-
-		Gdk.Pixbuf transferFromIcon;
+		private Gdk.Pixbuf transferFromIcon;
 
 		protected Gdk.Pixbuf TransferFromIcon {
 			get {
 				if(transferFromIcon == null) {
-					transferFromIcon = Stetic.IconLoader.LoadIcon(this, "gtk-undo", IconSize.Menu);
+					transferFromIcon = _undoIcon;
 				}
 				return transferFromIcon;
 			}
 		}
 
-		Gdk.Pixbuf transferInIcon;
+		private Gdk.Pixbuf transferInIcon;
 
 		protected Gdk.Pixbuf TransferInIcon {
 			get {
 				if(transferInIcon == null) {
-					transferInIcon = Stetic.IconLoader.LoadIcon(this, "gtk-jump-to", IconSize.Menu);
+					transferInIcon = _jumpToIcon;
 				}
 				return transferInIcon;
 			}
 		}
 
-		RouteList routeList;
+		private RouteList routeList;
 		public RouteList RouteList {
 			get {
 				return routeList;
 			}
 			set {
 				if(routeList == value)
+				{
 					return;
+				}
+
 				routeList = value;
 				if(routeList.Addresses == null)
+				{
 					routeList.Addresses = new List<RouteListItem>();
+				}
+
 				Items = routeList.ObservableAddresses;
 
 				routeList.ObservableAddresses.ListChanged += Items_ListChanged;
@@ -105,7 +132,7 @@ namespace Vodovoz
 			}
 		}
 
-		bool isEditing;
+		private bool isEditing;
 
 		public bool IsEditing {
 			get {
@@ -118,7 +145,7 @@ namespace Vodovoz
 			}
 		}
 
-		void Items_ListChanged(object aList)
+		private void Items_ListChanged(object aList)
 		{
 			UpdateColumns();
 		}
@@ -130,7 +157,10 @@ namespace Vodovoz
 			foreach (var columnName in columsToChange) {
 				var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == columnName);
 				if (column == null)
+				{
 					continue;
+				}
+
 				column.Visible = ColumsVisibility;
 			}
 		}
@@ -139,7 +169,9 @@ namespace Vodovoz
 		{
 			var goodsColumns = Items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
 			if (goodsColumnsCount == goodsColumns.Length)
+			{
 				return;
+			}
 
 			goodsColumnsCount = goodsColumns.Length;
 
@@ -151,7 +183,7 @@ namespace Vodovoz
 					.AddPixbufRenderer(x => GetRowIcon(x))
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
 					node.Order.DeliveryPoint == null
-						? String.Empty
+						? string.Empty
 						: $"{node.Order.DeliveryPoint.Street} д.{node.Order.DeliveryPoint.Building}")
 				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle())
 				.AddColumn("Доставка за час")
@@ -161,7 +193,10 @@ namespace Vodovoz
 				foreach (var column in columnsInfo)
 				{
 					if (!goodsColumns.Contains(column.Id))
+					{
 						continue;
+					}
+
 					int id = column.Id;
 					config.AddColumn(column.Name).HeaderAlignment(0.5f)
 						.AddTextRenderer()
@@ -172,10 +207,12 @@ namespace Vodovoz
 			var colorRed = GdkColors.DangerBase;
 			var colorDarkRed = GdkColors.DarkRed;
 			var colorLightBlue = GdkColors.InfoBase;
-			var colorYellow = GdkColors.DarkMustard;
+			var colorYellow = GdkColors.WarningBase;
+
 			config
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
+					.EditedEvent(OnBottlesReturnedEdited)
 				.AddSetter((cell, node) => cell.Editable = (node.IsDelivered()))
 				.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
@@ -266,6 +303,18 @@ namespace Vodovoz
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
+		private void OnBottlesReturnedEdited(object o, EditedArgs args)
+		{
+			bool isNumeric = int.TryParse(args.NewText, out int bottlesReturned);
+
+			if(!isNumeric)
+			{
+				return;
+			}
+
+			BottlesReturnedEdited(o, bottlesReturned);
+		}
+
 		private void YTreeViewItemsOnlineOrderEdited(object o, EditedArgs args) {
 			var node = ytreeviewItems.GetSelectedObject<RouteListItem>();
 
@@ -276,25 +325,35 @@ namespace Vodovoz
 			}
 		}
 
-		Gdk.Pixbuf GetRowIcon(RouteListItem item)
+		private Gdk.Pixbuf GetRowIcon(RouteListItem item)
 		{
 			if (item.Status == RouteListItemStatus.Transfered)
+			{
 				return TransferFromIcon;
+			}
+
 			if (item.WasTransfered)
+			{
 				return TransferInIcon;
+			}
+
 			return null;
 		}
 
-		void CommentCellEdited (object o, EditedArgs args)
+		private void CommentCellEdited (object o, EditedArgs args)
 		{
 			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path)) as RouteListItem;
 
 			node.CashierCommentAuthor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if (node.CashierCommentCreateDate.HasValue)
+			{
 				node.CashierCommentLastUpdate = DateTime.Now.Date;
+			}
 			else
+			{
 				node.CashierCommentCreateDate = DateTime.Now.Date;
+			}
 		}
 
 		private void EmptyBottleCellSetter(Gamma.GtkWidgets.Cells.NodeCellRendererSpin<RouteListItem> cell, RouteListItem node)
@@ -331,14 +390,14 @@ namespace Vodovoz
 				var formatString = item.CoolersToClient < item.PlannedCoolersToClient
 						? "Кулеры:<b>{0}</b>({1})"
 						: "Кулеры:<b>{0}</b>";
-				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient - item.CoolersToClient);
+				var coolerString = string.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient - item.CoolersToClient);
 				stringParts.Add(coolerString);
 			}
 			if(item.PlannedPumpsToClient > 0) {
 				var formatString = item.PumpsToClient < item.PlannedPumpsToClient
 						? "Помпы:<b>{0}</b>({1})"
 						: "Помпы:<b>{0}</b>";
-				var coolerString = String.Format(formatString,
+				var coolerString = string.Format(formatString,
 					item.PumpsToClient,
 					item.PlannedPumpsToClient - item.PumpsToClient
 				);
@@ -348,7 +407,7 @@ namespace Vodovoz
 				var formatString = item.UncategorisedEquipmentToClient < item.PlannedUncategorisedEquipmentToClient
 						? "Другое:<b>{0}</b>({1})"
 						: "Другое:<b>{0}</b>";
-				var coolerString = String.Format(formatString,
+				var coolerString = string.Format(formatString,
 					item.UncategorisedEquipmentToClient,
 					item.PlannedUncategorisedEquipmentToClient - item.UncategorisedEquipmentToClient
 				);
@@ -382,11 +441,11 @@ namespace Vodovoz
 			}
 
 			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
-			if(!String.IsNullOrWhiteSpace(item.Order.ToClientText)) {
+			if(!string.IsNullOrWhiteSpace(item.Order.ToClientText)) {
 				return item.Order.ToClientText;
 			}
 
-			return String.Join(",", stringParts);
+			return string.Join(",", stringParts);
 		}	
 
 		public string FromClientString(RouteListItem item)
@@ -397,7 +456,7 @@ namespace Vodovoz
 				var formatString = item.CoolersFromClient < item.PlannedCoolersFromClient
 						? "Кулеры:<b>{0}</b>({1})"
 						: "Кулеры:<b>{0}</b>";
-				var coolerString = String.Format(formatString,
+				var coolerString = string.Format(formatString,
 					item.CoolersFromClient,
 					item.PlannedCoolersFromClient - item.CoolersFromClient
 				);
@@ -407,7 +466,7 @@ namespace Vodovoz
 				var formatString = item.PumpsFromClient < item.PlannedPumpsFromClient
 						? "Помпы:<b>{0}</b>({1})"
 						: "Помпы:<b>{0}</b>";
-				var pumpString = String.Format(formatString,
+				var pumpString = string.Format(formatString,
 					item.PumpsFromClient,
 					item.PlannedPumpsFromClient - item.PumpsFromClient
 				);
@@ -427,22 +486,15 @@ namespace Vodovoz
 			}
 
 			//Если это старый заказ со старой записью оборудования в виде строки, то выводим только его
-			if(!String.IsNullOrWhiteSpace(item.Order.FromClientText)) {
+			if(!string.IsNullOrWhiteSpace(item.Order.FromClientText)) {
 				return item.Order.FromClientText;
 			}
 
-			return String.Join(",", stringParts);
+			return string.Join(",", stringParts);
 		}
 
-		public RouteListClosingItemsView ()
-		{
-			this.Build ();
-			ConfigureMenu();
-			ytreeviewItems.EnableGridLines = TreeViewGridLines.Both;
-		}
-
-		Dictionary<PopupMenuAction, MenuItem> menuItems;
-		string textToCopy;
+		private Dictionary<PopupMenuAction, MenuItem> menuItems;
+		private string textToCopy;
 
 		public void ConfigureMenu()
 		{
@@ -454,8 +506,10 @@ namespace Vodovoz
 			var copy = new MenuItem(PopupMenuAction.CopyCell.GetEnumTitle());
 			menuItems.Add(PopupMenuAction.CopyCell, copy);
 			copy.Activated += (s, args) => {
-				if(!String.IsNullOrWhiteSpace(textToCopy))
+				if(!string.IsNullOrWhiteSpace(textToCopy))
+				{
 					clipboard.Text = textToCopy;
+				}
 			};
 			copy.Visible = false;
 
@@ -489,7 +543,7 @@ namespace Vodovoz
 			}
 		}
 
-		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
+		private void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
 		{
 			if(args.Column.Title == "Заказ" && (
 				GetSelectedRouteListItem().Status == RouteListItemStatus.Transfered
@@ -529,6 +583,13 @@ namespace Vodovoz
 					menu.Popup();
 				}
 			}
+		}
+
+		public override void Destroy()
+		{
+			_employeeRepository = null;
+			_routeColumnRepository = null;
+			base.Destroy();
 		}
 
 		public enum PopupMenuAction

@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult("Инвентарный номер не заполнен");
 			}
-			else
+			else if(Nomenclature != null)
 			{
 				using(var uow = uowFactory.CreateWithoutRoot())
 				{

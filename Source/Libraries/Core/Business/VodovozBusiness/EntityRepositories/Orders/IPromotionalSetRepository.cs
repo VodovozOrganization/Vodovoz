@@ -27,6 +27,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
-			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+			IUnitOfWork uow,
+			GoodsOnlineParameterType parameterType,
+			IEnumerable<int> warehouses);
 	}
 }

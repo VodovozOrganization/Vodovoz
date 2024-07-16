@@ -1,6 +1,8 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace CustomerOrdersApi
 {
@@ -14,6 +16,16 @@ namespace CustomerOrdersApi
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-				.ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+				.ConfigureLogging((hostBuilderContext, logging) =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(hostBuilderContext.Configuration
+						.GetSection(nameof(NLog)));
+				})
+				.ConfigureWebHostDefaults(webBuilder =>
+				{
+					webBuilder.UseStartup<Startup>();
+				});
 	}
 }

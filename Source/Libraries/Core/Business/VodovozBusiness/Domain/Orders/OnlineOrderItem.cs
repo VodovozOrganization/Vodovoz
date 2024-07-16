@@ -1,17 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки онлайн заказа",
-		Nominative = "строка онлайн заказа")]
-	public class OnlineOrderItem : Product, IDomainObject
+		NominativePlural = "Строки онлайн заказа",
+		Nominative = "Строка онлайн заказа",
+		Prepositional = "Строке онлайн заказа",
+		PrepositionalPlural = "Строках онлайн заказа"
+	)]
+	[HistoryTrace]
+	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct
 	{
 		private int? _nomenclatureId;
 		private int? _promoSetId;
 		private OnlineOrder _onlineOrder;
+		private decimal _count = -1;
+		private DiscountReason _discountReason;
+		private Nomenclature _nomenclature;
+		private PromotionalSet _promoSet;
 
 		protected OnlineOrderItem() { } 
 
@@ -37,7 +46,35 @@ namespace Vodovoz.Domain.Orders
 			get => _promoSetId;
 			set => SetField(ref _promoSetId, value);
 		}
-		
+
+		[Display(Name = "Номенклатура")]
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			protected set => SetField(ref _nomenclature, value);
+		}
+
+		[Display(Name = "Добавлено из промонабора")]
+		public virtual PromotionalSet PromoSet
+		{
+			get => _promoSet;
+			set => SetField(ref _promoSet, value);
+		}
+
+		[Display(Name = "Количество")]
+		public virtual decimal Count
+		{
+			get => _count;
+			protected set => SetField(ref _count, value);
+		}
+
+		[Display(Name = "Основание скидки на товар")]
+		public virtual DiscountReason DiscountReason
+		{
+			get => _discountReason;
+			set => SetField(ref _discountReason, value);
+		}
+
 		[Display(Name = "Количество из промонабора")]
 		public virtual decimal CountFromPromoSet { get; set; }
 		

@@ -44,15 +44,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
-using TrueMarkApi.Library.Converters;
-using TrueMarkApi.Library.Dto;
+using TrueMark.Contracts;
+using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
@@ -71,6 +70,7 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -98,7 +98,6 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -111,19 +110,21 @@ namespace Vodovoz
 
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
+		private readonly bool _canEditClientRefer =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Counterparty.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly IDepositRepository _depositRepository = new DepositRepository();
-		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
-		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IUserRepository _userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+		private readonly IBottlesRepository _bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
+		private readonly IDepositRepository _depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
+		private readonly IMoneyRepository _moneyRepository = ScopeProvider.Scope.Resolve<IMoneyRepository>();
+		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
+		private readonly IOrderRepository _orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+		private readonly IPhoneRepository _phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
+		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
 		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
@@ -378,6 +379,25 @@ namespace Vodovoz
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			ConfigureClientReferEntityEntry();
+		}
+
+		private void ConfigureClientReferEntityEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Counterparty>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+
+			entityentryClientRefer.ViewModel = builder.ForProperty(x => x.Referrer)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			entityentryClientRefer.ViewModel.DisposeViewModel = false;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -412,6 +432,11 @@ namespace Vodovoz
 			if(e.PropertyName == nameof(Entity.IsLiquidating))
 			{
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+			}
+
+			if(e.PropertyName == nameof(Entity.CameFrom) && Entity.CameFrom?.Id != _counterpartySettings.ReferFriendPromotionCameFromId)
+			{
+				Entity.Referrer = null;
 			}
 		}
 
@@ -486,11 +511,21 @@ namespace Vodovoz
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 
-			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
+			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0 || _canEditClientRefer;
+
+			yhboxReferrer.Binding.AddSource(Entity)
+				.AddFuncBinding(e => 
+						(e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId),
+					w => w.Visible)
+				.AddFuncBinding(e =>
+						(e.Id == 0 && CanEdit)
+						|| _canEditClientRefer,
+					w => w.Sensitive)
+				.InitializeFromSource();
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
-			ySpecCmbCameFrom.Sensitive = Entity.Id == 0 && CanEdit;
+			ySpecCmbCameFrom.Sensitive = (Entity.Id == 0 && CanEdit) || _canEditClientRefer;
 			ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
 				UoW,
 				Entity.CameFrom == null || !Entity.CameFrom.IsArchive
@@ -679,7 +714,17 @@ namespace Vodovoz
 				.InitializeFromSource();
 			yspinExpirationDatePercent.Sensitive = CanEdit;
 
-			ycheckRoboatsExclude.Binding.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active).InitializeFromSource();
+			ycheckRoboatsExclude.Binding
+				.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckExcludeFromAutoCalls.Binding
+				.AddBinding(Entity, e => e.ExcludeFromAutoCalls, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckHideDeliveryPointInBill.Binding
+				.AddBinding(Entity, e => e.HideDeliveryPointForBill, w => w.Active)
+				.InitializeFromSource();
 
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
@@ -1095,10 +1140,9 @@ namespace Vodovoz
 
 		private void ConfigureTabFixedPrices()
 		{
-			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
-			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
+			var fixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
+			var fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1106,12 +1150,6 @@ namespace Vodovoz
 		private void ConfigureValidationContext()
 		{
 			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
-
-			_validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
 		}
 
 		private void ConfigureTabEmails()
@@ -1562,8 +1600,6 @@ namespace Vodovoz
 				{
 					Entity.PayerSpecialKPP = null;
 				}
-
-				Entity.UoW = UoW;
 
 				_phonesViewModel.RemoveEmpty();
 				emailsView.ViewModel.RemoveEmpty();
@@ -2109,7 +2145,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TrueMarkResponseResultDto trueMarkResponse;
+			TrueMarkRegistrationResultDto trueMarkResponse;
 
 			try
 			{
@@ -2239,6 +2275,11 @@ namespace Vodovoz
 			}
 
 			if(!_commonServices.InteractiveService.Question("Перед продолжением нужно будет сохранить контрагента.\nПродолжить?"))
+			{
+				return;
+			}
+
+			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 			{
 				return;
 			}

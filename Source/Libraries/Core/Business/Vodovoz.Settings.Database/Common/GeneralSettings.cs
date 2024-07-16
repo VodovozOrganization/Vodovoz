@@ -19,9 +19,15 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _driversRouteListsMaxDebtSum = "drivers_stop_list_route_lists_max_debt_sum";
 		private const string _isClientsSecondOrderDiscountActive = "is_client_second_order_discount_active";
 		private const string _isOrderWaitUntilActive = "is_order_wait_until_active";
+		private const string _isFastDelivery19LBottlesLimitActive = "is_fast_delivery_19l_bottles_limit_active";
+		private const string _fastDelivery19LBottlesLimitCount = "fast_delivery_19l_bottles_limit_count";
 		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
 		private const string _billAdditionalInfo = "bill_additional_info";
 		private const string _carLoadDocumentInfoString = "car_load_document_info_string";
+		private const string _upcomingTechInspectForOurCars = nameof(UpcomingTechInspectForOurCars);
+		private const string _upcomingTechInspectFoRaskatCars = nameof(UpcomingTechInspectForRaskatCars);
+		private const string _fastDeliveryIntervalFrom = nameof(FastDeliveryIntervalFrom);
+		private const string _fastDeliveryMaximumPermissibleLateMinutes = nameof(FastDeliveryMaximumPermissibleLateMinutes);
 
 		public GeneralSettings(ISettingsController settingsController)
 		{
@@ -98,6 +104,20 @@ namespace Vodovoz.Settings.Database.Common
 		public bool GetIsOrderWaitUntilActive => _settingsController.GetValue<bool>(_isOrderWaitUntilActive);
 		public void UpdateIsOrderWaitUntilActive(bool value) =>
 			_settingsController.CreateOrUpdateSetting(_isOrderWaitUntilActive, value.ToString());
+
+		public bool IsFastDelivery19LBottlesLimitActive => _settingsController.GetValue<bool>(_isFastDelivery19LBottlesLimitActive);
+		public void UpdateIsFastDelivery19LBottlesLimitActive(bool value) =>_settingsController.CreateOrUpdateSetting(_isFastDelivery19LBottlesLimitActive, value.ToString());
+		public int FastDelivery19LBottlesLimitCount => _settingsController.GetValue<int>(_fastDelivery19LBottlesLimitCount);
+
+		public void UpdateFastDelivery19LBottlesLimitCount(int value) => _settingsController.CreateOrUpdateSetting(_fastDelivery19LBottlesLimitCount, value.ToString());
+		public void UpdateUpcomingTechInspectForOurCars(int value) => _settingsController.CreateOrUpdateSetting(_upcomingTechInspectForOurCars, value.ToString());
+		public void UpdateUpcomingTechInspectForRaskatCars(int value) => _settingsController.CreateOrUpdateSetting(_upcomingTechInspectFoRaskatCars, value.ToString());
+		public int UpcomingTechInspectForOurCars => _settingsController.GetValue<int>(_upcomingTechInspectForOurCars);
+		public int UpcomingTechInspectForRaskatCars => _settingsController.GetValue<int>(_upcomingTechInspectFoRaskatCars);
+		public FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom => _settingsController.GetValue<FastDeliveryIntervalFromEnum>(_fastDeliveryIntervalFrom);
+		public void UpdateFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum value) => _settingsController.CreateOrUpdateSetting(_fastDeliveryIntervalFrom, value.ToString());
+		public int FastDeliveryMaximumPermissibleLateMinutes => _settingsController.GetValue<int>(_fastDeliveryMaximumPermissibleLateMinutes);
+		public void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value) => _settingsController.CreateOrUpdateSetting(_fastDeliveryMaximumPermissibleLateMinutes, value.ToString());
 
 		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
 		{

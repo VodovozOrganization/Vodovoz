@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Services;

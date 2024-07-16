@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -10,6 +11,7 @@ namespace Vodovoz.Domain.Orders.Documents
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
+	[HistoryTrace]
 	public abstract class OrderDocument : PropertyChangedBase, IDocument
 	{
 		public virtual int Id { get; set; }

@@ -15,6 +15,8 @@ namespace Vodovoz.Extensions
 			{
 				case OnlinePaymentSource.FromMobileApp:
 					return orderSettings.PaymentByCardFromMobileAppId;
+				case OnlinePaymentSource.FromMobileAppByQr:
+					return orderSettings.GetPaymentByCardFromMobileAppByQrCodeId;
 				case OnlinePaymentSource.FromVodovozWebSite:
 					return orderSettings.PaymentByCardFromSiteId;
 				case OnlinePaymentSource.FromVodovozWebSiteByQr:

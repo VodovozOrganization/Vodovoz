@@ -204,7 +204,7 @@ namespace Pacs.Operators.Client
 				throw;
 			}
 		}
-
+		
 		public async Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default)
 		{
 			Validate();
@@ -290,7 +290,7 @@ namespace Pacs.Operators.Client
 			}
 		}
 
-		public async Task<GlobalBreakAvailability> GetGlobalBreakAvailability()
+		public async Task<GlobalBreakAvailabilityEvent> GetGlobalBreakAvailability()
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/pacs/global-break-availability/get";
@@ -301,7 +301,7 @@ namespace Pacs.Operators.Client
 			{
 				var response = await _httpClient.GetAsync(uri);
 				var responseContent = await response.Content.ReadAsStringAsync();
-				var result = JsonSerializer.Deserialize<GlobalBreakAvailability>(responseContent, _jsonSerializerOptions);
+				var result = JsonSerializer.Deserialize<GlobalBreakAvailabilityEvent>(responseContent, _jsonSerializerOptions);
 				return result;
 			}
 			catch(Exception ex)
@@ -328,6 +328,27 @@ namespace Pacs.Operators.Client
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при получении состояния возможности перерыва");
+				throw;
+			}
+		}
+
+		public async Task<OperatorBreakAvailability> GetOperatorBreakAvailability(int operatorId)
+		{
+			Validate();
+			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/break-availability?orepatorId={operatorId}";
+			_httpClient.DefaultRequestHeaders.Clear();
+			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
+
+			try
+			{
+				var response = await _httpClient.GetAsync(uri);
+				var responseContent = await response.Content.ReadAsStringAsync();
+				var result = JsonSerializer.Deserialize<OperatorBreakAvailability>(responseContent, _jsonSerializerOptions);
+				return await Task.FromResult(result);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при получении состояния возможности перерыва оператора");
 				throw;
 			}
 		}

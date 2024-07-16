@@ -1,5 +1,4 @@
-﻿using EdoService.Library.Converters;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,22 +8,12 @@ using Microsoft.OpenApi.Models;
 using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
-using System;
-using System.Linq;
 using System.Text;
 using QS.Services;
-using Taxcom.Client.Api;
-using TaxcomEdoApi.Converters;
-using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.HealthChecks;
-using TaxcomEdoApi.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Tools.Orders;
+using Vodovoz.Data.NHibernate;
 using VodovozHealthCheck;
 
 namespace TaxcomEdoApi
@@ -63,16 +52,6 @@ namespace TaxcomEdoApi
 				.AddXmlSerializerFormatters();
 
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaxcomEdoApi", Version = "v1" }); });
-			
-			var apiSection = Configuration.GetSection("Api");
-			var certificateThumbprint = apiSection.GetValue<string>("CertificateThumbprint").ToUpper();
-			var certificate = CertificateLogic.GetAvailableCertificates().SingleOrDefault(x => x.Thumbprint == certificateThumbprint);
-
-			if(certificate is null)
-			{
-				_logger.LogCritical("Не найден сертификат в личном хранилище пользователя");
-				throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
-			}
 
 			services.AddMappingAssemblies(
 				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -81,41 +60,16 @@ namespace TaxcomEdoApi
 				typeof(QS.HistoryLog.HistoryMain).Assembly,
 				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 				typeof(QS.Attachments.Domain.Attachment).Assembly,
-				typeof(EmployeeWithLoginMap).Assembly,
-				typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
-			);
-			services.AddDatabaseConnection();
-			services.AddCore();
-			services.AddTrackedUoW();
-			services.AddStaticHistoryTracker();
-			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-
-			services.AddHostedService<AutoSendReceiveService>();
-			services.AddHostedService<ContactsUpdaterService>();
-			services.AddHostedService<DocumentFlowService>();
-			services.AddSingleton(_ => new Factory().CreateApi(
-				apiSection.GetValue<string>("BaseUrl"),
-				true,
-				apiSection.GetValue<string>("IntegratorId"),
-				certificate.RawData,
-				apiSection.GetValue<string>("EdxClientId")));
-
-			services.AddSingleton<IOrderRepository, OrderRepository>();
-			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
-			services.AddSingleton<ICounterpartyRepository, CounterpartyRepository>();
-
-			services.AddSingleton(_ => certificate);
-			services.AddSingleton<EdoUpdFactory>();
-			services.AddSingleton<EdoBillFactory>();
-			services.AddSingleton<PrintableDocumentSaver>();
-			services.AddSingleton<ParticipantDocFlowConverter>();
-			services.AddSingleton<EdoContainerMainDocumentIdParser>();
-			services.AddSingleton<UpdProductConverter>();
-			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
-
-			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-			services.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
+				typeof(EmployeeWithLoginMap).Assembly
+			)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddStaticHistoryTracker()
+				.AddStaticScopeForEntity()
+				.AddConfig(Configuration)
+				.AddDependencyGroup()
+				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -105,6 +106,11 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+
+		public static Expression<Func<DeliverySchedule, bool>> GetNameCompareExpression(string searchText)
+		{
+			return entity => (entity.Name ?? string.Empty).IndexOf(searchText) >= 0;
+		}
 
 	}
 }

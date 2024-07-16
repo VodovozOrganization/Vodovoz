@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
@@ -64,9 +64,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
-			StartDate = DateTime.Now.AddDays(-1);
-			EndDate = DateTime.Now.AddDays(7);
-			_filterDateType = OrdersDateFilterType.CreationDate;
+			StartDate = DateTime.Today.AddDays(-1);
+			EndDate = DateTime.Today.AddDays(7);
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }

@@ -102,7 +102,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
-			if(document.Order.IsFirstOrder
+			if((document.Order?.IsFirstOrder ?? false)
 				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument
 				&& _emailDocumentPreparer
 					.PrepareOfferAgreementDocument(_unitOfWork, document.Order.Contract, connectionString) is EmailAttachment additionalAgreement)

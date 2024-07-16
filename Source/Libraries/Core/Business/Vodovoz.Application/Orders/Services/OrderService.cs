@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -12,11 +13,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Factories;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Models.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
+using Vodovoz.Models.Orders;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
@@ -39,7 +42,12 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly FastDeliveryHandler _fastDeliveryHandler;
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IEmployeeSettings _employeeSettings;
-		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IOrderSettings _orderSettings;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrderDiscountsController _orderDiscountsController;
+		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -56,7 +64,12 @@ namespace Vodovoz.Application.Orders.Services
 			FastDeliveryHandler fastDeliveryHandler,
 			IPromotionalSetRepository promotionalSetRepository,
 			IEmployeeSettings employeeSettings,
-			IDeliveryPriceCalculator deliveryPriceCalculator)
+			INomenclatureRepository nomenclatureRepository,
+			IGenericRepository<DiscountReason> discountReasonRepository,
+			IOrderSettings orderSettings,
+			IOrderRepository orderRepository,
+			IOrderDiscountsController orderDiscountsController,
+			IOrderDeliveryPriceGetter orderDeliveryPriceGetter)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -76,7 +89,12 @@ namespace Vodovoz.Application.Orders.Services
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
+			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
@@ -85,7 +103,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _deliveryPriceCalculator.CalculateDeliveryPrice(unitOfWork, order);
+			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
 			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
 		}
 
@@ -155,9 +173,9 @@ namespace Vodovoz.Application.Orders.Services
 
 		/// <summary>
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
-		/// Возвращает сохраненный заказ
+		/// Возвращает данные по заказу
 		/// </summary>
-		public Order CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
+		public (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
 		{
 			if(roboatsOrderArgs is null)
 			{
@@ -170,7 +188,8 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private Order CreateIncompleteOrder(IUnitOfWorkGeneric<Order> unitOfWork, RoboatsOrderArgs roboatsOrderArgs)
+		private (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(
+			IUnitOfWorkGeneric<Order> unitOfWork, RoboatsOrderArgs roboatsOrderArgs)
 		{
 			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
@@ -180,24 +199,24 @@ namespace Vodovoz.Application.Orders.Services
 
 			var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
 			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-			return order;
+			return (order.Id, order.Author.Id, order.OrderStatus);
 		}
 
 		/// <summary>
 		/// Подтверждение заказа
 		/// </summary>
 		/// <param name="orderId">номер заказа</param>
-		/// <param name="roboatsEmployee">Id сотрудника</param>
-		/// <returns>подтвержденный заказ</returns>
-		public Order AcceptOrder(int orderId, int roboatsEmployee)
+		/// <param name="roboatsEmployeeId">Id сотрудника</param>
+		/// <returns>Данные по заказу(номер заказа, номер автора, статус заказа)</returns>
+		public (int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId)
 		{
 			using(var unitOfWork = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
 			{
 				var order = unitOfWork.Root;
-				var employee = unitOfWork.GetById<Employee>(roboatsEmployee);
+				var employee = unitOfWork.GetById<Employee>(roboatsEmployeeId);
 				order.AcceptOrder(employee, _callTaskWorker);
 				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
-				return order;
+				return  (order.Id, order.Author.Id, order.OrderStatus);
 			}
 		}
 
@@ -283,12 +302,7 @@ namespace Vodovoz.Application.Orders.Services
 			UpdateDeliveryCost(uow, order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded();
-			
-			//TODO проверка возможности добавления промонаборов
-			
-			//TODO проверить работу сохранения заказов
-			
-			//для открытия внутренней транзакции
+
 			uow.Save(onlineOrder);
 			var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
 
@@ -301,42 +315,6 @@ namespace Vodovoz.Application.Orders.Services
 			var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
 			uow.Save(notification);
 			uow.Commit();
-			
-			/*using(var transaction = uow.Session.BeginTransaction())
-			{
-				try
-				{
-					var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
-					
-					if(acceptResult.IsFailure)
-					{
-						return 0;
-					}
-
-					onlineOrder.SetOrderPerformed(order, employee);
-					uow.Save(onlineOrder);
-					var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
-					uow.Save(notification);
-					transaction.Commit();
-					GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)uow);
-				}
-				catch(Exception e)
-				{
-					if(!transaction.WasCommitted
-						&& !transaction.WasRolledBack
-						&& transaction.IsActive
-						&& uow.Session.Connection.State == ConnectionState.Open)
-					{
-						try
-						{
-							transaction.Rollback();
-						}
-						catch { }
-					}
-
-					return 0;
-				}
-			}*/
 			
 			return order.Id;
 		}
@@ -366,6 +344,44 @@ namespace Vodovoz.Application.Orders.Services
 			order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
 			
 			return Result.Success();
+		}
+
+		public void CheckAndAddBottlesToReferrerByReferFriendPromo(
+			IUnitOfWork uow,
+			Order order,
+			bool canChangeDiscountValue)
+		{
+			if(order.OrderItems.Any(o => o.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId))
+			{
+				return;
+			}
+
+			var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(uow, order.Client.Id);
+			var alreadyReceived = _orderRepository.GetAlreadyReceivedBottlesCountByReferPromotion(uow, order, _orderSettings.ReferFriendDiscountReasonId);
+
+			var bottlesToAdd = referredCounterparties - alreadyReceived;
+
+			if(bottlesToAdd < 1)
+			{
+				return;
+			}
+
+			var nomenclature = _nomenclatureRepository.GetWaterSemiozerie(uow);
+
+			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
+
+			var beforeAddItemsCount = order.OrderItems.Count();
+			order.AddNomenclature(nomenclature, bottlesToAdd);		
+			var afterAddItemsCount = order.OrderItems.Count();
+
+			if(afterAddItemsCount == beforeAddItemsCount)
+			{
+				return;
+			}
+
+			var orderItem = order.OrderItems.Last();
+
+			_orderDiscountsController.SetDiscountFromDiscountReasonForOrderItem(referFriendDiscountReason, orderItem, canChangeDiscountValue, out string message);
 		}
 	}
 }

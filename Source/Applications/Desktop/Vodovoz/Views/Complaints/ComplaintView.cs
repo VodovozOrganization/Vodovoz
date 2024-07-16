@@ -50,11 +50,15 @@ namespace Vodovoz.Views.Complaints
 			labelName.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
-
+			
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
 			if (!ViewModel.CanClose)
 			{
 				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.Closed });
+			}
+			if(ViewModel.Entity.Status != ComplaintStatuses.NotTakenInProcess)
+			{
+				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.NotTakenInProcess });
 			}
 
 			_lastStatus = ViewModel.Status;
@@ -185,6 +189,11 @@ namespace Vodovoz.Views.Complaints
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
+
+			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
+			{
+				handsetPhone.SetPhone(ViewModel.Entity.Phone);
+			}
 
 			ViewModel.Entity.PropertyChanged += (o, e) =>
 			{
@@ -429,7 +438,7 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			}
 			else
 			{

@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Zabbix.Sender;
 
 namespace ExternalCounterpartyAssignNotifier
 {
@@ -22,6 +23,7 @@ namespace ExternalCounterpartyAssignNotifier
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IExternalCounterpartyAssignNotificationRepository _externalCounterpartyAssignNotificationRepository;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IZabbixSender _zabbixSender;
 		private const int _delayInSec = 20;
 
 		public ExternalCounterpartyAssignNotifier(
@@ -30,7 +32,8 @@ namespace ExternalCounterpartyAssignNotifier
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IExternalCounterpartyAssignNotificationRepository externalCounterpartyAssignNotificationRepository,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger;
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -39,6 +42,7 @@ namespace ExternalCounterpartyAssignNotifier
 				externalCounterpartyAssignNotificationRepository
 				?? throw new ArgumentNullException(nameof(externalCounterpartyAssignNotificationRepository));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,12 +51,12 @@ namespace ExternalCounterpartyAssignNotifier
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				var pastDaysForSend = _configuration.GetValue<int>("PastDaysForSend");
-				await NotifyAsync(pastDaysForSend);
+				await NotifyAsync(pastDaysForSend, stoppingToken);
 				await Task.Delay(1000 * _delayInSec, stoppingToken);
 			}
 		}
 
-		private async Task NotifyAsync(int pastDaysForSend)
+		private async Task NotifyAsync(int pastDaysForSend, CancellationToken stoppingToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -80,6 +84,8 @@ namespace ExternalCounterpartyAssignNotifier
 						UpdateNotification(uow, notification, httpCode);
 					}
 				}
+
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 		}
 

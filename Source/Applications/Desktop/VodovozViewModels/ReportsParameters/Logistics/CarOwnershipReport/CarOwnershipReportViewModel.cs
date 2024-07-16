@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using DateTimeHelpers;
+using QS.Commands;
 using QS.Dialog;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -33,7 +34,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			Title = "Количество ТС компании";
+			Title = "Принадлежность ТС";
 
 			_selectedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
@@ -152,8 +153,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			{
 				Identifier = _periodReportIdentifier;
 
-				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date);
-				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date);
+				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date.ToString(DateTimeFormats.QueryDateTimeFormat));
+				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date.ToString(DateTimeFormats.QueryDateTimeFormat));
 
 				return;
 			}

@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -15,14 +16,16 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			ILogger<OnlineOrderRegisterFaultConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
-			IOrderService orderService) : base(logger, unitOfWorkFactory, onlineOrderFactory, orderService)
+			IOrderService orderService,
+			IDeliveryRulesSettings deliveryRulesSettings)
+			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
 		{
 		}
 		
 		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
-			Logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
+			_logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
 			
 			try
 			{
@@ -31,7 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
+				_logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
 				throw;
 			}

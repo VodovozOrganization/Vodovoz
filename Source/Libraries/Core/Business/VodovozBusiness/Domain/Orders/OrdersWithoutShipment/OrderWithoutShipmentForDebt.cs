@@ -81,9 +81,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-			return new ReportInfo
+
+			return new ReportInfo(connectionString)
 			{
-				Title = this.Title,
+				Title = Title,
 				Identifier = "Documents.BillWithoutShipmentForDebt",
 				Parameters = new Dictionary<string, object> {
 					{ "bill_ws_for_debt_id", Id },
@@ -134,7 +135,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			var image = new EmailAttachment();
 			image.MIMEType = "image/png";
 			image.FileName = "email_ad.png";
-			using(Stream stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Vodovoz.Resources.email_ad.png")) {
+			using(Stream stream = typeof(OrderWithoutShipmentForDebt).Assembly.GetManifestResourceStream("VodovozBusiness.Resources.email_ad.png")) {
 				byte[] buffer = new byte[stream.Length];
 				stream.Read(buffer, 0, buffer.Length);
 				image.Base64Content = Convert.ToBase64String(buffer);

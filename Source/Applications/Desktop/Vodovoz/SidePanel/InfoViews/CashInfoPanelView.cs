@@ -1,50 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
+﻿using Gamma.GtkWidgets;
 using QS.Utilities;
-using Vodovoz.EntityRepositories;
+using QS.Views.GtkUI;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
-using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.ViewModels.SidePanels;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CashInfoPanelView : Gtk.Bin, IPanelView
+	public partial class CashInfoPanelView : WidgetViewBase<CashInfoPanelViewModel>, IPanelView
 	{
-		private readonly IUnitOfWork _uow;
-		private readonly ICashRepository _cashRepository;
-		private readonly IList<int> _sortedSubdivisionsIds;
 
-		public CashInfoPanelView(IUnitOfWorkFactory uowFactory,
-			ICashRepository cashRepository,
-			ISubdivisionRepository subdivisionRepository,
-			IUserRepository userRepository)
+		public CashInfoPanelView(CashInfoPanelViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
-			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			Build();
+			ConfigureWidget();
+		}
 
-			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser();
-			var availableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(_uow, currentUser).ToList();
-			var settings =
-				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
-				.GetCurrentUserSettings(_uow);
-			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions);
-			if(needSave)
-			{
-				_uow.Save(settings);
-				_uow.Commit();
-			}
+		protected override void ConfigureWidget()
+		{
+			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object>()
+				.AddColumn("Ответственный")
+					.AddTextRenderer(n => ViewModel.GetNodeText(n))
+					.AddSetter((c, n) => c.Alignment = n is SubdivisionBalanceNode ? Pango.Alignment.Left : Pango.Alignment.Right)
+					.WrapWidth(110).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Баланс")
+					.AddTextRenderer(n => CurrencyWorks.GetShortCurrencyString(ViewModel.GetBalance(n)))
+					.WrapWidth(110).WrapMode(Pango.WrapMode.WordChar)
+				.Finish();
 
-			_sortedSubdivisionsIds = settings.CashSubdivisionSortingSettings
-				.OrderBy(x => x.SortingIndex)
-				.Select(x => x.CashSubdivision.Id)
-				.ToList();
+			#region MainInfo
+
+			ylabelMainInfo.Binding
+				.AddBinding(ViewModel, vm => vm.MainInfo, w => w.LabelProp)
+				.InitializeFromSource();
+
+			#endregion
+
+			#region Detalization
+
+			yTreeView.Binding
+				.AddBinding(ViewModel, vm => vm.LevelTreeModel, w => w.YTreeModel)
+				.InitializeFromSource();
+
+			ylabelDetalizationTitle.Binding
+				.AddBinding(ViewModel, vm => vm.DetalizationTitle, w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelInfoTop.Binding
+				.AddBinding(ViewModel, vm => vm.DetalizationInfoTop, w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelInfoBottom.Binding
+				.AddBinding(ViewModel, vm => vm.DetalizationInfoBottom, w => w.LabelProp)
+				.InitializeFromSource();
+
+			#endregion
 		}
 
 		#region IPanelView implementation
@@ -57,56 +69,27 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
-			if(InfoProvider is IDocumentsInfoProvider documentsInfoProvider)
+			if(!(InfoProvider is IDocumentsInfoProvider documentsInfoProvider))
 			{
-				var filter = documentsInfoProvider.DocumentsFilterViewModel;
-				labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
+				return;
 			}
+
+			var filter = documentsInfoProvider.DocumentsFilterViewModel;
+
+			if(filter is null)
+			{
+				return;
+			}
+
+			ViewModel.RefreshCommand.Execute(filter);
 		}
-
-		private string GetAllCashSummaryInfo(DocumentsFilterViewModel filter)
-		{
-			if(filter == null)
-			{
-				return "";
-			}
-
-			var selectedSubdivisionsIds = filter.Subdivision != null
-				? new int[] { filter.Subdivision.Id }
-				: filter.AvailableSubdivisions
-					.Select(x => x.Id)
-					.ToArray();
-
-			decimal totalCash = 0;
-			var allCashString = "";
-			var distinctBalances = _cashRepository
-				.CurrentCashForGivenSubdivisions(_uow, selectedSubdivisionsIds)
-				.ToList();
-
-			var inTransferring = _cashRepository.GetCashInTransferring(_uow);
-
-			if(selectedSubdivisionsIds.Count() > 1)
-			{
-				distinctBalances = distinctBalances.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.Id)).ToList();
-			}
-
-			foreach(var node in distinctBalances)
-			{
-				totalCash += node.Balance;
-				allCashString += $"\r\n{node.Name}: {CurrencyWorks.GetShortCurrencyString(node.Balance)}";
-			}
-
-			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
-			var separatedCash = selectedSubdivisionsIds.Any() ? $"\r\n\tИз них: {allCashString}" : "";
-			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
-			return total + separatedCash + cashInTransferringMessage;
-		}
+		
 
 		#endregion
 
 		public override void Destroy()
 		{
-			_uow?.Dispose();
+			yTreeView?.Destroy();
 			base.Destroy();
 		}
 	}

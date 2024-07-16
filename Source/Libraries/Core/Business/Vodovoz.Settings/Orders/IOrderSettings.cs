@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Vodovoz.Settings.Orders
 {
@@ -23,6 +23,8 @@ namespace Vodovoz.Settings.Orders
 		int GetDiscountReasonStockBottle10PercentsId { get; }
 		int GetDiscountReasonStockBottle20PercentsId { get; }
 		int GetClientsSecondOrderDiscountReasonId { get; }
+		int ReferFriendDiscountReasonId { get; }
+		int FastDeliveryLateDiscountReasonId { get; }
 		int GetOrderRatingForMandatoryProcessing { get; }
 		DateTime GetDateAvailabilityRatingOrder { get; }
 	}

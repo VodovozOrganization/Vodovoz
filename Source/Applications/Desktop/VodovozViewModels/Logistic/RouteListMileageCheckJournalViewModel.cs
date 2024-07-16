@@ -20,6 +20,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
@@ -45,27 +46,29 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			IUserSettingsService userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			IEventsQrPlacer eventsQrPlacer)
 			: base(
-				  filterViewModel,
-				  routeListRepository,
-				  subdivisionRepository,
-				  unitOfWorkFactory,
-				  navigationManager,
-				  callTaskWorker,
-				  warehouseRepository,
-				  employeeRepository,
-				  gtkTabsOpener,
-				  stockRepository,
-				  reportPrinter,
-				  nomenclatureSettings,
-				  commonServices,
-				  routeListProfitabilitySettings,
-				  warehousePermissionService,
-				  routeListDailyNumberProvider,
-				  userSettings,
-				  storeDocumentHelper,
-				  routeListService)
+				filterViewModel,
+				routeListRepository,
+				subdivisionRepository,
+				unitOfWorkFactory,
+				navigationManager,
+				callTaskWorker,
+				warehouseRepository,
+				employeeRepository,
+				gtkTabsOpener,
+				stockRepository,
+				reportPrinter,
+				nomenclatureSettings,
+				commonServices,
+				routeListProfitabilitySettings,
+				warehousePermissionService,
+				routeListDailyNumberProvider,
+				userSettings,
+				storeDocumentHelper,
+				routeListService,
+				eventsQrPlacer)
 		{
 			TabName = "Контроль за километражем.";
 

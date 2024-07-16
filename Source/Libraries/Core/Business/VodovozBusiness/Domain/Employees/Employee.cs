@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
 using MySqlConnector;
 using NHibernate;
 using QS.Attachments.Domain;
@@ -7,6 +8,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
@@ -17,7 +19,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -41,6 +45,7 @@ namespace Vodovoz.Domain.Employees
 
 		private bool _hasAccessToWarehouseApp;
 
+		private Counterparty _counterparty;
 		private Citizenship _citizenship;
 		private Nationality _nationality;
 		private EmployeePost _post;
@@ -53,7 +58,7 @@ namespace Vodovoz.Domain.Employees
 
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
-		private IList<Account> _accounts = new List<Account>();
+		private IObservableList<Account> _accounts = new ObservableList<Account>();
 		private IList<Attachment> _attachments = new List<Attachment>();
 		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
 		private IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
@@ -70,6 +75,7 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<EmployeeRegistrationVersion> _observableEmployeeRegistrationVersions;
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
+		private IWageCalculationRepository _wageCalculationRepository;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -127,6 +133,13 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _organisationForSalary;
 			set => SetField(ref _organisationForSalary, value);
+		}
+		
+		[Display(Name = "Клиент ВВ")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
 		[Display(Name = "Водитель автомобиля типа")]
@@ -242,26 +255,22 @@ namespace Vodovoz.Domain.Employees
 
 		#region IAccountOwner implementation
 
-		public virtual IList<Account> Accounts
+		public virtual IObservableList<Account> Accounts
 		{
 			get => _accounts;
 			set => SetField(ref _accounts, value);
 		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Account> ObservableAccounts =>
-			_observableAccounts ?? (_observableAccounts = new GenericObservableList<Account>(Accounts));
 
 		[Display(Name = "Основной счет")]
 		public virtual Account DefaultAccount
 		{
 			get
 			{
-				return ObservableAccounts.FirstOrDefault(x => x.IsDefault);
+				return Accounts.FirstOrDefault(x => x.IsDefault);
 			}
 			set
 			{
-				Account oldDefAccount = ObservableAccounts.FirstOrDefault(x => x.IsDefault);
+				Account oldDefAccount = Accounts.FirstOrDefault(x => x.IsDefault);
 				if(oldDefAccount != null && value != null && oldDefAccount.Id != value.Id)
 				{
 					oldDefAccount.IsDefault = false;
@@ -272,7 +281,7 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void AddAccount(Account account)
 		{
-			ObservableAccounts.Add(account);
+			Accounts.Add(account);
 			account.Owner = this;
 			if(DefaultAccount == null)
 				account.IsDefault = true;
@@ -284,18 +293,18 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			if(!(validationContext.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
+			if(!(validationContext.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
 					subdivisionSettings))
 			{
 				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionSettings)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
+			if(!(validationContext.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
 			}
@@ -383,7 +392,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) &&
-				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users"))
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageUsers))
 			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });
@@ -494,8 +503,12 @@ namespace Vodovoz.Domain.Employees
 		
 		public virtual ExternalApplicationUser WarehouseAppUser =>
 			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
-		
-		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = new WageCalculationRepository();
+
+		public virtual IWageCalculationRepository WageCalculationRepository
+		{
+			get => _wageCalculationRepository ?? (_wageCalculationRepository = ScopeProvider.Scope.Resolve<IWageCalculationRepository>());
+			set => _wageCalculationRepository = value;
+		}
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 

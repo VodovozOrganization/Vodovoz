@@ -6,12 +6,16 @@ using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -25,6 +29,10 @@ namespace CustomerOnlineOrdersRegistrar
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddMappingAssemblies(
@@ -40,11 +48,11 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-						.AddBusiness()
+						.AddBusiness(hostContext.Configuration)
+						.AddInfrastructure()
+						.AddCustomerOrdersApiLibrary()
 						.AddDependenciesGroup()
 						.AddApplicationOrderServices()
-						.AddStaticScopeForEntity()
-						//.AddStaticHistoryTracker()
 
 						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
 						
@@ -57,6 +65,9 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.ConfigureRabbitMq();
 						})
 						;
+
+					services.AddStaticScopeForEntity();
+					services.AddStaticHistoryTracker();
 				});
 	}
 }

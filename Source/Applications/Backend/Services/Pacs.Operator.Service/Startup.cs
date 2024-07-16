@@ -1,9 +1,12 @@
-﻿using MessageTransport;
+﻿using ApiAuthentication;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 using Pacs.Operators.Server;
 using QS.HistoryLog;
 using QS.Project.Core;
@@ -30,10 +33,6 @@ namespace Pacs.Operators.Service
 			Configuration.Bind("MessageTransport", transportSettings);
 
 			services
-				.AddMappingAssemblies(
-					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-					typeof(Vodovoz.Settings.Database.SettingMap).Assembly
-				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
@@ -43,6 +42,8 @@ namespace Pacs.Operators.Service
 
 				.AddSingleton<IMessageTransportSettings>(transportSettings)
 				.AddPacsOperatorServer()
+
+				.AddApiKeyAuthentication()
 				;
 
 			services.AddStaticHistoryTracker();
@@ -60,6 +61,9 @@ namespace Pacs.Operators.Service
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
+
+			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

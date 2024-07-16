@@ -1,6 +1,7 @@
 ﻿using Core.Infrastructure;
 using Pacs.Admin.Client;
 using Pacs.Core;
+using Pacs.Core.Messages.Commands;
 using Pacs.Server;
 using QS.Commands;
 using QS.Dialog;
@@ -15,22 +16,19 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	public class DashboardOperatorDetailsViewModel : WidgetViewModelBase
 	{
 		private readonly OperatorModel _model;
-		private readonly AdminClient _adminClient;
+		private readonly IAdminClient _adminClient;
 		private readonly IInteractiveService _interactiveService;
-		private string _tittle;
+		private string _title;
 		private string _breakReason;
+		private string _endWorkShiftReason;
 
-		public DelegateCommand StartLongBreakCommand { get; set; }
-		public DelegateCommand StartShortBreakCommand { get; set; }
-		public DelegateCommand EndBreakCommand { get; set; }
-
-		public DashboardOperatorDetailsViewModel(OperatorModel model, AdminClient adminClient, IInteractiveService interactiveService)
+		public DashboardOperatorDetailsViewModel(OperatorModel model, IAdminClient adminClient, IInteractiveService interactiveService)
 		{
 			_model = model ?? throw new ArgumentNullException(nameof(model));
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			Tittle = $"История оператора: {_model.Employee.GetPersonNameWithInitials()}";
+			Title = $"История оператора: {_model.Employee.GetPersonNameWithInitials()}";
 
 			StartLongBreakCommand = new DelegateCommand(StartLongBreak, () => CanStartBreak);
 			StartLongBreakCommand.CanExecuteChangedWith(this, x => x.CanStartBreak);
@@ -38,25 +36,21 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			StartShortBreakCommand.CanExecuteChangedWith(this, x => x.CanStartBreak);
 			EndBreakCommand = new DelegateCommand(EndBreak, () => CanEndBreak);
 			EndBreakCommand.CanExecuteChangedWith(this, x => x.CanEndBreak);
+			EndWorkShiftCommand = new DelegateCommand(EndWorkShift, () => CanEndWorkShift);
+			EndWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanEndWorkShift);
 
 			_model.PropertyChanged += OnStateChange;
 		}
 
-		private void OnStateChange(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName != nameof(OperatorModel.CurrentState))
-			{
-				return;
-			}
+		public DelegateCommand StartLongBreakCommand { get; }
+		public DelegateCommand StartShortBreakCommand { get; }
+		public DelegateCommand EndBreakCommand { get; }
+		public DelegateCommand EndWorkShiftCommand { get; }
 
-			OnPropertyChanged(nameof(CanStartBreak));
-			OnPropertyChanged(nameof(CanEndBreak));
-		}
-
-		public virtual string Tittle
+		public virtual string Title
 		{
-			get => _tittle;
-			set => SetField(ref _tittle, value);
+			get => _title;
+			set => SetField(ref _title, value);
 		}
 
 		public GenericObservableList<OperatorState> States => _model.States;
@@ -74,14 +68,40 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
+		public virtual string EndWorkShiftReason
+		{
+			get => _endWorkShiftReason;
+			set
+			{
+				if(SetField(ref _endWorkShiftReason, value))
+				{
+					OnPropertyChanged(nameof(CanEndWorkShift));
+				}
+			}
+		}
+
 		public bool CanStartBreak => _model.Agent.CanStartBreak && !BreakReason.IsNullOrWhiteSpace();
+		public bool CanEndBreak => _model.Agent.CanEndBreak && !BreakReason.IsNullOrWhiteSpace();
+
+		public bool CanEndWorkShift => _model.Agent.CanEndWorkShift && !EndWorkShiftReason.IsNullOrWhiteSpace();
+
+		private void OnStateChange(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName != nameof(OperatorModel.CurrentState))
+			{
+				return;
+			}
+
+			OnPropertyChanged(nameof(CanStartBreak));
+			OnPropertyChanged(nameof(CanEndBreak));
+		}
 
 		private void StartLongBreak()
 		{
 			try
 			{
 				_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Long).Wait();
-				ClearReason();
+				ClearBreakReason();
 			}
 			catch(PacsException ex)
 			{
@@ -94,22 +114,20 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			try
 			{
 				_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Short).Wait();
-				ClearReason();
+				ClearBreakReason();
 			}
 			catch(PacsException ex)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
 			}
 		}
-
-		public bool CanEndBreak => _model.Agent.CanEndBreak && !BreakReason.IsNullOrWhiteSpace();
 
 		private void EndBreak()
 		{
 			try
 			{
 				_adminClient.EndBreak(_model.CurrentState.OperatorId, BreakReason).Wait();
-				ClearReason();
+				ClearBreakReason();
 			}
 			catch(PacsException ex)
 			{
@@ -117,9 +135,27 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		private void ClearReason()
+		private void EndWorkShift()
 		{
-			BreakReason = "";
+			try
+			{
+				_adminClient.EndWorkShift(_model.CurrentState.OperatorId, EndWorkShiftReason).Wait();
+				CleanEndWorkShiftReason();
+			}
+			catch(PacsException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+			}
+		}
+
+		private void ClearBreakReason()
+		{
+			BreakReason = string.Empty;
+		}
+
+		private void CleanEndWorkShiftReason()
+		{
+			EndWorkShiftReason = string.Empty;
 		}
 	}
 }

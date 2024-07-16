@@ -26,6 +26,7 @@ namespace Vodovoz.Views.WageCalculation
 		{
 			comboWageType.ItemsEnum = typeof(WageParameterItemTypes);
 			var itemsToHide = ViewModel.GetWageParameterItemTypesToHide();
+
 			if(itemsToHide.Any())
 			{
 				foreach(var itemToHide in itemsToHide)
@@ -33,6 +34,7 @@ namespace Vodovoz.Views.WageCalculation
 					comboWageType.AddEnumToHideList(itemToHide);
 				}
 			}
+
 			comboWageType.Binding.AddBinding(ViewModel, vm => vm.WageParameterItemType, w => w.SelectedItem).InitializeFromSource();
 			comboWageType.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

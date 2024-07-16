@@ -1,4 +1,4 @@
-using CustomerAppsApi.HealthChecks;
+﻿using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,7 +14,9 @@ using QS.Project.Core;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Settings;
 using VodovozHealthCheck;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerAppsApi
 {
@@ -56,16 +58,14 @@ namespace CustomerAppsApi
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-
+				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
-
 				.AddHttpClient()
 				.AddControllers()
 				;
@@ -80,6 +80,8 @@ namespace CustomerAppsApi
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			app.ApplicationServices.GetService<IUserService>();
+			app.ApplicationServices.GetService<ISettingsController>().RefreshSettings();
+			
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

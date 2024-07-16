@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
@@ -48,6 +47,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			datePicker.StartDateChanged += (sender, e) => { buttonRun.Sensitive = true; };
 
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
 			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -65,25 +66,27 @@ namespace Vodovoz.Application.Orders.Services
 			
 			order.Client = onlineOrder.Counterparty;
 			order.DeliveryPoint = onlineOrder.DeliveryPoint;
+			order.SelfDelivery = onlineOrder.IsSelfDelivery;
 			order.DeliveryDate = onlineOrder.DeliveryDate;
 			order.DeliverySchedule = onlineOrder.DeliverySchedule;
-			order.SelfDelivery = onlineOrder.IsSelfDelivery;
 			order.IsFastDelivery = onlineOrder.IsFastDelivery;
 			order.PaymentType = onlineOrder.OnlineOrderPaymentType.ConvertToOrderPaymentType();
 			order.BottlesReturn = onlineOrder.BottlesReturn;
 			order.OnlineOrder = onlineOrder.OnlinePayment;
 			order.PaymentByCardFrom = paymentFrom;
 			order.Trifle = onlineOrder.Trifle;
+			order.DontArriveBeforeInterval = onlineOrder.DontArriveBeforeInterval;
 
 			if(!string.IsNullOrWhiteSpace(onlineOrder.OnlineOrderComment))
 			{
 				order.Comment = onlineOrder.OnlineOrderComment;
+				order.HasCommentForDriver = true;
 			}
 			
 			if(!order.SelfDelivery)
 			{
-				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes ?? 15;
-				order.IsDoNotMakeCallBeforeArrival = false;
+				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes;
+				order.IsDoNotMakeCallBeforeArrival = !onlineOrder.CallBeforeArrivalMinutes.HasValue;
 			}
 			else
 			{
@@ -92,11 +95,16 @@ namespace Vodovoz.Application.Orders.Services
 			
 			order.UpdateOrCreateContract(order.UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 
-			//TODO проверка доступности быстрой доставки, если заказ с быстрой доставкой
-			//скорее всего достаточно будет одной проверки при подтверждении заказа
-			
-			AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
-			AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
+			if(order.Client != null)
+			{
+				if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
+				{
+					order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
+				}
+				
+				AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
+				AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
+			}
 			
 			return order;
 		}
@@ -184,7 +192,8 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
+				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id
+					|| _nomenclatureSettings.FastDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
 				{
 					continue;
 				}
@@ -206,7 +215,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void AddNomenclature(Order order, Product onlineOrderItem)
+		private void AddNomenclature(Order order, IProduct onlineOrderItem)
 		{
 			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
 		}
@@ -215,6 +224,11 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			foreach(var onlineRentPackage in onlineRentPackages)
 			{
+				if(onlineRentPackage.FreeRentPackage is null)
+				{
+					continue;
+				}
+				
 				var rentPackage = onlineRentPackage.FreeRentPackage;
 				
 				var existingItems = order.OrderEquipments

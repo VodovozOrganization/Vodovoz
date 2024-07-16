@@ -16,7 +16,7 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Client;

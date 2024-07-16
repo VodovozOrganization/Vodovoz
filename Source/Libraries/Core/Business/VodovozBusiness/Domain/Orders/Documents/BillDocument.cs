@@ -19,7 +19,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo(connectionString) {
+			return new ReportInfo(connectionString)
+			{
 				Title = this.Title,
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
@@ -27,7 +28,8 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "hide_signature", HideSignature },
 					{ "special", false },
 					{ "special_contract_number", SpecialContractNumber},
-					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
+					{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT },
+					{ "hide_delivery_point", Order.Client.HideDeliveryPointForBill }
 				}
 			};
 		}
@@ -71,7 +73,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			var image = new EmailAttachment();
 			image.MIMEType = "image/png";
 			image.FileName = "email_ad.png";
-			using(Stream stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Vodovoz.Resources.email_ad.png")) {
+			using(Stream stream = typeof(BillDocument).Assembly.GetManifestResourceStream("VodovozBusiness.Resources.email_ad.png")) {
 				byte[] buffer = new byte[stream.Length];
 				stream.Read(buffer, 0, buffer.Length);
 				image.Base64Content = Convert.ToBase64String(buffer);

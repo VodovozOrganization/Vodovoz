@@ -43,6 +43,7 @@
     <Reference Include="mscorlib" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AboutAuthorsViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.FinancialIncomeCategoryLine.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.IncomesGroupLine.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.ReportMode.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReportRenderer.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.cs" />
     <Compile Include="Cash\Reports\MovementsPaymentControlViewModel.cs" />
@@ -73,6 +75,14 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.SortingDirectionType.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.SortingParamType.cs" />
+    <Compile Include="Counterparties\CallTaskFilterViewModel.TaskFilterDateType.cs" />
+    <Compile Include="Counterparties\CallTaskJournalViewModel.CallTaskJournalNode.cs" />
+    <Compile Include="Counterparties\CallTaskJournalViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskMassEditViewModel.cs" />
+    <Compile Include="Counterparties\CallTaskViewModel.cs" />
     <Compile Include="Counterparties\ClientBalanceFilterViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.StartClassificationCalculationEventArgs.cs" />
@@ -88,6 +98,7 @@
     <Compile Include="Counterparties\TagJournalViewModel.cs" />
     <Compile Include="Counterparties\TagJournalViewModel.TagJournalNode.cs" />
     <Compile Include="Counterparties\TagViewModel.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparties\CloseSupplyToCounterpartyViewModel.cs" />
@@ -120,20 +131,33 @@
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
     <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
+    <Compile Include="Extensions\ClosedXmlReportExtensions.cs" />
+    <Compile Include="Factories\DialogSettingsFactory.cs" />
+    <Compile Include="Factories\FuelCardVersionViewModelFactory.cs" />
+    <Compile Include="Factories\IDialogSettingsFactory.cs" />
+    <Compile Include="Factories\IFuelCardVersionViewModelFactory.cs" />
     <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\CarManufacturerJournalFactory.cs" />
-    <Compile Include="Factories\CarModelJournalFactory.cs" />
+    <Compile Include="Factories\IUndeliveredOrderViewModelFactory.cs" />
+    <Compile Include="Factories\IUndeliveryDiscussionsViewModelFactory.cs" />
     <Compile Include="Factories\LeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Factories\UndeliveryDiscussionsViewModelFactory.cs" />
+    <Compile Include="Factories\UndeliveredOrderViewModelFactory.cs" />
     <Compile Include="FuelDocuments\FuelDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\IEventsQrPlacer.cs" />
+    <Compile Include="Fuel\FuelCards\FuelCardJournalFilterViewModel.cs" />
+    <Compile Include="Fuel\FuelCards\FuelCardJournalViewModel.cs" />
+    <Compile Include="Fuel\FuelCards\FuelCardViewModel.cs" />
     <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
     <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSetSelectionChanged.cs" />
+    <Compile Include="Infrastructure\Services\Fuel\FuelApiService.cs" />
     <Compile Include="Journals\FilterViewModels\Cash\PayoutRequestJournalFilterViewModel.PayoutDocumentsSortOrder.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.DateFilterType.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\ExternalCounterpartiesMatchingJournalFilterViewModel.cs" />
@@ -150,6 +174,7 @@
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryObjectJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\PaymentsJournalFilterViewModel.SortType.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\AvailableReceiptStatuses.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
@@ -201,6 +226,10 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineTemplateJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\Cars\CarJournalItemsReport.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.DistrictDiffRow.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetDiffReport.DistrictRow.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RegradingOfGoodsReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderCancellationReasonsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrdersJournalViewModel.cs" />
@@ -224,24 +253,45 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Pacs\OperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesFilterViewModel.cs" />
+    <Compile Include="Logistic\DistrictSetDiffReportConfirmationViewModel.cs" />
+    <Compile Include="Logistic\DistrictSetDiffReportConfirmationViewModel.DistrictSetDiffReportConfirmationClosedArgs.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriverNode.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriversSortOrder.cs" />
     <Compile Include="Logistic\DriversStopLists\DriverStopListRemovalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalFilterViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalNode.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffJournalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalFilterViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonJournalViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffReasonViewModel.cs" />
+    <Compile Include="Logistic\MileagesWriteOff\MileageWriteOffViewModel.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.CarReceptionRow.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.CarTransferRow.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReport.Row.cs" />
+    <Compile Include="Logistic\Reports\CarIsNotAtLineReportParametersViewModel.cs" />
     <Compile Include="Logistic\RouteListCreateViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
+    <Compile Include="Logistic\RouteListKeepingItemNode.cs" />
+    <Compile Include="Logistic\RouteListKeepingViewModel.cs" />
     <Compile Include="Logistic\RouteListMileageCheckJournalViewModel.cs" />
     <Compile Include="Logistic\RouteListTransferringViewModel.cs" />
     <Compile Include="Logistic\RouteListTransferringViewModel.RouteListItemNode.cs" />
+    <Compile Include="Logistic\StatusChangedEventArgs.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
+    <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.OrderSelectMode.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.ReportType.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.RouteListTypeOfUse.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistic\RouteListOwnType.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
+    <Compile Include="ReportsParameters\Orders\OrderCreationDateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.cs" />
@@ -323,10 +373,8 @@
     <Compile Include="Factories\ProfitabilityConstantsDataViewModelFactory.cs" />
     <Compile Include="Factories\RoboatsViewModelFactory.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
-    <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryScheduleViewModel.cs" />
     <Compile Include="Factories\IAttachmentsViewModelFactory.cs" />
-    <Compile Include="Factories\ICarVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\SelectableParametersFilterViewModelFactory.cs" />
     <Compile Include="Infrastructure\IAdditionalJournalRestriction.cs" />
@@ -499,7 +547,6 @@
     <Compile Include="Journals\JournalViewModels\Sale\GeoGroupJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Cash\DayOfSalaryGiveoutReportViewModel.cs" />
-    <Compile Include="TempAdapters\ICarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Users\UsersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
@@ -547,6 +594,9 @@
     <Compile Include="Dialogs\Mango\SubscriberSelectionViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\InternalTalkViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDiscussionsViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDiscussionViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderRatingReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderRatingViewModel.cs" />
     <Compile Include="ViewModels\Orders\RequestForCallClosedReasonViewModel.cs" />
@@ -612,6 +662,17 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderDiscrepanciesNode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentDiscrepanciesNode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartyBalance1C.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartyBalanceNode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartySettlementsReconciliation1C.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.DiscrepancyCheckMode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderReconciliation1C.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentReconciliation1C.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.TurnoverBalanceSheet1C.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.XlsParseHelper.cs" />
     <Compile Include="ViewModels\PermissionNode\IPermissionNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\PermissionTypeAllNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\SelectAllNodePermissionViewModel.cs" />
@@ -633,6 +694,14 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Cars\CarInsurancesReport.cs" />
+    <Compile Include="ViewModels\Reports\Cars\CarTechInspectReport.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReport.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReport.ExportToExcel.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\DeliveryType.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\Indicator.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\IndicatorsType.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintClassificationSummaryReport.ReportNode.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
@@ -724,9 +793,11 @@
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
+    <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\NamedDomainEntitiesSettingsViewModelBase.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
+    <Compile Include="ViewModels\SidePanels\CashInfoPanelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\EdoLightsMatrixPanelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
@@ -793,14 +864,30 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\AddNewVersionEventArgs.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\ChangeStartDateEventArgs.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\EditCarOwnerEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\AddCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceEditingCompetedEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceManagementViewModel.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceVersionEditingViewModel.cs" />
+    <Compile Include="Widgets\Cars\Insurance\CarInsuranceVersionViewModel.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\CarVersionEditingViewModel.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\CarVersionsManagementViewModel.cs" />
+    <Compile Include="Widgets\Cars\FuelCardVersionViewModel.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.CarModelSelectableNode.cs" />
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
+    <Compile Include="Widgets\Cars\Insurance\ChangeIsKaskoNotRelevantClickedEventArgs.cs" />
+    <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
+    <Compile Include="Widgets\Search\CompositeAlgebraicSearchViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeSearchViewModel.cs" />
+    <Compile Include="Widgets\Search\OperandType.cs" />
     <Compile Include="Widgets\UndeliveredOrderViewModel.cs" />
     <Compile Include="Widgets\DeliveryFreeBalanceViewModel.cs" />
     <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
     <Compile Include="Widgets\Cars\OdometerReadingViewModel.cs" />
-    <Compile Include="Widgets\Cars\CarVersionsViewModel.cs" />
+    <Compile Include="Widgets\Cars\CarVersions\CarVersionsViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
@@ -842,7 +929,7 @@
     <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
     <Compile Include="ViewModels\Rent\FreeRentPackageViewModel.cs" />
     <Compile Include="ViewModels\Rent\PaidRentPackageViewModel.cs" />
-    <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
     <Compile Include="ViewModels\Employees\TerminalManagementViewModel.cs" />
@@ -880,6 +967,7 @@
     <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.cs" />
     <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.WarehouseNode.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureOnlineCatalogViewModel.cs" />
+    <Compile Include="AboutViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
@@ -954,6 +1042,10 @@
       <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
       <Name>EdoService.Library</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
+      <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
+      <Name>FuelControl.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
@@ -971,7 +1063,7 @@
       <Name>System.Data.Bindings</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
-      <Project>{B88C5808-8D6C-451E-9D63-E5441C7A1004}</Project>
+      <Project>{EF24C742-AC2C-477A-A632-F9920A0E1CC7}</Project>
       <Name>Gamma.Binding.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
@@ -997,6 +1089,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6A9581B0-7278-4F8D-B5EA-8C60BDDC55D8}</Project>
       <Name>QS.DocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj">
+      <Project>{2a0710b2-b71b-4959-88da-0940100e172a}</Project>
+      <Name>QS.Extensions.Observable</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>

@@ -1,8 +1,7 @@
-﻿using Vodovoz.Domain.Sale;
+﻿using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
-using Vodovoz.ViewModels.ViewModels.Sale;
-using Gamma.GtkWidgets;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.ViewModels.ViewModels.Sale;
 
 namespace Vodovoz.Views.Sale
 {
@@ -11,7 +10,7 @@ namespace Vodovoz.Views.Sale
 	{
 		public DeliveryPriceRuleView(DeliveryPriceRuleViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 

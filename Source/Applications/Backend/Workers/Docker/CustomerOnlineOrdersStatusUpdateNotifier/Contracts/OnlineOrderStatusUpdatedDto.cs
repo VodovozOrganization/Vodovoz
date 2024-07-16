@@ -4,6 +4,9 @@ using Vodovoz.Core.Data.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 {
+	/// <summary>
+	/// Данные, отправляемые в ИПЗ при смене статуса онлайн заказа в ДВ
+	/// </summary>
 	public class OnlineOrderStatusUpdatedDto
 	{
 		/// <summary>

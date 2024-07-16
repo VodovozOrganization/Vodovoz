@@ -67,5 +67,11 @@ namespace Vodovoz.Services.Logistics
 			bool confirmRecalculateRoute = false,
 			bool confirmSendOnClosing = false,
 			bool confirmSenEnRoute = false);
+
+		Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
+
+		Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
+		void ConfirmRouteListAddressTransferRecieved(int routeListAddress, DateTime actionTime);
+		Result<RouteListItem> FindPrevious(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 	}
 }

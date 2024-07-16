@@ -34,6 +34,15 @@ namespace Vodovoz.Permissions
 		public static string CanEditOrderWaitUntil => nameof(CanEditOrderWaitUntil);
 
 		/// <summary>
+		/// Настройка для редактирование поля "Ожидает до" в заказах<br/>
+		/// Разрешить управлять настройкой для редактирования поля "Ожидает до" в заказах
+		/// </summary>
+		[Display(
+			Name = "Настройка для редактирования лимита бутылей 19л для доставки за час\"",
+			Description = "Разрешить управлять настройкой лимита бутылей 19л для доставки за час\"")]
+		public static string CanEditFastDelivery19LBottlesLimit => nameof(CanEditFastDelivery19LBottlesLimit);
+
+		/// <summary>
 		/// Изменение заказа при наличии кассового чека<br/>
 		/// Пользователь может изменять товары, цены, контрагента в заказе даже при наличии кассового чека по данному заказу
 		/// </summary>
@@ -49,5 +58,23 @@ namespace Vodovoz.Permissions
 			Name = "Изменение цены и скидки в закрытии МЛ",
 			Description = "Возможность изменять цену и скидку в заказе из закрытия МЛ")]
 		public static string CanEditPriceDiscountFromRouteList => "can_edit_price_discount_from_route_list";
+
+		/// <summary>
+		/// Изменение товаров на вкладке "Товары" в заказе, который уже добавлен в МЛ
+		/// Разрешить изменять товары на вкладке \"Товары\" в заказе, который уже добавлен в МЛ
+		/// </summary>
+		[Display(
+			Name = "Изменение товаров на вкладке \"Товары\" в заказе, который уже добавлен в МЛ",
+			Description = "Разрешить изменять товары на вкладке \"Товары\" в заказе, который уже добавлен в МЛ")]
+		public static string CanEditGoodsInRouteList => "can_edit_goods_in_route_list";
+
+		/// <summary>
+		/// Выбор сотрудника в отчёте по дате создания заказа
+		/// Разрешить выбор сотрудника в отчёте по дате создания заказа
+		/// </summary>
+		[Display(
+			Name = "Выбор сотрудника в отчёте по дате создания заказа",
+			Description = "Разрешить выбор сотрудника в отчёте по дате создания заказа")]
+		public static string CanEditEmployeeInOrderCreationDateReport => nameof(CanEditEmployeeInOrderCreationDateReport);
 	}
 }

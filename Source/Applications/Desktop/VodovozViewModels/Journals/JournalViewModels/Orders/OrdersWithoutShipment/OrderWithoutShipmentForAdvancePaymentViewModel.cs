@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	public class OrderWithoutShipmentForAdvancePaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForAdvancePayment>, ITdiTabAddedNotifier
 	{
 		private readonly IUserRepository _userRepository;
+		private readonly IEmailRepository _emailRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly IEmailSettings _emailSettings;
@@ -74,6 +76,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
 			IEmailSettings emailSettings,
+			IEmailRepository emailRepository,
 			IEdoService edoService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -82,6 +85,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_emailRepository = emailRepository;
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
@@ -126,7 +130,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
 					uowFactory,
-					new EmailRepository(uowFactory),
+					_emailRepository,
 					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,

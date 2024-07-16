@@ -146,21 +146,6 @@ namespace Vodovoz.Filters.GtkViews
 			searchByAddressView.Show();
 		}
 
-		private void InitializeRestrictions()
-		{
-			#region PaymentTypeRestriction
-
-			/*if(ViewModel.AllowPaymentTypes != null)
-			{
-				enumcomboPaymentType.ClearEnumHideList();
-				enumcomboPaymentType.AddEnumToHideList(
-					Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>()
-					.Where(item => !ViewModel.AllowPaymentTypes.Contains(item)).Cast<object>().ToArray());
-			}*/
-
-			#endregion PaymentTypeRestriction
-		}
-
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
 		{
 			if(args.Event.Key == Key.Return)
@@ -173,8 +158,9 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entryOrderId.KeyReleaseEvent -= OnKeyReleased;
 			entryCounterpartyPhone.KeyReleaseEvent -= OnKeyReleased;
-			//entryCounterparty.DestroyEntry();
-			//entryDeliveryPoint.DestroyEntry();
+			eOnlineOrderId.KeyReleaseEvent += OnKeyReleased;
+			entryCounteragentNameLike.KeyReleaseEvent -= OnKeyReleased;
+			entryInn.KeyReleaseEvent -= OnKeyReleased;
 			base.Destroy();
 		}
 	}

@@ -104,6 +104,8 @@ namespace Vodovoz.JournalViewModels
 			filterViewModel.Journal = this;
 			JournalFilter = filterViewModel;
 
+			UseSlider = false;
+
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
 			RegisterOrdersWithoutShipmentForPayment();
@@ -1245,8 +1247,9 @@ namespace Vodovoz.JournalViewModels
 
 						foreach(var route in routes)
 						{
-							_gtkDialogsOpener.OpenRouteListKeepingDlg(this, route.Key, route.Select(x => x.Order.Id)
-								.ToArray());
+							var page = NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(route.Key));
+
+							page.ViewModel.SelectOrdersById(route.Select(x => x.Order.Id).ToArray());
 						}
 					}
 				)

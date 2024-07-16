@@ -1,4 +1,8 @@
-﻿using QS.Views;
+﻿using Gamma.ColumnConfig;
+using QS.DomainModel.Entity;
+using QS.Views;
+using System;
+using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Settings;
 
 namespace Vodovoz.Views.Settings
@@ -65,6 +69,18 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveWaitUntil.Clicked += (sender, args) => ViewModel.SaveOrderWaitUntilActiveCommand.Execute();
 
+			frameFastDeliveryBottlesLimit.Sensitive = ViewModel.CanEditFastDelivery19LBottlesLimitSetting;
+
+			ycheckFastDeliveryBottlesLimit.Binding
+				.AddBinding(ViewModel, vm => vm.IsFastDelivery19LBottlesLimitActive, v => v.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveFastDeliveryBottlesLimit.Clicked += (sender, args) => ViewModel.SaveFastDelivery19LBottlesLimitActiveCommand.Execute();
+
+			yspinbuttonFastDeliveryBottlesLimit.Binding
+				.AddBinding(ViewModel, vm => vm.FastDelivery19LBottlesLimitCount, w => w.ValueAsInt)
+				.InitializeFromSource();
+
 			yentryBillAdditionalinfo.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.BillAdditionalInfo, w => w.Text)
@@ -73,6 +89,24 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveBillAdditionaInfo.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
 			ybuttonSaveBillAdditionaInfo.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
+
+			yspinbuttonTechInspectOurCars.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectForOurCars, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonTechInspectRaskatCars.Binding
+				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectForRaskatCars, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			frameTechInspect.Sensitive = ViewModel.CanEditUpcomingTechInspectSetting;
+			ybuttonSaveUpcomingTechInspectSettings.Clicked += (s, e) => ViewModel.SaveUpcomingTechInspectCommand.Execute();
+
+			ConfigureInsuranceNotificationsSettings();
+
+			ConfigureFastDeliveryLates();
+
+			ConfigureMaxDailyFuelLimits();
+
 			#endregion Вкладка Логистика
 
 			#region Вкладка Рекламации
@@ -101,6 +135,9 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
+
+			ConfigureEmployeesFixedPrices();
+
 			#endregion Вкладка Заказы
 
 			#region Вкладка Склад
@@ -115,6 +152,147 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
 			#endregion Вкладка Склад
+		}
+
+		private void ConfigureEmployeesFixedPrices()
+		{
+			//Чтобы помещалось 4 строчки без полосы прокрутки
+			frameVodovozEmployeeFixedPrices.HeightRequest = 200;
+			btnSaveEmployeesFixedPrices.BindCommand(ViewModel.EmployeeFixedPricesViewModel.SaveEmployeesFixedPricesCommand);
+			btnSaveEmployeesFixedPrices.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
+				.InitializeFromSource();
+
+			treeNomenclatures.ColumnsConfig = FluentColumnsConfig<INamedDomainObject>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(n => n.Name)
+				.Finish();
+
+			treeNomenclatures.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.SelectedNomenclature, w => w.SelectedRow)
+				.AddBinding(vm => vm.Nomenclatures, w => w.ItemsDataSource)
+				.InitializeFromSource();
+			treeNomenclatures.Selection.Changed += OnNomenclaturesSelectionChanged;
+
+			btnAddNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddNomenclatureForFixedPriceCommand);
+			btnAddNomenclatureFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanChangeEmployeesFixedPrices, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnRemoveNomenclatureFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveNomenclatureForFixedPriceCommand);
+			btnRemoveNomenclatureFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanRemoveNomenclature, w => w.Sensitive)
+				.InitializeFromSource();
+
+			treeFixedPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureFixedPrice>.Create()
+				.AddColumn("Минимальное\nколичество")
+					.AddNumericRenderer(n => n.MinCount).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.AddColumn("Фиксированная\nцена")
+					.AddNumericRenderer(n => n.Price).Editing(ViewModel.EmployeeFixedPricesViewModel.CanChangeEmployeesFixedPrices)
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.Finish();
+
+			treeFixedPrices.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.SelectedFixedPrice, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			btnAddFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.AddFixedPriceCommand);
+			btnAddFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanAddFixedPrice, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnRemoveFixedPrice.BindCommand(ViewModel.EmployeeFixedPricesViewModel.RemoveFixedPriceCommand);
+			btnRemoveFixedPrice.Binding
+				.AddSource(ViewModel.EmployeeFixedPricesViewModel)
+				.AddBinding(vm => vm.CanRemoveFixedPrice, w => w.Sensitive)
+				.InitializeFromSource();
+		}
+
+		private void OnNomenclaturesSelectionChanged(object sender, EventArgs e)
+		{
+			var selectedNomenclature = ViewModel.EmployeeFixedPricesViewModel.SelectedNomenclature;
+			if(selectedNomenclature is null)
+			{
+				return;
+			}
+
+			if(ViewModel.EmployeeFixedPricesViewModel.FixedPrices.TryGetValue(selectedNomenclature.Id, out var fixedPrices))
+			{
+				//Вызываем отложенную инициализацию списка фиксы для номенклатуры, чтобы при изменении любого параметра у первой и перехода
+				//к другой номенклатуре это значение не применилось к последней
+				Gtk.Application.Invoke((s, args) => treeFixedPrices.ItemsDataSource = fixedPrices);
+			}
+		}
+
+		private void ConfigureFastDeliveryLates()
+		{
+			frameFastDeliveryIntervalFrom.Sensitive = ViewModel.CanEditFastDeliveryIntervalFromSetting;
+
+			yrbtnFastDeliveryIntervalFromOrderCreated.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsIntervalFromOrderCreated, w => w.Active)
+				.InitializeFromSource();
+
+			yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsIntervalFromAddedInFirstRouteList, w => w.Active)
+				.InitializeFromSource();
+
+			yrbtnFastDeliveryIntervalFromRouteListItemTransfered.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsIntervalFromRouteListItemTransfered, w => w.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveFastDeliveryIntervalFrom.Clicked += (s, e) => ViewModel.SaveFastDeliveryIntervalFromCommand.Execute();
+
+			ytableframeFastDeliveryMaximumPermissibleLate.Sensitive = ViewModel.CanEditFastDeliveryIntervalFromSetting;
+
+			yspinbuttonFastDeliveryMaximumPermissibleLate.Binding
+				.AddBinding(ViewModel, vm => vm.FastDeliveryMaximumPermissibleLateMinutes, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveFastDeliveryMaximumPermissibleLate.Clicked += (s, e) => ViewModel.SaveFastDeliveryMaximumPermissibleLateCommand.Execute();
+		}
+
+		private void ConfigureMaxDailyFuelLimits()
+		{
+			frameMaxDailyFuelLimits.Sensitive = ViewModel.CanEditDailyFuelLimitsSetting;
+
+			yspinbuttonLargusMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.LargusMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonGazelleMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.GazelleMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonTruckMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.TruckMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonLoaderMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
+		}
+
+		private void ConfigureInsuranceNotificationsSettings()
+		{
+			frameInsurancesNotificationsSettings.Sensitive = ViewModel.CanEditInsuranceNotificationsSettings;
+
+			yspinbuttonKaskoNotificationDays.Binding
+				.AddBinding(ViewModel, vm => vm.KaskoEndingNotifyDaysBefore, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonOsagoNotificationDays.Binding
+				.AddBinding(ViewModel, vm => vm.OsagoEndingNotifyDaysBefore, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveInsurancesNotificationsSettings.BindCommand(ViewModel.SaveInsuranceNotificationsSettingsCommand);
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
@@ -138,6 +316,12 @@ namespace Vodovoz.Views.Settings
 			{
 				ynotebookData.CurrentPage = 3;
 			}
+		}
+
+		public override void Destroy()
+		{
+			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;
+			base.Destroy();
 		}
 	}
 }

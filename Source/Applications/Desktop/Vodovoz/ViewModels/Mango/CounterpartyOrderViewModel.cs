@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -19,6 +18,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
@@ -29,6 +29,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango
 {
@@ -43,15 +44,21 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteListRepository _routedListRepository;
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ICallTaskRepository _callTaskRepository;
 
 		private IUnitOfWork UoW;
 		
 		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
 		private DeliveryPoint _deliveryPoint;
+		private Order _selectedOrder;
+		private UndeliveryViewModel _undeliveryViewModel;
 
 		public List<Order> LatestOrder { get; private set; }
 		public Order Order { get; set; }
@@ -73,7 +80,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		public bool IsDeliveryPointChoiceRequired => 
 			Client.Phones.All(p => p.DigitsNumber != MangoManager.CurrentCall.Phone.DigitsNumber)
 			&& DeliveryPoints.Count > 1;
-		
+
 		#endregion
 
 		#region Конструкторы
@@ -87,16 +94,26 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
+			ICallTaskWorker callTaskWorker,
+			IEmployeeRepository employeeRepository,
+			IOrderRepository orderRepository,
+			IRouteListItemRepository routeListItemRepository,
+			ICallTaskRepository callTaskRepository,
 			int count = 5)
 		{
 			Client = client;
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			tdiNavigation = tdinavigation;
-			_routedListRepository = routedListRepository;
+			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			MangoManager = mangoManager;
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -217,7 +234,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenTdiTab<RouteListKeepingDlg, RouteList>(null, routeList);
+					tdiNavigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeList.Id));
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
@@ -243,7 +260,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 				_unitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
+				_callTaskRepository,
 				_orderRepository,
 				_employeeRepository,
 				employeeSettings,
@@ -263,26 +280,39 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					return;
 				}
 
-				ITdiPage page = tdiNavigation.OpenTdiTab<UndeliveryOnOrderCloseDlg, Order, IUnitOfWork>(null, order, UoW);
-				page.PageClosed += (sender, e) => {
-					order.SetUndeliveredStatus(UoW, _nomenclatureSettings, callTaskWorker);
-
-					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
-					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
-						routeListItem.RouteList.SetAddressStatusWithoutOrderChange(UoW, routeListItem.Id, RouteListItemStatus.Canceled);
-						routeListItem.StatusLastUpdate = DateTime.Now;
-						routeListItem.SetOrderActualCountsToZeroOnCanceled();
-						UoW.Save(routeListItem.RouteList);
-						UoW.Save(routeListItem);
+				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel>(
+					null,
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.Saved += OnUndeliveryViewModelSaved;
+						vm.Initialize(UoW, order.Id);
 					}
-
-					UoW.Commit();
-				};
-			} else {
+				).ViewModel;
+			}
+			else
+			{
 				order.ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
 				UoW.Save(order);
 				UoW.Commit();
 			}
+		}
+
+		private void OnUndeliveryViewModelSaved(object sender, EventArgs e)
+		{
+			SelectedOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker);
+
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder/*order*/);
+			if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled)
+			{
+				routeListItem.RouteList.SetAddressStatusWithoutOrderChange(UoW, routeListItem.Id, RouteListItemStatus.Canceled);
+				routeListItem.StatusLastUpdate = DateTime.Now;
+				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				UoW.Save(routeListItem.RouteList);
+				UoW.Save(routeListItem);
+			}
+
+			UoW.Commit();
 		}
 
 		public void CreateComplaint(Order order)
@@ -296,8 +326,19 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		}
 		#endregion
 
+		public Order SelectedOrder
+		{
+			get => _selectedOrder;
+			set => SetField(ref _selectedOrder, value);
+		}
+
 		public void Dispose()
 		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.TabClosed -= OnUndeliveryViewModelSaved;
+			}
+
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			RefreshOrders = null;
 			UoW?.Dispose();

@@ -13,6 +13,7 @@ using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.FastPayments;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools;
@@ -50,11 +51,11 @@ namespace FastPaymentsNotificationWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(EmployeeWithLoginMap).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW();
 
 				Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
@@ -69,10 +70,6 @@ namespace FastPaymentsNotificationWorker
 			builder.RegisterType<NotificationHandler>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-
-			builder.RegisterType<FastPaymentRepository>()
-				.As<IFastPaymentRepository>()
-				.SingleInstance();
 
 			builder.RegisterType<FastPaymentFactory>()
 				.As<IFastPaymentFactory>()

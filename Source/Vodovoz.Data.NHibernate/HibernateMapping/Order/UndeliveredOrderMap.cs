@@ -36,6 +36,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			HasMany(x => x.Fines).Inverse().KeyColumn("undelivery_id");
 			HasMany(x => x.GuiltyInUndelivery).Cascade.AllDeleteOrphan().Inverse().KeyColumn("undelivery_id");
 			HasMany(x => x.ResultComments).Cascade.All().Inverse().KeyColumn("undelivered_order_id");
+			HasMany(x => x.UndeliveryDiscussions).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("undelivery_id");
 		}
 	}
 }

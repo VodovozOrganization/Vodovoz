@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FluentNHibernate.Data;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -11,7 +12,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private UndeliveryObject _entityObject;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private IList<UndeliveryObject> _entityObjectSource;
 		private IList<UndeliveryKind> _entityKindSource;
 		private IList<UndeliveryKind> _entityKinds;
@@ -59,6 +59,9 @@ namespace Vodovoz.ViewModels.Widgets
 		private DelegateCommand _addCommentToTheFieldCommand;
 		private DelegateCommand _clearDetalizationCommand;
 		private ITdiTab _newOrderDlg;
+		private UndeliveryObject _undeliveryObject;
+		private bool _isUndeliveryStatusChanged;
+		private bool _isDepartmentChanged;
 
 		public UndeliveredOrderViewModel(
 			UndeliveredOrder entity,
@@ -75,7 +78,8 @@ namespace Vodovoz.ViewModels.Widgets
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeRepository employeeRepository,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IRouteListItemRepository routeListItemRepository)
 			: base(entity, commonServices)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -87,6 +91,7 @@ namespace Vodovoz.ViewModels.Widgets
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentException(nameof(subdivisionRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentException(nameof(employeeRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentException(nameof(gtkTabsOpener));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 
 			_canReadDetalization = CommonServices.CurrentPermissionService
@@ -173,7 +178,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			if(e.PropertyName == nameof(Entity.UndeliveryStatus))
 			{
-				Entity.AddAutoCommentByChangeStatus();
+				_isUndeliveryStatusChanged = true;				
 			}
 
 			if(e.PropertyName == nameof(Entity.DriverCallType))
@@ -194,7 +199,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 			if(e.PropertyName == nameof(Entity.OldOrder))
 			{
-				if(UoW.IsNew)
+				if(Entity.Id == 0)
 				{
 					Entity.OldOrderStatus = Entity.OldOrder.OrderStatus;
 				}
@@ -301,7 +306,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 				if(sb.Length > 0)
 				{
-					Entity.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+					Entity.AddAutoCommentToOkkDiscussion(UoW, text);
 				}
 			}
 
@@ -335,12 +340,14 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, который требуется открыть</param>
 		private void OpenOrder(Order order)
 		{
-			if(CommonServices.InteractiveService.Question("Требуется сохранить недовоз. Сохранить?"))
+			//просто открываем заказ, если не выявятся ошибки в процессе работы, снести комментарии
+			_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
+			/*if(CommonServices.InteractiveService.Question("Требуется сохранить изменения. Продолжить?"))
 			{
-				UoW.Save();
+				UoW.Save(Entity);
 				UoW.Commit();
 				_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
-			}
+			}*/
 		}
 
 		private void RefreshParentUndeliveryDetalizationObjects()
@@ -427,8 +434,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
-		public Func<bool> IsSaved;
-		private UndeliveryObject _undeliveryObject;
+		public Func<bool, bool> SaveUndelivery;		
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -445,11 +451,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand AddCommentToTheFieldCommand => _addCommentToTheFieldCommand ?? (_addCommentToTheFieldCommand = new DelegateCommand(
 			() =>
 			{
-				Entity.AddCommentToTheField(
-					UoW,
-					CommentedFields.Reason,
-					$"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\""
-				);
+				_isDepartmentChanged = true;
 			}));
 
 		public DelegateCommand AddResultCommand => _addResultCommand ?? (_addResultCommand = new DelegateCommand(
@@ -471,6 +473,16 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand BeforeSaveCommand => _beforeSaveCommand ?? (_beforeSaveCommand = new DelegateCommand(
 			() =>
 			{
+				if(_isUndeliveryStatusChanged)
+				{
+					Entity.AddAutoCommentByChangeStatus();
+				}
+
+				if(_isDepartmentChanged && _initialProcDepartmentName != Entity.InProcessAtDepartment?.Name) 
+				{
+					Entity.AddAutoCommentToOkkDiscussion(UoW, $"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\"");
+				}
+
 				AddAutocomment();
 				Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				Entity.LastEditedTime = DateTime.Now;
@@ -479,6 +491,13 @@ namespace Vodovoz.ViewModels.Widgets
 				{
 					Entity.DriverCallTime = null;
 					Entity.DriverCallNr = null;
+				}
+
+				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
+				if(address != null)
+				{
+					address.BottlesReturned = 0;
+					UoW.Save(address);
 				}
 			}));
 
@@ -489,7 +508,7 @@ namespace Vodovoz.ViewModels.Widgets
 				{
 					if(Entity.Id == 0)
 					{
-						var saved = IsSaved?.Invoke();
+						var saved = SaveUndelivery?.Invoke(false);
 						if(!saved.HasValue || !saved.Value)
 						{
 							return;
@@ -508,7 +527,7 @@ namespace Vodovoz.ViewModels.Widgets
 			() =>
 			{
 				//если новый недовоз без выбранного недовезённого заказа
-				if(UoW.IsNew && Entity.OldOrder == null)
+				if(Entity.Id == 0 && Entity.OldOrder == null)
 				{
 					//открыть окно выбора недовезённого заказа
 					var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
@@ -592,7 +611,7 @@ namespace Vodovoz.ViewModels.Widgets
 						return;
 					}
 
-					var saved = IsSaved?.Invoke();
+					var saved = SaveUndelivery?.Invoke(false);
 					if(!saved.HasValue || !saved.Value)
 					{
 						return;
@@ -607,7 +626,7 @@ namespace Vodovoz.ViewModels.Widgets
 					fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
 				}
 
-				var address = new RouteListItemRepository().GetRouteListItemForOrder(UoW, Entity.OldOrder);
+				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
 
 				if(address != null)
 				{

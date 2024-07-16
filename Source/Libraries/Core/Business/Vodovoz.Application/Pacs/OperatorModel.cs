@@ -29,10 +29,10 @@ namespace Vodovoz.Application.Pacs
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_stateIds = new HashSet<int>();
 			States = new GenericObservableList<OperatorState>();
-			Agent = new OperatorStateAgent();
+			Agent = new OperatorStateMachine();
 		}
 
-		public IOperatorStateAgent Agent { get; }
+		public IOperatorStateMachine Agent { get; }
 
 		public IPacsDomainSettings Settings
 		{
@@ -123,12 +123,12 @@ namespace Vodovoz.Application.Pacs
 
 		public string GetConnectedCallNumber()
 		{
-			//После реализации загрузки звонков из базы надо поменять на вычисление звонка по CurrentState.CallId
-			if(ConnectedCall?.CurrentState == null)
+			if(ConnectedCall == null)
 			{
 				return "";
 			}
-			return ConnectedCall.CurrentState.FromNumber;
+
+			return ConnectedCall.Call.FromNumber;
 		}
 	}
 }

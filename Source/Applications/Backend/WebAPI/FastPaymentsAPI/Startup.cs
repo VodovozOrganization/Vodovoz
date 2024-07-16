@@ -33,6 +33,9 @@ using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using VodovozHealthCheck;
 using VodovozInfrastructure.Cryptography;
+using Vodovoz.Tools.Orders;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models;
 
 namespace FastPaymentsAPI
 {
@@ -79,11 +82,11 @@ namespace FastPaymentsAPI
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 			
@@ -110,22 +113,15 @@ namespace FastPaymentsAPI
 			services.AddScoped<SiteNotifier>();
 			services.AddScoped<MobileAppNotifier>();
 			services.AddScoped<NotificationModel>();
-			
+			services.AddScoped<OrderStateKey>();
+			services.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>();
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();
 			services.AddHostedService<CachePaymentManager>();
 
 			//repositories
-			services.AddSingleton<IOrderRepository, OrderRepository>();
-			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
-			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
-			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
-			services.AddSingleton<ISelfDeliveryRepository, SelfDeliveryRepository>();
-			services.AddSingleton<ICashRepository, CashRepository>();
-			services.AddSingleton<ICashReceiptRepository, CashReceiptRepository>();
 			services.AddSingleton<IEmailService, EmailService>();
-			services.AddSingleton<IEmailRepository, EmailRepository>();
 
 			//factories
 			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();

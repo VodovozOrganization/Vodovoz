@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -206,7 +207,8 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
-			var inStock = stockRepository.NomenclatureInStock(uow, nomenclatureIds, Warehouse.Id, TimeStamp);
+			var inStock =
+				stockRepository.NomenclatureInStock(uow, nomenclatureIds, new []{ Warehouse.Id }, TimeStamp);
 
 			foreach(var item in Items)
 			{
@@ -237,7 +239,7 @@ namespace Vodovoz.Domain.Documents
 			if(!Items.Any() || Order == null)
 				return;
 
-			var inUnloaded = new SelfDeliveryRepository().NomenclatureUnloaded(uow, Order, this);
+			var inUnloaded = ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>().NomenclatureUnloaded(uow, Order, this);
 
 			foreach(var item in Items) {
 				if(inUnloaded.ContainsKey(item.Nomenclature.Id))
@@ -313,7 +315,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
+		public virtual bool FullyShiped(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, ICallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
 			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);

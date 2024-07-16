@@ -226,8 +226,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			_parameters = FilterViewModel.GetReportParametersSet();
-			_parameters.Add("start_date", StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss"));
-			_parameters.Add("end_date", EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss"));
+			_parameters.Add("start_date", StartDate.Value.ToString(DateTimeFormats.QueryDateTimeFormat));
+			_parameters.Add("end_date", EndDate.Value.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
 

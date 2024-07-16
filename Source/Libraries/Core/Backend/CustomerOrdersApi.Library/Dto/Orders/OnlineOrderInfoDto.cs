@@ -11,6 +11,9 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 	/// </summary>
 	public class OnlineOrderInfoDto
 	{
+		/// <summary>
+		/// Заказ не прошел сохранение
+		/// </summary>
 		public bool FaultedMessage { get; set; }
 		/// <summary>
 		/// Источник заказа
@@ -94,7 +97,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// <summary>
 		/// Отзвон за
 		/// </summary>
-		public int?CallBeforeArrivalMinutes { get; set; }
+		public int? CallBeforeArrivalMinutes { get; set; }
 		
 		/// <summary>
 		/// Доставка за час?
@@ -125,6 +128,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Сумма онлайн заказа
 		/// </summary>
 		public decimal OrderSum { get; set; }
+		
+		/// <summary>
+		/// Не приезжать раньше интервала
+		/// </summary>
+		public bool DontArriveBeforeInterval { get; set; }
 
 		/// <summary>
 		/// Список товаров

@@ -1,27 +1,48 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class PacsOperatorView : WidgetViewBase<PacsOperatorViewModel>
 	{
 		public PacsOperatorView()
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
 
-			comboboxPhone.Binding.AddSource(ViewModel)
+			labelOperatorId.Binding
+				.AddBinding(ViewModel, vm => vm.CurrentOperatorId, w => w.LabelProp)
+				.InitializeFromSource();
+
+			labelWorkshiftId.Binding
+				.AddBinding(ViewModel, vm => vm.WorkShiftId, w => w.LabelProp)
+				.InitializeFromSource();
+
+			labelOperatorStatus.Binding
+				.AddBinding(ViewModel, vm => vm.CurrentOperatorStatus, w => w.LabelProp)
+				.InitializeFromSource();
+
+			comboboxPhone.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.AvailablePhones, w => w.ItemsList)
 				.AddBinding(vm => vm.PhoneNumber, w => w.SelectedItem)
 				.InitializeFromSource();
+
+			labelShortBreaksUsed.Binding
+				.AddBinding(ViewModel, vm => vm.ShortBreaksUsedCount, w => w.LabelProp)
+				.InitializeFromSource();
+
+			// Временно скрыто, до доработки с количеством использованных перерывов
+			labelShortBreaksUsed.Visible = false;
 
 			labelBreakInfo.Binding
 				.AddBinding(ViewModel, vm => vm.BreakInfo, w => w.LabelProp)
@@ -50,16 +71,21 @@ namespace Vodovoz.Views.Pacs
 						}
 					})
 				.Finish();
+
 			treeviewOperatorsOnBreak.ColumnsAutosize();
-			treeviewOperatorsOnBreak.Binding.AddSource(ViewModel)
+
+			treeviewOperatorsOnBreak.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.OperatorsOnBreak, w => w.ItemsDataSource)
 				.InitializeFromSource();
 
-			vboxWorkshiftReason.Binding.AddSource(ViewModel)
+			vboxWorkshiftReason.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.EndWorkShiftReasonRequired, w => w.Visible)
 				.InitializeFromSource();
 
-			textWorkshiftReason.Binding.AddSource(ViewModel)
+			textWorkshiftReason.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.EndWorkShiftReason, w => w.Buffer.Text)
 				.InitializeFromSource();
 

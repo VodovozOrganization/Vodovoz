@@ -4,24 +4,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
-using QS.Project.HibernateMapping;
-using System.Reflection;
-using TrueMarkApi.Library;
+using TrueMarkApi.Client;
 using TrueMarkCodesWorker;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
 namespace TrueMarkCodePoolCheckWorker
@@ -54,11 +45,11 @@ namespace TrueMarkCodePoolCheckWorker
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				.AddHostedService<CodePoolCheckWorker>()
 				;
@@ -69,10 +60,6 @@ namespace TrueMarkCodePoolCheckWorker
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-
-			builder.RegisterType<TrueMarkRepository>()
-				.As<ITrueMarkRepository>()
-				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkCodesChecker>()
 				.AsSelf()

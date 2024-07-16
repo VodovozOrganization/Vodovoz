@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -18,7 +19,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
 			IOrderService orderService,
-			IBus bus) : base(logger, unitOfWorkFactory, onlineOrderFactory, orderService)
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IBus bus) : base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
@@ -26,7 +28,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
-			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
+			_logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
 			
 			try
 			{
@@ -35,7 +37,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
+				_logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
 				_bus.Publish<OnlineOrderInfoDto>(message);
 				return Task.CompletedTask;

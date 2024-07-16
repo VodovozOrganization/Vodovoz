@@ -47,6 +47,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 
             Map(x => x.DriverOfCarTypeOfUse).Column("driver_of_car_type_of_use");
 			Map(x => x.DriverOfCarOwnType).Column("driver_of_car_own_type");
+			Map(x => x.HasAccessToWarehouseApp).Column("has_access_to_warehouse_app");
 
 			References(x => x.Nationality).Column("nationality_id");
 			References(x => x.Citizenship).Column("citizenship_id");
@@ -55,6 +56,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			References(x => x.DefaultForwarder).Column("default_forwarder_id");
 			References(x => x.OrganisationForSalary).Column("organisation_for_salary_id");
 			References(x => x.Post).Column("employees_posts_id");
+			References(x => x.Counterparty).Column("counterparty_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");

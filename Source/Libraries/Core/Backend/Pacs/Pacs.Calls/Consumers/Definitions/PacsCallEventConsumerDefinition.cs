@@ -2,7 +2,7 @@
 using MassTransit;
 using Pacs.Core;
 using RabbitMQ.Client;
-using CallEvent = Pacs.Core.Messages.Events.CallEvent;
+using PacsCallEvent = Pacs.Core.Messages.Events.PacsCallEvent;
 
 namespace Pacs.Calls.Consumers.Definitions
 {
@@ -34,10 +34,12 @@ namespace Pacs.Calls.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;
-				rmq.Durable = true;
+				rmq.Exclusive = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<CallEvent>();
+				rmq.Bind<PacsCallEvent>();
+
+				rmq.DiscardSkippedMessages();
 			}
 		}
 	}

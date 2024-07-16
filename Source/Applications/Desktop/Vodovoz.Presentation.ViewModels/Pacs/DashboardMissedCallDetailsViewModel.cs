@@ -17,10 +17,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			Details =
 $@"
-Пропущенный звонок: {_model.Call.CurrentState.FromNumber}
-Начат: {_model.Call.Started.ToString("MM.dd HH:mm")}
-Завершен: {_model.Call.Ended.ToString("MM.dd HH:mm")}
-Ожидание: {_model.Call.Duration.ToString("hh\\:mm\\:ss")}
+Пропущенный звонок: {_model.CallModel.Call.FromNumber}
+Начат: {_model.CallModel.Started.ToString("MM.dd HH:mm")}
+Завершен: {_model.CallModel.Ended?.ToString("MM.dd HH:mm")}
+Ожидание: {_model.CallModel.Duration?.ToString("hh\\:mm\\:ss")}
 Могли принять {_model.PossibleOperatorsCount} операторов:
 {string.Join("\n", _model.PossibleOperators.Select(x => $"{x.Employee.GetPersonNameWithInitials()}. Тел. {x.CurrentState.PhoneNumber}"))}
 ";

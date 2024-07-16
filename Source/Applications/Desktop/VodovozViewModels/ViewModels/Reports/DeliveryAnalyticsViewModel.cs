@@ -6,7 +6,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;

@@ -52,6 +52,10 @@ namespace Vodovoz.Views.Warehouse
 				.AddBinding(ViewModel, vm => vm.ActiveAccounting, w => w.CurrentPage)
 				.InitializeFromSource();
 
+			ychkSortNomenclaturesByTitle.Binding
+				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
+				.InitializeFromSource();
+
 			employeeSenderEntry.ViewModel = ViewModel.EmployeeSenderEntryViewModel;
 			employeeSenderEntry.ViewModel.IsEditable = ViewModel.CanEdit || ViewModel.CanCreate;
 			employeeReceiverEntry.ViewModel = ViewModel.EmployeeReceiverEntryViewModel;

@@ -32,6 +32,7 @@ namespace Vodovoz.Views.Orders
 			enumDiscountValueType.ItemsEnum = typeof(DiscountUnits);
 			enumDiscountValueType.Binding.AddBinding(ViewModel.Entity, e => e.ValueType, w => w.SelectedItem).InitializeFromSource();
 			chkBtnPremiumDiscount.Binding.AddBinding(ViewModel.Entity, e => e.IsPremiumDiscount, w => w.Active).InitializeFromSource();
+			chkBtnPresent.Binding.AddBinding(ViewModel.Entity, e => e.IsPresent, w => w.Active).InitializeFromSource();
 			chkBtnSelectAll.Toggled += (s, e) => ViewModel.UpdateSelectedCategoriesCommand.Execute(chkBtnSelectAll.Active);
 			
 			ConfigureTreeViews();

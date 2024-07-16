@@ -1,20 +1,22 @@
-﻿using Autofac;
-using Gtk;
-using QS.Dialog;
+﻿using Gtk;
 using System;
-using Vodovoz.Application.Pacs;
+using Vodovoz.Presentation.ViewModels.Pacs;
 
 public partial class MainWindow
 {
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
-		var canPacsClose = _operatorService.CanStopApplication();
-		if (!canPacsClose)
+		var isOperaorShiftActive = _operatorService.IsOperatorShiftActive();
+
+		if (isOperaorShiftActive && _interativeService.Question(
+			"Завершить смену?",
+			"Смена не завершена!!"))
 		{
-			_interativeService.ShowMessage(ImportanceLevel.Warning, "Вы не завершили смену.");
+			NavigationManager.OpenViewModel<PacsViewModel>(null);
 			a.RetVal = true;
 			return;
 		}
+
 		if (tdiMain.CloseAllTabs())
 		{
 			a.RetVal = false;
@@ -33,12 +35,16 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
-		var canPacsClose = _operatorService.CanStopApplication();
-		if(!canPacsClose)
+		var isOperaorShiftActive = _operatorService.IsOperatorShiftActive();
+
+		if(isOperaorShiftActive && _interativeService.Question(
+			"Завершить смену?",
+			"Смена не завершена!!"))
 		{
-			_interativeService.ShowMessage(ImportanceLevel.Warning, "Вы не завершили смену.");
+			NavigationManager.OpenViewModel<PacsViewModel>(null);
 			return;
 		}
+
 		if (tdiMain.CloseAllTabs())
 		{
 			Close();

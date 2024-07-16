@@ -41,12 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\CustomerAppsApi.Library\CustomerAppsApi.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>
 </Project>

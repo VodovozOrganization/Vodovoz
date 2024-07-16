@@ -3,13 +3,16 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
 using QS.Report.ViewModels;
+using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Presentation.ViewModels.Logistic.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -33,6 +36,7 @@ using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
@@ -41,6 +45,7 @@ using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Cars.ExploitationReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
@@ -189,11 +194,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
 	{
-		var paymentsRepository = new PaymentsRepository();
+		var scope = _autofacScope.BeginLifetimeScope();
+		var paymentsRepository = scope.Resolve<IPaymentsRepository>();
 
-		tdiMain.OpenTab(
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport(paymentsRepository)));
+
+		tab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>
@@ -203,12 +211,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstClientsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = _autofacScope.BeginLifetimeScope();
+
+		var discountReasonRepository = scope.Resolve<IDiscountReasonRepository>();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
 			() => new QSReport.ReportViewDlg(
 				  new FirstClientsReport(
-						_autofacScope.Resolve<IDistrictJournalFactory>(),
-						new DiscountReasonRepository()))); ;
+						scope.Resolve<IDistrictJournalFactory>(),
+						discountReasonRepository)));
+
+		tab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>
@@ -310,9 +324,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderCreationDateReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderCreationDateReport>(),
-			() => new QSReport.ReportViewDlg(new OrderCreationDateReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderCreationDateReportViewModel));
 	}
 
 	/// <summary>
@@ -428,9 +440,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
 	{
+		var report = new NotFullyLoadedRouteListsReport(_autofacScope.BeginLifetimeScope(), NavigationManager);
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport()));
+			ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
+			() =>  new ReportViewDlg(report));
+		report.ConfigureWarehouseEntry(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
 	}
 
 	/// <summary>
@@ -440,9 +454,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnForShipmentReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = _autofacScope.BeginLifetimeScope();
+
+		var geographicGroupRepository = scope.Resolve<IGeographicGroupRepository>();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<NomenclatureForShipment>(),
-			() => new QSReport.ReportViewDlg(new NomenclatureForShipment()));
+			() => new QSReport.ReportViewDlg(new NomenclatureForShipment(geographicGroupRepository)));
+
+		tab.TabClosed += (s, eargs) =>
+		{
+			scope?.Dispose();
+		};
 	}
 
 	/// <summary>
@@ -464,11 +487,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
 	{
-		var employeeRepository = new EmployeeRepository();
+		var scope = _autofacScope.BeginLifetimeScope();
+		var employeeRepository = scope.Resolve<IEmployeeRepository>();
 
-		tdiMain.OpenTab(
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
 			() => new QSReport.ReportViewDlg(new ProductionRequestReport(employeeRepository)));
+
+		tab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>
@@ -601,9 +627,13 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = _autofacScope.BeginLifetimeScope();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(NavigationManager, new DiscountReasonRepository())));
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(NavigationManager, scope.Resolve<IDiscountReasonRepository>())));
+
+		tab.TabClosed += (s, eargs) => scope.Dispose();
 	}
 
 	/// <summary>
@@ -928,9 +958,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveriesLateActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.DeliveriesLateReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.DeliveriesLateReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DeliveriesLateReportViewModel));
 	}
 
 	/// <summary>
@@ -1359,6 +1387,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
 	}
 
+	/// <summary>
+	/// Отчет по запросам к API Газпром-нефть
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelApiRequestReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FuelApiRequestReportViewModel));
+	}
+
 	#endregion Касса
 
 	#region Производство
@@ -1423,6 +1461,16 @@ public partial class MainWindow
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Отчёт по простою
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction89Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CarIsNotAtLineReportParametersViewModel>(null);
 	}
 
 	#endregion Транспорт

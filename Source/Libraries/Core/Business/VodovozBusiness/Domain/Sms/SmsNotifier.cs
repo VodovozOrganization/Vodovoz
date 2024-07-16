@@ -7,7 +7,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Sms
 {
-	public class SmsNotifier
+	public class SmsNotifier : ISmsNotifier
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ISmsNotifierSettings _smsNotifierSettings;

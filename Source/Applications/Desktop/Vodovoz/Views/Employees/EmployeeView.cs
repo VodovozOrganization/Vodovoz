@@ -2,7 +2,6 @@
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -13,6 +12,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -22,6 +22,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Core.Domain.Employees;
 using QSWidgetLib;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Employees
 {
@@ -42,7 +43,7 @@ namespace Vodovoz.Views.Employees
 			notebookMain.ShowTabs = false;
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonSave.Sensitive = ViewModel.CanEditEmployee;
+			buttonSave.Sensitive = ViewModel.CanEditEmployee || ViewModel.CanChangeEmployeeCounterparty;
 
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 
@@ -101,6 +102,7 @@ namespace Vodovoz.Views.Employees
 
 			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			comboDriverOfCarTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
@@ -202,7 +204,6 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-
 			yentryEmailAddress.ValidationMode = ValidationType.email;
 			yentryEmailAddress.Binding
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
@@ -252,6 +253,8 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			btnRegisterWarehouseAppUser.Clicked += (sender, args) => ViewModel.RegisterWarehouseAppUserCommand.Execute();
+
+			entryVodovozClient.ViewModel = GetEntryVodovozClientViewModel();
 
 			#endregion
 
@@ -409,7 +412,28 @@ namespace Vodovoz.Views.Employees
 
 			#endregion
 
+			btnCopyEntityId.Binding
+				.AddBinding(ViewModel, vm => vm.CanCopyId, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+		}
+
+		private IEntityEntryViewModel GetEntryVodovozClientViewModel()
+		{
+			var builder = 
+				new LegacyEEVMBuilderFactory<Employee>(ViewModel, ViewModel.Entity, UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope);
+			
+			var viewModel = builder.ForProperty(x => x.Counterparty)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = ViewModel.CanEditEmployee || ViewModel.CanChangeEmployeeCounterparty;
+
+			return viewModel;
 		}
 
 		private void OnHasAccessToWarehouseAppToggled(object sender, EventArgs e)
@@ -899,6 +923,15 @@ namespace Vodovoz.Views.Employees
 		protected void OnBtnRegisterDriverAppUserClicked(object sender, EventArgs e)
 		{
 			ViewModel.RegisterDriverAppUserOrAddRoleCommand.Execute();
+		}
+
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 
 		public override void Destroy()

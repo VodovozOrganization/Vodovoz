@@ -14,6 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.Value).Column("value");
 			Map(x => x.IsPremiumDiscount).Column("is_premium_discount");
+			Map(x => x.IsPresent).Column("is_present");
 
 			Map(x => x.ValueType).Column("value_type").CustomType<DiscountUnitTypeStringType>();
 

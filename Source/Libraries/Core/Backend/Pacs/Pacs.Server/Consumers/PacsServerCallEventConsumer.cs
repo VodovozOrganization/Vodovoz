@@ -2,45 +2,44 @@
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Operators;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using CallState = Vodovoz.Core.Domain.Pacs.CallState;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Consumers
 {
-	public class PacsServerCallEventConsumer : IConsumer<CallEvent>
+	public class PacsServerCallEventConsumer : IConsumer<PacsCallEvent>
 	{
-		private readonly IOperatorControllerProvider _operatorControllerProvider;
+		private readonly IOperatorStateService _operatorStateService;
 
-		public PacsServerCallEventConsumer(IOperatorControllerProvider operatorControllerProvider)
+		public PacsServerCallEventConsumer(IOperatorStateService operatorControllerProvider)
 		{
-			_operatorControllerProvider = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
+			_operatorStateService = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
 		}
 
-		public async Task Consume(ConsumeContext<CallEvent> context)
+		public async Task Consume(ConsumeContext<PacsCallEvent> context)
 		{
-			if(string.IsNullOrWhiteSpace(context.Message.ToExtension))
+			var call = context.Message.Call;
+
+			if(call.CallDirection.HasValue && call.CallDirection != CallDirection.Incoming)
 			{
 				return;
 			}
 
-			var operatorController = _operatorControllerProvider.GetOperatorController(context.Message.ToExtension);
-			if(operatorController == null)
+			var connectedSubCall = call.SubCalls.FirstOrDefault(x => x.WasConnected);
+
+			if(connectedSubCall == null)
 			{
 				return;
 			}
 
-			switch(context.Message.CallState)
+			if(call.Status == CallStatus.Connected)
 			{
-				case CallState.Connected:
-					await operatorController.TakeCall(context.Message.CallId);
-					break;
-				case CallState.Disconnected:
-					await operatorController.EndCall(context.Message.CallId);
-					break;
-				case CallState.Appeared:
-				case CallState.OnHold:
-				default:
-						break;
+				await _operatorStateService.TakeCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
+			}
+			else
+			{
+				await _operatorStateService.EndCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
 			}
 		}
 	}

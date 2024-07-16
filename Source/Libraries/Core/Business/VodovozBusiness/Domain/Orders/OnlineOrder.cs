@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -17,6 +19,8 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "Онлайн заказе",
 		PrepositionalPlural = "Онлайн заказах"
 	)]
+	[HistoryTrace]
+	[EntityPermission]
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
@@ -47,6 +51,7 @@ namespace Vodovoz.Domain.Orders
 		private int? _trifle;
 		private int? _bottlesReturn;
 		private decimal _onlineOrderSum;
+		private bool _dontArriveBeforeInterval;
 		private OnlineOrderStatus _onlineOrderStatus;
 		private Order _order;
 		private Employee _employeeWorkWith;
@@ -250,6 +255,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _onlineOrderSum;
 			set => SetField(ref _onlineOrderSum, value);
+		}
+		
+		[Display(Name = "Не приезжать раньше интервала")]
+		public virtual bool DontArriveBeforeInterval
+		{
+			get => _dontArriveBeforeInterval;
+			set => SetField(ref _dontArriveBeforeInterval, value);
 		}
 		
 		[Display(Name = "Выставленный заказ")]

@@ -169,6 +169,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private void Initialize()
 		{
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.Binding
 				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList,
 					new EnumsListConverter<CarTypeOfUse>())
@@ -529,23 +530,23 @@ namespace Vodovoz.Dialogs.Logistic
 				return;
 			}
 
-			var filter = new CarJournalFilterViewModel(_lifetimeScope, new CarModelJournalFactory());
-
-			filter.SetAndRefilterAtOnce(
-				x => x.Archive = false,
-				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
-			);
-
-			var carJournalPage = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel, CarJournalFilterViewModel>(this, filter);
-
-			carJournalPage.ViewModel.SelectionMode = JournalSelectionMode.Single;
-
-			carJournalPage.ViewModel.OnEntitySelectedResult += (o, args) =>
-			{
-				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
-				DriversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
-				driver.Car = car;
-			};
+			var carJournalPage = (NavigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<CarJournalViewModel, Action<CarJournalFilterViewModel>>(this, filter =>
+				{
+					filter.Archive = false;
+					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += (o, args) =>
+					{
+						var car = UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
+						DriversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+						driver.Car = car;
+					};
+				});
 		}
 
 		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)

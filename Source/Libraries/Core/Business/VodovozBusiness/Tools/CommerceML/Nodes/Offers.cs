@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Autofac;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 
@@ -11,8 +11,8 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 {
 	public class Offers : IXmlConvertable
 	{
-		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IWarehouseRepository _warehouseRepository = ScopeProvider.Scope.Resolve<IWarehouseRepository>();
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly Dictionary<int, decimal> _amounts;
 
 		public Offers(Export export)
@@ -24,7 +24,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			var nomenclatureIds = myExport.Catalog.Goods.NomenclatureIds;
 			var warehousesIds = warehouses.Select(x => x.Id).ToArray();
 
-			_amounts = _stockRepository.NomenclatureInStock(myExport.UOW, warehousesIds, nomenclatureIds);
+			_amounts = _stockRepository.NomenclatureInStock(myExport.UOW, nomenclatureIds, warehousesIds);
 		}
 
 		Export myExport;

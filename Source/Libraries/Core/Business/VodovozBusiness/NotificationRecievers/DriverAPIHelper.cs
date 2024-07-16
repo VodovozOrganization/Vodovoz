@@ -1,25 +1,32 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Errors;
+using VodovozBusiness.NotificationRecievers;
 
 namespace Vodovoz.NotificationRecievers
 {
-	public class DriverAPIHelper :
+	public class DriverAPIHelper : 
 		ISmsPaymentStatusNotificationReciever,
 		IFastDeliveryOrderAddedNotificationReciever,
 		IWaitingTimeChangedNotificationReciever,
+		ICashRequestForDriverIsGivenForTakeNotificationReciever,
+		IRouteListTransferhandByHandReciever,
 		IDisposable
 	{
-		private readonly ILogger _logger;
+		private readonly ILogger<DriverAPIHelper> _logger;
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
 		private string _notifyOfWaitingTimeChangedUri;
+		private string _notifyOfOrderWithGoodsTransferingIsTransferedUri;
+		private string _notifyOfCashRequestForDriverIsGivenForTakeUri;
 		private HttpClient _apiClient;
 
 		public DriverAPIHelper(
-			ILogger logger,
+			ILogger<DriverAPIHelper> logger,
 			DriverApiHelperConfiguration configuration)
 		{
 			_logger = logger;
@@ -34,8 +41,10 @@ namespace Vodovoz.NotificationRecievers
 			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			_notifyOfSmsPaymentStatusChangedUri = configuration.NotifyOfSmsPaymentStatusChangedURI;
-			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedUri;
-			_notifyOfWaitingTimeChangedUri = configuration.NotifyOfWaitingTimeChangedUri;
+			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedURI;
+			_notifyOfWaitingTimeChangedUri = configuration.NotifyOfWaitingTimeChangedURI;
+			_notifyOfOrderWithGoodsTransferingIsTransferedUri = configuration.NotifyOfOrderWithGoodsTransferingIsTransferedUri;
+			_notifyOfCashRequestForDriverIsGivenForTakeUri = configuration.NotifyOfCashRequestForDriverIsGivenForTakeUri;
 		}
 
 		public async Task NotifyOfSmsPaymentStatusChanged(int orderId)
@@ -72,21 +81,26 @@ namespace Vodovoz.NotificationRecievers
 
 		public async Task NotifyOfWaitingTimeChanged(int orderId)
 		{
-			try
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedUri, orderId))
 			{
-				using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedUri, orderId))
+				if(response.IsSuccessStatusCode)
 				{
-					if(response.IsSuccessStatusCode)
-					{
-						return;
-					}
-
-					throw new DriverAPIHelperException(response.ReasonPhrase);
+					return;
 				}
+
+				throw new DriverAPIHelperException(response.ReasonPhrase);
 			}
-			catch(Exception e)
+		}
+
+		public async Task NotifyOfCashRequestForDriverIsGivenForTake(int cashRequestId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfCashRequestForDriverIsGivenForTakeUri, cashRequestId))
 			{
-				_logger.LogError(e, $"Не удалось уведомить водителя изменении времени ожидания заказа {orderId}");
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+				throw new DriverAPIHelperException(response.ReasonPhrase);
 			}
 		}
 
@@ -94,19 +108,33 @@ namespace Vodovoz.NotificationRecievers
 		{
 			_apiClient?.Dispose();
 		}
-	}
 
-	public class DriverAPIHelperException : Exception
-	{
-		public DriverAPIHelperException(string message) : base(message)
-		{ }
-	}
+		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			{
+				var responseBody = await response.Content.ReadAsStringAsync();
 
-	public class DriverApiHelperConfiguration
-	{
-		public Uri ApiBase { get; set; }
-		public string NotifyOfSmsPaymentStatusChangedURI { get; set; }
-		public string NotifyOfFastDeliveryOrderAddedUri { get; set; }
-		public string NotifyOfWaitingTimeChangedUri { get; set; }
+				if(response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseBody))
+				{
+					return Result.Success();
+				}
+
+				if(string.IsNullOrWhiteSpace(responseBody))
+				{
+					return Result.Failure(Errors.Common.DriverApiClient.ApiError(response.ReasonPhrase));
+				}
+				else if(response.IsSuccessStatusCode)
+				{
+					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+					return Result.Failure(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+				}
+				else
+				{
+					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+					return Result.Failure(Errors.Common.DriverApiClient.ApiError(problemDetails.Detail));
+				}
+			}
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,6 +7,8 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -40,13 +42,15 @@ namespace Vodovoz.SmsInformerWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(EmployeeWithLoginMap).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
-						.AddSmsInformerWorker(hostContext);
+						.AddSmsInformerWorker(hostContext)
+						.ConfigureZabbixSender("SmsInformerWorker")
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -193,6 +193,10 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.ContactPhone, w => w.LabelProp)
 				.InitializeFromSource();
 			
+			lblCallBeforeArrivalMinutes.Binding
+				.AddBinding(ViewModel, vm => vm.CallBeforeArrivalMinutes, w => w.LabelProp)
+				.InitializeFromSource();
+			
 			cancellationReasonEntry.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditCancellationReason, w => w.Sensitive)
 				.InitializeFromSource();
@@ -340,9 +344,9 @@ namespace Vodovoz.Views.Orders
 								externalCounterpartyMatching.AssignedExternalCounterparty.Phone.Counterparty.Id);
 						ViewModel.Save(false);
 					}
-					else
+					else if(externalCounterpartyMatching.Status == ExternalCounterpartyMatchingStatus.AwaitingProcessing)
 					{
-						ViewModel.ShowMessage("Перед соданием заказа присвойте контрагента нажав по соответствующей кнопке");
+						ViewModel.ShowMessage("Перед созданием заказа присвойте контрагента нажав по соответствующей кнопке");
 						return;
 					}
 				}
@@ -355,13 +359,15 @@ namespace Vodovoz.Views.Orders
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
 			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
-				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity);
+				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity, OpenPageOptions.AsSlave);
 			page.PageClosed += OnOrderTabClosed;
 		}
 		
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
-			var dlg = (sender as ITdiPage).TdiTab as OrderDlg;
+			var page = sender as ITdiPage;
+			page.PageClosed -= OnOrderTabClosed;
+			var dlg = page.TdiTab as OrderDlg;
 
 			if(dlg.Entity.Id > 0)
 			{
