@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.RDL.Elements;
 using Vodovoz.Reports.Editing.ModifierActions;
 using Vodovoz.Reports.Editing.Providers;
 
@@ -9,6 +8,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 	public class WaterCarLoadDocumentModifier : ReportModifierBase
 	{
 		private const string _dataTableName = "TableData";
+		private const string _dataWithoutQrTableName = "TableDataWithoutQr";
 		private const string _tearOffCouponTableName = "TableTearOffCoupon";
 		private const string _loadEndTextboxName = "TextboxLoadEnd";
 		private const string _loadEndQrRectangleName = "RightQrRectangle";
@@ -16,22 +16,26 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _infoTextboxName = "TextboxInfo";
 
 		private const double _dataTableHeightInPt = 70;
+		private const double _dataWithoutQrTableHeightInPt = 70;
 		private const double _tearOffCouponTableHeightInPt = 90;
 		private const double _qrRectangleHeightInPt = 120;
 
-		public void Setup(IEnumerable<int> orderIds)
+		public void Setup(IEnumerable<int> orderIds, int tearOffCouponsCount)
 		{
 			if(orderIds is null)
 			{
 				throw new ArgumentNullException(nameof(orderIds));
 			}
 
-			AddActions(InsertDataTablesByOrdersWithQr(orderIds));
+			AddActions(InsertDataTablesWithQr(orderIds));
+			AddActions(InsertTearOffCouponTables(tearOffCouponsCount));
+			AddActions(InsertDataTablesWithoutQr(orderIds));
 
 			AddAction(RemoveTableAction(_dataTableName));
+			AddAction(RemoveTableAction(_dataWithoutQrTableName));
 		}
 
-		private static IEnumerable<ModifierAction> InsertDataTablesByOrdersWithQr(IEnumerable<int> orderIds)
+		private static IEnumerable<ModifierAction> InsertDataTablesWithQr(IEnumerable<int> orderIds)
 		{
 			var counter = 0;
 
@@ -57,6 +61,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				actions.Add(MoveTextboxDownAction(_loadEndTextboxName, offsetForNextElements));
 				actions.Add(MoveRectangleDownAction(_loadEndQrRectangleName, offsetForNextElements));
 				actions.Add(MoveTableDownAction(_tearOffCouponTableName, offsetForNextElements));
+				actions.Add(MoveTableDownAction(_dataWithoutQrTableName, offsetForNextElements));
 				actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
 				actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
 			}
@@ -64,15 +69,75 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return actions;
 		}
 
-		private static IEnumerable<ModifierAction> GetDataTableWithCommonOrders(IEnumerable<int> orderIds, string tableName, double verticalOffset)
+		private static IEnumerable<ModifierAction> InsertTearOffCouponTables(int totalCount)
 		{
 			var actions = new List<ModifierAction>();
 
-			actions.AddRange(CopyTableAndMoveDownActions(_dataTableName, tableName, verticalOffset));
+			if(totalCount < 2)
+			{
+				return actions;
+			}
+
+			for(int i = 1; i < totalCount; i++)
+			{
+				var newTearOffCouponTableName = $"{_tearOffCouponTableName}_{i}";
+				var verticalOffset = _tearOffCouponTableHeightInPt * i;
+
+				actions.Add(CopyTableAction(_tearOffCouponTableName, newTearOffCouponTableName));
+				actions.Add(MoveTableDownAction(newTearOffCouponTableName, verticalOffset));
+			}
+
+			var offsetForNextElements = (totalCount - 1) * _tearOffCouponTableHeightInPt;
+
+			actions.Add(MoveTableDownAction(_dataWithoutQrTableName, offsetForNextElements));
+			actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
+			actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
+
+			return actions;
+		}
+
+		private static IEnumerable<ModifierAction> InsertDataTablesWithoutQr(IEnumerable<int> orderIds)
+		{
+			var counter = 0;
+
+			var actions = new List<ModifierAction>();
 
 			foreach(var orderId in orderIds)
 			{
-				actions.Add(AddOrderNotEqualTableFilterAction(tableName, orderId.ToString()));
+				var verticalOffset = counter * _dataWithoutQrTableHeightInPt;
+				var newTableName = $"{_dataWithoutQrTableName}_{orderId}";
+
+				actions.AddRange(CopyTableAndMoveDownActions(_dataWithoutQrTableName, newTableName, verticalOffset));
+				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
+
+				counter++;
+			}
+
+			if(counter > 0)
+			{
+				var offsetForNextElements = counter * _dataWithoutQrTableHeightInPt;
+
+				actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataWithoutQrTableName}_common", offsetForNextElements, true));
+
+				actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
+				actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
+			}
+
+			return actions;
+		}
+
+		private static IEnumerable<ModifierAction> GetDataTableWithCommonOrders(IEnumerable<int> orderIds, string newTableName,
+			double verticalOffset, bool copyFromTableWithoutQr = false)
+		{
+			var actions = new List<ModifierAction>();
+
+			var sourceTableName = copyFromTableWithoutQr ? _dataWithoutQrTableName : _dataTableName;
+
+			actions.AddRange(CopyTableAndMoveDownActions(sourceTableName, newTableName, verticalOffset));
+
+			foreach(var orderId in orderIds)
+			{
+				actions.Add(AddOrderNotEqualTableFilterAction(newTableName, orderId.ToString()));
 			}
 
 			return actions;

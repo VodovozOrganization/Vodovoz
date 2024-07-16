@@ -102,7 +102,7 @@ namespace Vodovoz.PrintableDocuments.Store
 		private ReportModifierBase GetReportModifier()
 		{
 			var modifier = new WaterCarLoadDocumentModifier();
-			modifier.Setup(SeparateTableOrderIds);
+			modifier.Setup(SeparateTableOrderIds, 6);
 			return modifier;
 		}
 
