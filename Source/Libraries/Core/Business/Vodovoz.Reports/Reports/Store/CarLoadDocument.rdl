@@ -11,34 +11,40 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     IF (scldi.item_expiration_date_percent IS NOT NULL
-    	AND nomenclature.category = 'water',
-    	CONCAT(nomenclature.name, " &gt;", scldi.item_expiration_date_percent, "% срока годности"),
-    nomenclature.name) AS nomenclature,
-    nomenclature.category,
+    	AND n.category = 'water',
+    	CONCAT(n.name, " &gt;", scldi.item_expiration_date_percent, "% срока годности"),
+    n.name) AS nomenclature,
+    n.category,
     measurement_units.name AS unit,
     measurement_units.digits AS digits,
-    nomenclature.tare_volume,
-    CASE nomenclature.tare_volume
+    n.tare_volume,
+    CASE n.tare_volume
         WHEN 'Vol19L' THEN 0
         WHEN 'Vol6L' THEN 1
         WHEN 'Vol600ml' THEN 2
         ELSE 3
         END AS clmn_for_sorting,
-    scldi.amount AS amount
+    scldi.amount AS amount,
+	c.full_name as client_name,
+	dp.compiled_address_short as delivery_address,
+	IFNULL(o.id, '0') as order_id,
+	n.id as nomenclature_id,
+	scldi.is_individual_set_for_order
 FROM
 	store_car_load_document_items scldi 
-LEFT JOIN
-	store_car_load_documents scld ON scld.id = scldi.car_load_document_id
-LEFT JOIN
-    nomenclature ON scldi.nomenclature_id = nomenclature.id
-LEFT JOIN
-    measurement_units ON measurement_units.id = nomenclature.unit_id
-WHERE scld.id = @id
-  AND nomenclature.online_store_id IS NULL
+	LEFT JOIN store_car_load_documents scld ON scld.id = scldi.car_load_document_id
+	LEFT JOIN nomenclature n ON scldi.nomenclature_id = n.id
+	LEFT JOIN measurement_units ON measurement_units.id = n.unit_id
+	LEFT JOIN orders o ON scldi.order_id = o.id
+	LEFT JOIN counterparty c ON o.client_id = c.id
+	LEFT JOIN delivery_points dp ON o.delivery_point_id = dp.id
+WHERE 
+	scld.id = @id
+	AND n.online_store_id IS NULL
 GROUP BY nomenclature
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -47,7 +53,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -72,10 +78,30 @@ ORDER BY clmn_for_sorting;</CommandText>
           <DataField>digits</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="delivery_address">
+          <DataField>delivery_address</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="is_individual_set_for_order">
+          <DataField>is_individual_set_for_order</DataField>
+          <rd:TypeName>System.Int16</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Data2">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	n.name AS nomenclature,
@@ -92,7 +118,7 @@ ORDER BY clmn_for_sorting;</CommandText>
 	SUM(oi.count) as amount,
 	c.full_name as client_name,
 	dp.compiled_address_short as delivery_address,
-	o.id as order_id,
+	IFNULL(o.id, '0') as order_id,
 	n.id as nomenclature_id
 FROM route_list_addresses rla 
 JOIN orders o ON rla.order_id = o.id
@@ -104,7 +130,6 @@ LEFT JOIN
     measurement_units mu ON mu.id = n.unit_id
 WHERE
 	rla.route_list_id = (SELECT scld.route_list_id FROM store_car_load_documents scld WHERE scld.id = @id)
-	AND c.consent_for_edo_status = 'Agree' AND c.order_status_for_sending_upd = 'EnRoute'
 GROUP BY c.id, o.id, n.id
 ;</CommandText>
         <QueryParameters>
@@ -113,7 +138,7 @@ GROUP BY c.id, o.id, n.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -339,7 +364,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
   <Body>
     <ReportItems>
       <Table Name="TableData">
-        <DataSetName>Data2</DataSetName>
+        <DataSetName>Data</DataSetName>
         <NoRows>Нет отгрузки воды со склада воды</NoRows>
         <Style>
           <BorderStyle>
@@ -375,14 +400,14 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>13.6pt</Height>
+              <Height>21.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="DataTableHeader">
-                      <Value>='Заказ №' + {order_id} + '\n'
-+ {client_name} + '\n'
-+ {delivery_address}</Value>
+                      <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
+'Розница',
+'Заказ №' + {order_id} + '\n' + {client_name} + '\n' + {delivery_address})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -392,11 +417,15 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                           <Top>None</Top>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>12pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -766,7 +795,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>180pt</Top>
+        <Top>176.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -888,7 +917,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters>
+        <Filters >
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>Equal</Operator>
