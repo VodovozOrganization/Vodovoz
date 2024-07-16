@@ -303,13 +303,13 @@ namespace Vodovoz.ViewWidgets
 				case DirectionReason.None:
 					return true;
 				case DirectionReason.Rent:
-				case DirectionReason.TradeIn:
-				case DirectionReason.ClientGift:
-					return node.Direction == Domain.Orders.Direction.Deliver;
 				case DirectionReason.Repair:
 				case DirectionReason.Cleaning:
 				case DirectionReason.RepairAndCleaning:
 					return false;
+				case DirectionReason.TradeIn:
+				case DirectionReason.ClientGift:
+					return node.Direction == Domain.Orders.Direction.Deliver;
 				default:
 					return false;
 			}
