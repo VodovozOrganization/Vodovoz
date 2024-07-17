@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
 
@@ -14,6 +15,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "Оценке заказа",
 		PrepositionalPlural = "Оценках заказов"
 	)]
+	[HistoryTrace]
 	public class OrderRating : PropertyChangedBase, IDomainObject
 	{
 		private OnlineOrder _onlineOrder;

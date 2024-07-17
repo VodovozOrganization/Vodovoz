@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
@@ -16,6 +17,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "Заявке на звонок",
 		PrepositionalPlural = "Заявках на звонок"
 	)]
+	[EntityPermission]
 	[HistoryTrace]
 	public class RequestForCall : PropertyChangedBase, IDomainObject, IValidatableObject
 	{

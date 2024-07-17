@@ -18,7 +18,7 @@ namespace CustomerOrdersApi.Controllers
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 		}
 		
-		[HttpPost("CreateRequestForCall")]
+		[HttpPost]
 		public IActionResult CreateRequestForCall(CreatingRequestForCallDto creatingInfoDto)
 		{
 			var sourceName = creatingInfoDto.Source.GetEnumTitle();

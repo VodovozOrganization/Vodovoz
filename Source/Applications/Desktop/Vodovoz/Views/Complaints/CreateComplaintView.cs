@@ -61,7 +61,7 @@ namespace Vodovoz.Views.Complaints
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
 			
-			buttonSave.Clicked += (sender, e) => { ViewModel.CheckAndSave(); };
+			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 			
 			ViewModel.Entity.PropertyChanged += OnViewModelEntityPropertyChanged;

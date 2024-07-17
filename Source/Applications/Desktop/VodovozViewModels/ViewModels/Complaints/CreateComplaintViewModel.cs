@@ -81,15 +81,16 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			TabName = "Новая клиентская рекламация";
 			
 			InitializeEntryViewModels();
 			Entity.PropertyChanged += EntityPropertyChanged;
 
-			CanEditComplaintClassification = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
+			CanEditComplaintClassification =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
 		}
 
 		public void SetOrder(int orderId)

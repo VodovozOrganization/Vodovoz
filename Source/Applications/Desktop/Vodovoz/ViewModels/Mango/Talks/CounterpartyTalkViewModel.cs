@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
@@ -47,7 +46,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
-		private ILifetimeScope _lifetimeScope;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -56,7 +54,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
 		public CounterpartyTalkViewModel(
-			ILifetimeScope lifetimeScope,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListRepository routedListRepository,
@@ -64,7 +61,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IInteractiveService interactiveService,
 			IOrderSettings orderSettings, 
 			MangoManager manager,
-			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
@@ -75,14 +71,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			ICallTaskRepository callTaskRepository)
 			: base(tdinavigation, manager)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -101,14 +95,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				{
 					var model = new CounterpartyOrderViewModel(
 						client,
-						_lifetimeScope,
 						_unitOfWorkFactory,
 						tdinavigation,
 						routedListRepository,
 						MangoManager,
 						_orderSettings,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
 						_deliveryRulesSettings,
 						_nomenclatureSettings,
 						_callTaskWorker,
@@ -163,14 +154,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				var model = 
 					new CounterpartyOrderViewModel(
 						client,
-						_lifetimeScope,
 						_unitOfWorkFactory,
 						_tdiNavigation,
 						_routedListRepository,
 						MangoManager,
 						_orderSettings,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
 						_deliveryRulesSettings,
 						_nomenclatureSettings,
 						_callTaskWorker,
@@ -203,14 +191,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				var model =
 					new CounterpartyOrderViewModel(
 						client,
-						_lifetimeScope,
 						_unitOfWorkFactory,
 						_tdiNavigation,
 						_routedListRepository,
 						MangoManager,
 						_orderSettings,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
 						_deliveryRulesSettings,
 						_nomenclatureSettings,
 						_callTaskWorker,
@@ -297,7 +282,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				model.Dispose();
 			}
 
-			_lifetimeScope = null;
 			_uow?.Dispose();
 		}
 	}
