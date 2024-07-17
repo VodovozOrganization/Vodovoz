@@ -177,7 +177,6 @@ namespace Vodovoz
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
-					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason
@@ -208,15 +207,11 @@ namespace Vodovoz
 							break;
 					}
 					c.Editable = false;
-					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-
-
 				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
-			yTreeOtherGoods.Sensitive = false;
 
 			btnAddOtherGoods.Sensitive = false;
 
@@ -228,7 +223,7 @@ namespace Vodovoz
 					typeof(SelfDeliveryDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
-				//yTreeOtherGoods.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yTreeOtherGoods.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				evmeOrder.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewCommnet.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewOrderInfo.Binding.AddBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
