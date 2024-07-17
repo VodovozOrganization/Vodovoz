@@ -11,7 +11,7 @@ namespace Vodovoz.Reports.Editing.Providers
 		{
 			var table = container.GetTable(tableName, @namespace);
 
-			var filters = table.GetChildElement(_filtersElementName, @namespace);
+			var filters = table.GetSingleChildElement(_filtersElementName, @namespace);
 
 			if(filters is null)
 			{

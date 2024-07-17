@@ -29,7 +29,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			var tableHeaderRows = report.GetTableHeaderRows(_tableName, @namespace);
 			var firstHeaderRow = tableHeaderRows.First();
 
-			var headerRowHeightElement = firstHeaderRow.GetChildElement("Height", @namespace);
+			var headerRowHeightElement = firstHeaderRow.GetSingleChildElement("Height", @namespace);
 			headerRowHeightElement.Value = $"{_tableHeaderFirstRowHeightInPt.ToString("N2", CultureInfo.InvariantCulture)}pt";
 		}
 	}

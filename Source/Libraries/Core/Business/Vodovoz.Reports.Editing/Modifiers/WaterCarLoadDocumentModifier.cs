@@ -14,11 +14,14 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _loadEndQrRectangleName = "RightQrRectangle";
 		private const string _confirmationTableName = "TableConfirmation";
 		private const string _infoTextboxName = "TextboxInfo";
+		private const string _orderQrRectangleName = "OrderQrRectangle";
 
 		private const double _dataTableHeightInPt = 70;
 		private const double _dataWithoutQrTableHeightInPt = 70;
 		private const double _tearOffCouponTableHeightInPt = 90;
 		private const double _qrRectangleHeightInPt = 120;
+		private const double _dataTableDefaultHeaderRowHeightInPt = 25;
+		private const double _dataTableWithQrHeaderRowHeightInPt = 125;
 
 		public void Setup(IEnumerable<int> orderIds, int tearOffCouponsCount)
 		{
@@ -33,6 +36,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			AddAction(RemoveTableAction(_dataTableName));
 			AddAction(RemoveTableAction(_dataWithoutQrTableName));
+			AddAction(RemoveRectangleAction(_orderQrRectangleName));
 		}
 
 		private static IEnumerable<ModifierAction> InsertDataTablesWithQr(IEnumerable<int> orderIds)
@@ -41,18 +45,22 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var actions = new List<ModifierAction>();
 
+			var varticalOffsetStep = _dataTableHeightInPt + _dataTableWithQrHeaderRowHeightInPt - _dataTableDefaultHeaderRowHeightInPt;
+
 			foreach(var orderId in orderIds)
 			{
-				var verticalOffset = counter * _dataTableHeightInPt;
+				var verticalOffset = counter * varticalOffsetStep;
 				var newTableName = $"{_dataTableName}_qr_{orderId}";
 
 				actions.AddRange(CopyTableAndMoveDownActions(_dataTableName, newTableName, verticalOffset));
 				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
+				actions.Add(SetTableHeaderHeightAction(newTableName, _dataTableWithQrHeaderRowHeightInPt));
+				actions.AddRange(CopyRectangleAndMoveDownActions(_orderQrRectangleName, $"{_orderQrRectangleName}_{orderId}", verticalOffset));
 
 				counter++;
 			}
 
-			var offsetForNextElements = counter * _dataTableHeightInPt;
+			var offsetForNextElements = counter * varticalOffsetStep;
 
 			actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataTableName}_qr_common", offsetForNextElements));
 
@@ -135,11 +143,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			actions.AddRange(CopyTableAndMoveDownActions(sourceTableName, newTableName, verticalOffset));
 
-			if(!copyFromTableWithoutQr)
-			{
-				actions.Add(SetTableHeaderHeightAction(newTableName, 140));
-			}
-
 			foreach(var orderId in orderIds)
 			{
 				actions.Add(AddOrderNotEqualTableFilterAction(newTableName, orderId.ToString()));
@@ -159,14 +162,30 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return actions;
 		}
 
+		private static IEnumerable<ModifierAction> CopyRectangleAndMoveDownActions(string sourceRectangleName, string newRectangleName, double verticalOffset)
+		{
+			var actions = new List<ModifierAction>
+			{
+				CopyRectangleAction(sourceRectangleName, newRectangleName),
+				MoveRectangleDownAction(newRectangleName, verticalOffset),
+			};
+
+			return actions;
+		}
+
 		private static ModifierAction CopyTableAction(string sourceTableName, string newTableName)
 		{
-			return new CopyTable(sourceTableName, newTableName);
+			return new CopyElement(ElementType.Table, sourceTableName, newTableName);
 		}
 
 		private static ModifierAction RemoveTableAction(string tableName)
 		{
-			return new RemoveTable(tableName);
+			return new RemoveElement(ElementType.Table, tableName);
+		}
+
+		private static ModifierAction RemoveRectangleAction(string rectangleName)
+		{
+			return new RemoveElement(ElementType.Rectangle, rectangleName);
 		}
 
 		private static ModifierAction SetTablePositionAction(string tableName, double leftPositionInPt, double topPositionInPt)
@@ -212,6 +231,11 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private static ModifierAction SetTableHeaderHeightAction(string tableName, double rowHeight)
 		{
 			return new SetTableHeaderRowHeight(tableName, rowHeight);
+		}
+
+		private static ModifierAction CopyRectangleAction(string sourceRectangleName, string newRectangleName)
+		{
+			return new CopyElement(ElementType.Rectangle, sourceRectangleName, newRectangleName);
 		}
 	}
 }

@@ -123,12 +123,12 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		private static XElement GetLeftPositionElement(XElement element, string @namespace)
 		{
-			return element.GetChildElement(_leftPositionElementName, @namespace);
+			return element.GetSingleChildElement(_leftPositionElementName, @namespace);
 		}
 
 		private static XElement GetTopPositionElement(XElement element, string @namespace)
 		{
-			return element.GetChildElement(_topPositionElementName, @namespace);
+			return element.GetSingleChildElement(_topPositionElementName, @namespace);
 		}
 	}
 }

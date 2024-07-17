@@ -29,56 +29,74 @@ namespace Vodovoz.Reports.Editing.Providers
 			return table;
 		}
 
-		public static void InsertTable(this XContainer container, XElement table, string @namespace)
-		{
-			container.InsertTableIntoReportItems(table, @namespace);
-		}
-
 		public static void RenameTable(this XContainer container, string oldName, string newName, string @namespace)
 		{
 			var element = container.GetTable(oldName, @namespace);
 			element.Attribute("Name").Value = newName;
 		}
 
-		private static void InsertTableIntoReportItems(this XContainer container, XElement table, string @namespace)
+		public static void InsertElementIntoReportItems(this XContainer container, XElement element, string @namespace)
 		{
-			var newTableName = table.Attribute("Name").Value;
+			var elementLocalName = element.Name.LocalName;
+			var elementNameAttributeValue = element.Attribute("Name").Value;
 
-			var existingTable = container
-				.Descendants(XName.Get("Table", @namespace))
-				.Where(x => x.Attribute(XName.Get("Name")).Value == newTableName)
+			var existingElement = container
+				.Descendants(XName.Get(elementLocalName, @namespace))
+				.Where(x => x.Attribute(XName.Get("Name")).Value == elementNameAttributeValue)
 				.FirstOrDefault();
 
-			if(!(existingTable is null))
+			if(!(existingElement is null))
 			{
-				throw new InvalidOperationException("В контейнере уже присутствует таблица с указанным именем!");
+				throw new InvalidOperationException($"В контейнере уже присутствует элемент {elementLocalName} с именем {elementNameAttributeValue}!");
 			}
 
 			var reportItem = container.Descendants(XName.Get("ReportItems", @namespace)).FirstOrDefault();
-			reportItem.Add(table);
+			reportItem.Add(element);
 		}
 
-		public static XElement GetChildElement(this XContainer container, string element, string @namespace)
+		public static XElement GetSingleChildElement(this XContainer container, string elementLocalName, string @namespace)
 		{
 			if(container is null)
 			{
 				throw new ArgumentNullException(nameof(container));
 			}
-			var childElements = container.Elements(XName.Get(element, @namespace));
+			var childElements = container.Elements(XName.Get(elementLocalName, @namespace));
 
 			if(!childElements.Any())
 			{
-				var errorMessage = $"Элемент \"{element}\" не найден";
+				var errorMessage = $"Элемент \"{elementLocalName}\" не найден";
 				throw new InvalidOperationException(errorMessage);
 			}
 
 			if(childElements.Count() > 1)
 			{
-				var errorMessage = $"Найдено более одного элемента \"{element}\"";
+				var errorMessage = $"Найдено более одного элемента \"{elementLocalName}\"";
 				throw new InvalidOperationException(errorMessage);
 			}
 
 			return childElements.First();
+		}
+
+		public static XElement GetElementByTypeAndNameAttribute(this XContainer report, ElementType elementType, string elementNameAttributeValue, string @namespace)
+		{
+			XElement element = null;
+
+			switch(elementType)
+			{
+				case ElementType.Table:
+					element = report.GetTable(elementNameAttributeValue, @namespace);
+					break;
+				case ElementType.Textbox:
+					element = report.GetTextbox(elementNameAttributeValue, @namespace);
+					break;
+				case ElementType.Rectangle:
+					element = report.GetRectangle(elementNameAttributeValue, @namespace);
+					break;
+				default:
+					throw new NotImplementedException("Неизвестный тип элемента");
+			}
+
+			return element;
 		}
 
 		public static XElement GetTextbox(this XContainer container, string elementNameAttributeValue, string @namespace)

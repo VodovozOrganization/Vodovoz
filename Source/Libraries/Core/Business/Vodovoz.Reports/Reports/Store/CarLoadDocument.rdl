@@ -400,7 +400,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>21.5pt</Height>
+              <Height>25pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -917,7 +917,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>Equal</Operator>
@@ -1069,7 +1069,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>664.0pt</Top>
+        <Top>572.0pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1303,7 +1303,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
         <Left>240.0pt</Left>
-        <Top>390.4pt</Top>
+        <Top>292.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1317,7 +1317,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
         <Left>3.0pt</Left>
-        <Top>824.0pt</Top>
+        <Top>732.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1349,7 +1349,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Окончание погрузки</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>364.0pt</Top>
+        <Top>272.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1418,7 +1418,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>514.0pt</Top>
+        <Top>422.0pt</Top>
       </Table>
       <Table Name="TableDataWithoutQr" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
@@ -1852,7 +1852,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>595.0pt</Top>
+        <Top>503.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1988,7 +1988,7 @@ Format({route_list_date}, "dd.MM.yyyy")
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
         <Left>470.0pt</Left>
-        <Top>65.4pt</Top>
+        <Top>194.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
