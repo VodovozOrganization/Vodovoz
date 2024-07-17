@@ -102,7 +102,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 											   where specBillDoc.Id == billEmail.OrderDocument.Id
 											   select specBillDoc
 
-						where billDocument != null || specBillDocument != null
+						where (billDocument != null || specBillDocument != null)
 							&& billEmail.StoredEmail.Id != emailId
 						select billEmail.Id
 					)
