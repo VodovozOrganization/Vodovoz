@@ -1,10 +1,10 @@
-﻿using QS.Views;
+﻿using QS.Views.Dialog;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RequestForCallClosedReasonView : ViewBase<RequestForCallClosedReasonViewModel>
+	public partial class RequestForCallClosedReasonView : DialogViewBase<RequestForCallClosedReasonViewModel>
 	{
 		public RequestForCallClosedReasonView(RequestForCallClosedReasonViewModel viewModel) : base(viewModel)
 		{

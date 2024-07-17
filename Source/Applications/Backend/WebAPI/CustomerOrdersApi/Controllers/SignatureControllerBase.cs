@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace CustomerOrdersApi.Controllers
 {
 	[ApiController]
-	[Route("/api/")]
+	[Route("/api/[action]")]
 	public class SignatureControllerBase : ControllerBase
 	{
 		private const string _invalidSignature = "Неккоректная контрольная сумма";

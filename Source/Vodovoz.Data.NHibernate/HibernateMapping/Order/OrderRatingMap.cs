@@ -14,7 +14,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Source).Column("source");
 			Map(x => x.OrderRatingStatus).Column("order_rating_status");
 			Map(x => x.Created).Column("created");
-			Map(x => x.Rating).Column("rating");
+			Map(x => x.Rating).Column("rating")
+				.CustomType<int>(); // чтобы хибернэйт не преобразовывал к булевым значениям (0, 1) tinyint(1)
 			Map(x => x.Comment).Column("comment");
 
 			References(x => x.OnlineOrder).Column("online_order_id");

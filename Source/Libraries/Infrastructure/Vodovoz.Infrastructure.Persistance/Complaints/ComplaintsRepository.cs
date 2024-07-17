@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Complaints
 {
@@ -123,12 +124,23 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		{
 			return unitOfWork.GetById<ComplaintSource>(complaintSourceId);
 		}
-
-		public int GetOrderRatingComplaint(IUnitOfWork unitOfWork, int orderRatingId)
+		
+		public (int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId)
 		{
 			var query = from complaint in unitOfWork.Session.Query<Complaint>()
 				where complaint.OrderRating.Id == orderRatingId
-				select complaint.Id;
+				select new ValueTuple<int, bool>(complaint.Id, true);
+
+			return query.FirstOrDefault();
+		}
+
+		public (int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId)
+		{
+			var query = from complaint in unitOfWork.Session.Query<Complaint>()
+				join order in unitOfWork.Session.Query<Order>()
+					on complaint.Order.Id equals orderId
+				where complaint.CreationDate >= DateTime.Now.AddDays(-1)
+				select new ValueTuple<int, bool>(complaint.Id, complaint.OrderRating != null);
 
 			return query.FirstOrDefault();
 		}

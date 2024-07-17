@@ -17,7 +17,6 @@ using IJournalFilter = QS.RepresentationModel.IJournalFilter;
 
 namespace Vodovoz.Core
 {
-	//TODO доработать класс, чтобы охватывались все вьюхи/вью модели
 	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver, IGtkViewResolver
 	{
 		private readonly Dictionary<Type, Type> _viewModelWidgets = new Dictionary<Type, Type>();

@@ -30,7 +30,7 @@ namespace CustomerOrdersApi.Controllers
 				.Value;
 		}
 		
-		[HttpPost("CreateOrderRating")]
+		[HttpPost]
 		public IActionResult CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo)
 		{
 			var sourceName = orderRatingInfo.Source.GetEnumTitle();
@@ -43,10 +43,10 @@ namespace CustomerOrdersApi.Controllers
 					orderRatingInfo.OnlineOrderId,
 					orderRatingInfo.Signature);
 				
-				/*if(!_customerOrdersService.ValidateOrderRatingSignature(orderRatingInfo, out var generatedSignature))
+				if(!_customerOrdersService.ValidateOrderRatingSignature(orderRatingInfo, out var generatedSignature))
 				{
 					return InvalidSignature(orderRatingInfo.Signature, generatedSignature);
-				}*/
+				}
 				
 				_customerOrdersService.CreateOrderRating(orderRatingInfo);
 				return Ok();
@@ -62,7 +62,7 @@ namespace CustomerOrdersApi.Controllers
 			}
 		}
 		
-		[HttpGet("GetOrderRatingReasons")]
+		[HttpGet]
 		public IActionResult GetOrderRatingReasons(Source source)
 		{
 			var sourceName = source.GetEnumTitle();

@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly ValidationContext _validationContext;
 		private readonly Employee _currentEmployee;
-		private int _complaintId;
+		private (int ComplaintId, bool HasOrderRating) _complaintData;
 		
 		public OrderRatingViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -62,24 +62,19 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			UpdateComplaintInformation();
 		}
 
-		private void UpdateComplaintInformation()
+		private (int ComplaintId, bool HasOrderRating) ComplaintData
 		{
-			ComplaintId = _complaintsRepository.GetOrderRatingComplaint(UoW, Entity.Id);
-		}
-
-		private int ComplaintId
-		{
-			get => _complaintId;
+			get => _complaintData;
 			set
 			{
-				if(SetField(ref _complaintId, value))
+				if(SetField(ref _complaintData, value))
 				{
 					OnPropertyChanged(nameof(CreateOrOpenComplaint));
 				}
 			} 
 		}
 
-		public string CreateOrOpenComplaint => _complaintId != default ? "Открыть рекламацию" : "Создать рекламацию";
+		public string CreateOrOpenComplaint => _complaintData.ComplaintId != default ? "Открыть рекламацию" : "Создать рекламацию";
 		public string IdToString => Entity.Id.ToString();
 		public bool CanShowId => Entity.Id > 0;
 		public bool OrderIsNotNull => Entity.Order != null;
@@ -113,6 +108,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool OnlineOrderIsNotNull => Entity.OnlineOrder != null;
 		private bool IsNewOrderRatingStatus => Entity.OrderRatingStatus == OrderRatingStatus.New;
 		
+		private void UpdateComplaintInformation()
+		{
+			ComplaintData = _complaintsRepository.GetComplaintIdByOrderRating(UoW, Entity.Id);
+
+			if(ComplaintData.ComplaintId == default && Entity.Order != null)
+			{
+				ComplaintData = _complaintsRepository.GetTodayComplaintIdByOrder(UoW, Entity.Order.Id);
+			}
+		}
+
 		private void CreateCommands()
 		{
 			CreateSaveAndCloseCommand();
@@ -163,26 +168,36 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateComplaintCommand = new DelegateCommand(
 				() =>
 				{
-					if(_complaintId == default)
+					if(_complaintData.ComplaintId == default)
+					{
+						UpdateComplaintInformation();
+					}
+
+					if(_complaintData.ComplaintId == default)
 					{
 						CreateNewComplaint();
 					}
 					else
 					{
-						UpdateComplaintInformation();
-
-						if(_complaintId == default)
+						if(!_complaintData.HasOrderRating)
 						{
 							if(_commonServices.InteractiveService.Question(
-									"Не найдена созданная рекламация по данной оценке, создать новую?"))
+								   "Найдена созданная рекламация по оцененному заказу. Перейти в нее и связать с данной оценкой?"))
 							{
-								CreateNewComplaint();
+								var viewModel = NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+									this,
+									EntityUoWBuilder.ForOpen(_complaintData.ComplaintId),
+									OpenPageOptions.AsSlave,
+									vm =>
+										vm.EntitySaved += (sender, args) => ComplaintData = (args.Entity.GetId(), true))
+									.ViewModel;
+								viewModel.SetOrderRating(Entity.Id);
 							}
 						}
 						else
 						{
 							NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-								this, EntityUoWBuilder.ForOpen(_complaintId));
+								this, EntityUoWBuilder.ForOpen(_complaintData.ComplaintId));
 						}
 					}
 				});
@@ -197,7 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					EntityUoWBuilder.ForCreate(),
 					OpenPageOptions.AsSlave,
 					vm =>
-						vm.EntitySaved += (sender, args) => ComplaintId = args.Entity.GetId()).ViewModel;
+						vm.EntitySaved += (sender, args) => ComplaintData = (args.Entity.GetId(), true)).ViewModel;
 			viewModel.SetOrderRating(Entity.Id);
 		}
 

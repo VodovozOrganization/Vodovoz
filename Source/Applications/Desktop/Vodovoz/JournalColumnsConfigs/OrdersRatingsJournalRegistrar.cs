@@ -19,9 +19,9 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn(OrdersRatingsJournalNode.RatingColumn).AddNumericRenderer(node => node.Rating)
 				.AddColumn(OrdersRatingsJournalNode.ReasonsColumn).AddTextRenderer(node => node.OrderRatingReasons)
 				.AddColumn(OrdersRatingsJournalNode.CommentColumn).AddTextRenderer(node => node.OrderRatingComment)
-				.AddColumn(OrdersRatingsJournalNode.SourceColumn).AddTextRenderer(node => node.OrderRatingSource.GetEnumTitle())
 					.WrapMode(WrapMode.Word)
 					.WrapWidth(400)
+				.AddColumn(OrdersRatingsJournalNode.SourceColumn).AddTextRenderer(node => node.OrderRatingSource.GetEnumTitle())
 				.AddColumn("")
 				.Finish();
 	}

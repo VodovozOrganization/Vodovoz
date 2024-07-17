@@ -1,9 +1,9 @@
-﻿using QS.Views;
+﻿using QS.Views.Dialog;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
-	public partial class OrderRatingReasonView : ViewBase<OrderRatingReasonViewModel>
+	public partial class OrderRatingReasonView : DialogViewBase<OrderRatingReasonViewModel>
 	{
 		public OrderRatingReasonView(OrderRatingReasonViewModel viewModel) : base(viewModel)
 		{

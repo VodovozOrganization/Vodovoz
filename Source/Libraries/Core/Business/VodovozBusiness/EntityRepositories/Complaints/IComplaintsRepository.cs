@@ -24,6 +24,7 @@ namespace Vodovoz.EntityRepositories.Complaints
         IEnumerable<DriverComplaintReason> GetDriverComplaintPopularReasons(IUnitOfWork unitOfWork);
 		DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId);
         ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId);
-        int GetOrderRatingComplaint(IUnitOfWork unitOfWork, int orderRatingId);
-    }
+        (int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId);
+        (int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId);
+	}
 }

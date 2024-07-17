@@ -3,13 +3,13 @@ using System.ComponentModel;
 using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Tdi;
-using QS.Views;
+using QS.Views.Dialog;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
 	[ToolboxItem(true)]
-	public partial class RequestForCallView : ViewBase<RequestForCallViewModel>
+	public partial class RequestForCallView : DialogViewBase<RequestForCallViewModel>
 	{
 		public RequestForCallView(RequestForCallViewModel viewModel) : base(viewModel)
 		{

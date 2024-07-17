@@ -24,7 +24,7 @@ namespace CustomerOrdersApi.Controllers
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		[HttpPost("CreateOrder")]
+		[HttpPost]
 		public async Task<IActionResult> CreateOrderAsync(OnlineOrderInfoDto onlineOrderInfoDto)
 		{
 			var sourceName = onlineOrderInfoDto.Source.GetEnumTitle();
@@ -58,7 +58,7 @@ namespace CustomerOrdersApi.Controllers
 			}
 		}
 
-		[HttpGet("GetOrderInfo")]
+		[HttpGet]
 		public IActionResult GetOrderInfo([FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto)
 		{
 			var sourceName = getDetailedOrderInfoDto.Source.GetEnumTitle();
@@ -93,7 +93,7 @@ namespace CustomerOrdersApi.Controllers
 			}
 		}
 		
-		[HttpGet("GetOrders")]
+		[HttpGet]
 		public IActionResult GetOrders([FromBody] GetOrdersDto getOrdersDto)
 		{
 			var sourceName = getOrdersDto.Source.GetEnumTitle();
@@ -131,7 +131,7 @@ namespace CustomerOrdersApi.Controllers
 			}
 		}
 		
-		/*[HttpPost("UpdateOnlineOrderPaymentStatus")]
+		/*[HttpPost]
 		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
 			var sourceName = paymentStatusUpdatedDto.Source.GetEnumTitle();

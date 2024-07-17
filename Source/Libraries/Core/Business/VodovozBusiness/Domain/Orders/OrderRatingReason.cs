@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -12,6 +14,8 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "Причине оценки заказа",
 		PrepositionalPlural = "Причинах оценок заказов"
 	)]
+	[EntityPermission]
+	[HistoryTrace]
 	public class OrderRatingReason : PropertyChangedBase, INamedDomainObject, IValidatableObject
 	{
 		private const int _nameMaxLength = 150;
@@ -100,12 +104,17 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(string.IsNullOrWhiteSpace(Name))
 			{
-				yield return new ValidationResult($"Название причины должно быть заполнено");
+				yield return new ValidationResult("Название причины должно быть заполнено");
 			}
 			
 			if(!string.IsNullOrWhiteSpace(Name) && Name.Length > _nameMaxLength)
 			{
 				yield return new ValidationResult($"Длина названия причины превышена на {_nameMaxLength - Name.Length}");
+			}
+
+			if(!IsForOneStarRating && !IsForTwoStarRating && !IsForThreeStarRating && !IsForFourStarRating && !IsForFiveStarRating)
+			{
+				yield return new ValidationResult("Нельзя создать причину оценки без выбора значения оценки");
 			}
 		}
 

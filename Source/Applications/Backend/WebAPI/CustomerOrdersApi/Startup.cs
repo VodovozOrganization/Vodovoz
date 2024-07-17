@@ -12,6 +12,7 @@ using QS.Services;
 using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerOrdersApi
 {
@@ -49,6 +50,7 @@ namespace CustomerOrdersApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddInfrastructure()
 				.AddConfig(Configuration)
 				.AddDependenciesGroup()
 				.AddStaticScopeForEntity()

@@ -15,7 +15,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Map(x => x.Source).Column("source");
 			Map(x => x.CounterpartyId).Column("first_counterparty_id");
-			Map(x => x.ExternalOrderId).Column("external_online_order_id");
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
 			Map(x => x.ExternalOrderId).Column("external_online_order_id");
 			Map(x => x.DeliveryPointId).Column("first_delivery_point_id");

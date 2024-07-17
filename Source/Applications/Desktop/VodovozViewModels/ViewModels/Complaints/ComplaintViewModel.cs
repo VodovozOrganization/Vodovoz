@@ -20,6 +20,7 @@ using Vodovoz.Application.Complaints;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Logistic;
@@ -602,6 +603,12 @@ namespace Vodovoz.ViewModels.Complaints
 		private void ObservableFines_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(() => FineItems);
+		}
+
+		public void SetOrderRating(int orderRatingId)
+		{
+			var orderRating = UoW.GetById<OrderRating>(orderRatingId);
+			Entity.OrderRating = orderRating;
 		}
 
 		public void ChangeComplaintStatus(ComplaintStatuses oldStatus, ComplaintStatuses newStatus)

@@ -1,12 +1,12 @@
 ﻿using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
-using QS.Views;
+using QS.Views.Dialog;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
-	public partial class OrderRatingView : ViewBase<OrderRatingViewModel>
+	public partial class OrderRatingView : DialogViewBase<OrderRatingViewModel>
 	{
 		public OrderRatingView(OrderRatingViewModel viewModel) : base(viewModel)
 		{
