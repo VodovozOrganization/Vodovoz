@@ -292,7 +292,7 @@ namespace Vodovoz
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
-		private List<(int Id, decimal Count, decimal Price)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Price)>();
+		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
 
 		#region Работа с боковыми панелями
 
@@ -1113,8 +1113,8 @@ namespace Vodovoz
 			_orderItemsOriginalValues.AddRange(GetOrderItemsSmallNodes());
 		}
 
-		private IEnumerable<(int Id, decimal Count, decimal Price)> GetOrderItemsSmallNodes()
-			=> Entity.OrderItems.Select(oi => (oi.Id, oi.Count, oi.Price));
+		private IEnumerable<(int Id, decimal Count, decimal Sum)> GetOrderItemsSmallNodes()
+			=> Entity.OrderItems.Select(oi => (oi.Id, oi.Count, oi.Sum));
 
 		public void UpdateClientDefaultParam()
 		{
@@ -2349,7 +2349,7 @@ namespace Vodovoz
 
 		private bool CheckNeedBillResend()
 		{
-			var currentOrderItemsValues = new List<(int Id, decimal Count, decimal Price)>();
+			var currentOrderItemsValues = new List<(int Id, decimal Count, decimal Sum)>();
 
 			currentOrderItemsValues.AddRange(GetOrderItemsSmallNodes());
 
@@ -2357,11 +2357,11 @@ namespace Vodovoz
 				.All(eoiov => currentOrderItemsValues
 					.Any(coiov => coiov.Id == eoiov.Id
 						&& coiov.Count == eoiov.Count
-						&& coiov.Price == eoiov.Price))
+						&& coiov.Sum == eoiov.Sum))
 				|| !currentOrderItemsValues.All(coiov => _orderItemsOriginalValues
 					.Any(eoiov => eoiov.Id == coiov.Id
 						&& eoiov.Count == coiov.Count
-						&& eoiov.Price == coiov.Price));
+						&& eoiov.Sum == coiov.Sum));
 		}
 
 		private void CreateDeliveryFreeBalanceOperations()
