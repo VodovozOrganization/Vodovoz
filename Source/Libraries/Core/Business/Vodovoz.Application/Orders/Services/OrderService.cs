@@ -383,5 +383,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			_orderDiscountsController.SetDiscountFromDiscountReasonForOrderItem(referFriendDiscountReason, orderItem, canChangeDiscountValue, out string message);
 		}
+
+		public bool NeedResendByEdo(IUnitOfWork unitOfWork, Order order)
+		{
+			return _orderRepository
+				.GetEdoContainersByOrderId(unitOfWork, order.Id)
+				.Count(x => x.Type == Domain.Orders.Documents.Type.Bill) > 0;
+		}
 	}
 }

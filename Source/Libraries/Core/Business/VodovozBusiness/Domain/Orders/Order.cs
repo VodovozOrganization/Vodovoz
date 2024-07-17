@@ -2797,7 +2797,7 @@ namespace Vodovoz.Domain.Orders
 		private void SendUpdToEmailOnFinishIfNeeded()
 		{
 			var emailSendUpdResult =
-				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
+				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this);
 
 			if(emailSendUpdResult.IsSuccess)
 			{
@@ -2811,7 +2811,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void SendBillForClosingDocumentOnFinishIfNeeded()
 		{
-			var emailSendBillResult = _emailService.SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
+			var emailSendBillResult = _emailService.SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(UoW, this);
 			
 			if(emailSendBillResult.IsSuccess)
 			{
@@ -3557,7 +3557,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			CheckAndCreateDocuments(_emailService.GetRequirementDocTypes(this));
+			CheckAndCreateDocuments(_emailService.GetRequiredDocumentTypes(this));
 		}
 
 		public virtual void UpdateCertificates(out List<Nomenclature> nomenclaturesNeedUpdate)

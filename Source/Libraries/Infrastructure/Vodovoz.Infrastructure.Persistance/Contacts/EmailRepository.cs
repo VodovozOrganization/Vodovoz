@@ -84,6 +84,34 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			}
 		}
 
+		public bool HasSendedEmailsForBillExceptOf(int orderId, int emailId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
+			{
+				var result =
+					(
+						from billEmail in uow.Session.Query<BillDocumentEmail>()
+						where !new[] { StoredEmailStates.SendingError, StoredEmailStates.Undelivered }.Contains(billEmail.StoredEmail.State)
+							&& billEmail.OrderDocument.Order.Id == orderId
+
+						let billDocument = from billDoc in uow.Session.Query<BillDocument>()
+										   where billDoc.Id == billEmail.OrderDocument.Id
+										   select billDoc
+
+						let specBillDocument = from specBillDoc in uow.Session.Query<SpecialBillDocument>()
+											   where specBillDoc.Id == billEmail.OrderDocument.Id
+											   select specBillDoc
+
+						where billDocument != null || specBillDocument != null
+							&& billEmail.StoredEmail.Id != emailId
+						select billEmail.Id
+					)
+					.Count() > 0;
+
+				return result;
+			}
+		}
+
 		public bool HasSendedEmailForUpd(int orderId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
