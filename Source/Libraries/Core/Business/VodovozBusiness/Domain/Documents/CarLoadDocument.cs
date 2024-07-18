@@ -89,44 +89,86 @@ namespace Vodovoz.Domain.Documents
 		public virtual void FillFromRouteList(IUnitOfWork uow, IRouteListRepository routeListRepository, ISubdivisionRepository subdivisionRepository, bool warehouseOnly)
 		{
 			if(routeListRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListRepository));
+			}
 
 			ObservableItems.Clear();
 			if(RouteList == null || (Warehouse == null && warehouseOnly))
+			{
 				return;
+			}
 
-			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, subdivisionRepository, warehouseOnly ? Warehouse : null);
+			var carLoadDocumentItems = GetCarLoadDocumentItemsFromRouteList(uow, routeListRepository, subdivisionRepository, warehouseOnly);
+
+			foreach(var item in carLoadDocumentItems)
+			{
+				ObservableItems.Add(item);
+			}
+		}
+
+		public virtual IEnumerable<CarLoadDocumentItem> GetCarLoadDocumentItemsFromRouteList(
+			IUnitOfWork uow,
+			IRouteListRepository routeListRepository,
+			ISubdivisionRepository subdivisionRepository,
+			bool isWarehouseOnly)
+		{
+			var goodsAndEquips = routeListRepository
+				.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, subdivisionRepository, isWarehouseOnly ? Warehouse : null);
+
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
-			foreach(var inRoute in goodsAndEquips) {
-				ObservableItems.Add(
-					new CarLoadDocumentItem {
-						Document = this,
-						Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-						OwnType = inRoute.OwnType,
-						ExpireDatePercent = inRoute.ExpireDatePercent,
-						AmountInRouteList = inRoute.Amount,
-						Amount = inRoute.Amount,
-						OrderId = inRoute.OrderId,
-						IsIndividualSetForOrder = inRoute.IsNeedIndividualSetOnLoad
-					}
-				);
+			var items = new List<CarLoadDocumentItem>();
+
+			foreach(var inRoute in goodsAndEquips)
+			{
+				var amountInRouteList = goodsAndEquips
+					.Where(x =>
+						x.NomenclatureId == inRoute.NomenclatureId
+						&& x.ExpireDatePercent == inRoute.ExpireDatePercent
+						&& x.OrderId == inRoute.OrderId)
+					.Sum(x => x.Amount);
+
+				items.Add(new CarLoadDocumentItem
+				{
+					Document = this,
+					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+					OwnType = inRoute.OwnType,
+					ExpireDatePercent = inRoute.ExpireDatePercent,
+					AmountInRouteList = amountInRouteList,
+					Amount = inRoute.Amount,
+					OrderId = inRoute.OrderId,
+					IsIndividualSetForOrder = inRoute.IsNeedIndividualSetOnLoad
+				});
 			}
+
+			return items;
 		}
 
 		public virtual void UpdateInRouteListAmount(IUnitOfWork uow, IRouteListRepository routeListRepository)
 		{
 			if(routeListRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListRepository));
+			}
 
 			if(RouteList == null)
+			{
 				return;
+			}
+
 			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, null);
 
-			foreach(var item in Items) {
-				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id && x.ExpireDatePercent == item.ExpireDatePercent);
-				if(aGoods != null) {
-					item.AmountInRouteList = aGoods.Amount;
+			foreach(var item in Items)
+			{
+				var aGoods = goodsAndEquips.Where(x =>
+					x.NomenclatureId == item.Nomenclature.Id
+					&& x.ExpireDatePercent == item.ExpireDatePercent
+					&& x.OrderId == item.OrderId);
+
+				if(aGoods != null)
+				{
+					item.AmountInRouteList = aGoods.Sum(x => x.Amount);
 				}
 			}
 		}
@@ -157,10 +199,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow, IRouteListRepository routeListRepository)
 		{
 			if(routeListRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListRepository));
+			}
 
 			if(!Items.Any() || Warehouse == null)
+			{
 				return;
+			}
 
 			var inLoaded = routeListRepository.AllGoodsLoadedDivided(uow, RouteList, this);
 			if(inLoaded.Count == 0)
@@ -173,7 +219,9 @@ namespace Vodovoz.Domain.Documents
 				var found = inLoaded.FirstOrDefault(x => 
 					x.NomenclatureId == item.Nomenclature.Id 
 					&& x.OwnType == item.OwnType 
-					&& x.ExpireDatePercent == item.ExpireDatePercent);
+					&& x.ExpireDatePercent == item.ExpireDatePercent
+					&& x.OrderId == item.OrderId);
+
 				if(found != null)
 				{
 					item.AmountLoaded = found.Amount;

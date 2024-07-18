@@ -10,6 +10,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -212,6 +213,12 @@ namespace Vodovoz
 				return false;
 			}
 
+			if(!IsAllItemsInRouteListLoaded())
+			{
+				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые заказы. Частичная погрузка запрещена!");
+				return false;
+			}
+
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
 				var res = MessageDialogHelper.RunQuestionYesNoCancelDialog(
@@ -245,6 +252,37 @@ namespace Vodovoz
 			UoW.Commit();
 
 			_logger.LogInformation("Ok.");
+
+			return true;
+		}
+
+		private bool IsAllItemsInRouteListLoaded()
+		{
+			if(!Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+			{
+				return true;
+			}
+
+			var groupedItemsInRouteList =
+				Entity.GetCarLoadDocumentItemsFromRouteList(UoW, _routeListRepository, null, false)
+				.GroupBy(x => (x.Nomenclature.Id, x.ExpireDatePercent))
+				.ToDictionary(x => x.Key, x => x.ToList());
+
+			var groupedEntityItems = Entity.Items
+				.GroupBy(x => (x.Nomenclature.Id, x.ExpireDatePercent))
+				.ToDictionary(x => x.Key, x => x.ToList());
+
+			foreach(var item in groupedEntityItems)
+			{
+				var amountSum = item.Value.Sum(x => x.Amount);
+				var amountLoadedSum = item.Value.Sum(x => x.AmountLoaded);
+				var amountInRouteListSum = item.Value.Sum(x => x.AmountInRouteList);
+
+				if(amountSum + amountLoadedSum < amountInRouteListSum)
+				{
+					return false;
+				}
+			}
 
 			return true;
 		}

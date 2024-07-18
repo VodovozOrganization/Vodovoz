@@ -689,6 +689,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
 					.SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
 					.SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
+					.SelectGroup(() => docItemsAlias.OrderId).WithAlias(() => inCarLoads.OrderId)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
 				.List<GoodsInRouteListResultToDivide>();
 			return loadedlist;

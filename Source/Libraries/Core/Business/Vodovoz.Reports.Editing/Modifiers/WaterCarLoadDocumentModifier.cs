@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Reports.Editing.ModifierActions;
 using Vodovoz.Reports.Editing.Providers;
 
@@ -40,33 +41,32 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 		private static IEnumerable<ModifierAction> InsertDataTablesWithQr(IEnumerable<int> orderIds, bool isDocumentHasCommonOrders)
 		{
-			var counter = 0;
+			var tablesWithQrCount= orderIds.Count();
 
 			var actions = new List<ModifierAction>();
 
 			var verticalOffsetStep = _dataTableHeightInPt + _dataTableWithQrHeaderRowHeightInPt - _dataTableDefaultHeaderRowHeightInPt;
 
-			foreach(var orderId in orderIds)
+			for(var i = 0; i< tablesWithQrCount; i++)
 			{
-				var verticalOffset = counter * verticalOffsetStep;
+				var orderId = orderIds.ElementAt(i);
+				var verticalOffset = i * verticalOffsetStep;
 				var newTableName = $"{_dataTableName}_qr_{orderId}";
 
 				actions.AddRange(CopyTableAndMoveDownActions(_dataTableName, newTableName, verticalOffset));
 				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
 				actions.Add(SetTableHeaderHeightAction(newTableName, _dataTableWithQrHeaderRowHeightInPt));
 				actions.AddRange(CopyRectangleAndMoveDownActions(_orderQrRectangleName, $"{_orderQrRectangleName}_{orderId}", verticalOffset));
-
-				counter++;
 			}
 
-			var offsetForNextElements = counter * verticalOffsetStep;
+			var offsetForNextElements = tablesWithQrCount * verticalOffsetStep;
 
 			if(isDocumentHasCommonOrders)
 			{
 				actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataTableName}_qr_common", offsetForNextElements));
 			}
 
-			if(counter > 0)
+			if(tablesWithQrCount > 0)
 			{
 				actions.Add(MoveRectangleDownAction(_loadEndQrRectangleName, offsetForNextElements));
 				actions.Add(MoveTableDownAction(_tearOffCouponTableName, offsetForNextElements));
@@ -107,29 +107,28 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 		private static IEnumerable<ModifierAction> InsertDataTablesWithoutQr(IEnumerable<int> orderIds, bool isDocumentHasCommonOrders)
 		{
-			var counter = 0;
+			var tablesWithQrCount = orderIds.Count();
 
 			var actions = new List<ModifierAction>();
 
-			foreach(var orderId in orderIds)
+			for(var i = 0; i< tablesWithQrCount; i++)
 			{
-				var verticalOffset = counter * _dataWithoutQrTableHeightInPt;
+				var orderId = orderIds.ElementAt(i);
+				var verticalOffset = i * _dataWithoutQrTableHeightInPt;
 				var newTableName = $"{_dataWithoutQrTableName}_{orderId}";
 
 				actions.AddRange(CopyTableAndMoveDownActions(_dataWithoutQrTableName, newTableName, verticalOffset));
 				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
-
-				counter++;
 			}
 
-			var offsetForNextElements = counter * _dataWithoutQrTableHeightInPt;
+			var offsetForNextElements = tablesWithQrCount * _dataWithoutQrTableHeightInPt;
 
 			if(isDocumentHasCommonOrders)
 			{
 				actions.AddRange(GetDataTableWithCommonOrders(orderIds, $"{_dataWithoutQrTableName}_common", offsetForNextElements, true));
 			}
 
-			if(counter > 0)
+			if(tablesWithQrCount > 0)
 			{
 				actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
 				actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
