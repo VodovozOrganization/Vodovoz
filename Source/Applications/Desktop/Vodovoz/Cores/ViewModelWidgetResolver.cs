@@ -264,27 +264,6 @@ namespace Vodovoz.Core
 
 			return this;
 		}
-		
-		public virtual ViewModelWidgetResolver RegisterViewModelForView(Type viewModelType, Type viewType)
-		{
-			if(!typeof(ViewModelBase).IsAssignableFrom(viewModelType))
-			{
-				throw new ArgumentException($"Тип {viewModelType.Name} не является подтипом {typeof(ViewModelBase).Name}");
-			}
-
-			if(!typeof(Widget).IsAssignableFrom(viewType))
-			{
-				throw new ArgumentException($"Тип {viewType.Name} не является подтипом {typeof(Widget).Name}");
-			}
-
-			if(_viewModelWidgets.ContainsKey(viewModelType))
-			{
-				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
-			}
-			_viewModelWidgets.Add(viewModelType, viewType);
-
-			return this;
-		}
 
 		public virtual ViewModelWidgetResolver RegisterWidgetForWidgetViewModel<TViewModel, TWidget>()
 			where TViewModel : ViewModelBase

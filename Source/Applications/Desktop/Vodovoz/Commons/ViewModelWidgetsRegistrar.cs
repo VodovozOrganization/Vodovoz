@@ -18,7 +18,6 @@ using Vodovoz.Core;
 
 namespace Vodovoz.Commons
 {
-	//TODO доработать класс, чтобы нормально резолвились все вьюхи
 	public sealed class ViewModelWidgetsRegistrar
 	{
 		private readonly ILogger<ViewModelWidgetsRegistrar> _logger;
