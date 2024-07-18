@@ -285,7 +285,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesWithDynamicsReportGroupingsConstructor();
 
-			GroupingSelectViewModel.RightItems.ListContentChanged += OnGroupingsRightItemsListContentChanged;
+			GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
 
 		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)

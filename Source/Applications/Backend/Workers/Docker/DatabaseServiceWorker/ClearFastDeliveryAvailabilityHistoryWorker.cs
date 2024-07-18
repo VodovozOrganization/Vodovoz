@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -16,7 +17,7 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<ClearFastDeliveryAvailabilityHistoryWorker> _logger;
 		private readonly IFastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly IFastDeliveryAvailabilityHistorySettings _fastDeliveryAvailabilityHistorySettings;
-
+		private readonly IZabbixSender _zabbixSender;
 		private bool _workInProgress;
 		private DateTime? _lastClearDate;
 
@@ -24,13 +25,14 @@ namespace DatabaseServiceWorker
 			IOptions<ClearFastDeliveryAvailabilityHistoryOptions> options,
 			ILogger<ClearFastDeliveryAvailabilityHistoryWorker> logger,
 			IFastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
-			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings)
+			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings,
+			IZabbixSender zabbixSender)
 		{
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastDeliveryAvailabilityHistoryModel = fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_fastDeliveryAvailabilityHistorySettings = fastDeliveryAvailabilityHistorySettings ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistorySettings));
-
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			Interval = _options.Value.ScanInterval;
 		}
 
@@ -58,6 +60,8 @@ namespace DatabaseServiceWorker
 
 				ClearFastDeliveryAvailabilityHistory();
 				_lastClearDate = DateTime.Today;
+
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{

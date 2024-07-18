@@ -12,13 +12,13 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// <summary>
 		/// Возвращает баланс по предоставленным id касс
 		/// </summary>
-		IEnumerable<BalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionIds);
+		IEnumerable<EmployeeBalanceNode> CurrentCashForGivenSubdivisions(IUnitOfWork uow, int[] subdivisionsIds);
 		decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListBalanceExceptAccountableCash(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListCashReturnSum(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListCashExpensesSum(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListAdvancsReportsSum(IUnitOfWork uow, int routeListId);
-		decimal GetCashInTransferring(IUnitOfWork uow);
+		decimal GetCashInTransferring(IUnitOfWork uow, DateTime? startDate = null, DateTime? endDate = null);
 		Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId);
 		decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId, int? excludedExpenseDoc = null);
 		Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId);

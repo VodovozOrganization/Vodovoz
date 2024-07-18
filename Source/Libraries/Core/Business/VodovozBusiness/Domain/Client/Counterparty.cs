@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -1561,7 +1561,7 @@ namespace Vodovoz.Domain.Client
 				var phoneNumberDuplicatesIsChecked = new List<string>();
 
 				var phonesDuplicates =
-					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.ToList(), Id);
+					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.Where(p => !p.IsArchive).ToList(), Id);
 
 				foreach(var phone in phonesDuplicates)
 				{

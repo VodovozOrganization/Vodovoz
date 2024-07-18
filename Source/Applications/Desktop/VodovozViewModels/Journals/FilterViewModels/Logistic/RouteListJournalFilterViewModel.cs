@@ -34,10 +34,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private readonly IInteractiveService _interactiveService;
 
 		public RouteListJournalFilterViewModel(
+			IUserRepository userRepository,
 			IUserService userService,
 			ICurrentPermissionService currentPermissionService,
 			IInteractiveService interactiveService)
 		{
+			if(userRepository is null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
+			}
+
 			if(userService is null)
 			{
 				throw new ArgumentNullException(nameof(userService));
@@ -57,7 +63,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				_addressTypeNodes.Add(newAddressTypeNode);
 			}
 
-			var currentUserSettings = new UserRepository().GetUserSettings(UoW, userService.CurrentUserId);
+			var currentUserSettings = userRepository.GetUserSettings(UoW, userService.CurrentUserId);
 
 			foreach(var addressTypeNode in AddressTypeNodes)
 			{

@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -7,7 +8,14 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -15,18 +23,17 @@ namespace DatabaseServiceWorker
 	{
 		private bool _workInProgress;
 		private readonly ILogger<PowerBiExportWorker> _logger;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<PowerBiExportOptions> _options;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 
 		public PowerBiExportWorker(
 			ILogger<PowerBiExportWorker> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IOptions<PowerBiExportOptions> options)
+			IOptions<PowerBiExportOptions> options,
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-
+			_serviceScopeFactory = serviceScopeFactory;
 			Interval = _options.Value.Interval;
 		}
 
@@ -61,9 +68,30 @@ namespace DatabaseServiceWorker
 
 			_workInProgress = true;
 
+			using var scope = _serviceScopeFactory.CreateScope();
+
 			try
 			{
-				ReadFromDbAndExportToFile();
+				var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
+				var nomenclatureSettings = scope.ServiceProvider.GetRequiredService<INomenclatureSettings>();
+				var deliveryRulesSettings = scope.ServiceProvider.GetRequiredService<IDeliveryRulesSettings>();
+				var generalSettings = scope.ServiceProvider.GetRequiredService<IGeneralSettings>();
+				var trackRepository = scope.ServiceProvider.GetRequiredService<ITrackRepository>();
+				var scheduleRestrictionRepository = scope.ServiceProvider.GetRequiredService<IScheduleRestrictionRepository>();
+				var deliveryRepository = scope.ServiceProvider.GetRequiredService<IDeliveryRepository>();
+
+				ReadFromDbAndExportToFile(
+					unitOfWorkFactory,
+					generalSettings,
+					trackRepository,
+					scheduleRestrictionRepository,
+					deliveryRepository,
+					deliveryRulesSettings,
+					nomenclatureSettings,
+					stoppingToken);
+				
+				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{
@@ -83,7 +111,15 @@ namespace DatabaseServiceWorker
 			await Task.CompletedTask;
 		}
 
-		private void ReadFromDbAndExportToFile()
+		private void ReadFromDbAndExportToFile(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IGeneralSettings generalSettings,
+			ITrackRepository trackRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			IDeliveryRepository deliveryRepository,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			INomenclatureSettings nomenclatureSettings,
+			CancellationToken stoppingToken)
 		{
 			var smbPath = $"smb://{_options.Value.Login}:{_options.Value.Password}@{_options.Value.ExportPath}";
 
@@ -99,11 +135,21 @@ namespace DatabaseServiceWorker
 				{
 					ClearSheetsData(excelWorkbook);
 
-					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PowerBiExportWorker)))
+					using(var uow = unitOfWorkFactory.CreateWithoutRoot(nameof(PowerBiExportWorker)))
 					{
 						for(DateTime date = _options.Value.StartDate; date < DateTime.Now.Date; date = date.AddDays(1))
 						{
-							ReadDataFromDbAndExportToExcel(uow, excelWorkbook, date);
+							ReadDataFromDbAndExportToExcel(
+								uow,
+								excelWorkbook,
+								date,
+								generalSettings,
+								deliveryRepository,
+								trackRepository,
+								scheduleRestrictionRepository,
+								nomenclatureSettings,
+								deliveryRulesSettings,
+								stoppingToken);
 						}
 					}
 

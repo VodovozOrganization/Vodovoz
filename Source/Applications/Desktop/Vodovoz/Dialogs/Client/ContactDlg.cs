@@ -1,8 +1,7 @@
-﻿using Autofac;
+using Autofac;
 using NLog;
 using QS.Dialog;
 using Vodovoz.Domain.Contacts;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -21,6 +20,7 @@ namespace Vodovoz
 
 		public ContactDlg (Counterparty counterparty)
 		{
+			_externalCounterpartyRepository = _lifetimeScope.Resolve<IExternalCounterpartyRepository>();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Contact>();
 			UoWGeneric.Root.Counterparty = counterparty;
@@ -33,6 +33,7 @@ namespace Vodovoz
 
 		public ContactDlg (int id)
 		{
+			_externalCounterpartyRepository = _lifetimeScope.Resolve<IExternalCounterpartyRepository>();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Contact> (id);
 			ConfigureDlg ();

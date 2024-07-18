@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto.Counterparties;
@@ -12,6 +12,7 @@ using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Zabbix.Sender;
 
 namespace CustomerAppsNotifier
 {
@@ -22,6 +23,7 @@ namespace CustomerAppsNotifier
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IExternalSourceNotificationRepository _externalSourceNotificationRepository;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IZabbixSender _zabbixSender;
 		private const int _delayInSec = 20;
 
 		public CustomerAppsNotifier(
@@ -31,6 +33,7 @@ namespace CustomerAppsNotifier
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IExternalSourceNotificationRepository externalSourceNotificationRepository,
 			IServiceScopeFactory serviceScopeFactory)
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger;
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -39,6 +42,7 @@ namespace CustomerAppsNotifier
 				externalSourceNotificationRepository
 				?? throw new ArgumentNullException(nameof(externalSourceNotificationRepository));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -90,6 +94,8 @@ namespace CustomerAppsNotifier
 						UpdateNotification(uow, notification, httpCode);
 					}
 				}
+
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 		}
 		

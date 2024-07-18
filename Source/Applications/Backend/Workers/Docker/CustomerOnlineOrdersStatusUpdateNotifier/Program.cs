@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
@@ -13,6 +13,8 @@ using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -26,14 +28,14 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
-						{
-							logging.ClearProviders();
-							logging.AddNLog();
-							logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
-						})
+					services
+						.ConfigureZabbixSender(nameof(OnlineOrdersStatusUpdatedNotifier))
 
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -49,8 +51,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
+						.AddInfrastructure()
 						
-						.AddScoped<IOnlineOrderStatusUpdatedNotificationRepository, OnlineOrderStatusUpdatedNotificationRepository>()
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
 						.AddSingleton(_ => new JsonSerializerOptions
 						{
@@ -60,7 +62,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(client =>
 						{
 							client.Timeout = TimeSpan.FromSeconds(15);
-						});
+						})
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

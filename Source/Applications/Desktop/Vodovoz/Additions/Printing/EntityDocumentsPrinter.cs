@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gtk;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Print;
 using QSReport;
 using Vodovoz.Additions.Logistic;
@@ -23,7 +25,7 @@ namespace Vodovoz.Additions.Printing
 	/// </summary>
 	public class EntityDocumentsPrinter : IEntityDocumentsPrinter
 	{
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private readonly IDocTemplateRepository _docTemplateRepository = ScopeProvider.Scope.Resolve<IDocTemplateRepository>();
 		private IDictionary<OrderDocumentType, bool> _showSignaturesAndStampsOfDocument;
 		private bool? _hideSignaturesAndStamps = null;
 		private bool _cancelPrinting = false;
@@ -99,7 +101,7 @@ namespace Vodovoz.Additions.Printing
 						Selected = isSelected
 					};
 					
-					DocumentsToPrint.Add(doc);
+					MultiDocPrinter.PrintableDocuments.Add(doc);
 				}
 			}
 
@@ -111,7 +113,6 @@ namespace Vodovoz.Additions.Printing
 		
 		private MultipleDocumentPrinter MultiDocPrinter { get; set; }
 		public static PrintSettings PrinterSettings { get; set; }
-		public List<SelectablePrintDocument> DocumentsToPrint { get; set; } = new List<SelectablePrintDocument>();
 		public IList<SelectablePrintDocument> MultiDocPrinterPrintableDocuments => MultiDocPrinter.PrintableDocuments;
 		public string ODTTemplateNotFoundMessages { get; set; }
 
@@ -176,13 +177,13 @@ namespace Vodovoz.Additions.Printing
 					}
 				}
 
-				DocumentsToPrint.Add(
-					new SelectablePrintDocument(item) 
-					{
-						Selected = orderDocumentTypesToSelect == null
+				var documentToPrint = new SelectablePrintDocument(item)
+				{
+					Selected = orderDocumentTypesToSelect == null
 								   || orderDocumentTypesToSelect.Contains(item.Type)
-					}
-				);
+				};
+
+				MultiDocPrinter.PrintableDocuments.Add(documentToPrint);
 			}
 
 			if(msgs != null)
@@ -193,11 +194,8 @@ namespace Vodovoz.Additions.Printing
 		
 		private void DocPrinterInit()
 		{
-			MultiDocPrinter = new MultipleDocumentPrinter 
-			{
-				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(DocumentsToPrint)
-			};
-			
+			MultiDocPrinter = new MultipleDocumentPrinter();
+
 			MultiDocPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
 			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
 		}

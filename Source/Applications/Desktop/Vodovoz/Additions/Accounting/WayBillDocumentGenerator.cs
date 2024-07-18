@@ -32,6 +32,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Core.Domain.Employees;
+using QS.Extensions.Observable.Collections.List;
 
 namespace Vodovoz.Additions.Accounting
 {
@@ -116,7 +117,7 @@ namespace Vodovoz.Additions.Accounting
 		{
 			MultiDocPrinter = new MultipleDocumentPrinter
 			{
-				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(WayBillSelectableDocuments)
+				PrintableDocuments = new ObservableList<SelectablePrintDocument>(WayBillSelectableDocuments)
 			};
 			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
 		}

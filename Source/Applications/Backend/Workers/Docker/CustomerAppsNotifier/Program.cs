@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using ExternalCounterpartyAssignNotifier.Services;
@@ -10,6 +10,9 @@ using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Settings.Database;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace CustomerAppsNotifier
 {
@@ -33,6 +36,8 @@ namespace CustomerAppsNotifier
 						logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
 					})
 
+					.ConfigureZabbixSender(nameof(ExternalCounterpartyAssignNotifier))
+
 					.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 						typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -44,10 +49,10 @@ namespace CustomerAppsNotifier
 					)
 					.AddDatabaseConnection()
 					.AddCore()
+					.AddInfrastructure()
 					.AddTrackedUoW()
 
-					.AddHostedService<CustomerAppsNotifier>()
-					.AddSingleton<IExternalSourceNotificationRepository, ExternalSourceNotificationRepository>()
+					.AddHostedService<ExternalCounterpartyAssignNotifier>()
 
 					.AddSingleton(provider => new JsonSerializerOptions
 					{

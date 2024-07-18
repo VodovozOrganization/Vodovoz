@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -156,6 +156,7 @@ using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz
 {
@@ -206,7 +207,6 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
-					builder.RegisterType<CashRepository>().As<ICashRepository>();
 
 					#endregion
 
@@ -479,7 +479,6 @@ namespace Vodovoz
 					builder.RegisterType<OrdersByDistrictsAndDeliverySchedulesReport>().AsSelf();
 					builder.RegisterType<OrdersByCreationDateReport>().AsSelf();
 					builder.RegisterType<NomenclatureForShipment>().AsSelf();
-					builder.RegisterType<OrderCreationDateReport>().AsSelf();
 					builder.RegisterType<NotFullyLoadedRouteListsReport>().AsSelf();
 					builder.RegisterType<FirstClientsReport>().AsSelf();
 					builder.RegisterType<TariffZoneDebts>().AsSelf();
@@ -662,6 +661,7 @@ namespace Vodovoz
 						.AddCoreDataNHibernate()
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
+						.AddNHibernateConventions()
 						.AddDatabaseInfo()
 						.AddDatabaseSingletonSettings()
 						.AddCore()
@@ -697,6 +697,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddInfrastructure()
 						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()

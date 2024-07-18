@@ -11,9 +11,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public int? LastTechInspectOdometer { get; set; }
 		public int TeсhInspectInterval { get; set; }
 		public int LeftUntilTechInspectKm { get; set; }
+		public int? ManualTechInspectForKm { get; set; }
 		public int UpcomingTechInspectKm =>
-			LastTechInspectOdometer.HasValue
-			? LastTechInspectOdometer.Value + TeсhInspectInterval
-			: TeсhInspectInterval;
+			ManualTechInspectForKm.HasValue
+			? ManualTechInspectForKm.Value
+			: LastTechInspectOdometer.HasValue
+				? LastTechInspectOdometer.Value + TeсhInspectInterval
+				: TeсhInspectInterval;
 	}
 }

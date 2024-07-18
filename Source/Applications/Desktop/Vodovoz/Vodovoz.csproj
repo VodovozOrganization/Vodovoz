@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -420,9 +420,13 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
+    <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
+    <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
+    <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\InnerPhonesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\MileageWriteOffJournalRegistrar.cs" />
@@ -476,7 +480,6 @@
     <Compile Include="Infrastructure\Services\GtkConfirmationQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\ApplicationDevelopmentProposalsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientBalanceJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
@@ -1150,14 +1153,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
     <Compile Include="Dialogs\ImageLoaderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
-    <Compile Include="ReportsParameters\Sales\OrderCreationDateReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
+    <Compile Include="ReportsParameters\Sales\OrderCreationDateReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReportView.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NotFullyLoadedRouteListsReport.cs" />
-    <Compile Include="Dialogs\CallTaskDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.CallTaskDlg.cs" />
-    <Compile Include="JournalViewers\TasksView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.TasksView.cs" />
     <Compile Include="Representations\DebtorsJournalViewModel.cs" />
     <Compile Include="Cash\Transfer\IncomeCashTransferView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.Transfer.IncomeCashTransferView.cs" />
@@ -1169,7 +1168,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
     <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
-    <Compile Include="Representations\CallTasksVM.cs" />
     <Compile Include="Cores\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
@@ -1355,7 +1353,6 @@
     <Compile Include="Cores\IWidgetResolver.cs" />
     <Compile Include="ReportsParameters\Sales\SalesByDiscountReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
-    <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
     <Compile Include="JournalNodes\PromotionalSetJournalNode.cs" />
@@ -1452,7 +1449,6 @@
     <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
     <Compile Include="Views\BusinessTasks\ClientTaskView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.ClientTaskView.cs" />
-    <Compile Include="JournalViewModels\BusinessTasksJournalViewModel.cs" />
     <Compile Include="JournalNodes\BusinessTaskJournalNode.cs" />
     <Compile Include="Footers\ViewModels\BusinessTasksJournalFooterViewModel.cs" />
     <Compile Include="Footers\Views\BusinessTasksJournalFooterView.cs" />
@@ -2088,13 +2084,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarInsuranceVersionEditingView.cs" />
     <Compile Include="Views\Logistic\CarVersionEditingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionEditingView.cs" />
+    <Compile Include="Counterparties\CallTaskView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskView.cs" />
+    <Compile Include="Counterparties\CallTaskMassEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskMassEditView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ReportsParameters\Fuel\" />
-    <Folder Include="Logistic\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2601,6 +2599,10 @@
       <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
       <Name>QS.ErrorReporting</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj">
+      <Project>{2A0710B2-B71B-4959-88DA-0940100E172A}</Project>
+      <Name>QS.Extensions.Observable</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
       <Project>{1c3b49fc-372c-46f7-995f-eeb44474e2de}</Project>
       <Name>QS.HistoryLog.Gtk</Name>
@@ -2668,6 +2670,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj">
+      <Project>{7204b9bb-efdb-4148-91c1-193b48b9293b}</Project>
+      <Name>Vodovoz.Infrastructure.Persistance</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
