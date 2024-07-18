@@ -61,6 +61,9 @@ namespace Vodovoz.PrintableDocuments.Store
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
+			//Для каждой таблицы с сетевыми заказами добаляется Rectangle с названием "OrderQrRectangle_12345" (вместо 12345 номер заказа)
+			//Предполагается, что в этот Rectangle будет в дальнейшем добавлен QR в котором содержится номер заказа
+			//Когда будет добавлен QR заказа, установить значение  константы _dataTableWithQrHeaderRowHeightInPt = 125 (примерно) в классе WaterCarLoadDocumentModifier
 			var source = _qRPlacerFunc.Invoke(_carLoadDocument.Id, GetReportSource());
 
 			var reportInfo = new ReportInfo
@@ -103,8 +106,9 @@ namespace Vodovoz.PrintableDocuments.Store
 		{
 			var modifier = new WaterCarLoadDocumentModifier();
 			var tearOffCouponsCount = GetTearOffCouponsCount();
+			var isDocumentHasCommonOrders = IsDocumentHasCommonOrders();
 
-			modifier.Setup(SeparateTableOrderIds, tearOffCouponsCount);
+			modifier.Setup(SeparateTableOrderIds, tearOffCouponsCount, isDocumentHasCommonOrders);
 
 			return modifier;
 		}
@@ -134,6 +138,11 @@ namespace Vodovoz.PrintableDocuments.Store
 			var couponsCount = (int)(traysCount + palletsCount);
 
 			return couponsCount;
+		}
+
+		private bool IsDocumentHasCommonOrders()
+		{
+			return _carLoadDocument.Items.Any(x => !x.IsIndividualSetForOrder);
 		}
 
 		private decimal GetWaterBottlesCountByTareVolume(TareVolume tareVolume) =>

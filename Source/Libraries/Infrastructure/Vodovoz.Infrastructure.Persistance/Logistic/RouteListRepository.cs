@@ -407,6 +407,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 						)
 					)
 				).WithAlias(() => resultAlias.NomenclatureName)
+				.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				.Select(
 					Projections.Conditional(
 						Restrictions.And(
@@ -419,7 +420,6 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				).WithAlias(() => resultAlias.ExpireDatePercent)
 				.Select(() => orderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount)
-				.Select(() => orderAlias.Id).WithAlias( () => resultAlias.OrderId)
 				.SelectSubQuery(isNeedIndividualSetOnLoadSubquery).WithAlias(() => resultAlias.IsNeedIndividualSetOnLoad))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();

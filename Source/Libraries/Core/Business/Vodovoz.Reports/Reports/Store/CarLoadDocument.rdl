@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     IF (scldi.item_expiration_date_percent IS NOT NULL
@@ -45,7 +45,7 @@ FROM
 WHERE 
 	scld.id = @id
 	AND n.online_store_id IS NULL
-GROUP BY nomenclature
+GROUP BY nomenclature, order_id
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
@@ -53,7 +53,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -407,7 +407,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                     <Textbox Name="DataTableHeader">
                       <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
 'Розница',
-'Заказ №' + {order_id} + '\n' + {client_name} + '\n' + {delivery_address})</Value>
+'Сетевой заказ №' + {order_id} + '\n' + {client_name} + '\n' + {delivery_address})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -795,7 +795,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>193.0pt</Top>
+        <Top>175pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1069,7 +1069,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>572.0pt</Top>
+        <Top>560.0pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1291,7 +1291,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
         <Left>240.0pt</Left>
-        <Top>63.6pt</Top>
+        <Top>45pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1299,11 +1299,11 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <ZIndex>1</ZIndex>
       </Rectangle>
-      <Rectangle Name="RightQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Rectangle Name="BottomQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
         <Left>240.0pt</Left>
-        <Top>292.0pt</Top>
+        <Top>260.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1317,47 +1317,13 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
         <Left>3.0pt</Left>
-        <Top>732.0pt</Top>
+        <Top>720.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Right</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="TextboxLoadStart">
-        <Height>18.01pt</Height>
-        <Width>567.81pt</Width>
-        <Value>Начало погрузки</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>43.90pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontSize>12pt</FontSize>
-          <TextDecoration>Underline</TextDecoration>
-          <TextAlign>Center</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="TextboxLoadEnd" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>18.76pt</Height>
-        <Width>568.56pt</Width>
-        <Value>Окончание погрузки</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>272.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontSize>12pt</FontSize>
-          <TextDecoration>Underline</TextDecoration>
-          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Table Name="TableTearOffCoupon" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1418,7 +1384,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>422.0pt</Top>
+        <Top>410.0pt</Top>
       </Table>
       <Table Name="TableDataWithoutQr" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
@@ -1464,7 +1430,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                     <Textbox Name="Textbox8">
                       <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
 'Розница',
-'Заказ №' + {order_id} + '\n' + {client_name} + '\n' + {delivery_address})</Value>
+'Сетевой заказ №' + {order_id} + '\n' + {client_name} + '\n' + {delivery_address})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -1852,7 +1818,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>503.0pt</Top>
+        <Top>490.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1997,7 +1963,7 @@ Format({route_list_date}, "dd.MM.yyyy")
         <ZIndex>1</ZIndex>
       </Rectangle>
     </ReportItems>
-    <Height>937.6pt</Height>
+    <Height>750pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

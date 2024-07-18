@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -11,7 +12,6 @@ using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Presentation.Reports.Factories;
-using Vodovoz.PrintableDocuments.Store;
 using Vodovoz.RDL.Elements;
 using Vodovoz.ViewModels.Infrastructure;
 
@@ -141,7 +141,7 @@ namespace Vodovoz.Additions
 				report = (Report)serializer.Deserialize(reader);
 			}
 
-			var carLoadSuccess = AddQrsToCarLoadDocument(events, report, documentId);
+			var carLoadSuccess = AddQrsToCarLoadDocument(events, report, documentId, EventNamePosition.Top);
 			if(!carLoadSuccess)
 			{
 				return incomeReportSource;
@@ -205,7 +205,7 @@ namespace Vodovoz.Additions
 			IEnumerable<DriverWarehouseEvent> events,
 			Report report,
 			int documentId,
-			EventNamePosition eventNamePosition = EventNamePosition.Bottom)
+			EventNamePosition eventNamePosition = EventNamePosition.Top)
 		{
 			var reportItems = report.Body.GetEnamedItemsValue<ReportItems>(nameof(ReportItems));
 			var rectangles = reportItems.Items.OfType<Rectangle>();
@@ -214,7 +214,7 @@ namespace Vodovoz.Additions
 			var topRectangle = rectangles.SingleOrDefault(x => x.Name == _topItemWithQr);
 			var bottomRectangle = rectangles.SingleOrDefault(x => x.Name == _bottomItemWithQr);
 
-			if(leftRectangle is null && rightRectangle is null && topRectangle is null)
+			if(leftRectangle is null && rightRectangle is null && topRectangle is null && bottomRectangle is null)
 			{
 				return false;
 			}
@@ -242,10 +242,10 @@ namespace Vodovoz.Additions
 						AddQrToElement(@event, rightRectangle, documentId, topRightQr, ref leftRightQr, eventNamePosition);
 						break;
 					case EventQrPositionOnDocument.Top:
-						AddQrToElement(@event, topRectangle, documentId, topTopQr, ref leftTopQr, eventNamePosition);
+						AddQrToElement(@event, topRectangle, documentId, topTopQr, ref leftTopQr, eventNamePosition, true);
 						break;
 					case EventQrPositionOnDocument.Bottom:
-						AddQrToElement(@event, bottomRectangle, documentId, topBottomQr, ref leftBottomQr, eventNamePosition);
+						AddQrToElement(@event, bottomRectangle, documentId, topBottomQr, ref leftBottomQr, eventNamePosition, true);
 						break;
 				}
 			}
@@ -297,7 +297,8 @@ namespace Vodovoz.Additions
 			int documentId,
 			decimal top,
 			ref decimal left,
-			EventNamePosition eventNamePosition)
+			EventNamePosition eventNamePosition,
+			bool isBoldEventNameFontStyle = false)
 		{
 			if(rectangle is null)
 			{
@@ -309,7 +310,7 @@ namespace Vodovoz.Additions
 				rectangle.ReportItems = new ReportItems();
 			}
 
-			PlaceQrWithEventName(@event, rectangle, documentId, top, ref left, eventNamePosition);
+			PlaceQrWithEventName(@event, rectangle, documentId, top, ref left, eventNamePosition, isBoldEventNameFontStyle);
 		}
 
 		private void PlaceQrWithEventName(
@@ -318,7 +319,8 @@ namespace Vodovoz.Additions
 			int documentId,
 			decimal top,
 			ref decimal left,
-			EventNamePosition eventNamePosition)
+			EventNamePosition eventNamePosition,
+			bool isBoldEventNameFontStyle = false)
 		{
 			var padding = 5m;
 			var leftReportItem = left + "pt";
@@ -331,6 +333,14 @@ namespace Vodovoz.Additions
 				top += decimal.Floor(qrReportItem.HeightSize);
 				left += padding;
 			}
+			else if(eventNamePosition == EventNamePosition.Top)
+			{
+				top += padding;
+				left += padding;
+
+				qrReportItem.Top =
+					(rectangle.HeightSize - (padding + top + qrReportItem.HeightSize)).ToString("0.00", CultureInfo.InvariantCulture) + "pt";
+			}
 			else
 			{
 				left += qrReportItem.WidthSize;
@@ -340,6 +350,11 @@ namespace Vodovoz.Additions
 			var leftEventNameBox = left + "pt";
 			var topEventNameBox = top + "pt";
 			var eventNameBox = _customReportFactory.CreateTextBox(@event.EventName, leftEventNameBox, topEventNameBox);
+
+			if(isBoldEventNameFontStyle)
+			{
+				eventNameBox.Style = new Style { FontWeight = "Bold" };
+			}
 
 			rectangle.ReportItems.ItemsList.Add(qrReportItem);
 			rectangle.ReportItems.ItemsList.Add(eventNameBox);
