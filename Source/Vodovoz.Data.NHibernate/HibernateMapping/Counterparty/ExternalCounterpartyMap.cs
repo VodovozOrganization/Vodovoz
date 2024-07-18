@@ -7,10 +7,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 	{
 		public ExternalCounterpartyMap()
 		{
-			Table("external_counterparties");
+			Table(ExternalCounterparty.TableName);
 			DiscriminateSubClassesOnColumn("counterparty_from");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id).Column(ExternalCounterparty.IdColumn).GeneratedBy.Native();
 
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
 			Map(x => x.CounterpartyFrom).Column("counterparty_from").ReadOnly();
@@ -19,6 +19,16 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			References(x => x.Phone).Column("phone_id");
 			References(x => x.Email).Column("email_id");
+
+			HasMany(x => x.ExternalCounterpartyMatchingIds)
+				.Table(ExternalCounterpartyMatching.TableName)
+				.KeyColumn(ExternalCounterpartyMatching.AssignedExternalCounterpartyIdColumn)
+				.Element("id");
+
+			HasMany(x => x.ExternalCounterpartyAssignNotificationsIds)
+				.Table(ExternalCounterpartyAssignNotification.TableName)
+				.KeyColumn(ExternalCounterpartyAssignNotification.ExternalCounterartyIdColumn)
+				.Element("id");
 		}
 	}
 }

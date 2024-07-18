@@ -2,6 +2,7 @@
 using QS.ViewModels;
 using System;
 using System.Linq;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Contacts;
@@ -67,18 +68,25 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
-
-				var question = externalCounterparties.Any()
+				if(!_externalCounterpartyController.CanArchiveOrDeletePhone(_phone.ExternalCounterpartiesIds)
+					|| !_canArchiveNumber)
+				{
+					return NotEnoughPermissionsForAction("архивации телефона");
+				}
+				
+				var hasActiveExternalCounterparties = 
+					_externalCounterpartyController.HasActiveExternalCounterparties(_phone.ExternalCounterpartiesIds);
+				
+				var question = hasActiveExternalCounterparties
 					? _externalCounterpartyController.PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите его заархивировать?"
 					: "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
 				
-				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
+				if(!_commonServices.InteractiveService.Question(question))
 				{
 					return false;
 				}
 
-				_externalCounterpartyController.DeleteExternalCounterparties(_uow, externalCounterparties);
+				_externalCounterpartyController.TryDeleteExternalCounterparties(_uow, _phone.ExternalCounterpartiesIds);
 				PhoneIsArchive = true;
 				UpdateExternalCounterpartyAction?.Invoke();
 			}
@@ -89,7 +97,15 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 
 			return true;
 		}
-		
+
+		private bool NotEnoughPermissionsForAction(string action)
+		{
+			_commonServices.InteractiveService.ShowMessage(
+				ImportanceLevel.Warning,
+				$"Недостаточно прав для {action}");
+			return false;
+		}
+
 		private bool DefaultSetPhoneType(PhoneType phoneType)
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)

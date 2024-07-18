@@ -7,7 +7,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 	{
 		public ExternalCounterpartyMatchingMap()
 		{
-			Table("external_counterparties_matching");
+			Table(ExternalCounterpartyMatching.TableName);
 			OptimisticLock.Version();
 			Version(x => x.Version).Column("version");
 

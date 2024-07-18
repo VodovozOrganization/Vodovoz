@@ -132,14 +132,20 @@ namespace Vodovoz.Dialogs.Phones
 		private Widget CreateWithConfigurePhoneNumberEntry(Phone newPhone)
 		{
 			var widget = new yValidatedEntry();
+			var phoneHasExternalRegistration = newPhone.ExternalCounterpartiesIds.Any();
 			widget.ValidationMode = ValidationType.phone;
 			widget.Tag = newPhone;
 			widget.WidthRequest = 110;
 			widget.WidthChars = 19;
 			widget.Binding
-				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable)
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly && !phoneHasExternalRegistration, w => w.IsEditable)
 				.AddBinding(newPhone, e => e.Number, w => w.Text)
 				.InitializeFromSource();
+
+			if(phoneHasExternalRegistration)
+			{
+				widget.TooltipText = "На этот номер телефона зарегистрирован пользователь сайта/приложения. Изменение невозможно";
+			}
 
 			return widget;
 		}

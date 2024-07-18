@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -14,6 +15,11 @@ namespace Vodovoz.Domain.Client
 		private Email _email;
 		private bool _isArchive;
 		private DateTime? _creationDate;
+		private IList<int> _externalCounterpartyMatchingIds = new List<int>();
+		private IList<int> _externalCounterpartyAssignNotificationsIds = new List<int>();
+		public const string TableName = "external_counterparties";
+		public const string IdColumn = "id";
+		public const string PhoneIdColumn = "phone_id";
 
 		public virtual int Id { get; set; }
 
@@ -50,6 +56,20 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+		
+		[Display(Name = "Коды уведомлений о присвоении клиента внешнему пользователю")]
+		public virtual IList<int> ExternalCounterpartyAssignNotificationsIds
+		{
+			get => _externalCounterpartyAssignNotificationsIds;
+			set => SetField(ref _externalCounterpartyAssignNotificationsIds, value);
+		}
+		
+		[Display(Name = "Коды заявок на сопоставление внешних пользователей")]
+		public virtual IList<int> ExternalCounterpartyMatchingIds
+		{
+			get => _externalCounterpartyMatchingIds;
+			set => SetField(ref _externalCounterpartyMatchingIds, value);
 		}
 
 		[Display(Name = "Откуда клиент")]

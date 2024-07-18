@@ -147,19 +147,9 @@ namespace CustomerAppsApi.Library.Factories
 			switch(copyingCounterparty.CounterpartyFrom)
 			{
 				case CounterpartyFrom.MobileApp:
-					return new WebSiteCounterparty
-					{
-						Email = copyingCounterparty.Email,
-						Phone = copyingCounterparty.Phone,
-						ExternalCounterpartyId = externalCounterpartyId
-					};
+					return WebSiteCounterparty.Create(externalCounterpartyId, copyingCounterparty.Phone, copyingCounterparty.Email);
 				case CounterpartyFrom.WebSite:
-					return new MobileAppCounterparty
-					{
-						Email = copyingCounterparty.Email,
-						Phone = copyingCounterparty.Phone,
-						ExternalCounterpartyId = externalCounterpartyId
-					};
+					return MobileAppCounterparty.Create(externalCounterpartyId, copyingCounterparty.Phone, copyingCounterparty.Email);
 				default:
 					return null;
 			}

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
@@ -10,34 +9,35 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Services;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 
-namespace ExternalCounterpartyAssignNotifier
+namespace CustomerAppsNotifier
 {
-	public class ExternalCounterpartyAssignNotifier : BackgroundService
+	public class CustomerAppsNotifier : BackgroundService
 	{
-		private readonly ILogger<ExternalCounterpartyAssignNotifier> _logger;
+		private readonly ILogger<CustomerAppsNotifier> _logger;
 		private readonly IConfiguration _configuration;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IExternalCounterpartyAssignNotificationRepository _externalCounterpartyAssignNotificationRepository;
+		private readonly IExternalSourceNotificationRepository _externalSourceNotificationRepository;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private const int _delayInSec = 20;
 
-		public ExternalCounterpartyAssignNotifier(
+		public CustomerAppsNotifier(
 			IUserService userService,
-			ILogger<ExternalCounterpartyAssignNotifier> logger,
+			ILogger<CustomerAppsNotifier> logger,
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IExternalCounterpartyAssignNotificationRepository externalCounterpartyAssignNotificationRepository,
+			IExternalSourceNotificationRepository externalSourceNotificationRepository,
 			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger;
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_externalCounterpartyAssignNotificationRepository =
-				externalCounterpartyAssignNotificationRepository
-				?? throw new ArgumentNullException(nameof(externalCounterpartyAssignNotificationRepository));
+			_externalSourceNotificationRepository =
+				externalSourceNotificationRepository
+				?? throw new ArgumentNullException(nameof(externalSourceNotificationRepository));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
@@ -47,17 +47,19 @@ namespace ExternalCounterpartyAssignNotifier
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				var pastDaysForSend = _configuration.GetValue<int>("PastDaysForSend");
-				await NotifyAsync(pastDaysForSend);
+				await NotifyAboutAssignedCounterpartyAsync(pastDaysForSend);
+				await NotifyAboutDeletedExternalCounterpartiesAsync(pastDaysForSend);
+				await NotifyAboutAssignedCounterpartyAsync(pastDaysForSend);
 				await Task.Delay(1000 * _delayInSec, stoppingToken);
 			}
 		}
 
-		private async Task NotifyAsync(int pastDaysForSend)
+		private async Task NotifyAboutAssignedCounterpartyAsync(int pastDaysForSend)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				var notificationsToSend =
-					_externalCounterpartyAssignNotificationRepository.GetNotificationsForSend(uow, pastDaysForSend);
+					_externalSourceNotificationRepository.GetAssignedExternalCounterpartiesNotifications(uow, pastDaysForSend);
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
@@ -69,8 +71,16 @@ namespace ExternalCounterpartyAssignNotifier
 						try
 						{
 							_logger.LogInformation("Отправляем данные в ИПЗ");
-							httpCode = await notificationService.NotifyOfCounterpartyAssignAsync(
-								GetRegisteredNaturalCounterpartyDto(notification), notification.ExternalCounterparty.CounterpartyFrom);
+							
+							if(string.IsNullOrWhiteSpace(notification.PhoneNumber))
+							{
+								httpCode = 0;
+							}
+							else
+							{
+								httpCode = await notificationService.NotifyOfCounterpartyAssignAsync(
+									GetRegisteredNaturalCounterpartyDto(notification), notification.CounterpartyFrom);
+							}
 						}
 						catch(Exception e)
 						{
@@ -82,24 +92,49 @@ namespace ExternalCounterpartyAssignNotifier
 				}
 			}
 		}
+		
+		private async Task NotifyAboutDeletedExternalCounterpartiesAsync(int pastDaysForSend)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var notificationsToSend =
+					_externalSourceNotificationRepository.GetDeletedExternalCounterpartiesNotifications(uow, pastDaysForSend);
+
+				using(var scope = _serviceScopeFactory.CreateScope())
+				{
+					var notificationService = scope.ServiceProvider.GetService<INotificationService>();
+					
+					foreach(var notification in notificationsToSend)
+					{
+						var httpCode = -1;
+						try
+						{
+							_logger.LogInformation("Отправляем данные в ИПЗ");
+							httpCode = await notificationService.NotifyOfExternalCounterpartyDeleteAsync(
+								DeletedExternalCounterparty.Create(notification.ExternalCounterpartyId, notification.ErpCounterpartyId),
+								notification.CounterpartyFrom);
+						}
+						catch(Exception e)
+						{
+							_logger.LogError(e, "Ошибка при отправке уведомления об удаленном пользователе");
+						}
+
+						UpdateNotification(uow, notification, httpCode);
+					}
+				}
+			}
+		}
 
 		private RegisteredNaturalCounterpartyDto GetRegisteredNaturalCounterpartyDto(ExternalCounterpartyAssignNotification notification)
 		{
-			var counterparty = notification.ExternalCounterparty.Phone.Counterparty;
-
-			return new RegisteredNaturalCounterpartyDto
-			{
-				ErpCounterpartyId = counterparty.Id,
-				Email = notification.ExternalCounterparty.Email?.Address,
-				ExternalCounterpartyId = notification.ExternalCounterparty.ExternalCounterpartyId,
-				FirstName = counterparty.FirstName,
-				Surname = counterparty.Surname,
-				Patronymic = counterparty.Patronymic,
-				PhoneNumber = $"+7{notification.ExternalCounterparty.Phone.DigitsNumber}"
-			};
+			return RegisteredNaturalCounterpartyDto.Create(
+				notification.Counterparty,
+				notification.ExternalCounterpartyId,
+				notification.Email,
+				notification.PhoneNumber);
 		}
 		
-		private void UpdateNotification(IUnitOfWork uow, ExternalCounterpartyAssignNotification notification, int httpCode)
+		private void UpdateNotification(IUnitOfWork uow, INotification notification, int httpCode)
 		{
 			_logger.LogInformation("Обновляем данные");
 			try

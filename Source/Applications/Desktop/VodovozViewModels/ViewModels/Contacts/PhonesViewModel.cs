@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -156,7 +157,17 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				{
 					if(phone.Id != 0
 						&& phone.Counterparty != null
-						&& !_externalCounterpartyController.DeleteExternalCounterparties(_uow, phone.Id))
+						&& !_externalCounterpartyController.CanArchiveOrDeletePhone(phone.ExternalCounterpartiesIds))
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							"Недостаточно прав для удаления телефона");
+						return;
+					}
+					
+					if(phone.Id != 0
+						&& phone.Counterparty != null
+						&& !_externalCounterpartyController.TryDeleteExternalCounterparties(_uow, phone.ExternalCounterpartiesIds, true))
 					{
 						return;
 					}

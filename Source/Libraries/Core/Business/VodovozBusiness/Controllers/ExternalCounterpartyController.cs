@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Nodes;
@@ -15,54 +16,67 @@ namespace Vodovoz.Controllers
 		private readonly IDeleteEntityService _deleteEntityService;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IList<ExternalCounterparty> _deletedExternalCounterparties;
 
 		public string PhoneAssignedExternalCounterpartyMessage =>
 			"Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
-			"При удалении/архивации телефона будут таже удалены все связанные с пользователем данные и он потеряет доступ к сайту/МП\n";
+			"При удалении/архивации телефона будут также удалены все связанные с пользователем данные и он потеряет доступ к сайту/МП\n";
 
 		public ExternalCounterpartyController(
 			IDeleteEntityService deleteEntityService,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService,
+			ICurrentPermissionService currentPermissionService)
 		{
 			_deleteEntityService = deleteEntityService ?? throw new ArgumentNullException(nameof(deleteEntityService));
 			_externalCounterpartyRepository =
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_deletedExternalCounterparties = new List<ExternalCounterparty>();
 		}
-		
-		public bool DeleteExternalCounterparties(IUnitOfWork uow, int phoneId)
+
+		public bool TryDeleteExternalCounterparties(IUnitOfWork uow, IEnumerable<int> externalCounterpartiesIds, bool ask = false)
 		{
-			if(!HasActiveExternalCounterparties(uow, phoneId, out var externalCounterparties))
+			if(!HasActiveExternalCounterparties(externalCounterpartiesIds))
 			{
 				return true;
 			}
 
-			if(!_interactiveService.Question(PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите продолжить?"))
+			if(ask
+				&& !_interactiveService.Question(PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите продолжить?"))
 			{
 				return false;
 			}
 
-			DeleteExternalCounterparties(uow, externalCounterparties);
+			foreach(var externalCounterpartyId in externalCounterpartiesIds)
+			{
+				var externalCounterparty = uow.GetById<ExternalCounterparty>(externalCounterpartyId);
+				//_deleteEntityService.DeleteEntity<ExternalCounterparty>(externalCounterpartyId, uow, forceDelete: true);
+				_deletedExternalCounterparties.Add(externalCounterparty);
+				//uow.Delete(externalCounterparty);
+			}
 
 			return true;
 		}
 		
-		public void DeleteExternalCounterparties(IUnitOfWork uow, IEnumerable<ExternalCounterparty> externalCounterparties)
+		public bool CanArchiveOrDeletePhone(IEnumerable<int> externalCounterpartiesIds)
 		{
-			foreach(var externalCounterparty in externalCounterparties)
+			if(!HasActiveExternalCounterparties(externalCounterpartiesIds))
 			{
-				_deleteEntityService.DeleteEntity<ExternalCounterparty>(externalCounterparty.Id, uow, forceDelete: true);
+				return true;
 			}
+
+			var canArchiveOrDeletePhone =
+				_currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Phone.CanArchiveOrDeleteExternalUserPhone);
+			
+			return canArchiveOrDeletePhone;
 		}
 
-		public bool HasActiveExternalCounterparties(
-			IUnitOfWork uow,
-			int phoneId,
-			out IEnumerable<ExternalCounterparty> externalCounterparties)
+		public bool HasActiveExternalCounterparties(IEnumerable<int> externalCounterpartiesIds)
 		{
-			externalCounterparties = _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phoneId);
-			return externalCounterparties.Any();
+			return externalCounterpartiesIds.Any();
 		}
 		
 		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByCounterparty(
@@ -77,6 +91,27 @@ namespace Vodovoz.Controllers
 			IEnumerable<int> phonesIds)
 		{
 			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(uow, phonesIds);
+		}
+
+		public void TryCreateNotifications(IUnitOfWork uow)
+		{
+			if(!_deletedExternalCounterparties.Any())
+			{
+				return;
+			}
+			
+			foreach(var deletedExternalCounterparty in _deletedExternalCounterparties)
+			{
+				var notification =
+					DeletedExternalCounterpartyNotification.Create(
+						deletedExternalCounterparty.ExternalCounterpartyId,
+						deletedExternalCounterparty.Phone.Counterparty.Id,
+						deletedExternalCounterparty.CounterpartyFrom);
+				
+				uow.Save(notification);
+			}
+
+			_deletedExternalCounterparties.Clear();
 		}
 	}
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace ExternalCounterpartyAssignNotifier.Services
@@ -35,6 +36,13 @@ namespace ExternalCounterpartyAssignNotifier.Services
 			RegisteredNaturalCounterpartyDto counterpartyDto, CounterpartyFrom counterpartyFrom)
 		{
 			var response = await _httpClient.PostAsJsonAsync(GetUriString(counterpartyFrom), counterpartyDto, _serializerOptions);
+			return (int)response.StatusCode;
+		}
+
+		public async Task<int> NotifyOfExternalCounterpartyDeleteAsync(
+			DeletedExternalCounterparty counterpartyInfo, CounterpartyFrom counterpartyFrom)
+		{
+			var response = await _httpClient.PostAsJsonAsync(GetUriString(counterpartyFrom), counterpartyFrom, _serializerOptions);
 			return (int)response.StatusCode;
 		}
 

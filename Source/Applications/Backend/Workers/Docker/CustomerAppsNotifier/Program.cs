@@ -1,28 +1,17 @@
-﻿using Autofac.Extensions.DependencyInjection;
+﻿using System;
+using System.Text.Json;
+using Autofac.Extensions.DependencyInjection;
 using ExternalCounterpartyAssignNotifier.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Extensions.Logging;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
-using System;
-using System.Reflection;
-using System.Text.Json;
-using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Settings.Database;
 
-namespace ExternalCounterpartyAssignNotifier
+namespace CustomerAppsNotifier
 {
 	public class Program
 	{
@@ -41,7 +30,7 @@ namespace ExternalCounterpartyAssignNotifier
 					{
 						logging.ClearProviders();
 						logging.AddNLog();
-						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
+						logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
 					})
 
 					.AddMappingAssemblies(
@@ -57,8 +46,8 @@ namespace ExternalCounterpartyAssignNotifier
 					.AddCore()
 					.AddTrackedUoW()
 
-					.AddHostedService<ExternalCounterpartyAssignNotifier>()
-					.AddSingleton<IExternalCounterpartyAssignNotificationRepository, ExternalCounterpartyAssignNotificationRepository>()
+					.AddHostedService<CustomerAppsNotifier>()
+					.AddSingleton<IExternalSourceNotificationRepository, ExternalSourceNotificationRepository>()
 
 					.AddSingleton(provider => new JsonSerializerOptions
 					{
@@ -70,7 +59,6 @@ namespace ExternalCounterpartyAssignNotifier
 					});
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-					services.AddStaticHistoryTracker();
 				});
 		}
 	}

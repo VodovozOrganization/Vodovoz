@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -829,6 +829,7 @@ namespace Vodovoz
 					Counterparty = Entity,
 					ReadOnly = !CanEdit
 				};
+			_phonesViewModel.UpdateExternalCounterpartyAction += UpdateExternalCounterparties;
 			phonesView.ViewModel = _phonesViewModel;
 
 			var emailsViewModel = new EmailsViewModel(
@@ -1674,6 +1675,7 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
+				_externalCounterpartyController.TryCreateNotifications(UoW);
 				UoWGeneric.Save();
 				_logger.Info("Ok.");
 				return true;

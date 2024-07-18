@@ -7,7 +7,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 	{
 		public ExternalCounterpartyAssignNotificationMap()
 		{
-			Table("external_counterparties_assign_notifications");
+			Table(ExternalCounterpartyAssignNotification.TableName);
 
 			Id(x => x.Id).GeneratedBy.Native();
 
