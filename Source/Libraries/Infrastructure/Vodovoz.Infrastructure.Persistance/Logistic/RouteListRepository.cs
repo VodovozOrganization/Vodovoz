@@ -823,6 +823,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				item.Amount <= freeBalance.SingleOrDefault(fb => fb.NomenclatureId == item.NomenclatureId)?.Amount);
 		}
 
+		public bool IsOrderNeedIndividualSetOnLoad(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.Query<CarLoadDocumentItem>()
+				.Where(d => d.OrderId == orderId)
+				.Any(d => d.IsIndividualSetForOrder);
+		}
+
 		public IEnumerable<GoodsInRouteListResult> AllGoodsDelivered(IEnumerable<DeliveryDocument> deliveryDocuments)
 		{
 			return deliveryDocuments.SelectMany(d => d.Items.Where(x => x.Direction == DeliveryDirection.ToClient))
