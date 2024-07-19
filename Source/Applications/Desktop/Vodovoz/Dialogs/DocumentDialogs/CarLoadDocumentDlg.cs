@@ -258,7 +258,13 @@ namespace Vodovoz
 
 		private bool IsAllItemsInRouteListLoaded()
 		{
-			if(!Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+			var isNewEntity = Entity.Id == 0;
+
+			var isAllItemsMustBeLoaded =
+				(isNewEntity && Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+				|| (!isNewEntity && Entity.Items.Any(x => x.IsIndividualSetForOrder));
+
+			if(!isAllItemsMustBeLoaded)
 			{
 				return true;
 			}
@@ -266,19 +272,20 @@ namespace Vodovoz
 			var groupedItemsInRouteList =
 				Entity.GetCarLoadDocumentItemsFromRouteList(UoW, _routeListRepository, null, false)
 				.GroupBy(x => (x.Nomenclature.Id, x.ExpireDatePercent))
-				.ToDictionary(x => x.Key, x => x.ToList());
+				.ToDictionary(x => x.Key, x => x.Select(item => item.Amount).Sum());
 
 			var groupedEntityItems = Entity.Items
 				.GroupBy(x => (x.Nomenclature.Id, x.ExpireDatePercent))
-				.ToDictionary(x => x.Key, x => x.ToList());
+				.ToDictionary(x => x.Key, x => x.Select(item => item.Amount).Sum());
 
-			foreach(var item in groupedEntityItems)
+			foreach(var item in groupedItemsInRouteList)
 			{
-				var amountSum = item.Value.Sum(x => x.Amount);
-				var amountLoadedSum = item.Value.Sum(x => x.AmountLoaded);
-				var amountInRouteListSum = item.Value.Sum(x => x.AmountInRouteList);
+				if(!groupedEntityItems.TryGetValue(item.Key, out var result))
+				{
+					return false;
+				}
 
-				if(amountSum + amountLoadedSum < amountInRouteListSum)
+				if(result < item.Value)
 				{
 					return false;
 				}
