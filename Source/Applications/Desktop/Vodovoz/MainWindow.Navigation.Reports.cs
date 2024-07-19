@@ -211,18 +211,9 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstClientsActivated(object sender, EventArgs e)
 	{
-		var scope = _autofacScope.BeginLifetimeScope();
-
-		var discountReasonRepository = scope.Resolve<IDiscountReasonRepository>();
-
-		var tab = tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-			() => new QSReport.ReportViewDlg(
-				  new FirstClientsReport(
-						scope.Resolve<IDistrictJournalFactory>(),
-						discountReasonRepository)));
-
-		tab.TabClosed += (s, eargs) => scope.Dispose();
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder => builder.RegisterType<FirstClientsReport>().As<IParametersWidget>());
 	}
 
 	/// <summary>
