@@ -29,22 +29,7 @@ namespace Vodovoz.Reports.Editing.Providers
 		public static void MoveElementDown(this XContainer container, ElementType elementType,
 			string elementName, string @namespace, double offsetInPt)
 		{
-			XElement element;
-
-			switch(elementType)
-			{
-				case ElementType.Table:
-					element = container.GetTable(elementName, @namespace);
-					break;
-				case ElementType.Textbox:
-					element = container.GetTextbox(elementName, @namespace);
-					break;
-				case ElementType.Rectangle:
-					element = container.GetRectangle(elementName, @namespace);
-					break;
-				default:
-					throw new NotImplementedException("Неизвестный тип элемента");
-			}
+			var element = container.GetElementByTypeAndNameAttribute(elementType, elementName, @namespace);
 
 			var topPositionValue = GetTopPositionValue(element, @namespace);
 

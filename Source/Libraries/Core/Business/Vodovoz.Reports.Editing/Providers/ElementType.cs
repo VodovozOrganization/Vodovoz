@@ -4,6 +4,7 @@
 	{
 		Table,
 		Textbox,
-		Rectangle
+		Rectangle,
+		CustomReportItem
 	}
 }

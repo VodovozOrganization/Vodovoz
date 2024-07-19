@@ -1950,18 +1950,25 @@ Format({route_list_date}, "dd.MM.yyyy")
           </Filter>
         </Filters>
       </Table>
-      <Rectangle Name="OrderQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>120.00pt</Height>
-        <Width>90.00pt</Width>
-        <Left>470.0pt</Left>
-        <Top>194.2pt</Top>
+      <CustomReportItem Name="OrderQrCode">
+        <Type>QR Code</Type>
+        <Height>80pt</Height>
+        <Width>80pt</Width>
+        <CustomProperties>
+          <CustomProperty>
+            <Name>QrCode</Name>
+            <Value>='CarLoadDocument;' + {?id} + ';&lt;OrderId&gt;'</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>480.0pt</Left>
+        <Top>176.5pt</Top>
+        <ZIndex>1</ZIndex>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
-        <ZIndex>1</ZIndex>
-      </Rectangle>
+      </CustomReportItem>
     </ReportItems>
     <Height>750pt</Height>
     <Columns>1</Columns>

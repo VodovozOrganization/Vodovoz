@@ -92,6 +92,9 @@ namespace Vodovoz.Reports.Editing.Providers
 				case ElementType.Rectangle:
 					element = report.GetRectangle(elementNameAttributeValue, @namespace);
 					break;
+				case ElementType.CustomReportItem:
+					element = report.GetCustomReportItem(elementNameAttributeValue, @namespace);
+					break;
 				default:
 					throw new NotImplementedException("Неизвестный тип элемента");
 			}
@@ -107,6 +110,11 @@ namespace Vodovoz.Reports.Editing.Providers
 		public static XElement GetRectangle(this XContainer container, string elementNameAttributeValue, string @namespace)
 		{
 			return container.GetElement("Rectangle", elementNameAttributeValue, @namespace);
+		}
+
+		public static XElement GetCustomReportItem(this XContainer container, string elementNameAttributeValue, string @namespace)
+		{
+			return container.GetElement("CustomReportItem", elementNameAttributeValue, @namespace);
 		}
 
 		private static XElement GetElement(this XContainer container, string elementLocalName, string elementNameAttributeValue, string @namespace)
@@ -129,6 +137,33 @@ namespace Vodovoz.Reports.Editing.Providers
 			}
 			var element = matchedElements.First();
 			return element;
+		}
+
+		public static void SetQrCodeValue(this XContainer container, string elementNameAttributeValue, string value, string @namespace)
+		{
+			var qrCodeItem = container.GetCustomReportItem(elementNameAttributeValue, @namespace);
+
+			var elementTypeLocalName = "Type";
+			var elementType = qrCodeItem.GetSingleChildElement(elementTypeLocalName, @namespace);
+
+			if(elementType is null)
+			{
+				throw new InvalidOperationException($"У элемента с именем \"{elementNameAttributeValue}\" отсутсвует элемент \"{elementTypeLocalName}\"");
+			}
+
+			if(elementType.Value != "QR Code")
+			{
+				throw new InvalidOperationException($"Найденный элемент с именем \"{elementNameAttributeValue}\" не является QR кодом");
+			}
+
+			var qrCodeValue = qrCodeItem.Descendants(XName.Get("Value", @namespace)).FirstOrDefault();
+
+			if(qrCodeValue is null)
+			{
+				throw new InvalidOperationException($"У Qr кода \"{elementNameAttributeValue}\" отсутствует значение");
+			}
+
+			qrCodeValue.Value = value;
 		}
 
 		public static bool HasGrouping(this XContainer container, string groupName, string @namespace)
