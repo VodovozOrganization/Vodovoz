@@ -16,6 +16,7 @@ using QSWidgetLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Utilities.Extensions;
 using Vodovoz.Commons;
 using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.Journal;
@@ -224,7 +225,7 @@ namespace Vodovoz.Dialogs
 				.Where(mc => mc.MappedClass.Name == fieldChange.Entity.EntityClassName)
 				.Select(mc => mc.MappedClass).FirstOrDefault();
 
-			return !persistentClassType?.GetProperty(fieldChange.Path)?.GetCustomAttributes(false)
+			return !persistentClassType?.GetPropertyInfo(fieldChange.Path)?.GetCustomAttributes(false)
 				.Contains(restrictedToShowPropertyAttribute) ?? false;
 		}
 
@@ -236,7 +237,7 @@ namespace Vodovoz.Dialogs
 				.Where(mc => mc.MappedClass.Name == oldFieldChange.Entity.EntityClassName)
 				.Select(mc => mc.MappedClass).FirstOrDefault();
 
-			return !persistentClassType?.GetProperty(oldFieldChange.Path)?.GetCustomAttributes(false)
+			return !persistentClassType?.GetPropertyInfo(oldFieldChange.Path)?.GetCustomAttributes(false)
 				.Contains(restrictedToShowPropertyAttribute) ?? false;
 		}
 
