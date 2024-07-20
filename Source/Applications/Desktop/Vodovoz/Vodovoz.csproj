@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2093,6 +2093,12 @@
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskView.cs" />
     <Compile Include="Counterparties\CallTaskMassEditView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskMassEditView.cs" />
+    <Compile Include="Views\Organization\FundsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.FundsView.cs" />
+    <Compile Include="Views\Organization\BusinessActivityView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessActivityView.cs" />
+    <Compile Include="Views\Organization\BusinessAccountView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessAccountView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
