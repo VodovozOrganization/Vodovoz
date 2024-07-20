@@ -200,6 +200,9 @@
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryDetalizationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryObjectJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Organizations\BusinessAccountJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Organizations\BusinessActivityJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Organizations\FundsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Organizations\OrganizationOwnershipTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\InventoryInstancesJournalNode.cs" />
@@ -241,6 +244,9 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Organizations\BusinessAccountsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Organizations\BusinessActivitiesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Organizations\FundsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Pacs\OperatorsJournalViewModel.cs" />

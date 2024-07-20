@@ -1,0 +1,57 @@
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+
+namespace Vodovoz.Core.Domain.Organizations
+{
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "Расчетные счета",
+		Nominative = "Расчетный счет",
+		GenitivePlural = "Расчетных счетов")]
+	[EntityPermission]
+	public class BusinessAccount : PropertyChangedBase, INamedDomainObject
+	{
+		private string _name;
+		private string _number;
+		private string _bank;
+		private BusinessActivity _businessActivity;
+		private Funds _funds;
+
+		public virtual int Id { get; set; }
+
+		[Display(Name = "Название")]
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
+		}
+		
+		[Display(Name = "Номер")]
+		public virtual string Number
+		{
+			get => _number;
+			set => SetField (ref _number, value);
+		}
+
+		[Display(Name = "Банк")]
+		public virtual string Bank
+		{
+			get => _bank;
+			set => SetField (ref _bank, value);
+		}
+
+		[Display(Name = "Направление деятельности")]
+		public virtual BusinessActivity BusinessActivity
+		{
+			get => _businessActivity;
+			set => SetField (ref _businessActivity, value);
+		}
+		
+		[Display(Name = "Форма денежных средств")]
+		public virtual Funds Funds
+		{
+			get => _funds;
+			set => SetField (ref _funds, value);
+		}
+	}
+}
