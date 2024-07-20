@@ -26,6 +26,7 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Presentation.ViewModels.Employees.Journals;
+using Vodovoz.Presentation.ViewModels.Organizations.Journals;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
@@ -761,6 +762,28 @@ public partial class MainWindow
 	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+	}
+
+	protected void OnCompanyBalanceByDateActionActivated(object sender, EventArgs e)
+	{
+		//NavigationManager.OpenViewModel<>(null);
+	}
+
+	protected void OnBusinessActivitiesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BusinessActivitiesJournalViewModel>(null);
+
+	}
+
+	protected void OnBusinesAccountsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BusinessAccountsJournalViewModel>(null);
+
+	}
+
+	protected void OnFundsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FundsJournalViewModel>(null);
 	}
 
 	#endregion Финансы
