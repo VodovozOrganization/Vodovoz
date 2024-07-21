@@ -2099,6 +2099,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessActivityView.cs" />
     <Compile Include="Views\Organization\BusinessAccountView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessAccountView.cs" />
+    <Compile Include="Views\Organization\CompanyBalanceByDateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.CompanyBalanceByDateView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
