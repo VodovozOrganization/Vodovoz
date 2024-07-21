@@ -1,17 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.HistoryLog;
+using QS.Project.Core;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
-using Vodovoz.EntityRepositories;
-using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
-using QS.HistoryLog;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Autofac.Extensions.DependencyInjection;
-using QS.Services;
 using Vodovoz.Infrastructure.Persistance;
 
 namespace EmailStatusUpdateWorker
