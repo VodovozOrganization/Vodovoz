@@ -51,6 +51,7 @@ NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
 NODE_VOD13 = "Vod13"
 NODE_WIN_BUILD = "WIN_BUILD"
+NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
 // 102	Настройки. Глобальные
 ARCHIVE_EXTENTION = '.7z'
@@ -152,6 +153,7 @@ stage('Build'){
 				stage('Build WEB'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
+						# IIS
 						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
@@ -165,6 +167,18 @@ stage('Build'){
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
+
+						# Docker
+						PublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
 					}
 					else if(CAN_BUILD_WEB)
 					{
@@ -206,12 +220,15 @@ stage('Compress'){
 // 205	Этапы. Доставка
 stage('Delivery'){
 	parallel(
+
+		# Desktop
 		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
 
+		# IIS
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
 		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
@@ -225,6 +242,18 @@ stage('Delivery'){
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
+
+		# Docker
+		"DriverApi" : { DockerPush("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj") },
+		"CustomerOnlineOrdersRegistrar" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj") },
+		"CustomerOnlineOrdersStatusUpdateNotifier" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj") },
+		"DatabaseServiceWorker" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj") },
+		"EmailPrepareWorker" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj") },
+		"EmailStatusUpdateWorker" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj") },
+		"FastDeliveryLateWorker" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj") },
+		"LogisticsEventsApi" : { DockerPush("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj") },
+		"SmsInformerWorker" : { DockerPush("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj") },
+		"TrueMarkWorker" : { DockerPush("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj") },
 	)
 }
 
@@ -286,6 +315,10 @@ def PrepareSources() {
 
 def PublishBuild(projectPath){
 	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
+}
+
+def DockerPush(projectPath){
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
 }
 
 def Build(config){
