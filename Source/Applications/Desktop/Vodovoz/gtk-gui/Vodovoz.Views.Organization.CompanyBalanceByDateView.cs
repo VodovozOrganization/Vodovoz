@@ -6,13 +6,21 @@ namespace Vodovoz.Views.Organization
 	{
 		private global::Gamma.GtkWidgets.yVBox vboxMain;
 
-		private global::Gamma.GtkWidgets.yHBox hboxHandleBtns;
+		private global::Gamma.GtkWidgets.yHBox hboxSaveAndClose;
 
 		private global::Gamma.GtkWidgets.yButton btnSave;
 
 		private global::Gamma.GtkWidgets.yButton btnCancel;
 
 		private global::Gtk.HSeparator hseparator1;
+
+		private global::Gamma.GtkWidgets.yHBox hboxHandle;
+
+		private global::Gamma.GtkWidgets.yButton btnLoadAndProccessData;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTreeView treeComapnyBalanceByDay;
 
 		protected virtual void Build()
 		{
@@ -25,33 +33,33 @@ namespace Vodovoz.Views.Organization
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hboxHandleBtns = new global::Gamma.GtkWidgets.yHBox();
-			this.hboxHandleBtns.Name = "hboxHandleBtns";
-			this.hboxHandleBtns.Spacing = 6;
-			// Container child hboxHandleBtns.Gtk.Box+BoxChild
+			this.hboxSaveAndClose = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxSaveAndClose.Name = "hboxSaveAndClose";
+			this.hboxSaveAndClose.Spacing = 6;
+			// Container child hboxSaveAndClose.Gtk.Box+BoxChild
 			this.btnSave = new global::Gamma.GtkWidgets.yButton();
 			this.btnSave.CanFocus = true;
 			this.btnSave.Name = "btnSave";
 			this.btnSave.UseUnderline = true;
 			this.btnSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.hboxHandleBtns.Add(this.btnSave);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxHandleBtns[this.btnSave]));
+			this.hboxSaveAndClose.Add(this.btnSave);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxSaveAndClose[this.btnSave]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
-			// Container child hboxHandleBtns.Gtk.Box+BoxChild
+			// Container child hboxSaveAndClose.Gtk.Box+BoxChild
 			this.btnCancel = new global::Gamma.GtkWidgets.yButton();
 			this.btnCancel.CanFocus = true;
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.UseUnderline = true;
 			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			this.hboxHandleBtns.Add(this.btnCancel);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxHandleBtns[this.btnCancel]));
+			this.hboxSaveAndClose.Add(this.btnCancel);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxSaveAndClose[this.btnCancel]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
-			this.vboxMain.Add(this.hboxHandleBtns);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxHandleBtns]));
+			this.vboxMain.Add(this.hboxSaveAndClose);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxSaveAndClose]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
@@ -63,6 +71,38 @@ namespace Vodovoz.Views.Organization
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.hboxHandle = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxHandle.Name = "hboxHandle";
+			this.hboxHandle.Spacing = 6;
+			// Container child hboxHandle.Gtk.Box+BoxChild
+			this.btnLoadAndProccessData = new global::Gamma.GtkWidgets.yButton();
+			this.btnLoadAndProccessData.CanFocus = true;
+			this.btnLoadAndProccessData.Name = "btnLoadAndProccessData";
+			this.btnLoadAndProccessData.UseUnderline = true;
+			this.btnLoadAndProccessData.Label = global::Mono.Unix.Catalog.GetString("Загрузить и обработать данные");
+			this.hboxHandle.Add(this.btnLoadAndProccessData);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxHandle[this.btnLoadAndProccessData]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vboxMain.Add(this.hboxHandle);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxHandle]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.treeComapnyBalanceByDay = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeComapnyBalanceByDay.CanFocus = true;
+			this.treeComapnyBalanceByDay.Name = "treeComapnyBalanceByDay";
+			this.GtkScrolledWindow.Add(this.treeComapnyBalanceByDay);
+			this.vboxMain.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
+			w8.Position = 3;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
