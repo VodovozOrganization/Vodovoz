@@ -223,6 +223,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					CarType = cars[i].CarModel.Name,
 					CarTypeWithGeographicalGroup =
 						$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
+					CaeEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
@@ -263,8 +264,14 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				$"Всего {rows.Count()} авто.\n" +
 				string.Join("\n", summaryByCarModel);
 
+			var summaryByEventThanCar = rows
+				.GroupBy(row => (row.CaeEventTypes, row.CarType))
+				.GroupBy(g => g.Key.CaeEventTypes)
+				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
+					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType} {x.Count()}"))}\n");
+
 			var eventsSummaryDetails =
-				"";
+				string.Join("\n", summaryByEventThanCar);
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
 		}
