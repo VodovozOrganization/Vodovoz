@@ -18,6 +18,10 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
+		private global::Gamma.Widgets.yEnumComboBox enumСmbDefaultAccountFillType;
+
+		private global::Gamma.GtkWidgets.yLabel lblDefaultAccountFillTypeTitle;
+
 		private global::Gamma.GtkWidgets.yLabel lblId;
 
 		private global::Gamma.GtkWidgets.yLabel lblIdTitle;
@@ -76,7 +80,7 @@ namespace Vodovoz.Views.Organization
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.tableMain = new global::Gamma.GtkWidgets.yTable();
 			this.tableMain.Name = "tableMain";
-			this.tableMain.NRows = ((uint)(2));
+			this.tableMain.NRows = ((uint)(3));
 			this.tableMain.NColumns = ((uint)(3));
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
@@ -95,41 +99,67 @@ namespace Vodovoz.Views.Organization
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.enumСmbDefaultAccountFillType = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumСmbDefaultAccountFillType.Name = "enumСmbDefaultAccountFillType";
+			this.enumСmbDefaultAccountFillType.ShowSpecialStateAll = false;
+			this.enumСmbDefaultAccountFillType.ShowSpecialStateNot = false;
+			this.enumСmbDefaultAccountFillType.UseShortTitle = false;
+			this.enumСmbDefaultAccountFillType.DefaultFirst = false;
+			this.tableMain.Add(this.enumСmbDefaultAccountFillType);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.enumСmbDefaultAccountFillType]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblDefaultAccountFillTypeTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblDefaultAccountFillTypeTitle.Name = "lblDefaultAccountFillTypeTitle";
+			this.lblDefaultAccountFillTypeTitle.Xalign = 1F;
+			this.lblDefaultAccountFillTypeTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Заполнение р/с\nпо умолчанию:");
+			this.tableMain.Add(this.lblDefaultAccountFillTypeTitle);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblDefaultAccountFillTypeTitle]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
 			this.lblId = new global::Gamma.GtkWidgets.yLabel();
 			this.lblId.Name = "lblId";
 			this.lblId.Xalign = 0F;
 			this.lblId.LabelProp = global::Mono.Unix.Catalog.GetString("@Id@");
 			this.tableMain.Add(this.lblId);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblId]));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblId]));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.lblIdTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.lblIdTitle.Name = "lblIdTitle";
 			this.lblIdTitle.Xalign = 1F;
 			this.lblIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Код:");
 			this.tableMain.Add(this.lblIdTitle);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblIdTitle]));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblIdTitle]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.lblNameTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.lblNameTitle.Name = "lblNameTitle";
 			this.lblNameTitle.Xalign = 1F;
 			this.lblNameTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.tableMain.Add(this.lblNameTitle);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblNameTitle]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblNameTitle]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableMain);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
