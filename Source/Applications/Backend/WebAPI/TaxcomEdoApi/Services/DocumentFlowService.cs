@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Report;
 using System;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Converters;
 using Taxcom.Client.Api.Entity;
@@ -20,7 +20,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
@@ -31,9 +30,6 @@ using Vodovoz.Tools.Orders;
 using VodovozHealthCheck.Dto;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
-using Vodovoz.Domain.Payments;
-using QS.Services;
-using Vodovoz.Permissions;
 
 namespace TaxcomEdoApi.Services
 {
@@ -276,6 +272,9 @@ namespace TaxcomEdoApi.Services
 						_logger.LogInformation("Отменяется оффер из контейнера #{EdoContainerId}, Заказа #{OrderId}", container.Id, container.Order?.Id);
 						SendOfferCancellationContainer(unitOfWork, organization, container);
 					}
+
+					offerCancellation.IsNeedOfferCancellation = false;
+					unitOfWork.Save(offerCancellation);
 				}
 
 				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
