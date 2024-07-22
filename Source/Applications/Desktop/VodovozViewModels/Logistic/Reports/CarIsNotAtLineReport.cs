@@ -30,7 +30,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IEnumerable<Row> rows,
 			IEnumerable<CarTransferRow> carTransferRows,
 			IEnumerable<CarReceptionRow> carReceptionRows,
-			string eventsSummary)
+			string eventsSummary,
+			string eventsSummaryDetails)
 		{
 			Date = date;
 			CountDays = countDays;
@@ -46,7 +47,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(carReceptionRows));
 			EventsSummary = eventsSummary
 				?? throw new ArgumentNullException(nameof(eventsSummary));
-
+			EventsSummaryDetails = eventsSummaryDetails;
 			CreatedAt = DateTime.Now;
 		}
 
@@ -65,6 +66,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		public IEnumerable<(int Id, string Title)> ExcludedEvents { get; }
 
 		public string EventsSummary { get; }
+
+		public string EventsSummaryDetails { get; }
 
 		#endregion Параметры отчета
 
@@ -260,7 +263,10 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				$"Всего {rows.Count()} авто.\n" +
 				string.Join("\n", summaryByCarModel);
 
-			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary);
+			var eventsSummaryDetails =
+				"";
+
+			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
 		}
 
 		private static string GetGeoGroupFromCarEvent(CarEvent carEvent) =>
