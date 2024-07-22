@@ -320,9 +320,7 @@ def PublishBuild(projectPath){
 def DockerPush(projectPath){
 	node(NODE_WIN_BUILD){
 		def workspacePath = GetWorkspacePath()
-		RunPowerShell("""
-			& "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
-		""")
+		bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
 	}
 }
 
