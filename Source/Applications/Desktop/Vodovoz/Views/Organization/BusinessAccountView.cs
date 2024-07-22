@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Organization
 
 			lblId.Binding
 				.AddBinding(ViewModel, e => e.IdString, w => w.LabelProp)
-				.AddBinding(ViewModel, e => e.CanShowId, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanShowId, w => w.Visible)
 				.InitializeFromSource();
 
 			entryName.Binding
@@ -39,6 +39,15 @@ namespace Vodovoz.Views.Organization
 			entryBank.Binding
 				.AddBinding(ViewModel.Entity, e => e.Bank, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
+				.InitializeFromSource();
+
+			lblAccountFillTypeTitle.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowAccountFillType, w => w.Visible)
+				.InitializeFromSource();
+
+			enumСmbAccountFillType.Binding
+				.AddBinding(ViewModel.Entity, e => e.AccountFillType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanShowAccountFillType, w => w.Visible)
 				.InitializeFromSource();
 
 			entryBusinessActivity.ViewModel = ViewModel.BusinessActivityViewModel;

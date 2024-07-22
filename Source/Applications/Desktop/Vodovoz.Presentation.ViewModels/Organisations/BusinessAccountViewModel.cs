@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -36,6 +37,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 			CreateCommands();
 			InitializeEntryViewModels();
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public DelegateCommand SaveCommand { get; private set; }
@@ -47,6 +49,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		public bool CanEdit => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
 		public string IdString => Entity.Id.ToString();
 		public bool CanShowId => Entity.Id > 0;
+		public bool CanShowAccountFillType => Entity.Funds != null;
 
 		private void CreateCommands()
 		{
@@ -76,6 +79,25 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 			fundsViewModel.IsEditable = CanEdit;
 			FundsViewModel = fundsViewModel;
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Funds))
+			{
+				if(Entity.Funds != null)
+				{
+					Entity.AccountFillType = Entity.Funds.DefaultAccountFillType;
+				}
+
+				OnPropertyChanged(nameof(CanShowAccountFillType));
+			}
+		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
 		}
 	}
 }

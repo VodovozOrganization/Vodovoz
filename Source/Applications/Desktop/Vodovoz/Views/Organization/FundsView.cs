@@ -30,6 +30,10 @@ namespace Vodovoz.Views.Organization
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
 				.InitializeFromSource();
+
+			enumСmbDefaultAccountFillType.Binding
+				.AddBinding(ViewModel.Entity, e => e.DefaultAccountFillType, w => w.SelectedItem)
+				.InitializeFromSource();
 		}
 	}
 }
