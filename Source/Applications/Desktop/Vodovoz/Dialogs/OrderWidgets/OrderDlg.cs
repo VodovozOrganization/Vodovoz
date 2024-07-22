@@ -2295,7 +2295,7 @@ namespace Vodovoz
 
 				PrepareSendBillInformation();
 
-				if(Entity.OrderStatus == OrderStatus.Accepted)
+				if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.WaitForPayment)
 				{
 					if(_isNeedSendBillToEmail)
 					{
