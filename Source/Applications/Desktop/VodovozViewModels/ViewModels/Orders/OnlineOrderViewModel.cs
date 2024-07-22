@@ -90,7 +90,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
 		public bool CanGetToWork => Entity.EmployeeWorkWith is null;
 		public bool CanChangeDeliveryPoint =>
-			Entity.IsDeliveryPointNotBelongCounterparty.HasValue && Entity.IsDeliveryPointNotBelongCounterparty.Value;
+			Entity.IsDeliveryPointNotBelongCounterparty.HasValue
+			&& Entity.IsDeliveryPointNotBelongCounterparty.Value
+			&& CurrentEmployeeIsEmployeeWorkWith
+			&& OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanCreateOrder =>
 			OrderIsNullAndOnlineOrderNotCanceledStatus
 			&& CurrentEmployeeIsEmployeeWorkWith
