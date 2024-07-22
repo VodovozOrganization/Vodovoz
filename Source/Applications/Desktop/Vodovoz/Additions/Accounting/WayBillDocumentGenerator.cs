@@ -405,7 +405,7 @@ namespace Vodovoz.Additions.Accounting
 			LongOperationDlg.StartOperation(
 				delegate(IWorker worker)
 				{
-					using(FileWorker fileWorker = new FileWorker())
+					using(QSDocTemplates.FileWorker fileWorker = new QSDocTemplates.FileWorker())
 					{
 						int step = 0;
 						foreach(IPrintableOdtDocument document in odtToPrinter)
