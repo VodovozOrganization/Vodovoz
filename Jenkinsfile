@@ -318,7 +318,9 @@ def PublishBuild(projectPath){
 }
 
 def DockerPush(projectPath){
-	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+	node(NODE_WIN_BUILD){
+		bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+	}
 }
 
 def Build(config){
