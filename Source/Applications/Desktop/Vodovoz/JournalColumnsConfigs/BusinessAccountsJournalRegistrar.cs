@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
-using Vodovoz.Presentation.ViewModels.Organizations.Journals;
+using Vodovoz.Extensions;
+using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -12,6 +13,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Форма ДС").AddTextRenderer(x => x.Funds)
 				.AddColumn("Банк").AddTextRenderer(x => x.Bank)
 				.AddColumn("Направление").AddTextRenderer(x => x.BusinessActivity)
+				.AddColumn("Заполнение р/с")
+					.AddTextRenderer(x => x.AccountFillType.GetEnumDisplayName(false))
 				.AddColumn("")
 				.Finish();
 	}

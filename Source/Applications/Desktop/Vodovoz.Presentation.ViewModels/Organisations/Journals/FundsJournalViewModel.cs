@@ -6,9 +6,8 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Presentation.ViewModels.Organisations;
 
-namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
+namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 {
 	public class FundsJournalViewModel :
 		EntityJournalViewModelBase<Funds, FundsViewModel, FundsJournalNode>
@@ -29,8 +28,9 @@ namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
 
 			var query = uow.Session.QueryOver<Funds>()
 				.SelectList(list => list
-					.Select(f => f.Id).WithAlias(() => resultAlias)
-					.Select(f => f.Name).WithAlias(() => resultAlias.Name))
+					.Select(f => f.Id).WithAlias(() => resultAlias.Id)
+					.Select(f => f.Name).WithAlias(() => resultAlias.Name)
+					.Select(f => f.DefaultAccountFillType).WithAlias(() => resultAlias.DefaultAccountFillType))
 				.TransformUsing(Transformers.AliasToBean<FundsJournalNode>());
 
 			return query;

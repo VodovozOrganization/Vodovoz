@@ -1,6 +1,6 @@
 ﻿using QS.Project.Journal;
 
-namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
+namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 {
 	public class BusinessActivityJournalNode : JournalNodeBase
 	{

@@ -12,7 +12,8 @@ namespace Vodovoz.Core.Domain.Organizations
 	public class Funds : PropertyChangedBase, INamedDomainObject
 	{
 		private string _name;
-		
+		private AccountFillType _defaultAccountFillType;
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
@@ -20,6 +21,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _name;
 			set => SetField(ref _name, value);
+		}
+		
+		[Display(Name = "Заполнение данных по расчетному счету по умолчанию")]
+		public virtual AccountFillType DefaultAccountFillType
+		{
+			get => _defaultAccountFillType;
+			set => SetField (ref _defaultAccountFillType, value);
 		}
 	}
 }

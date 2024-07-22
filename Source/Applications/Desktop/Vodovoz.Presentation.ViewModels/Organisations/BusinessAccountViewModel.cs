@@ -8,7 +8,7 @@ using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Presentation.ViewModels.Organizations.Journals;
+using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 
 namespace Vodovoz.Presentation.ViewModels.Organisations
 {

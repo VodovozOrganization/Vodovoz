@@ -1,6 +1,7 @@
 ﻿using QS.Project.Journal;
+using Vodovoz.Core.Domain.Organizations;
 
-namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
+namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 {
 	public class BusinessAccountJournalNode : JournalNodeBase
 	{
@@ -12,5 +13,6 @@ namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
 		public string Bank { get; set; }
 		public string BusinessActivity { get; set; }
 		public string Funds { get; set; }
+		public AccountFillType AccountFillType { get; set; }
 	}
 }

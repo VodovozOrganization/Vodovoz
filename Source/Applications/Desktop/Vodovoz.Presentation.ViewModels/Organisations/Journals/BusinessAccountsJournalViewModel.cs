@@ -6,9 +6,8 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Presentation.ViewModels.Organisations;
 
-namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
+namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 {
 	public class BusinessAccountsJournalViewModel :
 		EntityJournalViewModelBase<BusinessAccount, BusinessAccountViewModel, BusinessAccountJournalNode>
@@ -37,6 +36,7 @@ namespace Vodovoz.Presentation.ViewModels.Organizations.Journals
 					.Select(ba => ba.Name).WithAlias(() => resultAlias.Name)
 					.Select(ba => ba.Bank).WithAlias(() => resultAlias.Bank)
 					.Select(ba => ba.Number).WithAlias(() => resultAlias.Number)
+					.Select(ba => ba.AccountFillType).WithAlias(() => resultAlias.AccountFillType)
 					.Select(() => businessActivityAlias.Name).WithAlias(() => resultAlias.BusinessActivity)
 					.Select(() => fundsAlias.Name).WithAlias(() => resultAlias.Funds)
 				)

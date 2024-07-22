@@ -16,6 +16,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _bank;
 		private BusinessActivity _businessActivity;
 		private Funds _funds;
+		private AccountFillType _accountFillType;
 
 		public virtual int Id { get; set; }
 
@@ -52,6 +53,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _funds;
 			set => SetField (ref _funds, value);
+		}
+		
+		[Display(Name = "Заполнение")]
+		public virtual AccountFillType AccountFillType
+		{
+			get => _accountFillType;
+			set => SetField (ref _accountFillType, value);
 		}
 	}
 }

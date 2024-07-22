@@ -26,7 +26,8 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Presentation.ViewModels.Employees.Journals;
-using Vodovoz.Presentation.ViewModels.Organizations.Journals;
+using Vodovoz.Presentation.ViewModels.Organisations;
+using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
@@ -766,7 +767,7 @@ public partial class MainWindow
 
 	protected void OnCompanyBalanceByDateActionActivated(object sender, EventArgs e)
 	{
-		//NavigationManager.OpenViewModel<>(null);
+		NavigationManager.OpenViewModel<CompanyBalanceByDateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 	}
 
 	protected void OnBusinessActivitiesActionActivated(object sender, EventArgs e)
