@@ -2309,6 +2309,7 @@ namespace Vodovoz
 						}
 						else if(_orderService.NeedResendByEdo(UoW, Entity))
 						{
+							_edoService.CancelOldEdoOffers(UoW, Entity);
 							_edoService.SetNeedToResendEdoDocumentForOrder(Entity, Type.Bill);
 						}
 					}
