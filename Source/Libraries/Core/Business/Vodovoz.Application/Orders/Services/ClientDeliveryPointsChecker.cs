@@ -4,7 +4,7 @@ using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class ClientDeliveryPointsChecker : IClientDeliveryPointsChecker
+	internal sealed class ClientDeliveryPointsChecker : IClientDeliveryPointsChecker
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
