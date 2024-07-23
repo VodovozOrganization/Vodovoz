@@ -264,7 +264,8 @@ namespace TaxcomEdoApi.Services
 					var containersToOfferCancellation = unitOfWork.Session.Query<EdoContainer>()
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
 							&& ec.Type == Type.Bill
-							&& ec.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
 						.ToList();
 
 					foreach(var container in containersToOfferCancellation)
