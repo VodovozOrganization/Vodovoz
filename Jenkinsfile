@@ -132,37 +132,47 @@ stage('Checkout'){
 }
 
 // 202	Этапы. Восстановление пакетов
-stage('Restore'){
-	parallel (
-		"Win" : {
-			node(NODE_WIN_BUILD){
+// stage('Restore'){
+// 	parallel (
+// 		"Win" : {
+// 			node(NODE_WIN_BUILD){
+// 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
+// 			}
+// 		}
+// 	)
+// }
+
+stage('Desktop'){
+	node(NODE_WIN_BUILD){
+		if(CAN_BUILD_DESKTOP)
+		{
+			stage('Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 			}
+
+			stage('Build'){
+				Build("WinDesktop")
+			}
 		}
-	)
+		else
+		{
+			echo "Build Desktop not needed"
+		}
+	}
 }
 
 // 203	Этапы. Сборка
-stage('Build'){
+stage('Web'){
 	node(NODE_WIN_BUILD){
-		stage('Build Desktop'){
-			if(CAN_BUILD_DESKTOP)
-			{
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
-				Build("WinDesktop")
-			}
-			else
-			{
-				echo "Build Desktop not needed"
-			}
-		}
-		stage('Build WEB'){
-			if(CAN_PUBLISH_BUILD_WEB)
-			{
+		
+		if(CAN_PUBLISH_BUILD_WEB)
+		{
+			stage('Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
-
+			}
+			stage('Build'){
 				// IIS
-				/*PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
@@ -174,7 +184,7 @@ stage('Build'){
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")*/
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 
 				// Docker
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
@@ -187,20 +197,23 @@ stage('Build'){
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
-				
 			}
-			else if(CAN_BUILD_WEB)
-			{
+		}
+		else if(CAN_BUILD_WEB)
+		{
+			stage('Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
-
+			}
+			stage('Build'){
 				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
 				Build("Web")
 			}
-			else
-			{
-				echo "Build Web not needed"
-			}
 		}
+		else
+		{
+			echo "Build Web not needed"
+		}
+		
 	}
 }
 
@@ -351,7 +364,7 @@ def PrepareSources() {
 		branches: scm.branches,
 		extensions: scm.extensions
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}/Vodovoz"]]
+		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}"]]
 		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
