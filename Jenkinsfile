@@ -80,10 +80,6 @@ CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 
-//TEST
-CAN_BUILD_DESKTOP = false
-
-
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
@@ -131,26 +127,15 @@ stage('Checkout'){
 	)
 }
 
-// 202	Этапы. Восстановление пакетов
-// stage('Restore'){
-// 	parallel (
-// 		"Win" : {
-// 			node(NODE_WIN_BUILD){
-// 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
-// 			}
-// 		}
-// 	)
-// }
-
 stage('Desktop'){
 	node(NODE_WIN_BUILD){
 		if(CAN_BUILD_DESKTOP)
 		{
-			stage('Restore'){
+			stage('Desktop.Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 			}
 
-			stage('Build'){
+			stage('Desktop.Build'){
 				Build("WinDesktop")
 			}
 		}
@@ -167,10 +152,10 @@ stage('Web'){
 		
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
-			stage('Restore'){
+			stage('Web.Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
 			}
-			stage('Build'){
+			stage('Web.Build'){
 				// IIS
 				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
@@ -201,10 +186,10 @@ stage('Web'){
 		}
 		else if(CAN_BUILD_WEB)
 		{
-			stage('Restore'){
+			stage('Web.Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
 			}
-			stage('Build'){
+			stage('Web.Build'){
 				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
 				Build("Web")
 			}
