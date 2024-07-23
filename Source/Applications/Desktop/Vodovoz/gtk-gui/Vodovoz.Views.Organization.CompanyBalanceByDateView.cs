@@ -18,6 +18,10 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gamma.GtkWidgets.yButton btnLoadAndProccessData;
 
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTextView textViewErrors;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView treeComapnyBalanceByDay;
@@ -92,6 +96,19 @@ namespace Vodovoz.Views.Organization
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.textViewErrors = new global::Gamma.GtkWidgets.yTextView();
+			this.textViewErrors.CanFocus = true;
+			this.textViewErrors.Name = "textViewErrors";
+			this.GtkScrolledWindow1.Add(this.textViewErrors);
+			this.vboxMain.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow1]));
+			w8.Position = 3;
+			w8.Expand = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -101,8 +118,8 @@ namespace Vodovoz.Views.Organization
 			this.treeComapnyBalanceByDay.Name = "treeComapnyBalanceByDay";
 			this.GtkScrolledWindow.Add(this.treeComapnyBalanceByDay);
 			this.vboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
-			w8.Position = 3;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
+			w10.Position = 4;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
