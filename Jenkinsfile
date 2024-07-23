@@ -161,7 +161,7 @@ stage('Build'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
 						// IIS
-						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+						/*PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 						PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
@@ -173,7 +173,7 @@ stage('Build'){
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-						PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")*/
 
 						// Docker
 						DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
@@ -291,7 +291,7 @@ stage('Publish'){
 
 def PrepareSources() {
 	def REFERENCE_REPOSITORY_PATH = "${JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-	echo 'Prepare reference repository ${REFERENCE_REPOSITORY_PATH}'
+	echo "Prepare reference repository ${REFERENCE_REPOSITORY_PATH}"
 
 	if(fileExists(REFERENCE_REPOSITORY_PATH)){
 		// fetch all on reference repository
@@ -368,7 +368,9 @@ def PublishBuild(projectPath){
 
 def DockerPublishBuild(projectPath){
 	def workspacePath = GetWorkspacePath()
-	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+	withCredentials([usernamePassword(credentialsId: 'docker-registry', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+		bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /p:password=$PASSWORD /maxcpucount:2"
+	}
 }
 
 def Build(config){
