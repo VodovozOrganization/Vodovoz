@@ -265,6 +265,7 @@ namespace TaxcomEdoApi.Services
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
 							&& ec.Type == Type.Bill
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.NotStarted
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
 						.ToList();
 
@@ -437,7 +438,7 @@ namespace TaxcomEdoApi.Services
 		{
 			try
 			{
-				_taxcomApi.OfferCancellation(edoContainer.DocFlowId.ToString(), "");
+				_taxcomApi.OfferCancellation(edoContainer.DocFlowId.ToString(), "Состав завказа был изменен");
 			}
 			catch(Exception e)
 			{
@@ -629,7 +630,7 @@ namespace TaxcomEdoApi.Services
 								container.Container = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
 							}
 
-							_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order.Id);
+							_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order?.Id);
 							uow.Save(container);
 							uow.Commit();
 						}
