@@ -268,7 +268,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.GroupBy(row => (row.CaeEventTypes, row.CarType))
 				.GroupBy(g => g.Key.CaeEventTypes)
 				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
-					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType} {x.Count()}"))}\n");
+					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType}: {x.Count()}"))}\n");
 
 			var eventsSummaryDetails =
 				string.Join("\n", summaryByEventThanCar);
