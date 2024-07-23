@@ -80,6 +80,10 @@ CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 
+//TEST
+CAN_BUILD_DESKTOP = false
+
+
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
@@ -286,14 +290,67 @@ stage('Publish'){
 // 301	Фукнции. Подготовка репозитория
 
 def PrepareSources() {
-	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
+	def REFERENCE_REPOSITORY_PATH = "${JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+	echo 'Prepare reference repository ${REFERENCE_REPOSITORY_PATH}'
+
+	if(fileExists(REFERENCE_REPOSITORY_PATH)){
+		// fetch all on reference repository
+		if (isUnix()) {
+			sh script: """\
+				cd ${REFERENCE_REPOSITORY_PATH} \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
+				git fetch --all \
+			""", returnStdout: true
+		}
+		else {
+			RunPowerShell("""
+				cd ${REFERENCE_REPOSITORY_PATH}
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
+				git fetch --all
+			""")
+		}		
+	}else{
+		// clone reference
+		if (isUnix()) {
+			sh script: """\
+				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH} \
+				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
+				git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
+				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
+				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
+			""", returnStdout: true
+		}
+		else {
+			RunPowerShell("""
+				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH}
+				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
+				git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
+				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
+				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
+			""")
+		}
+	}
 
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
 		extensions: scm.extensions
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]]
+		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}/Vodovoz"]]
 		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
