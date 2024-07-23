@@ -698,11 +698,15 @@ public partial class MainWindow
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
 	protected void OnActionWayBillReportActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<WayBillReportGroupPrint>().As<IParametersWidget>());
+	 {
+		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
+		null,
+		options: OpenPageOptions.IgnoreHash,
+		addingRegistrations: builder => builder.RegisterType<WayBillReportGroupPrint>().As<IParametersWidget>())
+		.TdiTab;
+
+		var report = (dlg as ReportViewDlg).ParametersWidget;
+		(report as WayBillReportGroupPrint).ParentTab = dlg ;
 	}
 
 	/// <summary>
