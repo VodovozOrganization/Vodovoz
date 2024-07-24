@@ -8,4 +8,4 @@ EXPOSE 443
 FROM base AS final
 WORKDIR /app
 COPY ["./bin/Release/net5.0/linux-x64/publish", "."]
-ENTRYPOINT ["dotnet", "LogisticsEventsApi.dll"]
+ENTRYPOINT ["dotnet", "DriverAPI.dll"]

@@ -6,4 +6,4 @@ WORKDIR /app
 FROM base AS final
 WORKDIR /app
 COPY ["./bin/Release/net5.0/linux-x64/publish", "."]
-ENTRYPOINT ["dotnet", "EmailStatusUpdateWorker.dll"]
+ENTRYPOINT ["dotnet", "Vodovoz.SmsInformerWorker.dll"]
