@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
@@ -15,18 +16,19 @@ namespace Vodovoz.Domain.Contacts
 	[HistoryTrace]
 	public class Phone : Core.Domain.Contacts.PhoneEntity
 	{
-		#region Свойства
-
 		private DeliveryPoint _deliveryPoint;
 		private Counterparty _counterparty;
 		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
 		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
+		private PhoneType _phoneType;
+		private IList<int> _externalCounterpartiesIds = new List<int>();
 
-		private PhoneType phoneType;
+		#region Свойства
+
 		public virtual PhoneType PhoneType
 		{
-			get => phoneType;
-			set => SetField(ref phoneType, value);
+			get => _phoneType;
+			set => SetField(ref _phoneType, value);
 		}
 
 		[Display(Name = "Точка доставки")]
@@ -55,6 +57,13 @@ namespace Vodovoz.Domain.Contacts
 		{
 			get => _roboAtsCounterpartyPatronymic;
 			set => SetField(ref _roboAtsCounterpartyPatronymic, value);
+		}
+		
+		[Display(Name = "Коды пользователей с сайта/приложения")]
+		public virtual IList<int> ExternalCounterpartiesIds
+		{
+			get => _externalCounterpartiesIds;
+			set => SetField(ref _externalCounterpartiesIds, value);
 		}
 
 		#endregion

@@ -1,4 +1,6 @@
-﻿using FluentNHibernate.Mapping;
+﻿using DocumentFormat.OpenXml.Drawing;
+using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Contacts
@@ -22,6 +24,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Contacts
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.RoboAtsCounterpartyName).Column("roboats_counterparty_name_id");
 			References(x => x.RoboAtsCounterpartyPatronymic).Column("roboats_counterparty_patronymic_id");
+
+			HasMany(x => x.ExternalCounterpartiesIds)
+				.Table(ExternalCounterparty.TableName)
+				.KeyColumn(ExternalCounterparty.PhoneIdColumn)
+				.Element(ExternalCounterparty.IdColumn)
+				.Inverse()
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

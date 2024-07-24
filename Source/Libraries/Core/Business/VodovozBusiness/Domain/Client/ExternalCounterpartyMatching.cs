@@ -20,6 +20,9 @@ namespace Vodovoz.Domain.Client
 		private ExternalCounterparty _assignedExternalCounterparty;
 		private string _phoneNumber;
 		private Guid _externalCounterpartyGuid;
+		public const string TableName = "external_counterparties_matching";
+		public const string IdColumn = "id";
+		public const string AssignedExternalCounterpartyIdColumn = "assigned_external_counterparty_id";
 
 		public virtual int Id { get; set; }
 		public virtual DateTime Version { get; set; }

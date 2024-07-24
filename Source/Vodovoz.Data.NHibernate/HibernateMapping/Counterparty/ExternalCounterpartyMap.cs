@@ -7,34 +7,28 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 	{
 		public ExternalCounterpartyMap()
 		{
-			Table("external_counterparties");
+			Table(ExternalCounterparty.TableName);
 			DiscriminateSubClassesOnColumn("counterparty_from");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id).Column(ExternalCounterparty.IdColumn).GeneratedBy.Native();
 
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
 			Map(x => x.CounterpartyFrom).Column("counterparty_from").ReadOnly();
 			Map(x => x.CreationDate).Column("creation_date").ReadOnly();
 			Map(x => x.IsArchive).Column("is_archive");
 
-			References(x => x.Phone).Column("phone_id").Cascade.AllDeleteOrphan();
-			References(x => x.Email).Column("email_id").Cascade.AllDeleteOrphan();
-		}
-	}
+			References(x => x.Phone).Column("phone_id");
+			References(x => x.Email).Column("email_id");
 
-	public class MobileAppCounterpartyMap : SubclassMap<MobileAppCounterparty>
-	{
-		public MobileAppCounterpartyMap()
-		{
-			DiscriminatorValue(nameof(CounterpartyFrom.MobileApp));
-		}
-	}
+			HasMany(x => x.ExternalCounterpartyMatchingIds)
+				.Table(ExternalCounterpartyMatching.TableName)
+				.KeyColumn(ExternalCounterpartyMatching.AssignedExternalCounterpartyIdColumn)
+				.Element("id");
 
-	public class WebSiteCounterpartyMap : SubclassMap<WebSiteCounterparty>
-	{
-		public WebSiteCounterpartyMap()
-		{
-			DiscriminatorValue(nameof(CounterpartyFrom.WebSite));
+			HasMany(x => x.ExternalCounterpartyAssignNotificationsIds)
+				.Table(ExternalCounterpartyAssignNotification.TableName)
+				.KeyColumn(ExternalCounterpartyAssignNotification.ExternalCounterartyIdColumn)
+				.Element("id");
 		}
 	}
 }
