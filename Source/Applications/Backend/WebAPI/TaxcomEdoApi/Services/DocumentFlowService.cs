@@ -265,7 +265,6 @@ namespace TaxcomEdoApi.Services
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
 							&& ec.Type == Type.Bill
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.NotStarted
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
 						.ToList();
 
