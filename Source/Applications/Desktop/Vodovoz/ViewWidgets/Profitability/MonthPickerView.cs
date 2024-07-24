@@ -5,9 +5,9 @@ using Vodovoz.ViewModels.Widgets.Profitability;
 namespace Vodovoz.ViewWidgets.Profitability
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MonthPickerView : WidgetViewBase<MonthPickerViewModel>
+	public partial class MonthPickerView : WidgetViewBase<DatePickerViewModel>
 	{
-		public MonthPickerView(MonthPickerViewModel viewModel) : base(viewModel)
+		public MonthPickerView(DatePickerViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -15,20 +15,20 @@ namespace Vodovoz.ViewWidgets.Profitability
 
 		private void Configure()
 		{
-			btnNextMonth.Clicked += (sender, e) => ViewModel.NextMonthCommand.Execute();
-			btnPreviousMonth.Clicked += (sender, e) => ViewModel.PreviousMonthCommand.Execute();
+			btnNextDate.BindCommand(ViewModel.NextDateCommand);
+			btnPreviousDate.BindCommand(ViewModel.PreviousDateCommand);
 
-			btnNextMonth.Binding
-				.AddBinding(ViewModel, vm => vm.CanSelectNextMonth, w => w.Sensitive)
+			btnNextDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanSelectNextDate, w => w.Sensitive)
 				.InitializeFromSource();
-			btnPreviousMonth.Binding
-				.AddBinding(ViewModel, vm => vm.CanSelectPreviousMonth, w => w.Sensitive)
+			btnPreviousDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanSelectPreviousDate, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryMonth.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedMonthTitle, w => w.Text)
+			entryDate.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedDateTitle, w => w.Text)
 				.InitializeFromSource();
-			entryMonth.IsEditable = false;
+			entryDate.IsEditable = false;
 		}
 	}
 }
