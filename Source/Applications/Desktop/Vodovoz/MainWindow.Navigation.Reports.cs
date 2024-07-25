@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Orders.Reports;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
@@ -195,10 +196,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<PaymentsFromTinkoffReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<OnlinePaymentsReportViewModel>(null);
 	}
 
 	/// <summary>

@@ -475,7 +475,6 @@ namespace Vodovoz
 					builder.RegisterType<EquipmentBalance>().AsSelf();
 					builder.RegisterType<CardPaymentsOrdersReport>().AsSelf();
 					builder.RegisterType<DefectiveItemsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromTinkoffReport>().AsSelf();
 					builder.RegisterType<OrdersByDistrictsAndDeliverySchedulesReport>().AsSelf();
 					builder.RegisterType<OrdersByCreationDateReport>().AsSelf();
 					builder.RegisterType<NomenclatureForShipment>().AsSelf();

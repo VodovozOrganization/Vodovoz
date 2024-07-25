@@ -6,57 +6,40 @@ using QSReport;
 using QS.Dialog.GtkUI;
 using Vodovoz.EntityRepositories.Payments;
 using QS.Project.Services;
+using System.ComponentModel;
+using QS.Views.Dialog;
+using Vodovoz.ViewModels.Orders.Reports;
 
-namespace Vodovoz.ReportsParameters.Payments
+namespace Vodovoz.Orders.Reports
 {
-	public partial class PaymentsFromTinkoffReport : SingleUoWWidgetBase, IParametersWidget
+	[ToolboxItem(true)]
+	public partial class OnlinePaymentsReportView : DialogViewBase<OnlinePaymentsReportViewModel>
 	{
-		private readonly IPaymentsRepository _paymentsRepository;
-		
-		public PaymentsFromTinkoffReport(IPaymentsRepository paymentsRepository)
+		public OnlinePaymentsReportView(OnlinePaymentsReportViewModel viewModel)
+			: base(viewModel)
 		{
-			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
-
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-			ConfigureDlg();
+
+			Initialize();
 		}
 
-		void ConfigureDlg()
+		private void Initialize()
 		{
-            dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
-            dateperiodpicker.EndDate = DateTime.Today;
+			daterangepicker.StartDate = DateTime.Today.AddDays(-1);
+			daterangepicker.EndDate = DateTime.Today;
             rbtnYesterday.Active = true;
 			SetControlsAccessibility();
 			rbtnLast3Days.Clicked += OnRbtnLast3DaysToggled;
 			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
 			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
-            dateperiodpicker.PeriodChangedByUser += OnCustomPeriodChanged;
-			ySCmbShop.SetRenderTextFunc<string>(o => string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
-			ySCmbShop.ItemsList =_paymentsRepository.GetAllShopsFromTinkoff(UoW);
+			daterangepicker.PeriodChangedByUser += OnCustomPeriodChanged;
+			//ySCmbShop.SetRenderTextFunc<string>(o => string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
+			//ySCmbShop.ItemsList = ViewModel.Shops;
 		}
 
-		void SetControlsAccessibility()
+		private void SetControlsAccessibility()
 		{
-            dateperiodpicker.Sensitive = rbtnCustomPeriod.Active;
-		}
-
-		#region IParametersWidget implementation
-
-		public string Title => "Отчет по оплатам OnLine заказов";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
+			daterangepicker.Sensitive = rbtnCustomPeriod.Active;
 		}
 
 		private ReportInfo GetReportInfo()
@@ -64,9 +47,9 @@ namespace Vodovoz.ReportsParameters.Payments
 			var rInfo = new ReportInfo {
 				Identifier = "Payments.PaymentsFromTinkoffReport",
 				Parameters = new Dictionary<string, object> {
-					{ "startDate", dateperiodpicker.StartDate },
-                    { "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-                    { "shop", ySCmbShop.SelectedItem ?? "ALL" }
+					{ "startDate", daterangepicker.StartDate },
+                    { "endDate", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
+                    //{ "shop", ySCmbShop.SelectedItem ?? "ALL" }
 				}
 			};
 			return rInfo;
@@ -76,8 +59,8 @@ namespace Vodovoz.ReportsParameters.Payments
 		{
             if (rbtnLast3Days.Active)
             {
-                dateperiodpicker.StartDate = DateTime.Today.AddDays(-3);
-                dateperiodpicker.EndDate = DateTime.Today;
+				daterangepicker.StartDate = DateTime.Today.AddDays(-3);
+				daterangepicker.EndDate = DateTime.Today;
             }
 
             SetControlsAccessibility();
@@ -87,8 +70,8 @@ namespace Vodovoz.ReportsParameters.Payments
 		{
 			if(rbtnYesterday.Active)
             {
-                dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
-                dateperiodpicker.EndDate = DateTime.Today;
+				daterangepicker.StartDate = DateTime.Today.AddDays(-1);
+				daterangepicker.EndDate = DateTime.Today;
             }
             SetControlsAccessibility();
 		}
