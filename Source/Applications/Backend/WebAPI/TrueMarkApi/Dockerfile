@@ -7,23 +7,24 @@ EXPOSE 80
 ARG temp_dir="/tmp/cprocsp_packages"
 RUN mkdir -p $temp_dir
 # необходимо скачать со страницы https://www.cryptopro.ru/products/csp/downloads
-COPY ["Net6/TrueMarkApi/CryptoProCspLocalPackages/Distrib/linux-amd64_deb.tgz", "$temp_dir"]
+COPY ["Applications/Backend/WebAPI/TrueMarkApi/CryptoProCspLocalPackages/Distrib/linux-amd64_deb.tgz", "$temp_dir"]
 
 RUN cd "$temp_dir" && \
     tar -xf linux-amd64_deb.tgz && \
 	linux-amd64_deb/install.sh && \
 	rm -rf "$temp_dir"
 
-
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
+
 WORKDIR /src
-COPY ["Net6/Nuget/packages", "Net6/Nuget/packages/"]
-COPY ["Net6/NuGet.Config", "Net6/"]
-COPY ["Net6/TrueMarkApi/TrueMarkApi.csproj", "Net6/TrueMarkApi/"]
-RUN dotnet restore "./Net6/TrueMarkApi/TrueMarkApi.csproj"
+COPY ["Applications/Backend/WebAPI/TrueMarkApi/TrueMarkApi.csproj", "Applications/Backend/WebAPI/TrueMarkApi/"]
+COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
+
 COPY . .
-WORKDIR "/src/Net6/TrueMarkApi"
+
+RUN dotnet restore "./Applications/Backend/WebAPI/TrueMarkApi/TrueMarkApi.csproj"
+WORKDIR "/src/Applications/Backend/WebAPI/TrueMarkApi"
 RUN dotnet build "./TrueMarkApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
