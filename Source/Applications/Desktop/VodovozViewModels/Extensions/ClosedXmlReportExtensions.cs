@@ -1,5 +1,5 @@
 ﻿using ClosedXML.Report;
-using Vodovoz.ViewModels.Reports;
+using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Extensions
 {

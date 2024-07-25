@@ -5,9 +5,12 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.Orders
 {
+	/// <summary>
+	/// Действие с документом ЭДО и честного знака
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "действия с документами эдо и честный знак",
-		Nominative = "действия с документом это и честный знак"
+		NominativePlural = "действия с документами ЭДО и честного знака",
+		Nominative = "действие с документом ЭДО и честного знака"
 	)]
 	[HistoryTrace]
 	public class OrderEdoTrueMarkDocumentsActions : PropertyChangedBase, IDomainObject
@@ -19,9 +22,16 @@ namespace Vodovoz.Domain.Orders
 		private OrderWithoutShipmentForAdvancePayment _orderWithoutShipmentForAdvancePayment;
 		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
 		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
+		private bool _isNeedOfferCancellation;
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Заказ
+		/// </summary>
 		[Display(Name = "Заказ")]
 		public Order Order
 		{
@@ -29,6 +39,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _order, value);
 		}
 
+		/// <summary>
+		/// Счёт без отгрузки на постоплату
+		/// </summary>
 		[Display(Name = "Счёт без отгрузки на постоплату")]
 		public OrderWithoutShipmentForPayment OrderWithoutShipmentForPayment
 		{
@@ -36,6 +49,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _orderWithoutShipmentForPayment, value);
 		}
 
+		/// <summary>
+		/// Счёт без отгрузки на предоплату
+		/// </summary>
 		[Display(Name = "Счёт без отгрузки на предоплату")]
 		public OrderWithoutShipmentForAdvancePayment OrderWithoutShipmentForAdvancePayment
 		{
@@ -43,6 +59,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _orderWithoutShipmentForAdvancePayment, value);
 		}
 
+		/// <summary>
+		/// Счёт без отгрузки на долг
+		/// </summary>
 		[Display(Name = "Счёт без отгрузки на долг")]
 		public OrderWithoutShipmentForDebt OrderWithoutShipmentForDebt
 		{
@@ -50,6 +69,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _orderWithoutShipmentForDebt, value);
 		}
 
+		/// <summary>
+		/// Требуется переотправка УПД по ЭДО
+		/// </summary>
 		[Display(Name = "Требуется переотправка УПД по ЭДО")]
 		public bool IsNeedToResendEdoUpd
 		{
@@ -57,6 +79,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _isNeedToResendEdoUpd, value);
 		}
 
+		/// <summary>
+		/// Требуется переотправка счёта по ЭДО
+		/// </summary>
 		[Display(Name = "Требуется переотправка счёта по ЭДО")]
 		public bool IsNeedToResendEdoBill
 		{
@@ -64,6 +89,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _isNeedToResendEdoBill, value);
 		}
 
+		/// <summary>
+		/// Требуется отмена вывода из оборота в Честном Знаке
+		/// </summary>
 		[Display(Name = "Требуется отмена вывода из оборота в Честном Знаке")]
 		public bool IsNeedToCancelTrueMarkDocument
 		{
@@ -71,7 +99,21 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _isNeedToCancelTrueMarkDocument, value);
 		}
 
+		/// <summary>
+		/// Требуется отмена счёта
+		/// </summary>
+		[Display(Name = "Требуется отмена счёта")]
+		public virtual bool IsNeedOfferCancellation
+		{
+			get => _isNeedOfferCancellation;
+			set => SetField(ref _isNeedOfferCancellation, value);
+		}
+
+		/// <summary>
+		/// Заголовок (вычисляемое)
+		/// </summary>
 		public virtual string Title => $"Действия с документами ЭДО и Честный знак заказа №" +
 			$"{Order?.Id ?? OrderWithoutShipmentForDebt?.Id ?? OrderWithoutShipmentForPayment?.Id ?? OrderWithoutShipmentForAdvancePayment?.Id}";
+
 	}
 }

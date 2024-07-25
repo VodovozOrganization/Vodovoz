@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
 using Vodovoz.Domain.Client;
@@ -22,32 +20,12 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			var btnCreateOrder = new yButton();
-			btnCreateOrder.Label = "Создать заказ";
-			btnCreateOrder.Show();
-			
-			var btnAssignCounterparty = new yButton();
-			btnAssignCounterparty.Label = "Привязать КА";
-			btnAssignCounterparty.Show();
-			hboxHandleButtons.Add(btnCreateOrder);
-			hboxHandleButtons.Add(btnAssignCounterparty);
-			
 			btnGetToWork.Clicked += (sender, args) => ViewModel.GetToWorkCommand.Execute();
 			btnCreateOrder.Clicked += OnCreateOrderClicked;
 			btnAssignCounterparty.Clicked += (sender, args) => ViewModel.OpenExternalCounterpartyMatchingCommand.Execute();
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			btnCancelOnlineOrder.Clicked += (sender, args) => ViewModel.CancelOnlineOrderCommand.Execute();
 
-			var boxBtnCreateOrder = (Box.BoxChild)hboxHandleButtons[btnCreateOrder];
-			boxBtnCreateOrder.Position = 1;
-			boxBtnCreateOrder.Expand = false;
-			boxBtnCreateOrder.Fill = false;
-			
-			var boxBtnAssignCounterparty = (Box.BoxChild)hboxHandleButtons[btnAssignCounterparty];
-			boxBtnAssignCounterparty.Position = 2;
-			boxBtnAssignCounterparty.Expand = false;
-			boxBtnAssignCounterparty.Fill = false;
-			
 			btnGetToWork.Binding
 				.AddBinding(ViewModel, vm => vm.CanGetToWork, w => w.Sensitive)
 				.InitializeFromSource();
@@ -121,9 +99,9 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.Counterparty, w => w.LabelProp)
 				.InitializeFromSource();
 
-			lblDeliveryPoint.Selectable = true;
-			lblDeliveryPoint.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPoint, w => w.LabelProp)
+			entryDeliveryPoint.ViewModel = ViewModel.DeliveryPointViewModel;
+			entryDeliveryPoint.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryPoint, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			chkIsSelfDelivery.Sensitive = false;
