@@ -144,12 +144,13 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return result.Count() == 0;
 		}
 
-		public IEnumerable<DeliveryPointForSendNode> GetDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId)
+		public IEnumerable<DeliveryPointForSendNode> GetActiveDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId)
 		{
 			DeliveryPointForSendNode resultAlias = null;
 
 			var result = uow.Session.QueryOver<DeliveryPoint>()
 				.Where(dp => dp.Counterparty.Id == counterpartyId)
+				.And(dp => dp.IsActive)
 				.SelectList(list => list
 					.Select(dp => dp.Id).WithAlias(() => resultAlias.Id)
 					.Select(dp => dp.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)
@@ -173,6 +174,15 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.List<DeliveryPointForSendNode>();
 
 			return result;
+		}
+
+		public bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId)
+		{
+			var query = from deliveryPoint in uow.Session.Query<DeliveryPoint>()
+				where deliveryPoint.Id == deliveryPointId && deliveryPoint.Counterparty.Id == counterpartyId
+				select deliveryPoint.Id;
+
+			return query.Any();
 		}
 
 		private string GetBuildingNumber(string building)
