@@ -60,4 +60,5 @@
 	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
 	  </None>
 	</ItemGroup>
+	<Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>
