@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+	<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <UserSecretsId>aspnet-DriverAPI-FDB83907-6562-4080-9D21-59FAA6ABC15B</UserSecretsId>
     <!-- Warning: Setting the following switch is *NOT* recommended in web apps. Remove it when Nhibernate fix BinaryFormatter Using -->
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
@@ -17,7 +18,7 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<DockerfileContext>..\..\..\..</DockerfileContext>
+	<DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +34,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\docker.vod.qsolution.ru-latest.pubxml" />
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>
