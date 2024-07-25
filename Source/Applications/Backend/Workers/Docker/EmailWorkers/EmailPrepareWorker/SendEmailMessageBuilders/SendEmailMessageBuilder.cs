@@ -4,7 +4,9 @@ using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
@@ -14,8 +16,10 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		protected readonly IEmailSettings _emailSettings;
+		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
+		private EmailTemplate _template;
 		private readonly int _instanceId;
 
 		protected SendEmailMessage _sendEmailMessage = new();
@@ -23,14 +27,21 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		public SendEmailMessageBuilder(
 			IUnitOfWork unitOfWork,
 			IEmailSettings emailSettings,
+			IEmailRepository emailRepository,
 			IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail,
 			int instanceId)
 		{
-			_unitOfWork = unitOfWork;
-			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
-			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
+			_unitOfWork = unitOfWork
+				?? throw new ArgumentNullException(nameof(unitOfWork));
+			_emailSettings = emailSettings
+				?? throw new ArgumentNullException(nameof(emailSettings));
+			_emailRepository = emailRepository
+				?? throw new ArgumentNullException(nameof(emailRepository));
+			_emailDocumentPreparer = emailDocumentPreparer
+				?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
+			_counterpartyEmail = counterpartyEmail
+				?? throw new ArgumentNullException(nameof(counterpartyEmail));
 			_instanceId = instanceId;
 		}
 
@@ -67,11 +78,29 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		public virtual SendEmailMessageBuilder AddTemplate()
 		{
 			var document = _counterpartyEmail.EmailableDocument;
-			var template = document.GetEmailTemplate();
 
-			_sendEmailMessage.Subject = $"{template.Title} {document.Title}";
-			_sendEmailMessage.TextPart = template.Text;
-			_sendEmailMessage.HTMLPart = template.TextHtml;
+			var hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(document.Order.Id, _counterpartyEmail.StoredEmail.Id);
+
+			if(hasSendedEmailsForBill
+				&& document.Type == OrderDocumentType.Bill
+				&& document is BillDocument billDocument)
+			{
+				_template = billDocument.GetResendEmailTemplate();
+			}
+			else if(hasSendedEmailsForBill
+				&& document.Type == OrderDocumentType.SpecialBill
+				&& document is SpecialBillDocument specialBillDocument)
+			{
+				_template = specialBillDocument.GetResendEmailTemplate();
+			}
+			else
+			{
+				_template = document.GetEmailTemplate();
+			}
+
+			_sendEmailMessage.Subject = $"{_template.Title} {document.Title}";
+			_sendEmailMessage.TextPart = _template.Text;
+			_sendEmailMessage.HTMLPart = _template.TextHtml;
 
 			return this;
 		}
@@ -82,9 +111,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 			var document = _counterpartyEmail.EmailableDocument;
 
-			var template = document.GetEmailTemplate();
-
-			foreach(var item in template.Attachments)
+			foreach(var item in _template.Attachments)
 			{
 				inlinedAttachments.Add(new InlinedEmailAttachment
 				{

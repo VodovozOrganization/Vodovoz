@@ -55,6 +55,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 
 namespace Vodovoz.Domain.Orders
@@ -782,6 +783,8 @@ namespace Vodovoz.Domain.Orders
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			var deliveryRepository = validationContext.GetRequiredService<IDeliveryRepository>();
 			var orderStateKey = validationContext.GetRequiredService<OrderStateKey>();
+			var clientDeliveryPointsChecker = validationContext.GetRequiredService<IClientDeliveryPointsChecker>();
+
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1192,18 +1195,10 @@ namespace Vodovoz.Domain.Orders
 
 			if(Client != null && DeliveryPoint != null)
 			{
-				using (var uow = uowFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
+				if(!clientDeliveryPointsChecker.ClientDeliveryPointExists(Client.Id, DeliveryPoint.Id))
 				{
-					var clientDeliveryPointsIds = uow.GetAll<DeliveryPoint>()
-						.Where(d => d.Counterparty.Id == Client.Id)
-						.Select(d => d.Id)
-						.ToList();
-
-					if(!clientDeliveryPointsIds.Any(x => x == DeliveryPoint.Id))
-					{
-						yield return new ValidationResult($"Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
-							new[] { nameof(DeliveryPoint) });
-					}
+					yield return new ValidationResult("Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
+						new[] { nameof(DeliveryPoint) });
 				}
 			}
 
@@ -2802,7 +2797,7 @@ namespace Vodovoz.Domain.Orders
 		private void SendUpdToEmailOnFinishIfNeeded()
 		{
 			var emailSendUpdResult =
-				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
+				_emailService.SendUpdToEmailOnFinishIfNeeded(UoW, this);
 
 			if(emailSendUpdResult.IsSuccess)
 			{
@@ -2816,7 +2811,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void SendBillForClosingDocumentOnFinishIfNeeded()
 		{
-			var emailSendBillResult = _emailService.SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleSettings);
+			var emailSendBillResult = _emailService.SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(UoW, this);
 			
 			if(emailSendBillResult.IsSuccess)
 			{
@@ -3562,7 +3557,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			CheckAndCreateDocuments(_emailService.GetRequirementDocTypes(this));
+			CheckAndCreateDocuments(_emailService.GetRequiredDocumentTypes(this));
 		}
 
 		public virtual void UpdateCertificates(out List<Nomenclature> nomenclaturesNeedUpdate)

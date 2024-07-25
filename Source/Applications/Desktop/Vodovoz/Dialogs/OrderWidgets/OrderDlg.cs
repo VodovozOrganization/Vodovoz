@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -213,7 +213,6 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
 		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
-		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings = ScopeProvider.Scope.Resolve<IDeliveryScheduleSettings>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private ICounterpartyService _counterpartyService;
 
@@ -292,6 +291,8 @@ namespace Vodovoz
 		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
+
+		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
 
 		#region Работа с боковыми панелями
 
@@ -1101,7 +1102,19 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+
+			UpdateOrderItemsOriginalValues();
 		}
+
+		private void UpdateOrderItemsOriginalValues()
+		{
+			_orderItemsOriginalValues.Clear();
+
+			_orderItemsOriginalValues.AddRange(GetOrderItemsSmallNodes());
+		}
+
+		private IEnumerable<(int Id, decimal Count, decimal Sum)> GetOrderItemsSmallNodes()
+			=> Entity.OrderItems.Select(oi => (oi.Id, oi.Count, oi.Sum));
 
 		public void UpdateClientDefaultParam()
 		{
@@ -2267,8 +2280,8 @@ namespace Vodovoz
 					return false;
 				}
 
-				if(Entity.Id == 0 &&
-				   Entity.PaymentType == PaymentType.Cashless)
+				if(Entity.Id == 0
+					&& Entity.PaymentType == PaymentType.Cashless)
 				{
 					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 				}
@@ -2277,12 +2290,29 @@ namespace Vodovoz
 				{
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
-				
+
+				var needToResendBill = CheckNeedBillResend();
+
 				PrepareSendBillInformation();
 
-				if(_isNeedSendBillToEmail)
+				if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.WaitForPayment)
 				{
-					_emailService.SendBillToEmail(UoW, Entity);
+					if(_isNeedSendBillToEmail)
+					{
+						_emailService.SendBillToEmail(UoW, Entity);
+					}
+					else if(needToResendBill)
+					{
+						if(_emailService.NeedResendBillToEmail(UoW, Entity))
+						{
+							_emailService.SendBillToEmail(UoW, Entity);
+						}
+						else if(_orderService.NeedResendByEdo(UoW, Entity))
+						{
+							_edoService.CancelOldEdoOffers(UoW, Entity);
+							_edoService.SetNeedToResendEdoDocumentForOrder(Entity, Type.Bill);
+						}
+					}
 				}
 
 				logger.Info("Сохраняем заказ...");
@@ -2316,6 +2346,23 @@ namespace Vodovoz
 			{
 				SetSensitivity(true);
 			}
+		}
+
+		private bool CheckNeedBillResend()
+		{
+			var currentOrderItemsValues = new List<(int Id, decimal Count, decimal Sum)>();
+
+			currentOrderItemsValues.AddRange(GetOrderItemsSmallNodes());
+
+			return !_orderItemsOriginalValues
+				.All(eoiov => currentOrderItemsValues
+					.Any(coiov => coiov.Id == eoiov.Id
+						&& coiov.Count == eoiov.Count
+						&& coiov.Sum == eoiov.Sum))
+				|| !currentOrderItemsValues.All(coiov => _orderItemsOriginalValues
+					.Any(eoiov => eoiov.Id == coiov.Id
+						&& eoiov.Count == coiov.Count
+						&& eoiov.Sum == coiov.Sum));
 		}
 
 		private void CreateDeliveryFreeBalanceOperations()
@@ -2466,7 +2513,7 @@ namespace Vodovoz
 			PrepareSendBillInformation();
 
 			if(_emailAddressForBill == null
-			   && _emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
+			   && _emailService.NeedSendBillToEmail(UoW, Entity)
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
@@ -2553,7 +2600,7 @@ namespace Vodovoz
 		{
 			_emailAddressForBill = _emailService.GetEmailAddressForBill(Entity);
 
-			if(_emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
+			if(_emailService.NeedSendBillToEmail(UoW, Entity)
 			   && _emailAddressForBill != null)
 			{
 				_isNeedSendBillToEmail = true;
@@ -3835,7 +3882,7 @@ namespace Vodovoz
 			PrepareSendBillInformation();
 
 			if(_emailAddressForBill == null
-			   && _emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
+			   && _emailService.NeedSendBillToEmail(UoW, Entity)
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
