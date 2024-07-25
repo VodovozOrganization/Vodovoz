@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <_WebToolingArtifacts Remove="Properties\PublishProfiles\customer_orders-dev_sdk.pubxml" />
       <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev-customer_orders.pubxml" />
       <_WebToolingArtifacts Remove="Properties\PublishProfiles\latest-customer_orders.pubxml" />
     </ItemGroup>

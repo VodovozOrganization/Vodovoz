@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <_WebToolingArtifacts Remove="Properties\PublishProfiles\customer_orders_status_updated_notifier-dev_sdk.pubxml" />
       <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev-customer_orders_status_updated_notifier.pubxml" />
       <_WebToolingArtifacts Remove="Properties\PublishProfiles\latest-customer_orders_status_updated_notifier.pubxml" />
     </ItemGroup>
