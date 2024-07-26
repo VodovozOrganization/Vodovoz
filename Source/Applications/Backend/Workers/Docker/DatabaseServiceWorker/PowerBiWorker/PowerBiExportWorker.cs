@@ -1,11 +1,12 @@
-﻿using ClosedXML.Excel;
+﻿using DatabaseServiceWorker.PowerBiWorker.Dto;
+using DatabaseServiceWorker.PowerWorker.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using SharpCifs.Smb;
+using QS.Project.DB;
 using System;
-using System.IO;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Delivery;
@@ -17,7 +18,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Zabbix.Sender;
 
-namespace DatabaseServiceWorker
+namespace DatabaseServiceWorker.PowerBiWorker
 {
 	internal partial class PowerBiExportWorker : TimerBackgroundServiceBase
 	{
@@ -25,16 +26,20 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<PowerBiExportWorker> _logger;
 		private readonly IOptions<PowerBiExportOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IDatabaseConnectionSettings _sourceDatabaseConnectionSettings;
 
 		public PowerBiExportWorker(
 			ILogger<PowerBiExportWorker> logger,
 			IOptions<PowerBiExportOptions> options,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IDatabaseConnectionSettings sourceDatabaseConnectionSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceScopeFactory = serviceScopeFactory;
+			_sourceDatabaseConnectionSettings = sourceDatabaseConnectionSettings ?? throw new ArgumentNullException(nameof(sourceDatabaseConnectionSettings));
 			Interval = _options.Value.Interval;
+			CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 		}
 
 		protected override void OnStartService()
@@ -69,6 +74,9 @@ namespace DatabaseServiceWorker
 			_workInProgress = true;
 
 			using var scope = _serviceScopeFactory.CreateScope();
+			var connectionFactory = scope.ServiceProvider.GetRequiredService<IPowerBiConnectionFactory>();
+			using var sourceConnection = connectionFactory.CreateConnection(_sourceDatabaseConnectionSettings);
+			using var targetConnection = connectionFactory.CreateConnection(_options.Value.TargetDataBase);
 
 			try
 			{
@@ -80,16 +88,29 @@ namespace DatabaseServiceWorker
 				var scheduleRestrictionRepository = scope.ServiceProvider.GetRequiredService<IScheduleRestrictionRepository>();
 				var deliveryRepository = scope.ServiceProvider.GetRequiredService<IDeliveryRepository>();
 
-				ReadFromDbAndExportToFile(
+				_logger.LogInformation("Начало экспорта в бд PowerBi {PowerBiExportDate}", DateTime.Now);
+
+				// Скорее всего не понадобится, пока низвестно
+				await ExportReportsAsync(
+					sourceConnection,
+					targetConnection,
 					unitOfWorkFactory,
+					_options.Value.StartDate, // Потом заменить на GetStartDate(), если вообще понадобится
+					DateTime.Now.Date,
 					generalSettings,
+					deliveryRepository,
 					trackRepository,
 					scheduleRestrictionRepository,
-					deliveryRepository,
-					deliveryRulesSettings,
 					nomenclatureSettings,
+					deliveryRulesSettings,
 					stoppingToken);
-				
+
+				await ExportTablesAsync(
+					sourceConnection,
+					targetConnection,
+					GetStartDate(_options.Value.StartDate, _options.Value.NumberOfDaysToExport),					
+					stoppingToken);
+
 				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
@@ -103,62 +124,15 @@ namespace DatabaseServiceWorker
 			finally
 			{
 				_workInProgress = false;
+
+				await sourceConnection?.CloseAsync();
+				await targetConnection?.CloseAsync();
 			}
 
 			_logger.LogInformation(
 				"Воркер {WorkerName} ожидает '{DelayInMinutes}' перед следующим запуском", nameof(PowerBiExportWorker), Interval);
 
 			await Task.CompletedTask;
-		}
-
-		private void ReadFromDbAndExportToFile(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IGeneralSettings generalSettings,
-			ITrackRepository trackRepository,
-			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			IDeliveryRepository deliveryRepository,
-			IDeliveryRulesSettings deliveryRulesSettings,
-			INomenclatureSettings nomenclatureSettings,
-			CancellationToken stoppingToken)
-		{
-			var smbPath = $"smb://{_options.Value.Login}:{_options.Value.Password}@{_options.Value.ExportPath}";
-
-			var file = new SmbFile(smbPath);
-			var readStream = file.GetInputStream();
-			var memStream = new MemoryStream();
-			((Stream)readStream).CopyTo(memStream);
-			readStream.Dispose();
-
-			using(var excelWorkbook = new XLWorkbook(memStream))
-			{
-				if(IsNeedExportToday(excelWorkbook))
-				{
-					ClearSheetsData(excelWorkbook);
-
-					using(var uow = unitOfWorkFactory.CreateWithoutRoot(nameof(PowerBiExportWorker)))
-					{
-						for(DateTime date = _options.Value.StartDate; date < DateTime.Now.Date; date = date.AddDays(1))
-						{
-							ReadDataFromDbAndExportToExcel(
-								uow,
-								excelWorkbook,
-								date,
-								generalSettings,
-								deliveryRepository,
-								trackRepository,
-								scheduleRestrictionRepository,
-								nomenclatureSettings,
-								deliveryRulesSettings,
-								stoppingToken);
-						}
-					}
-
-					excelWorkbook.Save();
-					WriteExcelStreamToFile(file, memStream);
-				}
-			}
-
-			memStream.Dispose();
 		}
 	}
 }

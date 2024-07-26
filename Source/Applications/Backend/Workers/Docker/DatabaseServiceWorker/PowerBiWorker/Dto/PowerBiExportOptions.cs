@@ -1,6 +1,7 @@
-﻿using System;
+﻿using QS.Project.DB;
+using System;
 
-namespace DatabaseServiceWorker
+namespace DatabaseServiceWorker.PowerBiWorker.Dto
 {
 	internal sealed class PowerBiExportOptions
 	{
@@ -18,6 +19,10 @@ namespace DatabaseServiceWorker
 		/// Начальная дата выборки для отчётов
 		/// </summary>
 		public DateTime StartDate { get; set; }
+		/// <summary>
+		/// Колв-во предыдущих дней для экспорта дата выборки для отчётов
+		/// </summary>
+		public int NumberOfDaysToExport { get; set; }
 
 		/// <summary>
 		/// Логин для доступа к сетевой папке
@@ -28,5 +33,11 @@ namespace DatabaseServiceWorker
 		/// Пароль для доступа к сетевой папке
 		/// </summary>
 		public string Password { get; set; }
+
+		/// <summary>
+		/// БД PowerBi
+		/// </summary>
+		public DatabaseConnectionSettings TargetDataBase { get; set; }
+
 	}
 }
