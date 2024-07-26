@@ -25,31 +25,35 @@ namespace Vodovoz.Orders.Reports
 
 		private void Initialize()
 		{
-			daterangepicker.StartDate = DateTime.Today.AddDays(-1);
-			daterangepicker.EndDate = DateTime.Today;
-            rbtnYesterday.Active = true;
-			SetControlsAccessibility();
+			daterangepicker.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangePeriodManually, w => w.Sensitive)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.InitializeFromSource();
+
+
 			rbtnLast3Days.Clicked += OnRbtnLast3DaysToggled;
 			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
-			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
-			daterangepicker.PeriodChangedByUser += OnCustomPeriodChanged;
-			//ySCmbShop.SetRenderTextFunc<string>(o => string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
-			//ySCmbShop.ItemsList = ViewModel.Shops;
+
+			speciallistcomboboxShop.SetRenderTextFunc<string>(o =>
+				string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
+
+			speciallistcomboboxShop.ItemsList = ViewModel.Shops;
+
+			ViewModel.SetDateTimeRangeYesterdayCommand.Execute();
 		}
 
-		private void SetControlsAccessibility()
-		{
-			daterangepicker.Sensitive = rbtnCustomPeriod.Active;
-		}
 
 		private ReportInfo GetReportInfo()
 		{
-			var rInfo = new ReportInfo {
+			var rInfo = new ReportInfo
+			{
 				Identifier = "Payments.PaymentsFromTinkoffReport",
 				Parameters = new Dictionary<string, object> {
 					{ "startDate", daterangepicker.StartDate },
-                    { "endDate", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-                    //{ "shop", ySCmbShop.SelectedItem ?? "ALL" }
+					{ "endDate", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
+					{ "shop", speciallistcomboboxShop.SelectedItem ?? "ALL" }
 				}
 			};
 			return rInfo;
@@ -57,28 +61,18 @@ namespace Vodovoz.Orders.Reports
 
 		protected void OnRbtnLast3DaysToggled(object sender, EventArgs e)
 		{
-            if (rbtnLast3Days.Active)
-            {
-				daterangepicker.StartDate = DateTime.Today.AddDays(-3);
-				daterangepicker.EndDate = DateTime.Today;
-            }
-
-            SetControlsAccessibility();
+			if(rbtnLast3Days.Active)
+			{
+				ViewModel.SetDateTimeRangeLast3DaysCommand.Execute();
+			}
 		}
 
 		protected void OnRbtnYesterdayToggled(object sender, EventArgs e)
 		{
 			if(rbtnYesterday.Active)
-            {
-				daterangepicker.StartDate = DateTime.Today.AddDays(-1);
-				daterangepicker.EndDate = DateTime.Today;
-            }
-            SetControlsAccessibility();
-		}
-
-		protected void OnCustomPeriodChanged(object sender, EventArgs e)
-		{
-			SetControlsAccessibility();
+			{
+				ViewModel.SetDateTimeRangeYesterdayCommand.Execute();
+			}
 		}
 	}
 }
