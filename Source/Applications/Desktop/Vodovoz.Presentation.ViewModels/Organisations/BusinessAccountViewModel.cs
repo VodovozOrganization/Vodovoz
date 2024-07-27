@@ -65,16 +65,18 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				.SetViewModel(this)
 				.ForProperty(Entity, x => x.BusinessActivity)
 				.UseViewModelJournalAndAutocompleter<BusinessActivitiesJournalViewModel>()
+				.UseViewModelDialog<BusinessActivityViewModel>()
 				.Finish();
 
 			businessActivityViewModel.IsEditable = CanEdit;
-			BusinessActivityViewModel = BusinessActivityViewModel;
+			BusinessActivityViewModel = businessActivityViewModel;
 
 			var fundsViewModel = _fundsViewModelBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, x => x.Funds)
 				.UseViewModelJournalAndAutocompleter<FundsJournalViewModel>()
+				.UseViewModelDialog<FundsViewModel>()
 				.Finish();
 
 			fundsViewModel.IsEditable = CanEdit;

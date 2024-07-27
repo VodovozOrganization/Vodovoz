@@ -357,10 +357,8 @@
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />
-    <Compile Include="Factories\IDatePickerViewModelFactory.cs" />
     <Compile Include="Factories\IProfitabilityConstantsDataViewModelFactory.cs" />
     <Compile Include="Factories\ISelectableParametersFilterViewModelFactory.cs" />
-    <Compile Include="Factories\DatePickerViewModelFactory.cs" />
     <Compile Include="Factories\OrganizationVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IOrganizationVersionsViewModelFactory.cs" />
     <Compile Include="Factories\ProfitabilityConstantsDataViewModelFactory.cs" />
@@ -940,7 +938,6 @@
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
-    <Compile Include="Widgets\Profitability\DatePickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReportViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />

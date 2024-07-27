@@ -10,7 +10,7 @@ namespace Vodovoz.ViewWidgets.Profitability
 
 		private global::Gamma.GtkWidgets.yEntry entryDate;
 
-		private global::Gtk.Button btnCalendar;
+		private global::Gamma.GtkWidgets.yButton btnCalendar;
 
 		private global::Gamma.GtkWidgets.yButton btnNextDate;
 
@@ -49,7 +49,7 @@ namespace Vodovoz.ViewWidgets.Profitability
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hboxMain.Gtk.Box+BoxChild
-			this.btnCalendar = new global::Gtk.Button();
+			this.btnCalendar = new global::Gamma.GtkWidgets.yButton();
 			this.btnCalendar.CanFocus = true;
 			this.btnCalendar.Name = "btnCalendar";
 			this.btnCalendar.UseUnderline = true;

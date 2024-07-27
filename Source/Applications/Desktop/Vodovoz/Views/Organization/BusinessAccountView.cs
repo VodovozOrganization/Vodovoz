@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Views.Dialog;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Organisations;
 
 namespace Vodovoz.Views.Organization
@@ -45,6 +46,7 @@ namespace Vodovoz.Views.Organization
 				.AddBinding(ViewModel, vm => vm.CanShowAccountFillType, w => w.Visible)
 				.InitializeFromSource();
 
+			enumСmbAccountFillType.ItemsEnum = typeof(AccountFillType);
 			enumСmbAccountFillType.Binding
 				.AddBinding(ViewModel.Entity, e => e.AccountFillType, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanShowAccountFillType, w => w.Visible)

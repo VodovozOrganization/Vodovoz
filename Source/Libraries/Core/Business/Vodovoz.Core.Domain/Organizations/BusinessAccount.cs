@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 
@@ -9,7 +10,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		Nominative = "Расчетный счет",
 		GenitivePlural = "Расчетных счетов")]
 	[EntityPermission]
-	public class BusinessAccount : PropertyChangedBase, INamedDomainObject
+	public class BusinessAccount : PropertyChangedBase, INamedDomainObject, IValidatableObject
 	{
 		private string _name;
 		private string _number;
@@ -60,6 +61,19 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _accountFillType;
 			set => SetField (ref _accountFillType, value);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Funds is null)
+			{
+				yield return new ValidationResult("Нужно выбрать форму денежных средств");
+			}
+			
+			if(BusinessActivity is null)
+			{
+				yield return new ValidationResult("Направление деятельности должно ыть заполнено");
+			}
 		}
 	}
 }

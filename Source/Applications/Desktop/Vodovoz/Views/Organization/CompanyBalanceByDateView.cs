@@ -1,10 +1,13 @@
-﻿using Gamma.Binding;
+﻿using System.Linq;
+using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Organisations;
+using Vodovoz.ViewWidgets.Profitability;
 
 namespace Vodovoz.Views.Organization
 {
@@ -18,20 +21,46 @@ namespace Vodovoz.Views.Organization
 
 		private void Configure()
 		{
-			var balanceTreeView = new yTreeView();
-			balanceTreeView.Show();
+			btnSave.BindCommand(ViewModel.SaveCommand);
+			btnCancel.BindCommand(ViewModel.CancelCommand);
+			btnLoadAndProccessData.BindCommand(ViewModel.LoadAndProcessDataCommand);
 			
-			vboxMain.Add(balanceTreeView);
+			var monthPicker = new MonthPickerView(ViewModel.DatePickerViewModel);
+			monthPicker.Show();
+			hboxHandle.Add(monthPicker);
+			
+			var monthPickerBox = (Box.BoxChild)hboxHandle[monthPicker];
+			monthPickerBox.Position = 0;
+			monthPickerBox.Expand = false;
+			monthPickerBox.Fill = false;
 
-			ConfigureBalanceTree(balanceTreeView);
+			textViewErrors.HeightRequest = 150;
+			textViewErrors.Binding
+				.AddBinding(ViewModel, vm => vm.ResultMessage, w => w.Buffer.Text)
+				.InitializeFromSource();
+			
+			ConfigureBalanceTree();
 		}
 
-		private void ConfigureBalanceTree(yTreeView treeView)
+		private void ConfigureBalanceTree()
 		{
+			/*var columnsConfig = FluentColumnsConfig<object>.Create()
+				.AddColumn("Форма ДС").AddTextRenderer(node => node.FundsName)
+				.AddColumn("Всего").AddNumericRenderer(node => node.FundsTotal);
+
+			for(var i = 0; i < ViewModel.BusinessActivities.Count(); i++)
+			{
+				columnsConfig.AddColumn($"{ViewModel.BusinessActivities[i].Name}")
+					.AddTextRenderer(node => ViewModel.BusinessActivities[i].AccountName)
+					.AddTextRenderer(node => ViewModel.BusinessActivities[i].Bank)
+					.AddNumericRenderer(node => ViewModel.BusinessActivities[i].AccountTotal);
+			}*/
+
+			//treeComapnyBalanceByDay.ItemsDataSource = ViewModel.Entity;
+			
 			var columnsConfig = FluentColumnsConfig<object>.Create()
 				.AddColumn("Название").AddTextRenderer(node => GetNodeName(node))
-				.AddColumn("Всего").AddNumericRenderer(node => GetTotal(node))
-				.Finish();
+				.AddColumn("Всего").AddNumericRenderer(node => GetTotal(node));
 			
 			var levels = LevelConfigFactory
 				.FirstLevel<FundsSummary, BusinessActivitySummary>(x => x.BusinessActivitySummary)
@@ -39,9 +68,10 @@ namespace Vodovoz.Views.Organization
 				.LastLevel(c => c.BusinessActivitySummary)
 				.EndConfig();
 			
-			treeView.YTreeModel = new LevelTreeModel<FundsSummary>(ViewModel.Entity.FundsSummary, levels);
-			
-			treeView.ColumnsConfig = columnsConfig;
+			treeComapnyBalanceByDay.YTreeModel = new LevelTreeModel<FundsSummary>(ViewModel.Entity.FundsSummary, levels);
+
+			treeComapnyBalanceByDay.EnableGridLines = TreeViewGridLines.Both;
+			treeComapnyBalanceByDay.ColumnsConfig = columnsConfig.Finish();
 		}
 		
 		private string GetNodeName(object node)

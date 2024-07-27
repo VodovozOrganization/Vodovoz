@@ -14,10 +14,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Presentation.ViewModels.Factories;
+using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Profitability;
-using Vodovoz.ViewModels.Widgets.Profitability;
 
 namespace Vodovoz.ViewModels.Profitability
 {
@@ -240,8 +241,8 @@ namespace Vodovoz.ViewModels.Profitability
 
 			MonthPickerViewModel = monthPickerViewModelFactory.CreateNewDatePickerViewModel(
 				Entity.CalculatedMonth,
-				canSelectNextMonthFunc: CanSelectNextMonth,
-				canSelectPreviousMonthFunc: CanSelectPreviousMonth);
+				canSelectNextDateFunc: CanSelectNextMonth,
+				canSelectPreviousDateFunc: CanSelectPreviousMonth);
 
 			MonthPickerViewModel.PropertyChanged += OnMonthPickerViewModelPropertyChanged;
 

@@ -1,53 +1,158 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.OleDb;
-using System.IO;
 using System.Linq;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
+using Vodovoz.Application.BankStatements;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Presentation.ViewModels.Factories;
+using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 
 namespace Vodovoz.Presentation.ViewModels.Organisations
 {
 	public class CompanyBalanceByDateViewModel : UowDialogViewModelBase
 	{
-		//@"D:\Работа\Программист Веселый Водовоз\файлы выписок\56456416.xlsx"
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IGenericRepository<CompanyBalanceByDay> _companyBalanceByDayRepository;
+		private readonly BankStatementHandler _bankStatementHandler;
 		private DateTime _date = DateTime.Today;
 
 		public CompanyBalanceByDateViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
-			IGenericRepository<CompanyBalanceByDay> companyBalanceByDayRepository) : base(unitOfWorkFactory, navigation)
+			IFileDialogService fileDialogService,
+			IGenericRepository<CompanyBalanceByDay> companyBalanceByDayRepository,
+			BankStatementHandler bankStatementHandler,
+			IDatePickerViewModelFactory datePickerViewModelFactory) : base(unitOfWorkFactory, navigation)
 		{
+			if(datePickerViewModelFactory == null)
+			{
+				throw new ArgumentNullException(nameof(datePickerViewModelFactory));
+			}
+
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_companyBalanceByDayRepository =
 				companyBalanceByDayRepository ?? throw new ArgumentNullException(nameof(companyBalanceByDayRepository));
-			UpdateData();
-			//ParseData(@"D:\Работа\Программист Веселый Водовоз\файлы выписок\ibc2-20240721-40702810094510024535.xls");
+			_bankStatementHandler = bankStatementHandler ?? throw new ArgumentNullException(nameof(bankStatementHandler));
+
+			CreateCommands();
+			Initialize(datePickerViewModelFactory);
 		}
-		
+
+		public string ResultMessage { get; private set; }
 		public CompanyBalanceByDay Entity { get; private set; }
 
-		public DateTime Date
+		public IReadOnlyList<BusinessActivity> BusinessActivities { get; set; }
+
+		public DelegateCommand SaveCommand { get; private set; }
+		public DelegateCommand CancelCommand { get; private set; }
+		public DelegateCommand LoadAndProcessDataCommand { get; private set; }
+		public DatePickerViewModel DatePickerViewModel { get; private set; }
+
+		private void CreateCommands()
 		{
-			get => _date;
-			set => SetField(ref _date, value);
+			SaveCommand = new DelegateCommand(() => SaveAndClose());
+			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
+			
+			LoadAndProcessDataCommand = new DelegateCommand(
+				() =>
+				{
+					//var result = _fileDialogService.RunOpenDirectoryDialog();
+					
+					//if(!result.Successful) return;
+
+					var directoryPath1 = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2";
+					var directoryPath2 = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2\ГК ВВ";
+
+					var banksStatementsData =
+						_bankStatementHandler.ProcessBankStatementsFromDirectory(directoryPath2, DatePickerViewModel.SelectedDate);
+					
+					/*var banksStatementsData = _bankStatementHandler.ProcessBankStatementsFromFile(
+						//@"D:\Работа\Программист Веселый Водовоз\файлы выписок\ГК ВВ\40702810100000163183_19.07.2024_21.07.2024.xml", +
+						//@"D:\Работа\Программист Веселый Водовоз\файлы выписок\56456416.xlsx", +
+						//@"D:\Работа\Программист Веселый Водовоз\файлы выписок\40802810800000177942_15.07.2024_15.07.2024.xlsx", +
+						//@"D:\Работа\Программист Веселый Водовоз\файлы выписок\statement_40702810590320004953_20240719_20240721.xlsx", -
+						//@"D:\Работа\Программист Веселый Водовоз\файлы выписок\ibc2-20240721-40702810094510024535.xls",
+						@"D:\Работа\Программист Веселый Водовоз\файлы выписок2\BankStatement_11637_2024-07-22_07-28-35-419.xlsx",
+						DatePickerViewModel.SelectedDate);*/
+					
+					UpdateLocalData(banksStatementsData);
+				}
+			);
 		}
 
-		private void UpdateData()
+		private void UpdateLocalData(BankStatementProcessedResult banksStatementsData)
 		{
-			Entity = _companyBalanceByDayRepository.Get(UoW, e => e.Date == Date).FirstOrDefault();
+			foreach(var fundsSummary in Entity.FundsSummary)
+			{
+				var totalFundsBalance = 0m;
+				foreach(var businessActivitySummary in fundsSummary.BusinessActivitySummary)
+				{
+					var totalActivityBalance = 0m;
+					foreach(var businessAccountSummary in businessActivitySummary.BusinessAccountsSummary)
+					{
+						if(string.IsNullOrWhiteSpace(businessAccountSummary.BusinessAccount.Number))
+						{
+							continue;
+						}
+						
+						if(banksStatementsData.BankStatementData.TryGetValue(businessAccountSummary.BusinessAccount.Number, out var data))
+						{
+							businessAccountSummary.Total = data.Balance;
+							totalActivityBalance += data.Balance;
+						}
+					}
+
+					businessActivitySummary.Total = totalActivityBalance;
+					totalFundsBalance += totalActivityBalance;
+				}
+
+				fundsSummary.Total = totalFundsBalance;
+			}
+
+			UpdateErrorMessage(banksStatementsData);
+		}
+
+		private void UpdateErrorMessage(BankStatementProcessedResult result)
+		{
+			ResultMessage = result.GetResult();
+			OnPropertyChanged(nameof(ResultMessage));
+		}
+
+		private void Initialize(IDatePickerViewModelFactory datePickerViewModelFactory)
+		{
+			DatePickerViewModel = datePickerViewModelFactory.CreateNewDatePickerViewModel(
+				DateTime.Today,
+				ChangeDateType.Day,
+				canSelectNextDateFunc: CanSelectNextDate,
+				canSelectPreviousDateFunc: CanSelectPreviousDate);
+			DatePickerViewModel.CanEditDateFromCalendar = true;
+			
+			InitializeData();
+		}
+		
+		private bool CanSelectNextDate(DateTime dateTime)
+		{
+			return dateTime.Date != DateTime.Today.Date;
+		}
+		
+		private bool CanSelectPreviousDate(DateTime dateTime)
+		{
+			return true;
+		}
+
+		private void InitializeData()
+		{
+			var date = DatePickerViewModel.SelectedDate;
+			Entity = _companyBalanceByDayRepository.Get(UoW, e => e.Date == date).FirstOrDefault();
 
 			if(Entity is null)
 			{
-				Entity = CompanyBalanceByDay.Create(Date);
+				Entity = CompanyBalanceByDay.Create(date);
 				UoW.Save(Entity);
 				GenerateNewData();
 			}
@@ -89,94 +194,17 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			}
 		}
 
-		private IEnumerable<IEnumerable<string>> ParseData(string path)
+		public override void Dispose()
 		{
-			/*if(!IsXlsxFile(fileName))
-			{
-				throw new ArgumentException("Попытка чтения файла, имеющего расширение отличное от \"xlsx\"");
-			}*/
-
-			var xlsxRowValues = new List<IList<string>>();
-
-			var oledbConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=D:\\Работа\\Программист Веселый Водовоз\\файлы выписок\\ibc2-20240721-40702810094510024535.xls; Extended Properties='Excel 8.0;HDR=NO;IMEX=1;'";
-			var oleDbConnection = new OleDbConnection(oledbConn);
-			oleDbConnection.Open();
-			
-			//ExcelApp
-			
-			OleDbCommand cmd = new OleDbCommand("SELECT * FROM [Sheet1$]", oleDbConnection);
-
-			// Create new OleDbDataAdapter
-			OleDbDataAdapter oleda = new OleDbDataAdapter();
-
-			oleda.SelectCommand = cmd;
-
-			// Create a DataSet which will hold the data extracted from the worksheet.
-			DataSet ds = new DataSet();
-
-			// Fill the DataSet from the data extracted from the worksheet.
-			oleda.Fill(ds, "Employees");
-
-			/*using(var document = SpreadsheetDocument.Open(path, false, new OpenSettings()))
-			{
-				var workbookPart = document.WorkbookPart;
-				var tablePart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
-				var sharedStringTable = tablePart.SharedStringTable;
-
-				var worksheetPart = workbookPart.WorksheetParts.First();
-				var worksheet = worksheetPart.Worksheet;
-
-				var rows = worksheet.Descendants<Row>();
-
-				xlsxRowValues = GetRowsCellsValues(rows, sharedStringTable).ToList();
-			}*/
-
-			return xlsxRowValues;
+			DatePickerViewModel?.Dispose();
+			base.Dispose();
 		}
-		
-		private static IList<IList<string>> GetRowsCellsValues(IEnumerable<Row> rows, SharedStringTable sharedStringTable)
-		{
-			var rowsValues = new List<IList<string>>();
+	}
 
-			foreach(var row in rows)
-			{
-				var rowData = GetRowCellsValues(row, sharedStringTable);
-
-				rowsValues.Add(rowData);
-			}
-
-			return rowsValues;
-		}
-		
-		private static IList<string> GetRowCellsValues(Row row, SharedStringTable sharedStringTable)
-		{
-			var rowData = new List<string>();
-
-			foreach(Cell cell in row.Elements<Cell>())
-			{
-				var cellValue = GetCellValue(cell, sharedStringTable);
-
-				rowData.Add(cellValue);
-			}
-
-			return rowData;
-		}
-		
-		private static string GetCellValue(Cell cell, SharedStringTable sharedStringTable)
-		{
-			string cellValue;
-
-			if((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
-			{
-				int ssid = int.Parse(cell.CellValue.Text);
-				cellValue = sharedStringTable.ChildElements[ssid].InnerText;
-			}
-			else
-			{
-				cellValue = cell.CellValue?.Text ?? string.Empty;
-			}
-
-			return cellValue;
-		}
+	public class CompanyBalanceByDayNode
+	{
+		public string FundsName { get; set; }
+		public decimal FundsTotal { get; set; }
+		public IEnumerable<BusinessActivitySummary> BusinessActivitiesSummaryNodes { get; set; }
 	}
 }
