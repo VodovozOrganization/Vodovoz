@@ -18,6 +18,8 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gamma.GtkWidgets.yButton btnLoadAndProccessData;
 
+		private global::Gamma.GtkWidgets.yButton btnExport;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView textViewErrors;
@@ -90,11 +92,22 @@ namespace Vodovoz.Views.Organization
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.vboxMain.Add(this.hboxHandle);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxHandle]));
+			// Container child hboxHandle.Gtk.Box+BoxChild
+			this.btnExport = new global::Gamma.GtkWidgets.yButton();
+			this.btnExport.CanFocus = true;
+			this.btnExport.Name = "btnExport";
+			this.btnExport.UseUnderline = true;
+			this.btnExport.Label = global::Mono.Unix.Catalog.GetString("Экспорт");
+			this.hboxHandle.Add(this.btnExport);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxHandle[this.btnExport]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
+			this.vboxMain.Add(this.hboxHandle);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxHandle]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -105,9 +118,9 @@ namespace Vodovoz.Views.Organization
 			this.textViewErrors.Name = "textViewErrors";
 			this.GtkScrolledWindow1.Add(this.textViewErrors);
 			this.vboxMain.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow1]));
-			w8.Position = 3;
-			w8.Expand = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow1]));
+			w9.Position = 3;
+			w9.Expand = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -118,8 +131,8 @@ namespace Vodovoz.Views.Organization
 			this.treeComapnyBalanceByDay.Name = "treeComapnyBalanceByDay";
 			this.GtkScrolledWindow.Add(this.treeComapnyBalanceByDay);
 			this.vboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
-			w10.Position = 4;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.GtkScrolledWindow]));
+			w11.Position = 4;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
