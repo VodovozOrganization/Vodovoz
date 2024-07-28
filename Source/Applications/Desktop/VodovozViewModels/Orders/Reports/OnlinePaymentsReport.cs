@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			IQueryable<Row> ordersQuery = GetOrdersQuery(startDate, endDate, unitOfWork);
 
-			var orders = await ordersQuery.ToListAsync();
+			var orders = await ordersQuery.ToListAsync(cancellationToken);
 
 			var onlineOrdersIds = orders.Select(x => x.OnlineOrderId);
 
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			IQueryable<PaymentByCardOnline> onlinePaymentsQuery = GetOnlinePaymentsQuery(unitOfWork, onlineOrdersIds);
 
-			var onlinePayments = await onlinePaymentsQuery.ToListAsync();
+			var onlinePayments = await onlinePaymentsQuery.ToListAsync(cancellationToken);
 
 			var ordersIds = orders.Select(x => x.OrderId);
 
@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			IQueryable<PaymentByCardOnline> smsPymentsQuery = GetSmsPaymentsQuery(unitOfWork, ordersIds);
 
-			var smsPayments = await smsPymentsQuery.ToListAsync();
+			var smsPayments = await smsPymentsQuery.ToListAsync(cancellationToken);
 
 			foreach(var payment in onlinePayments)
 			{
@@ -196,13 +196,13 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			on order.DeliveryPoint.Id equals deliveryPoint.Id
 			where order.PaymentType == PaymentType.PaidOnline
 				&& order.OnlineOrder != null
-				&& !_avangardPayments.Contains(order.PaymentByCardFrom.Id)
+				&& (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
 				&& order.DeliveryDate >= startDate
 				&& order.DeliveryDate <= endDate
 			let address = order.SelfDelivery ? "Самовывоз" : deliveryPoint.ShortAddress
-			let orderTotalSum = (from orderItem in unitOfWork.Session.Query<OrderItem>()
-								 where orderItem.Order.Id == order.Id
-								 select orderItem.ActualSum).Sum(x => x as decimal? == null ? 0m : x)
+			let orderTotalSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+										   where orderItem.Order.Id == order.Id
+										   select orderItem.ActualSum).Sum() ?? 0m
 			select new Row
 			{
 				OrderCreateDate = order.CreateDate,

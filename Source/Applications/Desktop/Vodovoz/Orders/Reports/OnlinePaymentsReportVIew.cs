@@ -1,4 +1,5 @@
-﻿using QS.Views.Dialog;
+﻿using Gamma.GtkWidgets;
+using QS.Views.Dialog;
 using System.ComponentModel;
 using Vodovoz.ViewModels.Orders.Reports;
 
@@ -43,6 +44,50 @@ namespace Vodovoz.Orders.Reports
 			speciallistcomboboxShop.ItemsList = ViewModel.Shops;
 			speciallistcomboboxShop.Binding.AddBinding(ViewModel, vm => vm.SelectedShop, w => w.SelectedItem)
 				.InitializeFromSource();
+
+			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.Report))
+			{
+				ConfigureOrderRowTreeView(ytreeReportPaidRows);
+				ytreeReportPaidRows.ItemsDataSource = ViewModel.PaidOrders;
+
+				ConfigureOrderRowTreeView(ytreeReportPaidMissingRows);
+				ytreeReportPaidMissingRows.ItemsDataSource = ViewModel.PaymentMissingOrders;
+
+				ConfigureOrderRowTreeView(ytreeReportOverpaidRows);
+				ytreeReportOverpaidRows.ItemsDataSource = ViewModel.OverpaidOrders;
+
+				ConfigureOrderRowTreeView(ytreeReportUnderpaidRows);
+				ytreeReportUnderpaidRows.ItemsDataSource = ViewModel.UnderpaidOrders;
+			}
+		}
+
+		private void ConfigureOrderRowTreeView(yTreeView ytreeReportPaidRows)
+		{
+			ytreeReportPaidRows
+				.CreateFluentColumnsConfig<OnlinePaymentsReport.Row>()
+				.AddColumn("Дата заказа")
+					.AddDateRenderer(r => r.OrderDeliveryDate)
+				.AddColumn("Номер заказа")
+					.AddNumericRenderer(r => r.OrderId)
+				.AddColumn("Клиент")
+					.AddTextRenderer(r => r.CcounterpartyFullName)
+				.AddColumn("Адрес доставки")
+					.AddTextRenderer(r => r.Address)
+				.AddColumn("Номер оплаты и магазин")
+					.AddTextRenderer(r => r.NumberAndShop)
+				.AddColumn("Сумма заказа и оплачено клиентом")
+					.AddTextRenderer(r =>
+						r.ReportPaymentStatusEnum == OnlinePaymentsReport.Row.ReportPaymentStatus.Missing
+						? r.OrderTotalSum.ToString("# ##0.##")
+						: $"{r.TotalSumFromBank:# ##0.##} из {r.OrderTotalSum:# ##0.##}")
+				.Finish();
 		}
 	}
 }

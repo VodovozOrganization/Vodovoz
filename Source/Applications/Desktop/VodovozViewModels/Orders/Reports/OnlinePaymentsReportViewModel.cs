@@ -59,6 +59,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			IsDateTimeRangeYesterday = true;
 
 			GenerateReportCommand = new AsyncCommand(GenerateReport, () => CanGenerateReport);
+			GenerateReportCommand.CanExecuteChangedWith(this, vm => vm.CanGenerateReport);
+			CanGenerateReport = true;
 		}
 
 		public IEnumerable<string> Shops { get; }
@@ -118,11 +120,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			}
 		}
 
-		[PropertyChangedAlso(
-			nameof(PaidOrders),
-			nameof(PaymentMissingOrders),
-			nameof(OverpaidOrders),
-			nameof(UnderpaidOrders))]
 		public OnlinePaymentsReport Report
 		{
 			get => _report;
@@ -177,6 +174,10 @@ namespace Vodovoz.ViewModels.Orders.Reports
 						ShowErrors(reportResult.Errors);
 					}
 				});
+			}
+			catch(Exception ex)
+			{
+				
 			}
 			finally
 			{
