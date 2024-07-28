@@ -1,27 +1,25 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Application.BankStatements
 {
+	/// <summary>
+	/// Обработчик распаршенных данных банковской выписки
+	/// </summary>
 	public class BankStatementHandler
 	{
-		private const string _accountNumber = "номер счета";
-		private const string _endDate = "конечная дата";
-		private const string _accountPattern = @"\D*[с|c]чет\D*";
-		private const string _accountNumberPattern = @"[с|c]чет\D+([0-9]{20,25})";
+		private const string _accountPattern = @"\D*[с|c]ч[е|ё]т\D*";
+		private const string _accountNumberPattern = @"[с|c]ч[е|ё]т\D+([0-9]{20,25})";
 		private const string _accountNumberWithDatePattern =
-			@"[с|c]чет\D+([0-9]{20,25})\sза\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s-\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
+			@"[с|c]ч[е|ё]т\D+([0-9]{20,25})\sза\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s-\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		private const string _balanceWithDatePattern = @"([0-9]{1,}[,|\.][0-9]{1,2})\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
-		private const string _balancePattern = @"([0-9]{1,}[,|\.]*[0-9]*)";
+		private const string _balancePattern = @"^([0-9]{1,}[,|\.]*[0-9]*)";
 		private const string _singleDatePattern = @"([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		//с 15.07.2024 по 19.07.2024
 		private const string _dateNumberPattern = @"[Сc|Cс]\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})|\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
@@ -129,11 +127,11 @@ namespace Vodovoz.Application.BankStatements
 				return true;
 			}
 				
-			if(result.Date != date)
+			/*if(result.Date != date)
 			{
 				bankStatementProcessedResult.AddResult(filePath, BankStatementProcessState.WrongBankStatementDate);
 				return true;
-			}
+			}*/
 
 			return false;
 		}
@@ -244,6 +242,8 @@ namespace Vodovoz.Application.BankStatements
 					continue;
 				}
 				
+				var cellWithoutSpaces = string.Empty;
+				
 				foreach(var cell in row)
 				{
 					var accountMatches = Regex.Matches(cell.ToLower(), _accountPattern);
@@ -253,21 +253,38 @@ namespace Vodovoz.Application.BankStatements
 						success = true;
 					}
 
+					//в некоторых выписках номер расчетного счета с пробелами
+					cellWithoutSpaces = RemoveSpacesFromString(cell);
+					
 					if(success)
 					{
-						result += $" {cell}";
+						result += $" {cellWithoutSpaces}";
+					}
+				}
+
+				if(success)
+				{
+					var accountNumberMatches = Regex.Matches(result.ToLower().Trim(' '), _accountNumberPattern);
+
+					if(accountNumberMatches.Count != 0)
+					{
+						accountNumber = accountNumberMatches[accountNumberMatches.Count - 1].Groups[1].Value;
+					}
+					else
+					{
+						result = string.Empty;
+						success = false;
 					}
 				}
 			}
-			
-			var accountNumberMatches = Regex.Matches(result.ToLower(), _accountNumberPattern);
-
-			if(accountNumberMatches.Count != 0)
-			{
-				accountNumber = accountNumberMatches[accountNumberMatches.Count - 1].Groups[1].Value;
-			}
 		}
-		
+
+		private string RemoveSpacesFromString(string cell)
+		{
+			return cell.Where(ch => ch != ' ')
+				.Aggregate(string.Empty, (current, ch) => current + ch);
+		}
+
 		private void TryProcessDateRow(IEnumerable<IEnumerable<string>> parsedData, ref string date)
 		{
 			var dateSearchPattern = Enum.GetValues(typeof(BankStatementDateType));
@@ -384,6 +401,15 @@ namespace Vodovoz.Application.BankStatements
 			{
 				case BankStatementBalanceType.OutgoingBalance:
 					TryProcessOutgoingBalance(balanceRow.Data, ref balance);
+
+					if(string.IsNullOrWhiteSpace(balance))
+					{
+						(balanceRow.Data as List<string>).Add(parsedData.Last().LastOrDefault());
+						TryProcessOutgoingBalance(balanceRow.Data, ref balance);
+					}
+					break;
+				case BankStatementBalanceType.BalanceOutgoing:
+					TryProcessOutgoingBalance(balanceRow.Data, ref balance);
 					break;
 				case BankStatementBalanceType.OutSaldo:
 					TryProcessOutSaldo(balanceRow.Data, ref balance);
@@ -474,6 +500,20 @@ namespace Vodovoz.Application.BankStatements
 			}
 		}
 		
+		private void TryProcessBalanceOutgoing(IEnumerable<string> data, ref string balance)
+		{
+			foreach(var cell in data)
+			{
+				var balanceMatches = Regex.Matches(cell, _balancePattern);
+
+				if(balanceMatches.Count != 0)
+				{
+					balance = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
+					break;
+				}
+			}
+		}
+		
 		private void TryProcessOutSaldo(IEnumerable<string> data, ref string balance)
 		{
 			foreach(var cell in data)
@@ -521,6 +561,8 @@ namespace Vodovoz.Application.BankStatements
 				return null;
 			}
 
+			balance = balance.Replace(',', '.');
+
 			if(decimal.TryParse(balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var convertedBalance))
 			{
 				return convertedBalance;
@@ -543,108 +585,5 @@ namespace Vodovoz.Application.BankStatements
 
 			return null;
 		}
-	}
-
-	public class BankStatementProcessedResult
-	{
-		private readonly Dictionary<string, (decimal Balance, DateTime Date)> _bankStatementData
-			= new Dictionary<string, (decimal Balance, DateTime Date)>();
-
-		public IReadOnlyDictionary<string, (decimal Balance, DateTime Date)> BankStatementData => _bankStatementData;
-		private IEnumerable<(string FileName, BankStatementProcessState StateType)> Results
-			= new List<(string FileName, BankStatementProcessState StateType)>();
-		
-		public void AddSuccessResult(string filePath, string accountNumber, decimal balance, DateTime date)
-		{
-			_bankStatementData.Add(accountNumber, (balance, date));
-			AddResult(filePath, BankStatementProcessState.Success);
-		}
-		
-		public void AddResult(string filePath, BankStatementProcessState stateType)
-		{
-			var fileName = Path.GetFileName(filePath);
-			((IList)Results).Add((fileName, stateType));
-		}
-
-		public string GetResult()
-		{
-			var sb = new StringBuilder();
-
-			var filesCount = Results.Count();
-			sb.AppendLine($"Обработка файлов завершена. Всего обработано файлов: {filesCount}шт");
-
-			if(Results.Any(x => x.StateType != BankStatementProcessState.Success))
-			{
-				var errors = Results
-					.Where(x => x.StateType != BankStatementProcessState.Success)
-					.ToLookup(x => x.StateType);
-
-				var errorsCount = errors.Sum(x => x.Count());
-				sb.AppendLine($"Из них: успешно - {filesCount - errorsCount}шт, с ошибками - {errorsCount}шт");
-				sb.AppendLine();
-				var i = 0;
-
-				foreach(var resultsGroup in errors)
-				{
-					i++;
-					sb.AppendLine($"{i}. {resultsGroup.Key.GetEnumDisplayName()} - {resultsGroup.Count()}шт");
-					sb.Append("Файлы: ");
-					
-					foreach(var result in resultsGroup)
-					{
-						sb.Append($"{result.FileName}, ");
-					}
-				}
-			}
-
-			return sb.ToString();
-		}
-	}
-
-	public enum BankStatementFileExtension
-	{
-		xls,
-		xlsx,
-		xml
-	}
-	
-	public enum BankStatementBalanceType
-	{
-		[Display(Name = "исходящий остаток")]
-		OutgoingBalance,
-		[Display(Name = "исх. сальдо")]
-		OutSaldo,
-		[Display(Name = "исходящее сальдо")]
-		OutgoingSaldo
-	}
-	
-	public enum BankStatementDateType
-	{
-		[Display(Name = "за")]
-		OnDate,
-		[Display(Name = "с")]
-		FromDate,
-		[Display(Name = "конечная дата")]
-		EndDate
-	}
-	
-	public enum BankStatementProcessState
-	{
-		[Display(Name = "Пустая папка")]
-		EmptyDirectory,
-		[Display(Name = "Успех")]
-		Success,
-		[Display(Name = "Ошибка парсинга файла")]
-		ErrorParsingFile,
-		[Display(Name = "Неподдерживаемый формат данных")]
-		UnsupportedFileExtension,
-		[Display(Name = "Не найден номер расчетного счета")]
-		EmptyAccountNumber,
-		[Display(Name = "Не найден исходящий остаток")]
-		EmptyBalance,
-		[Display(Name = "Не найдена дата выписки")]
-		EmptyDate,
-		[Display(Name = "Неверная дата выписки")]
-		WrongBankStatementDate
 	}
 }

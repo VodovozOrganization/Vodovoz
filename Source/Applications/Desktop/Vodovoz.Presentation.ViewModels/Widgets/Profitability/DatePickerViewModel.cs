@@ -7,7 +7,7 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 	public class DatePickerViewModel : WidgetViewModelBase, IDisposable
 	{
 		private DateTime _selectedDate;
-
+		
 		private Func<DateTime, bool> _canSelectNextDateFunc;
 		private Func<DateTime, bool> _canSelectPreviousDateFunc;
 
@@ -24,6 +24,9 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 			CreateCommands();
 			SetSelectedDate(date);
 		}
+		
+		public event EventHandler DateChanged;
+		public event EventHandler DateChangedByUser;
 
 		public DateTime SelectedDate
 		{
@@ -32,6 +35,7 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 			{
 				if(SetField(ref _selectedDate, value))
 				{
+					OnDateChanged();
 					OnPropertyChanged(nameof(SelectedDateTitle));
 					UpdateState();
 				}
@@ -67,6 +71,21 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 
 		public DelegateCommand NextDateCommand { get; private set; }
 		public DelegateCommand PreviousDateCommand { get; private set; }
+		
+		public bool CanChangeToNextDate(DateTime date)
+			=> _canSelectNextDateFunc == null || _canSelectNextDateFunc.Invoke(date);
+		public bool CanChangeToPreviousDate(DateTime date)
+			=> _canSelectPreviousDateFunc == null || _canSelectPreviousDateFunc.Invoke(date);
+		
+		public virtual void OnDateChangedByUser()
+		{
+			DateChangedByUser?.Invoke(this, EventArgs.Empty);
+		}
+		
+		protected virtual void OnDateChanged()
+		{
+			DateChanged?.Invoke(this, EventArgs.Empty);
+		}
 
 		private void CreateCommands()
 		{
@@ -100,6 +119,8 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 					SelectedDate = SelectedDate.AddDays(1);
 					break;
 			}
+			
+			OnDateChangedByUser();
 		}
 
 		private void SetPreviousDate()
@@ -113,6 +134,8 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 					SelectedDate = SelectedDate.AddDays(-1);
 					break;
 			}
+			
+			OnDateChangedByUser();
 		}
 
 		public void Dispose()

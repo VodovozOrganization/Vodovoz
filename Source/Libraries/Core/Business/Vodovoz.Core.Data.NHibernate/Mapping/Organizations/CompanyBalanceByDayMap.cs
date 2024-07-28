@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Date).Column("date");
-			//Map(x => x.Total).Column("total");
+			Map(x => x.Total).Column("total");
 
 			HasMany(x => x.FundsSummary)
 				.Inverse().Cascade.AllDeleteOrphan();

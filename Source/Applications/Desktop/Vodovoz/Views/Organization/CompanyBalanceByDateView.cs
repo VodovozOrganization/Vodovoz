@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
@@ -24,6 +22,7 @@ namespace Vodovoz.Views.Organization
 			btnSave.BindCommand(ViewModel.SaveCommand);
 			btnCancel.BindCommand(ViewModel.CancelCommand);
 			btnLoadAndProccessData.BindCommand(ViewModel.LoadAndProcessDataCommand);
+			btnExport.BindCommand(ViewModel.ExportCommand);
 			
 			var monthPicker = new MonthPickerView(ViewModel.DatePickerViewModel);
 			monthPicker.Show();
@@ -35,6 +34,8 @@ namespace Vodovoz.Views.Organization
 			monthPickerBox.Fill = false;
 
 			textViewErrors.HeightRequest = 150;
+			textViewErrors.Editable = false;
+			textViewErrors.WrapMode = WrapMode.Word;
 			textViewErrors.Binding
 				.AddBinding(ViewModel, vm => vm.ResultMessage, w => w.Buffer.Text)
 				.InitializeFromSource();
@@ -44,75 +45,68 @@ namespace Vodovoz.Views.Organization
 
 		private void ConfigureBalanceTree()
 		{
-			/*var columnsConfig = FluentColumnsConfig<object>.Create()
-				.AddColumn("Форма ДС").AddTextRenderer(node => node.FundsName)
-				.AddColumn("Всего").AddNumericRenderer(node => node.FundsTotal);
+			var columnsConfig = FluentColumnsConfig<IBankStatementParsingResult>.Create()
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.AddColumn("Номер счета").AddTextRenderer(node => node.AccountNumber)
+				.AddColumn("Всего")
+					.MinWidth(100)
+					.AddNumericRenderer(node => node.Total)
+					.Adjustment(new Adjustment(0, -999_999_999_999, 999_999_999_999, 1000, 10000, 0))
+					.AddSetter((cell, node) =>
+					{
+						if(node is BusinessAccountSummary accountSummary)
+						{
+							cell.Editable = true;
+							return;
+						}
 
-			for(var i = 0; i < ViewModel.BusinessActivities.Count(); i++)
-			{
-				columnsConfig.AddColumn($"{ViewModel.BusinessActivities[i].Name}")
-					.AddTextRenderer(node => ViewModel.BusinessActivities[i].AccountName)
-					.AddTextRenderer(node => ViewModel.BusinessActivities[i].Bank)
-					.AddNumericRenderer(node => ViewModel.BusinessActivities[i].AccountTotal);
-			}*/
-
-			//treeComapnyBalanceByDay.ItemsDataSource = ViewModel.Entity;
+						cell.Editable = false;
+					})
+					.Digits(2)
+					.EditedEvent(OnTotalChanged)
+				.AddColumn("");
 			
-			var columnsConfig = FluentColumnsConfig<object>.Create()
-				.AddColumn("Название").AddTextRenderer(node => GetNodeName(node))
-				.AddColumn("Всего").AddNumericRenderer(node => GetTotal(node));
-			
-			var levels = LevelConfigFactory
-				.FirstLevel<FundsSummary, BusinessActivitySummary>(x => x.BusinessActivitySummary)
+			var balanceViewLevels = LevelConfigFactory
+				.FirstLevel<CompanyBalanceByDay, FundsSummary>(x => x.FundsSummary)
+				.NextLevel(x => x.CompanyBalanceByDay, x => x.BusinessActivitySummary)
 				.NextLevel(x => x.FundsSummary, x => x.BusinessAccountsSummary)
 				.LastLevel(c => c.BusinessActivitySummary)
 				.EndConfig();
 			
-			treeComapnyBalanceByDay.YTreeModel = new LevelTreeModel<FundsSummary>(ViewModel.Entity.FundsSummary, levels);
-
+			treeComapnyBalanceByDay.YTreeModel = new LevelTreeModel<CompanyBalanceByDay>(ViewModel.CompanyBalances, balanceViewLevels);
+			
 			treeComapnyBalanceByDay.EnableGridLines = TreeViewGridLines.Both;
 			treeComapnyBalanceByDay.ColumnsConfig = columnsConfig.Finish();
+
+			ViewModel.CompanyBalanceChangedAction += OnCompanyBalanceChanged;
 		}
-		
-		private string GetNodeName(object node)
+
+		private void OnTotalChanged(object o, EditedArgs args)
 		{
-			if(node is FundsSummary fundsSummary)
+			var node = treeComapnyBalanceByDay.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is BusinessAccountSummary accountSummary))
 			{
-				return fundsSummary.Funds.Name;
+				return;
 			}
 
-			if(node is BusinessActivitySummary businessActivitySummary)
+			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
-				return businessActivitySummary.BusinessActivity.Name;
-			}
+				ViewModel.RecalculateTotal(accountSummary);
+			});
 
-			if(node is BusinessAccountSummary businessAccountSummary)
-			{
-				var businessAccount = businessAccountSummary.BusinessAccount;
-				return $"{businessAccount.Name} {businessAccount.Bank}";
-			}
-
-			return string.Empty;
+			OnCompanyBalanceChanged();
 		}
-		
-		private object GetTotal(object node)
+
+		private void OnCompanyBalanceChanged()
 		{
-			if(node is FundsSummary fundsSummary)
-			{
-				return fundsSummary.Total;
-			}
+			treeComapnyBalanceByDay.QueueDraw();
+		}
 
-			if(node is BusinessActivitySummary businessActivitySummary)
-			{
-				return businessActivitySummary.Total;
-			}
-
-			if(node is BusinessAccountSummary businessAccountSummary)
-			{
-				return businessAccountSummary.Total;
-			}
-
-			return 0m;
+		public override void Destroy()
+		{
+			ViewModel.CompanyBalanceChangedAction -= OnCompanyBalanceChanged;
+			base.Destroy();
 		}
 	}
 }

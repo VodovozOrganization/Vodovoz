@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ExcelDataReader;
 
 namespace Vodovoz.Application.BankStatements
 {
+	/// <summary>
+	/// Парсер банковкой выписки
+	/// </summary>
 	public class BankStatementParser
 	{
 		public IEnumerable<IEnumerable<string>> TryParse(string filePath, BankStatementFileExtension fileExtension)

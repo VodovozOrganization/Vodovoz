@@ -13,6 +13,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 
 			Map(x => x.Total).Column("total");
 
+			References(x => x.CompanyBalanceByDay).Column("company_balance_by_day_id");
 			References(x => x.Funds).Column("funds_id");
 
 			HasMany(x => x.BusinessActivitySummary)
