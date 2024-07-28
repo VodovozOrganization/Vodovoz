@@ -20,16 +20,28 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		private OnlinePaymentsReport(
 			DateTime startDate,
 			DateTime endDate,
-			string selectedShop)
+			string selectedShop,
+			IEnumerable<Row> paidOrders,
+			IEnumerable<Row> paymentMissingOrders,
+			IEnumerable<Row> overpaidOrders,
+			IEnumerable<Row> underpaidOrders)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
 			SelectedShop = selectedShop;
+			PaidOrders = paidOrders;
+			PaymentMissingOrders = paymentMissingOrders;
+			OverpaidOrders = overpaidOrders;
+			UnderpaidOrders = underpaidOrders;
 		}
 
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
 		public string SelectedShop { get; }
+		public IEnumerable<Row> PaidOrders { get; }
+		public IEnumerable<Row> PaymentMissingOrders { get; }
+		public IEnumerable<Row> OverpaidOrders { get; }
+		public IEnumerable<Row> UnderpaidOrders { get; }
 
 		public static async Task<Result<OnlinePaymentsReport>> CreateAsync(
 			DateTime startDate,
@@ -77,7 +89,13 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 				if(orderRowToUpdate != null)
 				{
-					
+					if(payment.DateAndTime < orderRowToUpdate.OrderCreateDate.Value.AddDays(-45)
+						|| payment.DateAndTime > orderRowToUpdate.OrderCreateDate.Value.AddDays(45))
+					{
+						continue;
+					}
+
+					UpdatePaymentInfo(payment, orderRowToUpdate);
 				}
 			}
 
@@ -87,9 +105,35 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 				if(orderRowToUpdate != null)
 				{
+					if(payment.DateAndTime < orderRowToUpdate.OrderCreateDate.Value.AddDays(-45)
+						|| payment.DateAndTime > orderRowToUpdate.OrderCreateDate.Value.AddDays(45))
+					{
+						continue;
+					}
 
+					UpdatePaymentInfo(payment, orderRowToUpdate);
 				}
 			}
+
+			var paidOrders = orders
+				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.Paid)
+				.OrderByDescending(or => or.OrderStatusOrderingValue)
+				.ToList();
+
+			var paymentMissingOrders = orders
+				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.Missing)
+				.OrderByDescending(or => or.OrderStatusOrderingValue)
+				.ToList();
+
+			var overpaidOrders = orders
+				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.OverPaid)
+				.OrderByDescending(or => or.OrderStatusOrderingValue)
+				.ToList();
+
+			var underpaidOrders = orders
+				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.UnderPaid)
+				.OrderByDescending(or => or.OrderStatusOrderingValue)
+				.ToList();
 
 			var generatedInMilliseconds = (DateTime.Now - startTime).TotalMilliseconds;
 
@@ -98,7 +142,38 @@ namespace Vodovoz.ViewModels.Orders.Reports
 					new OnlinePaymentsReport(
 						startDate,
 						endDate,
-						selectedShop)));
+						selectedShop,
+						paidOrders,
+						paymentMissingOrders,
+						overpaidOrders,
+						underpaidOrders)));
+		}
+
+		private static void UpdatePaymentInfo(PaymentByCardOnline payment, Row orderRowToUpdate)
+		{
+			orderRowToUpdate.PaymentId = payment.Id;
+			orderRowToUpdate.PaymentDateTimeOrError = $"{payment.DateAndTime:dd.MM.yyyy hh:mm:ss}";
+			orderRowToUpdate.TotalSumFromBank = payment.PaymentRUR;
+
+			if(orderRowToUpdate.TotalSumFromBank == orderRowToUpdate.OrderTotalSum)
+			{
+				orderRowToUpdate.ReportPaymentStatusEnum = Row.ReportPaymentStatus.Paid;
+			}
+
+			if(orderRowToUpdate.TotalSumFromBank > orderRowToUpdate.OrderTotalSum)
+			{
+				orderRowToUpdate.ReportPaymentStatusEnum = Row.ReportPaymentStatus.OverPaid;
+			}
+
+			if(orderRowToUpdate.TotalSumFromBank < orderRowToUpdate.OrderTotalSum)
+			{
+				orderRowToUpdate.ReportPaymentStatusEnum = Row.ReportPaymentStatus.UnderPaid;
+			}
+
+			if(!string.IsNullOrWhiteSpace(payment.Shop))
+			{
+				orderRowToUpdate.NumberAndShop = payment.PaymentNr + " \n" + payment.Shop;
+			}
 		}
 
 		private static IQueryable<PaymentByCardOnline> GetSmsPaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int> ordersIds) =>
@@ -130,7 +205,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 								 select orderItem.ActualSum).Sum(x => x as decimal? == null ? 0m : x)
 			select new Row
 			{
-				DeliveryDate = order.DeliveryDate,
+				OrderCreateDate = order.CreateDate,
+				OrderDeliveryDate = order.DeliveryDate,
 				OrderId = order.Id,
 				CcounterpartyFullName = counterparty.FullName,
 				Address = address,
@@ -139,10 +215,12 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				OrderTotalSum = orderTotalSum,
 				OrderStatus = order.OrderStatus,
 				Author = order.Author.ShortName,
+				PaymentId = null,
 				PaymentDateTimeOrError = "Оплата не найдена",
+				ReportPaymentStatusEnum = Row.ReportPaymentStatus.Missing,
 				OrderPaymentType = order.PaymentType,
 				IsFutureOrder = order.DeliveryDate > endDate,
-				NumberAndShop = ""
+				NumberAndShop = order.OnlineOrder.ToString()
 			};
 	}
 }

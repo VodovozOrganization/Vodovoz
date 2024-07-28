@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
 using DateTimeHelpers;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Orders.Reports
 {
@@ -117,11 +118,24 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			}
 		}
 
+		[PropertyChangedAlso(
+			nameof(PaidOrders),
+			nameof(PaymentMissingOrders),
+			nameof(OverpaidOrders),
+			nameof(UnderpaidOrders))]
 		public OnlinePaymentsReport Report
 		{
 			get => _report;
 			set => SetField(ref _report, value);
 		}
+
+		public IEnumerable<OnlinePaymentsReport.Row> PaidOrders => Report?.PaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+
+		public IEnumerable<OnlinePaymentsReport.Row> PaymentMissingOrders => Report?.PaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+
+		public IEnumerable<OnlinePaymentsReport.Row> OverpaidOrders => Report?.OverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+
+		public IEnumerable<OnlinePaymentsReport.Row> UnderpaidOrders => Report?.UnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
 
 		public bool CanGenerateReport
 		{
