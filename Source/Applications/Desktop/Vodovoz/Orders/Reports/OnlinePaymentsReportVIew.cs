@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
-using Vodovoz.EntityRepositories.Payments;
-using QS.Project.Services;
+﻿using QS.Views.Dialog;
 using System.ComponentModel;
-using QS.Views.Dialog;
 using Vodovoz.ViewModels.Orders.Reports;
 
 namespace Vodovoz.Orders.Reports
@@ -27,52 +19,30 @@ namespace Vodovoz.Orders.Reports
 		{
 			daterangepicker.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanChangePeriodManually, w => w.Sensitive)
+				.AddBinding(vm => vm.IsDateTimeRangeCustomPeriod, w => w.Sensitive)
 				.AddBinding(vm => vm.StartDate, w => w.StartDate)
 				.AddBinding(vm => vm.EndDate, w => w.EndDate)
 				.InitializeFromSource();
 
+			yradiobuttonYesterday.Binding
+				.AddBinding(ViewModel, vm => vm.IsDateTimeRangeYesterday, w => w.Active)
+				.InitializeFromSource();
 
-			rbtnLast3Days.Clicked += OnRbtnLast3DaysToggled;
-			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
+			yradiobuttonLast3Days.Binding
+				.AddBinding(ViewModel, vm => vm.IsDateTimeRangeLast3Days, w => w.Active)
+				.InitializeFromSource();
 
+			yradiobuttonCustomPeriod.Binding
+				.AddBinding(ViewModel, vm => vm.IsDateTimeRangeCustomPeriod, w => w.Active)
+				.InitializeFromSource();
+
+			speciallistcomboboxShop.ShowSpecialStateAll = true;
 			speciallistcomboboxShop.SetRenderTextFunc<string>(o =>
 				string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
 
 			speciallistcomboboxShop.ItemsList = ViewModel.Shops;
-
-			ViewModel.SetDateTimeRangeYesterdayCommand.Execute();
-		}
-
-
-		private ReportInfo GetReportInfo()
-		{
-			var rInfo = new ReportInfo
-			{
-				Identifier = "Payments.PaymentsFromTinkoffReport",
-				Parameters = new Dictionary<string, object> {
-					{ "startDate", daterangepicker.StartDate },
-					{ "endDate", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "shop", speciallistcomboboxShop.SelectedItem ?? "ALL" }
-				}
-			};
-			return rInfo;
-		}
-
-		protected void OnRbtnLast3DaysToggled(object sender, EventArgs e)
-		{
-			if(rbtnLast3Days.Active)
-			{
-				ViewModel.SetDateTimeRangeLast3DaysCommand.Execute();
-			}
-		}
-
-		protected void OnRbtnYesterdayToggled(object sender, EventArgs e)
-		{
-			if(rbtnYesterday.Active)
-			{
-				ViewModel.SetDateTimeRangeYesterdayCommand.Execute();
-			}
+			speciallistcomboboxShop.Binding.AddBinding(ViewModel, vm => vm.SelectedShop, w => w.SelectedItem)
+				.InitializeFromSource();
 		}
 	}
 }
