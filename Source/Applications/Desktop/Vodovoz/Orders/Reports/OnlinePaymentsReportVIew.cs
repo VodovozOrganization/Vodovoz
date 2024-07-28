@@ -87,6 +87,12 @@ namespace Vodovoz.Orders.Reports
 						r.ReportPaymentStatusEnum == OnlinePaymentsReport.Row.ReportPaymentStatus.Missing
 						? r.OrderTotalSum.ToString("# ##0.##")
 						: $"{r.TotalSumFromBank:# ##0.##} из {r.OrderTotalSum:# ##0.##}")
+				.AddColumn("Статус заказа")
+					.AddEnumRenderer(r => r.OrderStatus)
+				.AddColumn("Автор заказа")
+					.AddTextRenderer(r => r.Author)
+				.AddColumn("Дата оплаты")
+					.AddTextRenderer(r => r.PaymentDateTimeOrError)
 				.Finish();
 		}
 	}
