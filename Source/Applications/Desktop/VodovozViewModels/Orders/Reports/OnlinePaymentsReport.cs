@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using NHibernate.Linq;
+using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
@@ -15,18 +16,22 @@ namespace Vodovoz.ViewModels.Orders.Reports
 	{
 		private OnlinePaymentsReport(
 			DateTime startDate,
-			DateTime endDate)
+			DateTime endDate,
+			string selectedShop)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
+			SelectedShop = selectedShop;
 		}
 
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
+		public string SelectedShop { get; }
 
-		public static Task<Result<OnlinePaymentsReport>> CreateAsync(
+		public static async Task<Result<OnlinePaymentsReport>> CreateAsync(
 			DateTime startDate,
 			DateTime endDate,
+			string selectedShop,
 			IUnitOfWork unitOfWork,
 			CancellationToken cancellationToken)
 		{
@@ -36,10 +41,10 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
 			}
 
-			var orders = (from order in unitOfWork.Session.Query<Order>()
+			var orders = await (from order in unitOfWork.Session.Query<Order>()
 						  join counterparty in unitOfWork.Session.Query<Counterparty>()
 						  on order.Client.Id equals counterparty.Id
 						  join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>()
@@ -68,37 +73,42 @@ namespace Vodovoz.ViewModels.Orders.Reports
 							  order.PaymentType,
 							  IsFutureOrder = order.DeliveryDate > endDate,
 							  NumberAndShop = ""
-						  }).ToList();
+						  }).ToListAsync();
 
 			var onlineOrdersIds = orders.Select(x => x.OnlineOrder);
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
 			}
 
-			var payments = (from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
+			var payments = await (from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 							where payment.PaymentByCardFrom != PaymentByCardOnlineFrom.FromSMS
 								 && onlineOrdersIds.Contains(payment.PaymentNr)
 							select payment)
-							.ToList();
+							.ToListAsync();
 
 			var ordersIds = orders.Select(x => x.Id);
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
 			}
 
 			var paymentsBySms = (from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 								 where payment.PaymentByCardFrom == PaymentByCardOnlineFrom.FromSMS
 									  && ordersIds.Contains(payment.PaymentNr)
 								 select payment)
-								.ToList();
+								.ToListAsync();
 
 			var generatedInMilliseconds = (DateTime.Now - startTime).TotalMilliseconds;
 
-			return Task.FromResult(Result.Success(new OnlinePaymentsReport(startDate, endDate)));
+			return await Task.FromResult(
+				Result.Success(
+					new OnlinePaymentsReport(
+						startDate,
+						endDate,
+						selectedShop)));
 		}
 	}
 }

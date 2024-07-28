@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.Orders.Reports
 {
@@ -21,7 +22,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		private readonly IInteractiveService _interactiveService;
 		private DateTime _startDate;
 		private DateTime _endDate;
-		private bool _canChangePeriodManually;
 		private bool _isDateTimeRangeYesterday;
 		private bool _isDateTimeRangeLast3Days;
 		private bool _isDateTimeRangeCustomPeriod;
@@ -54,11 +54,9 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Shops = _paymentsRepository.GetAllShopsFromTinkoff(_unitOfWork);
-			SetDateTimeRangeYesterday();
 
-			SetDateTimeRangeYesterdayCommand = new DelegateCommand(SetDateTimeRangeYesterday);
-			SetDateTimeRangeLast3DaysCommand = new DelegateCommand(SetDateTimeRangeLast3Days);
-			SetDateTimeRangeCustomPeriodCommand = new DelegateCommand(SetDateTimeRangeCustomPeriod);
+			IsDateTimeRangeYesterday = true;
+
 			GenerateReportCommand = new AsyncCommand(GenerateReport, () => CanGenerateReport);
 		}
 
@@ -76,12 +74,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			set => SetField(ref _endDate, value);
 		}
 
-		public bool CanChangePeriodManually
-		{
-			get => _canChangePeriodManually;
-			set => SetField(ref _canChangePeriodManually, value);
-		}
-
 		public bool IsDateTimeRangeYesterday
 		{
 			get => _isDateTimeRangeYesterday;
@@ -91,7 +83,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				{
 					IsDateTimeRangeLast3Days = false;
 					IsDateTimeRangeCustomPeriod = false;
-					CanChangePeriodManually = false;
+					StartDate = DateTime.Today.AddDays(-1);
+					EndDate = DateTime.Today;
 				}
 			}
 		}
@@ -105,7 +98,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				{
 					IsDateTimeRangeYesterday = false;
 					IsDateTimeRangeCustomPeriod = false;
-					CanChangePeriodManually = false;
+					StartDate = DateTime.Today.AddDays(-3);
+					EndDate = DateTime.Today;
 				}
 			}
 		}
@@ -119,7 +113,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				{
 					IsDateTimeRangeYesterday = false;
 					IsDateTimeRangeLast3Days = false;
-					CanChangePeriodManually = true;
 				}
 			}
 		}
@@ -142,10 +135,9 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			private set => SetField(ref _isReportGenerating, value);
 		}
 
-		public DelegateCommand SetDateTimeRangeYesterdayCommand { get; }
-		public DelegateCommand SetDateTimeRangeLast3DaysCommand { get; }
-		public DelegateCommand SetDateTimeRangeCustomPeriodCommand { get; }
 		public AsyncCommand GenerateReportCommand { get; }
+
+		public string SelectedShop { get; set; }
 
 		private async Task GenerateReport(CancellationToken token)
 		{
@@ -153,7 +145,12 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			try
 			{
-				var reportResult = await OnlinePaymentsReport.CreateAsync(StartDate, EndDate, _unitOfWork, token);
+				var reportResult = await OnlinePaymentsReport.CreateAsync(
+					StartDate,
+					EndDate.LatestDayTime(),
+					SelectedShop,
+					_unitOfWork,
+					token);
 
 				_guiDispatcher.RunInGuiTread(() =>
 				{
@@ -187,25 +184,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				string.Join("\n- ", errors.Select(e => e.Message)),
 				"Ошибка при создании отчета");
 			}
-		}
-
-		private void SetDateTimeRangeYesterday()
-		{
-			IsDateTimeRangeYesterday = true;
-			StartDate = DateTime.Today.AddDays(-1);
-			EndDate = DateTime.Today;
-		}
-
-		private void SetDateTimeRangeLast3Days()
-		{
-			IsDateTimeRangeLast3Days = true;
-			StartDate = DateTime.Today.AddDays(-3);
-			EndDate = DateTime.Today;
-		}
-
-		private void SetDateTimeRangeCustomPeriod()
-		{
-			IsDateTimeRangeCustomPeriod = true;
 		}
 	}
 }
