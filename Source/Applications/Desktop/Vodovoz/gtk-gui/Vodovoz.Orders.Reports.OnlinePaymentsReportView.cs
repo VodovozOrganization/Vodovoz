@@ -46,9 +46,39 @@ namespace Vodovoz.Orders.Reports
 
 		private global::Gtk.VSeparator vseparator2;
 
+		private global::Gtk.ScrolledWindow scrolledwindow1;
+
+		private global::Gtk.VBox vbox1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelPaid;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportPaidRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelPaidMissing;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportPaidMissingRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOverpaid;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeReportIndicatorsRows;
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportOverpaidRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelUnderpaid;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportUnderpaidRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelPaymentsWithoutOrders;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportPaymentsWithoutOrdersRows;
 
 		protected virtual void Build()
 		{
@@ -264,15 +294,130 @@ namespace Vodovoz.Orders.Reports
 			global::Gtk.Paned.PanedChild w22 = ((global::Gtk.Paned.PanedChild)(this.hpaned1[this.hboxMain]));
 			w22.Resize = false;
 			// Container child hpaned1.Gtk.Paned+PanedChild
+			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow1.CanFocus = true;
+			this.scrolledwindow1.Name = "scrolledwindow1";
+			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow1.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w23 = new global::Gtk.Viewport();
+			w23.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport1.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelPaid = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPaid.Name = "ylabelPaid";
+			this.ylabelPaid.Xalign = 0F;
+			this.ylabelPaid.LabelProp = global::Mono.Unix.Catalog.GetString("Оплачено");
+			this.vbox1.Add(this.ylabelPaid);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaid]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeReportPaidRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportPaidRows.CanFocus = true;
+			this.ytreeReportPaidRows.Name = "ytreeReportPaidRows";
+			this.GtkScrolledWindow.Add(this.ytreeReportPaidRows);
+			this.vbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w26.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelPaidMissing = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPaidMissing.Name = "ylabelPaidMissing";
+			this.ylabelPaidMissing.Xalign = 0F;
+			this.ylabelPaidMissing.LabelProp = global::Mono.Unix.Catalog.GetString("Отсутствует оплата");
+			this.vbox1.Add(this.ylabelPaidMissing);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaidMissing]));
+			w27.Position = 2;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeReportPaidMissingRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportPaidMissingRows.CanFocus = true;
+			this.ytreeReportPaidMissingRows.Name = "ytreeReportPaidMissingRows";
+			this.GtkScrolledWindow1.Add(this.ytreeReportPaidMissingRows);
+			this.vbox1.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w29.Position = 3;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelOverpaid = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOverpaid.Name = "ylabelOverpaid";
+			this.ylabelOverpaid.Xalign = 0F;
+			this.ylabelOverpaid.LabelProp = global::Mono.Unix.Catalog.GetString("Переплата");
+			this.vbox1.Add(this.ylabelOverpaid);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelOverpaid]));
+			w30.Position = 4;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.ytreeReportIndicatorsRows = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeReportIndicatorsRows.CanFocus = true;
-			this.ytreeReportIndicatorsRows.Name = "ytreeReportIndicatorsRows";
-			this.GtkScrolledWindow2.Add(this.ytreeReportIndicatorsRows);
-			this.hpaned1.Add(this.GtkScrolledWindow2);
+			this.ytreeReportOverpaidRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportOverpaidRows.CanFocus = true;
+			this.ytreeReportOverpaidRows.Name = "ytreeReportOverpaidRows";
+			this.GtkScrolledWindow2.Add(this.ytreeReportOverpaidRows);
+			this.vbox1.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow2]));
+			w32.Position = 5;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelUnderpaid = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelUnderpaid.Name = "ylabelUnderpaid";
+			this.ylabelUnderpaid.Xalign = 0F;
+			this.ylabelUnderpaid.LabelProp = global::Mono.Unix.Catalog.GetString("Недоплата");
+			this.vbox1.Add(this.ylabelUnderpaid);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelUnderpaid]));
+			w33.Position = 6;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
+			this.ytreeReportUnderpaidRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportUnderpaidRows.CanFocus = true;
+			this.ytreeReportUnderpaidRows.Name = "ytreeReportUnderpaidRows";
+			this.GtkScrolledWindow3.Add(this.ytreeReportUnderpaidRows);
+			this.vbox1.Add(this.GtkScrolledWindow3);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow3]));
+			w35.Position = 7;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelPaymentsWithoutOrders = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPaymentsWithoutOrders.Name = "ylabelPaymentsWithoutOrders";
+			this.ylabelPaymentsWithoutOrders.Xalign = 0F;
+			this.ylabelPaymentsWithoutOrders.LabelProp = global::Mono.Unix.Catalog.GetString("Оплаты без заказов");
+			this.vbox1.Add(this.ylabelPaymentsWithoutOrders);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaymentsWithoutOrders]));
+			w36.Position = 8;
+			w36.Expand = false;
+			w36.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
+			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
+			this.ytreeReportPaymentsWithoutOrdersRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportPaymentsWithoutOrdersRows.CanFocus = true;
+			this.ytreeReportPaymentsWithoutOrdersRows.Name = "ytreeReportPaymentsWithoutOrdersRows";
+			this.GtkScrolledWindow4.Add(this.ytreeReportPaymentsWithoutOrdersRows);
+			this.vbox1.Add(this.GtkScrolledWindow4);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow4]));
+			w38.Position = 9;
+			w23.Add(this.vbox1);
+			this.scrolledwindow1.Add(w23);
+			this.hpaned1.Add(this.scrolledwindow1);
 			this.Add(this.hpaned1);
 			if ((this.Child != null))
 			{
