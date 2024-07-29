@@ -50,6 +50,30 @@ namespace Vodovoz.Orders.Reports
 
 		private global::Gtk.VBox vbox1;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxFutureOrders;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuture;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuturePaid;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportFuturePaidRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFuturePaidMissing;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportFuturePaidMissingRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFutureOverpaid;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportFutureOverpaidRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFutureUnderpaid;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeReportFutureUnderpaidRows;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxCurrentOrders;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCurrentOrders;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelPaid;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeReportPaidRows;
@@ -296,100 +320,212 @@ namespace Vodovoz.Orders.Reports
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxFutureOrders = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxFutureOrders.Name = "yvboxFutureOrders";
+			this.yvboxFutureOrders.Spacing = 6;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ylabelFuture = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuture.Name = "ylabelFuture";
+			this.ylabelFuture.LabelProp = global::Mono.Unix.Catalog.GetString("Заказы на будущие даты доставки");
+			this.yvboxFutureOrders.Add(this.ylabelFuture);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ylabelFuture]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ylabelFuturePaid = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuturePaid.Name = "ylabelFuturePaid";
+			this.ylabelFuturePaid.Xalign = 0F;
+			this.ylabelFuturePaid.LabelProp = global::Mono.Unix.Catalog.GetString("Оплачено");
+			this.yvboxFutureOrders.Add(this.ylabelFuturePaid);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ylabelFuturePaid]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ytreeReportFuturePaidRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportFuturePaidRows.CanFocus = true;
+			this.ytreeReportFuturePaidRows.Name = "ytreeReportFuturePaidRows";
+			this.yvboxFutureOrders.Add(this.ytreeReportFuturePaidRows);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ytreeReportFuturePaidRows]));
+			w26.Position = 2;
+			w26.Expand = false;
+			w26.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ylabelFuturePaidMissing = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFuturePaidMissing.Name = "ylabelFuturePaidMissing";
+			this.ylabelFuturePaidMissing.Xalign = 0F;
+			this.ylabelFuturePaidMissing.LabelProp = global::Mono.Unix.Catalog.GetString("Отсутствует оплата");
+			this.yvboxFutureOrders.Add(this.ylabelFuturePaidMissing);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ylabelFuturePaidMissing]));
+			w27.Position = 3;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ytreeReportFuturePaidMissingRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportFuturePaidMissingRows.CanFocus = true;
+			this.ytreeReportFuturePaidMissingRows.Name = "ytreeReportFuturePaidMissingRows";
+			this.yvboxFutureOrders.Add(this.ytreeReportFuturePaidMissingRows);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ytreeReportFuturePaidMissingRows]));
+			w28.Position = 4;
+			w28.Expand = false;
+			w28.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ylabelFutureOverpaid = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFutureOverpaid.Name = "ylabelFutureOverpaid";
+			this.ylabelFutureOverpaid.Xalign = 0F;
+			this.ylabelFutureOverpaid.LabelProp = global::Mono.Unix.Catalog.GetString("Переплата");
+			this.yvboxFutureOrders.Add(this.ylabelFutureOverpaid);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ylabelFutureOverpaid]));
+			w29.Position = 5;
+			w29.Expand = false;
+			w29.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ytreeReportFutureOverpaidRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportFutureOverpaidRows.CanFocus = true;
+			this.ytreeReportFutureOverpaidRows.Name = "ytreeReportFutureOverpaidRows";
+			this.yvboxFutureOrders.Add(this.ytreeReportFutureOverpaidRows);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ytreeReportFutureOverpaidRows]));
+			w30.Position = 6;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ylabelFutureUnderpaid = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFutureUnderpaid.Name = "ylabelFutureUnderpaid";
+			this.ylabelFutureUnderpaid.Xalign = 0F;
+			this.ylabelFutureUnderpaid.LabelProp = global::Mono.Unix.Catalog.GetString("Недоплата");
+			this.yvboxFutureOrders.Add(this.ylabelFutureUnderpaid);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ylabelFutureUnderpaid]));
+			w31.Position = 7;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child yvboxFutureOrders.Gtk.Box+BoxChild
+			this.ytreeReportFutureUnderpaidRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReportFutureUnderpaidRows.CanFocus = true;
+			this.ytreeReportFutureUnderpaidRows.Name = "ytreeReportFutureUnderpaidRows";
+			this.yvboxFutureOrders.Add(this.ytreeReportFutureUnderpaidRows);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.yvboxFutureOrders[this.ytreeReportFutureUnderpaidRows]));
+			w32.Position = 8;
+			w32.Expand = false;
+			w32.Fill = false;
+			this.vbox1.Add(this.yvboxFutureOrders);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yvboxFutureOrders]));
+			w33.Position = 0;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxCurrentOrders.Name = "yvboxCurrentOrders";
+			this.yvboxCurrentOrders.Spacing = 6;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
+			this.ylabelCurrentOrders = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCurrentOrders.Name = "ylabelCurrentOrders";
+			this.ylabelCurrentOrders.LabelProp = global::Mono.Unix.Catalog.GetString("Заказы на сегодняшний день");
+			this.yvboxCurrentOrders.Add(this.ylabelCurrentOrders);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ylabelCurrentOrders]));
+			w34.Position = 0;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ylabelPaid = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPaid.Name = "ylabelPaid";
 			this.ylabelPaid.Xalign = 0F;
 			this.ylabelPaid.LabelProp = global::Mono.Unix.Catalog.GetString("Оплачено");
-			this.vbox1.Add(this.ylabelPaid);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaid]));
-			w24.Position = 0;
-			w24.Expand = false;
-			w24.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ylabelPaid);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ylabelPaid]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ytreeReportPaidRows = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeReportPaidRows.CanFocus = true;
 			this.ytreeReportPaidRows.Name = "ytreeReportPaidRows";
-			this.vbox1.Add(this.ytreeReportPaidRows);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeReportPaidRows]));
-			w25.Position = 1;
-			w25.Expand = false;
-			w25.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ytreeReportPaidRows);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ytreeReportPaidRows]));
+			w36.Position = 2;
+			w36.Expand = false;
+			w36.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ylabelPaidMissing = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPaidMissing.Name = "ylabelPaidMissing";
 			this.ylabelPaidMissing.Xalign = 0F;
 			this.ylabelPaidMissing.LabelProp = global::Mono.Unix.Catalog.GetString("Отсутствует оплата");
-			this.vbox1.Add(this.ylabelPaidMissing);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaidMissing]));
-			w26.Position = 2;
-			w26.Expand = false;
-			w26.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ylabelPaidMissing);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ylabelPaidMissing]));
+			w37.Position = 3;
+			w37.Expand = false;
+			w37.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ytreeReportPaidMissingRows = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeReportPaidMissingRows.CanFocus = true;
 			this.ytreeReportPaidMissingRows.Name = "ytreeReportPaidMissingRows";
-			this.vbox1.Add(this.ytreeReportPaidMissingRows);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeReportPaidMissingRows]));
-			w27.Position = 3;
-			w27.Expand = false;
-			w27.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ytreeReportPaidMissingRows);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ytreeReportPaidMissingRows]));
+			w38.Position = 4;
+			w38.Expand = false;
+			w38.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ylabelOverpaid = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOverpaid.Name = "ylabelOverpaid";
 			this.ylabelOverpaid.Xalign = 0F;
 			this.ylabelOverpaid.LabelProp = global::Mono.Unix.Catalog.GetString("Переплата");
-			this.vbox1.Add(this.ylabelOverpaid);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelOverpaid]));
-			w28.Position = 4;
-			w28.Expand = false;
-			w28.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ylabelOverpaid);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ylabelOverpaid]));
+			w39.Position = 5;
+			w39.Expand = false;
+			w39.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ytreeReportOverpaidRows = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeReportOverpaidRows.CanFocus = true;
 			this.ytreeReportOverpaidRows.Name = "ytreeReportOverpaidRows";
-			this.vbox1.Add(this.ytreeReportOverpaidRows);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeReportOverpaidRows]));
-			w29.Position = 5;
-			w29.Expand = false;
-			w29.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ytreeReportOverpaidRows);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ytreeReportOverpaidRows]));
+			w40.Position = 6;
+			w40.Expand = false;
+			w40.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ylabelUnderpaid = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelUnderpaid.Name = "ylabelUnderpaid";
 			this.ylabelUnderpaid.Xalign = 0F;
 			this.ylabelUnderpaid.LabelProp = global::Mono.Unix.Catalog.GetString("Недоплата");
-			this.vbox1.Add(this.ylabelUnderpaid);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelUnderpaid]));
-			w30.Position = 6;
-			w30.Expand = false;
-			w30.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCurrentOrders.Add(this.ylabelUnderpaid);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ylabelUnderpaid]));
+			w41.Position = 7;
+			w41.Expand = false;
+			w41.Fill = false;
+			// Container child yvboxCurrentOrders.Gtk.Box+BoxChild
 			this.ytreeReportUnderpaidRows = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeReportUnderpaidRows.CanFocus = true;
 			this.ytreeReportUnderpaidRows.Name = "ytreeReportUnderpaidRows";
-			this.vbox1.Add(this.ytreeReportUnderpaidRows);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeReportUnderpaidRows]));
-			w31.Position = 7;
-			w31.Expand = false;
-			w31.Fill = false;
+			this.yvboxCurrentOrders.Add(this.ytreeReportUnderpaidRows);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.yvboxCurrentOrders[this.ytreeReportUnderpaidRows]));
+			w42.Position = 8;
+			w42.Expand = false;
+			w42.Fill = false;
+			this.vbox1.Add(this.yvboxCurrentOrders);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yvboxCurrentOrders]));
+			w43.Position = 1;
+			w43.Expand = false;
+			w43.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelPaymentsWithoutOrders = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPaymentsWithoutOrders.Name = "ylabelPaymentsWithoutOrders";
 			this.ylabelPaymentsWithoutOrders.Xalign = 0F;
 			this.ylabelPaymentsWithoutOrders.LabelProp = global::Mono.Unix.Catalog.GetString("Оплаты без заказов");
 			this.vbox1.Add(this.ylabelPaymentsWithoutOrders);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaymentsWithoutOrders]));
-			w32.Position = 8;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPaymentsWithoutOrders]));
+			w44.Position = 2;
+			w44.Expand = false;
+			w44.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ytreeReportPaymentsWithoutOrdersRows = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeReportPaymentsWithoutOrdersRows.CanFocus = true;
 			this.ytreeReportPaymentsWithoutOrdersRows.Name = "ytreeReportPaymentsWithoutOrdersRows";
 			this.vbox1.Add(this.ytreeReportPaymentsWithoutOrdersRows);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeReportPaymentsWithoutOrdersRows]));
-			w33.Position = 9;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeReportPaymentsWithoutOrdersRows]));
+			w45.Position = 3;
+			w45.Expand = false;
+			w45.Fill = false;
 			w23.Add(this.vbox1);
 			this.scrolledwindow1.Add(w23);
 			this.hpaned1.Add(this.scrolledwindow1);
