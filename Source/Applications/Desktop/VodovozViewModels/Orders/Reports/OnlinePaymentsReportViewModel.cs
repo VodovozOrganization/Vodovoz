@@ -2,6 +2,7 @@
 using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
@@ -147,6 +148,27 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			}
 		}
 
+		[PropertyChangedAlso(
+			nameof(PaidOrders),
+			nameof(HasPaidOrders),
+			nameof(PaymentMissingOrders),
+			nameof(HasPaymentMissingOrders),
+			nameof(OverpaidOrders),
+			nameof(HasOverpaidOrders),
+			nameof(UnderpaidOrders),
+			nameof(HasUnderpaidOrders),
+			nameof(HasAnyOrders),
+			nameof(FuturePaidOrders),
+			nameof(HasFuturePaidOrders),
+			nameof(FuturePaymentMissingOrders),
+			nameof(HasFuturePaymentMissingOrders),
+			nameof(FutureOverpaidOrders),
+			nameof(HasFutureOverpaidOrders),
+			nameof(FutureUnderpaidOrders),
+			nameof(HasFutureUnderpaidOrders),
+			nameof(HasAnyFutureOrders),
+			nameof(PaymentWithoutOrder),
+			nameof(HasPaymentWithoutOrder))]
 		public OnlinePaymentsReport Report
 		{
 			get => _report;
@@ -156,31 +178,60 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		public IEnumerable<OnlinePaymentsReport.OrderRow> PaidOrders =>
 			Report?.PaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
+		public bool HasPaidOrders => PaidOrders.Any();
+
 		public IEnumerable<OnlinePaymentsReport.OrderRow> PaymentMissingOrders =>
 			Report?.PaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public bool HasPaymentMissingOrders => PaymentMissingOrders.Any();
 
 		public IEnumerable<OnlinePaymentsReport.OrderRow> OverpaidOrders =>
 			Report?.OverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
+		public bool HasOverpaidOrders => OverpaidOrders.Any();
+
 		public IEnumerable<OnlinePaymentsReport.OrderRow> UnderpaidOrders =>
 			Report?.UnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
+		public bool HasUnderpaidOrders => UnderpaidOrders.Any();
+
+		public bool HasAnyOrders =>
+			HasPaidOrders
+			|| HasPaymentMissingOrders
+			|| HasOverpaidOrders
+			|| HasUnderpaidOrders;
 
 		public IEnumerable<OnlinePaymentsReport.OrderRow> FuturePaidOrders =>
 			Report?.FuturePaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
+		public bool HasFuturePaidOrders => FuturePaidOrders.Any();
+
 		public IEnumerable<OnlinePaymentsReport.OrderRow> FuturePaymentMissingOrders =>
 			Report?.FuturePaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public bool HasFuturePaymentMissingOrders => FuturePaymentMissingOrders.Any();
 
 		public IEnumerable<OnlinePaymentsReport.OrderRow> FutureOverpaidOrders =>
 			Report?.FutureOverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
+		public bool HasFutureOverpaidOrders => FutureOverpaidOrders.Any();
+
 		public IEnumerable<OnlinePaymentsReport.OrderRow> FutureUnderpaidOrders =>
 			Report?.FutureUnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public bool HasFutureUnderpaidOrders => FutureUnderpaidOrders.Any();
+
+		public bool HasAnyFutureOrders =>
+			HasFuturePaidOrders
+			|| HasFuturePaymentMissingOrders
+			|| HasFutureOverpaidOrders
+			|| HasFutureUnderpaidOrders;
 
 
 		public IEnumerable<OnlinePaymentsReport.PaymentWithoutOrderRow> PaymentWithoutOrder =>
 			Report?.PaymentsWithoutOrders ?? Enumerable.Empty<OnlinePaymentsReport.PaymentWithoutOrderRow>();
+
+		public bool HasPaymentWithoutOrder => PaymentWithoutOrder.Any();
 
 		public bool CanGenerateReport
 		{

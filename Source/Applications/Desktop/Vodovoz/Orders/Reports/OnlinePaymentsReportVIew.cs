@@ -57,6 +57,20 @@ namespace Vodovoz.Orders.Reports
 
 			ybuttonSave.BindCommand(ViewModel.ExportReportCommand);
 
+			ConfigureFutureOrdersRowsView();
+			ConfigureCurrentOrdersRowsView();
+			ConfigureTreeViews();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void ConfigureTreeViews()
+		{
+			ConfigureOrderRowTreeView(ytreeReportFuturePaidRows);
+			ConfigureOrderRowTreeView(ytreeReportFuturePaidMissingRows);
+			ConfigureOrderRowTreeView(ytreeReportFutureOverpaidRows);
+			ConfigureOrderRowTreeView(ytreeReportFutureUnderpaidRows);
+
 			ConfigureOrderRowTreeView(ytreeReportPaidRows);
 			ConfigureOrderRowTreeView(ytreeReportPaidMissingRows);
 			ConfigureOrderRowTreeView(ytreeReportOverpaidRows);
@@ -79,8 +93,84 @@ namespace Vodovoz.Orders.Reports
 				.AddColumn("Клиент")
 					.AddTextRenderer(r => r.CounterpartyFullName)
 				.Finish();
+		}
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		private void ConfigureCurrentOrdersRowsView()
+		{
+			ylabelPaid.Binding
+				.AddBinding(ViewModel, vm => vm.HasPaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportPaidRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasPaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelPaidMissing.Binding
+				.AddBinding(ViewModel, vm => vm.HasPaymentMissingOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportPaidMissingRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasPaymentMissingOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelOverpaid.Binding
+				.AddBinding(ViewModel, vm => vm.HasOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportOverpaidRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelUnderpaid.Binding
+				.AddBinding(ViewModel, vm => vm.HasOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportUnderpaidRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			yvboxCurrentOrders.Binding
+				.AddBinding(ViewModel, vm => vm.HasAnyOrders, w => w.Visible)
+				.InitializeFromSource();
+		}
+
+		private void ConfigureFutureOrdersRowsView()
+		{
+			ylabelFuturePaid.Binding
+				.AddBinding(ViewModel, vm => vm.HasFuturePaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportFuturePaidRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasFuturePaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelFuturePaidMissing.Binding
+				.AddBinding(ViewModel, vm => vm.HasFuturePaymentMissingOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportFuturePaidMissingRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasFuturePaymentMissingOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelFutureOverpaid.Binding
+				.AddBinding(ViewModel, vm => vm.HasFutureOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportFutureOverpaidRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasFutureOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelFutureUnderpaid.Binding
+				.AddBinding(ViewModel, vm => vm.HasFutureOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			ytreeReportFutureUnderpaidRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasFutureOverpaidOrders, w => w.Visible)
+				.InitializeFromSource();
+
+			yvboxFutureOrders.Binding
+				.AddBinding(ViewModel, vm => vm.HasAnyFutureOrders, w => w.Visible)
+				.InitializeFromSource();
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -94,6 +184,16 @@ namespace Vodovoz.Orders.Reports
 				ytreeReportOverpaidRows.ItemsDataSource = ViewModel.OverpaidOrders;
 
 				ytreeReportUnderpaidRows.ItemsDataSource = ViewModel.UnderpaidOrders;
+
+				ytreeReportPaymentsWithoutOrdersRows.ItemsDataSource = ViewModel.PaymentWithoutOrder;
+
+				ytreeReportFuturePaidRows.ItemsDataSource = ViewModel.FuturePaidOrders;
+
+				ytreeReportFuturePaidMissingRows.ItemsDataSource = ViewModel.FuturePaymentMissingOrders;
+
+				ytreeReportFutureOverpaidRows.ItemsDataSource = ViewModel.FutureOverpaidOrders;
+
+				ytreeReportFutureUnderpaidRows.ItemsDataSource = ViewModel.FutureUnderpaidOrders;
 
 				ytreeReportPaymentsWithoutOrdersRows.ItemsDataSource = ViewModel.PaymentWithoutOrder;
 			}
