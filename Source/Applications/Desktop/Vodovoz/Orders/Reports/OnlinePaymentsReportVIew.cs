@@ -46,6 +46,16 @@ namespace Vodovoz.Orders.Reports
 				.InitializeFromSource();
 
 			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
+			ybuttonGenerate.Binding
+				.AddBinding(ViewModel, vm => vm.CanGenerateReport, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonAbortCreateReport.BindCommand(ViewModel.CancelGenerationCommand);
+			ybuttonAbortCreateReport.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.CanGenerateReport, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonSave.BindCommand(ViewModel.ExportReportCommand);
 
 			ConfigureOrderRowTreeView(ytreeReportPaidRows);
 			ConfigureOrderRowTreeView(ytreeReportPaidMissingRows);

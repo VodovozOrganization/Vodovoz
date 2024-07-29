@@ -1,7 +1,10 @@
-﻿using QS.Commands;
+﻿using ClosedXML.Report;
+using DateTimeHelpers;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
@@ -10,8 +13,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
-using DateTimeHelpers;
-using QS.DomainModel.Entity;
+using Vodovoz.Tools;
+using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Orders.Reports
 {
@@ -21,6 +25,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IDialogSettingsFactory _dialogSettingsFactory;
+		private readonly IFileDialogService _fileDialogService;
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private bool _isDateTimeRangeYesterday;
@@ -29,13 +35,18 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		private OnlinePaymentsReport _report;
 		private bool _canGenerateReport;
 		private bool _isReportGenerating;
+		private string _selectedShop;
+		private bool _canSaveReport;
+		private bool _canCancelGeneration;
 
 		public OnlinePaymentsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IPaymentsRepository paymentsRepository,
 			IGuiDispatcher guiDispatcher,
 			IInteractiveService interactiveService,
-			INavigationManager navigation)
+			INavigationManager navigation,
+			IDialogSettingsFactory dialogSettingsFactory,
+			IFileDialogService fileDialogService)
 			: base(navigation)
 		{
 			if(unitOfWorkFactory is null)
@@ -43,16 +54,20 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			Title = "Отчет по оплатам OnLine заказов";
-
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
-
 			_paymentsRepository = paymentsRepository
 				?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_guiDispatcher = guiDispatcher
 				?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_interactiveService = interactiveService
 				?? throw new ArgumentNullException(nameof(interactiveService));
+			_dialogSettingsFactory = dialogSettingsFactory
+				?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
+			_fileDialogService = fileDialogService
+				?? throw new ArgumentNullException(nameof(fileDialogService));
+
+			Title = typeof(OnlinePaymentsReport).GetClassUserFriendlyName().Nominative;
+
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Shops = _paymentsRepository.GetAllShopsFromTinkoff(_unitOfWork);
 
@@ -61,6 +76,12 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			GenerateReportCommand = new AsyncCommand(GenerateReport, () => CanGenerateReport);
 			GenerateReportCommand.CanExecuteChangedWith(this, vm => vm.CanGenerateReport);
 			CanGenerateReport = true;
+
+			ExportReportCommand = new DelegateCommand(ExportReport, () => CanSaveReport);
+			ExportReportCommand.CanExecuteChangedWith(this, vm => vm.CanSaveReport);
+
+			CancelGenerationCommand = new DelegateCommand(CancelGeneration, () => CanCancelGeneration);
+			CancelGenerationCommand.CanExecuteChangedWith(this, vm => vm.CanCancelGeneration);
 		}
 
 		public IEnumerable<string> Shops { get; }
@@ -75,6 +96,12 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);
+		}
+
+		public string SelectedShop
+		{
+			get => _selectedShop;
+			set => SetField(ref _selectedShop, value);
 		}
 
 		public bool IsDateTimeRangeYesterday
@@ -142,19 +169,32 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			private set => SetField(ref _canGenerateReport, value);
 		}
 
+		public bool CanCancelGeneration
+		{
+			get => _canCancelGeneration;
+			set => SetField(ref _canCancelGeneration, value);
+		}
+
 		public bool IsReportGenerating
 		{
 			get => _isReportGenerating;
 			private set => SetField(ref _isReportGenerating, value);
 		}
 
-		public AsyncCommand GenerateReportCommand { get; }
+		public bool CanSaveReport
+		{
+			get => _canSaveReport;
+			private set => SetField(ref _canSaveReport, value);
+		}
 
-		public string SelectedShop { get; set; }
+		public AsyncCommand GenerateReportCommand { get; }
+		public DelegateCommand ExportReportCommand { get; }
+		public DelegateCommand CancelGenerationCommand { get; }
 
 		private async Task GenerateReport(CancellationToken token)
 		{
 			CanGenerateReport = false;
+			CanCancelGeneration = true;
 
 			try
 			{
@@ -186,8 +226,45 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				_guiDispatcher.RunInGuiTread(() =>
 				{
 					CanGenerateReport = true;
+					CanCancelGeneration = false;
 				});
 			}
+		}
+
+		private void CancelGeneration()
+		{
+			CanCancelGeneration = false;
+			GenerateReportCommand.Abort();
+		}
+
+		private void ExportReport()
+		{
+			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(_report);
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(saveDialogResult.Successful)
+			{
+				PostProcess(_report)
+					.Export(saveDialogResult.Path);
+			}
+		}
+
+		private XLTemplate PostProcess(OnlinePaymentsReport report)
+		{
+			var template = report.GetRawTemplate();
+
+			//if(!report.CarReceptionRows.Any())
+			//{
+			//	template.Workbook.Worksheet(1).Rows(13, 16).Delete();
+			//}
+
+			//if(!report.CarTransferRows.Any())
+			//{
+			//	template.Workbook.Worksheet(1).Rows(8, 11).Delete();
+			//}
+
+			return template.RenderTemplate(report);
 		}
 
 		private void ShowErrors(IEnumerable<Error> errors)

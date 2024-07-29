@@ -1,4 +1,5 @@
 ﻿using NHibernate.Linq;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,12 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.ViewModels.Errors;
+using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Orders.Reports
 {
-	public partial class OnlinePaymentsReport
+	[Appellative(Nominative = "Отчет по оплатам OnLine заказов")]
+	public partial class OnlinePaymentsReport : IClosedXmlReport
 	{
 		private static readonly int[] _avangardPayments = new int[] { 10, 11, 12, 13 };
 
@@ -29,7 +32,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		{
 			StartDate = startDate;
 			EndDate = endDate;
-			SelectedShop = selectedShop;
+			Shop = selectedShop;
 			PaidOrders = paidOrders;
 			PaymentMissingOrders = paymentMissingOrders;
 			OverpaidOrders = overpaidOrders;
@@ -37,9 +40,10 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			PaymentsWithoutOrders = paymentsWithoutOrders;
 		}
 
+		public string TemplatePath => @".\Reports\Payments\OnlinePaymentsReportFromTBank.xlsx";
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
-		public string SelectedShop { get; }
+		public string Shop { get; }
 		public IEnumerable<OrderRow> PaidOrders { get; }
 		public IEnumerable<OrderRow> PaymentMissingOrders { get; }
 		public IEnumerable<OrderRow> OverpaidOrders { get; }
