@@ -9,6 +9,7 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -327,26 +328,31 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(!report.PaymentsWithoutOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.PaymentsWithoutOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(32, 35).Delete();
 			}
 
 			if(!report.UnderpaidOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.UnderpaidOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(29, 31).Delete();
 			}
 
 			if(!report.OverpaidOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.OverpaidOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(26, 28).Delete();
 			}
 
 			if(!report.PaymentMissingOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.PaymentMissingOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(23, 25).Delete();
 			}
 
 			if(!report.PaidOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.PaidOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(20, 22).Delete();
 			}
 
@@ -360,21 +366,25 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(!report.FutureUnderpaidOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.FutureUnderpaidOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(16, 18).Delete();
 			}
 
 			if(!report.FutureOverpaidOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.FutureOverpaidOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(13, 15).Delete();
 			}
 
 			if(!report.FuturePaymentMissingOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.FuturePaymentMissingOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(10, 12).Delete();
 			}
 
 			if(!report.FuturePaidOrders.Any())
 			{
+				template.Workbook.NamedRange(nameof(report.FuturePaidOrders)).Delete();
 				template.Workbook.Worksheet(1).Rows(7, 9).Delete();
 			}
 
@@ -385,6 +395,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			{
 				template.Workbook.Worksheet(1).Row(6).Delete();
 			}
+
+			template.SaveAs(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "template.xlsx"));
 
 			return template.RenderTemplate(report);
 		}
