@@ -153,15 +153,34 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			set => SetField(ref _report, value);
 		}
 
-		public IEnumerable<OnlinePaymentsReport.OrderRow> PaidOrders => Report?.PaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> PaidOrders =>
+			Report?.PaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.OrderRow> PaymentMissingOrders => Report?.PaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> PaymentMissingOrders =>
+			Report?.PaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.OrderRow> OverpaidOrders => Report?.OverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> OverpaidOrders =>
+			Report?.OverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.OrderRow> UnderpaidOrders => Report?.UnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> UnderpaidOrders =>
+			Report?.UnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.PaymentWithoutOrderRow> PaymentWithoutOrder => Report?.PaymentsWithoutOrders ?? Enumerable.Empty<OnlinePaymentsReport.PaymentWithoutOrderRow>();
+
+		public IEnumerable<OnlinePaymentsReport.OrderRow> FuturePaidOrders =>
+			Report?.FuturePaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public IEnumerable<OnlinePaymentsReport.OrderRow> FuturePaymentMissingOrders =>
+			Report?.FuturePaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public IEnumerable<OnlinePaymentsReport.OrderRow> FutureOverpaidOrders =>
+			Report?.FutureOverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public IEnumerable<OnlinePaymentsReport.OrderRow> FutureUnderpaidOrders =>
+			Report?.FutureUnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+
+		public IEnumerable<OnlinePaymentsReport.PaymentWithoutOrderRow> PaymentWithoutOrder =>
+			Report?.PaymentsWithoutOrders ?? Enumerable.Empty<OnlinePaymentsReport.PaymentWithoutOrderRow>();
 
 		public bool CanGenerateReport
 		{
@@ -254,15 +273,66 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		{
 			var template = report.GetRawTemplate();
 
-			//if(!report.CarReceptionRows.Any())
-			//{
-			//	template.Workbook.Worksheet(1).Rows(13, 16).Delete();
-			//}
+			if(!report.PaymentsWithoutOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(32, 35).Delete();
+			}
 
-			//if(!report.CarTransferRows.Any())
-			//{
-			//	template.Workbook.Worksheet(1).Rows(8, 11).Delete();
-			//}
+			if(!report.UnderpaidOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(29, 31).Delete();
+			}
+
+			if(!report.OverpaidOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(26, 28).Delete();
+			}
+
+			if(!report.PaymentMissingOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(23, 25).Delete();
+			}
+
+			if(!report.PaidOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(20, 22).Delete();
+			}
+
+			if(!(report.UnderpaidOrders.Any()
+				|| report.OverpaidOrders.Any()
+				|| report.PaymentMissingOrders.Any()
+				|| report.PaidOrders.Any()))
+			{
+				template.Workbook.Worksheet(1).Row(19).Delete();
+			}
+
+			if(!report.FutureUnderpaidOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(16, 18).Delete();
+			}
+
+			if(!report.FutureOverpaidOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(13, 15).Delete();
+			}
+
+			if(!report.FuturePaymentMissingOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(10, 12).Delete();
+			}
+
+			if(!report.FuturePaidOrders.Any())
+			{
+				template.Workbook.Worksheet(1).Rows(7, 9).Delete();
+			}
+
+			if(!(report.FutureUnderpaidOrders.Any()
+				|| report.FutureOverpaidOrders.Any()
+				|| report.FuturePaymentMissingOrders.Any()
+				|| report.FuturePaidOrders.Any()))
+			{
+				template.Workbook.Worksheet(1).Row(6).Delete();
+			}
 
 			return template.RenderTemplate(report);
 		}

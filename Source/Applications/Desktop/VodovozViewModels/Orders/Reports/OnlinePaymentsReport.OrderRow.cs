@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -24,6 +25,12 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			public int? PaymentId { get; internal set; }
 			public ReportPaymentStatus ReportPaymentStatusEnum { get; set; }
 			public DateTime? OrderCreateDate { get; internal set; }
+			public string SumAndPaid => ReportPaymentStatusEnum == ReportPaymentStatus.Missing
+				? OrderTotalSum.ToString("# ##0.00")
+				: $"{TotalSumFromBank:# ##0.00} из {OrderTotalSum:# ##0.00}";
+
+			public string OrderStatusString => OrderStatus.GetEnumTitle();
+
 			public int OrderStatusOrderingValue
 			{
 				get

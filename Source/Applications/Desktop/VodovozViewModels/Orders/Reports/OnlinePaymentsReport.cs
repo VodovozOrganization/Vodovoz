@@ -25,18 +25,26 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			DateTime endDate,
 			string selectedShop,
 			IEnumerable<OrderRow> paidOrders,
+			IEnumerable<OrderRow> futurePaidOrders,
 			IEnumerable<OrderRow> paymentMissingOrders,
+			IEnumerable<OrderRow> futurePaymentMissingOrders,
 			IEnumerable<OrderRow> overpaidOrders,
+			IEnumerable<OrderRow> futureOverpaidOrders,
 			IEnumerable<OrderRow> underpaidOrders,
+			IEnumerable<OrderRow> futureUnderpaidOrders,
 			IEnumerable<PaymentWithoutOrderRow> paymentsWithoutOrders)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
 			Shop = selectedShop;
 			PaidOrders = paidOrders;
+			FuturePaidOrders = futurePaidOrders;
 			PaymentMissingOrders = paymentMissingOrders;
+			FuturePaymentMissingOrders = futurePaymentMissingOrders;
 			OverpaidOrders = overpaidOrders;
+			FutureOverpaidOrders = futureOverpaidOrders;
 			UnderpaidOrders = underpaidOrders;
+			FutureUnderpaidOrders = futureUnderpaidOrders;
 			PaymentsWithoutOrders = paymentsWithoutOrders;
 		}
 
@@ -48,6 +56,11 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		public IEnumerable<OrderRow> PaymentMissingOrders { get; }
 		public IEnumerable<OrderRow> OverpaidOrders { get; }
 		public IEnumerable<OrderRow> UnderpaidOrders { get; }
+
+		public IEnumerable<OrderRow> FuturePaidOrders { get; internal set; }
+		public IEnumerable<OrderRow> FuturePaymentMissingOrders { get; internal set; }
+		public IEnumerable<OrderRow> FutureOverpaidOrders { get; internal set; }
+		public IEnumerable<OrderRow> FutureUnderpaidOrders { get; internal set; }
 		public IEnumerable<PaymentWithoutOrderRow> PaymentsWithoutOrders { get; }
 
 		public static async Task<Result<OnlinePaymentsReport>> CreateAsync(
@@ -153,16 +166,32 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			var generatedInMilliseconds = (DateTime.Now - startTime).TotalMilliseconds;
 
+			var paidTodayOrders = paidOrders.Where(po => !po.IsFutureOrder).ToList();
+			var paidFutureOrders = paidOrders.Where(po => po.IsFutureOrder).ToList();
+
+			var paymentMissingTodayOrders = paymentMissingOrders.Where(po => !po.IsFutureOrder).ToList();
+			var paymentMissingFutureOrders = paymentMissingOrders.Where(po => po.IsFutureOrder).ToList();
+
+			var overpaidTodayOrders = overpaidOrders.Where(po => !po.IsFutureOrder).ToList();
+			var overpaidFutureOrders = overpaidOrders.Where(po => po.IsFutureOrder).ToList();
+
+			var underpaidTodayOrders = underpaidOrders.Where(po => !po.IsFutureOrder).ToList();
+			var underpaidFutureOrders = underpaidOrders.Where(po => po.IsFutureOrder).ToList();
+
 			return await Task.FromResult(
 				Result.Success(
 					new OnlinePaymentsReport(
 						startDate,
 						endDate,
 						selectedShop,
-						paidOrders,
-						paymentMissingOrders,
-						overpaidOrders,
-						underpaidOrders,
+						paidTodayOrders,
+						paidFutureOrders,
+						paymentMissingTodayOrders,
+						paymentMissingFutureOrders,
+						overpaidTodayOrders,
+						overpaidFutureOrders,
+						underpaidTodayOrders,
+						underpaidFutureOrders,
 						paymentsWithoutOrders)));
 		}
 

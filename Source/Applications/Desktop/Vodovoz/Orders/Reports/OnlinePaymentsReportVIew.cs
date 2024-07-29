@@ -114,10 +114,7 @@ namespace Vodovoz.Orders.Reports
 				.AddColumn("Номер оплаты и магазин")
 					.AddTextRenderer(r => r.NumberAndShop)
 				.AddColumn("Сумма заказа и оплачено клиентом")
-					.AddTextRenderer(r =>
-						r.ReportPaymentStatusEnum == OnlinePaymentsReport.OrderRow.ReportPaymentStatus.Missing
-						? r.OrderTotalSum.ToString("# ##0.00")
-						: $"{r.TotalSumFromBank:# ##0.00} из {r.OrderTotalSum:# ##0.00}")
+					.AddTextRenderer(r => r.SumAndPaid)
 				.AddColumn("Статус заказа")
 					.AddEnumRenderer(r => r.OrderStatus)
 				.AddColumn("Автор заказа")
