@@ -396,8 +396,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				template.Workbook.Worksheet(1).Row(6).Delete();
 			}
 
-			template.SaveAs(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "template.xlsx"));
-
 			return template.RenderTemplate(report);
 		}
 
