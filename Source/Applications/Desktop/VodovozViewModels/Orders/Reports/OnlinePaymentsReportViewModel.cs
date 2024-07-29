@@ -126,13 +126,15 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			set => SetField(ref _report, value);
 		}
 
-		public IEnumerable<OnlinePaymentsReport.Row> PaidOrders => Report?.PaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> PaidOrders => Report?.PaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.Row> PaymentMissingOrders => Report?.PaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> PaymentMissingOrders => Report?.PaymentMissingOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.Row> OverpaidOrders => Report?.OverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> OverpaidOrders => Report?.OverpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
 
-		public IEnumerable<OnlinePaymentsReport.Row> UnderpaidOrders => Report?.UnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.Row>();
+		public IEnumerable<OnlinePaymentsReport.OrderRow> UnderpaidOrders => Report?.UnderpaidOrders ?? Enumerable.Empty<OnlinePaymentsReport.OrderRow>();
+
+		public IEnumerable<OnlinePaymentsReport.PaymentWithoutOrderRow> PaymentWithoutOrder => Report?.PaymentsWithoutOrders ?? Enumerable.Empty<OnlinePaymentsReport.PaymentWithoutOrderRow>();
 
 		public bool CanGenerateReport
 		{

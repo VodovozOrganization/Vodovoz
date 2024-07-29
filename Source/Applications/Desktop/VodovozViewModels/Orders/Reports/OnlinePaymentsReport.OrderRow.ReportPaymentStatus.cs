@@ -4,7 +4,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 {
 	public partial class OnlinePaymentsReport
 	{
-		public partial class Row
+		public partial class OrderRow
 		{
 			public enum ReportPaymentStatus
 			{

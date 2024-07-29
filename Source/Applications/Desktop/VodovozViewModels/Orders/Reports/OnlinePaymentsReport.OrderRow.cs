@@ -6,7 +6,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 {
 	public partial class OnlinePaymentsReport
 	{
-		public partial class Row
+		public partial class OrderRow
 		{
 			public DateTime? OrderDeliveryDate { get; internal set; }
 			public int OrderId { get; internal set; }

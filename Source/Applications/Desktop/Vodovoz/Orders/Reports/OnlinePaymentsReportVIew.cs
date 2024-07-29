@@ -47,6 +47,29 @@ namespace Vodovoz.Orders.Reports
 
 			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
 
+			ConfigureOrderRowTreeView(ytreeReportPaidRows);
+			ConfigureOrderRowTreeView(ytreeReportPaidMissingRows);
+			ConfigureOrderRowTreeView(ytreeReportOverpaidRows);
+			ConfigureOrderRowTreeView(ytreeReportUnderpaidRows);
+
+			ytreeReportPaymentsWithoutOrdersRows
+				.CreateFluentColumnsConfig<OnlinePaymentsReport.PaymentWithoutOrderRow>()
+				.AddColumn("Дата оплаты")
+					.AddDateRenderer(r => r.DateTime)
+				.AddColumn("Номер оплаты")
+					.AddNumericRenderer(r => r.Number)
+				.AddColumn("Магазин")
+					.AddTextRenderer(r => r.Shop)
+				.AddColumn("Сумма (р.)")
+					.AddTextRenderer(r => $"{r.Sum:# ##0.00}")
+				.AddColumn("Электронная почта")
+					.AddTextRenderer(r => r.Email)
+				.AddColumn("Номер телефона")
+					.AddTextRenderer(r => r.Phone)
+				.AddColumn("Клиент")
+					.AddTextRenderer(r => r.CounterpartyFullName)
+				.Finish();
+
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
@@ -54,24 +77,22 @@ namespace Vodovoz.Orders.Reports
 		{
 			if(e.PropertyName == nameof(ViewModel.Report))
 			{
-				ConfigureOrderRowTreeView(ytreeReportPaidRows);
 				ytreeReportPaidRows.ItemsDataSource = ViewModel.PaidOrders;
 
-				ConfigureOrderRowTreeView(ytreeReportPaidMissingRows);
 				ytreeReportPaidMissingRows.ItemsDataSource = ViewModel.PaymentMissingOrders;
 
-				ConfigureOrderRowTreeView(ytreeReportOverpaidRows);
 				ytreeReportOverpaidRows.ItemsDataSource = ViewModel.OverpaidOrders;
 
-				ConfigureOrderRowTreeView(ytreeReportUnderpaidRows);
 				ytreeReportUnderpaidRows.ItemsDataSource = ViewModel.UnderpaidOrders;
+
+				ytreeReportPaymentsWithoutOrdersRows.ItemsDataSource = ViewModel.PaymentWithoutOrder;
 			}
 		}
 
 		private void ConfigureOrderRowTreeView(yTreeView ytreeReportPaidRows)
 		{
 			ytreeReportPaidRows
-				.CreateFluentColumnsConfig<OnlinePaymentsReport.Row>()
+				.CreateFluentColumnsConfig<OnlinePaymentsReport.OrderRow>()
 				.AddColumn("Дата заказа")
 					.AddDateRenderer(r => r.OrderDeliveryDate)
 				.AddColumn("Номер заказа")
@@ -84,9 +105,9 @@ namespace Vodovoz.Orders.Reports
 					.AddTextRenderer(r => r.NumberAndShop)
 				.AddColumn("Сумма заказа и оплачено клиентом")
 					.AddTextRenderer(r =>
-						r.ReportPaymentStatusEnum == OnlinePaymentsReport.Row.ReportPaymentStatus.Missing
-						? r.OrderTotalSum.ToString("# ##0.##")
-						: $"{r.TotalSumFromBank:# ##0.##} из {r.OrderTotalSum:# ##0.##}")
+						r.ReportPaymentStatusEnum == OnlinePaymentsReport.OrderRow.ReportPaymentStatus.Missing
+						? r.OrderTotalSum.ToString("# ##0.00")
+						: $"{r.TotalSumFromBank:# ##0.00} из {r.OrderTotalSum:# ##0.00}")
 				.AddColumn("Статус заказа")
 					.AddEnumRenderer(r => r.OrderStatus)
 				.AddColumn("Автор заказа")

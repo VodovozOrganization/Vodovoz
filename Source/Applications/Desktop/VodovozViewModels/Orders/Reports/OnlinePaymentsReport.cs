@@ -21,10 +21,11 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			DateTime startDate,
 			DateTime endDate,
 			string selectedShop,
-			IEnumerable<Row> paidOrders,
-			IEnumerable<Row> paymentMissingOrders,
-			IEnumerable<Row> overpaidOrders,
-			IEnumerable<Row> underpaidOrders)
+			IEnumerable<OrderRow> paidOrders,
+			IEnumerable<OrderRow> paymentMissingOrders,
+			IEnumerable<OrderRow> overpaidOrders,
+			IEnumerable<OrderRow> underpaidOrders,
+			IEnumerable<PaymentWithoutOrderRow> paymentsWithoutOrders)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
@@ -33,15 +34,17 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			PaymentMissingOrders = paymentMissingOrders;
 			OverpaidOrders = overpaidOrders;
 			UnderpaidOrders = underpaidOrders;
+			PaymentsWithoutOrders = paymentsWithoutOrders;
 		}
 
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
 		public string SelectedShop { get; }
-		public IEnumerable<Row> PaidOrders { get; }
-		public IEnumerable<Row> PaymentMissingOrders { get; }
-		public IEnumerable<Row> OverpaidOrders { get; }
-		public IEnumerable<Row> UnderpaidOrders { get; }
+		public IEnumerable<OrderRow> PaidOrders { get; }
+		public IEnumerable<OrderRow> PaymentMissingOrders { get; }
+		public IEnumerable<OrderRow> OverpaidOrders { get; }
+		public IEnumerable<OrderRow> UnderpaidOrders { get; }
+		public IEnumerable<PaymentWithoutOrderRow> PaymentsWithoutOrders { get; }
 
 		public static async Task<Result<OnlinePaymentsReport>> CreateAsync(
 			DateTime startDate,
@@ -57,7 +60,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
 			}
 
-			IQueryable<Row> ordersQuery = GetOrdersQuery(startDate, endDate, unitOfWork);
+			IQueryable<OrderRow> ordersQuery = GetOrdersQuery(startDate, endDate, unitOfWork);
 
 			var orders = await ordersQuery.ToListAsync(cancellationToken);
 
@@ -68,7 +71,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
 			}
 
-			IQueryable<PaymentByCardOnline> onlinePaymentsQuery = GetOnlinePaymentsQuery(unitOfWork, onlineOrdersIds);
+			IQueryable<PaymentByCardOnline> onlinePaymentsQuery = GetOnlinePaymentsQuery(unitOfWork, onlineOrdersIds, selectedShop);
 
 			var onlinePayments = await onlinePaymentsQuery.ToListAsync(cancellationToken);
 
@@ -79,7 +82,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
 			}
 
-			IQueryable<PaymentByCardOnline> smsPymentsQuery = GetSmsPaymentsQuery(unitOfWork, ordersIds);
+			IQueryable<PaymentByCardOnline> smsPymentsQuery = GetSmsPaymentsQuery(unitOfWork, ordersIds, selectedShop);
 
 			var smsPayments = await smsPymentsQuery.ToListAsync(cancellationToken);
 
@@ -116,24 +119,33 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			}
 
 			var paidOrders = orders
-				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.Paid)
+				.Where(or => or.ReportPaymentStatusEnum == OrderRow.ReportPaymentStatus.Paid)
 				.OrderByDescending(or => or.OrderStatusOrderingValue)
 				.ToList();
 
 			var paymentMissingOrders = orders
-				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.Missing)
+				.Where(or => or.ReportPaymentStatusEnum == OrderRow.ReportPaymentStatus.Missing)
 				.OrderByDescending(or => or.OrderStatusOrderingValue)
 				.ToList();
 
 			var overpaidOrders = orders
-				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.OverPaid)
+				.Where(or => or.ReportPaymentStatusEnum == OrderRow.ReportPaymentStatus.OverPaid)
 				.OrderByDescending(or => or.OrderStatusOrderingValue)
 				.ToList();
 
 			var underpaidOrders = orders
-				.Where(or => or.ReportPaymentStatusEnum == Row.ReportPaymentStatus.UnderPaid)
+				.Where(or => or.ReportPaymentStatusEnum == OrderRow.ReportPaymentStatus.UnderPaid)
 				.OrderByDescending(or => or.OrderStatusOrderingValue)
 				.ToList();
+
+			if(cancellationToken.IsCancellationRequested)
+			{
+				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+			}
+
+			IQueryable<PaymentWithoutOrderRow> paymentsWithoutOrdersQuery = GetPaymentsWithoutOrdersQuery(startDate, endDate, selectedShop, unitOfWork);
+
+			var paymentsWithoutOrders = await paymentsWithoutOrdersQuery.ToListAsync(cancellationToken);
 
 			var generatedInMilliseconds = (DateTime.Now - startTime).TotalMilliseconds;
 
@@ -146,10 +158,39 @@ namespace Vodovoz.ViewModels.Orders.Reports
 						paidOrders,
 						paymentMissingOrders,
 						overpaidOrders,
-						underpaidOrders)));
+						underpaidOrders,
+						paymentsWithoutOrders)));
 		}
 
-		private static void UpdatePaymentInfo(PaymentByCardOnline payment, Row orderRowToUpdate)
+		private static IQueryable<PaymentWithoutOrderRow> GetPaymentsWithoutOrdersQuery(DateTime startDate, DateTime endDate, string selectedShop, IUnitOfWork unitOfWork) =>
+			from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
+			where payment.DateAndTime >= startDate
+				&& payment.DateAndTime <= endDate
+				&& (selectedShop == null
+					|| payment.Shop == selectedShop
+					|| payment.Shop == null)
+				&& !(from order in unitOfWork.Session.Query<Order>()
+					 where (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
+						&& payment.PaymentNr == order.OnlineOrder
+						&& payment.PaymentByCardFrom != PaymentByCardOnlineFrom.FromSMS
+					 select order.Id).Any()
+				&& !(from order in unitOfWork.Session.Query<Order>()
+					 where (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
+						&& payment.PaymentNr == order.Id
+						&& payment.PaymentByCardFrom == PaymentByCardOnlineFrom.FromSMS
+					 select order.Id).Any()
+			select new PaymentWithoutOrderRow
+			{
+				DateTime = payment.DateAndTime,
+				Number = payment.PaymentNr,
+				Shop = payment.Shop,
+				Sum = payment.PaymentRUR,
+				Email = payment.Email,
+				Phone = payment.Phone,
+				CounterpartyFullName = "Нет"
+			};
+
+		private static void UpdatePaymentInfo(PaymentByCardOnline payment, OrderRow orderRowToUpdate)
 		{
 			orderRowToUpdate.PaymentId = payment.Id;
 			orderRowToUpdate.PaymentDateTimeOrError = $"{payment.DateAndTime:dd.MM.yyyy hh:mm:ss}";
@@ -157,17 +198,17 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(orderRowToUpdate.TotalSumFromBank == orderRowToUpdate.OrderTotalSum)
 			{
-				orderRowToUpdate.ReportPaymentStatusEnum = Row.ReportPaymentStatus.Paid;
+				orderRowToUpdate.ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.Paid;
 			}
 
 			if(orderRowToUpdate.TotalSumFromBank > orderRowToUpdate.OrderTotalSum)
 			{
-				orderRowToUpdate.ReportPaymentStatusEnum = Row.ReportPaymentStatus.OverPaid;
+				orderRowToUpdate.ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.OverPaid;
 			}
 
 			if(orderRowToUpdate.TotalSumFromBank < orderRowToUpdate.OrderTotalSum)
 			{
-				orderRowToUpdate.ReportPaymentStatusEnum = Row.ReportPaymentStatus.UnderPaid;
+				orderRowToUpdate.ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.UnderPaid;
 			}
 
 			if(!string.IsNullOrWhiteSpace(payment.Shop))
@@ -176,19 +217,25 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			}
 		}
 
-		private static IQueryable<PaymentByCardOnline> GetSmsPaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int> ordersIds) =>
+		private static IQueryable<PaymentByCardOnline> GetSmsPaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int> ordersIds, string selectedShop) =>
 			from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 			where payment.PaymentByCardFrom == PaymentByCardOnlineFrom.FromSMS
 				 && ordersIds.Contains(payment.PaymentNr)
+				 && (selectedShop == null
+						|| payment.Shop == selectedShop
+						|| payment.Shop == null)
 			select payment;
 
-		private static IQueryable<PaymentByCardOnline> GetOnlinePaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int?> onlineOrdersIds) =>
+		private static IQueryable<PaymentByCardOnline> GetOnlinePaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int?> onlineOrdersIds, string selectedShop) =>
 			from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 			where payment.PaymentByCardFrom != PaymentByCardOnlineFrom.FromSMS
 				 && onlineOrdersIds.Contains(payment.PaymentNr)
+				 && (selectedShop == null
+						|| payment.Shop == selectedShop
+						|| payment.Shop == null)
 			select payment;
 
-		private static IQueryable<Row> GetOrdersQuery(DateTime startDate, DateTime endDate, IUnitOfWork unitOfWork) =>
+		private static IQueryable<OrderRow> GetOrdersQuery(DateTime startDate, DateTime endDate, IUnitOfWork unitOfWork) =>
 			from order in unitOfWork.Session.Query<Order>()
 			join counterparty in unitOfWork.Session.Query<Counterparty>()
 			on order.Client.Id equals counterparty.Id
@@ -203,7 +250,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			let orderTotalSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
 										   where orderItem.Order.Id == order.Id
 										   select orderItem.ActualSum).Sum() ?? 0m
-			select new Row
+			select new OrderRow
 			{
 				OrderCreateDate = order.CreateDate,
 				OrderDeliveryDate = order.DeliveryDate,
@@ -217,7 +264,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				Author = order.Author.ShortName,
 				PaymentId = null,
 				PaymentDateTimeOrError = "Оплата не найдена",
-				ReportPaymentStatusEnum = Row.ReportPaymentStatus.Missing,
+				ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.Missing,
 				OrderPaymentType = order.PaymentType,
 				IsFutureOrder = order.DeliveryDate > endDate,
 				NumberAndShop = order.OnlineOrder.ToString()
