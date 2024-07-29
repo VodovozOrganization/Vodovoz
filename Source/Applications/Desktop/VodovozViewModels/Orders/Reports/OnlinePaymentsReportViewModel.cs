@@ -295,6 +295,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			{
 				_guiDispatcher.RunInGuiTread(() =>
 				{
+					CanSaveReport = Report != null;
 					CanGenerateReport = true;
 					CanCancelGeneration = false;
 				});

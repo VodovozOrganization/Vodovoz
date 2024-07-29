@@ -32,7 +32,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			IEnumerable<OrderRow> futureOverpaidOrders,
 			IEnumerable<OrderRow> underpaidOrders,
 			IEnumerable<OrderRow> futureUnderpaidOrders,
-			IEnumerable<PaymentWithoutOrderRow> paymentsWithoutOrders)
+			IEnumerable<PaymentWithoutOrderRow> paymentsWithoutOrders,
+			DateTime createdAt)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
@@ -46,6 +47,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			UnderpaidOrders = underpaidOrders;
 			FutureUnderpaidOrders = futureUnderpaidOrders;
 			PaymentsWithoutOrders = paymentsWithoutOrders;
+
+			CreatedAt = createdAt;
 		}
 
 		public string TemplatePath => @".\Reports\Payments\OnlinePaymentsReportFromTBank.xlsx";
@@ -62,6 +65,14 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		public IEnumerable<OrderRow> FutureOverpaidOrders { get; internal set; }
 		public IEnumerable<OrderRow> FutureUnderpaidOrders { get; internal set; }
 		public IEnumerable<PaymentWithoutOrderRow> PaymentsWithoutOrders { get; }
+		public DateTime CreatedAt { get; }
+
+		public string StartDateString => StartDate.ToString("dd.MM.yyyy");
+		public string EndDateString => EndDate.ToString("dd.MM.yyyy");
+
+		public string CreatedAtString => CreatedAt.ToString("dd.MM.yyyy hh:mm:ss");
+
+		#region Generation
 
 		public static async Task<Result<OnlinePaymentsReport>> CreateAsync(
 			DateTime startDate,
@@ -192,7 +203,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 						overpaidFutureOrders,
 						underpaidTodayOrders,
 						underpaidFutureOrders,
-						paymentsWithoutOrders)));
+						paymentsWithoutOrders,
+						startTime)));
 		}
 
 		private static IQueryable<PaymentWithoutOrderRow> GetPaymentsWithoutOrdersQuery(DateTime startDate, DateTime endDate, string selectedShop, IUnitOfWork unitOfWork) =>
@@ -302,5 +314,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				IsFutureOrder = order.DeliveryDate > endDate,
 				NumberAndShop = order.OnlineOrder.ToString()
 			};
+
+		#endregion Generation
 	}
 }
