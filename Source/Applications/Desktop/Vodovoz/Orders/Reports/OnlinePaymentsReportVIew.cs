@@ -1,6 +1,8 @@
 ﻿using Gamma.GtkWidgets;
+using Gtk;
 using QS.Views.Dialog;
 using System.ComponentModel;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Orders.Reports;
 
 namespace Vodovoz.Orders.Reports
@@ -66,15 +68,17 @@ namespace Vodovoz.Orders.Reports
 
 		private void ConfigureTreeViews()
 		{
-			ConfigureOrderRowTreeView(ytreeReportFuturePaidRows);
-			ConfigureOrderRowTreeView(ytreeReportFuturePaidMissingRows);
-			ConfigureOrderRowTreeView(ytreeReportFutureOverpaidRows);
-			ConfigureOrderRowTreeView(ytreeReportFutureUnderpaidRows);
+			ConfigureOrderRowTreeView(ytreeReportFuturePaidRows, GdkColors.PrimaryBase);
+			ConfigureOrderRowTreeView(ytreeReportFuturePaidMissingRows, GdkColors.DangerBase);
+			ConfigureOrderRowTreeView(ytreeReportFutureOverpaidRows,
+				GdkColors.SuccessBase);
+			ConfigureOrderRowTreeView(ytreeReportFutureUnderpaidRows, GdkColors.WarningBase);
 
-			ConfigureOrderRowTreeView(ytreeReportPaidRows);
-			ConfigureOrderRowTreeView(ytreeReportPaidMissingRows);
-			ConfigureOrderRowTreeView(ytreeReportOverpaidRows);
-			ConfigureOrderRowTreeView(ytreeReportUnderpaidRows);
+			ConfigureOrderRowTreeView(ytreeReportPaidRows, GdkColors.PrimaryBase);
+			ConfigureOrderRowTreeView(ytreeReportPaidMissingRows, GdkColors.DangerBase);
+			ConfigureOrderRowTreeView(ytreeReportOverpaidRows,
+				GdkColors.SuccessBase);
+			ConfigureOrderRowTreeView(ytreeReportUnderpaidRows, GdkColors.WarningBase);
 
 			ytreeReportPaymentsWithoutOrdersRows
 				.CreateFluentColumnsConfig<OnlinePaymentsReport.PaymentWithoutOrderRow>()
@@ -122,11 +126,11 @@ namespace Vodovoz.Orders.Reports
 				.InitializeFromSource();
 
 			ylabelUnderpaid.Binding
-				.AddBinding(ViewModel, vm => vm.HasOverpaidOrders, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.HasUnderpaidOrders, w => w.Visible)
 				.InitializeFromSource();
 
 			ytreeReportUnderpaidRows.Binding
-				.AddBinding(ViewModel, vm => vm.HasOverpaidOrders, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.HasUnderpaidOrders, w => w.Visible)
 				.InitializeFromSource();
 
 			yvboxCurrentOrders.Binding
@@ -161,11 +165,11 @@ namespace Vodovoz.Orders.Reports
 				.InitializeFromSource();
 
 			ylabelFutureUnderpaid.Binding
-				.AddBinding(ViewModel, vm => vm.HasFutureOverpaidOrders, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.HasFutureUnderpaidOrders, w => w.Visible)
 				.InitializeFromSource();
 
 			ytreeReportFutureUnderpaidRows.Binding
-				.AddBinding(ViewModel, vm => vm.HasFutureOverpaidOrders, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.HasFutureUnderpaidOrders, w => w.Visible)
 				.InitializeFromSource();
 
 			yvboxFutureOrders.Binding
@@ -199,7 +203,7 @@ namespace Vodovoz.Orders.Reports
 			}
 		}
 
-		private void ConfigureOrderRowTreeView(yTreeView ytreeReportPaidRows)
+		private void ConfigureOrderRowTreeView(yTreeView ytreeReportPaidRows, Gdk.Color baseColor)
 		{
 			ytreeReportPaidRows
 				.CreateFluentColumnsConfig<OnlinePaymentsReport.OrderRow>()
@@ -221,6 +225,8 @@ namespace Vodovoz.Orders.Reports
 					.AddTextRenderer(r => r.Author)
 				.AddColumn("Дата оплаты")
 					.AddTextRenderer(r => r.PaymentDateTimeOrError)
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, row) => cell.CellBackgroundGdk = baseColor)
 				.Finish();
 		}
 	}
