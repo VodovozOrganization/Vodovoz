@@ -1,23 +1,17 @@
 ﻿using ClosedXML.Excel;
-using QS.DomainModel.UoW;
+using DatabaseServiceWorker.PowerBiWorker.Dto;
 using SharpCifs.Smb;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Nomenclature;
 
-namespace DatabaseServiceWorker
+
+namespace DatabaseServiceWorker.PowerBiWorker
 {
 	internal partial class PowerBiExportWorker
 	{
 		private void AddToFastDeliverySheet(IXLWorksheet sheet, DateTime date, LateDto fastDeliveryLates, decimal numberOfFastDeliverySales,
-			long fastDeliveryUndeliveries, long numberOfFastDeliveryComplaints, CoverageDto fastDeliveryCoverage, FastDeliveryFailDto fastDeliveryFails,
+			decimal fastDeliveryUndeliveries, decimal numberOfFastDeliveryComplaints, CoverageDto fastDeliveryCoverage, FastDeliveryFailDto fastDeliveryFails,
 			RemainingBottlesDto remainingBottle)
 		{
 			var sheetLastRowNumber = sheet.LastRowUsed().RowNumber() + 1;
@@ -27,8 +21,8 @@ namespace DatabaseServiceWorker
 			row.Cell(3).SetValue(fastDeliveryLates.LessThan5Minutes);
 			row.Cell(4).SetValue(fastDeliveryLates.LessThan30Minutes);
 			row.Cell(5).SetValue(fastDeliveryLates.MoreThan30Minutes);
-			row.Cell(6).SetValue(fastDeliveryUndeliveries);
-			row.Cell(7).SetValue(numberOfFastDeliveryComplaints);
+			row.Cell(6).SetValue(Convert.ToInt64(fastDeliveryUndeliveries));
+			row.Cell(7).SetValue(Convert.ToInt64(numberOfFastDeliveryComplaints));
 			row.Cell(8).SetValue(fastDeliveryCoverage.Fill);
 			row.Cell(9).SetValue(fastDeliveryCoverage.AverageRadius);
 			row.Cell(10).SetValue(fastDeliveryCoverage.NumberOfCars);
@@ -77,45 +71,7 @@ namespace DatabaseServiceWorker
 			return lastDateTime.Date < yesterdayDate && nowHour > 1; // не раньше 1 часа ночи
 		}
 
-		private async void ReadDataFromDbAndExportToExcel(
-			IUnitOfWork uow,
-			XLWorkbook excelWorkbook,
-			DateTime date,
-			IGeneralSettings generalSettings,
-			IDeliveryRepository deliveryRepository,
-			ITrackRepository trackRepository,
-			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			INomenclatureSettings nomenclatureSettings,
-			IDeliveryRulesSettings deliveryRulesSettings,
-			CancellationToken stoppingToken)
-		{
-			var revenueDay = GetRevenues(uow, date);
-			var delivered = GetDelivered(uow, date);
-			AddToGeneralSheet(excelWorkbook.Worksheet(1), date, revenueDay, delivered);
 
-			var undelivered = GetUndelivered(uow, date);
-			AddToUndeliveriesSheet(excelWorkbook.Worksheet(2), date, undelivered);
-
-			var fastDeliveryLates = GetLates(generalSettings, uow, date);
-			var numberOfFastDeliverySales = GetNumberOfFastDeliverySales(uow, date);
-			var fastDeliveryUndeliveries = GetFastDeliveryUndeliveries(uow, date);
-			var numberOfFastdeliveryComplaints = GeNumberOfFastdeliveryComplaints(uow, date);
-			var fastDeliveryCoverage = await GetCoverageAsync(deliveryRulesSettings, uow, deliveryRepository, trackRepository, scheduleRestrictionRepository, date, stoppingToken);
-			var fastDeliveryFails = GetFastDeliveryFails(nomenclatureSettings, uow, date);
-			var remainingBottle = GetRemainingBottle(uow, date);
-
-			AddToFastDeliverySheet(
-				excelWorkbook.Worksheet(3),
-				date,
-				fastDeliveryLates,
-				numberOfFastDeliverySales,
-				fastDeliveryUndeliveries,
-				numberOfFastdeliveryComplaints,
-				fastDeliveryCoverage,
-				fastDeliveryFails,
-				remainingBottle
-				);
-		}
 
 		private void WriteExcelStreamToFile(SmbFile file, MemoryStream memStream)
 		{
