@@ -224,20 +224,21 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("Сумма(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
 				.AddColumn("Скидка(онлайн заказ)")
-				.AddNumericRenderer(node => node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount)
+				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 					{
-						var onlineDiscount = node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount;
-						cell.CellBackgroundGdk = onlineDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
+						cell.CellBackgroundGdk = node.GetDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
 					})
 				.AddColumn("Скидка(в промонаборе)")
 				.AddNumericRenderer(node => node.DiscountFromPromoSet)
 				.AddColumn("Скидка в рублях?(онлайн заказ)")
 				.AddToggleRenderer(node => node.IsDiscountInMoney)
+				.Editing(false)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.IsDiscountInMoney != node.IsDiscountInMoneyFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase)
 				.AddColumn("Скидка в рублях?(в промонаборе)")
 				.AddToggleRenderer(node => node.IsDiscountInMoneyFromPromoSet)
+				.Editing(false)
 				.AddColumn("Промонабор")
 				.AddTextRenderer(node => node.PromoSet != null ? node.PromoSet.Name : string.Empty)
 				.Finish();
@@ -261,6 +262,116 @@ namespace Vodovoz.Views.Orders
 					cell.CellBackgroundGdk = node.Price != node.NomenclaturePrice ? GdkColors.DangerBase : GdkColors.PrimaryBase)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.NomenclaturePrice)
+				.AddColumn("Скидка(онлайн заказ)")
+				.AddNumericRenderer(node => node.GetDiscount)
+				.AddSetter((cell, node) =>
+				{
+					if(!node.OnlineOrder.IsSelfDelivery && node.GetDiscount > 0)
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+
+					if(node.OnlineOrder.IsSelfDelivery)
+					{
+						if(node.DiscountReason != null)
+						{
+							if(node.Nomenclature != null
+							   && !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+							
+							if(node.GetDiscount != node.DiscountReason.Value)
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
+						else
+						{
+							if(node.GetDiscount > 0)
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
+					}
+					
+					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+				})
+				.AddColumn("Скидка(основание скидки)")
+				.AddNumericRenderer(node => node.DiscountReason != null ? node.DiscountReason.Value : 0)
+				.AddColumn("Скидка в рублях?(онлайн заказ)")
+				.AddToggleRenderer(node => node.IsDiscountInMoney)
+				.Editing(false)
+				.AddSetter((cell, node) =>
+				{
+					if(!node.OnlineOrder.IsSelfDelivery && node.IsDiscountInMoney)
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+
+					if(node.OnlineOrder.IsSelfDelivery)
+					{
+						if(node.DiscountReason != null)
+						{
+							switch(node.DiscountReason.ValueType)
+							{
+								case DiscountUnits.money:
+									if(!node.IsDiscountInMoney)
+									{
+										cell.CellBackgroundGdk = GdkColors.DangerBase;
+										return;
+									}
+									break;
+								case DiscountUnits.percent:
+									if(node.IsDiscountInMoney)
+									{
+										cell.CellBackgroundGdk = GdkColors.DangerBase;
+										return;
+									}
+									break;
+							}
+						}
+						else
+						{
+							if(node.IsDiscountInMoney)
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
+					}
+					
+					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+				})
+				.AddColumn("Скидка в рублях?(основание скидки)")
+				.AddToggleRenderer(node => node.DiscountReason != null && node.DiscountReason.ValueType == DiscountUnits.money)
+				.Editing(false)
+				.AddColumn("Основание скидки")
+				.AddTextRenderer(node => node.DiscountReason != null ? node.DiscountReason.Name : string.Empty)
+				.AddSetter((cell, node) =>
+				{
+					if(!node.OnlineOrder.IsSelfDelivery && node.DiscountReason != null)
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+
+					if(node.OnlineOrder.IsSelfDelivery
+						&& node.Nomenclature != null
+						&& node.DiscountReason != null
+						&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+					
+					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+				})
 				.AddColumn("Сумма(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
 				.AddColumn("")

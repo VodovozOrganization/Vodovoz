@@ -197,8 +197,31 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					continue;
 				}
-				
-				AddNomenclature(order, onlineOrderItem);
+
+				if(onlineOrderItem.OnlineOrderErrorState.HasValue
+					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.NotApplicableDiscount)
+				{
+					order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+				}
+				else
+				{
+					if(onlineOrderItem.DiscountReason is null)
+					{
+						order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+					}
+					else
+					{
+						var discountInMoney = onlineOrderItem.DiscountReason.ValueType == DiscountUnits.money;
+						var discount = onlineOrderItem.DiscountReason.Value;
+						
+						order.AddNomenclature(
+							onlineOrderItem.Nomenclature,
+							onlineOrderItem.Count,
+							discount,
+							discountInMoney,
+							onlineOrderItem.DiscountReason);
+					}
+				}
 			}
 		}
 		
@@ -211,13 +234,13 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				AddNomenclature(order, onlineOrderItem);
+				order.AddNomenclature(
+					onlineOrderItem.Nomenclature,
+					onlineOrderItem.Count,
+					onlineOrderItem.GetDiscount,
+					onlineOrderItem.IsDiscountInMoney,
+					onlineOrderItem.DiscountReason);
 			}
-		}
-
-		private void AddNomenclature(Order order, IProduct onlineOrderItem)
-		{
-			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
 		}
 
 		private void AddFreeRentPackages(Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)
