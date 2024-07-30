@@ -10,6 +10,9 @@ namespace Vodovoz.Orders.Reports
 	[ToolboxItem(true)]
 	public partial class OnlinePaymentsReportView : DialogViewBase<OnlinePaymentsReportViewModel>
 	{
+		private int _hpanedDefaultPosition = 428;
+		private int _hpanedMinimalPosition = 16;
+
 		public OnlinePaymentsReportView(OnlinePaymentsReportViewModel viewModel)
 			: base(viewModel)
 		{
@@ -62,6 +65,10 @@ namespace Vodovoz.Orders.Reports
 			ConfigureFutureOrdersRowsView();
 			ConfigureCurrentOrdersRowsView();
 			ConfigureTreeViews();
+
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+
+			UpdateSliderArrow();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
@@ -236,6 +243,20 @@ namespace Vodovoz.Orders.Reports
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, row) => cell.CellBackgroundGdk = baseColor)
 				.Finish();
+		}
+
+		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			vboxOblinePaymentsReportParameters.Visible = !vboxOblinePaymentsReportParameters.Visible;
+
+			hpaned1.Position = vboxOblinePaymentsReportParameters.Visible ? _hpanedDefaultPosition : _hpanedMinimalPosition;
+
+			UpdateSliderArrow();
+		}
+
+		private void UpdateSliderArrow()
+		{
+			arrowSlider.ArrowType = vboxOblinePaymentsReportParameters.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 	}
 }
