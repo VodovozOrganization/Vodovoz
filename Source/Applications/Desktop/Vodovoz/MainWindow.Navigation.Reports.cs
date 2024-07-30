@@ -999,10 +999,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMileageReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
+		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<MileageReport>().As<IParametersWidget>());
+			addingRegistrations: builder => builder.RegisterType<MileageReport>().As<IParametersWidget>())
+			.TdiTab;
+		
+		var report = (dlg as ReportViewDlg).ParametersWidget;
+		(report as MileageReport).ParentTab = dlg;
 	}
 
 	/// <summary>
