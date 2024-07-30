@@ -1199,10 +1199,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
+		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<FuelReport>().As<IParametersWidget>());
+			addingRegistrations: builder => builder.RegisterType<FuelReport>().As<IParametersWidget>())
+			.TdiTab;
+		
+		var report = (dlg as ReportViewDlg).ParametersWidget;
+		(report as FuelReport).ParentTab = dlg;
 	}
 
 	/// <summary>
