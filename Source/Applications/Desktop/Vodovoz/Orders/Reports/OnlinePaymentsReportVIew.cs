@@ -97,6 +97,14 @@ namespace Vodovoz.Orders.Reports
 				.AddColumn("Клиент")
 					.AddTextRenderer(r => r.CounterpartyFullName)
 				.Finish();
+
+			ytreeReportPaymentsWithoutOrdersRows.Binding
+				.AddBinding(ViewModel, vm => vm.HasPaymentWithoutOrder, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelPaymentsWithoutOrders.Binding
+				.AddBinding(ViewModel, vm => vm.HasPaymentWithoutOrder, w => w.Visible)
+				.InitializeFromSource();
 		}
 
 		private void ConfigureCurrentOrdersRowsView()

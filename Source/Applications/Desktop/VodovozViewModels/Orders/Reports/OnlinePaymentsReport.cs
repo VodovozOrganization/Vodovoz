@@ -116,33 +116,41 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			foreach(var payment in onlinePayments)
 			{
-				var orderRowToUpdate = orders.Where(x => x.OnlineOrderId == payment.PaymentNr).FirstOrDefault();
+				var orderRowsToUpdate = orders
+					.Where(x => x.OnlineOrderId == payment.PaymentNr);
 
-				if(orderRowToUpdate != null)
+				foreach(var orderRowToUpdate in orderRowsToUpdate)
 				{
-					if(payment.DateAndTime < orderRowToUpdate.OrderCreateDate.Value.AddDays(-45)
-						|| payment.DateAndTime > orderRowToUpdate.OrderCreateDate.Value.AddDays(45))
+					if(orderRowToUpdate != null)
 					{
-						continue;
-					}
+						if(payment.DateAndTime < orderRowToUpdate.OrderCreateDate.Value.AddDays(-45)
+							|| payment.DateAndTime > orderRowToUpdate.OrderCreateDate.Value.AddDays(45))
+						{
+							continue;
+						}
 
-					UpdatePaymentInfo(payment, orderRowToUpdate);
+						UpdatePaymentInfo(payment, orderRowToUpdate);
+					}
 				}
 			}
 
 			foreach(var payment in smsPayments)
 			{
-				var orderRowToUpdate = orders.Where(x => x.OrderId == payment.PaymentNr).FirstOrDefault();
+				var orderRowsToUpdate = orders
+					.Where(x => x.OrderId == payment.PaymentNr);
 
-				if(orderRowToUpdate != null)
+				foreach(var orderRowToUpdate in orderRowsToUpdate)
 				{
-					if(payment.DateAndTime < orderRowToUpdate.OrderCreateDate.Value.AddDays(-45)
-						|| payment.DateAndTime > orderRowToUpdate.OrderCreateDate.Value.AddDays(45))
+					if(orderRowToUpdate != null)
 					{
-						continue;
-					}
+						if(payment.DateAndTime < orderRowToUpdate.OrderCreateDate.Value.AddDays(-45)
+							|| payment.DateAndTime > orderRowToUpdate.OrderCreateDate.Value.AddDays(45))
+						{
+							continue;
+						}
 
-					UpdatePaymentInfo(payment, orderRowToUpdate);
+						UpdatePaymentInfo(payment, orderRowToUpdate);
+					}
 				}
 			}
 
@@ -188,6 +196,19 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			var underpaidTodayOrders = underpaidOrders.Where(po => !po.IsFutureOrder).ToList();
 			var underpaidFutureOrders = underpaidOrders.Where(po => po.IsFutureOrder).ToList();
+
+			if(!(paidTodayOrders.Any()
+				|| paidFutureOrders.Any()
+				|| paymentMissingTodayOrders.Any()
+				|| paymentMissingFutureOrders.Any()
+				|| overpaidTodayOrders.Any()
+				|| overpaidFutureOrders.Any()
+				|| underpaidTodayOrders.Any()
+				|| underpaidFutureOrders.Any()
+				|| paymentsWithoutOrders.Any()))
+			{
+				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.NoData));
+			}
 
 			return await Task.FromResult(
 				Result.Success(
@@ -284,14 +305,16 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			from order in unitOfWork.Session.Query<Order>()
 			join counterparty in unitOfWork.Session.Query<Counterparty>()
 			on order.Client.Id equals counterparty.Id
-			join deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>()
-			on order.DeliveryPoint.Id equals deliveryPoint.Id
 			where order.PaymentType == PaymentType.PaidOnline
 				&& order.OnlineOrder != null
 				&& (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
 				&& order.DeliveryDate >= startDate
 				&& order.DeliveryDate <= endDate
-			let address = order.SelfDelivery ? "Самовывоз" : deliveryPoint.ShortAddress
+			let address = order.SelfDelivery
+				? "Самовывоз"
+				: (from deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>()
+				   where deliveryPoint.Id == order.DeliveryPoint.Id
+				   select deliveryPoint.ShortAddress).FirstOrDefault()
 			let orderTotalSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
 										   where orderItem.Order.Id == order.Id
 										   select orderItem.ActualSum).Sum() ?? 0m
