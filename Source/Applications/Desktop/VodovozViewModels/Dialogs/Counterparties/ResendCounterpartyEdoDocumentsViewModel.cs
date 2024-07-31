@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			{
 				var order = document.EdoContainer.Order;
 
-				var edoValidateResult = _edoService.ValidateOrderForUpd(order);
+				var edoValidateResult = _edoService.ValidateOrderForDocument(order, document.EdoContainer.Type);
 
 				var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
 
