@@ -368,6 +368,9 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
+
+			treeViewEdoContainers.Selection.Changed -= OnEdoContainerSelectionChanged;
+
 			base.Destroy();
 		}
 
@@ -1261,40 +1264,44 @@ namespace Vodovoz
 			}
 		}
 
-		private List<EdoContainer> GetOutgoingUpdDocuments()
+		private List<EdoContainer> GetOutgoingDocuments(Type? type =null)
 		{
-			var orderUpdDocuments = new List<EdoContainer>();
+			var orderDocuments = new List<EdoContainer>();
 
 			if(Entity.Id == 0)
 			{
-				return orderUpdDocuments;
+				return orderDocuments;
 			}
 
-			orderUpdDocuments = _edoContainers
+			var incomingDocument = _edoContainers
 				.Where(c =>
-					!c.IsIncoming
-					&& c.Type == Type.Upd)
+					!c.IsIncoming);
+
+			orderDocuments =
+				(type is null
+				? incomingDocument
+				: incomingDocument.Where(id => id.Type == type))
 				.ToList();
 
-			return orderUpdDocuments;
+			return orderDocuments;
 		}
 
-		private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
-		{
-			var orderUpdDocuments = GetOutgoingUpdDocuments();
+		//private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
+		//{
+		//	var orderUpdDocuments = GetOutgoingUpdDocuments();
 
-			var orderUpdSentSuccessfully = orderUpdDocuments
-				.Any(c =>
-					c.Type == Type.Upd
-					&& !c.IsIncoming
-					&& c.EdoDocFlowStatus == status);
+		//	var orderUpdSentSuccessfully = orderUpdDocuments
+		//		.Any(c =>
+		//			c.Type == Type.Upd
+		//			&& !c.IsIncoming
+		//			&& c.EdoDocFlowStatus == status);
 
-			return orderUpdSentSuccessfully;
-		}
+		//	return orderUpdSentSuccessfully;
+		//}
 
 		private void CustomizeSendDocumentAgainButton()
 		{
-			var orderHasUpdDocuments = GetOutgoingUpdDocuments().Count > 0;
+			var orderHasUpdDocuments = GetOutgoingDocuments().Count > 0;
 
 			if(Entity.Id == 0 || !orderHasUpdDocuments)
 			{
@@ -1323,20 +1330,20 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			ResendUpd();
+			ResendUpd(_selectedEdoContainer.Type);
 			CustomizeSendDocumentAgainButton();
 		}
 
-		private void ResendUpd()
+		private void ResendUpd(Type type)
 		{
-			var edoValidateUpdResult = _edoService.ValidateOrderForUpd(Entity);
-			var edoValidateContainerResult = _edoService.ValidateEdoContainers(GetOutgoingUpdDocuments());
+			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, _selectedEdoContainer.Type);
+			var edoValidateContainerResult = _edoService.ValidateEdoContainers(GetOutgoingDocuments(type));
 
-			var edoValidateResult = edoValidateUpdResult.Errors.Concat(edoValidateContainerResult.Errors);
+			var edoValidateResult = edoValidateDocumentResult.Errors.Concat(edoValidateContainerResult.Errors);
 
-			var isValidateFailure = edoValidateUpdResult.IsFailure || edoValidateContainerResult.IsFailure;
+			var isValidateFailure = edoValidateDocumentResult.IsFailure || edoValidateContainerResult.IsFailure;
 
-			var errorMessages = edoValidateUpdResult.Errors.Select(x => x.Message)
+			var errorMessages = edoValidateDocumentResult.Errors.Select(x => x.Message)
 				.Concat(edoValidateContainerResult.Errors.Select(x => x.Message))
 				.ToArray();
 
@@ -1352,7 +1359,7 @@ namespace Vodovoz
 				}
 			}
 
-			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, Type.Upd);
+			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, type);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1997,11 +2004,13 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
+			treeViewEdoContainers.Selection.Changed += OnEdoContainerSelectionChanged;
+
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
 				CustomizeSendDocumentAgainButton();
-			}
+			}			
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
@@ -2018,6 +2027,11 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
+		}
+
+		private void OnEdoContainerSelectionChanged(object sender, EventArgs e)
+		{
+			_selectedEdoContainer = treeViewEdoContainers.SelectedRow as EdoContainer;
 		}
 
 		private void OnSpinPriceEdited(object o, EditedArgs args)
