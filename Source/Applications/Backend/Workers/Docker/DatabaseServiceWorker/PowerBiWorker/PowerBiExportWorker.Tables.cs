@@ -49,6 +49,24 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			}
 			#endregion
 
+			#region subdivision
+
+			var maxSubdivisionIdSql = GetMaxSubdivisionIdSelectSql();
+			var maxSubdivisionInTarget = (await connectionTarget.GetDataAsync<int>(maxSubdivisionIdSql)).Single();
+			var maxSubdivisionInSource = (await connectionSource.GetDataAsync<int>(maxSubdivisionIdSql)).Single();
+
+			if(maxSubdivisionInSource > maxSubdivisionInTarget)
+			{
+				var subdivisionsSql = GetSubdivisionsSelectSql();
+				var subdivisionList = await connectionSource.GetDataAsync<dynamic>(subdivisionsSql, new { id = maxSubdivisionInTarget });
+
+				var subdivisionInsertSql = GetSubdivisionsInsertSql();
+				var subdivisionTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(subdivisionInsertSql, subdivisionList, subdivisionTransaction, _timeOut);
+				subdivisionTransaction.Commit();
+			}
+			#endregion
+
 			TruncateTables(connectionTarget, startDate);
 
 			#region Orders

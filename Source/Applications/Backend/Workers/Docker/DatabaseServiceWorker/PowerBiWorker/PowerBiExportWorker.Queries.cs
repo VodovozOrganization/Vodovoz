@@ -433,6 +433,30 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			return sql;
 		}
 
+		private string GetMaxSubdivisionIdSelectSql()
+		{
+			var sql = @$"select max(id) from subdivisions;";
+
+			return sql;
+		}
+
+
+		private string GetSubdivisionsSelectSql()
+		{
+			var sql = @$"select * from subdivisions where id > @id;";
+
+			return sql;
+		}
+
+		private string GetSubdivisionsInsertSql()
+		{
+			var sql = @"INSERT INTO subdivisions
+				(id, name, short_name, chief_id, parent_subdivision_id, geographic_group_id, default_wage_calculation_id, `type`)
+				VALUES(@id, @name, @short_name, @chief_id, @parent_subdivision_id, @geographic_group_id, @default_wage_calculation_id, @`type`);";
+
+			return sql;
+		}
+
 		private string GetPlanPerDateSelectSql()
 		{
 			var sql = @$"select * from plan_per_day where date > @date;";
