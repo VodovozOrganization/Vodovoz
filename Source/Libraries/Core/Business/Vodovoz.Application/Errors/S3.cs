@@ -1,0 +1,13 @@
+﻿using Vodovoz.Errors;
+
+namespace Vodovoz.Application.Errors
+{
+	public static class S3
+	{
+		public static Error FileAlreadyExists =>
+			new Error(
+				typeof(S3),
+				nameof(FileAlreadyExists),
+				"Файл уже существует в хранилище");
+	}
+}
