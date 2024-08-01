@@ -451,8 +451,62 @@ namespace DatabaseServiceWorker.PowerBiWorker
 		private string GetSubdivisionsInsertSql()
 		{
 			var sql = @"INSERT INTO subdivisions
-				(id, name, short_name, chief_id, parent_subdivision_id, geographic_group_id, default_wage_calculation_id, `type`)
-				VALUES(@id, @name, @short_name, @chief_id, @parent_subdivision_id, @geographic_group_id, @default_wage_calculation_id, @`type`);";
+				(id, name, short_name, chief_id, parent_subdivision_id, geo_group_id, default_wage_calculation_id, `type`, default_sales_plan_id, address, is_archive, pacs_time_management_enabled)
+				VALUES(@id, @name, @short_name, @chief_id, @parent_subdivision_id, @geo_group_id, @default_wage_calculation_id, @`type`, @default_sales_plan_id, @address, @is_archive, @pacs_time_management_enabled);";
+
+			return sql;
+		}
+
+		private string GetMaxCounterpartyIdSelectSql()
+		{
+			var sql = @$"select max(id) from counterparty;";
+
+			return sql;
+		}
+
+
+		private string GetCounterpartysSelectSql()
+		{
+			var sql = @$"select * from counterparty where id > @id;";
+
+			return sql;
+		}
+
+		private string GetCounterpartysInsertSql()
+		{
+			var sql = @"INSERT INTO counterparty
+			(id, name, full_name, type_of_ownership, payment_method, person_type, accountant_id, sales_manager_id, bottles_manager_id,
+			main_contact_id, financial_contact_id, maincounterparty_id, previous_counterparty_id, comment, max_credit, inn,
+			kpp, ogrn, address, jur_address, default_account_id, code_1c, default_cash_expense_category_id, is_archive,
+			default_document_type, signatory_FIO, signatory_post, signatory_base_of, phone_from_1c, need_new_bottles, vod_internal_id,
+			ringup_phone, counterparty_camefrom_id, first_order_id, use_special_doc_fields, special_cargo_receiver, special_customer,
+			special_contract_name, payer_special_kpp, special_gov_contract, special_delivery_address, use_address_from_order, need_cheque,
+			is_deliveries_closed, close_delivery_date, close_delivery_comment, close_delivery_employee_id, ttn_count, torg2_count, OKPO, OKDP,
+			counterparty_type, delay_days, cargo_receiver_source, is_chain_store, is_for_retail, upd_count, tax_type, create_date,
+			always_send_receipts, special_expire_date_percent, special_expire_date_percent_check, delay_days_for_buyers, bitrix_id,
+			delay_days_for_technical_processing, all_upd_count, torg12_count, shet_factura_count, car_proxy_count, no_phone_call,
+			works_through_organization_id, always_print_invoice, roboats_exclude, is_for_sales_department, is_paperless_workflow,
+			is_not_send_documents_by_edo, can_send_upd_in_advance, reason_for_leaving, registration_in_chestny_znak_status, order_status_for_sending_upd,
+			consent_for_edo_status, personal_account_id_in_edo, edo_operator_id, special_contract_date, special_contract_number,
+			do_not_mix_marked_and_unmarked_goods_in_order, surname, first_name, patronymic, logistics_requirements_id, need_send_bill_by_edo,
+			default_financial_expense_category_id, counterparty_subtype, counterparty_subtype_id, is_liquidating, our_organization_account_for_bills,
+			close_delivery_debt_type, referrer_id, exclude_from_auto_calls, hide_delivery_point_for_bill)
+			VALUES(@id, @name, @full_name, @type_of_ownership, @payment_method, @person_type, @accountant_id, @sales_manager_id, @bottles_manager_id,
+			main_contact_id, @financial_contact_id, @maincounterparty_id, @previous_counterparty_id, @comment, @max_credit, @inn,
+			kpp, @ogrn, @address, @jur_address, @default_account_id, @code_1c, @default_cash_expense_category_id, @is_archive,
+			default_document_type, @signatory_FIO, @signatory_post, @signatory_base_of, @phone_from_1c, @need_new_bottles, @vod_internal_id,
+			ringup_phone, @counterparty_camefrom_id, @first_order_id, @use_special_doc_fields, @special_cargo_receiver, @special_customer,
+			special_contract_name, @payer_special_kpp, @special_gov_contract, @special_delivery_address, @use_address_from_order, @need_cheque,
+			is_deliveries_closed, @close_delivery_date, @close_delivery_comment, @close_delivery_employee_id, @ttn_count, @torg2_count, @OKPO, @OKDP,
+			counterparty_type, @delay_days, @cargo_receiver_source, @is_chain_store, @is_for_retail, @upd_count, @tax_type, @create_date,
+			always_send_receipts, @special_expire_date_percent, @special_expire_date_percent_check, @delay_days_for_buyers, @bitrix_id,
+			delay_days_for_technical_processing, @all_upd_count, @torg12_count, @shet_factura_count, @car_proxy_count, @no_phone_call,
+			works_through_organization_id, @always_print_invoice, @roboats_exclude, @is_for_sales_department, @is_paperless_workflow,
+			is_not_send_documents_by_edo, @can_send_upd_in_advance, @reason_for_leaving, @registration_in_chestny_znak_status, @order_status_for_sending_upd,
+			consent_for_edo_status, @personal_account_id_in_edo, @edo_operator_id, @special_contract_date, @special_contract_number,
+			do_not_mix_marked_and_unmarked_goods_in_order, @surname, @first_name, @patronymic, @logistics_requirements_id, @need_send_bill_by_edo,
+			default_financial_expense_category_id, @counterparty_subtype, @counterparty_subtype_id, @is_liquidating, @our_organization_account_for_bills,
+			close_delivery_debt_type, @referrer_id, @exclude_from_auto_calls, @hide_delivery_point_for_bill);";
 
 			return sql;
 		}
