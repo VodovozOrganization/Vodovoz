@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		/// Заказ для которого создавался документ
 		/// </summary>
 		/// <value>The order.</value>
-		[Display(Name = "Заказ")]
+		[Display(Name = "Создан для заказа")]
 		public virtual Order Order {
 			get => order;
 			set => SetField(ref order, value, () => Order);
@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		/// (в котором везется этот документ клиенту, может не совпадать с заказом
 		/// для которого создавался)
 		/// </summary>
-		[Display(Name = "Заказ")]
+		[Display(Name = "Привязан к заказу")]
 		public virtual Order AttachedToOrder {
 			get => attachedToOrder;
 			set => SetField(ref attachedToOrder, value, () => AttachedToOrder);

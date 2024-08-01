@@ -1,14 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <UserSecretsId>50e938ed-e8db-4963-b71c-b0876e8f8889</UserSecretsId>
-        <DockerfileContext>..\..\..\..</DockerfileContext>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<UserSecretsId>50e938ed-e8db-4963-b71c-b0876e8f8889</UserSecretsId>
+        <DockerfileContext>.</DockerfileContext>
     </PropertyGroup>
 
     <ItemGroup>
       <Content Remove="appsettings.Development.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,6 +42,19 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
       <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Properties\PublishProfiles\registry-dev.pubxml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </None>
+      <None Update="Properties\PublishProfiles\registry-prod.pubxml">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

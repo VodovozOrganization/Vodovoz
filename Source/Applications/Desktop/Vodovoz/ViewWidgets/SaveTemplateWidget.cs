@@ -15,7 +15,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		public BindingControler<SaveTemplateWidget> Binding { get; private set; }
 
-		private FileWorker worker = new FileWorker();
+		private QSDocTemplates.FileWorker worker = new QSDocTemplates.FileWorker();
 
 		public event EventHandler BeforeOpen;
 
