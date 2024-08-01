@@ -199,7 +199,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				if(onlineOrderItem.OnlineOrderErrorState.HasValue
-					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.NotApplicableDiscount)
+					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 				{
 					order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
 				}
@@ -211,14 +211,11 @@ namespace Vodovoz.Application.Orders.Services
 					}
 					else
 					{
-						var discountInMoney = onlineOrderItem.DiscountReason.ValueType == DiscountUnits.money;
-						var discount = onlineOrderItem.DiscountReason.Value;
-						
 						order.AddNomenclature(
 							onlineOrderItem.Nomenclature,
 							onlineOrderItem.Count,
-							discount,
-							discountInMoney,
+							onlineOrderItem.GetDiscount,
+							onlineOrderItem.IsDiscountInMoney,
 							onlineOrderItem.DiscountReason);
 					}
 				}

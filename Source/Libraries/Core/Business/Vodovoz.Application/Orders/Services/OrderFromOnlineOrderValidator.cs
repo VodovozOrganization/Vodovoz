@@ -255,7 +255,7 @@ namespace Vodovoz.Application.Orders.Services
 							onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
 					}
 
-					onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.NotApplicableDiscount;
+					onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 					break;
 				}
 				case true:
@@ -272,6 +272,7 @@ namespace Vodovoz.Application.Orders.Services
 									onlineOrderItem.Nomenclature.ToString(),
 									onlineOrderItem.DiscountReason.Value,
 									onlineOrderItem.GetDiscount));
+								onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 							}
 
 							switch(onlineOrderItem.DiscountReason.ValueType)
@@ -281,6 +282,7 @@ namespace Vodovoz.Application.Orders.Services
 									{
 										errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 											onlineOrderItem.Nomenclature.ToString(), true, onlineOrderItem.IsDiscountInMoney));
+										onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 									}
 									break;
 								case DiscountUnits.percent:
@@ -288,6 +290,7 @@ namespace Vodovoz.Application.Orders.Services
 									{
 										errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 											onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
+										onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 									}
 									break;
 							}
@@ -306,7 +309,7 @@ namespace Vodovoz.Application.Orders.Services
 									onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
 							}
 
-							onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.NotApplicableDiscount;
+							onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 						}
 					}
 					else
@@ -317,7 +320,7 @@ namespace Vodovoz.Application.Orders.Services
 								onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
 						}
 						
-						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.NotApplicableDiscount;
+						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 					}
 					
 					break;

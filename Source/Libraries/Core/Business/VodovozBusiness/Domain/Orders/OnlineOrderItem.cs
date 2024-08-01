@@ -181,7 +181,7 @@ namespace Vodovoz.Domain.Orders
 
 	public enum OnlineOrderErrorState
 	{
-		[Display(Name = "Скидка не применима")]
-		NotApplicableDiscount
+		[Display(Name = "Неверные параметры скидки или она не применима")]
+		WrongDiscountParametersOrIsNotApplicable
 	}
 }
