@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using DatabaseServiceWorker.Helpers;
 using MySqlConnector;
 using System;
@@ -82,7 +82,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 				var counterpartyInsertSql = GetCounterpartysInsertSql();
 				var counterpartyTransaction = connectionTarget.BeginTransaction();
-				connectionTarget.Execute(counterpartyInsertSql, counterpartyList /*counterpartyTransaction,*/, commandTimeout: _timeOut);
+				connectionTarget.Execute(counterpartyInsertSql, counterpartyList, counterpartyTransaction, _timeOut);
 				counterpartyTransaction.Commit();
 			}
 

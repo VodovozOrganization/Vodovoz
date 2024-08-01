@@ -440,7 +440,6 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			return sql;
 		}
 
-
 		private string GetSubdivisionsSelectSql()
 		{
 			var sql = @$"select * from subdivisions where id > @id;";
@@ -463,7 +462,6 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			return sql;
 		}
-
 
 		private string GetCounterpartysSelectSql()
 		{
