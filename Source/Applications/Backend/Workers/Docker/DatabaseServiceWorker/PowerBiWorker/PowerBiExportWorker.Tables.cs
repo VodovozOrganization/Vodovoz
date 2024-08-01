@@ -65,6 +65,27 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				connectionTarget.Execute(subdivisionInsertSql, subdivisionList, subdivisionTransaction, _timeOut);
 				subdivisionTransaction.Commit();
 			}
+
+			#endregion
+
+
+			#region counterparty
+
+			var maxCounterpartyIdSql = GetMaxCounterpartyIdSelectSql();
+			var maxCounterpartyInTarget = (await connectionTarget.GetDataAsync<int>(maxCounterpartyIdSql)).Single();
+			var maxCounterpartyInSource = (await connectionSource.GetDataAsync<int>(maxCounterpartyIdSql)).Single();
+
+			if(maxCounterpartyInSource > maxCounterpartyInTarget)
+			{
+				var counterpartysSql = GetCounterpartysSelectSql();
+				var counterpartyList = await connectionSource.GetDataAsync<dynamic>(counterpartysSql, new { id = maxCounterpartyInTarget });
+
+				var counterpartyInsertSql = GetCounterpartysInsertSql();
+				var counterpartyTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(counterpartyInsertSql, counterpartyList, counterpartyTransaction, _timeOut);
+				counterpartyTransaction.Commit();
+			}
+
 			#endregion
 
 			TruncateTables(connectionTarget, startDate);
