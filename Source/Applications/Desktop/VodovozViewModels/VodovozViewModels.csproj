@@ -131,10 +131,8 @@
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
     <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
-    <Compile Include="Extensions\ClosedXmlReportExtensions.cs" />
     <Compile Include="Factories\DialogSettingsFactory.cs" />
     <Compile Include="Factories\FuelCardVersionViewModelFactory.cs" />
-    <Compile Include="Factories\IDialogSettingsFactory.cs" />
     <Compile Include="Factories\IFuelCardVersionViewModelFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />

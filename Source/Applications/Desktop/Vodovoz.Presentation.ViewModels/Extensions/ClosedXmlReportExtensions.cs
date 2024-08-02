@@ -1,13 +1,13 @@
 ﻿using ClosedXML.Report;
 using Vodovoz.Presentation.ViewModels.Reports;
 
-namespace Vodovoz.ViewModels.Extensions
+namespace Vodovoz.Presentation.ViewModels.Extensions
 {
 	public static class ClosedXmlReportExtensions
 	{
 		public static XLTemplate RenderTemplate(this IClosedXmlReport closedXmlReport, bool adjustToContents = true)
 		{
-			var template = GetRawTemplate(closedXmlReport);
+			var template = closedXmlReport.GetRawTemplate();
 			template.AddVariable(closedXmlReport);
 			template.Generate();
 
@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Extensions
 
 		public static void Export(this IClosedXmlReport closedXmlReport, string path, bool adjustToContents = true)
 		{
-			var renderedTemplate = RenderTemplate(closedXmlReport, adjustToContents);
+			var renderedTemplate = closedXmlReport.RenderTemplate(adjustToContents);
 
 			renderedTemplate.Export(path);
 		}

@@ -1,7 +1,7 @@
 ﻿using QS.Project.Services.FileDialog;
 using Vodovoz.Presentation.ViewModels.Reports;
 
-namespace Vodovoz.ViewModels.Factories
+namespace Vodovoz.Presentation.ViewModels.Factories
 {
 	public interface IDialogSettingsFactory
 	{
