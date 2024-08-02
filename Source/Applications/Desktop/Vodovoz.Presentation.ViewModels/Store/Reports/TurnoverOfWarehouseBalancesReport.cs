@@ -111,7 +111,16 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				warehouseSmallNodesIds,
 				nomenclaturesSmallNodesIds);
 
-			var salesResult = await salesQuery.ToListAsync(cancellationToken);
+			var selfDeliverySales = GetSelfDeliverySalesQuery(
+				unitOfWork,
+				startDate,
+				endDate,
+				warehouseSmallNodesIds,
+				nomenclaturesSmallNodesIds);
+
+			var salesResult = 
+				(await salesQuery.ToListAsync(cancellationToken))
+				.Concat(await selfDeliverySales.ToListAsync(cancellationToken));
 
 			var reportRows = new List<TurnoverOfWarehouseBalancesReportRow>();
 
@@ -190,7 +199,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							}
 							else
 							{
-								var medianValue = (residuesInSlice * (decimal)residueMedianDays / sliceSalesSum.Value);
+								var medianValue = residuesInSlice * (decimal)residueMedianDays / sliceSalesSum.Value;
 								slicesValue += medianValue;
 								sliceValue = medianValue.ToString();
 							}
@@ -219,6 +228,35 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				slices,
 				reportRows);
 		}
+
+		private static IQueryable<SalesGenerationNode> GetSelfDeliverySalesQuery(
+			IUnitOfWork unitOfWork,
+			DateTime startDate,
+			DateTime endDate,
+			int[] warehouseSmallNodesIds,
+			int[] nomenclaturesSmallNodesIds) =>
+			from order in unitOfWork.Session.Query<Order>()
+			join selfDeliveryDocument in unitOfWork.Session.Query< SelfDeliveryDocument>()
+			on order.Id equals selfDeliveryDocument.Order.Id
+			join warehouse in unitOfWork.Session.Query<Warehouse>()
+			on selfDeliveryDocument.Warehouse.Id equals warehouse.Id
+			join orderItem in unitOfWork.Session.Query<OrderItem>()
+			on order.Id equals orderItem.Order.Id
+			join nomenclature in unitOfWork.Session.Query<Nomenclature>()
+			on orderItem.Nomenclature.Id equals nomenclature.Id
+			where order.DeliveryDate != null
+				&& order.DeliveryDate <= endDate
+				&& order.DeliveryDate >= startDate
+				&& warehouseSmallNodesIds.Contains(warehouse.Id)
+				&& nomenclaturesSmallNodesIds.Contains(nomenclature.Id)
+			select new SalesGenerationNode
+			{
+				SaleDate = order.DeliveryDate,
+				WarehouseId = warehouse.Id,
+				NomenclatureId = nomenclature.Id,
+				NomenclatureName = nomenclature.Name,
+				ActualCount = orderItem.ActualCount
+			};
 
 		private static IQueryable<NomenclatureGenerationNode> GetNomenclaturesQuery(
 			IUnitOfWork unitOfWork,
@@ -290,7 +328,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			select new SalesGenerationNode
 			{
 				SaleDate = order.DeliveryDate,
-				WarehouseId = carLoadDocument.Warehouse.Id,
+				WarehouseId = warehouse.Id,
 				NomenclatureId = nomenclature.Id,
 				NomenclatureName = nomenclature.Name,
 				ActualCount = orderItem.ActualCount
