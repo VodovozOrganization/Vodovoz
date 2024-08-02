@@ -1,4 +1,4 @@
-﻿using DatabaseServiceWorker.PowerBiWorker.Dto;
+using DatabaseServiceWorker.PowerBiWorker.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -428,8 +428,25 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				undelivered_order_status, in_process_at, transfer_type, undelivery_problem_source_id, undelivery_transfer_absence_reason_id, undelivery_detalization_id)
 				VALUES(@id, @old_order_id, @new_order_id, @guilty_is, @guilty_department_id, @dispatcher_call_time, @driver_call_nr, @driver_call_type, @driver_call_time,
 				@reason, @creation_date, @registered_by_employee_id, @author_employee_id, @last_edited_time, @editor_employee_id, @status, @undelivered_order_status, @in_process_at,
-				@transfer_type, @undelivery_problem_source_id, @undelivery_transfer_absence_reason_id, @undelivery_detalization_id);";
+				@transfer_type, @undelivery_problem_source_id, @undelivery_transfer_absence_reason_id, @undelivery_detalization_id);"
+			;
+			return sql;
+		}
 
+		private string GetGuiltyInUndeliveredOrdersSelectSql()
+		{
+			var sql = @$"select g.* from guilty_in_undelivered_orders g inner join undelivered_orders u on u.id = g.undelivery_id
+						where u.creation_date > @date;";
+
+			return sql;
+		}
+
+		private string GetGuiltyInUndeliveredOrdersInsertSql()
+		{
+			var sql = @"INSERT INTO guilty_in_undelivered_orders
+				(id, undelivery_id, guilty_side, guilty_department_id, guilty_employee_id)
+				VALUES(@id, @undelivery_id, @guilty_side, @guilty_department_id, @guilty_employee_id);"
+			;
 			return sql;
 		}
 

@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using DatabaseServiceWorker.Helpers;
 using MySqlConnector;
 using System;
@@ -98,15 +98,12 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			var orderTransaction = connectionTarget.BeginTransaction();
 			connectionTarget.Execute(orderInsertSql, orderList, orderTransaction, _timeOut);
-			orderTransaction.Commit();
 
 			var orderItemsSql = GetOrderItemsSelectSql();
 			var orderItemsList = await connectionSource.GetDataAsync<dynamic>(orderItemsSql, new { date = startDate });
 			var orderItemsInsertSql = GetInsertOrderItemsSql();
-
-			var orderItemTransaction = connectionTarget.BeginTransaction();
-			connectionTarget.Execute(orderItemsInsertSql, orderItemsList, orderItemTransaction, _timeOut);
-			orderItemTransaction.Commit();
+			connectionTarget.Execute(orderItemsInsertSql, orderItemsList, orderTransaction, _timeOut);
+			orderTransaction.Commit();
 
 			#endregion
 
@@ -119,6 +116,12 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			var undeliveredOrderTransaction = connectionTarget.BeginTransaction();
 			connectionTarget.Execute(undeliveredOrderInsertSql, undeliveredOrderList, undeliveredOrderTransaction, _timeOut);
+
+			var guiltyInGuiltyInUndeliveredOrdersSql = GetGuiltyInUndeliveredOrdersSelectSql();
+			var guiltyInGuiltyInUndeliveredOrderList = await connectionSource.GetDataAsync<dynamic>(guiltyInGuiltyInUndeliveredOrdersSql, new { date = startDate });
+			var guiltyInGuiltyInUndeliveredOrderInsertSql = GetGuiltyInUndeliveredOrdersInsertSql();
+
+			connectionTarget.Execute(guiltyInGuiltyInUndeliveredOrderInsertSql, guiltyInGuiltyInUndeliveredOrderList, undeliveredOrderTransaction, _timeOut);
 			undeliveredOrderTransaction.Commit();
 
 			#endregion
@@ -129,10 +132,17 @@ namespace DatabaseServiceWorker.PowerBiWorker
 		{
 			var truncateTransaction = connectionTarget.BeginTransaction();
 
-			connectionTarget.Execute("delete from undelivered_orders where creation_date >= @date;", new { date = truncateFromdate }, truncateTransaction, _timeOut);
-			connectionTarget.Execute("delete oi.* from order_items oi inner join orders o on o.id = oi.order_id where o.create_date >= @date;",
+			connectionTarget.Execute(@"delete g.* from guilty_in_undelivered_orders g left join undelivered_orders u on u.id = g.undelivery_id
+									 where u.creation_date > @date or g.undelivery_id is null or u.id is null;",
+									 new { date = truncateFromdate }, truncateTransaction, _timeOut);
+
+			connectionTarget.Execute("delete from undelivered_orders where creation_date > @date;", new { date = truncateFromdate }, truncateTransaction, _timeOut);
+
+			connectionTarget.Execute("delete oi.* from order_items oi left join orders o on o.id = oi.order_id" +
+				" where o.create_date > @date or oi.order_id is null or o.id is null;",
 				new { date = truncateFromdate }, truncateTransaction, _timeOut);
-			connectionTarget.Execute("delete from orders where create_date >= @date;", new { date = truncateFromdate }, truncateTransaction, _timeOut);			
+
+			connectionTarget.Execute("delete from orders where create_date > @date;", new { date = truncateFromdate }, truncateTransaction, _timeOut);			
 
 			truncateTransaction.Commit();
 		}
