@@ -29,6 +29,13 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 	{
 		private const string _noSalesPrefix = "Ост: ";
 
+		private static readonly OrderStatus[] _orderStatuses = new OrderStatus[]
+		{
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock,
+			OrderStatus.Closed
+		};
+
 		private TurnoverOfWarehouseBalancesReport(
 			DateTime startDate,
 			DateTime endDate,
@@ -247,6 +254,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			where order.DeliveryDate != null
 				&& order.DeliveryDate <= endDate
 				&& order.DeliveryDate >= startDate
+				&& _orderStatuses.Contains(order.OrderStatus)
 				&& warehouseSmallNodesIds.Contains(warehouse.Id)
 				&& nomenclaturesSmallNodesIds.Contains(nomenclature.Id)
 			select new SalesGenerationNode
@@ -323,6 +331,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			where order.DeliveryDate != null
 				&& order.DeliveryDate <= endDate
 				&& order.DeliveryDate >= startDate
+				&& _orderStatuses.Contains(order.OrderStatus)
 				&& warehouseSmallNodesIds.Contains(warehouse.Id)
 				&& nomenclaturesSmallNodesIds.Contains(nomenclature.Id)
 			select new SalesGenerationNode
