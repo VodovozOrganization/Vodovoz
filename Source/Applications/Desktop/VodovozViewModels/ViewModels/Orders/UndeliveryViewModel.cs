@@ -209,7 +209,14 @@ namespace Vodovoz.ViewModels.Orders
 
 		private void ProcessSmsNotification()
 		{
-			_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity);
+			if(_isExternalUoW)
+			{
+				_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity, UoW);
+			}
+			else
+			{
+				_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity);
+			}
 		}
 
 		public override bool Save(bool needClose)
