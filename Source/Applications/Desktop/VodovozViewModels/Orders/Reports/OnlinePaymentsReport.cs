@@ -119,6 +119,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				var orderRowsToUpdate = orders
 					.Where(x => x.OnlineOrderId == payment.PaymentNr);
 
+				var listOrdersToDelete = new List<int>();
+
 				foreach(var orderRowToUpdate in orderRowsToUpdate)
 				{
 					if(orderRowToUpdate != null)
@@ -129,9 +131,20 @@ namespace Vodovoz.ViewModels.Orders.Reports
 							continue;
 						}
 
-						UpdatePaymentInfo(payment, orderRowToUpdate);
+						if(selectedShop == null
+							|| payment.Shop == selectedShop
+							|| payment.Shop == null)
+						{
+							UpdatePaymentInfo(payment, orderRowToUpdate);
+						}
+						else
+						{
+							listOrdersToDelete.Add(orderRowToUpdate.OrderId);
+						}
 					}
 				}
+
+				orders.RemoveAll(x => listOrdersToDelete.Contains(x.OrderId));
 			}
 
 			foreach(var payment in smsPayments)
@@ -139,6 +152,8 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				var orderRowsToUpdate = orders
 					.Where(x => x.OrderId == payment.PaymentNr);
 
+				var listOrdersToDelete = new List<int>();
+
 				foreach(var orderRowToUpdate in orderRowsToUpdate)
 				{
 					if(orderRowToUpdate != null)
@@ -149,9 +164,20 @@ namespace Vodovoz.ViewModels.Orders.Reports
 							continue;
 						}
 
-						UpdatePaymentInfo(payment, orderRowToUpdate);
+						if(selectedShop == null
+							|| payment.Shop == selectedShop
+							|| payment.Shop == null)
+						{
+							UpdatePaymentInfo(payment, orderRowToUpdate);
+						}
+						else
+						{
+							listOrdersToDelete.Add(orderRowToUpdate.OrderId);
+						}
 					}
 				}
+
+				orders.RemoveAll(x => listOrdersToDelete.Contains(x.OrderId));
 			}
 
 			var paidOrders = orders
@@ -185,17 +211,37 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			var generatedInMilliseconds = (DateTime.Now - startTime).TotalMilliseconds;
 
-			var paidTodayOrders = paidOrders.Where(po => !po.IsFutureOrder).ToList();
-			var paidFutureOrders = paidOrders.Where(po => po.IsFutureOrder).ToList();
+			var paidTodayOrders = paidOrders
+				.Where(po => !po.IsFutureOrder)
+				.ToList();
 
-			var paymentMissingTodayOrders = paymentMissingOrders.Where(po => !po.IsFutureOrder).ToList();
-			var paymentMissingFutureOrders = paymentMissingOrders.Where(po => po.IsFutureOrder).ToList();
+			var paidFutureOrders = paidOrders
+				.Where(po => po.IsFutureOrder)
+				.ToList();
 
-			var overpaidTodayOrders = overpaidOrders.Where(po => !po.IsFutureOrder).ToList();
-			var overpaidFutureOrders = overpaidOrders.Where(po => po.IsFutureOrder).ToList();
+			var paymentMissingTodayOrders = paymentMissingOrders
+				.Where(po => !po.IsFutureOrder)
+				.ToList();
 
-			var underpaidTodayOrders = underpaidOrders.Where(po => !po.IsFutureOrder).ToList();
-			var underpaidFutureOrders = underpaidOrders.Where(po => po.IsFutureOrder).ToList();
+			var paymentMissingFutureOrders = paymentMissingOrders
+				.Where(po => po.IsFutureOrder)
+				.ToList();
+
+			var overpaidTodayOrders = overpaidOrders
+				.Where(po => !po.IsFutureOrder)
+				.ToList();
+
+			var overpaidFutureOrders = overpaidOrders
+				.Where(po => po.IsFutureOrder)
+				.ToList();
+
+			var underpaidTodayOrders = underpaidOrders
+				.Where(po => !po.IsFutureOrder)
+				.ToList();
+
+			var underpaidFutureOrders = underpaidOrders
+				.Where(po => po.IsFutureOrder)
+				.ToList();
 
 			if(!(paidTodayOrders.Any()
 				|| paidFutureOrders.Any()
@@ -228,7 +274,11 @@ namespace Vodovoz.ViewModels.Orders.Reports
 						startTime)));
 		}
 
-		private static IQueryable<PaymentWithoutOrderRow> GetPaymentsWithoutOrdersQuery(DateTime startDate, DateTime endDate, string selectedShop, IUnitOfWork unitOfWork) =>
+		private static IQueryable<PaymentWithoutOrderRow> GetPaymentsWithoutOrdersQuery(
+			DateTime startDate,
+			DateTime endDate,
+			string selectedShop,
+			IUnitOfWork unitOfWork) =>
 			from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 			where payment.DateAndTime >= startDate
 				&& payment.DateAndTime <= endDate
@@ -236,12 +286,14 @@ namespace Vodovoz.ViewModels.Orders.Reports
 					|| payment.Shop == selectedShop
 					|| payment.Shop == null)
 				&& !(from order in unitOfWork.Session.Query<Order>()
-					 where (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
+					 where (order.PaymentByCardFrom == null
+							|| !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
 						&& payment.PaymentNr == order.OnlineOrder
 						&& payment.PaymentByCardFrom != PaymentByCardOnlineFrom.FromSMS
 					 select order.Id).Any()
 				&& !(from order in unitOfWork.Session.Query<Order>()
-					 where (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
+					 where (order.PaymentByCardFrom == null
+							|| !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
 						&& payment.PaymentNr == order.Id
 						&& payment.PaymentByCardFrom == PaymentByCardOnlineFrom.FromSMS
 					 select order.Id).Any()
@@ -283,31 +335,35 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			}
 		}
 
-		private static IQueryable<PaymentByCardOnline> GetSmsPaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int> ordersIds, string selectedShop) =>
+		private static IQueryable<PaymentByCardOnline> GetSmsPaymentsQuery(
+			IUnitOfWork unitOfWork,
+			IEnumerable<int> ordersIds,
+			string selectedShop) =>
 			from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 			where payment.PaymentByCardFrom == PaymentByCardOnlineFrom.FromSMS
 				 && ordersIds.Contains(payment.PaymentNr)
-				 && (selectedShop == null
-						|| payment.Shop == selectedShop
-						|| payment.Shop == null)
 			select payment;
 
-		private static IQueryable<PaymentByCardOnline> GetOnlinePaymentsQuery(IUnitOfWork unitOfWork, IEnumerable<int?> onlineOrdersIds, string selectedShop) =>
+		private static IQueryable<PaymentByCardOnline> GetOnlinePaymentsQuery(
+			IUnitOfWork unitOfWork,
+			IEnumerable<int?> onlineOrdersIds,
+			string selectedShop) =>
 			from payment in unitOfWork.Session.Query<PaymentByCardOnline>()
 			where payment.PaymentByCardFrom != PaymentByCardOnlineFrom.FromSMS
 				 && onlineOrdersIds.Contains(payment.PaymentNr)
-				 && (selectedShop == null
-						|| payment.Shop == selectedShop
-						|| payment.Shop == null)
 			select payment;
 
-		private static IQueryable<OrderRow> GetOrdersQuery(DateTime startDate, DateTime endDate, IUnitOfWork unitOfWork) =>
+		private static IQueryable<OrderRow> GetOrdersQuery(
+			DateTime startDate,
+			DateTime endDate,
+			IUnitOfWork unitOfWork) =>
 			from order in unitOfWork.Session.Query<Order>()
 			join counterparty in unitOfWork.Session.Query<Counterparty>()
 			on order.Client.Id equals counterparty.Id
 			where order.PaymentType == PaymentType.PaidOnline
 				&& order.OnlineOrder != null
-				&& (order.PaymentByCardFrom == null || !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
+				&& (order.PaymentByCardFrom == null
+					|| !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
 				&& order.DeliveryDate >= startDate
 				&& order.DeliveryDate <= endDate
 			let address = order.SelfDelivery
@@ -315,9 +371,10 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				: (from deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>()
 				   where deliveryPoint.Id == order.DeliveryPoint.Id
 				   select deliveryPoint.ShortAddress).FirstOrDefault()
-			let orderTotalSum = (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
-										   where orderItem.Order.Id == order.Id
-										   select orderItem.ActualSum).Sum() ?? 0m
+			let orderTotalSum =
+				(decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+						   where orderItem.Order.Id == order.Id
+						   select orderItem.ActualSum).Sum() ?? 0m
 			select new OrderRow
 			{
 				OrderCreateDate = order.CreateDate,
