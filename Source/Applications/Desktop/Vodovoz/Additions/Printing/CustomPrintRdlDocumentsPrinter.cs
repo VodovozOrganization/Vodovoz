@@ -22,8 +22,6 @@ namespace Vodovoz.Additions.Printing
 		private readonly IUserPrintingRepository _userPrintingRepository;
 		private readonly IUserService _userService;
 
-		private bool _isPrintingInProgress;
-
 		public CustomPrintRdlDocumentsPrinter(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -78,7 +76,13 @@ namespace Vodovoz.Additions.Printing
 
 			var installedPrinters = PrinterSettings.InstalledPrinters.Cast<string>().ToList();
 
-			return !installedPrinters.Contains(document.PrinterName);
+			if(!installedPrinters.Contains(document.PrinterName))
+			{
+				return true;
+			}
+			
+			return !_commonServices.InteractiveService.Question(
+				$"Документ {document.Name} будет распечатан на принтере {document.PrinterName}.\nПродолжить?");
 		}
 
 		private Pages GetReportPages(ReportInfo reportInfo)
