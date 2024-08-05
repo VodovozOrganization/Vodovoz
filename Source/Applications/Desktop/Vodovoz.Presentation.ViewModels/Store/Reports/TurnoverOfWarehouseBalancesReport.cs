@@ -227,6 +227,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						}
 					}
 
+					if(slicesSales == 0)
+					{
+						slicesSales = 1;
+					}
+
 					reportRows.Add(new TurnoverOfWarehouseBalancesReportRow
 					{
 						WarehouseName = wsn.Name,
