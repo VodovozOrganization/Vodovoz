@@ -160,11 +160,24 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 								i.LatestDayTime())
 							.ToArray();
 
-						var newResidues = (WarehouseResidueNode[])residuesAtDates[i.AddDays(-1)].Clone();
+						var newResidues = new List<WarehouseResidueNode>();
+
+						var previousResidues = residuesAtDates[i.AddDays(-1)];
+
+						foreach(var previousResidue in previousResidues)
+						{
+							newResidues.Add(new WarehouseResidueNode
+							{
+								NomenclatureId = previousResidue.NomenclatureId,
+								WarehouseId = previousResidue.WarehouseId,
+								StockAmount = previousResidue.StockAmount
+							});
+						}
 
 						foreach(var residue in newResidues)
 						{
-							var currentDiff = diff.FirstOrDefault(dr => dr.NomenclatureId == residue.NomenclatureId && dr.WarehouseId == residue.WarehouseId);
+							var currentDiff = diff.FirstOrDefault(dr => dr.NomenclatureId == residue.NomenclatureId
+								&& dr.WarehouseId == residue.WarehouseId);
 
 							if(currentDiff is null)
 							{
@@ -175,8 +188,8 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						}
 
 						residuesAtDates.Add(
-						i,
-						newResidues);
+							i,
+							newResidues.ToArray());
 					}
 
 					if(cancellationToken.IsCancellationRequested)
@@ -268,7 +281,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						WarehouseName = wsn.Name,
 						NomanclatureName = nsn.Name,
 						SliceValues = sliceValues,
-						Total = slicesValue / slicesSales / slices.Length
+						Total = slicesValue / slicesSales
 					});
 				}
 			}
@@ -389,39 +402,6 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				NomenclatureName = nomenclature.Name,
 				ActualCount = orderItem.ActualCount
 			};
-
-		//private static async Task<WarehouseResidueNode[]> GetWarehousesBalanceAtAsync(
-		//	IUnitOfWork unitOfWork,
-		//	int[] nomenclatureIds,
-		//	int[] warehouseIds,
-		//	DateTime dateTime,
-		//	CancellationToken cancellationToken)
-		//{
-		//	WarehouseBulkGoodsAccountingOperation operationAlias = null;
-		//	Nomenclature nomenclatureAlias = null;
-		//	WarehouseResidueNode resultAlias = null;
-
-		//	var balanceProjection = Projections.SqlFunction(
-		//		new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
-		//		NHibernateUtil.Decimal,
-		//		Projections.Sum(() => operationAlias.Amount));
-
-		//	var result = await unitOfWork.Session.QueryOver(() => nomenclatureAlias)
-		//		.JoinEntityAlias(() => operationAlias,
-		//			() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
-		//			JoinType.InnerJoin)
-		//		.WhereRestrictionOn(() => nomenclatureAlias.Id).IsInG(nomenclatureIds)
-		//		.AndRestrictionOn(() => operationAlias.Warehouse.Id).IsInG(warehouseIds)
-		//		.And(Restrictions.Le(Projections.Property(() => operationAlias.OperationTime), dateTime))
-		//		.SelectList(list => list
-		//			.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-		//			.Select(() => operationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
-		//			.Select(balanceProjection).WithAlias(() => resultAlias.StockAmount))
-		//		.TransformUsing(Transformers.AliasToBean<WarehouseResidueNode>())
-		//		.ListAsync<WarehouseResidueNode>(cancellationToken);
-
-		//	return result.ToArray();
-		//}
 
 		private static IQueryable<WarehouseResidueNode> GetWarehousesBalanceAtAsync(
 			IUnitOfWork unitOfWork,
