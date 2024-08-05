@@ -11,12 +11,11 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _dataTableName = "TableData";
 		private const string _dataWithoutQrTableName = "TableDataWithoutQr";
 		private const string _tearOffCouponTableName = "TableTearOffCoupon";
-		private const string _loadEndQrRectangleName = "BottomQrRectangle";
 		private const string _confirmationTableName = "TableConfirmation";
 		private const string _infoTextboxName = "TextboxInfo";
 		private const string _orderQrCodeName = "OrderQrCode";
 
-		private const double _dataTableHeightInPt = 70;
+		private const double _dataTableHeightInPt = 145;
 		private const double _dataWithoutQrTableHeightInPt = 70;
 		private const double _tearOffCouponTableHeightInPt = 90;
 		private const double _dataTableDefaultHeaderRowHeightInPt = 25;
@@ -44,52 +43,47 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var actions = new List<ModifierAction>();
 
-			var verticalOffsetStep = _dataTableHeightInPt + _dataTableWithQrHeaderRowHeightInPt - _dataTableDefaultHeaderRowHeightInPt;
-
 			for(var i = 0; i < tablesWithQrCount; i++)
 			{
 				var orderId = orderIds.ElementAt(i);
-				var verticalOffset = i * verticalOffsetStep;
+				var verticalOffset = i * _dataTableHeightInPt;
 				var newTableName = $"{_dataTableName}_qr_{orderId}";
 
-				actions.AddRange(CopyTableAndMoveDownActions(_dataTableName, newTableName, verticalOffset));
+				actions.AddRange(CopyTableAndMoveVerticallyActions(_dataTableName, newTableName, verticalOffset));
 				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
-
-				actions.Add(SetTableHeaderHeightAction(newTableName, _dataTableWithQrHeaderRowHeightInPt));
-
-				//Пока нет необходимости отображать QR коды для сетевых заказов
-				//Когда строка будет раскомментирована, необходимо установить значение константы _dataTableWithQrHeaderRowHeightInPt = 85
-				actions.AddRange(AddQrCodeForTableAndMoveDownActions(orderId, verticalOffset));
-
+				actions.AddRange(AddQrCodeForTableAndMoveVerticallyActions(orderId, verticalOffset));
 			}
 
-			var offsetForNextElements = tablesWithQrCount * verticalOffsetStep;
+			var offsetForNextElements = tablesWithQrCount > 0 ? tablesWithQrCount * _dataTableHeightInPt : 0;
 
 			if(isDocumentHasCommonOrders)
 			{
-				actions.AddRange(GetDataTableWithCommonOrdersActions(orderIds, $"{_dataTableName}_qr_common", offsetForNextElements));
+				var commonTableName = $"{_dataTableName}_qr_common";
+				actions.AddRange(GetDataTableWithCommonOrdersActions(orderIds, commonTableName, offsetForNextElements));
+				actions.Add(SetTableHeaderHeightAction(commonTableName, _dataTableDefaultHeaderRowHeightInPt));
 			}
 
-			if(tablesWithQrCount > 0)
-			{
-				actions.Add(MoveRectangleDownAction(_loadEndQrRectangleName, offsetForNextElements));
-				actions.Add(MoveTableDownAction(_tearOffCouponTableName, offsetForNextElements));
-				actions.Add(MoveTableDownAction(_dataWithoutQrTableName, offsetForNextElements));
-				actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
-				actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
-			}
+			offsetForNextElements =
+				isDocumentHasCommonOrders
+				? offsetForNextElements - (_dataTableWithQrHeaderRowHeightInPt - _dataTableDefaultHeaderRowHeightInPt)
+				: offsetForNextElements - _dataTableHeightInPt;
+
+			actions.Add(MoveTableVerticallyAction(_tearOffCouponTableName, offsetForNextElements));
+			actions.Add(MoveTableVerticallyAction(_dataWithoutQrTableName, offsetForNextElements));
+			actions.Add(MoveTableVerticallyAction(_confirmationTableName, offsetForNextElements));
+			actions.Add(MoveTextboxVerticallyAction(_infoTextboxName, offsetForNextElements));
 
 			return actions;
 		}
 
-		private static IEnumerable<ModifierAction> AddQrCodeForTableAndMoveDownActions(int orderId, double verticalOffset)
+		private static IEnumerable<ModifierAction> AddQrCodeForTableAndMoveVerticallyActions(int orderId, double verticalOffset)
 		{
 			var actions = new List<ModifierAction>();
 
 			var qrCodeItemName = $"{_orderQrCodeName}_{orderId}";
 			var qrCodeValue = $"='CarLoadDocument;' + {{?id}} + ';{orderId}'";
 
-			actions.AddRange(CopyQrCodeAndMoveDownActions(_orderQrCodeName, qrCodeItemName, verticalOffset));
+			actions.AddRange(CopyQrCodeAndMoveVerticallyActions(_orderQrCodeName, qrCodeItemName, verticalOffset));
 			actions.Add(SetQrCodeValueAction(qrCodeItemName, qrCodeValue));
 
 			return actions;
@@ -110,14 +104,14 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				var verticalOffset = _tearOffCouponTableHeightInPt * i;
 
 				actions.Add(CopyTableAction(_tearOffCouponTableName, newTearOffCouponTableName));
-				actions.Add(MoveTableDownAction(newTearOffCouponTableName, verticalOffset));
+				actions.Add(MoveTableVerticallyAction(newTearOffCouponTableName, verticalOffset));
 			}
 
 			var offsetForNextElements = (totalCount - 1) * _tearOffCouponTableHeightInPt;
 
-			actions.Add(MoveTableDownAction(_dataWithoutQrTableName, offsetForNextElements));
-			actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
-			actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
+			actions.Add(MoveTableVerticallyAction(_dataWithoutQrTableName, offsetForNextElements));
+			actions.Add(MoveTableVerticallyAction(_confirmationTableName, offsetForNextElements));
+			actions.Add(MoveTextboxVerticallyAction(_infoTextboxName, offsetForNextElements));
 
 			return actions;
 		}
@@ -134,7 +128,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				var verticalOffset = i * _dataWithoutQrTableHeightInPt;
 				var newTableName = $"{_dataWithoutQrTableName}_{orderId}";
 
-				actions.AddRange(CopyTableAndMoveDownActions(_dataWithoutQrTableName, newTableName, verticalOffset));
+				actions.AddRange(CopyTableAndMoveVerticallyActions(_dataWithoutQrTableName, newTableName, verticalOffset));
 				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
 			}
 
@@ -147,8 +141,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			if(tablesWithQrCount > 0)
 			{
-				actions.Add(MoveTableDownAction(_confirmationTableName, offsetForNextElements));
-				actions.Add(MoveTextboxDownAction(_infoTextboxName, offsetForNextElements));
+				actions.Add(MoveTableVerticallyAction(_confirmationTableName, offsetForNextElements));
+				actions.Add(MoveTextboxVerticallyAction(_infoTextboxName, offsetForNextElements));
 			}
 
 			return actions;
@@ -161,7 +155,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var sourceTableName = copyFromTableWithoutQr ? _dataWithoutQrTableName : _dataTableName;
 
-			actions.AddRange(CopyTableAndMoveDownActions(sourceTableName, newTableName, verticalOffset));
+			actions.AddRange(CopyTableAndMoveVerticallyActions(sourceTableName, newTableName, verticalOffset));
 
 			foreach(var orderId in orderIds)
 			{
@@ -171,23 +165,23 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return actions;
 		}
 
-		private static IEnumerable<ModifierAction> CopyTableAndMoveDownActions(string sourceTableName, string newTableName, double verticalOffset)
+		private static IEnumerable<ModifierAction> CopyTableAndMoveVerticallyActions(string sourceTableName, string newTableName, double verticalOffset)
 		{
 			var actions = new List<ModifierAction>
 			{
 				CopyTableAction(sourceTableName, newTableName),
-				MoveTableDownAction(newTableName, verticalOffset),
+				MoveTableVerticallyAction(newTableName, verticalOffset),
 			};
 
 			return actions;
 		}
 
-		private static IEnumerable<ModifierAction> CopyQrCodeAndMoveDownActions(string sourceQrItemName, string newQrItemName, double verticalOffset)
+		private static IEnumerable<ModifierAction> CopyQrCodeAndMoveVerticallyActions(string sourceQrItemName, string newQrItemName, double verticalOffset)
 		{
 			var actions = new List<ModifierAction>
 			{
 				CopyQrCodeAction(sourceQrItemName, newQrItemName),
-				MoveQrCodeDownAction(newQrItemName, verticalOffset),
+				MoveQrCodeVerticallyAction(newQrItemName, verticalOffset),
 			};
 
 			return actions;
@@ -208,24 +202,24 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return new RemoveElement(ElementType.CustomReportItem, qrItemName);
 		}
 
-		private static ModifierAction MoveTableDownAction(string tableName, double offsetInPt)
+		private static ModifierAction MoveTableVerticallyAction(string tableName, double offsetInPt)
 		{
-			return new MoveElementDown(tableName, ElementType.Table, offsetInPt);
+			return new MoveElementVertically(tableName, ElementType.Table, offsetInPt);
 		}
 
-		private static ModifierAction MoveTextboxDownAction(string textboxName, double offsetInPt)
+		private static ModifierAction MoveTextboxVerticallyAction(string textboxName, double offsetInPt)
 		{
-			return new MoveElementDown(textboxName, ElementType.Textbox, offsetInPt);
+			return new MoveElementVertically(textboxName, ElementType.Textbox, offsetInPt);
 		}
 
-		private static ModifierAction MoveRectangleDownAction(string rectangleName, double offsetInPt)
+		private static ModifierAction MoveRectangleVerticallyAction(string rectangleName, double offsetInPt)
 		{
-			return new MoveElementDown(rectangleName, ElementType.Rectangle, offsetInPt);
+			return new MoveElementVertically(rectangleName, ElementType.Rectangle, offsetInPt);
 		}
 
-		private static ModifierAction MoveQrCodeDownAction(string qrItemName, double offsetInPt)
+		private static ModifierAction MoveQrCodeVerticallyAction(string qrItemName, double offsetInPt)
 		{
-			return new MoveElementDown(qrItemName, ElementType.CustomReportItem, offsetInPt);
+			return new MoveElementVertically(qrItemName, ElementType.CustomReportItem, offsetInPt);
 		}
 
 		private static ModifierAction AddOrderEqualTableFilterAction(string tableName, string value)

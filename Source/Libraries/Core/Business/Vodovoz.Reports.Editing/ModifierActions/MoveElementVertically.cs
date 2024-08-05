@@ -4,13 +4,13 @@ using Vodovoz.Reports.Editing.Providers;
 
 namespace Vodovoz.Reports.Editing.ModifierActions
 {
-	public class MoveElementDown : ModifierAction
+	public class MoveElementVertically : ModifierAction
 	{
 		private readonly string _elementName;
 		private readonly ElementType _elementType;
 		private readonly double _offsetInPt;
 
-		public MoveElementDown(string elementName, ElementType elementType, double offsetInPt)
+		public MoveElementVertically(string elementName, ElementType elementType, double offsetInPt)
 		{
 			if(string.IsNullOrWhiteSpace(elementName))
 			{
@@ -24,7 +24,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		public override void Modify(XDocument report)
 		{
 			var @namespace = report.Root.Attribute("xmlns").Value;
-			report.MoveElementDown(_elementType, _elementName, @namespace, _offsetInPt);
+			report.MoveElementVertically(_elementType, _elementName, @namespace, _offsetInPt);
 		}
 	}
 }

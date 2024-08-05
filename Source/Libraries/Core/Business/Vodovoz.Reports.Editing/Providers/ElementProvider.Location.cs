@@ -26,7 +26,7 @@ namespace Vodovoz.Reports.Editing.Providers
 			SetElementTopPositionValue(element, topPositionInPt, @namespace);
 		}
 
-		public static void MoveElementDown(this XContainer container, ElementType elementType,
+		public static void MoveElementVertically(this XContainer container, ElementType elementType,
 			string elementName, string @namespace, double offsetInPt)
 		{
 			var element = container.GetElementByTypeAndNameAttribute(elementType, elementName, @namespace);

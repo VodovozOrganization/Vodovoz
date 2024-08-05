@@ -141,7 +141,7 @@ namespace Vodovoz.Additions
 				report = (Report)serializer.Deserialize(reader);
 			}
 
-			var carLoadSuccess = AddQrsToCarLoadDocument(events, report, documentId, EventNamePosition.Top);
+			var carLoadSuccess = AddQrsToCarLoadDocument(events, report, documentId);
 			if(!carLoadSuccess)
 			{
 				return incomeReportSource;
@@ -205,7 +205,7 @@ namespace Vodovoz.Additions
 			IEnumerable<DriverWarehouseEvent> events,
 			Report report,
 			int documentId,
-			EventNamePosition eventNamePosition = EventNamePosition.Top)
+			EventNamePosition eventNamePosition = EventNamePosition.Bottom)
 		{
 			var reportItems = report.Body.GetEnamedItemsValue<ReportItems>(nameof(ReportItems));
 			var rectangles = reportItems.Items.OfType<Rectangle>();
@@ -236,10 +236,10 @@ namespace Vodovoz.Additions
 				switch(@event.QrPositionOnDocument)
 				{
 					case EventQrPositionOnDocument.Left:
-						AddQrToElement(@event, leftRectangle, documentId, topLeftQr, ref leftLeftQr, eventNamePosition);
+						AddQrToElement(@event, leftRectangle, documentId, topLeftQr, ref leftLeftQr, eventNamePosition, true);
 						break;
 					case EventQrPositionOnDocument.Right:
-						AddQrToElement(@event, rightRectangle, documentId, topRightQr, ref leftRightQr, eventNamePosition);
+						AddQrToElement(@event, rightRectangle, documentId, topRightQr, ref leftRightQr, eventNamePosition, true);
 						break;
 					case EventQrPositionOnDocument.Top:
 						AddQrToElement(@event, topRectangle, documentId, topTopQr, ref leftTopQr, eventNamePosition, true);
