@@ -99,8 +99,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			var warehousesNodes = await GetWarehousesQuery(
 				unitOfWork,
 				includedWarehouseIds,
-				excludedWarehouseIds,
-				cancellationToken)
+				excludedWarehouseIds)
 				.ToListAsync(cancellationToken);
 
 			var warehouseSmallNodesIds = warehousesNodes
@@ -140,7 +139,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			{
 				for(DateTime i = slice.StartDate; i < slice.EndDate; i = i.AddDays(1))
 				{
-					residuesAtDates.Add(i, GetWarehousesBalanceAt(unitOfWork, nomenclaturesSmallNodesIds, warehouseSmallNodesIds, i.LatestDayTime()));
+					residuesAtDates.Add(i, await GetWarehousesBalanceAtAsync(unitOfWork, nomenclaturesSmallNodesIds, warehouseSmallNodesIds, i.LatestDayTime(), cancellationToken));
 
 					if(cancellationToken.IsCancellationRequested)
 					{
@@ -275,7 +274,9 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			int?[] includedProductGroupIds,
 			int?[] excludedProductGroupIds) =>
 			from nomenclature in unitOfWork.Session.Query<Nomenclature>()
-			where (!includedNomenclatureIds.Any()
+			join productGroup in unitOfWork.Session.Query<ProductGroup>()
+			on nomenclature.ProductGroup.Id equals productGroup.Id
+			where (!nomenclature.IsArchive
 					|| includedNomenclatureIds.Contains(nomenclature.Id))
 				&& (!excludedNomenclatureIds.Any()
 					|| !excludedNomenclatureIds.Contains(nomenclature.Id))
@@ -283,7 +284,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 					|| includedNomenclatureCategoryIds.Contains(nomenclature.Category))
 				&& (!excludedNomenclatureCategoryIds.Any()
 					|| !excludedNomenclatureCategoryIds.Contains(nomenclature.Category))
-				&& (!includedProductGroupIds.Any()
+				&& (!productGroup.IsArchive
 					|| includedProductGroupIds.Contains(nomenclature.ProductGroup.Id))
 				&& (!excludedProductGroupIds.Any()
 					|| !excludedProductGroupIds.Contains(nomenclature.ProductGroup.Id))
@@ -296,10 +297,9 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 		private static IQueryable<WarehouseGenerationNode> GetWarehousesQuery(
 			IUnitOfWork unitOfWork,
 			int[] includedWarehouseIds,
-			int[] excludedWarehouseIds,
-			CancellationToken cancellationToken) =>
+			int[] excludedWarehouseIds) =>
 			from warehouse in unitOfWork.Session.Query<Warehouse>()
-			where (!includedWarehouseIds.Any()
+			where (!warehouse.IsArchive
 					|| includedWarehouseIds.Contains(warehouse.Id))
 				&& (!excludedWarehouseIds.Any()
 					|| !excludedWarehouseIds.Contains(warehouse.Id))
@@ -343,11 +343,12 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				ActualCount = orderItem.ActualCount
 			};
 
-		private static WarehouseResidueNode[] GetWarehousesBalanceAt(
+		private static async Task<WarehouseResidueNode[]> GetWarehousesBalanceAtAsync(
 			IUnitOfWork unitOfWork,
 			int[] nomenclatureIds,
 			int[] warehouseIds,
-			DateTime dateTime)
+			DateTime dateTime,
+			CancellationToken cancellationToken)
 		{
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -358,7 +359,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				NHibernateUtil.Decimal,
 				Projections.Sum(() => operationAlias.Amount));
 
-			var result = unitOfWork.Session.QueryOver(() => nomenclatureAlias)
+			var result = await unitOfWork.Session.QueryOver(() => nomenclatureAlias)
 				.JoinEntityAlias(() => operationAlias,
 					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
 					JoinType.InnerJoin)
@@ -370,10 +371,9 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 					.Select(() => operationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
 					.Select(balanceProjection).WithAlias(() => resultAlias.StockAmount))
 				.TransformUsing(Transformers.AliasToBean<WarehouseResidueNode>())
-				.List<WarehouseResidueNode>()
-				.ToArray();
+				.ListAsync<WarehouseResidueNode>(cancellationToken);
 
-			return result;
+			return result.ToArray();
 		}
 	}
 }
