@@ -283,7 +283,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			from nomenclature in unitOfWork.Session.Query<Nomenclature>()
 			join productGroup in unitOfWork.Session.Query<ProductGroup>()
 			on nomenclature.ProductGroup.Id equals productGroup.Id
-			where (!nomenclature.IsArchive
+			where ((!includedNomenclatureIds.Any() && !nomenclature.IsArchive)
 					|| includedNomenclatureIds.Contains(nomenclature.Id))
 				&& (!excludedNomenclatureIds.Any()
 					|| !excludedNomenclatureIds.Contains(nomenclature.Id))
@@ -291,7 +291,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 					|| includedNomenclatureCategoryIds.Contains(nomenclature.Category))
 				&& (!excludedNomenclatureCategoryIds.Any()
 					|| !excludedNomenclatureCategoryIds.Contains(nomenclature.Category))
-				&& (!productGroup.IsArchive
+				&& ((!includedProductGroupIds.Any() && !productGroup.IsArchive)
 					|| includedProductGroupIds.Contains(nomenclature.ProductGroup.Id))
 				&& (!excludedProductGroupIds.Any()
 					|| !excludedProductGroupIds.Contains(nomenclature.ProductGroup.Id))
@@ -306,7 +306,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			int[] includedWarehouseIds,
 			int[] excludedWarehouseIds) =>
 			from warehouse in unitOfWork.Session.Query<Warehouse>()
-			where (!warehouse.IsArchive
+			where ((!includedWarehouseIds.Any() && !warehouse.IsArchive)
 					|| includedWarehouseIds.Contains(warehouse.Id))
 				&& (!excludedWarehouseIds.Any()
 					|| !excludedWarehouseIds.Contains(warehouse.Id))
@@ -383,6 +383,37 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				.ListAsync<WarehouseResidueNode>(cancellationToken);
 
 			return result.ToArray();
+		}
+
+		private static async Task<List<WarehouseResidueDiffNode>> GetWarehouseResidueDiffsAsync(
+			IUnitOfWork unitOfWork,
+			int[] nomenclatureIds,
+			int[] warehouseIds,
+			DateTime startDateTime,
+			DateTime endDateTime,
+			CancellationToken cancellationToken)
+		{
+			return await (from operation in unitOfWork.Session.Query<WarehouseBulkGoodsAccountingOperation>()
+						  where operation.OperationTime > startDateTime
+							&& operation.OperationTime <= endDateTime
+							&& nomenclatureIds.Contains(operation.Nomenclature.Id)
+							&& warehouseIds.Contains(operation.Warehouse.Id)
+						  group operation by new { WarehouseId = operation.Warehouse.Id, NomenclatureId = operation.Nomenclature.Id } into warehouseNomenclatureGroups
+						  from warehouseNomenclatureGroup in warehouseNomenclatureGroups
+						  select new WarehouseResidueDiffNode
+						  {
+							  NomenclatureId = warehouseNomenclatureGroup.Nomenclature.Id,
+							  WarehouseId = warehouseNomenclatureGroup.Warehouse.Id,
+							  StockAmountDiff = warehouseNomenclatureGroup.Amount
+						  })
+						.ToListAsync(cancellationToken);
+		}
+
+		private class WarehouseResidueDiffNode
+		{
+			public int NomenclatureId { get; set; }
+			public int WarehouseId { get; set; }
+			public decimal StockAmountDiff { get; set; }
 		}
 	}
 }
