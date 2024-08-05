@@ -10,10 +10,10 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.PrintableDocuments.Store;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -35,13 +35,13 @@ namespace Vodovoz.ViewModels.Print
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICustomPrintRdlDocumentsPrinter documentsPrinter,
-			IUserRepository userRepository,
+			IUserSettingsService userSettingsService,
 			IEventsQrPlacer eventsQrPlacer)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			if(userRepository is null)
+			if(userSettingsService is null)
 			{
-				throw new ArgumentNullException(nameof(userRepository));
+				throw new ArgumentNullException(nameof(userSettingsService));
 			}
 
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Print
 			SavePrinterSettingsCommand = new DelegateCommand(SavePrinterSettings);
 			ReportPrintedCommand = new DelegateCommand(OnReportPrinted);
 
-			_userSettings = userRepository.GetCurrentUserSettings(UoW);
+			_userSettings = userSettingsService.Settings;
 		}
 
 		public event Action PreviewDocument;
