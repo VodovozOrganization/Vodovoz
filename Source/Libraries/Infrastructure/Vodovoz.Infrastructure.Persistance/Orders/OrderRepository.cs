@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -1663,6 +1663,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
 			var allocated = QueryOver.Of<PaymentItem>()
@@ -1671,6 +1672,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Client, () => clientAlias)
 				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
@@ -1679,6 +1681,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
 					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
+					.Select(() => clientAlias.FullName).WithAlias(() => resultAlias.OrderClientName)
+					.Select(() => clientAlias.INN).WithAlias(() => resultAlias.OrderClientInn)
 				)
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 
@@ -1689,6 +1693,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
 			var allocated = QueryOver.Of<PaymentItem>()
@@ -1697,6 +1702,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Client, () => clientAlias)
 				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
 				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
 					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
@@ -1710,6 +1716,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
 					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
 					.Select(() => true).WithAlias(() => resultAlias.IsMissingFromDocument)
+					.Select(() => clientAlias.FullName).WithAlias(() => resultAlias.OrderClientName)
+					.Select(() => clientAlias.INN).WithAlias(() => resultAlias.OrderClientInn)
 				)
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 

@@ -168,21 +168,22 @@ namespace Vodovoz.Domain.Documents
 				}
 			}
 
-			foreach (var orderReturnedEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp))
+			if(!ReturnedItems.Any(x => x.Id != 0))
 			{
-				if(!ReturnedItems.Any(i => i.Nomenclature == orderReturnedEquipment.Nomenclature)){
-					ReturnedItems.Add(
-						new SelfDeliveryDocumentReturned {
-							Document = this,
-							Nomenclature = orderReturnedEquipment.Nomenclature,
-							ActualCount = 0,
-							Amount = GetEquipmentReturnsCountInOrder(orderReturnedEquipment.Nomenclature),
-							Direction = orderReturnedEquipment.Direction,
-							DirectionReason = orderReturnedEquipment.DirectionReason,
-							OwnType = orderReturnedEquipment.OwnType
-						}
-					);
-				}
+				ReturnedItems = Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp)
+					.GroupBy(x => (x.Nomenclature, x.DirectionReason, x.OwnType))
+					.ToDictionary(x => x.Key, x => x.ToList())
+					.Select(x => new SelfDeliveryDocumentReturned
+					{
+						Document = this,
+						Nomenclature = x.Key.Nomenclature,
+						ActualCount = 0,
+						Amount = x.Value.Sum(e => e.Count),
+						Direction = Direction.PickUp,
+						DirectionReason = x.Key.DirectionReason,
+						OwnType = x.Key.OwnType
+					})
+					.ToList();
 			}
 		}
 
@@ -262,27 +263,34 @@ namespace Vodovoz.Domain.Documents
 					}
 				}
 			}
-
-
 		}
 
 		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
 		{
 			if(nomenclatureRepository == null)
+			{
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
-			if(bottlesRepository == null)
-				throw new ArgumentNullException(nameof(bottlesRepository));
+			}
 
-			if(Warehouse != null && Warehouse.CanReceiveBottles) {
+			if(bottlesRepository == null)
+			{
+				throw new ArgumentNullException(nameof(bottlesRepository));
+			}
+
+			if(Warehouse != null && Warehouse.CanReceiveBottles)
+			{
 				UpdateReturnedOperation(uow, defBottleId, TareToReturn);
 				var emptyBottlesAlreadyReturned = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
 				Order.ReturnedTare = emptyBottlesAlreadyReturned + TareToReturn;
 			}
 
 			if(Warehouse != null && Warehouse.CanReceiveEquipment)
-				foreach(GoodsReceptionVMNode item in goodsReceptions) {
-					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
+			{
+				foreach(GoodsReceptionVMNode item in goodsReceptions)
+				{
+					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount, item.OwnType, item.DirectionReason);
 				}
+			}
 		}
 
 		public virtual void UpdateReturnedOperations(IUnitOfWork uow, Dictionary<int, decimal> returnedNomenclatures)
@@ -292,26 +300,63 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity)
+		void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity,
+			OwnTypes? ownType = null, DirectionReason? directionReason = null)
 		{
-			var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returnedNomenclaureId);
-			if(item == null && returnedNomenclaureQuantity != 0) {
-				item = new SelfDeliveryDocumentReturned {
-					Amount = returnedNomenclaureQuantity,
-					Document = this,
-					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
-				};
-				item.CreateOperation(Warehouse, Order.Client, TimeStamp);
-				ReturnedItems.Add(item);
-			} else if(item != null && returnedNomenclaureQuantity == 0) {
-				ReturnedItems.Remove(item);
-			} else if(item != null && returnedNomenclaureQuantity != 0) {
-				item.Amount = returnedNomenclaureQuantity;
-				if(item.Id == 0) {
+			var items = ReturnedItems.Where(x => x.Nomenclature.Id == returnedNomenclaureId);
+
+			if(ownType.HasValue)
+			{
+				items = items.Where(x => x.OwnType == ownType.Value);
+			}
+
+			if(directionReason.HasValue)
+			{
+				items = items.Where(x => x.DirectionReason == directionReason.Value);
+			}
+
+			var itemsToRemove = new List<SelfDeliveryDocumentReturned>();
+
+			if(!items.Any())
+			{
+				if(returnedNomenclaureQuantity != 0)
+				{
+					var item = new SelfDeliveryDocumentReturned
+					{
+						Amount = returnedNomenclaureQuantity,
+						Document = this,
+						Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
+					};
 					item.CreateOperation(Warehouse, Order.Client, TimeStamp);
-				} else {
-					item.UpdateOperation(Warehouse, Order.Client);
+					ReturnedItems.Add(item);
 				}
+
+				return;
+			}
+
+			foreach(var item in items)
+			{
+				if(returnedNomenclaureQuantity == 0)
+				{
+					itemsToRemove.Add(item);
+				}
+				else if(returnedNomenclaureQuantity != 0)
+				{
+					item.Amount = returnedNomenclaureQuantity;
+					if(item.Id == 0)
+					{
+						item.CreateOperation(Warehouse, Order.Client, TimeStamp);
+					}
+					else
+					{
+						item.UpdateOperation(Warehouse, Order.Client);
+					}
+				}
+			}
+
+			foreach(var item in itemsToRemove)
+			{
+				ReturnedItems.Remove(item);
 			}
 		}
 

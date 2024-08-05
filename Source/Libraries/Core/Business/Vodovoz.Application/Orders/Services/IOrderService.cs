@@ -14,5 +14,6 @@ namespace Vodovoz.Application.Orders.Services
 		void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
 		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
 		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);
+		bool NeedResendByEdo(IUnitOfWork unitOfWork, Order entity);
 	}
 }

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
@@ -11,6 +11,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application
 {
@@ -42,6 +43,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
+			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 		;
 	}
 }

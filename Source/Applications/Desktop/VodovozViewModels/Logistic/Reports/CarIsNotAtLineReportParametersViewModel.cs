@@ -164,12 +164,12 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			if(!report.CarReceptionRows.Any())
 			{
-				template.Workbook.Worksheet(1).Rows(12, 14).Delete();
+				template.Workbook.Worksheet(1).Rows(13, 16).Delete();
 			}
 
 			if(!report.CarTransferRows.Any())
 			{
-				template.Workbook.Worksheet(1).Rows(7, 10).Delete();
+				template.Workbook.Worksheet(1).Rows(8, 11).Delete();
 			}
 
 			return template.RenderTemplate(report);

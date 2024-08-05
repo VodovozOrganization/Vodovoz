@@ -256,10 +256,12 @@ namespace Pacs.Server.Operators
 
 		public async Task Connect()
 		{
-			var opearator = _operatorRepository.GetOperator(OperatorId);
-
 			LoadOperatorState(OperatorId);
-			await _machine.FireAsync(OperatorStateTrigger.Connect);
+
+			if(_machine.CanFire(OperatorStateTrigger.Connect))
+			{
+				await _machine.FireAsync(OperatorStateTrigger.Connect);
+			}
 		}
 
 		private void OnConnect()

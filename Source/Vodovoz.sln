@@ -5,7 +5,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{03DF8ADE-4BA1-4AF0-8881-D45D04C4FABE}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{9913270B-F6A1-4E5F-8FA4-B4CC764F5E94}"
@@ -178,7 +177,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Project.Desktop", "Libra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Project.Gtk", "Libraries\External\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj", "{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Report", "Libraries\External\QSProjects\QS.Report\QS.Report.csproj", "{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Report", "Libraries\External\QSProjects\QS.Report\QS.Report.csproj", "{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Report.Gtk", "Libraries\External\QSProjects\QS.Report.Gtk\QS.Report.Gtk.csproj", "{42708CEE-08D8-43D5-AFE0-9992EB46E9F9}"
 EndProject

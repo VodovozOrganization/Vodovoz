@@ -189,12 +189,12 @@ namespace Vodovoz.Reports
 			string errorString = string.Empty;
 
 			if(radioDriver.Active && (dateperiodpicker.StartDateOrNull == null || evmeDriver.Subject == null)) {
-				errorString += "Не заполнена дата\n Не заполнен водитель\n";
+				errorString += "Не заполнена дата или не выбран водитель\n";
 			}
 
 			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | Car == null))
 			{
-				errorString += "Не заполнена дата\n Не заполнен автомобиль\n";
+				errorString += "Не заполнена дата или автомобиль\n";
 			}
 
 			if(radioSumm.Active && dateperiodpicker.StartDateOrNull == null)

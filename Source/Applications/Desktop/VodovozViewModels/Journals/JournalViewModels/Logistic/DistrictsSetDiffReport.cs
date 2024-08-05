@@ -10,7 +10,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Errors;
 using Vodovoz.Extensions;
-using Vodovoz.ViewModels.Reports;
+using Vodovoz.Presentation.ViewModels.Reports;
 using District = Vodovoz.Domain.Sale.District;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
