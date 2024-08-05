@@ -379,7 +379,13 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>368.1pt</Width>
+            <Width>172.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>100pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>42pt</Width>
@@ -400,14 +406,14 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>25pt</Height>
+              <Height>85pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="DataTableHeader">
                       <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
 'Розница',
-'Сетевой заказ №' + {order_id} + '\n' + {client_name} + '\n' + {delivery_address})</Value>
+'Сетевой заказ №' + {order_id})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -434,8 +440,9 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value></Value>
+                    <Textbox Name="Textbox58">
+                      <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
+'Ручная сборка!', '')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -445,10 +452,10 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                           <Top>None</Top>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>13pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -456,10 +463,11 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox40">
-                      <Value></Value>
+                    <Textbox Name="Textbox11">
+                      <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
+'', {client_name} + '\n' + {delivery_address})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -470,73 +478,12 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>10pt</FontSize>
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox83">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox87">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -559,6 +506,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -671,10 +619,11 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingBottom>=Len({nomenclature}) / 6 + "pt"</PaddingBottom>
-                        <PaddingTop>=Len({nomenclature}) / 6 + "pt"</PaddingTop>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -795,7 +744,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>175pt</Top>
+        <Top>145pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -816,7 +765,49 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                       </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
                       <Value>Итого:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>N0</Format>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1069,7 +1060,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>560.0pt</Top>
+        <Top>460pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1139,22 +1130,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>57.6pt</Width>
+            <Width>113.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>34.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>140.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>129.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>120.5pt</Width>
+            <Width>249.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1201,9 +1180,14 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.3pt</Height>
+              <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox11">
+                    <Textbox Name="Textbox56">
                       <Value> Авто:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1222,7 +1206,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox30">
+                    <Textbox Name="Textbox57">
                       <Value>={model} + "(" + {reg_number}+ ")"</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1240,12 +1224,16 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.3pt</Height>
+              <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox35">
+                    <Textbox Name="Textbox62">
                       <Value>Приоритет погрузки:</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -1262,7 +1250,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox31">
+                    <Textbox Name="Textbox63">
                       <Value>={daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1284,14 +1272,14 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>25.9pt</Top>
+        <Left>90.3pt</Left>
+        <Top>36.3pt</Top>
       </Table>
-      <Rectangle Name="TopQrRectangle">
+      <Rectangle Name="LeftQrRectangle">
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
-        <Left>240.0pt</Left>
-        <Top>45pt</Top>
+        <Left>0.0pt</Left>
+        <Top>24pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1299,11 +1287,11 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <ZIndex>1</ZIndex>
       </Rectangle>
-      <Rectangle Name="BottomQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Rectangle Name="RightQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
-        <Left>240.0pt</Left>
-        <Top>260.0pt</Top>
+        <Left>479.20pt</Left>
+        <Top>24.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1317,7 +1305,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
         <Left>3.0pt</Left>
-        <Top>720.0pt</Top>
+        <Top>620pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1384,7 +1372,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>410.0pt</Top>
+        <Top>290pt</Top>
       </Table>
       <Table Name="TableDataWithoutQr" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
@@ -1818,7 +1806,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>490.0pt</Top>
+        <Top>380pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1952,16 +1940,16 @@ Format({route_list_date}, "dd.MM.yyyy")
       </Table>
       <CustomReportItem Name="OrderQrCode">
         <Type>QR Code</Type>
-        <Height>80pt</Height>
-        <Width>80pt</Width>
+        <Height>80.00pt</Height>
+        <Width>80.00pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
             <Value>='CarLoadDocument;' + {?id} + ';&lt;OrderId&gt;'</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>480.0pt</Left>
-        <Top>176.5pt</Top>
+        <Left>181.6pt</Left>
+        <Top>146.9pt</Top>
         <ZIndex>1</ZIndex>
         <Style>
           <BorderStyle />
@@ -1970,7 +1958,7 @@ Format({route_list_date}, "dd.MM.yyyy")
         </Style>
       </CustomReportItem>
     </ReportItems>
-    <Height>750pt</Height>
+    <Height>671.6pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
