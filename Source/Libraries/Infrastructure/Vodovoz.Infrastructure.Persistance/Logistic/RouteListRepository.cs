@@ -383,13 +383,19 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					Projections.Constant(true),
 					Projections.Constant(false)));
 
+			var orderIdProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.SubQuery(isNeedIndividualSetOnLoadSubquery), true),
+				Projections.Property(() => orderAlias.Id),
+				Projections.Constant(0));
+
 			var orderitemsQuery = uow.Session.QueryOver(() => orderItemsAlias)
 					.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 					.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 					.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 					.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
-			return orderitemsQuery.SelectList(list => list
+
+			var itemsByOrders = orderitemsQuery.SelectList(list => list
 				.Select(
 					Projections.GroupProperty(
 						Projections.Conditional(
@@ -407,7 +413,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 						)
 					)
 				).WithAlias(() => resultAlias.NomenclatureName)
-				.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+				.Select(Projections.GroupProperty(orderIdProjection)).WithAlias(() => resultAlias.OrderId)
 				.Select(
 					Projections.Conditional(
 						Restrictions.And(
@@ -423,6 +429,16 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.SelectSubQuery(isNeedIndividualSetOnLoadSubquery).WithAlias(() => resultAlias.IsNeedIndividualSetOnLoad))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
+
+			foreach(var item in itemsByOrders)
+			{
+				if(item.OrderId == 0)
+				{
+					item.OrderId = null;
+				}
+			}
+
+			return itemsByOrders;
 		}
 
 		public IList<GoodsInRouteListResultWithSpecialRequirements> GetEquipmentsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)

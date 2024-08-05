@@ -126,7 +126,7 @@ namespace Vodovoz.PrintableDocuments.Store
 		private int GetTearOffCouponsCount()
 		{
 			var groupedByOrdersItems = _carLoadDocument.Items
-				.GroupBy(item => item.OrderId)
+				.GroupBy(item => (item.OrderId, item.IsIndividualSetForOrder))
 				.ToDictionary(g => g.Key, g => g.ToList());
 
 			var couponsCount = 0;
