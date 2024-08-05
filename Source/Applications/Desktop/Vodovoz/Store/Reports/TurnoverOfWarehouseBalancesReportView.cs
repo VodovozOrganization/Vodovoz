@@ -1,6 +1,8 @@
 ﻿using DateTimeHelpers;
 using Gtk;
+using QS.Dialog;
 using QS.Views.Dialog;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Presentation.ViewModels.Store.Reports;
@@ -15,10 +17,15 @@ namespace Vodovoz.Store.Reports
 		private IncludeExludeFiltersView _filterView;
 		private int _hpanedDefaultPosition = 680;
 		private int _hpanedMinimalPosition = 16;
+		private readonly IGuiDispatcher _guiDispatcher;
 
-		public TurnoverOfWarehouseBalancesReportView(TurnoverOfWarehouseBalancesReportViewModel viewModel)
+		public TurnoverOfWarehouseBalancesReportView(
+			TurnoverOfWarehouseBalancesReportViewModel viewModel,
+			IGuiDispatcher guiDispatcher)
 			: base(viewModel)
 		{
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+
 			Build();
 
 			Initialize();
@@ -26,7 +33,6 @@ namespace Vodovoz.Store.Reports
 
 		private void Initialize()
 		{
-
 			datePeriodPicker.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
@@ -69,9 +75,11 @@ namespace Vodovoz.Store.Reports
 		{
 			if(e.PropertyName == nameof(ViewModel.Report))
 			{
-				QueueDraw();
-
-				RefreshReportPreview();
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					RefreshReportPreview();
+					QueueDraw();
+				});
 			}
 		}
 

@@ -242,8 +242,8 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				_guiDispatcher.RunInGuiTread(() =>
 				{
 					reportResult.Match(
-					x => Report = x,
-					errors => ShowErrors(errors));
+						x => Report = x,
+						errors => ShowErrors(errors));
 				});
 			}
 			catch(OperationCanceledException)
