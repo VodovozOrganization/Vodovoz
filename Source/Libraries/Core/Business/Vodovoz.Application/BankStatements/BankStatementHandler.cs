@@ -14,15 +14,18 @@ namespace Vodovoz.Application.BankStatements
 	/// </summary>
 	public class BankStatementHandler
 	{
+		private const string _failedDirectoryName = "Failed";
 		private const string _accountPattern = @"\D*[с|c]ч[е|ё]т\D*";
 		private const string _accountNumberPattern = @"[с|c]ч[е|ё]т\D+([0-9]{20,25})";
 		private const string _accountNumberWithDatePattern =
 			@"[с|c]ч[е|ё]т\D+([0-9]{20,25})\sза\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s-\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		private const string _balanceWithDatePattern = @"([0-9]{1,}[,|\.][0-9]{1,2})\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		private const string _balancePattern = @"^([0-9]{1,}[,|\.]*[0-9]*)";
+		//30.07.2024 Исходящее сальдо дебет: 0 кредит: 6 748,87
+		private const string _balanceDebitCreditWithDatePattern = @"([0-9]\s?[0-9]*,*[0-9]*)";
 		private const string _singleDatePattern = @"([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
-		//с 15.07.2024 по 19.07.2024
-		private const string _dateNumberPattern = @"[Сc|Cс]\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})|\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
+		//с 15.07.2024 по 19.07.2024 | 15.07.2024 - 19.07.2024
+		private const string _dateNumberPattern = @"[Сc|Cс]?\s*([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s(по|-)\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		//с 15 июля 2024 по 19 июля 2024
 		private const string _dateStringMonthPattern = @"[Сc|Cс]\s([0-9]{2}\D+[0-9]{4})\D+([0-9]{2}\D+[0-9]{4})";
 
@@ -41,7 +44,7 @@ namespace Vodovoz.Application.BankStatements
 		{
 			var bankStatementProcessedResult = new BankStatementProcessedResult();
 			
-			TryParseData(filePath, date, bankStatementProcessedResult);
+			TryParseData(filePath, filePath, filePath, date, bankStatementProcessedResult);
 
 			return bankStatementProcessedResult;
 		}
@@ -49,8 +52,10 @@ namespace Vodovoz.Application.BankStatements
 		public BankStatementProcessedResult ProcessBankStatementsFromDirectory(string directoryPath, DateTime date)
 		{
 			var bankStatementProcessedResult = new BankStatementProcessedResult();
-			
-			var filesPaths = Directory.GetFiles(directoryPath);
+			var filesPaths = new List<string>();
+			var parentDirectoryPath = Directory.GetParent(directoryPath).FullName;
+
+			AddDirectoryFiles(filesPaths, directoryPath);
 
 			if(!filesPaths.Any())
 			{
@@ -60,25 +65,67 @@ namespace Vodovoz.Application.BankStatements
 			
 			foreach(var filePath in filesPaths)
 			{
-				TryParseData(filePath, date, bankStatementProcessedResult);
+				TryParseData(parentDirectoryPath, directoryPath, filePath, date, bankStatementProcessedResult);
 			}
 
 			return bankStatementProcessedResult;
 		}
-
-		private void TryParseData(string filePath, DateTime date, BankStatementProcessedResult bankStatementProcessedResult)
+		
+		private void AddDirectoryFiles(List<string> filesList, string targetDirectory)
 		{
+			var files = Directory.GetFiles(targetDirectory);
+			filesList.AddRange(files);
+			
+			var subdirectories = Directory.GetDirectories(targetDirectory);
+			
+			foreach(var subdirectory in subdirectories)
+			{
+				var directoryName = subdirectory.Split('\\').Last();
+				
+				if(directoryName == _failedDirectoryName)
+				{
+					continue;
+				}
+				
+				AddDirectoryFiles(filesList, subdirectory);
+			}
+		}
+
+		private void TryParseData(
+			string parentDirectoryPath,
+			string currentDirectoryPath,
+			string filePath,
+			DateTime date,
+			BankStatementProcessedResult bankStatementProcessedResult)
+		{
+			var successDirectoryPath = parentDirectoryPath + $@"\${date:d}";
+			var failedDirectoryPath = currentDirectoryPath + $@"\{_failedDirectoryName}\{date:d}";
+
+			if(!Directory.Exists(successDirectoryPath))
+			{
+				var successDirectory = Directory.CreateDirectory(successDirectoryPath);
+				successDirectory.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+			}
+			
+			if(!Directory.Exists(failedDirectoryPath))
+			{
+				Directory.CreateDirectory(failedDirectoryPath);
+			}
+			
 			var fileExtension = CheckFileExtension(filePath);
 			if(fileExtension is null)
 			{
 				bankStatementProcessedResult.AddResult(filePath, BankStatementProcessState.UnsupportedFileExtension);
+				TryMoveFileToDirectory(failedDirectoryPath, filePath, false);
 				return;
 			}
 			
-			TryParseData(filePath, fileExtension.Value, date, bankStatementProcessedResult);
+			TryParseData(successDirectoryPath, failedDirectoryPath, filePath, fileExtension.Value, date, bankStatementProcessedResult);
 		}
 
 		private void TryParseData(
+			string successDirectoryPath,
+			string failedDirectoryPath,
 			string filePath,
 			BankStatementFileExtension fileExtension,
 			DateTime date,
@@ -91,15 +138,34 @@ namespace Vodovoz.Application.BankStatements
 				
 				if(CheckWrongData(filePath, date, bankStatementProcessedResult, result))
 				{
+					TryMoveFileToDirectory(failedDirectoryPath, filePath, false);
 					return;
 				}
 
 				bankStatementProcessedResult.AddSuccessResult(filePath, result.AccountNumber, result.Balance.Value, result.Date.Value);
+				//TryMoveFileToDirectory(successDirectoryPath, filePath, true);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при парсинге файла выписки {FilePath}", filePath);
 				bankStatementProcessedResult.AddResult(filePath, BankStatementProcessState.ErrorParsingFile);
+				TryMoveFileToDirectory(failedDirectoryPath, filePath, false);
+			}
+		}
+
+		private void TryMoveFileToDirectory(string directoryPath, string filePath, bool success)
+		{
+			var directoryMessage = success
+				? " в папку успешной обработки на день"
+				: " в папку провальных файлов";
+			
+			try
+			{
+				File.Move(filePath, directoryPath + $@"\{Path.GetFileName(filePath)}");
+			}
+			catch(Exception exc)
+			{
+				_logger.LogError(exc, "Ошибка при перемещения файла {FilePath}" + directoryMessage, filePath);
 			}
 		}
 
@@ -208,7 +274,7 @@ namespace Vodovoz.Application.BankStatements
 
 						if(dateNumberMatches.Count != 0)
 						{
-							date = dateNumberMatches[dateNumberMatches.Count - 1].Groups[2].Value;
+							date = dateNumberMatches[dateNumberMatches.Count - 1].Groups[3].Value;
 						}
 						
 						if(dateStringMonthMatches.Count != 0)
@@ -303,10 +369,14 @@ namespace Vodovoz.Application.BankStatements
 				switch(dateRow.DateType)
 				{
 					case BankStatementDateType.FromDate:
-						TryProcessPeriodDate(dateRow.Data, ref date);
+						TryProcessPeriodNumberDate(dateRow.Data, ref date);
 						break;
 					case BankStatementDateType.OnDate:
+					case BankStatementDateType.StatementOnDate:
 						TryProcessSingleDate(dateRow.Data, ref date);
+						break;
+					case BankStatementDateType.FromPeriodDate:
+						TryProcessPeriodStringDate(dateRow.Data, ref date);
 						break;
 					case BankStatementDateType.EndDate:
 						TryProcessSingleDate(dateRow.Data, ref date);
@@ -315,9 +385,19 @@ namespace Vodovoz.Application.BankStatements
 			}
 		}
 
-		private void TryProcessPeriodDate(string dateRow, ref string date)
+		private void TryProcessPeriodNumberDate(string dateRow, ref string date)
 		{
 			var dateMatches = Regex.Matches(dateRow, _dateNumberPattern);
+
+			if(dateMatches.Count != 0)
+			{
+				date = dateMatches[dateMatches.Count - 1].Groups[3].Value;
+			}
+		}
+		
+		private void TryProcessPeriodStringDate(string dateRow, ref string date)
+		{
+			var dateMatches = Regex.Matches(dateRow, _dateStringMonthPattern);
 
 			if(dateMatches.Count != 0)
 			{
@@ -363,6 +443,7 @@ namespace Vodovoz.Application.BankStatements
 					switch(searchPattern)
 					{
 						case BankStatementDateType.EndDate:
+						case BankStatementDateType.StatementOnDate:
 							if(cell.ToLower().StartsWith(searchPattern.GetEnumDisplayName()))
 							{
 								success = true;
@@ -409,7 +490,7 @@ namespace Vodovoz.Application.BankStatements
 					}
 					break;
 				case BankStatementBalanceType.BalanceOutgoing:
-					TryProcessOutgoingBalance(balanceRow.Data, ref balance);
+					TryProcessBalanceOutgoing(balanceRow.Data, ref balance);
 					break;
 				case BankStatementBalanceType.OutSaldo:
 					TryProcessOutSaldo(balanceRow.Data, ref balance);
@@ -481,6 +562,9 @@ namespace Vodovoz.Application.BankStatements
 
 		private void TryProcessOutgoingBalance(IEnumerable<string> data, ref string balance)
 		{
+			//для выписок где в одной строке указан и дебет и кредит
+			var balanceValues = new List<string>();
+			
 			foreach(var cell in data)
 			{
 				var balanceOnDateMatches = Regex.Matches(cell, _balanceWithDatePattern);
@@ -494,8 +578,35 @@ namespace Vodovoz.Application.BankStatements
 
 				if(balanceMatches.Count != 0)
 				{
-					balance = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
-					break;
+					if(balanceValues.Count > 1)
+					{
+						break;
+					}
+					
+					balanceValues.Add(balanceMatches[balanceMatches.Count - 1].Groups[1].Value);
+				}
+			}
+
+			if(!string.IsNullOrWhiteSpace(balance))
+			{
+				return;
+			}
+
+			if(balanceValues.Any())
+			{
+				if(balanceValues.Count == 1)
+				{
+					balance = balanceValues[0];
+				}
+				else if(balanceValues.Count == 2)
+				{
+					var debitBalance = TryParseBalance(balanceValues[0]);
+					var creditBalance = TryParseBalance(balanceValues[1]);
+
+					if(debitBalance.HasValue && creditBalance.HasValue)
+					{
+						balance = (creditBalance.Value - debitBalance.Value).ToString();
+					}
 				}
 			}
 		}
@@ -541,12 +652,14 @@ namespace Vodovoz.Application.BankStatements
 			{
 				if(string.IsNullOrWhiteSpace(balance))
 				{
-					var balanceMatches = Regex.Matches(cell, _balancePattern);
+					var str = cell.Remove(0, 20);
+					var balanceMatches = Regex.Matches(str, _balanceDebitCreditWithDatePattern);
 
 					if(balanceMatches.Count != 0)
 					{
-						var balanceDebit = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
-						var balanceCredit = balanceMatches[balanceMatches.Count - 1].Groups[2].Value;
+						var balanceDebit = balanceMatches[balanceMatches.Count - 2].Groups[1].Value;
+						var balanceCredit = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
+						balanceDebit = balanceDebit.Trim(' ');
 
 						balance = balanceDebit == "0" ? balanceCredit : $"-{balanceDebit}";
 					}
@@ -561,11 +674,16 @@ namespace Vodovoz.Application.BankStatements
 				return null;
 			}
 
+			if(decimal.TryParse(balance, NumberStyles.Any, CultureInfo.CurrentUICulture, out var convertedBalance1))
+			{
+				return convertedBalance1;
+			}
+
 			balance = balance.Replace(',', '.');
 
-			if(decimal.TryParse(balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var convertedBalance))
+			if(decimal.TryParse(balance, NumberStyles.Any, CultureInfo.InvariantCulture, out var convertedBalance2))
 			{
-				return convertedBalance;
+				return convertedBalance2;
 			}
 
 			return null;

@@ -2,16 +2,19 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Расчетные счета",
-		Nominative = "Расчетный счет",
-		GenitivePlural = "Расчетных счетов")]
+		NominativePlural = "Расчетные счета банковских выписок",
+		Nominative = "Расчетный счет банковской выписки",
+		GenitivePlural = "Расчетных счетов банковской выписки")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class BusinessAccount : PropertyChangedBase, INamedDomainObject, IValidatableObject
 	{
+		private const int _numberMaxChars = 45;
 		private string _name;
 		private string _number;
 		private string _bank;
@@ -72,7 +75,13 @@ namespace Vodovoz.Core.Domain.Organizations
 			
 			if(BusinessActivity is null)
 			{
-				yield return new ValidationResult("Направление деятельности должно ыть заполнено");
+				yield return new ValidationResult("Направление деятельности должно быть заполнено");
+			}
+
+			if(!string.IsNullOrWhiteSpace(Number) && Number.Length > _numberMaxChars)
+			{
+				yield return new ValidationResult(
+					$"Номер расчетного счета не может быть больше {_numberMaxChars}. Сейчас превышение на {Number.Length - _numberMaxChars}");
 			}
 		}
 	}

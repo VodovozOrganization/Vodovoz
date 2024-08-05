@@ -10,6 +10,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Organisations.Journals;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.Presentation.ViewModels.Organisations
 {
@@ -26,6 +27,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			ICurrentPermissionService currentPermissionService,
 			ViewModelEEVMBuilder<BusinessActivity> businessActivityViewModelBuilder,
 			ViewModelEEVMBuilder<Funds> fundsViewModelBuilder,
+			IStringHandler stringHandler,
 			IValidator validator) : base(uowBuilder, unitOfWorkFactory, navigation, validator)
 		{
 			_permissionResult =
@@ -34,6 +36,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			_businessActivityViewModelBuilder =
 				businessActivityViewModelBuilder ?? throw new ArgumentNullException(nameof(businessActivityViewModelBuilder));
 			_fundsViewModelBuilder = fundsViewModelBuilder ?? throw new ArgumentNullException(nameof(fundsViewModelBuilder));
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 
 			CreateCommands();
 			InitializeEntryViewModels();
@@ -45,6 +48,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 		public IEntityEntryViewModel BusinessActivityViewModel { get; private set; }
 		public IEntityEntryViewModel FundsViewModel { get; private set; }
+		public IStringHandler StringHandler { get; }
 
 		public bool CanEdit => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
 		public string IdString => Entity.Id.ToString();

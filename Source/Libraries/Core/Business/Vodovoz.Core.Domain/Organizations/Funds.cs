@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
@@ -9,6 +10,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		Nominative = "Форма денежных средств",
 		GenitivePlural = "Формы денежных средств")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class Funds : PropertyChangedBase, INamedDomainObject
 	{
 		private string _name;

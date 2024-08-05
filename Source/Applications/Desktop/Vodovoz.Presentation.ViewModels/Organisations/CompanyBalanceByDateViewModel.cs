@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using ClosedXML.Excel;
+using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -16,8 +16,12 @@ using QS.ViewModels.Extension;
 using Vodovoz.Application.BankStatements;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Extensions;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.Presentation.ViewModels.Organisations
 {
@@ -26,6 +30,8 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ICashRepository _cashRepository;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IGenericRepository<CompanyBalanceByDay> _companyBalanceByDayRepository;
 		private readonly BankStatementHandler _bankStatementHandler;
 		private readonly IPermissionResult _permissionResult;
@@ -35,10 +41,13 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
+			ICashRepository cashRepository,
+			ISubdivisionSettings subdivisionSettings,
 			IGenericRepository<CompanyBalanceByDay> companyBalanceByDayRepository,
 			BankStatementHandler bankStatementHandler,
 			IDatePickerViewModelFactory datePickerViewModelFactory,
-			ICurrentPermissionService permissionService) : base(unitOfWorkFactory, navigation)
+			ICurrentPermissionService permissionService,
+			IStringHandler stringHandler) : base(unitOfWorkFactory, navigation)
 		{
 			if(datePickerViewModelFactory == null)
 			{
@@ -53,9 +62,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			_permissionResult = permissionService.ValidateEntityPermission(typeof(CompanyBalanceByDay));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_companyBalanceByDayRepository =
 				companyBalanceByDayRepository ?? throw new ArgumentNullException(nameof(companyBalanceByDayRepository));
 			_bankStatementHandler = bankStatementHandler ?? throw new ArgumentNullException(nameof(bankStatementHandler));
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 
 			if(!_permissionResult.CanRead)
 			{
@@ -65,13 +77,14 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			Title = typeof(CompanyBalanceByDay).GetCustomAttribute<AppellativeAttribute>(true).NominativePlural;
 
 			CreateCommands();
-			Initialize(datePickerViewModelFactory);
+			Initialize(datePickerViewModelFactory, permissionService);
 		}
 
 		public event Action CompanyBalanceChangedAction;
 
 		public string ResultMessage { get; private set; }
 		public bool AskSaveOnClose => CanUpdateData;
+		public IStringHandler StringHandler { get; }
 		public CompanyBalanceByDay Entity { get; private set; }
 		public IList<CompanyBalanceByDay> CompanyBalances { get; private set; }
 		public DelegateCommand SaveCommand { get; private set; }
@@ -80,6 +93,9 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		public DelegateCommand ExportCommand { get; private set; }
 		public DatePickerViewModel DatePickerViewModel { get; private set; }
 		private bool CanUpdateData => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
+		private bool CanEditCompanyBalanceByDayInPreviousPeriods { get; set; }
+		private DialogSettings OpenDirectorySettings { get; set; }
+		private IEnumerable<(int SubdivisionId, decimal Income, decimal Expense)> CashSubdivisionsBalances { get; set; }
 
 		public override bool Save()
 		{
@@ -102,23 +118,18 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			LoadAndProcessDataCommand = new DelegateCommand(
 				() =>
 				{
-					var result = _fileDialogService.RunOpenDirectoryDialog();
-					
-					if(!result.Successful) return;
-
-					/*var directoryPath1 = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2";
-					var directoryPath2 = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2\ГК ВВ";*/
+					//var directoryPath1 = @"Z:\SystemStatements\activities\CurrentStatements";
+					var directoryPath2 = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2";
 
 					var banksStatementsData =
-						_bankStatementHandler.ProcessBankStatementsFromDirectory(result.Path, DatePickerViewModel.SelectedDate);
+						_bankStatementHandler.ProcessBankStatementsFromDirectory(directoryPath2, DatePickerViewModel.SelectedDate);
 					
 					/*var banksStatementsData = _bankStatementHandler.ProcessBankStatementsFromFile(
 						@"D:\Работа\Программист Веселый Водовоз\файлы выписок2\StatReports_16.xls",
 						DatePickerViewModel.SelectedDate);*/
 					
 					UpdateLocalData(banksStatementsData);
-				}
-				,
+				},
 				() => CanUpdateData
 			);
 
@@ -127,15 +138,20 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 		private void UpdateLocalData(BankStatementProcessedResult banksStatementsData)
 		{
-			var totalBalance = 0m;
+			decimal? totalBalance = 0m;
 			foreach(var fundsSummary in Entity.FundsSummary)
 			{
-				var totalFundsBalance = 0m;
+				decimal? totalFundsBalance = 0m;
 				foreach(var businessActivitySummary in fundsSummary.BusinessActivitySummary)
 				{
-					var totalActivityBalance = 0m;
+					decimal? totalActivityBalance = 0m;
 					foreach(var businessAccountSummary in businessActivitySummary.BusinessAccountsSummary)
 					{
+						if(TryGetCashSubdivisionBalanceAndFill(businessAccountSummary, ref totalActivityBalance))
+						{
+							continue;
+						}
+						
 						if(string.IsNullOrWhiteSpace(businessAccountSummary.BusinessAccount.Number))
 						{
 							continue;
@@ -147,18 +163,74 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 							totalActivityBalance += data.Balance;
 						}
 					}
+					
+					if(totalActivityBalance == 0 && businessActivitySummary.BusinessAccountsSummary.All(x => !x.Total.HasValue))
+					{
+						businessActivitySummary.Total = null;
+					}
+					else
+					{
+						businessActivitySummary.Total = totalActivityBalance;
+					}
 
-					businessActivitySummary.Total = totalActivityBalance;
 					totalFundsBalance += totalActivityBalance;
 				}
 
-				fundsSummary.Total = totalFundsBalance;
+				if(totalFundsBalance == 0 && fundsSummary.BusinessActivitySummary.All(x => !x.Total.HasValue))
+				{
+					fundsSummary.Total = null;
+				}
+				else
+				{
+					fundsSummary.Total = totalFundsBalance;
+				}
 				totalBalance += totalFundsBalance;
 			}
 
-			Entity.Total = totalBalance;
+			if(totalBalance == 0 && Entity.FundsSummary.All(x => !x.Total.HasValue))
+			{
+				Entity.Total = null;
+			}
+			else
+			{
+				Entity.Total = totalBalance;
+			}
+			
 			CompanyBalanceChangedAction?.Invoke();
 			UpdateResultMessage(banksStatementsData);
+		}
+
+		private bool TryGetCashSubdivisionBalanceAndFill(
+			BusinessAccountSummary businessAccountSummary,
+			ref decimal? totalActivityBalance)
+		{
+			if(businessAccountSummary.BusinessAccount is null)
+			{
+				return false;
+			}
+			
+			(int SubdivisionId, decimal Income, decimal Expense) cashSubdivisionBCBalance = default;
+			
+			switch(businessAccountSummary.BusinessAccount.AccountFillType)
+			{
+				case AccountFillType.CashSubdivisionBC:
+					cashSubdivisionBCBalance =
+						CashSubdivisionsBalances.SingleOrDefault(x => x.SubdivisionId == _subdivisionSettings.CashSubdivisionBCId);
+					break;
+				case AccountFillType.CashSubdivisionBCSofiya:
+					cashSubdivisionBCBalance =
+						CashSubdivisionsBalances.SingleOrDefault(x => x.SubdivisionId == _subdivisionSettings.CashSubdivisionBCSofiyaId);
+					break;
+			}
+			
+			if(cashSubdivisionBCBalance.SubdivisionId != default)
+			{
+				businessAccountSummary.Total = cashSubdivisionBCBalance.Income - cashSubdivisionBCBalance.Expense;
+				totalActivityBalance += businessAccountSummary.Total;
+				return true;
+			}
+
+			return false;
 		}
 
 		private void UpdateResultMessage(BankStatementProcessedResult result)
@@ -175,11 +247,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			
 			using(var wb = new XLWorkbook())
 			{
-				var sheetName = $"{date:dd.MM.yyyy}";
+				var sheetName = $"Общий итог на {date:dd.MM.yyyy}";
 				var ws = wb.Worksheets.Add(sheetName);
 
-				InsertBalanceValues(ws, date);
+				FillTotalBalance(ws, date);
 				ws.Columns().AdjustToContents();
+				FillTotalFundsBySheets(wb, date);
 
 				if(TryGetSavePath(out string path, date))
 				{
@@ -188,7 +261,13 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			}
 		}
 
-		private void InsertBalanceValues(IXLWorksheet ws, DateTime date)
+		private void FillTotalBalance(IXLWorksheet ws, DateTime date)
+		{
+			GenerateFirstColumns(ws, date);
+			FillTotalFundsAndActivities(ws);
+		}
+
+		private void GenerateFirstColumns(IXLWorksheet ws, DateTime date)
 		{
 			var colNames = new[]
 			{
@@ -199,17 +278,22 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			var index = 1;
 			foreach(var name in colNames)
 			{
-				ws.Cell(1, index).Value = name;
+				var columnTitleCell = ws.Cell(1, index);
+				columnTitleCell.Value = name;
+				columnTitleCell.SetBoldFont();
 				index++;
 			}
-
-			AddBusinessActivitiesColumns(ws, index);
+		}
+		
+		private void FillTotalFundsBySheets(IXLWorkbook wb, DateTime date)
+		{
+			FillTotalFundBalance(wb, date);
 		}
 
-		private void AddBusinessActivitiesColumns(IXLWorksheet ws, int index)
+		private void FillTotalFundsAndActivities(IXLWorksheet ws)
 		{
-			int? rowFundsTotal = null;
-			var activitiesDict = new Dictionary<int, (int FirstColumn, int LastColumn)>();
+			var activitiesColumnsDict = new Dictionary<int, int>();
+			var fundsTotalRowsDict = new Dictionary<int, int>();
 			
 			for(var i = 0; i < Entity.FundsSummary.Count; i++)
 			{
@@ -217,37 +301,129 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				{
 					var lastAddedColumn = ws.Columns().Count();
 					var activitySummary = Entity.FundsSummary[i].BusinessActivitySummary[j];
-					if(!activitiesDict.ContainsKey(activitySummary.BusinessActivity.Id))
+					if(!activitiesColumnsDict.ContainsKey(activitySummary.BusinessActivity.Id))
 					{
-						activitiesDict.Add(activitySummary.BusinessActivity.Id, (lastAddedColumn + 1, lastAddedColumn + 2));
+						activitiesColumnsDict.Add(activitySummary.BusinessActivity.Id, lastAddedColumn + 1);
 					}
 
-					var (firstColumn, endIndex) = activitiesDict[activitySummary.BusinessActivity.Id];
-					index = firstColumn;
+					var activityColumn = activitiesColumnsDict[activitySummary.BusinessActivity.Id];
+					var activityTitleCell = ws.Cell(1, activityColumn);
+					activityTitleCell.Value = $"{activitySummary.Name}";
+					activityTitleCell.SetBoldFont();
+				}
 
-					var rowBeginActivity = rowFundsTotal.HasValue ? rowFundsTotal.Value + 1 : 2;
-					ws.Range(1, index, 1, endIndex).Value = $"{activitySummary.Name}";
+				var rowFundsTotal = ws.Rows().Count() + 1;
+				var fundTotalTitleCell = ws.Cell(rowFundsTotal, 1);
+				fundTotalTitleCell.Value = $"{Entity.FundsSummary[i].Name} всего";
+				var fundTotalCell = ws.Cell(rowFundsTotal, 2);
+				fundTotalCell.Value = Entity.FundsSummary[i].Total ?? 0m;
+				fundTotalCell.SetCurrencyFormat();
+				fundsTotalRowsDict.Add(Entity.FundsSummary[i].Funds.Id, rowFundsTotal);
+			}
+
+			var totalRow = ws.Rows().Count() + 1;
+			var totalTitleCell = ws.Cell(totalRow, 1);
+			totalTitleCell.Value = "ИТОГО";
+			totalTitleCell.SetBoldFont();
+			var totalCell = ws.Cell(totalRow, 2);
+			totalCell.Value = Entity.Total ?? 0m;
+			totalCell
+				.SetBoldFont()
+				.SetCurrencyFormat();
+
+			foreach(var activitiesKeyPairValue in activitiesColumnsDict)
+			{
+				var activityId = activitiesKeyPairValue.Key;
+				
+				foreach(var fundsKeyPairValue in fundsTotalRowsDict)
+				{
+					var fundsId = fundsKeyPairValue.Key;
+					var activityFundTotal =
+						Entity.FundsSummary
+							.Where(x => x.Funds.Id == fundsId)
+							.SelectMany(x => x.BusinessActivitySummary)
+							.Where(x => x.BusinessActivity.Id == activityId)
+							.Sum(x => x.Total);
+					
+					var activityFundTotalCell = ws.Cell(fundsKeyPairValue.Value, activitiesKeyPairValue.Value);
+					activityFundTotalCell.Value = activityFundTotal ?? 0m;
+					activityFundTotalCell.SetCurrencyFormat();
+				}
+				
+				var activityTotal = Entity.FundsSummary
+					.SelectMany(x => x.BusinessActivitySummary)
+					.Where(x => x.BusinessActivity.Id == activityId)
+					.Sum(x => x.Total);
+				
+				var activityTotalCell = ws.Cell(totalRow, activitiesKeyPairValue.Value);
+				activityTotalCell.Value = activityTotal ?? 0m;
+				activityTotalCell
+					.SetBoldFont()
+					.SetCurrencyFormat();
+			}
+		}
+
+		private void FillTotalFundBalance(IXLWorkbook wb, DateTime date)
+		{
+			var activitiesColumnsDict = new Dictionary<int, (int FirstColumn, int LastColumn)>();
+			
+			for(var i = 0; i < Entity.FundsSummary.Count; i++)
+			{
+				var sheetName = $"{Entity.FundsSummary[i].Name}";
+				var fundWorkSheet = wb.Worksheets.Add(sheetName);
+				GenerateFirstColumns(fundWorkSheet, date);
+				activitiesColumnsDict.Clear();
+				
+				for(var j = 0; j < Entity.FundsSummary[i].BusinessActivitySummary.Count; j++)
+				{
+					var lastAddedColumn = fundWorkSheet.Columns().Count();
+					var activitySummary = Entity.FundsSummary[i].BusinessActivitySummary[j];
+					activitiesColumnsDict.Add(activitySummary.BusinessActivity.Id, (lastAddedColumn + 1, lastAddedColumn + 2));
+					var (index, endIndex) = activitiesColumnsDict[activitySummary.BusinessActivity.Id];
+
+					fundWorkSheet.Range(1, index, 1, endIndex).Value = $"{activitySummary.Name}";
+					fundWorkSheet.Range(1, index, 1, endIndex).Merge();
+					fundWorkSheet.Range(1, index, 1, endIndex).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+					fundWorkSheet.Range(1, index, 1, endIndex).Style.Font.Bold = true;
+
+					var rowBeginActivity = 2;
 					
 					for(int k = 0; k < activitySummary.BusinessAccountsSummary.Count; k++)
 					{
 						var account = activitySummary.BusinessAccountsSummary[k];
-						ws.Cell(rowBeginActivity, index).Value = account.Name;
-						ws.Cell(rowBeginActivity, endIndex).Value = account.Total;
+						fundWorkSheet.Cell(rowBeginActivity, 1).Value = Entity.FundsSummary[i].Name;
+						fundWorkSheet.Cell(rowBeginActivity, index).Value = account.Name;
+						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, endIndex);
+						accountTotalCell.Value = account.Total ?? 0m;
+						accountTotalCell.SetCurrencyFormat();
 
 						rowBeginActivity++;
 					}
 				}
 
-				rowFundsTotal = ws.Rows().Count() + 1;
-				ws.Cell(rowFundsTotal.Value, 1).Value = $"{Entity.FundsSummary[i].Name}";
-				ws.Cell(rowFundsTotal.Value, 2).Value = $"{Entity.FundsSummary[i].Total}";
+				var rowFundsTotal = fundWorkSheet.Rows().Count() + 1;
+				var fundTotalTitleCell = fundWorkSheet.Cell(rowFundsTotal, 1);
+				fundTotalTitleCell.Value = $"{Entity.FundsSummary[i].Name} всего";
+				fundTotalTitleCell.SetBoldFont();
+				var fundTotalCell = fundWorkSheet.Cell(rowFundsTotal, 2);
+				fundTotalCell.Value = Entity.FundsSummary[i].Total ?? 0m;
+				fundTotalCell
+					.SetBoldFont()
+					.SetCurrencyFormat();
 				
 				for(var j = 0; j < Entity.FundsSummary[i].BusinessActivitySummary.Count; j++)
 				{
 					var activitySummary = Entity.FundsSummary[i].BusinessActivitySummary[j];
-					var activitiesColumns = activitiesDict[activitySummary.BusinessActivity.Id];
-					ws.Cell(rowFundsTotal.Value, activitiesColumns.LastColumn).Value = $"{activitySummary.Total}";
+
+					var totalActivityColumn = activitiesColumnsDict[activitySummary.BusinessActivity.Id].LastColumn;
+					var activityTotalCell = fundWorkSheet.Cell(rowFundsTotal, totalActivityColumn);
+					activityTotalCell.Value = activitySummary.Total ?? 0m;
+					activityTotalCell
+						.SetBoldFont()
+						.SetCurrencyFormat();
 				}
+				
+				fundWorkSheet.Columns().AdjustToContents();
 			}
 		}
 
@@ -275,10 +451,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			OnPropertyChanged(nameof(ResultMessage));
 		}
 
-		private void Initialize(IDatePickerViewModelFactory datePickerViewModelFactory)
+		private void Initialize(
+			IDatePickerViewModelFactory datePickerViewModelFactory, ICurrentPermissionService permissionService)
 		{
+			CanEditCompanyBalanceByDayInPreviousPeriods =
+				permissionService.ValidatePresetPermission(Permissions.CompanyBalanceByDay.CanEditCompanyBalanceByDayInPreviousPeriods);
 			CompanyBalances = new List<CompanyBalanceByDay>();
-			
 			DatePickerViewModel = datePickerViewModelFactory.CreateNewDatePickerViewModel(
 				DateTime.Today,
 				ChangeDateType.Day,
@@ -286,10 +464,17 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				canSelectPreviousDateFunc: CanSelectPreviousDate);
 			DatePickerViewModel.CanEditDateFromCalendar = true;
 			DatePickerViewModel.DateChangedByUser += OnDatePickerViewModelPropertyChanged;
+
+			OpenDirectorySettings = new DialogSettings
+			{
+				//InitialDirectory = @"Z:\SystemStatements\activities\CurrentStatements",
+				InitialDirectory = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2",
+				Title = "Выбрать каталог"
+			};
 			
 			InitializeData();
 		}
-
+		
 		private void OnDatePickerViewModelPropertyChanged(object sender, EventArgs e)
 		{
 			InitializeData();
@@ -303,7 +488,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		
 		private bool CanSelectPreviousDate(DateTime dateTime)
 		{
-			return true;
+			if(CanEditCompanyBalanceByDayInPreviousPeriods)
+			{
+				return true;
+			}
+
+			return dateTime == DateTime.Today || dateTime == DateTime.Today.AddDays(-1);
 		}
 
 		private void InitializeData()
@@ -312,6 +502,14 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			CompanyBalances.Clear();
 			var date = DatePickerViewModel.SelectedDate;
 			Entity = _companyBalanceByDayRepository.Get(UoW, e => e.Date == date).FirstOrDefault();
+			CashSubdivisionsBalances = _cashRepository.CashForSubdivisionsByDate(
+				UoW,
+				new[]
+				{
+					_subdivisionSettings.CashSubdivisionBCId,
+					_subdivisionSettings.CashSubdivisionBCSofiyaId
+				},
+				date.LatestDayTime());
 
 			if(Entity is null)
 			{

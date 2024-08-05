@@ -1,9 +1,14 @@
-﻿using Gamma.Binding;
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Organisations;
 using Vodovoz.ViewWidgets.Profitability;
 
@@ -50,7 +55,7 @@ namespace Vodovoz.Views.Organization
 				.AddColumn("Номер счета").AddTextRenderer(node => node.AccountNumber)
 				.AddColumn("Всего")
 					.MinWidth(100)
-					.AddNumericRenderer(node => node.Total)
+					.AddNumericRenderer(node => node.Total, OnTotalEdited)
 					.Adjustment(new Adjustment(0, -999_999_999_999, 999_999_999_999, 1000, 10000, 0))
 					.AddSetter((cell, node) =>
 					{
@@ -62,8 +67,45 @@ namespace Vodovoz.Views.Organization
 
 						cell.Editable = false;
 					})
+					.AddSetter((cell, node) =>
+					{
+						if(node is CompanyBalanceByDay companyBalance
+						   && companyBalance.FundsSummary
+							   .SelectMany(x => x.BusinessActivitySummary)
+							   .SelectMany(x => x.BusinessAccountsSummary)
+							   .Any(x => !x.Total.HasValue))
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+						
+						if(node is FundsSummary fundsSummary
+						   && fundsSummary.BusinessActivitySummary
+							   .SelectMany(x => x.BusinessAccountsSummary)
+							   .Any(x => !x.Total.HasValue))
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+						
+						if(node is BusinessActivitySummary activitySummary
+						   && activitySummary.BusinessAccountsSummary.Any(x => !x.Total.HasValue))
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+						
+						if(node is BusinessAccountSummary accountSummary
+							&& !accountSummary.Total.HasValue)
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+
+						cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+					})
 					.Digits(2)
-					.EditedEvent(OnTotalChanged)
+					.EditingStartedEvent(OnTotalEditingStarted)
 				.AddColumn("");
 			
 			var balanceViewLevels = LevelConfigFactory
@@ -81,8 +123,38 @@ namespace Vodovoz.Views.Organization
 			ViewModel.CompanyBalanceChangedAction += OnCompanyBalanceChanged;
 		}
 
-		private void OnTotalChanged(object o, EditedArgs args)
+		private void OnTotalEditingStarted(object o, EditingStartedArgs args)
 		{
+			if(!(treeComapnyBalanceByDay.YTreeModel.NodeAtPath(new TreePath(args.Path)) is IBankStatementParsingResult accountSummary))
+			{
+				return;
+			}
+
+			if(!accountSummary.Total.HasValue)
+			{
+				return;
+			}
+					
+			if(o is CellRendererSpin spin)
+			{
+				spin.Adjustment.Value = Convert.ToDouble(accountSummary.Total, CultureInfo.CurrentUICulture);
+			}
+		}
+
+		private void OnTotalEdited(object o, EditedArgs args)
+		{
+			decimal? newTotal = null;
+			
+			if(!string.IsNullOrWhiteSpace(args.NewText))
+			{
+				var newText = args.NewText.Replace(',', '.');
+				
+				if(decimal.TryParse(newText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newValue))
+				{
+					newTotal = newValue;
+				}
+			}
+			
 			var node = treeComapnyBalanceByDay.YTreeModel.NodeAtPath(new TreePath(args.Path));
 
 			if(!(node is BusinessAccountSummary accountSummary))
@@ -90,11 +162,8 @@ namespace Vodovoz.Views.Organization
 				return;
 			}
 
-			Gtk.Application.Invoke((sender, eventArgs) =>
-			{
-				ViewModel.RecalculateTotal(accountSummary);
-			});
-
+			accountSummary.Total = newTotal;
+			ViewModel.RecalculateTotal(accountSummary);
 			OnCompanyBalanceChanged();
 		}
 

@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		GenitivePlural = "Данные по формам денежных средств")]
 	public class FundsSummary : PropertyChangedBase, IDomainObject, IBankStatementParsingResult
 	{
-		private decimal _total;
+		private decimal? _total;
 		private CompanyBalanceByDay _companyBalanceByDay;
 		private Funds _funds;
 		private IObservableList<BusinessActivitySummary> _businessActivitySummary = new ObservableList<BusinessActivitySummary>();
@@ -18,26 +18,26 @@ namespace Vodovoz.Core.Domain.Organizations
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Баланс")]
-		public virtual decimal Total
+		public virtual decimal? Total
 		{
 			get => _total;
 			set => SetField(ref _total, value);
 		}
-		
+
 		[Display(Name = "Итоговый баланс на день")]
 		public virtual CompanyBalanceByDay CompanyBalanceByDay
 		{
 			get => _companyBalanceByDay;
 			set => SetField(ref _companyBalanceByDay, value);
 		}
-		
+
 		[Display(Name = "Форма денежных средств")]
 		public virtual Funds Funds
 		{
 			get => _funds;
 			set => SetField(ref _funds, value);
 		}
-		
+
 		[Display(Name = "Данные по направлениям деятельности")]
 		public virtual IObservableList<BusinessActivitySummary> BusinessActivitySummary
 		{

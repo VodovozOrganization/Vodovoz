@@ -1,4 +1,5 @@
 ﻿using System;
+using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Organisations;
@@ -36,6 +37,7 @@ namespace Vodovoz.Views.Organization
 				.AddBinding(ViewModel.Entity, e => e.Number, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
 				.InitializeFromSource();
+			entryNumber.Changed += OnNumericEntryChanged;
 
 			entryBank.Binding
 				.AddBinding(ViewModel.Entity, e => e.Bank, w => w.Text)
@@ -54,6 +56,21 @@ namespace Vodovoz.Views.Organization
 
 			entryBusinessActivity.ViewModel = ViewModel.BusinessActivityViewModel;
 			entryFunds.ViewModel = ViewModel.FundsViewModel;
+		}
+		
+		private void OnNumericEntryChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
+		}
+
+		public override void Destroy()
+		{
+			entryNumber.Changed -= OnNumericEntryChanged;
+			base.Destroy();
 		}
 	}
 }

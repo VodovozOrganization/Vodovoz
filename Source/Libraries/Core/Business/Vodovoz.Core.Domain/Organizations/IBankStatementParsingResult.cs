@@ -8,7 +8,7 @@
 		/// <summary>
 		/// Баланс
 		/// </summary>
-		decimal Total { get; set; }
+		decimal? Total { get; set; }
 		/// <summary>
 		/// Наименование
 		/// </summary>

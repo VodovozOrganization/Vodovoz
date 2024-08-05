@@ -9,26 +9,26 @@ namespace Vodovoz.Core.Domain.Organizations
 		GenitivePlural = "Данные по расчетному счету")]
 	public class BusinessAccountSummary : PropertyChangedBase, IDomainObject, IBankStatementParsingResult
 	{
-		private decimal _total;
+		private decimal? _total;
 		private BusinessAccount _businessAccount;
 		private BusinessActivitySummary _businessActivitySummary;
 		
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Баланс")]
-		public virtual decimal Total
+		public virtual decimal? Total
 		{
 			get => _total;
 			set => SetField(ref _total, value);
 		}
-		
+
 		[Display(Name = "Расчетный счет")]
 		public virtual BusinessAccount BusinessAccount
 		{
 			get => _businessAccount;
 			set => SetField(ref _businessAccount, value);
 		}
-		
+
 		[Display(Name = "Данные по направлению деятельности")]
 		public virtual BusinessActivitySummary BusinessActivitySummary
 		{

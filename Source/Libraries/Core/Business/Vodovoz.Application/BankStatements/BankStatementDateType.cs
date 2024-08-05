@@ -9,8 +9,12 @@ namespace Vodovoz.Application.BankStatements
 	{
 		[Display(Name = "за")]
 		OnDate,
+		[Display(Name = "выписка по счету за")]
+		StatementOnDate,
 		[Display(Name = "с")]
 		FromDate,
+		[Display(Name = "за период с")]
+		FromPeriodDate,
 		[Display(Name = "конечная дата")]
 		EndDate
 	}

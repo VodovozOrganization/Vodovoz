@@ -48,7 +48,7 @@ namespace Vodovoz.Application.BankStatements
 						return stringRows;
 					}
 
-					var rows = dataset.Tables[0].Rows;
+					var rows = dataset.Tables[dataset.Tables.Count - 1].Rows;
 
 					for(var i = 0; i < rows.Count; i++)
 					{
