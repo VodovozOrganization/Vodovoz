@@ -6,10 +6,8 @@ namespace Vodovoz.Core.Domain.Organizations
 	{
 		[Display(Name = "Банковская выписка")]
 		BankStatement,
-		[Display(Name = "Из Кассы БЦ")]
-		CashSubdivisionBC,
-		[Display(Name = "Из Кассы БЦ София")]
-		CashSubdivisionBCSofiya,
+		[Display(Name = "Из Кассы ДВ")]
+		CashSubdivision,
 		[Display(Name = "Ручное")]
 		Manual
 	}

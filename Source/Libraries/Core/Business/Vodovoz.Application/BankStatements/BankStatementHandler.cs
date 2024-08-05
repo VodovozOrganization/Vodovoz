@@ -143,7 +143,7 @@ namespace Vodovoz.Application.BankStatements
 				}
 
 				bankStatementProcessedResult.AddSuccessResult(filePath, result.AccountNumber, result.Balance.Value, result.Date.Value);
-				//TryMoveFileToDirectory(successDirectoryPath, filePath, true);
+				TryMoveFileToDirectory(successDirectoryPath, filePath, true);
 			}
 			catch(Exception e)
 			{
@@ -193,11 +193,11 @@ namespace Vodovoz.Application.BankStatements
 				return true;
 			}
 				
-			/*if(result.Date != date)
+			if(result.Date != date)
 			{
 				bankStatementProcessedResult.AddResult(filePath, BankStatementProcessState.WrongBankStatementDate);
 				return true;
-			}*/
+			}
 
 			return false;
 		}

@@ -37,6 +37,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 
 		public virtual string Name => BusinessAccount?.Name;
+		public virtual string Bank => BusinessAccount.Bank;
 		public virtual string AccountNumber => BusinessAccount?.Number;
 		
 		public static BusinessAccountSummary Create(BusinessAccount businessAccount, BusinessActivitySummary businessActivitySummary)

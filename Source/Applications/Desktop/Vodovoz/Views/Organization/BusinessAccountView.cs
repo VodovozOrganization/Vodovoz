@@ -1,8 +1,12 @@
-﻿using System;
+using System;
 using Gtk;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Presentation.ViewModels.Organisations;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization
 {
@@ -57,8 +61,23 @@ namespace Vodovoz.Views.Organization
 			entryBusinessActivity.ViewModel = ViewModel.BusinessActivityViewModel;
 			entryFunds.ViewModel = ViewModel.FundsViewModel;
 
+			lblSubdivisionTitle.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowSubdivision, w => w.Visible)
+				.InitializeFromSource();
+			
+			var subdivisionViewModel =
+				new CommonEEVMBuilderFactory<BusinessAccountViewModel>(
+					ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.Finish();
+			subdivisionViewModel.IsEditable = ViewModel.CanEdit;
+
+			entrySubdivision.ViewModel = subdivisionViewModel;
 			entrySubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.CanShowSubdivision, w => Visible);
+				.AddBinding(ViewModel, vm => vm.CanShowSubdivision, w => w.Visible)
+				.InitializeFromSource();
 		}
 		
 		private void OnNumericEntryChanged(object sender, EventArgs e)

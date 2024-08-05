@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.Bank).Column("bank");
 			Map(x => x.Number).Column("number");
 			Map(x => x.AccountFillType).Column("account_fill_type");
+			Map(x => x.SubdivisionId).Column("subdivision_id");
 
 			References(x => x.BusinessActivity).Column("business_activity_id");
 			References(x => x.Funds).Column("funds_id");

@@ -44,6 +44,7 @@ namespace Vodovoz.Core.Domain.Organizations
 
 		public virtual string Name => "ИТОГО";
 		public virtual string AccountNumber => string.Empty;
+		public virtual string Bank => string.Empty;
 
 		public static CompanyBalanceByDay Create(DateTime date) =>
 			new CompanyBalanceByDay

@@ -14,6 +14,10 @@
 		/// </summary>
 		string Name { get; }
 		/// <summary>
+		/// Наименование банка
+		/// </summary>
+		string Bank { get; }
+		/// <summary>
 		/// Номер расчетного счета
 		/// </summary>
 		string AccountNumber { get; }

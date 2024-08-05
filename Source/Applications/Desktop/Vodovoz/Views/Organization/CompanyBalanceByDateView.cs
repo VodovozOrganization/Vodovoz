@@ -7,7 +7,6 @@ using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Organisations;
 using Vodovoz.ViewWidgets.Profitability;
@@ -52,10 +51,11 @@ namespace Vodovoz.Views.Organization
 		{
 			var columnsConfig = FluentColumnsConfig<IBankStatementParsingResult>.Create()
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.AddColumn("Банк").AddTextRenderer(node => node.Bank)
 				.AddColumn("Номер счета").AddTextRenderer(node => node.AccountNumber)
 				.AddColumn("Всего")
 					.MinWidth(100)
-					.AddNumericRenderer(node => node.Total, OnTotalEdited)
+					.AddNumericRenderer(node => node.Total, OnTotalEdited, true)
 					.Adjustment(new Adjustment(0, -999_999_999_999, 999_999_999_999, 1000, 10000, 0))
 					.AddSetter((cell, node) =>
 					{

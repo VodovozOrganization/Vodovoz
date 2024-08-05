@@ -19,7 +19,6 @@ using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
-using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Extensions;
 using VodovozInfrastructure.StringHandlers;
 
@@ -31,7 +30,6 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICashRepository _cashRepository;
-		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IGenericRepository<CompanyBalanceByDay> _companyBalanceByDayRepository;
 		private readonly BankStatementHandler _bankStatementHandler;
 		private readonly IPermissionResult _permissionResult;
@@ -42,7 +40,6 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
 			ICashRepository cashRepository,
-			ISubdivisionSettings subdivisionSettings,
 			IGenericRepository<CompanyBalanceByDay> companyBalanceByDayRepository,
 			BankStatementHandler bankStatementHandler,
 			IDatePickerViewModelFactory datePickerViewModelFactory,
@@ -63,7 +60,6 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_companyBalanceByDayRepository =
 				companyBalanceByDayRepository ?? throw new ArgumentNullException(nameof(companyBalanceByDayRepository));
 			_bankStatementHandler = bankStatementHandler ?? throw new ArgumentNullException(nameof(bankStatementHandler));
@@ -213,13 +209,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			
 			switch(businessAccountSummary.BusinessAccount.AccountFillType)
 			{
-				case AccountFillType.CashSubdivisionBC:
+				case AccountFillType.CashSubdivision:
 					cashSubdivisionBCBalance =
-						CashSubdivisionsBalances.SingleOrDefault(x => x.SubdivisionId == _subdivisionSettings.CashSubdivisionBCId);
-					break;
-				case AccountFillType.CashSubdivisionBCSofiya:
-					cashSubdivisionBCBalance =
-						CashSubdivisionsBalances.SingleOrDefault(x => x.SubdivisionId == _subdivisionSettings.CashSubdivisionBCSofiyaId);
+						CashSubdivisionsBalances.SingleOrDefault(x =>
+							x.SubdivisionId == businessAccountSummary.BusinessAccount.SubdivisionId);
 					break;
 			}
 			
@@ -502,13 +495,16 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			CompanyBalances.Clear();
 			var date = DatePickerViewModel.SelectedDate;
 			Entity = _companyBalanceByDayRepository.Get(UoW, e => e.Date == date).FirstOrDefault();
+
+			var cashSubdivisionsId =
+				UoW.GetAll<BusinessAccount>()
+					.Where(x => x.SubdivisionId.HasValue)
+					.Select(x => x.SubdivisionId.Value)
+					.ToArray();
+			
 			CashSubdivisionsBalances = _cashRepository.CashForSubdivisionsByDate(
 				UoW,
-				new[]
-				{
-					_subdivisionSettings.CashSubdivisionBCId,
-					_subdivisionSettings.CashSubdivisionBCSofiyaId
-				},
+				cashSubdivisionsId,
 				date.LatestDayTime());
 
 			if(Entity is null)

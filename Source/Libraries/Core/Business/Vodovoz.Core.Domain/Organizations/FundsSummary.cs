@@ -47,6 +47,7 @@ namespace Vodovoz.Core.Domain.Organizations
 
 		public virtual string Name => Funds?.Name;
 		public virtual string AccountNumber => string.Empty;
+		public virtual string Bank => string.Empty;
 		
 		public static FundsSummary Create(Funds funds, CompanyBalanceByDay companyBalanceByDay)
 			=> new FundsSummary

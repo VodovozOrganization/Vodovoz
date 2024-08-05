@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.ComponentModel;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -19,10 +20,11 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private readonly IPermissionResult _permissionResult;
 		private readonly ViewModelEEVMBuilder<BusinessActivity> _businessActivityViewModelBuilder;
 		private readonly ViewModelEEVMBuilder<Funds> _fundsViewModelBuilder;
-		private bool _canShowSubdivision;
+		private Subdivision _subdivision;
 
 		public BusinessAccountViewModel(
 			IEntityUoWBuilder uowBuilder,
+			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
 			ICurrentPermissionService currentPermissionService,
@@ -37,11 +39,36 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			_businessActivityViewModelBuilder =
 				businessActivityViewModelBuilder ?? throw new ArgumentNullException(nameof(businessActivityViewModelBuilder));
 			_fundsViewModelBuilder = fundsViewModelBuilder ?? throw new ArgumentNullException(nameof(fundsViewModelBuilder));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 
-			CreateCommands();
-			InitializeEntryViewModels();
-			Entity.PropertyChanged += OnEntityPropertyChanged;
+			Initialize();
+		}
+
+		public Subdivision Subdivision
+		{
+			get => _subdivision;
+			set
+			{
+				if(SetField(ref _subdivision, value))
+				{
+					Entity.SubdivisionId = _subdivision?.Id;
+				}
+			}
+		}
+		
+		public bool CanShowSubdivision
+		{
+			get
+			{
+				if(Entity.AccountFillType == AccountFillType.CashSubdivision)
+				{
+					return true;
+				}
+
+				Subdivision = null;
+				return false;
+			}
 		}
 
 		public DelegateCommand SaveCommand { get; private set; }
@@ -49,24 +76,26 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 		public IEntityEntryViewModel BusinessActivityViewModel { get; private set; }
 		public IEntityEntryViewModel FundsViewModel { get; private set; }
+		public ILifetimeScope LifetimeScope { get; }
 		public IStringHandler StringHandler { get; }
 
 		public bool CanEdit => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
 		public string IdString => Entity.Id.ToString();
 		public bool CanShowId => Entity.Id > 0;
 		public bool CanShowAccountFillType => Entity.Funds != null;
-		public bool CanShowSubdivision
+
+		private void Initialize()
 		{
-			get => _canShowSubdivision;
-			set
+			if(Entity.SubdivisionId.HasValue)
 			{
-				if(SetField(ref _canShowSubdivision, value))
-				{
-
-				}
+				_subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
 			}
+			
+			CreateCommands();
+			InitializeEntryViewModels();
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
-
+		
 		private void CreateCommands()
 		{
 			SaveCommand = new DelegateCommand(() => SaveAndClose());
@@ -109,6 +138,11 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				}
 
 				OnPropertyChanged(nameof(CanShowAccountFillType));
+			}
+			
+			if(e.PropertyName == nameof(Entity.AccountFillType))
+			{
+				OnPropertyChanged(nameof(CanShowSubdivision));
 			}
 		}
 
