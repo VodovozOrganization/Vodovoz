@@ -15,5 +15,11 @@ namespace Vodovoz.Application.Errors
 				typeof(S3),
 				nameof(FileNotExists),
 				"Файла не существует в хранилище");
+
+		public static Error ServiceUnavailable =>
+			new Error(
+				typeof(S3),
+				nameof(ServiceUnavailable),
+				"Сервис S3 недосутпен");
 	}
 }

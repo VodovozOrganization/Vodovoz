@@ -53,7 +53,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<bool> FileExistsAsync(string bucketName, string fileName, CancellationToken cancellationToken);
+		Task<Result<bool>> FileExistsAsync(string bucketName, string fileName, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение всех файлов в бакете
