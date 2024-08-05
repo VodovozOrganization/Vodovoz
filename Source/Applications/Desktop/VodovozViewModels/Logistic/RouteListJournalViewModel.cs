@@ -50,6 +50,8 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Infrastructure;
+using Vodovoz.PrintableDocuments.Store;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IRouteListService _routeListService;
 		private readonly IEventsQrPlacer _eventsQrPlacer;
+		private readonly ICustomPrintRdlDocumentsPrinter _carLoadDocumentsPrinter;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -65,7 +68,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IStockRepository _stockRepository;
-		private readonly IReportPrinter _reportPrinter;
 		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly IUserSettingsService _userSettings;
@@ -88,7 +90,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
-			IReportPrinter reportPrinter,
 			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
@@ -98,6 +99,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
+			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -108,13 +110,13 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
-			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
+			_carLoadDocumentsPrinter = carLoadDocumentsPrinter ?? throw new ArgumentNullException(nameof(carLoadDocumentsPrinter));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -790,10 +792,8 @@ namespace Vodovoz.ViewModels.Logistic
 						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 							"Водителю необходимо получить терминал на кассе");
 					}
-					
-					var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
-						UoW, carLoadDocument.Id, carLoadDocument.Title, EventQrDocumentType.CarLoadDocument);
-					_reportPrinter.Print(reportInfo);
+
+					PrintCarLoadDocuments(carLoadDocument);
 				}
 				else
 				{
@@ -819,6 +819,21 @@ namespace Vodovoz.ViewModels.Logistic
 					_gtkTabsOpener.OpenCarLoadDocumentDlg(TabParent, FillCarLoadDocument, routeList.Id, warehouse.Id);
 				}
 			}
+		}
+
+		private void PrintCarLoadDocuments(CarLoadDocument carLoadDocument)
+		{
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaseEventsQr);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument);
+
+			_carLoadDocumentsPrinter.Print(waterCarLoadDocument);
+			_carLoadDocumentsPrinter.Print(equipmentCarLoadDocument);
+		}
+
+		private string CarLoadDocumentPlaseEventsQr(int documentId, string reportSource)
+		{
+			return _eventsQrPlacer.AddQrEventForWaterCarLoadDocument(
+					UoW, documentId, reportSource);
 		}
 
 		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
