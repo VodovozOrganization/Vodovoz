@@ -1,10 +1,5 @@
 ﻿using DateTimeHelpers;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Linq;
-using NHibernate.SqlCommand;
-using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
