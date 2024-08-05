@@ -599,9 +599,16 @@ namespace Vodovoz.Domain.Orders
 			var isSelfDeliveryOnLoadingOrder = NewOrder != null && NewOrder.SelfDelivery && OldOrder.OrderStatus == OrderStatus.OnLoading;
 			var isNotUndelivery = GuiltyInUndelivery.Any(x => x.GuiltySide == GuiltyTypes.None);
 
-			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder && !isNotUndelivery)
+			if(Id == 0 && isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder && !isNotUndelivery)
 			{
-				yield return new ValidationResult("В текущий момент заказ нельзя отменить.",
+				yield return new ValidationResult("В текущий момент заказ нельзя отменить",
+					new[] { nameof(OrderStatus) });
+			}
+			
+			if(Id > 0 && isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder && !isNotUndelivery)
+			{
+				yield return new ValidationResult(
+					"Чтобы изменить недовоз, выберите ответственного Нет не недовоз, т.к исходный заказ закрыт",
 					new[] { nameof(OrderStatus) });
 			}
 
