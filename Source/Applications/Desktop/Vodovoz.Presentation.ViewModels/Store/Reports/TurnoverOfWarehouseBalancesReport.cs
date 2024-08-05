@@ -139,14 +139,45 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			{
 				for(DateTime i = slice.StartDate; i < slice.EndDate; i = i.AddDays(1))
 				{
-					residuesAtDates.Add(
+					if(slice == slices.First())
+					{
+						residuesAtDates.Add(
+							i,
+							GetWarehousesBalanceAtAsync(
+									unitOfWork,
+									nomenclaturesSmallNodesIds,
+									warehouseSmallNodesIds,
+									i.LatestDayTime())
+								.ToArray());
+					}
+					else
+					{
+						var diff = GetWarehouseResidueDiffsQuery(
+								unitOfWork,
+								nomenclaturesSmallNodesIds,
+								warehouseSmallNodesIds,
+								i,
+								i.LatestDayTime())
+							.ToArray();
+
+						var newResidues = (WarehouseResidueNode[])residuesAtDates[i.AddDays(-1)].Clone();
+
+						foreach(var residue in newResidues)
+						{
+							var currentDiff = diff.FirstOrDefault(dr => dr.NomenclatureId == residue.NomenclatureId && dr.WarehouseId == residue.WarehouseId);
+
+							if(currentDiff is null)
+							{
+								continue;
+							}
+
+							residue.StockAmount += currentDiff.StockAmountDiff;
+						}
+
+						residuesAtDates.Add(
 						i,
-						await GetWarehousesBalanceAtAsync(
-							unitOfWork,
-							nomenclaturesSmallNodesIds,
-							warehouseSmallNodesIds,
-							i.LatestDayTime(),
-							cancellationToken));
+						newResidues);
+					}
 
 					if(cancellationToken.IsCancellationRequested)
 					{
@@ -223,7 +254,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						}
 						else
 						{
-							sliceValues.Add($"{_noSalesPrefix} 0.000");
+							sliceValues.Add($"{_noSalesPrefix} {residuesInSlice:0.000}");
 						}
 					}
 
@@ -359,68 +390,73 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				ActualCount = orderItem.ActualCount
 			};
 
-		private static async Task<WarehouseResidueNode[]> GetWarehousesBalanceAtAsync(
+		//private static async Task<WarehouseResidueNode[]> GetWarehousesBalanceAtAsync(
+		//	IUnitOfWork unitOfWork,
+		//	int[] nomenclatureIds,
+		//	int[] warehouseIds,
+		//	DateTime dateTime,
+		//	CancellationToken cancellationToken)
+		//{
+		//	WarehouseBulkGoodsAccountingOperation operationAlias = null;
+		//	Nomenclature nomenclatureAlias = null;
+		//	WarehouseResidueNode resultAlias = null;
+
+		//	var balanceProjection = Projections.SqlFunction(
+		//		new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
+		//		NHibernateUtil.Decimal,
+		//		Projections.Sum(() => operationAlias.Amount));
+
+		//	var result = await unitOfWork.Session.QueryOver(() => nomenclatureAlias)
+		//		.JoinEntityAlias(() => operationAlias,
+		//			() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
+		//			JoinType.InnerJoin)
+		//		.WhereRestrictionOn(() => nomenclatureAlias.Id).IsInG(nomenclatureIds)
+		//		.AndRestrictionOn(() => operationAlias.Warehouse.Id).IsInG(warehouseIds)
+		//		.And(Restrictions.Le(Projections.Property(() => operationAlias.OperationTime), dateTime))
+		//		.SelectList(list => list
+		//			.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+		//			.Select(() => operationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+		//			.Select(balanceProjection).WithAlias(() => resultAlias.StockAmount))
+		//		.TransformUsing(Transformers.AliasToBean<WarehouseResidueNode>())
+		//		.ListAsync<WarehouseResidueNode>(cancellationToken);
+
+		//	return result.ToArray();
+		//}
+
+		private static IQueryable<WarehouseResidueNode> GetWarehousesBalanceAtAsync(
 			IUnitOfWork unitOfWork,
 			int[] nomenclatureIds,
 			int[] warehouseIds,
-			DateTime dateTime,
-			CancellationToken cancellationToken)
-		{
-			WarehouseBulkGoodsAccountingOperation operationAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			WarehouseResidueNode resultAlias = null;
+			DateTime endDateTime) =>
+			from operation in unitOfWork.Session.Query<WarehouseBulkGoodsAccountingOperation>()
+			where operation.OperationTime <= endDateTime
+			  && nomenclatureIds.Contains(operation.Nomenclature.Id)
+			  && warehouseIds.Contains(operation.Warehouse.Id)
+			group operation by new { WarehouseId = operation.Warehouse.Id, NomenclatureId = operation.Nomenclature.Id } into warehouseNomenclatureGroup
+			select new WarehouseResidueNode
+			{
+				NomenclatureId = warehouseNomenclatureGroup.Key.NomenclatureId,
+				WarehouseId = warehouseNomenclatureGroup.Key.WarehouseId,
+				StockAmount = warehouseNomenclatureGroup.Sum(g => g.Amount)
+			};
 
-			var balanceProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
-				NHibernateUtil.Decimal,
-				Projections.Sum(() => operationAlias.Amount));
-
-			var result = await unitOfWork.Session.QueryOver(() => nomenclatureAlias)
-				.JoinEntityAlias(() => operationAlias,
-					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
-					JoinType.InnerJoin)
-				.WhereRestrictionOn(() => nomenclatureAlias.Id).IsInG(nomenclatureIds)
-				.AndRestrictionOn(() => operationAlias.Warehouse.Id).IsInG(warehouseIds)
-				.And(Restrictions.Le(Projections.Property(() => operationAlias.OperationTime), dateTime))
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(() => operationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
-					.Select(balanceProjection).WithAlias(() => resultAlias.StockAmount))
-				.TransformUsing(Transformers.AliasToBean<WarehouseResidueNode>())
-				.ListAsync<WarehouseResidueNode>(cancellationToken);
-
-			return result.ToArray();
-		}
-
-		private static async Task<List<WarehouseResidueDiffNode>> GetWarehouseResidueDiffsAsync(
+		private static IQueryable<WarehouseResidueDiffNode> GetWarehouseResidueDiffsQuery(
 			IUnitOfWork unitOfWork,
 			int[] nomenclatureIds,
 			int[] warehouseIds,
 			DateTime startDateTime,
-			DateTime endDateTime,
-			CancellationToken cancellationToken)
-		{
-			return await (from operation in unitOfWork.Session.Query<WarehouseBulkGoodsAccountingOperation>()
-						  where operation.OperationTime > startDateTime
-							&& operation.OperationTime <= endDateTime
-							&& nomenclatureIds.Contains(operation.Nomenclature.Id)
-							&& warehouseIds.Contains(operation.Warehouse.Id)
-						  group operation by new { WarehouseId = operation.Warehouse.Id, NomenclatureId = operation.Nomenclature.Id } into warehouseNomenclatureGroups
-						  from warehouseNomenclatureGroup in warehouseNomenclatureGroups
-						  select new WarehouseResidueDiffNode
-						  {
-							  NomenclatureId = warehouseNomenclatureGroup.Nomenclature.Id,
-							  WarehouseId = warehouseNomenclatureGroup.Warehouse.Id,
-							  StockAmountDiff = warehouseNomenclatureGroup.Amount
-						  })
-						.ToListAsync(cancellationToken);
-		}
-
-		private class WarehouseResidueDiffNode
-		{
-			public int NomenclatureId { get; set; }
-			public int WarehouseId { get; set; }
-			public decimal StockAmountDiff { get; set; }
-		}
+			DateTime endDateTime) =>
+			from operation in unitOfWork.Session.Query<WarehouseBulkGoodsAccountingOperation>()
+			where operation.OperationTime > startDateTime
+			  && operation.OperationTime <= endDateTime
+			  && nomenclatureIds.Contains(operation.Nomenclature.Id)
+			  && warehouseIds.Contains(operation.Warehouse.Id)
+			group operation by new { WarehouseId = operation.Warehouse.Id, NomenclatureId = operation.Nomenclature.Id } into warehouseNomenclatureGroup
+			select new WarehouseResidueDiffNode
+			{
+				NomenclatureId = warehouseNomenclatureGroup.Key.NomenclatureId,
+				WarehouseId = warehouseNomenclatureGroup.Key.WarehouseId,
+				StockAmountDiff = warehouseNomenclatureGroup.Sum(g => g.Amount)
+			};
 	}
 }
