@@ -41,9 +41,11 @@ namespace Vodovoz.Infrastructure.S3
 
 		public async Task<Result<Stream>> GetFileAsync(string bucketName, string fileName, CancellationToken cancellationToken)
 		{
-			var getObjectRequest = new GetObjectRequest();
-			getObjectRequest.BucketName = bucketName;
-			getObjectRequest.Key = fileName;
+			var getObjectRequest = new GetObjectRequest
+			{
+				BucketName = bucketName,
+				Key = fileName
+			};
 
 			GetObjectResponse response = await _amazonS3Client.GetObjectAsync(getObjectRequest, cancellationToken);
 
@@ -62,9 +64,12 @@ namespace Vodovoz.Infrastructure.S3
 
 		public async Task<Result> DeleteFileAsync(string bucketName, string fileName, CancellationToken cancellationToken)
 		{
-			var deleteObjectRequest = new DeleteObjectRequest();
-			deleteObjectRequest.BucketName = bucketName;
-			deleteObjectRequest.Key = fileName;
+			var deleteObjectRequest = new DeleteObjectRequest
+			{
+				BucketName = bucketName,
+				Key = fileName
+			};
+
 			await _amazonS3Client.DeleteObjectAsync(deleteObjectRequest, cancellationToken);
 
 			return Result.Success();
@@ -87,13 +92,17 @@ namespace Vodovoz.Infrastructure.S3
 		public async Task<bool> FileExistsAsync(string bucketName, string fileName, CancellationToken cancellationToken)
 		{
 			var objects = await GetAllObjectsInBucketAsync(bucketName, cancellationToken);
+
 			return await Task.FromResult(objects.Value.Any(o => o.Key == fileName));
 		}
 
 		private async Task<Result<IEnumerable<S3Object>>> GetAllObjectsInBucketAsync(string bucketName, CancellationToken cancellationToken)
 		{
-			var listContentrequest = new ListObjectsRequest();
-			listContentrequest.BucketName = bucketName;
+			var listContentrequest = new ListObjectsRequest
+			{
+				BucketName = bucketName
+			};
+
 			ListObjectsResponse listContentresponse = await _amazonS3Client.ListObjectsAsync(listContentrequest);
 
 			return await Task.FromResult(Result.Success(listContentresponse.S3Objects.AsEnumerable()));
@@ -101,11 +110,14 @@ namespace Vodovoz.Infrastructure.S3
 
 		private async Task<Result> PutFileAsync(string bucketName, string fileName, Stream inputStream, CancellationToken cancellationToken)
 		{
-			var putObjectRequest = new PutObjectRequest();
-			putObjectRequest.BucketName = bucketName;
-			putObjectRequest.Key = fileName;
-			putObjectRequest.ContentType = AmazonS3Util.MimeTypeFromExtension(fileName);
-			putObjectRequest.InputStream = inputStream;
+			var putObjectRequest = new PutObjectRequest
+			{
+				BucketName = bucketName,
+				Key = fileName,
+				ContentType = AmazonS3Util.MimeTypeFromExtension(fileName),
+				InputStream = inputStream
+			};
+
 			await _amazonS3Client.PutObjectAsync(putObjectRequest, cancellationToken);
 
 			return Result.Success();
