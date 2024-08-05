@@ -139,7 +139,14 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			{
 				for(DateTime i = slice.StartDate; i < slice.EndDate; i = i.AddDays(1))
 				{
-					residuesAtDates.Add(i, await GetWarehousesBalanceAtAsync(unitOfWork, nomenclaturesSmallNodesIds, warehouseSmallNodesIds, i.LatestDayTime(), cancellationToken));
+					residuesAtDates.Add(
+						i,
+						await GetWarehousesBalanceAtAsync(
+							unitOfWork,
+							nomenclaturesSmallNodesIds,
+							warehouseSmallNodesIds,
+							i.LatestDayTime(),
+							cancellationToken));
 
 					if(cancellationToken.IsCancellationRequested)
 					{
@@ -316,28 +323,30 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			int[] warehouseSmallNodesIds,
 			int[] nomenclaturesSmallNodesIds) =>
 			from order in unitOfWork.Session.Query<Order>()
-			join routeListAddress in unitOfWork.Session.Query<RouteListItem>()
-			on order.Id equals routeListAddress.Order.Id
-			join routeList in unitOfWork.Session.Query<RouteList>()
-			on routeListAddress.RouteList.Id equals routeList.Id
-			join carLoadDocument in unitOfWork.Session.Query<CarLoadDocument>()
-			on routeList.Id equals carLoadDocument.RouteList.Id
-			join warehouse in unitOfWork.Session.Query<Warehouse>()
-			on carLoadDocument.Warehouse.Id equals warehouse.Id
 			join orderItem in unitOfWork.Session.Query<OrderItem>()
 			on order.Id equals orderItem.Order.Id
 			join nomenclature in unitOfWork.Session.Query<Nomenclature>()
 			on orderItem.Nomenclature.Id equals nomenclature.Id
+
+			let warehouseId =
+				(int?)(from routeListAddress in unitOfWork.Session.Query<RouteListItem>()
+				 join carLoadDocument in unitOfWork.Session.Query<CarLoadDocument>()
+				 on routeListAddress.RouteList.Id equals carLoadDocument.RouteList.Id
+				 where routeListAddress.Order.Id == order.Id
+					 && warehouseSmallNodesIds.Contains(carLoadDocument.Warehouse.Id)
+				 select carLoadDocument.Warehouse.Id)
+				.FirstOrDefault()
+
 			where order.DeliveryDate != null
 				&& order.DeliveryDate <= endDate
 				&& order.DeliveryDate >= startDate
+				&& warehouseId != null
 				&& _orderStatuses.Contains(order.OrderStatus)
-				&& warehouseSmallNodesIds.Contains(warehouse.Id)
 				&& nomenclaturesSmallNodesIds.Contains(nomenclature.Id)
 			select new SalesGenerationNode
 			{
 				SaleDate = order.DeliveryDate,
-				WarehouseId = warehouse.Id,
+				WarehouseId = warehouseId.Value,
 				NomenclatureId = nomenclature.Id,
 				NomenclatureName = nomenclature.Name,
 				ActualCount = orderItem.ActualCount
