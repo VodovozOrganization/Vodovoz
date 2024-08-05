@@ -37,7 +37,6 @@ namespace Vodovoz
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountAndColor(x))
 				.AddColumn("Заказ").AddNumericRenderer(x => x.OrderId)
-				.AddColumn("Отделить набор?").AddTextRenderer(x => x.IsIndividualSetForOrder ? "Да" : "Нет")
 				.AddColumn("")
 				.Finish();
 
