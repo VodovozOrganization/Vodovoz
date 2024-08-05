@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Services;
-using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Additions.Printing
