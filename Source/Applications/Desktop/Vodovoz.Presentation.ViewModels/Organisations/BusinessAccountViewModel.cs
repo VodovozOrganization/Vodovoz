@@ -19,6 +19,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private readonly IPermissionResult _permissionResult;
 		private readonly ViewModelEEVMBuilder<BusinessActivity> _businessActivityViewModelBuilder;
 		private readonly ViewModelEEVMBuilder<Funds> _fundsViewModelBuilder;
+		private bool _canShowSubdivision;
 
 		public BusinessAccountViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -54,6 +55,17 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		public string IdString => Entity.Id.ToString();
 		public bool CanShowId => Entity.Id > 0;
 		public bool CanShowAccountFillType => Entity.Funds != null;
+		public bool CanShowSubdivision
+		{
+			get => _canShowSubdivision;
+			set
+			{
+				if(SetField(ref _canShowSubdivision, value))
+				{
+
+				}
+			}
+		}
 
 		private void CreateCommands()
 		{

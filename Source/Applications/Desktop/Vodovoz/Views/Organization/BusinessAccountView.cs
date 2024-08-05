@@ -56,6 +56,9 @@ namespace Vodovoz.Views.Organization
 
 			entryBusinessActivity.ViewModel = ViewModel.BusinessActivityViewModel;
 			entryFunds.ViewModel = ViewModel.FundsViewModel;
+
+			entrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowSubdivision, w => Visible);
 		}
 		
 		private void OnNumericEntryChanged(object sender, EventArgs e)
