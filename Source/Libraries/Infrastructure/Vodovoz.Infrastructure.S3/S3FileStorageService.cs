@@ -33,6 +33,8 @@ namespace Vodovoz.Infrastructure.S3
 		{
 			if(await FileExistsAsync(bucketName, fileName, cancellationToken))
 			{
+				_logger.LogWarning("Попытка создания уже существующего файла {Filename} в бакете {BucketName}", fileName, bucketName);
+
 				return await Task.FromResult(Result.Failure(Application.Errors.S3.FileAlreadyExists));
 			}
 
@@ -56,6 +58,8 @@ namespace Vodovoz.Infrastructure.S3
 		{
 			if(!await FileExistsAsync(bucketName, fileName, cancellationToken))
 			{
+				_logger.LogWarning("Попытка обновления не существующего файла {Filename} в бакете {BucketName}", fileName, bucketName);
+
 				return await Task.FromResult(Result.Failure(Application.Errors.S3.FileNotExists));
 			}
 
