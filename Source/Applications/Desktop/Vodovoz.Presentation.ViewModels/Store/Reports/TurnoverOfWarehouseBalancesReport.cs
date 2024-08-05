@@ -167,10 +167,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							&& gsr.Key.WarehouseId == wsn.Id);
 
 					var slicesValue = 0m;
+					var slicesSales = 0m;
 
 					foreach(var slice in slices)
 					{
-						var residueMedianDays = (slice.EndDate - slice.StartDate).TotalDays;
+						var residueMedianDays = (slice.EndDate.Date - slice.StartDate).TotalDays + 1;
 
 						var residuesInSlice = 0m;
 
@@ -183,6 +184,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							.Sum(x => x.StockAmount);
 
 						residuesInSlice += residuesAtDate / (decimal)residueMedianDays;
+						slicesValue += residuesInSlice * (decimal)residueMedianDays;
 
 						if(warehouseToNomenclatureSalesGroup != null)
 						{
@@ -213,10 +215,10 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							else
 							{
 								var medianValue = residuesInSlice * (decimal)residueMedianDays / sliceSalesSum.Value;
-								slicesValue += medianValue;
-								sliceValue = medianValue.ToString();
-							}
 
+								slicesSales += sliceSalesSum.Value;
+								sliceValue = medianValue.ToString("##0.000");
+							}
 							sliceValues.Add(sliceValue);
 						}
 						else
@@ -230,7 +232,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						WarehouseName = wsn.Name,
 						NomanclatureName = nsn.Name,
 						SliceValues = sliceValues,
-						Total = slicesValue / slices.Length
+						Total = slicesValue / slicesSales / slices.Length
 					});
 				}
 			}
