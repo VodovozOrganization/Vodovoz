@@ -100,83 +100,6 @@ ORDER BY clmn_for_sorting;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Data2">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	n.name AS nomenclature,
-	n.category,
-    mu.name AS unit,
-    mu.digits AS digits,
-    n.tare_volume,
-    CASE n.tare_volume
-        WHEN 'Vol19L' THEN 0
-        WHEN 'Vol6L' THEN 1
-        WHEN 'Vol600ml' THEN 2
-        ELSE 3
-        END AS clmn_for_sorting,
-	SUM(oi.count) as amount,
-	c.full_name as client_name,
-	dp.compiled_address_short as delivery_address,
-	IFNULL(o.id, '0') as order_id,
-	n.id as nomenclature_id
-FROM route_list_addresses rla 
-JOIN orders o ON rla.order_id = o.id
-JOIN counterparty c ON c.id = o.client_id
-LEFT JOIN delivery_points dp ON o.delivery_point_id = dp.id 
-JOIN  order_items oi ON o.id = oi.order_id 
-JOIN nomenclature n ON oi.nomenclature_id = n.id
-LEFT JOIN
-    measurement_units mu ON mu.id = n.unit_id
-WHERE
-	rla.route_list_id = (SELECT scld.route_list_id FROM store_car_load_documents scld WHERE scld.id = @id)
-GROUP BY c.id, o.id, n.id
-;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="id">
-            <Value>={?id}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="nomenclature">
-          <DataField>nomenclature</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="category">
-          <DataField>category</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="unit">
-          <DataField>unit</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="tare_volume">
-          <DataField>tare_volume</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="amount">
-          <DataField>amount</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
-        </Field>
-        <Field Name="digits">
-          <DataField>digits</DataField>
-          <rd:TypeName>System.UInt32</rd:TypeName>
-        </Field>
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="client_name">
-          <DataField>client_name</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="delivery_address">
-          <DataField>delivery_address</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
     <DataSet Name="Doc">
       <Query>
         <DataSourceName>DS1</DataSourceName>
@@ -265,79 +188,6 @@ LIMIT 1
         <Field Name="has_fast_delivery">
           <DataField>has_fast_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="Equipment">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	scldi.amount as count,
-	mu.digits,
-	IF(scldi.own_type IS NOT NULL,
-		CASE scldi.own_type
-			WHEN 'None'  THEN n.name
-			WHEN 'Client'THEN CONCAT(n.name, ' (Клиент)')
-			WHEN 'Duty'	 THEN CONCAT(n.name, ' (Дежурный)')
-			WHEN 'Rent'	 THEN CONCAT(n.name, ' (Аренда)')
-			ELSE n.name
-		END, n.name) as nomenclature_name
-FROM
-	store_car_load_document_items scldi 
-LEFT JOIN 
-    store_car_load_documents scld ON scld.id = scldi.car_load_document_id 
-LEFT JOIN nomenclature n ON n.id = scldi.nomenclature_id
-LEFT JOIN measurement_units mu ON mu.id = n.unit_id
-WHERE
-	scldi.car_load_document_id = @id
-	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment', 'PromotionalProducts','Overalls')
-	AND n.online_store_external_id IS NULL
-GROUP BY n.id, scldi.own_type </CommandText>
-        <QueryParameters>
-          <QueryParameter Name="id">
-            <Value>={?id}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="nomenclature_name">
-          <DataField>nomenclature_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="count">
-          <DataField>count</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="digits">
-          <DataField>digits</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="EquipmentOnlineStore">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT o2.e_shop_order FROM store_car_load_documents scld 
-INNER JOIN store_car_load_document_items scldi ON scldi.car_load_document_id = scld.id 
-INNER JOIN nomenclature n ON scldi.nomenclature_id = n.id
-INNER JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
-INNER JOIN orders o2 ON o2.id = rla.order_id 
-INNER JOIN order_items oi ON o2.id = oi.order_id AND oi.nomenclature_id = scldi.nomenclature_id
-WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-  AND n.online_store_id IS NOT NULL
-  AND scld.id = @id
-  AND o2.e_shop_order IS NOT NULL
-GROUP BY o2.e_shop_order;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="id">
-            <Value>={?id}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="e_shop_order">
-          <DataField>e_shop_order</DataField>
-          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -618,8 +468,8 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <FontSize>10pt</FontSize>
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom>=Len({nomenclature}) / 6 + "pt"</PaddingBottom>
-                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -744,7 +594,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>145pt</Top>
+        <Top>125pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1060,7 +910,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>460pt</Top>
+        <Top>440pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1074,13 +924,13 @@ Format({route_list_date}, "dd.MM.yyyy")
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>576.0pt</Width>
+            <Width>367.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>15.2pt</Height>
+              <Height>27.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1111,7 +961,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>95pt</Left>
         <Top>7.5pt</Top>
       </Table>
       <Table Name="Table3">
@@ -1279,7 +1129,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
         <Left>0.0pt</Left>
-        <Top>24pt</Top>
+        <Top>5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1290,8 +1140,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       <Rectangle Name="RightQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>120.00pt</Height>
         <Width>90.00pt</Width>
-        <Left>479.20pt</Left>
-        <Top>24.00pt</Top>
+        <Left>478pt</Left>
+        <Top>5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1305,7 +1155,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
         <Left>3.0pt</Left>
-        <Top>620pt</Top>
+        <Top>600pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1372,7 +1222,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>290pt</Top>
+        <Top>270pt</Top>
       </Table>
       <Table Name="TableDataWithoutQr" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
@@ -1681,8 +1531,8 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <FontSize>10pt</FontSize>
                         <TextAlign>General</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom>=Len({nomenclature}) / 6 + "pt"</PaddingBottom>
-                        <PaddingTop>=Len({nomenclature}) / 6 + "pt"</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1806,7 +1656,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>380pt</Top>
+        <Top>360pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1949,7 +1799,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </CustomProperty>
         </CustomProperties>
         <Left>181.6pt</Left>
-        <Top>146.9pt</Top>
+        <Top>125pt</Top>
         <ZIndex>1</ZIndex>
         <Style>
           <BorderStyle />
@@ -1958,7 +1808,7 @@ Format({route_list_date}, "dd.MM.yyyy")
         </Style>
       </CustomReportItem>
     </ReportItems>
-    <Height>671.6pt</Height>
+    <Height>630pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
