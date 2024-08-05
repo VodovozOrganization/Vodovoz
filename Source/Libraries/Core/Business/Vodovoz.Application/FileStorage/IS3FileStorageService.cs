@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Errors;
 
@@ -10,40 +12,55 @@ namespace Vodovoz.Application.FileStorage
 		/// Создание файла
 		/// </summary>
 		/// <param name="bucketName">Имя бакета</param>
-		/// <param name="name">Имя файла</param>
-		/// <param name="content">Содержимое файла</param>
+		/// <param name="fileName">Имя файла</param>
+		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> CreateFileAsync(string bucketName, string name, string content, CancellationToken cancellationToken);
-		//Task<Result> CreateFile(string name, Stream inputStream);
+		Task<Result> CreateFileAsync(string bucketName, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение файла
 		/// </summary>
 		/// <param name="bucketName">Имя бакета</param>
-		/// <param name="name">Имя файла</param>
+		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> GetFileAsync(string bucketName, string name, CancellationToken cancellationToken);
+		Task<Result<Stream>> GetFileAsync(string bucketName, string fileName, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Обновление файла
 		/// </summary>
 		/// <param name="bucketName">Имя бакета</param>
-		/// <param name="name">Имя файла</param>
-		/// <param name="content">Содержимое файла</param>
+		/// <param name="fileName">Имя файла</param>
+		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> UpdateFileAsync(string bucketName, string name, string content, CancellationToken cancellationToken);
-		//Task<Result> UpdateFile(string name, Stream inputStream);
+		Task<Result> UpdateFileAsync(string bucketName, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Удаление файла
 		/// </summary>
 		/// <param name="bucketName">Имя бакета</param>
-		/// <param name="name">Имя файла</param>
+		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> DeleteFileAsync(string bucketName, string name, CancellationToken cancellationToken);
+		Task<Result> DeleteFileAsync(string bucketName, string fileName, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверка существования файла
+		/// </summary>
+		/// <param name="bucketName">Имя бакета</param>
+		/// <param name="fileName">Имя файла</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<bool> FileExistsAsync(string bucketName, string fileName, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение всех файлов в бакете
+		/// </summary>
+		/// <param name="bucketName">Имя бакета</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<Result<IEnumerable<string>>> GetAllObjectsFileNamesInBucketAsync(string bucketName, CancellationToken cancellationToken);
 	}
 }

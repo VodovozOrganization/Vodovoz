@@ -9,5 +9,11 @@ namespace Vodovoz.Application.Errors
 				typeof(S3),
 				nameof(FileAlreadyExists),
 				"Файл уже существует в хранилище");
+
+		public static Error FileNotExists =>
+			new Error(
+				typeof(S3),
+				nameof(FileNotExists),
+				"Файла не существует в хранилище");
 	}
 }
