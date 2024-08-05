@@ -438,6 +438,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					node.ProgramOrderSum = allocation.OrderSum;
 					node.AllocatedSum = allocation.OrderAllocation;
 					node.IsMissingFromDocument = allocation.IsMissingFromDocument;
+					node.OrderClientNameInDatabase = allocation.OrderClientName;
+					node.OrderClientInnInDatabase = allocation.OrderClientInn;
 				}
 				else
 				{
@@ -449,7 +451,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 						OrderPaymentStatus = allocation.OrderPaymentStatus,
 						ProgramOrderSum = allocation.OrderSum,
 						AllocatedSum = allocation.OrderAllocation,
-						IsMissingFromDocument = allocation.IsMissingFromDocument
+						IsMissingFromDocument = allocation.IsMissingFromDocument,
+						OrderClientNameInDatabase = allocation.OrderClientName,
+						OrderClientInnInDatabase = allocation.OrderClientInn
 					};
 
 					orderDiscrepanciesNodes.Add(orderDiscrepanciesNode.OrderId, orderDiscrepanciesNode);

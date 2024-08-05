@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>dotnet-MonitoringArchivingWorker-19647D3C-4E6A-46A4-81E9-16F86559FE6F</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>.</DockerfileContext>
-  </PropertyGroup>
+<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<UserSecretsId>dotnet-MonitoringArchivingWorker-19647D3C-4E6A-46A4-81E9-16F86559FE6F</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<DockerfileContext>.</DockerfileContext>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
@@ -12,8 +13,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev-DatabaseServiceWorker.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\master-DatabaseServiceWorker.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,6 +34,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+    <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="SharpCifs.Std" Version="0.2.13" />
   </ItemGroup>
   <ItemGroup>
@@ -50,4 +53,21 @@
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\..\..\Desktop\VodovozViewModels\VodovozViewModels.csproj" />
   </ItemGroup>
+	<ItemGroup>
+	  <None Update="Properties\PublishProfiles\FolderProfile.pubxml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
+	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
+	  <None Update="Properties\PublishProfiles\registry-prod.pubxml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

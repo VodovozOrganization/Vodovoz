@@ -177,7 +177,6 @@ namespace Vodovoz
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
-					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason
@@ -198,18 +197,23 @@ namespace Vodovoz
 						case DirectionReason.RepairAndCleaning:
 							c.Text = "В ремонт и санобработку";
 							break;
+						case DirectionReason.TradeIn:
+							c.Text = "По акции \"Трейд-Ин\"";
+							break;
+						case DirectionReason.ClientGift:
+							c.Text = "Подарок от клиента";
+							break;
 						default:
 							break;
 					}
 					c.Editable = false;
-					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-
-
 				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
+
+			btnAddOtherGoods.Sensitive = false;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -226,7 +230,6 @@ namespace Vodovoz
 				lstWarehouse.Sensitive = false;
 				selfdeliverydocumentitemsview1.Sensitive = false;
 				spnTareToReturn.Sensitive = false;
-				btnAddOtherGoods.Sensitive = false;
 
 				buttonSave.Sensitive = false;
 			} else {
