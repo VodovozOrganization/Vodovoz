@@ -18,7 +18,8 @@ namespace Vodovoz.PrintableDocuments.Store
 	{
 		public const string DocumentRdlPath = "Reports/Store/CarLoadDocument.rdl";
 
-		private const int _vol19LBottlesOnTrayCount = 48;
+		private const int _vol19LBottlesOnPalletCount = 40;
+		private const int _vol19LOneNomenclatureBottlesOnPalletCount = 48;
 		private const int _vol6LBottlesOnTrayCount = 10;
 		private const int _vol1500mlBottlesOnTrayCount = 30;
 		private const int _vol500mlBottlesOnTrayCount = 60;
@@ -117,33 +118,72 @@ namespace Vodovoz.PrintableDocuments.Store
 			.Distinct()
 			.ToList();
 
-		private int GetTearOffCouponsCount()
-		{
-			var vol19LBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol19L);
-			var vol6LBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol6L);
-			var vol1500mlBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol1500ml);
-			var vol500mlBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol500ml);
-
-			var traysCount =
-				Math.Ceiling(vol19LBottlesCount / _vol19LBottlesOnTrayCount) +
-				Math.Ceiling(vol6LBottlesCount / _vol6LBottlesOnTrayCount) +
-				Math.Ceiling(vol1500mlBottlesCount / _vol1500mlBottlesOnTrayCount) +
-				Math.Ceiling(vol500mlBottlesCount / _vol500mlBottlesOnTrayCount);
-
-			var palletsCount = Math.Ceiling(traysCount / _traysOnPallet);
-
-			var couponsCount = (int)(traysCount + palletsCount);
-
-			return couponsCount;
-		}
-
 		private bool IsDocumentHasCommonOrders()
 		{
 			return _carLoadDocument.Items.Any(x => !x.IsIndividualSetForOrder);
 		}
 
-		private decimal GetWaterBottlesCountByTareVolume(TareVolume tareVolume) =>
-			_carLoadDocument.Items
+		private int GetTearOffCouponsCount()
+		{
+			var groupedByOrdersItems = _carLoadDocument.Items
+				.GroupBy(item => item.OrderId)
+				.ToDictionary(g => g.Key, g => g.ToList());
+
+			var couponsCount = 0;
+
+			foreach(var item in groupedByOrdersItems)
+			{
+				couponsCount += GetPalletsCountFor19LBottles(item.Value);
+				couponsCount += GetPalletsCountForSmallBottles(item.Value);
+			}
+
+			return couponsCount;
+		}
+
+		private int GetPalletsCountForSmallBottles(IEnumerable<CarLoadDocumentItem> items)
+		{
+			var vol6LBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol6L, items);
+			var vol1500mlBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol1500ml, items);
+			var vol500mlBottlesCount = GetWaterBottlesCountByTareVolume(TareVolume.Vol500ml, items);
+
+			var smallBottlesTraysCount =
+				Math.Ceiling(vol6LBottlesCount / _vol6LBottlesOnTrayCount) +
+				Math.Ceiling(vol1500mlBottlesCount / _vol1500mlBottlesOnTrayCount) +
+				Math.Ceiling(vol500mlBottlesCount / _vol500mlBottlesOnTrayCount);
+
+			var palletsCount = (int)Math.Ceiling(smallBottlesTraysCount / _traysOnPallet);
+
+			return palletsCount;
+		}
+
+		private int GetPalletsCountFor19LBottles(IEnumerable<CarLoadDocumentItem> items)
+		{
+			var groupedItems = items
+				.Where(item =>
+					item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume.HasValue
+					&& item.Nomenclature.TareVolume.Value == TareVolume.Vol19L)
+				.GroupBy(item => item.Nomenclature.Id)
+				.ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
+
+			int palletsCount = default;
+			decimal bottlesOnCompositePallet = default;
+
+			foreach(var item in groupedItems)
+			{
+				var fuelPalletsCount = (int)(item.Value / _vol19LOneNomenclatureBottlesOnPalletCount);
+				bottlesOnCompositePallet += item.Value - fuelPalletsCount * _vol19LOneNomenclatureBottlesOnPalletCount;
+
+				palletsCount += fuelPalletsCount;
+			}
+
+			palletsCount += (int)Math.Ceiling(bottlesOnCompositePallet / _vol19LBottlesOnPalletCount);
+
+			return palletsCount;
+		}
+
+		private decimal GetWaterBottlesCountByTareVolume(TareVolume tareVolume, IEnumerable<CarLoadDocumentItem> items) =>
+			items
 			.Where(item =>
 				item.Nomenclature.Category == NomenclatureCategory.water
 				&& item.Nomenclature.TareVolume.HasValue
