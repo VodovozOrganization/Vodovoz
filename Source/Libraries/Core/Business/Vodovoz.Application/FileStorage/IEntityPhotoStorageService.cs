@@ -1,11 +1,14 @@
-﻿using System.IO;
+﻿using QS.DomainModel.Entity;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Errors;
+using VodovozBusiness.Common;
 
 namespace Vodovoz.Application.FileStorage
 {
-	public interface IFileStorageService
+	public interface IEntityPhotoStorageService<TEntity>
+		where TEntity : IDomainObject, IHasPhoto
 	{
 		/// <summary>
 		/// Создание файла
@@ -14,7 +17,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> CreateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken);
+		Task<Result> CreatePhotoAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение файла
@@ -22,7 +25,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result<Stream>> GetFileAsync(string fileName, CancellationToken cancellationToken);
+		Task<Result<Stream>> GetPhotoAsync(TEntity entity, string fileName, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Обновление файла
@@ -31,7 +34,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> UpdateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken);
+		Task<Result> UpdatePhotoAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Удаление файла
@@ -39,6 +42,6 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> DeleteFileAsync(string fileName, CancellationToken cancellationToken);
+		Task<Result> DeletePhotoAsync(TEntity entity, string fileName, CancellationToken cancellationToken);
 	}
 }

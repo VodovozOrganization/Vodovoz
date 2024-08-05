@@ -1,11 +1,13 @@
-﻿using System.IO;
+﻿using QS.DomainModel.Entity;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Errors;
 
 namespace Vodovoz.Application.FileStorage
 {
-	public interface IFileStorageService
+	public interface IEntityFileStorageService<TEntity>
+		where TEntity : IDomainObject
 	{
 		/// <summary>
 		/// Создание файла
@@ -14,7 +16,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> CreateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken);
+		Task<Result> CreateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение файла
@@ -22,7 +24,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result<Stream>> GetFileAsync(string fileName, CancellationToken cancellationToken);
+		Task<Result<Stream>> GetFileAsync(TEntity entity, string fileName, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Обновление файла
@@ -31,7 +33,7 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> UpdateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken);
+		Task<Result> UpdateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Удаление файла
@@ -39,6 +41,6 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> DeleteFileAsync(string fileName, CancellationToken cancellationToken);
+		Task<Result> DeleteFileAsync(TEntity entity, string fileName, CancellationToken cancellationToken);
 	}
 }
