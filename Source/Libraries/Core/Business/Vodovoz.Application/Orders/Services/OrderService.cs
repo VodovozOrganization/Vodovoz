@@ -325,7 +325,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(hasPromoSetForNewClients && order.HasUsedPromoForNewClients(_promotionalSetRepository))
 			{
-				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
 			}
 
 			if(!order.SelfDelivery)
