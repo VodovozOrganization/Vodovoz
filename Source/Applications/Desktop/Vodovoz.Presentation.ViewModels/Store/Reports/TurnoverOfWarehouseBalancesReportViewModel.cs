@@ -81,7 +81,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 
 			ConfigureFilter();
 
-			GenerateReportCommand = new AsyncCommand(GenerateReportAsync, () => CanGenerateReport);
+			GenerateReportCommand = new AsyncCommand(guiDispatcher, GenerateReportAsync, () => CanGenerateReport);
 			GenerateReportCommand.CanExecuteChangedWith(this, x => x.CanGenerateReport);
 
 			AbortCreateCommand = new DelegateCommand(AbortCreate, () => CanCancelGenerateReport);
@@ -196,8 +196,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 
 		private async Task GenerateReportAsync(CancellationToken cancellationToken)
 		{
-			CanGenerateReport = false;
-			CanCancelGenerateReport = true;
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				CanGenerateReport = false;
+				CanCancelGenerateReport = true;
+			});
 
 			#region Сбор параметров
 
@@ -263,8 +266,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			}
 			finally
 			{
-				CanGenerateReport = true;
-				CanCancelGenerateReport = false;
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CanGenerateReport = true;
+					CanCancelGenerateReport = false;
+				});
 
 				unitOfWork?.Session?.Clear();
 				unitOfWork?.Dispose();
