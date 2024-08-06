@@ -288,10 +288,6 @@ namespace Vodovoz.ViewModels.Orders.Reports
 					}
 				});
 			}
-			catch(Exception ex)
-			{
-				
-			}
 			finally
 			{
 				_guiDispatcher.RunInGuiTread(() =>
