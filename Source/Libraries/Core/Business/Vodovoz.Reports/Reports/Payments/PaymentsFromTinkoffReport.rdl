@@ -1090,7 +1090,7 @@
     <DataSet Name="Orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>240</Timeout>
+        <Timeout>330</Timeout>
         <CommandText>SELECT
     o.delivery_date AS order_date,
     o.id AS order_id,
@@ -1298,7 +1298,7 @@ ORDER BY order_satus_numbered DESC
     <DataSet Name="PaymentsWithoutOrders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>240</Timeout>
+        <Timeout>330</Timeout>
         <CommandText>SELECT *
 FROM payments_by_card_online pbco
 WHERE
