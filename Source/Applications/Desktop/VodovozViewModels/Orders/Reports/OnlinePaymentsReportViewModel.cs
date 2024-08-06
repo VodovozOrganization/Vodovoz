@@ -9,15 +9,14 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
+using Vodovoz.Presentation.ViewModels.Extensions;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Orders.Reports
 {
@@ -75,7 +74,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			IsDateTimeRangeYesterday = true;
 
-			GenerateReportCommand = new AsyncCommand(GenerateReport, () => CanGenerateReport);
+			GenerateReportCommand = new AsyncCommand(guiDispatcher, GenerateReport, () => CanGenerateReport);
 			GenerateReportCommand.CanExecuteChangedWith(this, vm => vm.CanGenerateReport);
 			CanGenerateReport = true;
 
