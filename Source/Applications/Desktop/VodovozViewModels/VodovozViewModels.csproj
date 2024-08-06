@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -275,6 +275,11 @@
     <Compile Include="Logistic\RouteListTransferringViewModel.cs" />
     <Compile Include="Logistic\RouteListTransferringViewModel.RouteListItemNode.cs" />
     <Compile Include="Logistic\StatusChangedEventArgs.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.OrderRow.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.OrderRow.ReportPaymentStatus.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.PaymentWithoutOrderRow.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReportViewModel.cs" />
     <Compile Include="Print\PrintEventArgs.cs" />
     <Compile Include="Print\Store\EquipmentCarLoadDocumentRdl.cs" />
     <Compile Include="Print\Store\WaterCarLoadDocumentRdl.cs" />
