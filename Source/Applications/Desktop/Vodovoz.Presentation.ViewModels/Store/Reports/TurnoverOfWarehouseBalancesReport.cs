@@ -42,14 +42,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			StartDate = startDate.Date;
 			EndDate = endDate.LatestDayTime();
 
-			var slicesTitles = new List<string>();
-
-			foreach(var slice in slices)
-			{
-				slicesTitles.Add($"{slice.StartDate:dd-MM}");
-			}
-
-			SliceTitles = slicesTitles;
+			SliceTitles = slices.Select(s => s.ToString()).ToList();
 			ReportRows = reportRows;
 		}
 
