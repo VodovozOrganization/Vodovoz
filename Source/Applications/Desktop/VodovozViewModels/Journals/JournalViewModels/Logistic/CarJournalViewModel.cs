@@ -324,6 +324,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CreateCarInsurancesReportAction();
 			CreateCarTechInspectReportAction();
 			ExportJournalItemsToExcelAction();
+			CreateCarTOReportAction();
 		}
 
 		private void CreateCarInsurancesReportAction()
@@ -342,6 +343,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarTechInspectReport()
+			);
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void CreateCarTOReportAction()
+		{
+			var selectAction = new JournalAction("Отчёт по ГТО",
+				(selected) => true,
+				(selected) => true,
+				(selected) => CreateCarInsurancesReport()
 			);
 			NodeActionsList.Add(selectAction);
 		}
