@@ -44,14 +44,10 @@ namespace Vodovoz.Views.Print
 		{
 			ytreeviewDocuments.RowActivated -= YTreeViewDocumentsOnRowActivated;
 			ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<PrintDocumentSelectableNode>.Create()
-				.AddColumn("✓")
-					.AddToggleRenderer(x => x.IsSelected)
-				.AddColumn("Документ")
-					.AddEnumRenderer(x => x.DocumentType)
-				.AddColumn("Принтер")
-					.AddTextRenderer(x => x.PrinterName)
-				.AddColumn("Копий")
-					.AddNumericRenderer(x => x.NumberOfCopies)
+				.AddColumn("✓").AddToggleRenderer(x => x.IsSelected)
+				.AddColumn("Документ").AddEnumRenderer(x => x.DocumentType)
+				.AddColumn("Принтер").AddTextRenderer(x => x.PrinterName)
+				.AddColumn("Копий").AddNumericRenderer(x => x.NumberOfCopies)
 				.AddColumn("")
 				.RowCells()
 				.Finish();

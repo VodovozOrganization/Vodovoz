@@ -34,10 +34,8 @@ namespace Vodovoz.PrintableDocuments.Store
 			CarLoadDocument carLoadDocument,
 			Func<int, string, string> qRPlacerFunc)
 		{
-			_carLoadDocument =
-				carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
-			_qRPlacerFunc =
-				qRPlacerFunc ?? throw new ArgumentNullException(nameof(qRPlacerFunc));
+			_carLoadDocument = carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
+			_qRPlacerFunc = qRPlacerFunc ?? throw new ArgumentNullException(nameof(qRPlacerFunc));
 		}
 
 		public Dictionary<object, object> Parameters { get; set; }
