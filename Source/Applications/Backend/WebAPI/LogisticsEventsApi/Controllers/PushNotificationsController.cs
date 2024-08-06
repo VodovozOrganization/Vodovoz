@@ -70,7 +70,6 @@ namespace LogisticsEventsApi.Controllers
 
 			unitOfWork.Save(externalApplicationUser);
 			unitOfWork.Commit();
-			unitOfWork.Dispose();
 
 			return NoContent();
 		}
@@ -106,7 +105,6 @@ namespace LogisticsEventsApi.Controllers
 
 			unitOfWork.Save(externalApplicationUser);
 			unitOfWork.Commit();
-			unitOfWork.Dispose();
 
 			return NoContent();
 		}
