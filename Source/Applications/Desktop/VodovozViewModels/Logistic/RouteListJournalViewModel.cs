@@ -822,14 +822,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void PrintCarLoadDocuments(CarLoadDocument carLoadDocument)
 		{
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaseEventsQr);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr);
 			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument);
 
 			_carLoadDocumentsPrinter.Print(waterCarLoadDocument);
 			_carLoadDocumentsPrinter.Print(equipmentCarLoadDocument);
 		}
 
-		private string CarLoadDocumentPlaseEventsQr(int documentId, string reportSource)
+		private string CarLoadDocumentPlaceEventsQr(int documentId, string reportSource)
 		{
 			return _eventsQrPlacer.AddQrEventForWaterCarLoadDocument(
 					UoW, documentId, reportSource);
