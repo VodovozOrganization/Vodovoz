@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -196,7 +196,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<OnlinePaymentsReportViewModel>(null);
+		NavigationManager.OpenViewModel<OnlinePaymentsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
