@@ -48,10 +48,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Logistics;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Infrastructure;
-using Vodovoz.PrintableDocuments.Store;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Print.Store;
 
 namespace Vodovoz.ViewModels.Logistic
 {

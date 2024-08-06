@@ -9,10 +9,11 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Extensions;
+using Vodovoz.PrintableDocuments;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 
-namespace Vodovoz.PrintableDocuments.Store
+namespace Vodovoz.ViewModels.Print.Store
 {
 	public class WaterCarLoadDocumentRdl : PropertyChangedBase, ICustomPrintRdlDocument
 	{

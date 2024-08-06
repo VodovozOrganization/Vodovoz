@@ -12,10 +12,10 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
-using Vodovoz.PrintableDocuments.Store;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Print.Store;
 
 namespace Vodovoz.ViewModels.Print
 {

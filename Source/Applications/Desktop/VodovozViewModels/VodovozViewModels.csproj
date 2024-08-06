@@ -276,6 +276,8 @@
     <Compile Include="Logistic\RouteListTransferringViewModel.RouteListItemNode.cs" />
     <Compile Include="Logistic\StatusChangedEventArgs.cs" />
     <Compile Include="Print\PrintEventArgs.cs" />
+    <Compile Include="Print\Store\EquipmentCarLoadDocumentRdl.cs" />
+    <Compile Include="Print\Store\WaterCarLoadDocumentRdl.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />

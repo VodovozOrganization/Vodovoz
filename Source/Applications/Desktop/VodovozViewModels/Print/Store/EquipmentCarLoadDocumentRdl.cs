@@ -7,8 +7,9 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
+using Vodovoz.PrintableDocuments;
 
-namespace Vodovoz.PrintableDocuments.Store
+namespace Vodovoz.ViewModels.Print.Store
 {
 	public class EquipmentCarLoadDocumentRdl : PropertyChangedBase, ICustomPrintRdlDocument
 	{
