@@ -196,12 +196,12 @@ stage('Web'){
 
 				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
 					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-					trueMarkCodePoolCheckWorkerImage = docker.build("true-mark-code-pool.check-worker:${TAG}", "-f ./Source/Applications/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/Dockerfile ./Source/Applications/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker")
+					trueMarkCodePoolCheckWorkerImage = docker.build("true-mark-code-pool.check-worker:${TAG}", "-f ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/Dockerfile ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker")
 				}
 				
 				stage('Web.Build.RoboatsCallsWorker'){
 					PublishBuild("${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/RoboatsCallsWorker.csproj")
-					roboatsCallsWorkerImage = docker.build("roboats.calls-worker:${TAG}", "-f ./Source/Applications/Backend/Workers/IIS/RoboatsCallsWorker/Dockerfile ./Source/Applications/Backend/Workers/IIS/RoboatsCallsWorker")
+					roboatsCallsWorkerImage = docker.build("roboats.calls-worker:${TAG}", "-f ./${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/Dockerfile ./${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker")
 				}
 			}
 		}
