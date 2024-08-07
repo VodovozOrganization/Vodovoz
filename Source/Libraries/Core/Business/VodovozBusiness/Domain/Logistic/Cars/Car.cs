@@ -1,6 +1,7 @@
 ﻿using QS.Attachments.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Common;
+using VodovozBusiness.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -18,7 +21,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		GenitivePlural = "автомобилей")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
+	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject, IHasPhoto
 	{
 		private IList<Attachment> _attachments = new List<Attachment>();
 		private CarModel _carModel;
@@ -63,6 +66,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private IncomeChannel _incomeChannel;
 		private bool _isKaskoInsuranceNotRelevant = true;
 		private int? _techInspectForKm;
+		private string _photoFileName;
+		private IObservableList<CarFileInformation> _attachedFileInformations = new ObservableList<CarFileInformation>();
 
 		public virtual int Id { get; set; }
 
@@ -284,6 +289,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
+		[Display(Name = "Имя файла фотографии")]
+		public virtual string PhotoFileName
+		{
+			get => _photoFileName;
+			set => SetField(ref _photoFileName, value);
+		}
+
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -313,6 +325,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _attachments;
 			set => SetField(ref _attachments, value);
+		}
+
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<CarFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
 		}
 
 		[Display(Name = "Осталось до ТО, км")]

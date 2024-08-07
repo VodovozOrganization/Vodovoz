@@ -14,8 +14,10 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
@@ -50,6 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
 		private readonly ILogger<CarViewModel> _logger;
+		private readonly ICarFileStorageService _carFileStorageService;
 		private bool _canChangeBottlesFromAddress;
 
 		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
@@ -65,11 +68,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 		private readonly IDocumentPrinter _documentPrinter;
 
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private byte[] _photo;
+		private string _photoFilename;
+
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ICarFileStorageService carFileStorageService,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IFuelCardVersionViewModelFactory fuelCardVersionViewModelFactory,
@@ -100,6 +108,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_carFileStorageService = carFileStorageService ?? throw new ArgumentNullException(nameof(carFileStorageService));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
@@ -108,6 +117,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_documentTemplateRepository = documentTemplateRepository ?? throw new ArgumentNullException(nameof(documentTemplateRepository));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
+			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 
 			TabName = "Автомобиль";
 
@@ -180,10 +190,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			ConfigureTechInspectInfo();
 
+			if(Entity.Id != 0 && !string.IsNullOrWhiteSpace(Entity.PhotoFileName))
+			{
+				var photoResult = _carFileStorageService.GetFileAsync(Entity, Entity.PhotoFileName, _cancellationTokenSource.Token).GetAwaiter().GetResult();
+
+				if(photoResult.IsSuccess)
+				{
+					using(var ms = new MemoryStream())
+					{
+						photoResult.Value.CopyTo(ms);
+						Photo = ms.ToArray();
+						PhotoFilename = Entity.PhotoFileName;
+					}
+				}
+			}
+
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
 			CreateRentalContractCommand = new DelegateCommand(CreateRentalContract);
-			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -258,11 +282,29 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return result;
 		}
 
+		private void SavePhotoIfNeeded()
+		{
+			if(PhotoFilename != Entity.PhotoFileName)
+			{
+				var result = _carFileStorageService.CreateFileAsync(Entity, PhotoFilename, new MemoryStream(Photo), _cancellationTokenSource.Token).GetAwaiter().GetResult();
+
+				if(result.IsSuccess)
+				{
+					Entity.PhotoFileName = PhotoFilename;
+				}
+			}
+		}
+
 		public override bool Save(bool close)
 		{
 			var routeLists = _carVersionsManagementViewModel.GetAllAffectedRouteLists(UoW);
 			if(!routeLists.Any())
 			{
+				if(!base.Save(false))
+				{
+					return false;
+				}
+				SavePhotoIfNeeded();
 				return base.Save(close);
 			}
 
@@ -300,6 +342,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					UoW.Save(routeList);
 				}
 
+				if(!base.Save(false))
+				{
+					return false;
+				}
+				SavePhotoIfNeeded();
 				return base.Save(close);
 			}
 			catch(OperationCanceledException)
@@ -496,6 +543,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public int UpcomingTechInspectLeft { get; private set; }
+
+		public byte[] Photo
+		{
+			get => _photo;
+			set => SetField(ref _photo, value);
+		}
+
+		public string PhotoFilename
+		{
+			get => _photoFilename;
+			set => SetField(ref _photoFilename, value);
+		}
 
 		public void ShowErrorMessage(string message)
 		{

@@ -1,6 +1,8 @@
-﻿namespace Vodovoz.Application.FileStorage
+﻿using Vodovoz.Domain.Logistic.Cars;
+
+namespace Vodovoz.Application.FileStorage
 {
-	public interface ICarFileStorageService : IFileStorageService
+	public interface ICarFileStorageService : IEntityFileStorageService<Car>, IEntityPhotoStorageService<Car>
 	{
 	}
 }
