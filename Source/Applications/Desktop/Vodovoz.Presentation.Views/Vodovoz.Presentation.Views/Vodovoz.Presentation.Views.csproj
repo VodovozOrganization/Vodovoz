@@ -65,6 +65,8 @@
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.IncludeExcludeFilterGroupView.cs" />
     <Compile Include="IncludeExcludeFilterGroupsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.IncludeExcludeFilterGroupsView.cs" />
+    <Compile Include="AttachedFileInformationsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Presentation.Views.AttachedFileInformationsView.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
