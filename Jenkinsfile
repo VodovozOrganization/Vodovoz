@@ -74,13 +74,19 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
-CAN_BUILD_DESKTOP = true
+//TEST
+//CAN_BUILD_DESKTOP = true
+CAN_BUILD_DESKTOP = false
 CAN_BUILD_WEB = true
-CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+//TEST
+//CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+CAN_PUBLISH_BUILD_WEB = true
 
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
-CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+//TEST
+//CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+CAN_COMPRESS_WEB = true
 
 // 107	Настройки. Доставка
 CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
@@ -100,7 +106,9 @@ CAN_DEPLOY_WEB = false
 
 // 109	Настройки. Публикация	
 CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
-CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
+//TEST
+//CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
+CAN_PUBLISH_WEB = false
 //Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
 NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
 NEW_WEB_HOTFIX_FOLDER_NAME = "Hotfix"
@@ -166,7 +174,6 @@ stage('Web'){
 				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
-				PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 
 				// Docker
@@ -180,6 +187,16 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
+
+				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
+					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
+					trueMarkCodePoolCheckWorkerImage = docker.build("true-mark-code-pool.check-worker:${TAG}", "-f ./Source/Applications/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/Dockerfile ./Source/Applications/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker")
+				}
+				
+				stage('Web.Build.RoboatsCallsWorker'){
+					PublishBuild("${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/RoboatsCallsWorker.csproj")
+					roboatsCallsWorkerImage = docker.build("roboats.calls-worker:${TAG}", "-f ./Source/Applications/Backend/Workers/IIS/RoboatsCallsWorker/Dockerfile ./Source/Applications/Backend/Workers/IIS/RoboatsCallsWorker")
+				}
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -217,8 +234,7 @@ stage('Compress'){
 		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
-		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
-		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
+		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") }
 	)
 }
 
@@ -245,8 +261,12 @@ stage('Delivery'){
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
-		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
-		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") }
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
+
+		"DockerImages" : {
+			PushImage(trueMarkCodePoolCheckWorkerImage),
+			PushImage(roboatsCallsWorkerImage)
+		}
 	)
 }
 
@@ -275,7 +295,6 @@ stage('Publish'){
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
-		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
 	)
 }
@@ -293,31 +312,19 @@ def PrepareSources() {
 	if(fileExists(REFERENCE_REPOSITORY_PATH)){
 		// fetch all on reference repository
 		if (isUnix()) {
-			sh script: """\
-				cd ${REFERENCE_REPOSITORY_PATH} \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
-				git fetch --all \
-			""", returnStdout: true
+			sh "git -C ${REFERENCE_REPOSITORY_PATH} fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects fetch --all"
 		}
 		else {
 			RunPowerShell("""
-				cd ${REFERENCE_REPOSITORY_PATH}
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
-				git fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH} fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects fetch --all
 			""")
 		}		
 	}else{
@@ -366,6 +373,16 @@ def PublishBuild(projectPath){
 def DockerPublishBuild(projectPath){
 	def workspacePath = GetWorkspacePath()
 	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+}
+
+def DockerBuild(imageName, projectFolder){
+	def workspacePath = GetWorkspacePath()
+	return docker.build("${imageName}:${TAG}", "-f ./${projectFolder}/Dockerfile ./${projectFolder}")
+}
+
+def DockerPush(projectFolder){
+	def workspacePath = GetWorkspacePath()
+	bat "docker build -t true-mark-code-pool.check-worker:latest -f ${workspacePath}/${projectFolder}/Dockerfile ${workspacePath}/${projectFolder}"
 }
 
 def Build(config){
@@ -492,6 +509,16 @@ def DeployDesktop(){
 		else
 		{
 			echo "Deploy desktop builds not needed"
+		}
+	}
+}
+
+def PushImage(image, tag = "") {
+	docker.withRegistry('https://docker.vod.qsolution.ru:5100', 'docker-registry') {
+		if (tag != "") {
+			image.push(tag)
+		}else{
+			image.push()
 		}
 	}
 }
