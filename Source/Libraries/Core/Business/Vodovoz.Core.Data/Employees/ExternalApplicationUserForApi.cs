@@ -40,6 +40,9 @@ namespace Vodovoz.Core.Data.Employees
 			set => SetField(ref _androidSessionKey, value);
 		}
 
+		/// <summary>
+		/// Токен приложения пользователя для отправки Push-сообщений
+		/// </summary>
 		[Display(Name = "Токен приложения пользователя для отправки Push-сообщений")]
 		public virtual string Token
 		{

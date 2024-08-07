@@ -131,14 +131,10 @@
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
     <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
-    <Compile Include="Extensions\ClosedXmlReportExtensions.cs" />
     <Compile Include="Factories\DialogSettingsFactory.cs" />
     <Compile Include="Factories\FuelCardVersionViewModelFactory.cs" />
-    <Compile Include="Factories\IDialogSettingsFactory.cs" />
     <Compile Include="Factories\IFuelCardVersionViewModelFactory.cs" />
-    <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
-    <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\CarManufacturerJournalFactory.cs" />
     <Compile Include="Factories\IUndeliveredOrderViewModelFactory.cs" />
@@ -271,6 +267,11 @@
     <Compile Include="Logistic\RouteListTransferringViewModel.cs" />
     <Compile Include="Logistic\RouteListTransferringViewModel.RouteListItemNode.cs" />
     <Compile Include="Logistic\StatusChangedEventArgs.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.OrderRow.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.OrderRow.ReportPaymentStatus.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReport.PaymentWithoutOrderRow.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />

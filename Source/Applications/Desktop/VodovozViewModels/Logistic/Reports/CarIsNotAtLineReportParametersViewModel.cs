@@ -10,11 +10,11 @@ using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Extensions;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {

@@ -6,12 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using QS.Services;
 using System.Text;
-using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Options;
 using TrueMarkApi.Services.Authorization;
-using VodovozHealthCheck;
 
 namespace TrueMarkApi
 {
@@ -52,14 +49,11 @@ namespace TrueMarkApi
 						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey))
 					};
 				});
-
-			services.ConfigureHealthCheckService<TrueMarkHealthCheck>(true);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -75,8 +69,6 @@ namespace TrueMarkApi
 			{
 				endpoints.MapControllers();
 			});
-
-			app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }
