@@ -323,8 +323,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			CreateCarInsurancesReportAction();
 			CreateCarTechInspectReportAction();
+			CreateCarsTechnicalCheckupReportAction();
 			ExportJournalItemsToExcelAction();
-			CreateCarTOReportAction();
 		}
 
 		private void CreateCarInsurancesReportAction()
@@ -347,12 +347,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			NodeActionsList.Add(selectAction);
 		}
 
-		private void CreateCarTOReportAction()
+		private void CreateCarsTechnicalCheckupReportAction()
 		{
 			var selectAction = new JournalAction("Отчёт по ГТО",
 				(selected) => true,
 				(selected) => true,
-				(selected) => CreateCarInsurancesReport()
+				(selected) => CreateCarTechnicalCheckupReport()
 			);
 			NodeActionsList.Add(selectAction);
 		}
@@ -407,6 +407,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			}
 
 			CarTechInspectReport.ExportToExcel(result.Path, techInspects);
+		}
+
+		private void CreateCarTechnicalCheckupReport()
+		{
+			var carsTechnicalCheckups =
+				_carRepository
+				.GetCarsTechnicalCheckupData(UoW, _carEventSettings.CarTechnicalCheckupEventTypeId, _carEventSettings.CarsExcludedFromReportsIds)
+				.ToList()
+				.OrderByDescending(d => d.LastCarTechnicalCheckupEvent is null)
+				.ThenBy(d => d.DaysLeftToNextTechnicalCheckup);
+
+			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarTechnicalCheckupReport.ReportTitle}");
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			CarTechnicalCheckupReport.ExportToExcel(
+				result.Path,
+				carsTechnicalCheckups,
+				_generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore);
 		}
 
 		private void ExportJournalItemsToExcel()

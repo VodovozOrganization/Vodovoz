@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace VodovozBusiness.EntityRepositories.Logistic
@@ -9,9 +10,10 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 		public string CarRegNumber { get; set; }
 		public string DriverGeography { get; set; }
-		public DateTime? LastTechnicalCheckupDate { get; set; }
-		public DateTime NextTechnicalCheckupDate { get; set; }
-		public double DaysLeftToNextTechnicalCheckup =>
-			(NextTechnicalCheckupDate - DateTime.Today).TotalDays;
+		public CarEvent LastCarTechnicalCheckupEvent { get; set; }
+		public int? DaysLeftToNextTechnicalCheckup =>
+			LastCarTechnicalCheckupEvent?.CarTechnicalCheckupEndingDate is null
+			? null
+			: (int?)(LastCarTechnicalCheckupEvent.CarTechnicalCheckupEndingDate.Value - DateTime.Today).TotalDays;
 	}
 }
