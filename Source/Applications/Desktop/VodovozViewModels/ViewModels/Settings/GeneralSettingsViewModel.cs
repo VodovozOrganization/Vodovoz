@@ -138,7 +138,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveInsuranceNotificationsSettingsCommand = new DelegateCommand(SaveInsuranceNotificationsSettings, () => CanEditInsuranceNotificationsSettings);
 
 			_carTechnicalCheckupEndingNotifyDaysBefore = _generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore;
-			CanEditCarTechnicalCheckupNotificationsSettings = CanEditUpcomingTechInspectSetting;
+			CanEditCarTechnicalCheckupNotificationsSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditCarTechnicalCheckupNotificationsSettings);
 			SaveCarTechnicalCheckupSettingsCommand = new DelegateCommand(SaveCarTechnicalCheckupSettings, () => CanEditCarTechnicalCheckupNotificationsSettings);
 
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
