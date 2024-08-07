@@ -263,10 +263,8 @@ stage('Delivery'){
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
-		"DockerImages" : {
-			PushImage(trueMarkCodePoolCheckWorkerImage),
-			PushImage(roboatsCallsWorkerImage)
-		}
+		"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
+		"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
 	)
 }
 
