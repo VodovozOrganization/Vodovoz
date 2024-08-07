@@ -261,7 +261,7 @@ namespace Vodovoz.Domain.Logistic
 						new[] { nameof(CarTechnicalCheckupEndingDate) });
 				}
 
-				if(CarTechnicalCheckupEndingDate.HasValue && StartDate < CarTechnicalCheckupEndingDate.Value)
+				if(CarTechnicalCheckupEndingDate.HasValue && CarTechnicalCheckupEndingDate.Value < StartDate)
 				{
 					yield return new ValidationResult($"Дата окончания действия техосмотра не должна быть меньше даты начала события.",
 						new[] { nameof(CarTechnicalCheckupEndingDate) });
