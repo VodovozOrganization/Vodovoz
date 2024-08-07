@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -157,6 +157,7 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 
 namespace Vodovoz
@@ -666,6 +667,7 @@ namespace Vodovoz
 						.AddDatabaseSingletonSettings()
 						.AddCore()
 						.AddDesktop()
+						.AddFileStorage()
 						.AddGuiTrackedUoW()
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()
