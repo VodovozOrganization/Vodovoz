@@ -128,6 +128,12 @@ stage('Checkout'){
 		"Win" : {
 			node(NODE_WIN_BUILD){
 				PrepareSources()
+
+				if (IS_HOTFIX || IS_RELEASE) {
+					TAG = "latest" 
+				} else {
+					TAG = "dev"  
+				}
 			}
 		}
 	)
@@ -163,7 +169,7 @@ stage('Web'){
 			}
 			stage('Web.Build'){
 				// IIS
-				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				/*PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
@@ -186,7 +192,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")*/
 
 				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
 					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
