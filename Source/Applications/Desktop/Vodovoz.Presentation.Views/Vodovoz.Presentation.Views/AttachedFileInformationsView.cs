@@ -1,39 +1,78 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using Vodovoz.Presentation.ViewModels;
+using VodovozBusiness.Domain.Common;
+
 namespace Vodovoz.Presentation.Views
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class AttachedFileInformationsView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class AttachedFileInformationsView : WidgetViewBase<AttachedFileInformationsViewModel>
 	{
-		public AttachedFileInformationsView()
+		public AttachedFileInformationsView() : base()
 		{
-			this.Build();
+			Build();
 		}
 
-		//protected override void ConfigureWidget()
-		//{
-		//	buttonAdd.Clicked += (sender, args) => ViewModel.AddCommand.Execute();
-		//	buttonScan.Clicked += (sender, args) => ViewModel.ScanCommand.Execute();
-		//	btnOpen.Clicked += (sender, args) => ViewModel.OpenCommand.Execute();
-		//	btnSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
-		//	btnDelete.Clicked += (sender, args) => ViewModel.DeleteCommand.Execute();
+		public AttachedFileInformationsView(AttachedFileInformationsViewModel viewModel)
+			: base(viewModel)
+		{
+			Build();
+			ConfigureWidget();
+		}
 
-		//	btnOpen.Binding.AddBinding(ViewModel, vm => vm.CanOpen, w => w.Sensitive).InitializeFromSource();
-		//	btnSave.Binding.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive).InitializeFromSource();
-		//	btnDelete.Binding.AddBinding(ViewModel, vm => vm.CanDelete, w => w.Sensitive).InitializeFromSource();
+		public void InitializeViewModel(AttachedFileInformationsViewModel viewModel)
+		{
+			if(ViewModel is null)
+			{
+				ViewModel = viewModel;
+			}
+			else
+			{
+				throw new InvalidOperationException("ViewModel уже инициализирована");
+			}
+		}
 
-		//	ConfigureTreeFiles();
-		//}
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
 
-		//private void ConfigureTreeFiles()
-		//{
-		//	treeFiles.ColumnsConfig = new FluentColumnsConfig<QS.Attachments.Domain.Attachment>()
-		//		.AddColumn("Файл").AddTextRenderer(n => n.FileName)
-		//		.AddColumn("")
-		//		.Finish();
+			buttonAdd.Clicked += (sender, args) => ViewModel.AddCommand.Execute();
+			buttonScan.Clicked += (sender, args) => ViewModel.ScanCommand.Execute();
+			btnOpen.Clicked += (sender, args) => ViewModel.OpenCommand.Execute();
+			btnSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+			btnDelete.Clicked += (sender, args) => ViewModel.DeleteCommand.Execute();
 
-		//	treeFiles.Binding.AddBinding(ViewModel, vm => vm.SelectedAttachment, w => w.SelectedRow).InitializeFromSource();
-		//	treeFiles.ItemsDataSource = ViewModel.Attachments;
-		//	treeFiles.RowActivated += (sender, args) => ViewModel.OpenCommand.Execute();
-		//}
+			btnOpen.Binding.AddBinding(ViewModel, vm => vm.CanOpen, w => w.Sensitive).InitializeFromSource();
+			btnSave.Binding.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive).InitializeFromSource();
+			btnDelete.Binding.AddBinding(ViewModel, vm => vm.CanDelete, w => w.Sensitive).InitializeFromSource();
+
+			ConfigureTreeFiles();
+
+			ViewModel.OnFileInformationChanged += OnViewModelFileInformationChanged;
+		}
+
+		private void OnViewModelFileInformationChanged(object sender, EventArgs e)
+		{
+			treeFiles.QueueDraw();
+		}
+
+		private void ConfigureTreeFiles()
+		{
+			treeFiles.CreateFluentColumnsConfig<FileInformation>()
+				.AddColumn("Файл").AddTextRenderer(n => n.FileName)
+				.AddColumn("")
+				.Finish();
+
+			treeFiles.Binding.AddBinding(ViewModel, vm => vm.SelectedFile, w => w.SelectedRow).InitializeFromSource();
+			treeFiles.ItemsDataSource = ViewModel.FileInformations;
+			treeFiles.RowActivated += (sender, args) => ViewModel.OpenCommand.Execute();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.OnFileInformationChanged -= OnViewModelFileInformationChanged;
+			base.Destroy();
+		}
 	}
 }
