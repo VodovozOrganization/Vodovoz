@@ -163,7 +163,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSDocTemplates", "Libraries
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.BaseParameters", "Libraries\External\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj", "{A869EC36-67D2-4A36-95E9-0B1E7350928F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.DocTemplates", "Libraries\External\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj", "{6A9581B0-7278-4F8D-B5EA-8C60BDDC55D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.DocTemplates", "Libraries\External\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj", "{6A9581B0-7278-4F8D-B5EA-8C60BDDC55D8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.ErrorReporting.Client", "Libraries\External\QSProjects\QS.ErrorReporting.Client\QS.ErrorReporting.Client.csproj", "{BABA2CB7-6EFE-4B1B-9324-74CBCBACF257}"
 EndProject
@@ -421,9 +421,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnsubscribePage", "Applicat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Extensions.Observable", "Libraries\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj", "{2A0710B2-B71B-4959-88DA-0940100E172A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Infrastructure.S3", "Libraries\Infrastructure\Vodovoz.Infrastructure.S3\Vodovoz.Infrastructure.S3.csproj", "{EFC339B7-65C2-4687-B969-B2926CF100F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Infrastructure.S3", "Libraries\Infrastructure\Vodovoz.Infrastructure.S3\Vodovoz.Infrastructure.S3.csproj", "{EFC339B7-65C2-4687-B969-B2926CF100F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Infrastructure.FileStorage", "Libraries\Infrastructure\Vodovoz.Infrastructure.FileStorage\Vodovoz.Infrastructure.FileStorage.csproj", "{9BEFFD98-7181-4282-AF62-8C697DD4AC1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Infrastructure.FileStorage", "Libraries\Infrastructure\Vodovoz.Infrastructure.FileStorage\Vodovoz.Infrastructure.FileStorage.csproj", "{9BEFFD98-7181-4282-AF62-8C697DD4AC1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -5272,8 +5272,8 @@ Global
 		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.Debug|x86.Build.0 = Debug|Any CPU
-		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.DebugWin|Any CPU.ActiveCfg = Release|Any CPU
-		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.DebugWin|Any CPU.Build.0 = Release|Any CPU
+		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
 		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.DebugWin|x86.ActiveCfg = Release|Any CPU
 		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.DebugWin|x86.Build.0 = Release|Any CPU
 		{2DDF3B3D-FF28-424F-AC31-2DC9265A02FF}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
