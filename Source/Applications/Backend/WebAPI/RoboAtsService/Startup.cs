@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -76,8 +76,7 @@ namespace RoboatsService
 			services.AddApplication();
 			services.AddBusiness(Configuration)
 				.AddInfrastructure()
-				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)))
-				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)));
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
