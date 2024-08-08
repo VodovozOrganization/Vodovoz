@@ -7,7 +7,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 	{
 		public CarFileInformationMap()
 		{
-			Table("car_fuel_versions");
+			Table("car_file_informations");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
