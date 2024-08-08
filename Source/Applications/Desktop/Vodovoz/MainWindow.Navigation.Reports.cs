@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
+using Vodovoz.Presentation.ViewModels.Store.Reports;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
@@ -480,6 +481,16 @@ public partial class MainWindow
 	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Оборачиваемость складских остатков
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction90Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<TurnoverOfWarehouseBalancesReportViewModel>(null);
 	}
 
 	#endregion Склад
