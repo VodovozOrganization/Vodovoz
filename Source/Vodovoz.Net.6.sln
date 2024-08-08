@@ -5,9 +5,10 @@ VisualStudioVersion = 17.10.34902.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMarkApi", "Applications\Backend\WebAPI\TrueMarkApi\TrueMarkApi.csproj", "{D6003E6B-BFDC-463B-8332-298651C6135E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMark.Contracts", "Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj", "{969D3D60-6E5F-45B4-9D44-22741F98CA24}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VodovozHealthCheck", "Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj", "{28582715-3A9E-4F82-B2F4-F20C4650ADCF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0651C52D-892B-4071-A28E-B96C0844424A}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet.Config = NuGet.Config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +20,6 @@ Global
 		{D6003E6B-BFDC-463B-8332-298651C6135E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6003E6B-BFDC-463B-8332-298651C6135E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6003E6B-BFDC-463B-8332-298651C6135E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{969D3D60-6E5F-45B4-9D44-22741F98CA24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{969D3D60-6E5F-45B4-9D44-22741F98CA24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{969D3D60-6E5F-45B4-9D44-22741F98CA24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{969D3D60-6E5F-45B4-9D44-22741F98CA24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28582715-3A9E-4F82-B2F4-F20C4650ADCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28582715-3A9E-4F82-B2F4-F20C4650ADCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28582715-3A9E-4F82-B2F4-F20C4650ADCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28582715-3A9E-4F82-B2F4-F20C4650ADCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

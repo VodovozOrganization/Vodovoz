@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Store
 		Nominative = "склад")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private string _name;
 		private bool _canReceiveBottles;
