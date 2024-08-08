@@ -1220,7 +1220,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(x => x.Order.Id == orderId)
 				.And(x => x.Type == Type.Upd)
 				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
-				.Take(1);
+				.Take(1)
+				.SingleOrDefault();
 
 			return result != null;
 		}

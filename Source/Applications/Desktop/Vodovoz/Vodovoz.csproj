@@ -1114,8 +1114,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
     <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
-    <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
+    <Compile Include="Orders\Reports\OnlinePaymentsReportVIew.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Orders.Reports.OnlinePaymentsReportView.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
@@ -2093,6 +2093,8 @@
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskView.cs" />
     <Compile Include="Counterparties\CallTaskMassEditView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskMassEditView.cs" />
+    <Compile Include="Store\Reports\TurnoverOfWarehouseBalancesReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Store.Reports.TurnoverOfWarehouseBalancesReportView.cs" />
     <Compile Include="Views\Orders\OrderRatingReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderRatingReasonView.cs" />
     <Compile Include="Filters\GtkViews\OrdersRatingsJournalFilterView.cs" />
@@ -2108,6 +2110,8 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Store\" />
+    <Folder Include="Store\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

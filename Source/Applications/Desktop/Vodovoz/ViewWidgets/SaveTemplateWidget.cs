@@ -7,6 +7,7 @@ using QSDocTemplates;
 using QSProjectsLib;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz.ViewWidgets
 {
