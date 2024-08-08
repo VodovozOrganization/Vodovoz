@@ -1018,7 +1018,6 @@ namespace Vodovoz.Views.Settings
 			// Container child yhboxTechInspectAndInsurances.Gtk.Box+BoxChild
 			this.frameCarTechnicalCheckup = new global::Gtk.Frame();
 			this.frameCarTechnicalCheckup.Name = "frameCarTechnicalCheckup";
-			this.frameCarTechnicalCheckup.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frameCarTechnicalCheckup.Gtk.Container+ContainerChild
 			this.GtkAlignment26 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment26.Name = "GtkAlignment26";
