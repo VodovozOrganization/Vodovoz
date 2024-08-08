@@ -398,6 +398,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
 
+		public virtual void AddAttachedFileInformations(CarFileInformation carFileInformation)
+		{
+			carFileInformation.CarId = Id;
+			AttachedFileInformations.Add(carFileInformation);
+		}
+
+		public virtual void RemoveAttachedFileInformations(string filename)
+		{
+			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(RegistrationNumber))

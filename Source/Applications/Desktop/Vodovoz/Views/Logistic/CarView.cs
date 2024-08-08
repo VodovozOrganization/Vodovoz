@@ -71,8 +71,10 @@ namespace Vodovoz.Views.Logistic
 
 			photoviewCar.Binding
 				.AddBinding(ViewModel, vm => vm.Photo, w => w.ImageFile)
-				//.AddBinding(ViewModel, vm => vm.PhotoFilename, w => w.FileName)
+				.AddBinding(ViewModel, vm => vm.PhotoFilename, w => w.FileName)
 				.InitializeFromSource();
+
+			attachedfileinformationsview1.InitializeViewModel(ViewModel.AttachedFileInformationsViewModel);
 
 			//attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 

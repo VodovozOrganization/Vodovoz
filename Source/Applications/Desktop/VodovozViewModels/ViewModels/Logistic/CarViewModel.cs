@@ -9,10 +9,12 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -32,6 +34,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.ViewModels;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -44,6 +47,7 @@ using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
+using VodovozBusiness.Domain.Logistic.Cars;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -51,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ILogger<CarViewModel> _logger;
 		private readonly ICarFileStorageService _carFileStorageService;
 		private bool _canChangeBottlesFromAddress;
@@ -69,6 +74,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IDocumentPrinter _documentPrinter;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+		private readonly Dictionary<string, byte[]> _attachedFiles = new Dictionary<string, byte[]>();
+
+		private readonly List<string> _filesToDeleteOnSave = new List<string>();
+		private readonly List<string> _filesToUpdateOnSave = new List<string>();
+
 		private byte[] _photo;
 		private string _photoFilename;
 
@@ -84,6 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListsWageController routeListsWageController,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
+			IFileDialogService fileDialogService,
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
 			IFuelRepository fuelRepository,
@@ -111,6 +123,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carFileStorageService = carFileStorageService ?? throw new ArgumentNullException(nameof(carFileStorageService));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -120,6 +133,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 
 			TabName = "Автомобиль";
+
+			AttachedFileInformationsViewModel = new AttachedFileInformationsViewModel(_fileDialogService)
+			{
+				FileInformations = Entity.AttachedFileInformations
+			};
+
+			AttachedFileInformationsViewModel.AddFileHandler = AddAttachedFile;
+			AttachedFileInformationsViewModel.DeleteFileHandler = DeleteAttachedFile;
+
+			// Добавление файла и событие о изменение (обновление ViewModel)
 
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 
@@ -203,6 +226,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						PhotoFilename = Entity.PhotoFileName;
 					}
 				}
+
+				foreach(var fileInformation in Entity.AttachedFileInformations)
+				{
+					var fileResult = _carFileStorageService.GetFileAsync(Entity, fileInformation.FileName, _cancellationTokenSource.Token).GetAwaiter().GetResult();
+
+					if(fileResult.IsSuccess)
+					{
+						using(var ms = new MemoryStream())
+						{
+							fileResult.Value.CopyTo(ms);
+							var fileContent = ms.ToArray();
+
+							_attachedFiles.Add(fileInformation.FileName, fileContent);
+						}
+					}
+				}
 			}
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
@@ -236,7 +275,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _canChangeBottlesFromAddress;
 			set => SetField(ref _canChangeBottlesFromAddress, value);
 		}
-
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 		public AttachmentsViewModel AttachmentsViewModel
 		{
 			get => _attachmentsViewModel;
@@ -295,6 +334,99 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		private void UpdateAttachedFile(string filename, Stream stream)
+		{
+			if(_attachedFiles.ContainsKey(filename))
+			{
+				using(var ms = new MemoryStream())
+				{
+					stream.CopyTo(ms);
+					var fileContent = ms.ToArray();
+
+					_attachedFiles[filename] = fileContent;
+				}
+			}
+
+			if(!_filesToUpdateOnSave.Contains(filename))
+			{
+				_filesToUpdateOnSave.Add(filename);
+			}
+		}
+
+		private void AddAttachedFile(string filename, Stream stream)
+		{
+			using(var ms = new MemoryStream())
+			{
+				stream.CopyTo(ms);
+				var fileContent = ms.ToArray();
+
+				if(!_attachedFiles.ContainsKey(filename))
+				{
+					_attachedFiles.Add(filename, fileContent);
+				}
+				else if(_filesToDeleteOnSave.Contains(filename))
+				{
+					_attachedFiles[filename] = fileContent;
+					_filesToDeleteOnSave.Remove(filename);
+					_filesToUpdateOnSave.Add(filename);
+				}
+			}
+
+			Entity.AddAttachedFileInformations(new CarFileInformation
+			{
+				 FileName = filename
+			});
+		}
+
+		private void DeleteAttachedFile(string filename)
+		{
+			if(!_filesToDeleteOnSave.Contains(filename))
+			{
+				_filesToDeleteOnSave.Add(filename);
+
+				Entity.RemoveAttachedFileInformations(filename);
+			}
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var fileToAddNames = _attachedFiles.Keys
+				.Where(key => !_filesToDeleteOnSave.Contains(key)
+					&& !Entity.AttachedFileInformations.Any(afi => afi.FileName == key));
+
+			foreach(var fileName in fileToAddNames)
+			{
+				_carFileStorageService.CreateFileAsync(Entity, fileName, 
+				new MemoryStream(_attachedFiles[fileName]), _cancellationTokenSource.Token);
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!_filesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _filesToUpdateOnSave)
+			{
+				_carFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(_attachedFiles[fileName]), _cancellationTokenSource.Token).GetAwaiter().GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!_filesToDeleteOnSave.Any())
+			{
+				return;
+			}
+			
+			foreach(var fileName in _filesToDeleteOnSave)
+			{
+				_carFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token).GetAwaiter().GetResult();
+			}
+		}
+
 		public override bool Save(bool close)
 		{
 			var routeLists = _carVersionsManagementViewModel.GetAllAffectedRouteLists(UoW);
@@ -304,7 +436,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					return false;
 				}
+
 				SavePhotoIfNeeded();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+
 				return base.Save(close);
 			}
 
@@ -346,7 +483,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					return false;
 				}
+
 				SavePhotoIfNeeded();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+
 				return base.Save(close);
 			}
 			catch(OperationCanceledException)
