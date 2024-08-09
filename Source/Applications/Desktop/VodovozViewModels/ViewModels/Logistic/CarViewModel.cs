@@ -343,7 +343,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		private void AddAttachedFile(string filename, Stream stream)
+		private void AddAttachedFile(string filename)
 		{
 			Entity.AddAttachedFileInformations(new CarFileInformation
 			{

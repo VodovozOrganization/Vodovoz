@@ -1,4 +1,5 @@
-﻿using QS.Attachments;
+﻿using NHibernate.Util;
+using QS.Attachments;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -11,6 +12,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Vodovoz.EntityRepositories;
 using VodovozBusiness.Domain.Common;
 
@@ -57,7 +59,7 @@ namespace Vodovoz.Presentation.ViewModels
 		public List<string> FilesToDeleteOnSave { get; } = new List<string>();
 
 		public event EventHandler OnFileInformationChanged;
-		public Action<string, Stream> AddFileHandler { get; set; }
+		public Action<string> AddFileHandler { get; set; }
 		public Action<string> DeleteFileHandler { get; set; }
 
 		[PropertyChangedAlso(
@@ -129,31 +131,33 @@ namespace Vodovoz.Presentation.ViewModels
 
 			if(result.Successful && AddFileHandler != null)
 			{
-				FileStream fileStream = new FileStream(result.Path, FileMode.Open);
+				using var fileStream = new FileStream(result.Path, FileMode.Open);
 
 				var fileName = result.Path.Substring(
 						result.Path.LastIndexOf(Path.DirectorySeparatorChar))
 					.Trim(Path.DirectorySeparatorChar);
 
-				using(var ms = new MemoryStream())
-				{
-					fileStream.CopyTo(ms);
-					var fileContent = ms.ToArray();
+				using var ms = new MemoryStream();
 
-					if(!AttachedFiles.ContainsKey(fileName))
-					{
-						AttachedFiles.Add(fileName, fileContent);
-						FilesToAddOnSave.Add(fileName);
-					}
-					else if(FilesToDeleteOnSave.Contains(fileName))
-					{
-						AttachedFiles[fileName] = fileContent;
-						FilesToDeleteOnSave.Remove(fileName);
-						FilesToUpdateOnSave.Add(fileName);
-					}
+				fileStream.CopyTo(ms);
+				var fileContent = ms.ToArray();
+
+				if(!AttachedFiles.ContainsKey(fileName))
+				{
+					AttachedFiles.Add(fileName, fileContent);
+					FilesToAddOnSave.Add(fileName);
+				}
+				else if(FilesToDeleteOnSave.Contains(fileName))
+				{
+					AttachedFiles[fileName] = fileContent;
+					FilesToDeleteOnSave.Remove(fileName);
+					FilesToUpdateOnSave.Add(fileName);
 				}
 
-				AddFileHandler.Invoke(fileName, fileStream);
+				if(!FileInformations.Any(fi => fi.FileName == fileName))
+				{
+					AddFileHandler.Invoke(fileName);
+				}
 			}
 		}
 
@@ -239,6 +243,13 @@ namespace Vodovoz.Presentation.ViewModels
 					AttachedFiles[fileName] = fileContent;
 					FilesToDeleteOnSave.Remove(fileName);
 					FilesToUpdateOnSave.Add(fileName);
+				}
+
+				using var memoryStream = new MemoryStream(fileContent);
+
+				if(!FileInformations.Any(fi => fi.FileName == fileName))
+				{
+					AddFileHandler.Invoke(fileName);
 				}
 			}
 		}
