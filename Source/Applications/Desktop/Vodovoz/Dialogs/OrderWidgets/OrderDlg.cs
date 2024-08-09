@@ -1535,6 +1535,17 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
+				if(Entity.IsNeedIndividualSetOnLoad)
+				{
+					ycheckFastDelivery.Active = false;
+
+					ServicesConfig.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"Нельзя выбрать доставку за час для сетевого клиента");
+
+					return;
+				}
+
 				if(Entity.DeliverySchedule?.Id != _deliveryRulesSettings.FastDeliveryScheduleId)
 				{
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
