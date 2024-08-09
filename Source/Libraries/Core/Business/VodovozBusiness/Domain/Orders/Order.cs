@@ -1479,7 +1479,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsNeedIndividualSetOnLoad =>
 			PaymentType == PaymentType.Cashless
-			&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
 		#endregion
 
