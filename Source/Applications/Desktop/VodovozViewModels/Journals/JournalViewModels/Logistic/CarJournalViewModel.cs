@@ -230,10 +230,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => carModelAlias.CarTypeOfUse), CarTypeOfUse.Loader)))
 					.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => carAlias.Id), _carEventSettings.CarsExcludedFromReportsIds)))
 					.Add(Restrictions.Disjunction()
-						.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
-						.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
-						.Add(isOsagoExpiresRestriction)
-						.Add(isKaskoExpiresRestriction)
+						//.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+						//.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
+						//.Add(isOsagoExpiresRestriction)
+						//.Add(isKaskoExpiresRestriction)
 						.Add(isCarTechnicalCheckupExpiresRestriction)),
 				Projections.Constant(true),
 				Projections.Constant(false));
