@@ -1,5 +1,7 @@
-﻿using QS.Commands;
+﻿using QS.Attachments;
+using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
@@ -7,23 +9,33 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using Vodovoz.EntityRepositories;
 using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels
 {
 	public class AttachedFileInformationsViewModel : WidgetViewModelBase
 	{
+		private readonly IFileDialogService _fileDialogService;
+		private readonly IScanDialogService _scanDialogService;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IUserRepository _userRepository;
 		private FileInformation _selectedFile;
 		private IEnumerable<FileInformation> _fileInformations;
-		private readonly IFileDialogService _fileDialogService;
 
-		public event EventHandler OnFileInformationChanged;
-		public Action<string, Stream> AddFileHandler { get; set; }
-		public Action<string> DeleteFileHandler { get; set; }
-
-		public AttachedFileInformationsViewModel(IFileDialogService fileDialogService)
+		public AttachedFileInformationsViewModel(
+			IUnitOfWork unitOfWork,
+			IUserRepository userRepository,
+			IFileDialogService fileDialogService,
+			IScanDialogService scanDialogService)
 		{
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_scanDialogService = scanDialogService ?? throw new ArgumentNullException(nameof(scanDialogService));
+
 			AddCommand = new DelegateCommand(AddHandler);
 			DeleteCommand = new DelegateCommand(DeleteHandler, () => CanDelete);
 			DeleteCommand.CanExecuteChangedWith(this, vm => vm.CanDelete);
@@ -34,8 +46,19 @@ namespace Vodovoz.Presentation.ViewModels
 			SaveCommand.CanExecuteChangedWith(this, vm => vm.CanSave);
 
 			ScanCommand = new DelegateCommand(ScanHandler);
-			_fileDialogService = fileDialogService;
 		}
+
+		public Dictionary<string, byte[]> AttachedFiles { get; } = new Dictionary<string, byte[]>();
+
+		public List<string> FilesToAddOnSave { get; } = new List<string>();
+
+		public List<string> FilesToUpdateOnSave { get; } = new List<string>();
+
+		public List<string> FilesToDeleteOnSave { get; } = new List<string>();
+
+		public event EventHandler OnFileInformationChanged;
+		public Action<string, Stream> AddFileHandler { get; set; }
+		public Action<string> DeleteFileHandler { get; set; }
 
 		[PropertyChangedAlso(
 			nameof(CanOpen),
@@ -107,31 +130,117 @@ namespace Vodovoz.Presentation.ViewModels
 			if(result.Successful && AddFileHandler != null)
 			{
 				FileStream fileStream = new FileStream(result.Path, FileMode.Open);
-				AddFileHandler.Invoke(
-					result.Path.Substring(
+
+				var fileName = result.Path.Substring(
 						result.Path.LastIndexOf(Path.DirectorySeparatorChar))
-					.Trim(Path.DirectorySeparatorChar), fileStream);
+					.Trim(Path.DirectorySeparatorChar);
+
+				using(var ms = new MemoryStream())
+				{
+					fileStream.CopyTo(ms);
+					var fileContent = ms.ToArray();
+
+					if(!AttachedFiles.ContainsKey(fileName))
+					{
+						AttachedFiles.Add(fileName, fileContent);
+						FilesToAddOnSave.Add(fileName);
+					}
+					else if(FilesToDeleteOnSave.Contains(fileName))
+					{
+						AttachedFiles[fileName] = fileContent;
+						FilesToDeleteOnSave.Remove(fileName);
+						FilesToUpdateOnSave.Add(fileName);
+					}
+				}
+
+				AddFileHandler.Invoke(fileName, fileStream);
 			}
 		}
 
 		private void DeleteHandler()
 		{
+			if(FilesToDeleteOnSave.Contains(SelectedFile.FileName))
+			{
+				return;
+			}
+
+			if(FilesToUpdateOnSave.Contains(SelectedFile.FileName))
+			{
+				FilesToUpdateOnSave.Remove(SelectedFile.FileName);
+			}
+
+			if(FilesToAddOnSave.Contains(SelectedFile.FileName))
+			{
+				FilesToAddOnSave.Remove(SelectedFile.FileName);
+			}
+
+			FilesToDeleteOnSave.Add(SelectedFile.FileName);
+
 			DeleteFileHandler.Invoke(SelectedFile.FileName);
 		}
 
 		private void OpenHandler()
 		{
-			throw new NotImplementedException();
+			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(_unitOfWork);
+
+			if(string.IsNullOrWhiteSpace(vodovozUserTempDirectory))
+			{
+				return;
+			}
+
+			var tempFilePath = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory, SelectedFile.FileName);
+
+			if(!File.Exists(tempFilePath))
+			{
+				File.WriteAllBytes(tempFilePath, AttachedFiles[SelectedFile.FileName]);
+			}
+
+			var process = new Process();
+			process.StartInfo.FileName = Path.Combine(vodovozUserTempDirectory, SelectedFile.FileName);
+			process.EnableRaisingEvents = true;
+
+			process.Exited += OnProcessExited;
+			process.Start();
+		}
+
+		private void OnProcessExited(object sender, EventArgs e)
+		{
+			if(sender is Process process)
+			{
+				File.Delete(process.StartInfo.FileName);
+				process.Exited -= OnProcessExited;
+			}
 		}
 
 		private void SaveHandler()
 		{
-			throw new NotImplementedException();
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.FileName = SelectedFile.FileName;
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(result.Successful)
+			{
+				File.WriteAllBytes(result.Path, AttachedFiles[SelectedFile.FileName]);
+			}
 		}
 
 		private void ScanHandler()
 		{
-			throw new NotImplementedException();
+			if(_scanDialogService.GetFileFromDialog(out string fileName, out byte[] fileContent))
+			{
+				if(!AttachedFiles.ContainsKey(fileName))
+				{
+					AttachedFiles.Add(fileName, fileContent);
+					FilesToAddOnSave.Add(fileName);
+				}
+				else if(FilesToDeleteOnSave.Contains(fileName))
+				{
+					AttachedFiles[fileName] = fileContent;
+					FilesToDeleteOnSave.Remove(fileName);
+					FilesToUpdateOnSave.Add(fileName);
+				}
+			}
 		}
 
 		private void OnFileInformationCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -152,6 +261,14 @@ namespace Vodovoz.Presentation.ViewModels
 		private void FireOnFileInformationChanged()
 		{
 			OnFileInformationChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		public void InitializeLoadedFiles(Dictionary<string, byte[]> loadedFiles)
+		{
+			foreach(var file in loadedFiles)
+			{
+				AttachedFiles.Add(file.Key, file.Value);
+			}
 		}
 	}
 }
