@@ -1,4 +1,7 @@
-﻿namespace VodovozInfrastructure.Cryptography
+﻿using System.Linq;
+using System.Reflection;
+
+namespace VodovozInfrastructure.Cryptography
 {
 	public class SignatureManager : ISignatureManager
 	{
@@ -12,8 +15,15 @@
 		public string GenerateSignature(SignatureParams parameters)
 		{
 			var md5Hash1 = _mD5HexHashFromString.GetMD5HexHashFromString(parameters.Sign);
-			var md5Hash2 = _mD5HexHashFromString.GetMD5HexHashFromString(
-				parameters.ShopId.ToString() + parameters.OrderId + parameters.OrderSumInKopecks);
+
+			var properties =
+				parameters.GetType()
+					.GetProperties()
+					.Where(x => x.Name != nameof(parameters.Sign))
+					.OrderBy(x => x.GetCustomAttribute<PositionForGenerateSignatureAttribute>().Position);
+			
+			var stringForHash2 = properties.Aggregate(string.Empty, (current, property) => current + property.GetValue(parameters));
+			var md5Hash2 = _mD5HexHashFromString.GetMD5HexHashFromString(stringForHash2);
 			var md5Hash3 = _mD5HexHashFromString.GetMD5HexHashFromString((md5Hash1 + md5Hash2).ToUpper());
 
 			return md5Hash3.ToUpper();

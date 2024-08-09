@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Orders
+using System;
+
+namespace Vodovoz.Settings.Orders
 {
 	public interface IOrderSettings
 	{
@@ -23,5 +25,7 @@
 		int GetClientsSecondOrderDiscountReasonId { get; }
 		int ReferFriendDiscountReasonId { get; }
 		int FastDeliveryLateDiscountReasonId { get; }
+		int GetOrderRatingForMandatoryProcessing { get; }
+		DateTime GetDateAvailabilityRatingOrder { get; }
 	}
 }

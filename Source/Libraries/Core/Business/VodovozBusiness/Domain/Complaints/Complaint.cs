@@ -59,6 +59,7 @@ namespace Vodovoz.Domain.Complaints
 		private IList<ComplaintResultComment> _resultComments = new List<ComplaintResultComment>();
 		private GenericObservableList<ComplaintResultComment> _observableResultComments;
 		private Employee _driver;
+		private OrderRating _orderRating;
 
 		public virtual int Id { get; set; }
 
@@ -137,6 +138,13 @@ namespace Vodovoz.Domain.Complaints
 		{
 			get => _order;
 			set => SetField(ref _order, value);
+		}
+		
+		[Display(Name = "Оценка заказа")]
+		public virtual OrderRating OrderRating
+		{
+			get => _orderRating;
+			set => SetField(ref _orderRating, value);
 		}
 
 		[Display(Name = "Телефон")]
@@ -476,6 +484,11 @@ namespace Vodovoz.Domain.Complaints
 			}
 			message = string.Join<string>("\n", res);
 			return false;
+		}
+
+		public virtual (bool CanChange, string Message) CanChangeOrder()
+		{
+			return OrderRating != null ? (false, "Нельзя менять заказ у рекламации, созданной по оценке заказа!") : (true, null);
 		}
 
 		#region IValidatableObject implementation

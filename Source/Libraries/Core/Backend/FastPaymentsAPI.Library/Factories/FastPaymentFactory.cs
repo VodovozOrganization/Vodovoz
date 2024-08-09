@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using VodovozInfrastructure;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Factories
@@ -88,11 +89,11 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId)
+		public OrderSignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId)
 		{
 			var signatureSection = _configuration.GetSection($"{_signature}{shopId}");
 
-			return new SignatureParams
+			return new OrderSignatureParams
 			{
 				ShopId = signatureSection.GetValue<long>("ShopId"),
 				Sign = signatureSection.GetValue<string>("ShopSign"),
@@ -101,12 +102,12 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public SignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto)
+		public OrderSignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto)
 		{
 			var shopId = paidOrderInfoDto.ShopId;
 			var avSign = _configuration.GetSection($"{_signature}{shopId}").GetValue<string>("AvSign");
 
-			return new SignatureParams
+			return new OrderSignatureParams
 			{
 				OrderId = paidOrderInfoDto.OrderNumber,
 				OrderSumInKopecks = paidOrderInfoDto.Amount,

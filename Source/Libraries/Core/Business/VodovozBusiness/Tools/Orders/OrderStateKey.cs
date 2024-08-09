@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

@@ -35,7 +35,7 @@ namespace Vodovoz.Commons
 
 			_viewModelsTypesList = GetViewModels();
 		}
-
+		
 		public void RegisterateWidgets(params Assembly[] assemblies)
 		{
 			ViewModelWidgetResolver.Instance = _viewModelWidgetResolver;
