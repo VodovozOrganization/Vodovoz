@@ -76,8 +76,6 @@ namespace Vodovoz.Views.Logistic
 
 			attachedfileinformationsview1.InitializeViewModel(ViewModel.AttachedFileInformationsViewModel);
 
-			//attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
-
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			ylabelArchivingDate.Binding

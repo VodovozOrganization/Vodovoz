@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -159,6 +159,8 @@ using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using QS.Attachments;
+using QSAttachment;
 
 namespace Vodovoz
 {
@@ -672,6 +674,8 @@ namespace Vodovoz
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()
 						.AddGuiInteracive()
+
+						.AddScoped<IScanDialogService, ScanDialogService>()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()
