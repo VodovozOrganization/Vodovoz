@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -158,6 +158,8 @@ using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using Vodovoz.Additions.Printing;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz
 {
@@ -222,6 +224,7 @@ namespace Vodovoz
 					builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 					builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
 					builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
+					builder.RegisterType<CustomPrintRdlDocumentsPrinter>().As<ICustomPrintRdlDocumentsPrinter>();
 
 					builder.RegisterType<EntityDeleteWorker>().AsSelf().As<IEntityDeleteWorker>();
 					builder.RegisterType<CommonMessages>().AsSelf();

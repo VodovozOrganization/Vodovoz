@@ -126,7 +126,7 @@ namespace Vodovoz.Views.Users
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSessionId;
 
-		private global::Gtk.Label GtkLabel19;
+		private global::Gtk.Label GtkLabel21;
 
 		private global::Gamma.GtkWidgets.yVBox vboxUpdateFixedPrices;
 
@@ -141,6 +141,16 @@ namespace Vodovoz.Views.Users
 		private global::Gamma.GtkWidgets.yButton btnUpdateFixedPrices;
 
 		private global::Gtk.ProgressBar updateFixedPricesProgress;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxDocumentsPrintersSerttings;
+
+		private global::Gtk.Frame frameDocumentsPrinterSettings;
+
+		private global::Gtk.Alignment GtkAlignment14;
+
+		private global::Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView documentsprintersettingsview;
+
+		private global::Gtk.Label GtkLabel23;
 
 		protected virtual void Build()
 		{
@@ -696,11 +706,11 @@ namespace Vodovoz.Views.Users
 			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.GtkAlignment10.Add(this.ytableFuelControl);
 			this.frameFuelControl.Add(this.GtkAlignment10);
-			this.GtkLabel19 = new global::Gtk.Label();
-			this.GtkLabel19.Name = "GtkLabel19";
-			this.GtkLabel19.LabelProp = global::Mono.Unix.Catalog.GetString("<b>API управления топливными картами</b>");
-			this.GtkLabel19.UseMarkup = true;
-			this.frameFuelControl.LabelWidget = this.GtkLabel19;
+			this.GtkLabel21 = new global::Gtk.Label();
+			this.GtkLabel21.Name = "GtkLabel21";
+			this.GtkLabel21.LabelProp = global::Mono.Unix.Catalog.GetString("<b>API управления топливными картами</b>");
+			this.GtkLabel21.UseMarkup = true;
+			this.frameFuelControl.LabelWidget = this.GtkLabel21;
 			this.hbox6.Add(this.frameFuelControl);
 			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.frameFuelControl]));
 			w54.Position = 3;
@@ -781,6 +791,40 @@ namespace Vodovoz.Views.Users
 			w62.Position = 3;
 			w62.Expand = false;
 			w62.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.yhboxDocumentsPrintersSerttings = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxDocumentsPrintersSerttings.Name = "yhboxDocumentsPrintersSerttings";
+			this.yhboxDocumentsPrintersSerttings.Spacing = 6;
+			// Container child yhboxDocumentsPrintersSerttings.Gtk.Box+BoxChild
+			this.frameDocumentsPrinterSettings = new global::Gtk.Frame();
+			this.frameDocumentsPrinterSettings.Name = "frameDocumentsPrinterSettings";
+			// Container child frameDocumentsPrinterSettings.Gtk.Container+ContainerChild
+			this.GtkAlignment14 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment14.Name = "GtkAlignment14";
+			this.GtkAlignment14.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment14.Gtk.Container+ContainerChild
+			this.documentsprintersettingsview = new global::Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView();
+			this.documentsprintersettingsview.WidthRequest = 800;
+			this.documentsprintersettingsview.HeightRequest = 160;
+			this.documentsprintersettingsview.Events = ((global::Gdk.EventMask)(256));
+			this.documentsprintersettingsview.Name = "documentsprintersettingsview";
+			this.GtkAlignment14.Add(this.documentsprintersettingsview);
+			this.frameDocumentsPrinterSettings.Add(this.GtkAlignment14);
+			this.GtkLabel23 = new global::Gtk.Label();
+			this.GtkLabel23.Name = "GtkLabel23";
+			this.GtkLabel23.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка печати документов</b>");
+			this.GtkLabel23.UseMarkup = true;
+			this.frameDocumentsPrinterSettings.LabelWidget = this.GtkLabel23;
+			this.yhboxDocumentsPrintersSerttings.Add(this.frameDocumentsPrinterSettings);
+			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsPrintersSerttings[this.frameDocumentsPrinterSettings]));
+			w65.Position = 0;
+			w65.Expand = false;
+			w65.Fill = false;
+			this.vbox4.Add(this.yhboxDocumentsPrintersSerttings);
+			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.yhboxDocumentsPrintersSerttings]));
+			w66.Position = 4;
+			w66.Expand = false;
+			w66.Fill = false;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{

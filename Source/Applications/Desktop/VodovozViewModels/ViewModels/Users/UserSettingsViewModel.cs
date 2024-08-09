@@ -17,12 +17,14 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Extensions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.Widgets.Print;
 using Vodovoz.ViewModels.Widgets.Users;
 
 namespace Vodovoz.ViewModels.Users
@@ -60,7 +62,8 @@ namespace Vodovoz.ViewModels.Users
 			ISubdivisionRepository subdivisionRepository,
 			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository,
 			IFuelApiService fuelApiService,
-			IGuiDispatcher guiDispatcher)
+			IGuiDispatcher guiDispatcher,
+			DocumentsPrinterSettingsViewModel documentsPrinterSettingsViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -76,6 +79,7 @@ namespace Vodovoz.ViewModels.Users
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			DocumentsPrinterSettingsViewModel = documentsPrinterSettingsViewModel ?? throw new ArgumentNullException(nameof(documentsPrinterSettingsViewModel));
 			InteractiveService = commonServices.InteractiveService;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
@@ -99,6 +103,8 @@ namespace Vodovoz.ViewModels.Users
 			SubdivisionViewModel = BuildSubdivisionViewModel();
 
 			FuelControlApiLoginCommand = new DelegateCommand(async () => await FuelControlApiLogin(), () => Entity.IsUserHasAuthDataForFuelControlApi);
+
+			DocumentsPrinterSettingsViewModel.UserSettings = Entity;
 		}
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
@@ -162,6 +168,8 @@ namespace Vodovoz.ViewModels.Users
 
 		public WarehousesUserSelectionViewModel WarehousesUserSelectionViewModel => _warehousesUserSelectionViewModel;
 
+		public DocumentsPrinterSettingsViewModel DocumentsPrinterSettingsViewModel { get; }
+
 		public DelegateCommand FuelControlApiLoginCommand { get; }
 
 		public DelegateCommand UpdateFixedPricesCommand => _updateFixedPricesCommand ?? (_updateFixedPricesCommand = new DelegateCommand(
@@ -209,9 +217,31 @@ namespace Vodovoz.ViewModels.Users
 			}
 		}
 
+		private bool IsNeedToConfigurePrinterSettings()
+		{
+			foreach(var printerSetting in Entity.ObservableDocumentPrinterSettings)
+			{
+				if(string.IsNullOrWhiteSpace(printerSetting.PrinterName) || printerSetting.NumberOfCopies < 1)
+				{
+					InteractiveService.ShowMessage(ImportanceLevel.Error,
+						$"Не заданы настройки принтера для документа типа \"{printerSetting.DocumentType.GetEnumDisplayName()}\"\n" +
+						$"Либо задайте настройки принтера, либо удалите документ из списка настроек!");
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		public override bool Save(bool close)
 		{
 			ShowNotifyIfWarehousesListChanged();
+
+			if(IsNeedToConfigurePrinterSettings())
+			{
+				return false;
+			}
 
 			return base.Save(close);
 		}

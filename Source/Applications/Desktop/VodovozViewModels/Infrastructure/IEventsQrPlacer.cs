@@ -27,5 +27,10 @@ namespace Vodovoz.ViewModels.Infrastructure
 			ref string rdlReport,
 			EventQrDocumentType eventQrDocumentType = EventQrDocumentType.RouteList,
 			EventNamePosition eventNamePosition = EventNamePosition.Right);
+
+		string AddQrEventForWaterCarLoadDocument(
+			IUnitOfWork uow,
+			int documentId,
+			string reportSource);
 	}
 }

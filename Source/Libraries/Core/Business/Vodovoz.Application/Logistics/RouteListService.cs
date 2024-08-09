@@ -703,6 +703,12 @@ namespace Vodovoz.Application.Logistics
 				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, targetRouteList.Id));
 			}
 
+			if(addressTransferType != AddressTransferType.FromHandToHand
+				&& _routeListRepository.IsOrderNeedIndividualSetOnLoad(unitOfWork, address.Order.Id))
+			{
+				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.RouteListItem.CreateOrdersWithCreatedUpdNeedToReload(address.Order.Id));
+			}
+
 			var transferredAddressFromRouteListTo =
 				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(unitOfWork, targetRouteList.Id, address.Order.Id);
 

@@ -21,6 +21,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Infrastructure;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
@@ -47,7 +48,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IUserSettingsService userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
-			IEventsQrPlacer eventsQrPlacer)
+			IEventsQrPlacer eventsQrPlacer,
+			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter)
 			: base(
 				filterViewModel,
 				routeListRepository,
@@ -59,7 +61,6 @@ namespace Vodovoz.ViewModels.Logistic
 				employeeRepository,
 				gtkTabsOpener,
 				stockRepository,
-				reportPrinter,
 				nomenclatureSettings,
 				commonServices,
 				routeListProfitabilitySettings,
@@ -68,7 +69,8 @@ namespace Vodovoz.ViewModels.Logistic
 				userSettings,
 				storeDocumentHelper,
 				routeListService,
-				eventsQrPlacer)
+				eventsQrPlacer,
+				carLoadDocumentsPrinter)
 		{
 			TabName = "Контроль за километражем.";
 

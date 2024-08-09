@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Extensions;
 
@@ -98,6 +98,16 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteListItem),
 				nameof(InvalidTransferType),
 				$"Не поддерживаемый тип переноса заказа #{orderId}");
+
+			public static Error OrdersWithCreatedUpdNeedToReload => new Error(
+				typeof(RouteListItem),
+				nameof(OrdersWithCreatedUpdNeedToReload),
+				"Для заказов с уже сформированным УПД возможен только тип переноса с передачей товара от водителя");
+
+			public static Error CreateOrdersWithCreatedUpdNeedToReload(int orderId) => new Error(
+				typeof(RouteListItem),
+				nameof(OrdersWithCreatedUpdNeedToReload),
+				$"Для заказа #{orderId} уже сформирован УПД. Перенос возможен только с передачей товара от водителя.");
 		}
 	}
 }
