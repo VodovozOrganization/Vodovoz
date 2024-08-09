@@ -230,8 +230,8 @@ namespace Vodovoz
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_set_organization_from_order_and_counterparty");
 
-		private readonly bool _canResendUpdDpcuments =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+		private readonly bool _canResendDocumentsToEdo =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 
 		private readonly bool _canEditSealAndSignatureUpd =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
@@ -393,7 +393,7 @@ namespace Vodovoz
 			//по стандарту тип - доставка
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
-		
+
 		public OrderDlg(OnlineOrder onlineOrder) : this()
 		{
 			var thisSessionOnlineOrder = UoW.GetById<OnlineOrder>(onlineOrder.Id);
@@ -497,7 +497,7 @@ namespace Vodovoz
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
-			
+
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
@@ -696,7 +696,7 @@ namespace Vodovoz
 				//Для новых и кривых заказов добавляем и выставляем пустое значение, чтобы пользователь вручную выбрал нужный вариант
 				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = _defaultCallBeforeArrival;
 			}
-			
+
 			speciallistcomboboxCallBeforeArrivalMinutes.ItemSelected += (s, e) =>
 			{
 				Entity.IsDoNotMakeCallBeforeArrival = !Entity.CallBeforeArrivalMinutes.HasValue;
@@ -836,7 +836,7 @@ namespace Vodovoz
 
 			ycheckFastDelivery.Binding.AddBinding(Entity, e => e.IsFastDelivery, w => w.Active).InitializeFromSource();
 			ycheckFastDelivery.Toggled += OnCheckFastDeliveryToggled;
-			
+
 			chkDontArriveBeforeInterval.Binding
 				.AddBinding(Entity, e => e.DontArriveBeforeInterval, w => w.Active)
 				.InitializeFromSource();
@@ -1264,7 +1264,7 @@ namespace Vodovoz
 			}
 		}
 
-		private List<EdoContainer> GetOutgoingDocuments(Type? type =null)
+		private List<EdoContainer> GetEdoOutgoingDocuments()
 		{
 			var orderDocuments = new List<EdoContainer>();
 
@@ -1273,58 +1273,81 @@ namespace Vodovoz
 				return orderDocuments;
 			}
 
-			var incomingDocument = _edoContainers
+			var documents = _edoContainers
 				.Where(c =>
-					!c.IsIncoming);
-
-			orderDocuments =
-				(type is null
-				? incomingDocument
-				: incomingDocument.Where(id => id.Type == type))
+					!c.IsIncoming)
 				.ToList();
 
-			return orderDocuments;
+			return documents;
 		}
-
-		//private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
-		//{
-		//	var orderUpdDocuments = GetOutgoingUpdDocuments();
-
-		//	var orderUpdSentSuccessfully = orderUpdDocuments
-		//		.Any(c =>
-		//			c.Type == Type.Upd
-		//			&& !c.IsIncoming
-		//			&& c.EdoDocFlowStatus == status);
-
-		//	return orderUpdSentSuccessfully;
-		//}
 
 		private void CustomizeSendDocumentAgainButton()
 		{
-			var orderHasUpdDocuments = GetOutgoingDocuments().Count > 0;
-
-			if(Entity.Id == 0 || !orderHasUpdDocuments)
+			if(!_canResendDocumentsToEdo)
 			{
 				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				ybuttonSendDocumentAgain.Label = "Отсутствуют права для повторной отправки";
+
 				return;
 			}
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == Entity.Id)
-						.FirstOrDefault();
+			var selectedType = _selectedEdoContainer?.Type;
 
-				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
-				{
-					ybuttonSendDocumentAgain.Sensitive = false;
-					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
-					return;
-				}
+			if(selectedType == null)
+			{
+				ybuttonSendDocumentAgain.Label = "Не выбран документ для повторной отправки";
+				ybuttonSendDocumentAgain.Sensitive = false;
+
+				return;
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments && _canResendUpdDpcuments;
+			OrderEdoTrueMarkDocumentsActions resendAction;
+
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == Entity.Id);
+
+				switch(selectedType)
+				{
+					case Type.Upd:
+						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
+						break;
+					case Type.Bill:
+						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
+						break;
+				}
+
+				resendAction = resendActionQuery.FirstOrDefault();
+			}
+
+			var alreadyInProcess = resendAction != null
+				&& (
+						(resendAction.IsNeedToResendEdoUpd && selectedType == Type.Upd)
+						|| (resendAction.IsNeedToResendEdoBill && selectedType == Type.Bill)
+					);
+
+			if(alreadyInProcess)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
+
+				return;
+			}
+
+			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
+			var canResendUpd = selectedType is Type.Upd && outgoingEdoDocuments.Any(x => x.Type == Type.Upd);
+			var canResendBill = selectedType is Type.Bill && outgoingEdoDocuments.Any(x => x.Type == Type.Bill);
+
+			if(canResendUpd || canResendBill)
+			{
+				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.Value.GetEnumDisplayName()}";
+
+				return;
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = false;
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
@@ -1337,7 +1360,8 @@ namespace Vodovoz
 		private void ResendUpd(Type type)
 		{
 			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, _selectedEdoContainer.Type);
-			var edoValidateContainerResult = _edoService.ValidateEdoContainers(GetOutgoingDocuments(type));
+			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == _selectedEdoContainer.Type).ToList();
+			var edoValidateContainerResult = _edoService.ValidateEdoContainers(outgoingDocuments);
 
 			var edoValidateResult = edoValidateDocumentResult.Errors.Concat(edoValidateContainerResult.Errors);
 
@@ -2032,6 +2056,7 @@ namespace Vodovoz
 		private void OnEdoContainerSelectionChanged(object sender, EventArgs e)
 		{
 			_selectedEdoContainer = treeViewEdoContainers.SelectedRow as EdoContainer;
+			CustomizeSendDocumentAgainButton();
 		}
 
 		private void OnSpinPriceEdited(object o, EditedArgs args)

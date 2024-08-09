@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Data;
+using FluentNHibernate.Data;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
