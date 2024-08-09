@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
@@ -30,6 +31,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -179,6 +181,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnDriverChanged();
 
 			ConfigureTechInspectInfo();
+			ConfigureCarTechnicalCheckupInfo();
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
@@ -199,6 +202,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			UpcomingTechInspectKmCalculated = PreviousTechInspectOdometer + Entity.CarModel?.TeсhInspectInterval ?? 0;
 
 			UpcomingTechInspectLeft = Entity.LeftUntilTechInspect;
+		}
+
+		private void ConfigureCarTechnicalCheckupInfo()
+		{
+			var lastCarTechnicalCheckupEvent =
+				_carEventRepository.GetLastCarTechnicalCheckupEvent(UoW, Entity.Id, _carEventSettings.CarTechnicalCheckupEventTypeId);
+
+			LastCarTechnicalCheckupDate =
+				lastCarTechnicalCheckupEvent?.CarTechnicalCheckupEndingDate?.ToString("dd.MM.yyyy");
 		}
 
 		public string DriverInfoText
@@ -468,6 +480,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string PreviousTechInspectDate { get; private set; }
 		public int PreviousTechInspectOdometer { get; private set; }
+		public string LastCarTechnicalCheckupDate { get; private set; }
 
 		[PropertyChangedAlso(nameof(UpcomingTechInspectKm))]
 		public int UpcomingTechInspectKmCalculated

@@ -47,6 +47,16 @@ namespace Vodovoz.Views.Logistic
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
+			ylabelCarTechnicalCheckupEndDate.Binding
+				.AddBinding(ViewModel, vm => vm.IsCarTechnicalCheckupEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			datepickerCarTechnicalCheckupEndDate.Binding
+				.AddBinding(ViewModel, vm => vm.IsCarTechnicalCheckupEventType, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanChangeCarTechnicalCheckupEndDate, w => w.IsEditable)
+				.AddBinding(ViewModel.Entity, e => e.CarTechnicalCheckupEndingDate, w => w.DateOrNull)
+				.InitializeFromSource();
+
 			yspinPaymentTotalCarEvent.Binding
 				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();

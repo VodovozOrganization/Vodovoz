@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using VodovozBusiness.EntityRepositories.Logistic;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -27,6 +28,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IEnumerable<CarOwnType> selectedCarOwnTypes);
 		IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType, IEnumerable<int> excludeCarIds);
 		IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId, IEnumerable<int> excludeCarIds);
+		IQueryable<CarTechnicalCheckupNode> GetCarsTechnicalCheckupData(IUnitOfWork unitOfWork, int carTechnicalCheckupEventTypeId, IEnumerable<int> excludeCarIds);
 		Task<IList<CarEventData>> GetCarEvents(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,
 			CarOwnType carOwnType, Car car, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
 		Task<IList<Car>> GetCarsWithoutData(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, int[] includedCarModelIds, int[] excludedCarModelIds,

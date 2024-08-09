@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
+using VodovozBusiness.EntityRepositories.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
@@ -151,6 +152,42 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				};
 
 			return carTechInspects;
+		}
+
+		public IQueryable<CarTechnicalCheckupNode> GetCarsTechnicalCheckupData(IUnitOfWork unitOfWork, int carTechnicalCheckupEventTypeId, IEnumerable<int> excludeCarIds)
+		{
+			var data =
+				from car in unitOfWork.Session.Query<Car>()
+				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
+				join carModel in unitOfWork.Session.Query<CarModel>() on car.CarModel.Id equals carModel.Id
+				where
+					!car.IsArchive
+					&& !excludeCarIds.Contains(car.Id)
+					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& carVersion.StartDate <= DateTime.Now
+					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
+					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
+
+				let lastTechnicalCheckup =
+					(from ce in unitOfWork.Session.Query<CarEvent>()
+					 where ce.Car.Id == car.Id && ce.CarEventType.Id == carTechnicalCheckupEventTypeId
+					 orderby ce.CarTechnicalCheckupEndingDate descending
+					 select ce
+					)
+					.FirstOrDefault()
+
+				select new CarTechnicalCheckupNode
+				{
+					CarTypeOfUse = carModel.CarTypeOfUse,
+					CarRegNumber = car.RegistrationNumber,
+					DriverGeography =
+						car.Driver != null && car.Driver.Subdivision != null
+						? car.Driver.Subdivision.GetGeographicGroup().Name
+						: "",
+					LastCarTechnicalCheckupEvent = lastTechnicalCheckup
+				};
+
+			return data;
 		}
 
 		public async Task<IList<CarEventData>> GetCarEvents(

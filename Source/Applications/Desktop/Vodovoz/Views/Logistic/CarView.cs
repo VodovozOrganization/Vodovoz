@@ -113,6 +113,10 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
 			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
 
+			yentryCarTechnicalCheckup.Binding
+				.AddBinding(ViewModel, vm => vm.LastCarTechnicalCheckupDate, w => w.Text)
+				.InitializeFromSource();
+
 			yentryPreviousTechInspectDate.Binding
 				.AddBinding(ViewModel, vm => vm.PreviousTechInspectDate, w => w.Text)
 				.InitializeFromSource();

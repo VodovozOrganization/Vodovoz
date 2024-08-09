@@ -39,38 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ILifetimeScope _lifetimeScope;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		private EntityEntryViewModel<Car> _viewModel;
-
-		public decimal RepairCost
-		{
-			get => Math.Abs(Entity.RepairCost);
-			set => SetRepairCost(value);
-		}
-
-		public CarEventType CarEventType { 
-			get => Entity.CarEventType; 
-			set => SetCarEventType(value); 
-		}
-
-		public bool DoNotShowInOperation
-		{
-			get => Entity.DoNotShowInOperation;
-			set => Entity.DoNotShowInOperation = value;
-		}
-
-		public bool CompensationFromInsuranceByCourt
-		{
-			get => Entity.CompensationFromInsuranceByCourt;
-			set => Entity.CompensationFromInsuranceByCourt = value;
-		}
-
-		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
-		public bool CanChangeWithClosedPeriod { get; }
-		public bool CanAddFine => CanEdit;
-		public bool CanAttachFine => CanEdit;
-		public IEmployeeService EmployeeService { get; }
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public IList<FineItem> FineItems { get; private set; }
-		public bool ShowlabelOriginalCarEvent => UoW.IsNew || Entity.CompensationFromInsuranceByCourt;
 		private int _startNewPeriodDay;
 
 		public CarEventViewModel(
@@ -110,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CreateCommands();
 
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
-			
+
 			OriginalCarEventViewModel = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.OriginalCarEvent)
 				.UseViewModelDialog<CarEventViewModel>()
@@ -139,6 +107,48 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			CanChangeCarEventType = !(IsTechInspectCarEventType && Entity.Id > 0);
 		}
+
+		public decimal RepairCost
+		{
+			get => Math.Abs(Entity.RepairCost);
+			set => SetRepairCost(value);
+		}
+
+		public CarEventType CarEventType
+		{ 
+			get => Entity.CarEventType; 
+			set => SetCarEventType(value); 
+		}
+
+		public bool DoNotShowInOperation
+		{
+			get => Entity.DoNotShowInOperation;
+			set => Entity.DoNotShowInOperation = value;
+		}
+
+		public bool CompensationFromInsuranceByCourt
+		{
+			get => Entity.CompensationFromInsuranceByCourt;
+			set => Entity.CompensationFromInsuranceByCourt = value;
+		}
+
+		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
+		public bool CanChangeWithClosedPeriod { get; }
+		public bool CanChangeCarEventType { get; }
+		public bool CanAddFine => CanEdit;
+		public bool CanAttachFine => CanEdit;
+		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
+
+		public bool IsTechInspectCarEventType =>
+			Entity.CarEventType?.Id == _carEventSettings.TechInspectCarEventTypeId;
+
+		public bool IsCarTechnicalCheckupEventType =>
+			Entity.CarEventType?.Id == _carEventSettings.CarTechnicalCheckupEventTypeId;
+
+		public IEmployeeService EmployeeService { get; }
+		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public IList<FineItem> FineItems { get; private set; }
+		public bool ShowlabelOriginalCarEvent => UoW.IsNew || Entity.CompensationFromInsuranceByCourt;
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -187,7 +197,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			if(UoW.IsNew && Entity.CarEventType.Id == _carEventSettings.TechInspectCarEventTypeId)
+			if(UoW.IsNew && Entity.CarEventType?.Id == _carEventSettings.TechInspectCarEventTypeId)
 			{
 				Entity.Car.TechInspectForKm = null;
 				UoW.Save(Entity.Car);
@@ -290,7 +300,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			ChangeDoNotShowInOperation();
 			SetCompensationFromInsuranceByCourt();
+			ResetCarTechnicalCheckupEndDateIfNeed();
 			OnPropertyChanged(nameof(IsTechInspectCarEventType));
+			OnPropertyChanged(nameof(IsCarTechnicalCheckupEventType));
+			OnPropertyChanged(nameof(CanChangeCarTechnicalCheckupEndDate));
 		}
 
 		public void ChangeDoNotShowInOperation()
@@ -328,6 +341,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					CompensationFromInsuranceByCourt = false;
 				}
 			}
+		}
+
+		private void ResetCarTechnicalCheckupEndDateIfNeed()
+		{
+			if(IsCarTechnicalCheckupEventType)
+			{
+				return;
+			}
+
+			Entity.CarTechnicalCheckupEndingDate = null;
 		}
 
 		private void CreateCommands()
@@ -419,9 +442,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 		}
-
-		public bool IsTechInspectCarEventType => Entity.CarEventType?.Id == _carEventSettings.TechInspectCarEventTypeId;
-
-		public bool CanChangeCarEventType { get;}
 	}
 }

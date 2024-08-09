@@ -103,6 +103,8 @@ namespace Vodovoz.Views.Settings
 
 			ConfigureInsuranceNotificationsSettings();
 
+			ConfigureCarTechnicalCheckupSettings();
+
 			ConfigureFastDeliveryLates();
 
 			ConfigureMaxDailyFuelLimits();
@@ -293,6 +295,17 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveInsurancesNotificationsSettings.BindCommand(ViewModel.SaveInsuranceNotificationsSettingsCommand);
+		}
+
+		private void ConfigureCarTechnicalCheckupSettings()
+		{
+			frameCarTechnicalCheckup.Sensitive = ViewModel.CanEditCarTechnicalCheckupNotificationsSettings;
+
+			yspinbuttonCarTechnicalCheckupNotificationDays.Binding
+				.AddBinding(ViewModel, vm => vm.CarTechnicalCheckupEndingNotifyDaysBefore, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			ybuttonSaveCarTechnicalCheckupNotificationDays.BindCommand(ViewModel.SaveCarTechnicalCheckupSettingsCommand);
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
