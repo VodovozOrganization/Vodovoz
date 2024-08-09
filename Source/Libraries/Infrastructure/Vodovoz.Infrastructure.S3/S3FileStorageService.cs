@@ -91,7 +91,6 @@ namespace Vodovoz.Infrastructure.S3
 			}
 		}
 
-
 		public async Task<Result> UpdateFileAsync(
 			string bucketName,
 			string fileName,
