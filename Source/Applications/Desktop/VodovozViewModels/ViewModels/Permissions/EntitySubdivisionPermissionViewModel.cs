@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Permissions
 			PermissionListViewModel.PermissionsList = new ObservableList<IPermissionNode>(permissionList.OfType<IPermissionNode>().ToList());
 			PermissionListViewModel.PermissionsList.CollectionChanged += PermissionsListCollectionChanged;
 
-			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow).ToList();
+			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntityOrderedByName(uow).ToList();
 			//убираем типы уже загруженные в права
 			foreach(var item in originalPermissionList) {
 				if(originalTypeOfEntityList.Contains(item.TypeOfEntity)) {
