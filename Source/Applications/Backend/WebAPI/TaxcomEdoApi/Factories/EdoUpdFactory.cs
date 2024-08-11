@@ -25,9 +25,9 @@ namespace TaxcomEdoApi.Factories
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
 		}
 		
-		public Fajl CreateNewUpdXml(Order order, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject)
+		public Fajl CreateNewUpdXml(OrderInfoForEdo orderInfoForEdo, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject)
 		{
-			var org = order.Contract.Organization;
+			var org = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo;
 			
 			var upd = new Fajl
 			{
@@ -36,12 +36,12 @@ namespace TaxcomEdoApi.Factories
 				SvUchDokObor = new FajlSvUchDokObor
 				{
 					IdOtpr = organizationAccountId,
-					IdPol = order.Counterparty.PersonalAccountIdInEdo
+					IdPol = orderInfoForEdo.CounterpartyInfoForEdo.PersonalAccountIdInEdo
 				}
 			};
 
 			var uniqueId = Guid.NewGuid().ToString("D").ToUpper();
-			upd.IdFajl = $"ON_NSCHFDOPPRMARK_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{order.DeliveryDate:yyyyMMdd}_{uniqueId}";
+			upd.IdFajl = $"ON_NSCHFDOPPRMARK_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{orderInfoForEdo.DeliveryDate:yyyyMMdd}_{uniqueId}";
 			
 			upd.Dokument = new FajlDokument
 			{
@@ -54,8 +54,8 @@ namespace TaxcomEdoApi.Factories
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.INN}/{org.KPP}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerSchF = order.Id.ToString(),
-					DataSchF = order.DeliveryDate.ToShortDateString(),
+					NomerSchF = orderInfoForEdo.Id.ToString(),
+					DataSchF = orderInfoForEdo.DeliveryDate.ToShortDateString(),
 					KodOKV = "643",
 					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
 					{
@@ -71,7 +71,7 @@ namespace TaxcomEdoApi.Factories
 
 			upd.Dokument.SvSchFakt.SvProd = new[]
 			{
-				_participantDocFlowConverter.ConvertOrganizationToUchastnikTip(org, order.DeliveryDate)
+				_participantDocFlowConverter.ConvertOrganizationToUchastnikTip(org, orderInfoForEdo.DeliveryDate)
 			};
 
 			//Грузоотправитель
@@ -86,13 +86,14 @@ namespace TaxcomEdoApi.Factories
 			//Сведения о покупателе
 			upd.Dokument.SvSchFakt.SvPokup = new[]
 			{
-				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Counterparty)
+				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(orderInfoForEdo.CounterpartyInfoForEdo)
 			};
 			
 			//Грузополучатель
 			upd.Dokument.SvSchFakt.GruzPoluch = new[]
 			{
-				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Counterparty, order.DeliveryPoint?.Id)
+				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(
+					orderInfoForEdo.CounterpartyInfoForEdo, orderInfoForEdo.DeliveryPointInfoForEdo)
 			};
 
 			upd.Dokument.SvSchFakt.DokPodtvOtgr = new[]
@@ -100,14 +101,14 @@ namespace TaxcomEdoApi.Factories
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
 					NaimDokOtgr = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
-					NomDokOtgr = order.Id.ToString(),
-					DataDokOtgr = order.DeliveryDate.ToShortDateString()
+					NomDokOtgr = orderInfoForEdo.Id.ToString(),
+					DataDokOtgr = orderInfoForEdo.DeliveryDate.ToShortDateString()
 				}
 			};
 
 			var tekstInfTipList = new List<TekstInfTip>();
 
-			if(order.Counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(orderInfoForEdo.CounterpartyInfoForEdo.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
 				tekstInfTipList.Add(
 					new TekstInfTip
@@ -118,13 +119,13 @@ namespace TaxcomEdoApi.Factories
 				);
 			}
 
-			if(order.CounterpartyExternalOrderId != null && order.Counterparty.UseSpecialDocFields)
+			if(orderInfoForEdo.CounterpartyExternalOrderId != null && orderInfoForEdo.CounterpartyInfoForEdo.UseSpecialDocFields)
 			{
 				tekstInfTipList.Add(
 					new TekstInfTip
 					{
 						Identif = "номер_заказа",
-						Znachen = $"N{order.CounterpartyExternalOrderId}"
+						Znachen = $"N{orderInfoForEdo.CounterpartyExternalOrderId}"
 					}
 				);
 			}
@@ -137,17 +138,17 @@ namespace TaxcomEdoApi.Factories
 				};
 			}
 
-			var orderItems = order.OrderItems.Where(x => x.CurrentCount > 0).ToList();
+			var orderItems = orderInfoForEdo.OrderItems.Where(x => x.CurrentCount > 0).ToList();
 
 			var taxesSum = orderItems.Sum(x => x.IncludeNDS) ?? 0m;
 			upd.Dokument.TablSchFakt = new FajlDokumentTablSchFakt
 			{
-				SvedTov = _updProductConverter.ConvertOrderItemsToUpdProducts(orderItems, order.Counterparty.SpecialNomenclatures),
+				SvedTov = _updProductConverter.ConvertOrderItemsToUpdProducts(orderItems, orderInfoForEdo.CounterpartyInfoForEdo.SpecialNomenclatures),
 				VsegoOpl = new FajlDokumentTablSchFaktVsegoOpl
 				{
 					StTovBezNDSVsego = orderItems.Sum(x => x.SumWithoutVat),
 					StTovBezNDSVsegoSpecified = true,
-					StTovUchNalVsego = order.OrderSum,
+					StTovUchNalVsego = orderInfoForEdo.OrderSum,
 					StTovUchNalVsegoSpecified = true,
 					SumNalVsego = new SumNDSTip
 					{
@@ -167,7 +168,7 @@ namespace TaxcomEdoApi.Factories
 					SodOper = GetOperationName(orderItems),
 					OsnPer = new[]
 					{
-						GetBasis(order)
+						GetBasis(orderInfoForEdo)
 					},
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{
@@ -210,31 +211,31 @@ namespace TaxcomEdoApi.Factories
 			return upd;
 		}
 
-		private OsnovanieTip GetBasis(Order order)
+		private OsnovanieTip GetBasis(OrderInfoForEdo orderInfoForEdo)
 		{
 			var basis = new OsnovanieTip();
 
-			if(order.Counterparty.UseSpecialDocFields
-				&& !string.IsNullOrWhiteSpace(order.Counterparty.SpecialContractName)
-				&& !string.IsNullOrWhiteSpace(order.Counterparty.SpecialContractNumber)
-				&& order.Counterparty.SpecialContractDate.HasValue)
+			if(orderInfoForEdo.CounterpartyInfoForEdo.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractName)
+				&& !string.IsNullOrWhiteSpace(orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractNumber)
+				&& orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractDate.HasValue)
 			{
-				basis.NaimOsn = order.Counterparty.SpecialContractName;
-				basis.NomOsn = order.Counterparty.SpecialContractNumber;
-				basis.DataOsn = $"{order.Counterparty.SpecialContractDate.Value:dd.MM.yyyy}";
+				basis.NaimOsn = orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractName;
+				basis.NomOsn = orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractNumber;
+				basis.DataOsn = $"{orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractDate.Value:dd.MM.yyyy}";
 				return basis;
 			}
-			if(order.Counterparty.UseSpecialDocFields && !string.IsNullOrWhiteSpace(order.Counterparty.SpecialContractName))
+			if(orderInfoForEdo.CounterpartyInfoForEdo.UseSpecialDocFields && !string.IsNullOrWhiteSpace(orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractName))
 			{
 				basis.NaimOsn = "Без документа-основания";
 				return basis;
 			}
 
-			if(order.Contract != null)
+			if(orderInfoForEdo.ContractInfoForEdo != null)
 			{
 				basis.NaimOsn = "Договор";
-				basis.NomOsn = order.Contract.Number;
-				basis.DataOsn = $"{order.Contract.IssueDate:dd.MM.yyyy}";
+				basis.NomOsn = orderInfoForEdo.ContractInfoForEdo.Number;
+				basis.DataOsn = $"{orderInfoForEdo.ContractInfoForEdo.IssueDate:dd.MM.yyyy}";
 			}
 			else
 			{
@@ -244,18 +245,18 @@ namespace TaxcomEdoApi.Factories
 			return basis;
 		}
 
-		private string GetOperationName(IList<OrderItem> orderItems)
+		private string GetOperationName(IList<OrderItemInfoForEdo> orderItems)
 		{
 			var result = string.Empty;
 			
 			if(orderItems.Any(x =>
-					x.Nomenclature.Category != NomenclatureCategory.service && x.Nomenclature.Category != NomenclatureCategory.master))
+					x.NomenclatureInfoForEdo.Category != NomenclatureCategory.service && x.NomenclatureInfoForEdo.Category != NomenclatureCategory.master))
 			{
 				result = "Товары переданы";
 			}
 
 			if(orderItems.Any(x =>
-					x.Nomenclature.Category == NomenclatureCategory.service || x.Nomenclature.Category == NomenclatureCategory.master))
+					x.NomenclatureInfoForEdo.Category == NomenclatureCategory.service || x.NomenclatureInfoForEdo.Category == NomenclatureCategory.master))
 			{
 				result = !string.IsNullOrWhiteSpace(result)
 					? string.Join(',', result, "услуги оказаны в полном объеме")

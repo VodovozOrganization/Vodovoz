@@ -7,8 +7,8 @@ namespace TaxcomEdoApi.Converters
 {
 	public interface IParticipantDocFlowConverter
 	{
-		UchastnikTip ConvertCounterpartyToUchastnikTip(Counterparty client);
-		UchastnikTip ConvertCounterpartyToUchastnikTip(Counterparty client, int? deliveryPointId);
-		UchastnikTip ConvertOrganizationToUchastnikTip(Organization org, DateTime? deliveryDate);
+		UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client);
+		UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client, DeliveryPointInfoForEdo deliveryPoint);
+		UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org, DateTime? deliveryDate);
 	}
 }

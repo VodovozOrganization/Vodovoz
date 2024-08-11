@@ -10,7 +10,7 @@ namespace TaxcomEdoApi.Converters
 	public class UpdProductConverter : IUpdProductConverter
 	{
 		public FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(
-			IList<OrderItem> orderItems, IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures)
+			IList<OrderItemInfoForEdo> orderItems, IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures)
 		{
 			var products = new List<FajlDokumentTablSchFaktSvedTov>();
 
@@ -24,9 +24,9 @@ namespace TaxcomEdoApi.Converters
 		}
 		
 		private FajlDokumentTablSchFaktSvedTov ConvertOrderItemToUpdProduct(
-			OrderItem orderItem, IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures, int row)
+			OrderItemInfoForEdo orderItemInfoForEdo, IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures, int row)
 		{
-			var count = Math.Round(orderItem.CurrentCount, orderItem.Nomenclature?.MeasurementUnit?.Digits ?? 2);
+			var count = Math.Round(orderItemInfoForEdo.CurrentCount, orderItemInfoForEdo.NomenclatureInfoForEdo?.MeasurementUnitInfoForEdo?.Digits ?? 2);
 			
 			var product = new FajlDokumentTablSchFaktSvedTov
 			{
@@ -36,24 +36,24 @@ namespace TaxcomEdoApi.Converters
 				},
 				
 				NomStr = row.ToString(),
-				CenaTov = orderItem.PriceWithoutVat,
+				CenaTov = orderItemInfoForEdo.PriceWithoutVat,
 				CenaTovSpecified = true,
 				KolTov = count,
 				KolTovSpecified = true,
-				NaimTov = orderItem.Nomenclature?.OfficialName,
-				NalSt = GetProductTaxRate(orderItem.ValueAddedTax),
-				StTovUchNal = orderItem.ActualSum,
-				StTovBezNDS = orderItem.SumWithoutVat,
+				NaimTov = orderItemInfoForEdo.NomenclatureInfoForEdo?.OfficialName,
+				NalSt = GetProductTaxRate(orderItemInfoForEdo.ValueAddedTax),
+				StTovUchNal = orderItemInfoForEdo.ActualSum,
+				StTovBezNDS = orderItemInfoForEdo.SumWithoutVat,
 				StTovBezNDSSpecified = true,
-				OKEI_Tov = orderItem.Nomenclature.MeasurementUnit.OKEI,
+				OKEI_Tov = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.OKEI,
 				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
 				{
-					NaimEdIzm = orderItem.Nomenclature.MeasurementUnit.Name,
-					KodTov = GetProductCode(counterpartySpecialNomenclatures, orderItem.Nomenclature.Id)
+					NaimEdIzm = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.Name,
+					KodTov = GetProductCode(counterpartySpecialNomenclatures, orderItemInfoForEdo.NomenclatureInfoForEdo.Id)
 				}
 			};
 
-			if(!string.IsNullOrWhiteSpace(orderItem.Nomenclature?.Gtin))
+			if(!string.IsNullOrWhiteSpace(orderItemInfoForEdo.NomenclatureInfoForEdo?.Gtin))
 			{
 				product.DopSvedTov.NomSredIdentTov = new[]
 				{
@@ -65,20 +65,20 @@ namespace TaxcomEdoApi.Converters
 						},
 						Items = new[]
 						{
-							new PackageNumberConverter().ConvertGtinToPackageNumberUpd(orderItem.Nomenclature.Gtin, count)
+							new PackageNumberConverter().ConvertGtinToPackageNumberUpd(orderItemInfoForEdo.NomenclatureInfoForEdo.Gtin, count)
 						}
 					}
 				};
 			}
 			product.SumNal = new SumNDSTip
 			{
-				Item = GetTax(orderItem, product.NalSt)
+				Item = GetTax(orderItemInfoForEdo, product.NalSt)
 			};
 
 			return product;
 		}
 
-		private string GetProductCode(IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures, int nomenclatureId)
+		private string GetProductCode(IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures, int nomenclatureId)
 		{
 			var specialNomenclature = counterpartySpecialNomenclatures.SingleOrDefault(x => x.NomenclatureId == nomenclatureId);
 
@@ -105,14 +105,14 @@ namespace TaxcomEdoApi.Converters
 			}
 		}
 
-		private object GetTax(OrderItem orderItem, FajlDokumentTablSchFaktSvedTovNalSt taxRate)
+		private object GetTax(OrderItemInfoForEdo orderItemInfoForEdo, FajlDokumentTablSchFaktSvedTovNalSt taxRate)
 		{
 			if(taxRate == FajlDokumentTablSchFaktSvedTovNalSt.bezNDS)
 			{
 				return SumNDSTipBezNDS.bezNDS;
 			}
 
-			return orderItem.IncludeNDS;
+			return orderItemInfoForEdo.IncludeNDS;
 		}
 	}
 }

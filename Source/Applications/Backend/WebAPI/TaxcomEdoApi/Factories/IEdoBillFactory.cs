@@ -6,7 +6,7 @@ namespace TaxcomEdoApi.Factories
 {
 	public interface IEdoBillFactory
 	{
-		NonformalizedDocument CreateBillDocument(Order order, byte[] attachmentFile, string attachmentName);
+		NonformalizedDocument CreateBillDocument(OrderInfoForEdo orderInfoForEdo, byte[] attachmentFile, string attachmentName);
 		NonformalizedDocument CreateBillWithoutShipment(
 			OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachmentFile, string attachmentName);
 	}

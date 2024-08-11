@@ -6,6 +6,6 @@ namespace TaxcomEdoApi.Factories
 {
 	public interface IEdoUpdFactory
 	{
-		Fajl CreateNewUpdXml(Order order, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject);
+		Fajl CreateNewUpdXml(OrderInfoForEdo orderInfoForEdo, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject);
 	}
 }

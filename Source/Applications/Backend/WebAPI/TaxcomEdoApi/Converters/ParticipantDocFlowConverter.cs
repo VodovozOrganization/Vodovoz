@@ -11,7 +11,7 @@ namespace TaxcomEdoApi.Converters
 	{
 		private const string _russiaCode = "643";  //Россия
 		
-		public UchastnikTip ConvertCounterpartyToUchastnikTip(Counterparty client)
+		public UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client)
 		{
 			return new UchastnikTip
 			{
@@ -26,10 +26,8 @@ namespace TaxcomEdoApi.Converters
 			};
 		}
 
-		public UchastnikTip ConvertCounterpartyToUchastnikTip(Counterparty client, int? deliveryPointId)
+		public UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client, DeliveryPointInfoForEdo deliveryPoint)
 		{
-			var deliveryPoint = client.DeliveryPoints.SingleOrDefault(x => x.Id == deliveryPointId);
-			
 			switch(client.CargoReceiverSource)
 			{
 				case CargoReceiverSource.FromDeliveryPoint:
@@ -65,7 +63,7 @@ namespace TaxcomEdoApi.Converters
 			}
 		}
 		
-		public UchastnikTip ConvertOrganizationToUchastnikTip(Organization org, DateTime? deliveryDate)
+		public UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org, DateTime? deliveryDate)
 		{
 			return new UchastnikTip
 			{
@@ -80,7 +78,7 @@ namespace TaxcomEdoApi.Converters
 			};
 		}
 
-		private object GetConcreteBuyer(Counterparty client)
+		private object GetConcreteBuyer(CounterpartyInfoForEdo client)
 		{
 			var clientName = client.FullName;
 			var clientKpp = client.KPP;
@@ -116,7 +114,7 @@ namespace TaxcomEdoApi.Converters
 			}
 		}
 		
-		private object GetConcreteConsignee(Counterparty client, string specialKpp)
+		private object GetConcreteConsignee(CounterpartyInfoForEdo client, string specialKpp)
 		{
 			switch(client.PersonType)
 			{
@@ -139,7 +137,7 @@ namespace TaxcomEdoApi.Converters
 			}
 		}
 		
-		private object GetSpecialConsignee(Counterparty client, string specialKpp)
+		private object GetSpecialConsignee(CounterpartyInfoForEdo client, string specialKpp)
 		{
 			switch(client.PersonType)
 			{

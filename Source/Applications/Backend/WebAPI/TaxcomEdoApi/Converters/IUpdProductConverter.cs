@@ -8,6 +8,6 @@ namespace TaxcomEdoApi.Converters
 	public interface IUpdProductConverter
 	{
 		FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(
-			IList<OrderItem> orderItems, IEnumerable<SpecialNomenclature> counterpartySpecialNomenclatures);
+			IList<OrderItemInfoForEdo> orderItems, IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures);
 	}
 }

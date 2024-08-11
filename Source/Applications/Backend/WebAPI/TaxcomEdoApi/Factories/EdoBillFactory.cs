@@ -8,11 +8,11 @@ namespace TaxcomEdoApi.Factories
 {
 	public class EdoBillFactory : IEdoBillFactory
 	{
-		public NonformalizedDocument CreateBillDocument(Order order, byte[] attachmentFile, string attachmentName)
+		public NonformalizedDocument CreateBillDocument(OrderInfoForEdo orderInfoForEdo, byte[] attachmentFile, string attachmentName)
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = order.Id.ToString(),
+				Number = orderInfoForEdo.Id.ToString(),
 				Type = DocumentType.Account,
 				Attachment = new FileData
 				{
@@ -23,19 +23,19 @@ namespace TaxcomEdoApi.Factories
 				ExternalIdentifier = Guid.NewGuid().ToString(),
 				Sender =
 				{
-					Inn = order.Contract.Organization.INN,
-					Kpp = order.Contract.Organization.KPP,
-					Identifier = order.Contract.Organization.TaxcomEdoAccountId,
-					Name = { Organization = order.Contract.Organization.FullName }
+					Inn = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.INN,
+					Kpp = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.KPP,
+					Identifier = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId,
+					Name = { Organization = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.FullName }
 				},
 				Recipient =
 				{
-					Inn = order.Counterparty.INN,
-					Kpp = order.Counterparty.KPP,
-					Identifier = order.Counterparty.PersonalAccountIdInEdo,
-					Name = { Organization = order.Counterparty.FullName }
+					Inn = orderInfoForEdo.CounterpartyInfoForEdo.INN,
+					Kpp = orderInfoForEdo.CounterpartyInfoForEdo.KPP,
+					Identifier = orderInfoForEdo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
+					Name = { Organization = orderInfoForEdo.CounterpartyInfoForEdo.FullName }
 				},
-				Sum = order.OrderSum
+				Sum = orderInfoForEdo.OrderSum
 			};
 
 			return nonformalizedDocument;
@@ -44,7 +44,7 @@ namespace TaxcomEdoApi.Factories
 		public NonformalizedDocument CreateBillWithoutShipment(
 			OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachmentFile, string attachmentName)
 		{
-			var organization = orderWithoutShipmentInfo.Organization;
+			var organization = orderWithoutShipmentInfo.OrganizationInfoForEdo;
 			var nonformalizedDocument = new NonformalizedDocument
 			{
 				Number = "Ф-" + orderWithoutShipmentInfo.Id.ToString(),
@@ -65,10 +65,10 @@ namespace TaxcomEdoApi.Factories
 				},
 				Recipient =
 				{
-					Inn = orderWithoutShipmentInfo.Counterparty.INN,
-					Kpp = orderWithoutShipmentInfo.Counterparty.KPP,
-					Identifier = orderWithoutShipmentInfo.Counterparty.PersonalAccountIdInEdo,
-					Name = { Organization = orderWithoutShipmentInfo.Counterparty.FullName }
+					Inn = orderWithoutShipmentInfo.CounterpartyInfoForEdo.INN,
+					Kpp = orderWithoutShipmentInfo.CounterpartyInfoForEdo.KPP,
+					Identifier = orderWithoutShipmentInfo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
+					Name = { Organization = orderWithoutShipmentInfo.CounterpartyInfoForEdo.FullName }
 				},
 				Sum = orderWithoutShipmentInfo.Sum
 			};

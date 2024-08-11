@@ -11,12 +11,12 @@ using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.Services;
 using Vodovoz.Core.Data.Documents;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Data.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Organizations;
-using Order = Vodovoz.Core.Data.Orders.Order;
 
 namespace TaxcomEdoApi.Controllers
 {
@@ -61,12 +61,12 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpPost]
-		public void CreateAndSendUpd(InfoForCreatingUpd infoForCreatingUpd)
+		public void CreateAndSendUpd(InfoForCreatingEdoUpd infoForCreatingEdoUpd)
 		{
 			try
 			{
 				var edoAccountId = _apiOptions.EdxClientId;
-				var organizationEdoId = infoForCreatingUpd.Order.Contract.Organization.TaxcomEdoAccountId;
+				var organizationEdoId = infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
 
 				if(edoAccountId != organizationEdoId)
 				{
@@ -78,7 +78,7 @@ namespace TaxcomEdoApi.Controllers
 					throw new InvalidOperationException("Организация заказа отличается от указанной для отправки документов в конфиге");
 				}
 				
-				var updXml = _edoUpdFactory.CreateNewUpdXml(infoForCreatingUpd.Order, _warrantOptions, edoAccountId, _certificate.Subject);
+				var updXml = _edoUpdFactory.CreateNewUpdXml(infoForCreatingEdoUpd.OrderInfoForEdo, _warrantOptions, edoAccountId, _certificate.Subject);
 				
 				var container = new TaxcomContainer
 				{
@@ -93,7 +93,7 @@ namespace TaxcomEdoApi.Controllers
 					var errorsString = string.Join(", ", errors);
 					_logger.LogError(
 						"УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}",
-						infoForCreatingUpd.Order.Id,
+						infoForCreatingEdoUpd.OrderInfoForEdo.Id,
 						errorsString);
 					
 					//подумать, что делаем в таких случаях
@@ -108,7 +108,7 @@ namespace TaxcomEdoApi.Controllers
 				{
 					container.SetWarrantParameters(
 						_warrantOptions.WarrantNumber,
-						infoForCreatingUpd.Order.Contract.Organization.INN,
+						infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.INN,
 						_warrantOptions.StartDate,
 						_warrantOptions.EndDate);
 				}
@@ -141,17 +141,17 @@ namespace TaxcomEdoApi.Controllers
 				uow.Commit();
 				*/
 				
-				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", infoForCreatingUpd.Order.Id);
+				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", infoForCreatingEdoUpd.OrderInfoForEdo.Id);
 				_taxcomApi.Send(container);
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", infoForCreatingUpd.Order.Id);
+				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", infoForCreatingEdoUpd.OrderInfoForEdo.Id);
 			}
 		}
 		
 		[HttpPost]
-		public void CreateAndSendBill(Order order, byte[] attachment)
+		public void CreateAndSendBill(OrderInfoForEdo orderInfoForEdo, byte[] attachment)
 		{
 			/*var edoContainer = new EdoContainer
 			{
@@ -169,10 +169,16 @@ namespace TaxcomEdoApi.Controllers
 				.FirstOrDefault();
 			*/
 			
-			_documentFlowService.SendBill(order, attachment);
+			_documentFlowService.SendBill(orderInfoForEdo, attachment);
 		}
 		
 		[HttpPost]
+		public void CreateAndSendBillWithoutShipment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
+		{
+			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
+		}
+		
+		/*[HttpPost]
 		public void CreateAndSendBillWithoutShipmentForDebt(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
 		{
 			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
@@ -188,6 +194,6 @@ namespace TaxcomEdoApi.Controllers
 		public void CreateAndSendBillWithoutShipmentForAdvancePayment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
 		{
 			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
-		}
+		}*/
 	}
 }
