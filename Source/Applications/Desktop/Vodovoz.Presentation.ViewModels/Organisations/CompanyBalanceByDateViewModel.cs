@@ -114,15 +114,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			LoadAndProcessDataCommand = new DelegateCommand(
 				() =>
 				{
-					//var directoryPath1 = @"Z:\SystemStatements\activities\CurrentStatements";
-					var directoryPath2 = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2";
+					var directoryPath = @"Z:\SystemStatements\activities\CurrentStatements";
 
 					var banksStatementsData =
-						_bankStatementHandler.ProcessBankStatementsFromDirectory(directoryPath2, DatePickerViewModel.SelectedDate);
-					
-					/*var banksStatementsData = _bankStatementHandler.ProcessBankStatementsFromFile(
-						@"D:\Работа\Программист Веселый Водовоз\файлы выписок2\StatReports_16.xls",
-						DatePickerViewModel.SelectedDate);*/
+						_bankStatementHandler.ProcessBankStatementsFromDirectory(directoryPath, DatePickerViewModel.SelectedDate);
 					
 					UpdateLocalData(banksStatementsData);
 				},
@@ -460,8 +455,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 			OpenDirectorySettings = new DialogSettings
 			{
-				//InitialDirectory = @"Z:\SystemStatements\activities\CurrentStatements",
-				InitialDirectory = @"D:\Работа\Программист Веселый Водовоз\файлы выписок2",
+				InitialDirectory = @"Z:\SystemStatements\activities\CurrentStatements",
 				Title = "Выбрать каталог"
 			};
 			

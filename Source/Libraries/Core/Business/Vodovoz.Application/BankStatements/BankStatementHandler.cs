@@ -158,10 +158,21 @@ namespace Vodovoz.Application.BankStatements
 			var directoryMessage = success
 				? " в папку успешной обработки на день"
 				: " в папку провальных файлов";
+
+			var fileName = Path.GetFileName(filePath);
+			var newFilePath = directoryPath + $@"\{fileName}";
 			
 			try
 			{
-				File.Move(filePath, directoryPath + $@"\{Path.GetFileName(filePath)}");
+				if(File.Exists(newFilePath))
+				{
+					var guid = Guid.NewGuid();
+					File.Move(filePath, directoryPath + $@"\{guid}_{fileName}");
+				}
+				else
+				{
+					File.Move(filePath, newFilePath);
+				}
 			}
 			catch(Exception exc)
 			{
