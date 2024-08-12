@@ -518,11 +518,13 @@ def DeployDesktop(){
 }
 
 def PushImage(image, tag = "") {
-	docker.withRegistry('https://docker.vod.qsolution.ru:5100', 'docker-registry') {
-		if (tag != "") {
-			image.push(tag)
-		}else{
-			image.push()
+	node(NODE_WIN_BUILD){
+		docker.withRegistry('https://docker.vod.qsolution.ru:5100', 'docker-registry') {
+			if (tag != "") {
+				image.push(tag)
+			}else{
+				image.push()
+			}
 		}
 	}
 }
