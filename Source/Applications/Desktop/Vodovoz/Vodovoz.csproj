@@ -1038,8 +1038,6 @@
     <Compile Include="ReportsParameters\ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportForBigClient.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentsPrinterDlg.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1cClientsAndDeliveryPoints.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LoadFrom1cClientsAndDeliveryPoints.cs" />
     <Compile Include="ViewWidgets\OrderEquipmentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.OrderEquipmentItemsView.cs" />
     <Compile Include="Dialogs\Goods\Folder1cDlg.cs" />

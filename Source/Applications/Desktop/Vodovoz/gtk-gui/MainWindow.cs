@@ -2348,7 +2348,6 @@ public partial class MainWindow
 		this.Action47.Activated += new global::System.EventHandler(this.OnAction47Activated);
 		this.ActionEmployeesBonuses.Activated += new global::System.EventHandler(this.OnAction48Activated);
 		this.Action57.Activated += new global::System.EventHandler(this.OnReportKungolovoActivated);
-		this.ActionLoad1cCounterpartyAndDeliveryPoints.Activated += new global::System.EventHandler(this.OnActionLoad1cCounterpartyAndDeliveryPointsActivated);
 		this.ActionFolders1c.Activated += new global::System.EventHandler(this.OnActionFolders1cActivated);
 		this.ActionOrderRegistry.Activated += new global::System.EventHandler(this.OnActionOrderRegistryActivated);
 		this.Action50.Activated += new global::System.EventHandler(this.OnActionEquipmentBalanceActivated);
