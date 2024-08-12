@@ -3877,6 +3877,11 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			UpdateOnlineOrderText();
+
+			if(Entity.IsNeedIndividualSetOnLoad)
+			{
+				ResetFastDeliveryForNetworkClient();
+			}
 		}
 
 		private void UpdateOnlineOrderText()
