@@ -92,10 +92,10 @@ namespace Vodovoz.Domain.Client
 		
 		public virtual string AgreementTypeTitle => Type.GetEnumTitle();
 
-		public virtual string Title => string.Format("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString());
+		public virtual string Title => $"Доп. соглашение №{FullNumberText} от {StartDate.ToShortDateString()}";
 
 		[Display(Name = "Полный номер")]
-		public virtual string FullNumberText => string.Format("{0}-{1}/{2}{3}", Contract.Counterparty.VodovozInternalId, Contract.ContractSubNumber, GetTypePrefix(Type), AgreementNumber);
+		public virtual string FullNumberText => $"{Contract.Number}/{GetTypePrefix(Type)}{AgreementNumber}";
 
 		#endregion
 
