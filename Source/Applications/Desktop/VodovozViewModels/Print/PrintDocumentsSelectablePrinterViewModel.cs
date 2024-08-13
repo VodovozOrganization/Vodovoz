@@ -10,9 +10,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Print.Store;
@@ -21,7 +21,6 @@ namespace Vodovoz.ViewModels.Print
 {
 	public partial class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly UserSettings _userSettings;
 
@@ -35,16 +34,15 @@ namespace Vodovoz.ViewModels.Print
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICustomPrintRdlDocumentsPrinter documentsPrinter,
-			IUserSettingsService userSettingsService,
+			IUserRepository userRepository,
 			IEventsQrPlacer eventsQrPlacer)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			if(userSettingsService is null)
+			if(userRepository is null)
 			{
-				throw new ArgumentNullException(nameof(userSettingsService));
+				throw new ArgumentNullException(nameof(userRepository));
 			}
 
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Printer = documentsPrinter ?? throw new ArgumentNullException(nameof(documentsPrinter));
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 
@@ -56,7 +54,7 @@ namespace Vodovoz.ViewModels.Print
 			SavePrinterSettingsCommand = new DelegateCommand(SavePrinterSettings);
 			ReportPrintedCommand = new DelegateCommand(OnReportPrinted);
 
-			_userSettings = userSettingsService.Settings;
+			_userSettings = userRepository.GetCurrentUserSettings(UoW);
 		}
 
 		public event Action PreviewDocument;
