@@ -229,10 +229,10 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>172.9pt</Width>
+            <Width>142.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100pt</Width>
+            <Width>130pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>90pt</Width>
@@ -292,9 +292,9 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox58">
                       <Value>=Iif(Countdistinct({order_id}) &gt; 1  or First({is_individual_set_for_order}) = 0,
-'Ручная сборка!', '')</Value>
+'Собрать вручную', '')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -1798,8 +1798,8 @@ Format({route_list_date}, "dd.MM.yyyy")
             <Value>='CarLoadDocument;' + {?id} + ';&lt;OrderId&gt;'</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>181.6pt</Left>
-        <Top>125pt</Top>
+        <Left>183pt</Left>
+        <Top>125.0pt</Top>
         <ZIndex>1</ZIndex>
         <Style>
           <BorderStyle />
