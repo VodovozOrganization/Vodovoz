@@ -381,10 +381,9 @@ namespace Vodovoz.JournalViewModels
 							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
 						JoinType.LeftOuterJoin);
 
-			/*var searchHealperNew = new TempAdapters.SearchHelper(Search);
+			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 
 			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
-			var vodovozInternalIdParam = new TempAdapters.SearchParameter(() => counterpartyAlias.VodovozInternalId, TempAdapters.SearchParametrType.VodovozInternalId);
 			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
 			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
 			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
@@ -393,13 +392,12 @@ namespace Vodovoz.JournalViewModels
 
 			query.Where(searchHealperNew.GetSearchCriterionNew(
 				idParam,
-				vodovozInternalIdParam,
 				nameParam,
 				INNParam,
 				digitNumberParam,
 				deliveryPointPhoneParam,
 				compiledAdressParam
-			));*/
+			));
 
 			var counterpartyResultQuery = query
 				.SelectList(list => list
@@ -586,10 +584,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment);
 			}
 			
-			/*var searchHealperNew = new TempAdapters.SearchHelper(Search);
+			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 
 			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
-			var vodovozInternalIdParam = new TempAdapters.SearchParameter(() => counterpartyAlias.VodovozInternalId, TempAdapters.SearchParametrType.VodovozInternalId);
 			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
 			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
 			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
@@ -598,13 +595,12 @@ namespace Vodovoz.JournalViewModels
 
 			query.Where(searchHealperNew.GetSearchCriterionNew(
 				idParam,
-				vodovozInternalIdParam,
 				nameParam,
 				INNParam,
 				digitNumberParam,
 				deliveryPointPhoneParam,
 				compiledAdressParam
-			));*/
+			));
 
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
