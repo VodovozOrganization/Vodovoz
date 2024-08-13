@@ -199,10 +199,23 @@ namespace Vodovoz.Application.Pacs
 
 		private void SetState(OperatorStateEvent stateEvent)
 		{
+			_logger.LogInformation(
+				"Изменение состояния оператора с {PreviousOperatorState} на {NewOperatorState}",
+				OperatorState?.State,
+				stateEvent?.State?.State);
+
 			if(OperatorState == null || OperatorState.Id != stateEvent.State.Id)
 			{
 				OperatorState = stateEvent.State;
 			}
+
+			_logger.LogInformation(
+				"Изменение доступности малого перерыва оператора с {PreviousShortBreakAvailability} на {NewShortBreakAvailability}," +
+				" большого перерыва оператора с {PreviousLongBreakAvailability} на {NewLongBreakAvailability}",
+				BreakAvailability?.ShortBreakAvailable,
+				stateEvent?.BreakAvailability?.ShortBreakAvailable,
+				BreakAvailability?.LongBreakAvailable,
+				stateEvent?.BreakAvailability?.LongBreakAvailable);
 
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
 			{
