@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 			Title = $"Повторная отправка неотправленных УПД контрагента {Entity.Name}";
 
-			CanResendSelectedEdoDocuments = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			CanResendSelectedEdoDocuments = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 
 			GetLastUpdByOrderIds(ordersIds);
 		}
