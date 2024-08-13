@@ -12,6 +12,7 @@ namespace VodovozInfrastructure.Configuration
 		public virtual int Id { get; set; }
 		public virtual string MessageBrokerHost { get; set; }
 		public virtual string MessageBrokerVirtualHost { get; set; }
+		public virtual int Port { get; set; }
 		public virtual string MessageBrokerUsername { get; set; }
 		public virtual string MessageBrokerPassword { get; set; }
 		public virtual string EmailSendExchange { get; set; }
