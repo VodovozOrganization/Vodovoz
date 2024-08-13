@@ -66,6 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private int _osagoEndingNotifyDaysBefore;
 		private int _kaskoEndingNotifyDaysBefore;
+		private int _carTechnicalCheckupEndingNotifyDaysBefore;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettings,
@@ -135,6 +136,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanEditInsuranceNotificationsSettings =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditInsuranceNotificationsSettings);
 			SaveInsuranceNotificationsSettingsCommand = new DelegateCommand(SaveInsuranceNotificationsSettings, () => CanEditInsuranceNotificationsSettings);
+
+			_carTechnicalCheckupEndingNotifyDaysBefore = _generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore;
+			CanEditCarTechnicalCheckupNotificationsSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditCarTechnicalCheckupNotificationsSettings);
+			SaveCarTechnicalCheckupSettingsCommand = new DelegateCommand(SaveCarTechnicalCheckupSettings, () => CanEditCarTechnicalCheckupNotificationsSettings);
 
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
 			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.CanEditFastDeliveryIntervalFromSetting);
@@ -416,6 +422,26 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_carInsuranceSettings.SetOsagoEndingNotifyDaysBefore(OsagoEndingNotifyDaysBefore);
 			_carInsuranceSettings.SetKaskoEndingNotifyDaysBefore(KaskoEndingNotifyDaysBefore);
 
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+
+		}
+
+		#endregion
+
+		#region Настройка уведомлений о приближающемся ГТО
+
+		public int CarTechnicalCheckupEndingNotifyDaysBefore
+		{
+			get => _carTechnicalCheckupEndingNotifyDaysBefore;
+			set => SetField(ref _carTechnicalCheckupEndingNotifyDaysBefore, value);
+		}
+
+		public DelegateCommand SaveCarTechnicalCheckupSettingsCommand { get; }
+		public bool CanEditCarTechnicalCheckupNotificationsSettings { get; }
+
+		private void SaveCarTechnicalCheckupSettings()
+		{
+			_generalSettings.UpdateCarTechnicalCheckupEndingNotificationDaysBefore(CarTechnicalCheckupEndingNotifyDaysBefore);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 
 		}
