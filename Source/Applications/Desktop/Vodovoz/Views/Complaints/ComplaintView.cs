@@ -314,7 +314,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
-			orderEntry.ViewModel.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
+			orderEntry.ViewModel.ChangedByUser += OnOrderChangedByUser;
 		}
 
 		private void OnBeforeChangeOrderByUser(object sender, BeforeChangeEventArgs e)
@@ -330,17 +330,10 @@ namespace Vodovoz.Views.Complaints
 			
 			e.CanChange = true;
 		}
-
-		private void CanChangeOrder(BeforeChangeEventArgs e)
+		
+		private void OnOrderChangedByUser(object sender, EventArgs e)
 		{
-			if(ViewModel.Entity.OrderRating != null)
-			{
-				ViewModel.ShowMessage("Нельзя менять заказ у рекламации, созданной по оценке заказа!");
-				e.CanChange = false;
-				return;
-			}
-
-			e.CanChange = true;
+			ViewModel.ChangeDeliveryPointCommand.Execute();
 		}
 
 		private void OnYenumcomboStatusChanged(object sender, ItemSelectedEventArgs e)
@@ -444,6 +437,13 @@ namespace Vodovoz.Views.Complaints
 			{
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
+		}
+
+		public override void Destroy()
+		{
+			orderEntry.ViewModel.BeforeChangeByUser -= OnBeforeChangeOrderByUser;
+			orderEntry.ViewModel.ChangedByUser -= OnOrderChangedByUser;
+			base.Destroy();
 		}
 	}
 }

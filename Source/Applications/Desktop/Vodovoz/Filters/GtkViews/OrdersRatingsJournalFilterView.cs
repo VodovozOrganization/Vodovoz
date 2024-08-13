@@ -81,5 +81,16 @@ namespace Vodovoz.Filters.GtkViews
 				ViewModel.Update();
 			}
 		}
+
+		public override void Destroy()
+		{
+			entryOrderRatingId.KeyReleaseEvent -= UpdateFilter;
+			entryOnlineOrder.KeyReleaseEvent -= UpdateFilter;
+			entryOrder.KeyReleaseEvent -= UpdateFilter;
+			creationDateRangePicker.PeriodChangedByUser -= OnDateEventPeriodChangedByUser;
+			entryOrderRatingReason.KeyReleaseEvent -= UpdateFilter;
+
+			base.Destroy();
+		}
 	}
 }
