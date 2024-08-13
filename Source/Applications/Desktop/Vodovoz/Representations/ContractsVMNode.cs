@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModel
 
 		public bool OnCancellation{ get; set;}
 
-		public int ContractNumber{ get; set; }
+		public string ContractNumber{ get; set; }
 
 		public string Title => $"{ContractNumber} от {IssueDate:d}";
 

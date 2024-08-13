@@ -131,7 +131,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
 			}
 
-			if(FilterViewModel?.CounterpartyContractNumber != null)
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyContractNumber))
 			{
 				query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
 					FilterViewModel.CounterpartyContractNumber,
@@ -148,7 +148,7 @@ namespace Vodovoz.JournalViewModels
 			));
 
 			var contractsProjection = Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
 					Projections.Property(() => contractAlias.Number),
 					Projections.Constant("\n"));
@@ -157,7 +157,7 @@ namespace Vodovoz.JournalViewModels
 				.Where(d => d.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => addressAlias.IsActive)
 				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
 					Projections.Property(() => addressAlias.CompiledAddress),
 					Projections.Constant("\n")));
@@ -301,7 +301,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
 			}
 
-			if(FilterViewModel?.CounterpartyContractNumber != null)
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyContractNumber))
 			{
 				query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
 					FilterViewModel.CounterpartyContractNumber,

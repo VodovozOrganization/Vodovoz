@@ -258,9 +258,12 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
 			}
 
-			query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
-				FilterViewModel.CounterpartyContractNumber,
-				MatchMode.Anywhere));
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyContractNumber))
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
+					FilterViewModel.CounterpartyContractNumber,
+					MatchMode.Anywhere));
+			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
 			{
@@ -332,7 +335,7 @@ namespace Vodovoz.JournalViewModels
 			));
 
 			var contractsProjection = Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
 					Projections.Property(() => contractAlias.Number),
 					Projections.Constant("\n"));
@@ -341,7 +344,7 @@ namespace Vodovoz.JournalViewModels
 				.Where(d => d.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => addressAlias.IsActive)
 				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
 					Projections.Property(() => addressAlias.CompiledAddress),
 					Projections.Constant("\n")));
@@ -401,7 +404,6 @@ namespace Vodovoz.JournalViewModels
 			var counterpartyResultQuery = query
 				.SelectList(list => list
 					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
-					//.Select(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
 					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 					.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 					.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
@@ -509,9 +511,12 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
 			}
 
-			query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
-				FilterViewModel.CounterpartyContractNumber,
-				MatchMode.Anywhere));
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyContractNumber))
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
+					FilterViewModel.CounterpartyContractNumber,
+					MatchMode.Anywhere));
+			}
 
 			if(FilterViewModel?.CounterpartyInn != null)
 			{

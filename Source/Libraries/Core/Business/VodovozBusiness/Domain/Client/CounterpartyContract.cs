@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Номер")]
 		public virtual string Number
 		{
-			get => _number;//String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
+			get => _number;
 			set => SetField(ref _number, value);
 		}
 
