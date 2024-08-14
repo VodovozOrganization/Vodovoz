@@ -19,8 +19,10 @@ namespace Vodovoz.Application.BankStatements
 		private const string _accountNumberPattern = @"[с|c]ч[е|ё]т\D+([0-9]{20,25})";
 		private const string _accountNumberWithDatePattern =
 			@"[с|c]ч[е|ё]т\D+([0-9]{20,25})\sза\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s-\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
+		//Исходящий остаток на 12.08.2024
+		private const string _outgoingBalanceWithDatePattern = @"(Исходящий остаток на \p{Nd}*\.\p{Nd}*\.\p{Nd}*)";
 		private const string _balanceWithDatePattern = @"([0-9]{1,}[,|\.][0-9]{1,2})\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
-		private const string _balancePattern = @"^([0-9]{1,}[,|\.]*[0-9]*)";
+		private const string _balancePattern = @"([0-9]{1,}[,|\.]*[0-9]*)$";
 		//30.07.2024 Исходящее сальдо дебет: 0 кредит: 6 748,87
 		private const string _balanceDebitCreditWithDatePattern = @"([0-9]\s?[0-9]*,*[0-9]*)";
 		private const string _singleDatePattern = @"([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
@@ -579,7 +581,14 @@ namespace Vodovoz.Application.BankStatements
 			foreach(var cell in data)
 			{
 				var balanceOnDateMatches = Regex.Matches(cell, _balanceWithDatePattern);
+				var outgoingBalanceWithDatePattern = Regex.Matches(cell, _outgoingBalanceWithDatePattern);
 				var balanceMatches = Regex.Matches(cell, _balancePattern);
+				
+				if(outgoingBalanceWithDatePattern.Count != 0)
+				{
+					//чтобы не подцепить дату за баланс, пропускаем
+					continue;
+				}
 
 				if(balanceOnDateMatches.Count != 0)
 				{

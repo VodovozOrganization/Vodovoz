@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -353,7 +353,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 		private void FillTotalFundBalance(IXLWorkbook wb, DateTime date)
 		{
-			var activitiesColumnsDict = new Dictionary<int, (int FirstColumn, int LastColumn)>();
+			var activitiesColumnsDict = new Dictionary<int, (int AccountNameColumn, int BankColumn, int AccountNumberColumn, int TotalColumn)>();
 			
 			for(var i = 0; i < Entity.FundsSummary.Count; i++)
 			{
@@ -366,13 +366,15 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				{
 					var lastAddedColumn = fundWorkSheet.Columns().Count();
 					var activitySummary = Entity.FundsSummary[i].BusinessActivitySummary[j];
-					activitiesColumnsDict.Add(activitySummary.BusinessActivity.Id, (lastAddedColumn + 1, lastAddedColumn + 2));
-					var (index, endIndex) = activitiesColumnsDict[activitySummary.BusinessActivity.Id];
+					activitiesColumnsDict.Add(
+						activitySummary.BusinessActivity.Id,
+						(lastAddedColumn + 1, lastAddedColumn + 2, lastAddedColumn + 3, lastAddedColumn + 4));
+					var (accountNameColumn, bankColumn, accountNumberColumn, totalColumn) = activitiesColumnsDict[activitySummary.BusinessActivity.Id];
 
-					fundWorkSheet.Range(1, index, 1, endIndex).Value = $"{activitySummary.Name}";
-					fundWorkSheet.Range(1, index, 1, endIndex).Merge();
-					fundWorkSheet.Range(1, index, 1, endIndex).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-					fundWorkSheet.Range(1, index, 1, endIndex).Style.Font.Bold = true;
+					fundWorkSheet.Range(1, accountNameColumn, 1, totalColumn).Value = activitySummary.Name;
+					fundWorkSheet.Range(1, accountNameColumn, 1, totalColumn).Merge();
+					fundWorkSheet.Range(1, accountNameColumn, 1, totalColumn).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+					fundWorkSheet.Range(1, accountNameColumn, 1, totalColumn).Style.Font.Bold = true;
 
 					var rowBeginActivity = 2;
 					
@@ -380,8 +382,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 					{
 						var account = activitySummary.BusinessAccountsSummary[k];
 						fundWorkSheet.Cell(rowBeginActivity, 1).Value = Entity.FundsSummary[i].Name;
-						fundWorkSheet.Cell(rowBeginActivity, index).Value = account.Name;
-						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, endIndex);
+						fundWorkSheet.Cell(rowBeginActivity, accountNameColumn).Value = account.Name;
+						fundWorkSheet.Cell(rowBeginActivity, bankColumn).Value = account.Bank;
+						fundWorkSheet.Cell(rowBeginActivity, accountNumberColumn).SetValue(account.AccountNumber);
+						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, totalColumn);
 						accountTotalCell.Value = account.Total ?? 0m;
 						accountTotalCell.SetCurrencyFormat();
 
@@ -403,7 +407,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				{
 					var activitySummary = Entity.FundsSummary[i].BusinessActivitySummary[j];
 
-					var totalActivityColumn = activitiesColumnsDict[activitySummary.BusinessActivity.Id].LastColumn;
+					var totalActivityColumn = activitiesColumnsDict[activitySummary.BusinessActivity.Id].TotalColumn;
 					var activityTotalCell = fundWorkSheet.Cell(rowFundsTotal, totalActivityColumn);
 					activityTotalCell.Value = activitySummary.Total ?? 0m;
 					activityTotalCell
