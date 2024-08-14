@@ -202,6 +202,7 @@ namespace Vodovoz.Filters.ViewModels
 				if(UpdateFilterField(ref _restrictCounterparty, value))
 				{
 					CanChangeCounterparty = false;
+					OnPropertyChanged(nameof(CanChangeCounterparty));
 					_deliveryPointJournalFilterViewModel.Counterparty = value;
 					if(value == null)
 					{
