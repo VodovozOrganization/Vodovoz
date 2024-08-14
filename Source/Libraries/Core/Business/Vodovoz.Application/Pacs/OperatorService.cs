@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Vodovoz.Application.Mango;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
@@ -35,7 +36,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly IOperatorClient _client;
 		private readonly IMangoManager _mangoManager;
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
-		private readonly IOperatorStateAgent _operatorStateAgent;
+		private readonly IOperatorStateMachine _operatorStateAgent;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IObservable<GlobalBreakAvailabilityEvent> _globalBreakPublisher;
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
@@ -68,7 +69,7 @@ namespace Vodovoz.Application.Pacs
 			IEmployeeService employeeService,
 			IOperatorClient operatorClient,
 			IMangoManager mangoManager,
-			IOperatorStateAgent operatorStateAgent,
+			IOperatorStateMachine operatorStateAgent,
 			IPacsRepository pacsRepository,
 			IObservable<GlobalBreakAvailabilityEvent> globalBreakPublisher,
 			OperatorSettingsConsumer operatorSettingsConsumer,
@@ -92,7 +93,7 @@ namespace Vodovoz.Application.Pacs
 			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
-			_delayedBreakUpdateTimer.Elapsed += (s, e) => UpdateBreakInfo();
+			_delayedBreakUpdateTimer.Elapsed += async (s, e) => await OnBreakAvailabilityTimerElapsedAsync(s, e);
 
 			_employee = _employeeService.GetEmployeeForCurrentUser();
 
@@ -110,6 +111,12 @@ namespace Vodovoz.Application.Pacs
 			{
 				UpdateMango();
 			}
+		}
+
+		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
+		{
+			await RefreshBreakAvailability();
+			UpdateBreakInfo();
 		}
 
 		public bool IsInitialized { get; }
@@ -192,14 +199,40 @@ namespace Vodovoz.Application.Pacs
 
 		private void SetState(OperatorStateEvent stateEvent)
 		{
+			_logger.LogInformation(
+				"Изменение состояния оператора с {PreviousOperatorState} на {NewOperatorState}",
+				OperatorState?.State,
+				stateEvent?.State?.State);
+
 			if(OperatorState == null || OperatorState.Id != stateEvent.State.Id)
 			{
 				OperatorState = stateEvent.State;
 			}
+
+			_logger.LogInformation(
+				"Изменение доступности малого перерыва оператора с {PreviousShortBreakAvailability} на {NewShortBreakAvailability}," +
+				" большого перерыва оператора с {PreviousLongBreakAvailability} на {NewLongBreakAvailability}",
+				BreakAvailability?.ShortBreakAvailable,
+				stateEvent?.BreakAvailability?.ShortBreakAvailable,
+				BreakAvailability?.LongBreakAvailable,
+				stateEvent?.BreakAvailability?.LongBreakAvailable);
+
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
 			{
 				BreakAvailability = stateEvent.BreakAvailability;
 			}
+		}
+
+		public async Task RefreshBreakAvailability()
+		{
+			if(OperatorState is null)
+			{
+				return;
+			}
+
+			var globalBreakAvailability = await _client.GetOperatorBreakAvailability(OperatorState.OperatorId);
+
+			BreakAvailability = globalBreakAvailability;
 		}
 
 		private void SubscribeEvents()

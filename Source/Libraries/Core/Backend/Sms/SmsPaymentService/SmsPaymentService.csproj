@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SmsPaymentService</RootNamespace>
     <AssemblyName>SmsPaymentService</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -90,6 +91,10 @@
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
       <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj">
       <Project>{445c399f-f7f9-43ff-8278-e0392a792f03}</Project>

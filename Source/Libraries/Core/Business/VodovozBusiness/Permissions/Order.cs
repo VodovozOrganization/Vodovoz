@@ -67,5 +67,14 @@ namespace Vodovoz.Permissions
 			Name = "Изменение товаров на вкладке \"Товары\" в заказе, который уже добавлен в МЛ",
 			Description = "Разрешить изменять товары на вкладке \"Товары\" в заказе, который уже добавлен в МЛ")]
 		public static string CanEditGoodsInRouteList => "can_edit_goods_in_route_list";
+
+		/// <summary>
+		/// Выбор сотрудника в отчёте по дате создания заказа
+		/// Разрешить выбор сотрудника в отчёте по дате создания заказа
+		/// </summary>
+		[Display(
+			Name = "Выбор сотрудника в отчёте по дате создания заказа",
+			Description = "Разрешить выбор сотрудника в отчёте по дате создания заказа")]
+		public static string CanEditEmployeeInOrderCreationDateReport => nameof(CanEditEmployeeInOrderCreationDateReport);
 	}
 }

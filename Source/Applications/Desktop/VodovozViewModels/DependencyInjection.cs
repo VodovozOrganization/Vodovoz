@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels

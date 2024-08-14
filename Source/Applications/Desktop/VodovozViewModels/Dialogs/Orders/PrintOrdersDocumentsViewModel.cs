@@ -275,7 +275,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 						order,
 						signaturesAndStampsOfDocument);
 
-					printer.DocumentsToPrint.ForEach(d => d.Copies = PrintCopiesCount);
+					printer.MultiDocPrinterPrintableDocuments.ForEach(d => d.Copies = PrintCopiesCount);
 
 					printer.PrintingCanceled += (s, ea) =>
 					{

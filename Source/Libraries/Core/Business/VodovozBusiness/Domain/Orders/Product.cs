@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
 
@@ -7,7 +8,11 @@ namespace Vodovoz.Domain.Orders
 	public abstract class Product : PropertyChangedBase
 	{
 		private decimal _count = -1;
-		private DiscountReason _discountReason;
+		private decimal? _actualCount;
+		private decimal _price;
+		private decimal _discountMoney;
+		private decimal _discount;
+		private bool _isDiscountInMoney;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
 
@@ -32,11 +37,43 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _count, value);
 		}
 		
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason
+		[Display(Name = "Цена")]
+		public virtual decimal Price
 		{
-			get => _discountReason;
-			set => SetField(ref _discountReason, value);
+			get => _price;
+			protected set => SetField(ref _price, value);
 		}
+		
+		[Display(Name = "Скидка на товар в деньгах")]
+		public virtual decimal DiscountMoney
+		{
+			get => _discountMoney;
+			protected set => SetField(ref _discountMoney, value);
+		}
+		
+		[Display(Name = "Скидка деньгами?")]
+		public virtual bool IsDiscountInMoney
+		{
+			get => _isDiscountInMoney;
+			protected set => SetField(ref _isDiscountInMoney, value);
+		}
+		
+		[Display(Name = "Процент скидки на товар")]
+		public virtual decimal Discount
+		{
+			get => _discount;
+			protected set => SetField(ref _discount, value);
+		}
+		
+		public virtual decimal? ActualCount
+		{
+			get => _actualCount;
+			protected set => SetField(ref _actualCount, value);
+		}
+		
+		public virtual decimal CurrentCount => ActualCount ?? Count;
+		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
+		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
+		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 	}
 }

@@ -1,10 +1,11 @@
-﻿using System.Linq;
-using FluentNHibernate.Cfg.Db;
+﻿using FluentNHibernate.Cfg.Db;
+using FluentNHibernate.Conventions;
 using Microsoft.Extensions.DependencyInjection;
-using QS;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project;
 using QS.Project.Core;
 using QS.Project.DB;
+using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
@@ -47,11 +48,19 @@ namespace Vodovoz.Core.Data.NHibernate
 				.AddDatabaseConnectionString()
 				.AddSpatialSqlConfiguration()
 				.AddNHibernateConfiguration()
+				.AddNHibernateConventions()
 				.AddDatabaseInfo()
 				.AddDatabaseSingletonSettings()
 				;
 
 			services.AddStaticServicesConfig();
+
+			return services;
+		}
+
+		public static IServiceCollection AddNHibernateConventions(this IServiceCollection services)
+		{
+			services.AddSingleton<IConvention, ObservableListConvention>();
 
 			return services;
 		}

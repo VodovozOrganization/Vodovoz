@@ -1,0 +1,51 @@
+﻿#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/runtime:5.0 AS base
+WORKDIR /app
+
+FROM base AS final
+WORKDIR /app
+COPY ["./bin/Release/net5.0_publish", "."]
+ENTRYPOINT ["dotnet", "CustomerOrdersApi.dll"]
+
+#FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+#WORKDIR /app
+#EXPOSE 80
+#EXPOSE 443
+
+#FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+#ARG BUILD_CONFIGURATION=Release
+#WORKDIR /src
+#COPY ["Applications/Backend/WebAPI/CustomerOrdersApi/CustomerOrdersApi.csproj", "Applications/Backend/WebAPI/CustomerOrdersApi/"]
+#COPY ["Libraries/Core/Backend/CustomerOrdersApi.Library/CustomerOrdersApi.Library.csproj", "Libraries/Core/Backend/CustomerOrdersApi.Library/"]
+#COPY ["Libraries/Core/Business/Vodovoz.Core.Domain/Vodovoz.Core.Domain.csproj", "Libraries/Core/Business/Vodovoz.Core.Domain/"]
+#COPY ["Libraries/External/GMap.NET/GMap.NET.Core/GMap.NET.Core.csproj", "Libraries/External/GMap.NET/GMap.NET.Core/"]
+#COPY ["Libraries/External/QSProjects/QS.HistoryLog/QS.HistoryLog.csproj", "Libraries/External/QSProjects/QS.HistoryLog/"]
+#COPY ["Libraries/External/QSProjects/QS.Project.Core/QS.Project.Core.csproj", "Libraries/External/QSProjects/QS.Project.Core/"]
+#COPY ["Libraries/External/QSProjects/Binding/Gamma.Utilities/Gamma.Utilities.csproj", "Libraries/External/QSProjects/Binding/Gamma.Utilities/"]
+#COPY ["Libraries/External/QSProjects/QS.Project.Abstract/QS.Project.Abstract.csproj", "Libraries/External/QSProjects/QS.Project.Abstract/"]
+#COPY ["Libraries/External/QSProjects/QS.Utilities/QS.Utilities.csproj", "Libraries/External/QSProjects/QS.Utilities/"]
+#COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
+#COPY ["Libraries/Core/Infrastructure/VodovozInfrastructure/VodovozInfrastructure.csproj", "Libraries/Core/Infrastructure/VodovozInfrastructure/"]
+#COPY ["Libraries/External/Gtk.DataBindings/System.Data.Bindings/System.Data.Bindings.csproj", "Libraries/External/Gtk.DataBindings/System.Data.Bindings/"]
+#COPY ["Libraries/External/QSProjects/QS.Project/QS.Project.csproj", "Libraries/External/QSProjects/QS.Project/"]
+#COPY ["Libraries/External/QSProjects/Binding/Gamma.Binding.Core/Gamma.Binding.Core.csproj", "Libraries/External/QSProjects/Binding/Gamma.Binding.Core/"]
+#COPY ["Libraries/External/QSProjects/QS.BaseParameters/QS.BaseParameters.csproj", "Libraries/External/QSProjects/QS.BaseParameters/"]
+#COPY ["Libraries/External/QSProjects/QS.Project.Desktop/QS.Project.Desktop.csproj", "Libraries/External/QSProjects/QS.Project.Desktop/"]
+#COPY ["Libraries/External/QSProjects/QS.ErrorReporting/QS.ErrorReporting.csproj", "Libraries/External/QSProjects/QS.ErrorReporting/"]
+#COPY ["Libraries/External/QSProjects/QS.ErrorReporting.Client/QS.ErrorReporting.Client.csproj", "Libraries/External/QSProjects/QS.ErrorReporting.Client/"]
+#COPY ["Libraries/Core/Backend/Infrastructure/ApiClientProvider/ApiClientProvider.csproj", "Libraries/Core/Backend/Infrastructure/ApiClientProvider/"]
+#COPY ["Libraries/Core/Backend/Infrastructure/MessageTransport/MessageTransport.csproj", "Libraries/Core/Backend/Infrastructure/MessageTransport/"]
+#RUN dotnet restore "./Applications/Backend/WebAPI/CustomerOrdersApi/CustomerOrdersApi.csproj"
+#COPY . .
+#WORKDIR "/src/Applications/Backend/WebAPI/CustomerOrdersApi"
+#RUN dotnet build "./CustomerOrdersApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+#FROM build AS publish
+#ARG BUILD_CONFIGURATION=Release
+#RUN dotnet publish "./CustomerOrdersApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+#FROM base AS final
+#WORKDIR /app
+#COPY --from=publish /app/publish .
+#ENTRYPOINT ["dotnet", "CustomerOrdersApi.dll"]

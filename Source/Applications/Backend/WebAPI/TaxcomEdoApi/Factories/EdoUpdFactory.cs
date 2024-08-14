@@ -8,6 +8,7 @@ using TISystems.TTC.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 
 namespace TaxcomEdoApi.Factories
 {
@@ -25,7 +26,7 @@ namespace TaxcomEdoApi.Factories
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
 		}
 		
-		public Fajl CreateNewUpdXml(Order order, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject)
+		public Fajl CreateNewUpdXml(Order order, WarrantOptions warrantOptions, string organizationAccountId, string certificateSubject, IEnumerable<Payment> orderPayments)
 		{
 			var org = order.Contract.Organization;
 			
@@ -94,6 +95,18 @@ namespace TaxcomEdoApi.Factories
 			{
 				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Client, order.DeliveryPoint?.Id)
 			};
+
+			//К платежно-расчетному документу
+			if(orderPayments.Any())
+			{
+				upd.Dokument.SvSchFakt.SvPRD = orderPayments
+					.Select(p => new FajlDokumentSvSchFaktSvPRD
+					{
+						NomerPRD = p.PaymentNum.ToString(),
+						DataPRD = p.Date.ToString("dd.MM.yyyy")
+					})
+					.ToArray();
+			}
 
 			upd.Dokument.SvSchFakt.DokPodtvOtgr = new[]
 			{

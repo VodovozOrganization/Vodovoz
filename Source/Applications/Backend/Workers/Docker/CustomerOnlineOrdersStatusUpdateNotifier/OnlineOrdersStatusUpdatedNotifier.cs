@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +13,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Zabbix.Sender;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -24,6 +25,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 		private readonly IOnlineOrderStatusUpdatedNotificationRepository _notificationRepository;
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IZabbixSender _zabbixSender;
 		private int _delayInSec = 10;
 
 		public OnlineOrdersStatusUpdatedNotifier(
@@ -33,7 +35,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
 			IExternalOrderStatusConverter externalOrderStatusConverter,
-			IServiceScopeFactory serviceScopeFactory
+			IServiceScopeFactory serviceScopeFactory,
+			IZabbixSender zabbixSender
 			)
 		{
 			_logger = logger;
@@ -43,6 +46,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			_externalOrderStatusConverter =
 				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,7 +55,18 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				var pastDaysForSend = _configuration.GetValue<int>("PastDaysForSend");
-				await NotifyAsync(pastDaysForSend);
+
+				try
+				{
+					await NotifyAsync(pastDaysForSend);
+
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				}
+				catch
+				{
+					throw;
+				}
+				
 				await Task.Delay(1000 * _delayInSec, stoppingToken);
 			}
 		}
@@ -124,7 +139,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e,"Ошибка при обновлении уведомления ИПЗ");
+				_logger.LogError(
+					e,
+					"Ошибка при обновлении уведомления ИПЗ по онлайн заказу {OnlineOrderId}",
+					notification.OnlineOrder.Id);
 			}
 		}
 	}

@@ -6,6 +6,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -14,18 +15,21 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IGoodsPriceCalculator _priceCalculator;
 		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			IClientDeliveryPointsChecker clientDeliveryPointsChecker)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_clientDeliveryPointsChecker = clientDeliveryPointsChecker ?? throw new ArgumentNullException(nameof(clientDeliveryPointsChecker));
 		}
-		
+
 		public Result ValidateOnlineOrder(OnlineOrder onlineOrder)
 		{
 			_onlineOrder = onlineOrder;
@@ -43,6 +47,22 @@ namespace Vodovoz.Application.Orders.Services
 				if(_onlineOrder.Counterparty is null)
 				{
 					validationResults.Add(Errors.Orders.OnlineOrder.IsEmptyCounterparty);
+				}
+				else
+				{
+					if(_onlineOrder.DeliveryPoint != null)
+					{
+						var result =
+							_clientDeliveryPointsChecker.ClientDeliveryPointExists(
+								_onlineOrder.Counterparty.Id, _onlineOrder.DeliveryPoint.Id);
+						
+						if(!result)
+						{
+							validationResults.Add(Errors.Orders.OnlineOrder.DeliveryPointNotBelongCounterparty);
+						}
+						
+						_onlineOrder.SetDeliveryPointNotBelongCounterparty(!result);
+					}
 				}
 				
 				if(_onlineOrder.DeliveryPoint is null)
@@ -218,8 +238,7 @@ namespace Vodovoz.Application.Orders.Services
 			var promoSetItem = onlineOrderItem.PromoSet.PromotionalSetItems[index];
 			var discountInMoneyFromPromoSet = promoSetItem.IsDiscountInMoney;
 			var discountItemFromPromoSet = discountInMoneyFromPromoSet ? promoSetItem.DiscountMoney : promoSetItem.Discount;
-			var onlineOrderItemDiscount =
-				onlineOrderItem.IsDiscountInMoney ? onlineOrderItem.MoneyDiscount : onlineOrderItem.PercentDiscount;
+			var onlineOrderItemDiscount = onlineOrderItem.GetDiscount;
 			
 			onlineOrderItem.DiscountFromPromoSet = discountItemFromPromoSet;
 			onlineOrderItem.IsDiscountInMoneyFromPromoSet = discountInMoneyFromPromoSet;

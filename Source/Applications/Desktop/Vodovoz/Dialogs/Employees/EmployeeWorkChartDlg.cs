@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
@@ -16,7 +17,7 @@ namespace Dialogs.Employees
 	public partial class EmployeeWorkChartDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
 			
 		private IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		private List<EmployeeWorkChart> loadedCharts = new List<EmployeeWorkChart>();

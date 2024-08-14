@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Timers;
 using DateTimeHelpers;
@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -52,7 +53,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			var dataLoader = new ThreadDataLoader<OnlineOrdersJournalNode>(unitOfWorkFactory);
-			dataLoader.AddQuery(ItemsQuery);
+			dataLoader.AddQuery(OnlineOrdersQuery);
+			dataLoader.AddQuery(RequestsForCallQuery);
+			
+			dataLoader.MergeInOrderBy(x => x.OrderByStatusValue);
+			dataLoader.MergeInOrderBy(x => x.EntityTypeString, true);
+			dataLoader.MergeInOrderBy(x => x.CreationDate, true);
 			DataLoader = dataLoader;
 
 			Title = "Журнал онлайн заказов";
@@ -82,7 +88,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreateStopAutoRefresh();
 		}
 
-		public IQueryOver<OnlineOrder> ItemsQuery(IUnitOfWork uow)
+		public IQueryOver<OnlineOrder> OnlineOrdersQuery(IUnitOfWork uow)
 		{
 			OnlineOrder onlineOrderAlias = null;
 			Order orderAlias = null;
@@ -113,7 +119,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				Projections.Property(() => employeeWorkWithAlias.Patronymic)
 			);
 
+			var orderByStatusProjection =
+				Projections.Conditional(
+					new[]
+					{
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => onlineOrderAlias.OnlineOrderStatus == OnlineOrderStatus.New),
+							Projections.Constant((int)OnlineOrderStatus.New)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => onlineOrderAlias.OnlineOrderStatus == OnlineOrderStatus.OrderPerformed),
+							Projections.Constant((int)OnlineOrderStatus.OrderPerformed)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => onlineOrderAlias.OnlineOrderStatus == OnlineOrderStatus.Canceled),
+							Projections.Constant((int)OnlineOrderStatus.Canceled))
+					},
+					Projections.Constant(int.MaxValue)
+				);
+
 			#region Фильтрация
+
+			if(_filterViewModel.OnlineRequestsType.HasValue
+				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.RequestsForCall)
+			{
+				query.Where(o => o.Id == null);
+			}
 
 			if(_filterViewModel.RestrictStatus.HasValue)
 			{
@@ -265,9 +294,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			query.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
+					.Select(o => o.Created).WithAlias(() => resultAlias.CreationDate)
 					.Select(o => o.IsSelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 					.Select(o => o.IsFastDelivery).WithAlias(() => resultAlias.IsFastDelivery)
 					.Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
@@ -281,7 +314,164 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.IsNeedConfirmationByCall).WithAlias(() => resultAlias.IsNeedConfirmationByCall)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				)
-				.OrderBy(o => o.OnlineOrderStatus).Asc
+				.OrderBy(o => o.OnlineOrderStatus).Asc()
+				.ThenBy(o => o.Created).Desc()
+				.TransformUsing(Transformers.AliasToBean<OnlineOrdersJournalNode>());
+
+			return query;
+		}
+
+		public IQueryOver<RequestForCall> RequestsForCallQuery(IUnitOfWork uow)
+		{
+			RequestForCall requestForCallAlias = null;
+			Order orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			Employee employeeWorkWithAlias = null;
+			OnlineOrdersJournalNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => requestForCallAlias)
+				.Left.JoinAlias(o => o.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(o => o.EmployeeWorkWith, () => employeeWorkWithAlias)
+				.Left.JoinAlias(o => o.Order, () => orderAlias);
+			
+			var employeeWorkWithProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => employeeWorkWithAlias.LastName),
+				Projections.Property(() => employeeWorkWithAlias.Name),
+				Projections.Property(() => employeeWorkWithAlias.Patronymic)
+			);
+			
+			var orderByStatusProjection =
+				Projections.Conditional(
+					new[]
+					{
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => requestForCallAlias.RequestForCallStatus == RequestForCallStatus.New),
+							Projections.Constant((int)RequestForCallStatus.New)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => requestForCallAlias.RequestForCallStatus == RequestForCallStatus.OrderPerformed),
+							Projections.Constant((int)RequestForCallStatus.OrderPerformed)),
+						new ConditionalProjectionCase(
+							Restrictions.Where(() => requestForCallAlias.RequestForCallStatus == RequestForCallStatus.Closed),
+							Projections.Constant((int)RequestForCallStatus.Closed))
+					},
+					Projections.Constant(int.MaxValue)
+				);
+
+			#region Фильтрация
+			
+			if((_filterViewModel.OnlineRequestsType.HasValue
+				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.OnlineOrders)
+				|| _filterViewModel.OnlineOrderPaymentStatus.HasValue
+				|| _filterViewModel.RestrictPaymentType.HasValue
+				|| _filterViewModel.DeliveryPoint != null
+				|| _filterViewModel.RestrictSelfDelivery.HasValue
+				|| _filterViewModel.RestrictNeedConfirmationByCall.HasValue
+				|| _filterViewModel.RestrictFastDelivery.HasValue
+				|| _filterViewModel.OnlineOrderId.HasValue
+				|| _filterViewModel.GeographicGroup != null
+				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+			{
+				query.Where(r => r.Id == null);
+			}
+
+			if(_filterViewModel.RestrictStatus.HasValue)
+			{
+				switch(_filterViewModel.RestrictStatus)
+				{
+					case OnlineOrderStatus.New:
+						query.Where(r => r.RequestForCallStatus == RequestForCallStatus.New);
+						break;
+					case OnlineOrderStatus.OrderPerformed:
+						query.Where(r => r.RequestForCallStatus == RequestForCallStatus.OrderPerformed);
+						break;
+					case OnlineOrderStatus.Canceled:
+						query.Where(r => r.RequestForCallStatus == RequestForCallStatus.Closed);
+						break;
+				}
+			}
+
+			if(_filterViewModel.EmployeeWorkWith != null)
+			{
+				query.Where(r => r.EmployeeWorkWith == _filterViewModel.EmployeeWorkWith);
+			}
+			
+			if(_filterViewModel.RestrictCounterparty != null)
+			{
+				query.Where(r => r.Counterparty == _filterViewModel.RestrictCounterparty);
+			}
+			
+			if(_filterViewModel.RestrictSource.HasValue)
+			{
+				query.Where(r => r.Source == _filterViewModel.RestrictSource.Value);
+			}
+
+			var startDate = _filterViewModel.StartDate;
+			var endDate = _filterViewModel.EndDate;
+
+			switch(_filterViewModel.FilterDateType)
+			{
+				case OrdersDateFilterType.CreationDate:
+					if(startDate.HasValue)
+					{
+						query.Where(r => r.Created >= startDate);
+					}
+					
+					if(endDate.HasValue)
+					{ 
+						query.Where(r => r.Created <= endDate); 
+					}
+					break;
+			}
+			
+			if(_filterViewModel.OrderId.HasValue)
+			{
+				query.Where(r => r.Order.Id == _filterViewModel.OrderId.Value);
+			}
+			
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == _filterViewModel.CounterpartyPhone)
+					.And(() => !counterpartyPhoneAlias.IsArchive)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+			
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.CounterpartyNameLike)
+				&& _filterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(
+					Projections.Property(() => counterpartyAlias.FullName),
+					_filterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
+			}
+
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.CounterpartyInn))
+			{
+				query.Where(() => counterpartyAlias.INN == _filterViewModel.CounterpartyInn);
+			}
+
+			#endregion
+			
+			query.SelectList(list => list
+					.SelectGroup(r => r.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => typeof(RequestForCall)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => RequestForCall.RequestForCallName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
+					.Select(r => r.Created).WithAlias(() => resultAlias.CreationDate)
+					.Select(r => r.RequestForCallStatus).WithAlias(() => resultAlias.RequestForCallStatus)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
+					.Select(employeeWorkWithProjection).WithAlias(() => resultAlias.ManagerWorkWith)
+					.Select(r => r.Source).WithAlias(() => resultAlias.Source)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+				)
+				.OrderBy(r => r.RequestForCallStatus).Asc()
+				.ThenBy(r => r.Created).Desc()
 				.TransformUsing(Transformers.AliasToBean<OnlineOrdersJournalNode>());
 
 			return query;
@@ -384,9 +574,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 
 					var selectedNode = selectedNodes.First();
-					
-					NavigationManager.OpenViewModel<OnlineOrderViewModel, IEntityUoWBuilder>(
-						this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+
+					if(selectedNode.EntityType == typeof(OnlineOrder))
+					{
+						NavigationManager.OpenViewModel<OnlineOrderViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					}
+					else if(selectedNode.EntityType == typeof(RequestForCall))
+					{
+						NavigationManager.OpenViewModel<RequestForCallViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					}
 				}
 			);
 			

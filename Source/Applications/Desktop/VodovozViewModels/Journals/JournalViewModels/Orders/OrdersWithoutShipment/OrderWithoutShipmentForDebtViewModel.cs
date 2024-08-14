@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
 		private readonly IEmailSettings _emailSettings;
+		private readonly IEmailRepository _emailRepository;
 		private readonly IEdoService _edoService;
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
@@ -53,6 +54,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IEmailSettings emailSettings,
+			IEmailRepository emailRepository,
 			IEdoService edoService) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
@@ -71,11 +73,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
-			
-			bool canCreateBillsWithoutShipment = 
+
+			bool canCreateBillsWithoutShipment =
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 
@@ -108,7 +111,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
 					uowFactory,
-					new EmailRepository(uowFactory),
+					_emailRepository,
 					_emailSettings,
 					currentEmployee,
 					commonServices.InteractiveService,
@@ -142,7 +145,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();

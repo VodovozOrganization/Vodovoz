@@ -27,6 +27,7 @@ using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace RoboatsService
 {
@@ -72,7 +73,8 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddApplication();
-			services.AddBusiness(Configuration);
+			services.AddBusiness(Configuration)
+				.AddInfrastructure();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -81,7 +83,6 @@ namespace RoboatsService
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();

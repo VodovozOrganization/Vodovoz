@@ -1,5 +1,6 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Report;
 using System;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Converters;
 using Taxcom.Client.Api.Entity;
@@ -20,7 +20,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
@@ -156,9 +155,13 @@ namespace TaxcomEdoApi.Services
 					_logger.LogInformation("Создаем УПД по заказу №{OrderId}", order.Id);
 					try
 					{
+						var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
+							.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
+							.Distinct();
+
 						var updXml = _edoUpdFactory.CreateNewUpdXml(
-							order, _warrantOptions, edoAccountId, _certificate.Subject);
-						
+							order, _warrantOptions, edoAccountId, _certificate.Subject, orderPayments);
+
 						var container = new TaxcomContainer
 						{
 							SignMode = DocumentSignMode.UseSpecifiedCertificate
@@ -176,7 +179,7 @@ namespace TaxcomEdoApi.Services
 
 						container.Documents.Add(upd);
 						upd.AddCertificateForSign(_certificate.Thumbprint);
-						
+
 						//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
 						//чтобы отправка шла без прикрепления доверки
 						if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
@@ -233,13 +236,13 @@ namespace TaxcomEdoApi.Services
 			return Task.CompletedTask;
 		}
 
-		private Task CreateAndSendBills(IUnitOfWork uow)
+		private Task CreateAndSendBills(IUnitOfWork unitOfWork)
 		{
 			try
 			{				
 				var startDate = DateTime.Today.AddDays(-3);
 				var edoAccountId = _apiOptions.EdxClientId;
-				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
+				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(unitOfWork, edoAccountId);
 
 				if(organization is null)
 				{
@@ -249,9 +252,35 @@ namespace TaxcomEdoApi.Services
 
 				_logger.LogInformation("Найдена организация по edxClientId {EdoAccountId} - [{OrganizationId}]:\"{OrganizationName}\"", edoAccountId, organization.Id, organization.FullName);
 
+				_logger.LogInformation("Получаем заказы по которым нужно отменить счёт");
+
+				var offerCancellationFromActions = unitOfWork
+					.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.IsNeedOfferCancellation)
+					.ToList();
+
+				foreach(var offerCancellation in offerCancellationFromActions)
+				{
+					var containersToOfferCancellation = unitOfWork.Session.Query<EdoContainer>()
+						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
+							&& ec.Type == Type.Bill
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
+						.ToList();
+
+					foreach(var container in containersToOfferCancellation)
+					{
+						_logger.LogInformation("Отменяется оффер из контейнера #{EdoContainerId}, Заказа #{OrderId}", container.Id, container.Order?.Id);
+						SendOfferCancellationContainer(unitOfWork, organization, container);
+					}
+
+					offerCancellation.IsNeedOfferCancellation = false;
+					unitOfWork.Save(offerCancellation);
+				}
+
 				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
 
-				var orders = _orderRepository.GetOrdersForEdoSendBills(uow, startDate, organization.Id, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
+				var orders = _orderRepository.GetOrdersForEdoSendBills(unitOfWork, startDate, organization.Id, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
 
@@ -268,14 +297,14 @@ namespace TaxcomEdoApi.Services
 						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 					};
 
-					var action = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					var action = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
 						.Where(x => x.Order.Id == edoContainer.Order.Id)
 						.FirstOrDefault();
 
-					SendBill(uow, edoContainer, organization, action);
+					SendBill(unitOfWork, edoContainer, organization, action);
 				}
 
-				var resendFromActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>().Where(x => x.IsNeedToResendEdoBill).ToList();
+				var resendFromActions = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>().Where(x => x.IsNeedToResendEdoBill).ToList();
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", resendFromActions.Count);
 
@@ -310,7 +339,7 @@ namespace TaxcomEdoApi.Services
 						edoContainer.Counterparty = orderWithoutShipmentForDebt.Counterparty;
 					}
 
-					SendBill(uow, edoContainer, organization, action);
+					SendBill(unitOfWork, edoContainer, organization, action);
 				}
 			}
 			catch(Exception e)
@@ -358,6 +387,7 @@ namespace TaxcomEdoApi.Services
 		private void SendOrderContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
 		{
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+
 			try
 			{
 				var container = new TaxcomContainer
@@ -394,6 +424,20 @@ namespace TaxcomEdoApi.Services
 					edoContainer.Order.Id);
 
 				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе формирования контейнер №{EdoContainerId} счёта заказа №{OrderId} и его отправки",
+					edoContainer.Id,
+					edoContainer.Order.Id);
+			}
+		}
+
+		private void SendOfferCancellationContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		{
+			try
+			{
+				_taxcomApi.OfferCancellation(edoContainer.DocFlowId.ToString(), "Состав завказа был изменен");
 			}
 			catch(Exception e)
 			{
@@ -585,7 +629,7 @@ namespace TaxcomEdoApi.Services
 								container.Container = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
 							}
 
-							_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order.Id);
+							_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order?.Id);
 							uow.Save(container);
 							uow.Commit();
 						}

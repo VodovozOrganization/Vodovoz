@@ -35,6 +35,7 @@ using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
@@ -79,7 +80,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			IInteractiveService interactiveService,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IncludeExludeFiltersViewModel filterViewModel,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
@@ -285,7 +285,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesWithDynamicsReportGroupingsConstructor();
 
-			GroupingSelectViewModel.RightItems.ListContentChanged += OnGroupingsRightItemsListContentChanged;
+			GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
 
 		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)

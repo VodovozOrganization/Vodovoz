@@ -7,15 +7,16 @@ using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Breaks
 {
-	public class GlobalBreakController
+	public class GlobalBreakController : IGlobalBreakController
 	{
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IBreakAvailabilityNotifier _breakAvailabilityNotifier;
 		private IPacsDomainSettings _actualSettings;
 		private List<OperatorState> _onBreak = new List<OperatorState>();
 
-		internal event EventHandler<SettingsChangedEventArgs> SettingsChanged;
 		public GlobalBreakAvailabilityEvent BreakAvailability { get; private set; }
+
+		public event EventHandler<SettingsChangedEventArgs> SettingsChanged;
 
 		public GlobalBreakController(IPacsRepository pacsRepository, IBreakAvailabilityNotifier breakAvailabilityNotifier)
 		{
@@ -26,7 +27,7 @@ namespace Pacs.Server.Breaks
 			UpdateBreakAvailability();
 		}
 
-		internal void UpdateSettings(IPacsDomainSettings domainSettings)
+		public void UpdateSettings(IPacsDomainSettings domainSettings)
 		{
 			_actualSettings = domainSettings;
 			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
@@ -41,7 +42,7 @@ namespace Pacs.Server.Breaks
 			UpdateBreakAvailability(operatorsOnBreak, domainSettings);
 		}
 
-		internal void UpdateBreakAvailability()
+		public void UpdateBreakAvailability()
 		{
 			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
 			UpdateBreakAvailability(operatorsOnBreak, _actualSettings);

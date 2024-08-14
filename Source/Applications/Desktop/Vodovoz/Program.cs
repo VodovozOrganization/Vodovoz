@@ -99,7 +99,7 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
-using Vodovoz.Presentation.ViewModels.PaymentType;
+using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -156,6 +156,8 @@ using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 
 namespace Vodovoz
 {
@@ -206,7 +208,6 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
-					builder.RegisterType<CashRepository>().As<ICashRepository>();
 
 					#endregion
 
@@ -300,7 +301,7 @@ namespace Vodovoz
 
 					builder.RegisterModule<CashReceiptClientChannelModule>();
 
-					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
+					builder.RegisterType<OperatorStateMachine>().As<IOperatorStateMachine>();
 					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
 					builder.RegisterType<OperatorClient>().As<IOperatorClient>();
 
@@ -475,11 +476,9 @@ namespace Vodovoz
 					builder.RegisterType<EquipmentBalance>().AsSelf();
 					builder.RegisterType<CardPaymentsOrdersReport>().AsSelf();
 					builder.RegisterType<DefectiveItemsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromTinkoffReport>().AsSelf();
 					builder.RegisterType<OrdersByDistrictsAndDeliverySchedulesReport>().AsSelf();
 					builder.RegisterType<OrdersByCreationDateReport>().AsSelf();
 					builder.RegisterType<NomenclatureForShipment>().AsSelf();
-					builder.RegisterType<OrderCreationDateReport>().AsSelf();
 					builder.RegisterType<NotFullyLoadedRouteListsReport>().AsSelf();
 					builder.RegisterType<FirstClientsReport>().AsSelf();
 					builder.RegisterType<TariffZoneDebts>().AsSelf();
@@ -662,6 +661,7 @@ namespace Vodovoz
 						.AddCoreDataNHibernate()
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
+						.AddNHibernateConventions()
 						.AddDatabaseInfo()
 						.AddDatabaseSingletonSettings()
 						.AddCore()
@@ -697,6 +697,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddInfrastructure()
 						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()

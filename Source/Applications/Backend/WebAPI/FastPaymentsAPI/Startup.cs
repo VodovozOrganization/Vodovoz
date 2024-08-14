@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.HealthChecks;
+using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -67,6 +67,7 @@ namespace FastPaymentsAPI
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 			

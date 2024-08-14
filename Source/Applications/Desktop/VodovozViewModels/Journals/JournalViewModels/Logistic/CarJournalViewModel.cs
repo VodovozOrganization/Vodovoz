@@ -79,8 +79,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(Car),
 				typeof(CarModel),
 				typeof(Employee),
-				typeof(CarVersion)
-				);
+				typeof(CarVersion));
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
@@ -209,11 +208,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			#endregion
 
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
-				Restrictions.Disjunction()
-					.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
-					.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
-					.Add(isOsagoExpiresRestriction)
-					.Add(isKaskoExpiresRestriction),
+				Restrictions.Conjunction()
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => carModelAlias.CarTypeOfUse), CarTypeOfUse.Loader)))
+					.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => carAlias.Id), _carEventSettings.CarsExcludedFromReportsIds)))
+					.Add(Restrictions.Disjunction()
+						.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+						.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
+						.Add(isOsagoExpiresRestriction)
+						.Add(isKaskoExpiresRestriction)),
 				Projections.Constant(true),
 				Projections.Constant(false));
 
@@ -356,8 +358,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private void CreateCarInsurancesReport()
 		{
-			var osagoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Osago).ToList();
-			var kaskoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Kasko).ToList();
+			var osagoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Osago, _carEventSettings.CarsExcludedFromReportsIds).ToList();
+			var kaskoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Kasko, _carEventSettings.CarsExcludedFromReportsIds).ToList();
 			var insurances = osagoInsurances
 				.Union(kaskoInsurances.Where(ins => !ins.IsKaskoNotRelevant))
 				.OrderByDescending(ins => ins.LastInsurance is null)
@@ -380,7 +382,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			var techInspects =
 				_carRepository
-				.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId)
+				.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId, _carEventSettings.CarsExcludedFromReportsIds)
 				.OrderBy(ti => ti.LeftUntilTechInspectKm)
 				.ToList();
 

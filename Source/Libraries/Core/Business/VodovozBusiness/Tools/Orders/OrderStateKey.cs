@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -109,7 +109,7 @@ namespace Vodovoz.Tools.Orders
 
 		private bool HasOrderEquipments(IUnitOfWork uow)
 		{
-			var allActiveFlyersNomenclaturesIds = new FlyerRepository().GetAllActiveFlyersNomenclaturesIdsByDate(uow, Order.DeliveryDate);
+			var allActiveFlyersNomenclaturesIds = ScopeProvider.Scope.Resolve<IFlyerRepository>().GetAllActiveFlyersNomenclaturesIdsByDate(uow, Order.DeliveryDate);
 
 			if(!Order.ObservableOrderEquipments.Any() || OnlyFlyersInEquipments(allActiveFlyersNomenclaturesIds))
 			{

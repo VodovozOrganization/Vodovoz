@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
@@ -35,9 +36,11 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels
 {
-	public class BulkEmailViewModel : DialogViewModelBase
+	public class BulkEmailViewModel : DialogViewModelBase, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
+		private readonly ILogger<BulkEmailViewModel> _logger;
+		private readonly ILogger<RabbitMQConnectionFactory> _rabbitConnectionFactoryLogger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmailSettings _emailSettings;
 		private readonly ICommonServices _commonServices;
@@ -60,11 +63,22 @@ namespace Vodovoz.ViewModels.ViewModels
 		private bool _canSend = true;
 		private int _monthsSinceUnsubscribing;
 		private bool _includeOldUnsubscribed;
+		private IModel _rabbitMQChannel;
+		private IBasicProperties _rabbitMQChannelProperties;
 
-		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
-			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailSettings emailSettings,
-			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
+		public BulkEmailViewModel(
+			ILogger<BulkEmailViewModel> logger,
+			ILogger<RabbitMQConnectionFactory> rabbitConnectionFactoryLogger,
+			INavigationManager navigation,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction,
+			IEmailSettings emailSettings,
+			ICommonServices commonServices,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			Employee author, IEmailRepository emailRepository) : base(navigation)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger ?? throw new ArgumentNullException(nameof(rabbitConnectionFactoryLogger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
@@ -85,6 +99,8 @@ namespace Vodovoz.ViewModels.ViewModels
 			MailSubject = string.Empty;
 
 			Init();
+
+			CreateRabbitMQChannel();
 		}
 
 		private void Init()
@@ -151,6 +167,16 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			OnPropertyChanged(nameof(RecepientInfoDanger));
 			OnPropertyChanged(nameof(SendingDurationInfo));
+		}
+
+		private void CreateRabbitMQChannel()
+		{
+			var connectionFactory = new RabbitMQConnectionFactory(_rabbitConnectionFactoryLogger);
+			var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
+				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost, _configuration.Port);
+			_rabbitMQChannel = connection.CreateModel();
+			_rabbitMQChannelProperties = _rabbitMQChannel.CreateBasicProperties();
+			_rabbitMQChannelProperties.Persistent = true;
 		}
 
 		private void ObservableAttachments_ListContentChanged(object sender, EventArgs e)
@@ -234,15 +260,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
-			var logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-			var connectionFactory = new RabbitMQConnectionFactory(logger);
-			var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
-				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost);
-			var channel = connection.CreateModel();
-			var properties = channel.CreateBasicProperties();
-			properties.Persistent = true;
-
-			channel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, properties, sendingBody);
+			_rabbitMQChannel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, _rabbitMQChannelProperties, sendingBody);
 		}
 
 		private string GetUnsubscribeHtmlPart(Guid guid) => $"<br/><br/><a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
@@ -306,11 +324,12 @@ namespace Vodovoz.ViewModels.ViewModels
 
 							try
 							{
-								SendEmail(email.Address, counterparty.FullName, storedEmail);
 								unitOfWork.Commit();
+								SendEmail(email.Address, counterparty.FullName, storedEmail);
 							}
 							catch(Exception e)
 							{
+								_logger.LogError(e, "Ошибка при отправке письма контрагенту {CounterpartyFullName}", counterparty?.FullName);
 								sendingErrors += $"{ counterparty.FullName }; ";
 							}
 						}
@@ -431,6 +450,11 @@ namespace Vodovoz.ViewModels.ViewModels
 		public void Stop()
 		{
 			_canSend = false;
+		}
+
+		public void Dispose()
+		{
+			_rabbitMQChannel?.Dispose();
 		}
 	}
 }

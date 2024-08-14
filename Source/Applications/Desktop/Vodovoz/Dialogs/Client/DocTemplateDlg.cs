@@ -1,16 +1,17 @@
 ﻿using Autofac;
 using Gamma.Utilities;
-using QS.DomainModel.UoW;
-using QS.Validation;
+using QS.DocTemplates;
+using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using QSDocTemplates;
 using QSProjectsLib;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Extensions;
-using QS.Project.Services;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
+using QS.DocTemplates;
+using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz
 {
@@ -18,7 +19,7 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private FileWorker worker = new FileWorker();
+		private QSDocTemplates.FileWorker worker = new QSDocTemplates.FileWorker();
 
 		public DocTemplateDlg()
 		{

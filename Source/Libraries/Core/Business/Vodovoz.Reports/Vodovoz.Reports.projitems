@@ -67,6 +67,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\PACS\PacsMissedCalls.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Payments\OnlinePaymentsReportFromTBank.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Production\ProducedProductionYear.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -92,6 +95,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Store\ShiftChangeWarehouseWithCarDefectionAct.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Store\TurnoverOfWarehouseBalancesReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Store\WarehouseDocumentsItemsJournalReport.xlsx">
@@ -334,12 +340,6 @@
     <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\AddressesOverpaymentsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\CarsExploitationReport-ConditionalFormatting.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\CarsExploitationReport.xlsx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\ClosedRouteList.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -494,9 +494,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Payments\PaymentsFromBankClientFinDepartmentReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Payments\PaymentsFromTinkoffReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Production\ProducedProduction.rdl">

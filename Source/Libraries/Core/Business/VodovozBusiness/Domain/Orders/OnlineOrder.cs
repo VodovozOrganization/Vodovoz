@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -56,6 +55,7 @@ namespace Vodovoz.Domain.Orders
 		private OnlineOrderStatus _onlineOrderStatus;
 		private Order _order;
 		private Employee _employeeWorkWith;
+		private bool? _isDeliveryPointNotBelongCounterparty;
 		private OnlineOrderCancellationReason _onlineOrderCancellationReason;
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
@@ -300,6 +300,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _onlineRentPackages, value);
 		}
 
+		public virtual bool? IsDeliveryPointNotBelongCounterparty
+		{
+			get => _isDeliveryPointNotBelongCounterparty;
+			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
+		}
+
 		public virtual void SetOrderPerformed(Order order, Employee employee = null)
 		{
 			if(employee != null)
@@ -310,6 +316,8 @@ namespace Vodovoz.Domain.Orders
 			Order = order;
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
+		
+		public virtual void SetDeliveryPointNotBelongCounterparty(bool value) => IsDeliveryPointNotBelongCounterparty = value;
 
 		public override string ToString()
 		{
