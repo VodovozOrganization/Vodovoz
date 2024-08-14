@@ -1,8 +1,10 @@
-using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
 using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 
@@ -11,6 +13,7 @@ namespace CustomerAppsApi.Library.Validators
 	public class CounterpartyModelValidator : ICounterpartyModelValidator
 	{
 		private const string _wrongCameFromId = "Неверно заполнено поле Откуда клиент";
+		private const string _onlyNumbersPattern = @"^\d+$";
 		private readonly PhoneFormatter _phoneFormatter;
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly StringBuilder _sb;
@@ -52,6 +55,28 @@ namespace CustomerAppsApi.Library.Validators
 			return _sb.ToString();
 		}
 
+		public string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto dto)
+		{
+			_sb.Clear();
+
+			ValidateInn(dto.Inn);
+
+			return _sb.ToString();
+		}
+
+		public string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto)
+		{
+			_sb.Clear();
+
+			ValidateName(dto.Name);
+			ValidateTypeOfOwnership(dto.CodeTypeOfOwnership, dto.ShortTypeOfOwnership, dto.FullTypeOfOwnership);
+			ValidateInn(dto.Inn, dto.ShortTypeOfOwnership);
+			ValidateKpp(dto.Kpp);
+			ValidateJurAddress(dto.JurAddress);
+			
+			return _sb.ToString();
+		}
+
 		private void ValidateContactInfo(string counterpartyNumber)
 		{
 			var phoneNumber = _phoneFormatter.FormatString(counterpartyNumber);
@@ -66,32 +91,136 @@ namespace CustomerAppsApi.Library.Validators
 			_sb.AppendLine("Регистрация юридических лиц не возможна");
 			return;
 			
-			if(string.IsNullOrWhiteSpace(counterpartyDto.Name))
-			{
-				_sb.AppendLine("Не заполнено наименование клиента");
-			}
-			if(string.IsNullOrWhiteSpace(counterpartyDto.Inn))
+			ValidateName(counterpartyDto.Name);
+			ValidateTypeOfOwnership(counterpartyDto.ShortTypeOfOwnership);
+			ValidateInn(counterpartyDto.Inn);
+			ValidateKpp(counterpartyDto.Kpp);
+			ValidateTaxType(counterpartyDto.TaxType);
+			ValidateJurAddress(counterpartyDto.JurAddress);
+		}
+
+		private void ValidateInn(string inn, string typeOfOwnership = null)
+		{
+			if(string.IsNullOrWhiteSpace(inn))
 			{
 				_sb.AppendLine("Не заполнено ИНН");
 			}
-			if(string.IsNullOrWhiteSpace(counterpartyDto.Kpp))
+			else
+			{
+				if(string.IsNullOrWhiteSpace(typeOfOwnership))
+				{
+					if(inn.Length != Counterparty.InnPrivateBusinessmanLength || inn.Length != Counterparty.InnOtherLegalPersonLength)
+					{
+						_sb.AppendLine($"ИНН должен содержать {Counterparty.InnOtherLegalPersonLength}" +
+							$" или {Counterparty.InnPrivateBusinessmanLength} символов");
+					}
+				}
+				else
+				{
+					if(typeOfOwnership == "ИП")
+					{
+						if(inn.Length != Counterparty.InnPrivateBusinessmanLength)
+						{
+							_sb.AppendLine($"ИНН должен содержать {Counterparty.InnPrivateBusinessmanLength} символов");
+						}
+					}
+					else
+					{
+						if(inn.Length != Counterparty.InnOtherLegalPersonLength)
+						{
+							_sb.AppendLine($"ИНН должен содержать {Counterparty.InnOtherLegalPersonLength} символов");
+						}
+					}
+				}
+				
+				CheckOnlyNumbers(inn, "ИНН");
+			}
+		}
+		
+		private void ValidateKpp(string kpp)
+		{
+			if(string.IsNullOrWhiteSpace(kpp))
 			{
 				_sb.AppendLine("Не заполнено КПП");
 			}
-			if(string.IsNullOrWhiteSpace(counterpartyDto.TypeOfOwnership))
+			else
 			{
-				_sb.AppendLine("Не заполнена форма собственности контрагента");
+				if(kpp.Length != Counterparty.KppLength)
+				{
+					_sb.AppendLine($"КПП должен содержать {Counterparty.KppLength} символов");
+				}
+
+				CheckOnlyNumbers(kpp, "КПП");
 			}
-			if(counterpartyDto.TaxType is null)
+		}
+		
+		private void ValidateTypeOfOwnership(string shortTypeOfOwnership)
+		{
+			ValidateShortTypeOfOwnership(shortTypeOfOwnership);
+		}
+
+		private void ValidateTypeOfOwnership(string codeTypeOfOwnership, string shortTypeOfOwnership, string fullTypeOfOwnership)
+		{
+			ValidateShortTypeOfOwnership(shortTypeOfOwnership);
+			
+			if(string.IsNullOrWhiteSpace(fullTypeOfOwnership))
 			{
-				_sb.AppendLine("Не указано налогообложение клиента");
+				_sb.AppendLine("Не заполнено полное наименование ОПФ");
 			}
-			if(string.IsNullOrWhiteSpace(counterpartyDto.JurAddress))
+			
+			if(string.IsNullOrWhiteSpace(codeTypeOfOwnership))
+			{
+				_sb.AppendLine("Не заполнен код ОПФ");
+			}
+		}
+		
+		private void ValidateShortTypeOfOwnership(string shortTypeOfOwnership)
+		{
+			if(string.IsNullOrWhiteSpace(shortTypeOfOwnership))
+			{
+				_sb.AppendLine("Не заполнено краткое наименование ОПФ");
+			}
+		}
+		
+		private void ValidateName(string name)
+		{
+			if(string.IsNullOrWhiteSpace(name))
+			{
+				_sb.AppendLine("Не заполнено наименование клиента");
+			}
+			else
+			{
+				if(name.Length > Counterparty.NameMaxSimbols)
+				{
+					_sb.AppendLine($"Наименование клиента не может превышать {Counterparty.NameMaxSimbols}");
+				}
+			}
+		}
+		
+		private void ValidateJurAddress(string jurAddress)
+		{
+			if(string.IsNullOrWhiteSpace(jurAddress))
 			{
 				_sb.AppendLine("Не заполнен юридический адрес");
 			}
 		}
 		
+		private void ValidateTaxType(TaxType? taxType)
+		{
+			if(taxType is null)
+			{
+				_sb.AppendLine("Не указано налогообложение клиента");
+			}
+		}
+
+		private void CheckOnlyNumbers(string value, string propertyName)
+		{
+			if(!Regex.IsMatch(value, _onlyNumbersPattern))
+			{
+				_sb.AppendLine($"{propertyName} должен содержать только цифры");
+			}
+		}
+
 		private void ValidateNaturalCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
 			if(string.IsNullOrWhiteSpace(counterpartyDto.FirstName))

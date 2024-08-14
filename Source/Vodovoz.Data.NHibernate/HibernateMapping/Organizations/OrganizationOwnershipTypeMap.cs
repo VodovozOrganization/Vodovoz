@@ -12,6 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Abbreviation).Column("abbreviation");
 			Map(x => x.FullName).Column("full_name");
+			Map(x => x.Code).Column("code");
 			Map(x => x.IsArchive).Column("is_archive");
 		}
 	}

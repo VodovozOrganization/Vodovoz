@@ -78,6 +78,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<ICounterpartyServiceDataHandler, CounterpartyServiceDataHandler>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()

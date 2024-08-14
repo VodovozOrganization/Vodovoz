@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -493,6 +494,42 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				};
 
 			return query;
+		}
+
+		public IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(IUnitOfWork uow, string inn)
+		{
+			var result =
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.INN == inn
+					&& counterparty.PersonType == PersonType.legal
+					&& !counterparty.IsArchive
+				
+				select new LegalCounterpartyInfo
+				{
+					ErpCounterpartyId = counterparty.Id,
+					Inn = counterparty.INN,
+					Kpp = counterparty.KPP,
+					JurAddress = counterparty.JurAddress,
+					FullName = counterparty.FullName
+				};
+
+			return result.ToList();
+		}
+
+		public bool CounterpartyByIdExists(IUnitOfWork uow, int counterpartyId)
+		{
+			return (from counterparty in uow.Session.Query<Counterparty>()
+					where counterparty.Id == counterpartyId && !counterparty.IsArchive
+					select counterparty.Id)
+				.Any();
+		}
+
+		public bool CounterpartyByInnExists(IUnitOfWork uow, string inn)
+		{
+			return (from counterparty in uow.Session.Query<Counterparty>()
+					where counterparty.INN == inn && !counterparty.IsArchive
+					select counterparty.Id)
+				.Any();
 		}
 	}
 }

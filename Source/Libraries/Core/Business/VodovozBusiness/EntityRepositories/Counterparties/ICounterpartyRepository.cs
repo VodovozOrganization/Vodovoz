@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -39,5 +40,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IQueryable<decimal> GetCounterpartyOrdersActuaSums(IUnitOfWork unitOfWork, int counterpartyId, OrderStatus[] orderStatuses, bool isExcludePaidOrders = false, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyCashlessBalanceNode> GetCounterpartiesCashlessBalance(IUnitOfWork unitOfWork, OrderStatus[] orderStatuses, int counterpartyId = default, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyInnName> GetCounterpartyNamesByInn(IUnitOfWork unitOfWork, IList<string> inns);
+		IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(IUnitOfWork uow, string inn);
+		bool CounterpartyByIdExists(IUnitOfWork uow, int counterpartyId);
+		bool CounterpartyByInnExists(IUnitOfWork uow, string inn);
 	}
 }

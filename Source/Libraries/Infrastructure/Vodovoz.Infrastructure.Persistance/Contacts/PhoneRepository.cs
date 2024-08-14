@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Dapper;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -74,6 +76,21 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.And(p => p.Counterparty != null || p.DeliveryPoint != null)
 				.And(p => !p.IsArchive)
 				.List();
+		}
+
+		public IEnumerable<PhoneInfo> GetPhoneInfoByCounterpartiesIds(IUnitOfWork uow, IEnumerable<int> counterpartiesIds)
+		{
+			var result =
+				from phone in uow.Session.Query<Phone>()
+				where counterpartiesIds.Contains(phone.Counterparty.Id) && !phone.IsArchive
+				select new PhoneInfo
+				{
+					ErpPhoneId = phone.Id,
+					ErpCounterpartyId = phone.Counterparty.Id,
+					Number = $"+7{phone.DigitsNumber}"
+				};
+
+			return result.ToList();
 		}
 
 		public IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(

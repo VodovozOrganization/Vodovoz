@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 
@@ -17,5 +18,6 @@ namespace Vodovoz.EntityRepositories
 		IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(
 			IUnitOfWork uow, IEnumerable<string> incomingCallsNumbers);
 		IList<Phone> GetPhonesByNumber(IUnitOfWork uow, string digitsPhone);
+		IEnumerable<PhoneInfo> GetPhoneInfoByCounterpartiesIds(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
 	}
 }

@@ -14,6 +14,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Data.Interfaces.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -43,6 +45,10 @@ namespace Vodovoz.Domain.Client
 	[EntityPermission]
 	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
+		public const int NameMaxSimbols = 500;
+		public const int InnPrivateBusinessmanLength = 12;
+		public const int InnOtherLegalPersonLength = 10;
+		public const int KppLength = 9;
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
 		private const int _cargoReceiverLimitSymbols = 500;
@@ -1303,6 +1309,17 @@ namespace Vodovoz.Domain.Client
 			return $"{SpecialContractName} {contractNumber} {contractDate}";
 		}
 
+		public virtual void FillLegalProperties(ILegalCounterpartyInfo legalCounterpartyInfo)
+		{
+			Name = legalCounterpartyInfo.Name;
+			FullName = legalCounterpartyInfo.FullName ?? legalCounterpartyInfo.Name;
+			TypeOfOwnership = legalCounterpartyInfo.ShortTypeOfOwnership;
+			TaxType = legalCounterpartyInfo.TaxType.Value;
+			INN = legalCounterpartyInfo.Inn;
+			KPP = legalCounterpartyInfo.Kpp;
+			JurAddress = legalCounterpartyInfo.JurAddress;
+		}
+
 		public Counterparty()
 		{
 			Name = string.Empty;
@@ -1385,19 +1402,19 @@ namespace Vodovoz.Domain.Client
 							new[] { nameof(TypeOfOwnership) });
 					}
 
-					if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
+					if(KPP?.Length != KppLength && KPP?.Length != 0 && TypeOfOwnership != "ИП")
 					{
 						yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
 							new[] { nameof(KPP) });
 					}
 
-					if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
+					if(INN.Length != InnOtherLegalPersonLength && INN.Length != 0 && TypeOfOwnership != "ИП")
 					{
 						yield return new ValidationResult("Длина ИНН должна равнятся 10-ти.",
 							new[] { nameof(INN) });
 					}
 
-					if(INN.Length != 12 && INN.Length != 0 && TypeOfOwnership == "ИП")
+					if(INN.Length != InnPrivateBusinessmanLength && INN.Length != 0 && TypeOfOwnership == "ИП")
 					{
 						yield return new ValidationResult("Длина ИНН для ИП должна равнятся 12-ти.",
 							new[] { nameof(INN) });

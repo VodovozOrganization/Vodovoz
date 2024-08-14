@@ -5,12 +5,8 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 	/// <summary>
 	/// Зарегистрированный пользователь (физ лицо)
 	/// </summary>
-	public class RegisteredNaturalCounterpartyDto
+	public class RegisteredNaturalCounterpartyDto : ExternalCounterpartyDto
 	{
-		/// <summary>
-		/// Внешний номер пользователя
-		/// </summary>
-		public Guid ExternalCounterpartyId { get; set; }
 		/// <summary>
 		/// Id клиента в ДВ
 		/// </summary>

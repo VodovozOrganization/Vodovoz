@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 
@@ -18,6 +19,18 @@ namespace CustomerAppsApi.Library.Converters
 			return cameFromId == _counterpartySettings.GetMobileAppCounterpartyCameFromId
 				? CounterpartyFrom.MobileApp
 				: CounterpartyFrom.WebSite;
+		}
+		
+		public CounterpartyFrom ConvertSourceToCounterpartyFrom(Source source)
+		{
+			if(source == Source.KulerSaleWebSite)
+			{
+				throw new InvalidOperationException("Нет реализации для Кулер Сэйл");
+			}
+
+			Enum.TryParse(((int)source).ToString(), out CounterpartyFrom result);
+			
+			return result;
 		}
 	}
 }

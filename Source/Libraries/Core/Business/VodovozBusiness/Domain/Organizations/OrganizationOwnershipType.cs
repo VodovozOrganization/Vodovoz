@@ -5,6 +5,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Domain.Organizations
@@ -14,8 +15,14 @@ namespace Vodovoz.Domain.Organizations
 		Nominative = "Тип формы собственности"
 	)]
 	[EntityPermission]
+	[HistoryTrace]
 	public class OrganizationOwnershipType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private string _abbreviation;
+		private string _fullName;
+		private string _code;
+		private bool _isArchive;
+
 		public OrganizationOwnershipType()
 		{
 			Abbreviation = string.Empty;
@@ -23,9 +30,9 @@ namespace Vodovoz.Domain.Organizations
 		}
 
 		#region Свойства
+
 		public virtual int Id { get; set; }
 
-		string _abbreviation;
 		[Display(Name = "Аббревиатура")]
 		public virtual string Abbreviation
 		{
@@ -33,15 +40,20 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _abbreviation, value);
 		}
 
-		string _fullName;
 		[Display(Name = "Полное название")]
 		public virtual string FullName
 		{
 			get => _fullName;
 			set => SetField(ref _fullName, value);
 		}
+		
+		[Display(Name = "Код ОПФ")]
+		public virtual string Code
+		{
+			get => _code;
+			set => SetField(ref _code, value);
+		}
 
-		bool _isArchive;
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
@@ -77,6 +89,11 @@ namespace Vodovoz.Domain.Organizations
 			if(string.IsNullOrWhiteSpace(FullName))
 			{
 				yield return new ValidationResult("Необходимо заполнить поле \"Полное название\".");
+			}
+			
+			if(string.IsNullOrWhiteSpace(Code))
+			{
+				yield return new ValidationResult("Необходимо заполнить поле \"Код ОПФ\".");
 			}
 
 			if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork uow))
