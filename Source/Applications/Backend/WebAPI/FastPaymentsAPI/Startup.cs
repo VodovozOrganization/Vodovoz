@@ -1,4 +1,4 @@
-using FastPaymentsAPI.HealthChecks;
+﻿using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +16,7 @@ using FastPaymentsAPI.Library;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
 
 namespace FastPaymentsAPI

@@ -49,17 +49,6 @@ namespace FastPaymentsAPI.Library
 				.AddHostedService<FastPaymentStatusUpdater>()
 				.AddHostedService<CachePaymentManager>()
 
-				//repositories
-				.AddSingleton<IOrderRepository, OrderRepository>()
-				.AddSingleton<IOrganizationRepository, OrganizationRepository>()
-				.AddSingleton<IFastPaymentRepository, FastPaymentRepository>()
-				.AddSingleton<IRouteListItemRepository, RouteListItemRepository>()
-				.AddSingleton<ISelfDeliveryRepository, SelfDeliveryRepository>()
-				.AddSingleton<ICashRepository, CashRepository>()
-				.AddSingleton<ICashReceiptRepository, CashReceiptRepository>()
-				.AddSingleton<IEmailService, EmailService>()
-				.AddSingleton<IEmailRepository, EmailRepository>()
-
 				//factories
 				.AddSingleton<IFastPaymentFactory, FastPaymentFactory>()
 
@@ -70,6 +59,7 @@ namespace FastPaymentsAPI.Library
 
 				.AddScoped<IFastPaymentOrderService, FastPaymentOrderService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>()
+				.AddScoped<IEmailService, EmailService>()
 
 				//validators
 				.AddScoped<IFastPaymentValidator, FastPaymentValidator>()
