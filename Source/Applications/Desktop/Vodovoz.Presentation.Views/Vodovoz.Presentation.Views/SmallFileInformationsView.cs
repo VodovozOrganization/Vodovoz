@@ -1,12 +1,22 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System.ComponentModel;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
+
 namespace Vodovoz.Presentation.Views
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class SmallFileInformationsView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class SmallFileInformationsView : WidgetViewBase<AttachedFileInformationsViewModel>
 	{
+
+
 		public SmallFileInformationsView()
 		{
-			this.Build();
+			Build();
+		}
+
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
 		}
 	}
 }
