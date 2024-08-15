@@ -65,8 +65,14 @@
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.IncludeExcludeFilterGroupView.cs" />
     <Compile Include="IncludeExcludeFilterGroupsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.IncludeExcludeFilterGroupsView.cs" />
+    <Compile Include="AttachedFileInformationsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Presentation.Views.AttachedFileInformationsView.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
+      <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
+      <Name>VodovozBusiness</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{BD514659-1394-4BBA-94C5-1BEE5C72C7D6}</Project>
       <Name>System.Data.Bindings</Name>
@@ -74,6 +80,10 @@
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
       <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
       <Name>Gamma.Binding</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj">
+      <Project>{2A0710B2-B71B-4959-88DA-0940100E172A}</Project>
+      <Name>QS.Extensions.Observable</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
