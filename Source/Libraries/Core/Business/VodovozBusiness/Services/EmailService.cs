@@ -77,7 +77,10 @@ namespace Vodovoz.Services
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 			var sended = sendedByEdo || sendedByEmail;
 
-			return _emailRequiredOrderStatuses.Contains(order.OrderStatus)
+			var allowedStatusForSendBill = _emailRequiredOrderStatuses.Contains(order.OrderStatus)
+				|| (order.IsFastDelivery && order.OrderStatus == OrderStatus.OnTheWay);
+
+			return allowedStatusForSendBill
 				&& _emailRequiredOrderPaymentTypes.Contains(order.PaymentType)
 				&& !sended
 				&& GetRequiredDocumentTypes(order)
