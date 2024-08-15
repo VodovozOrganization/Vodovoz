@@ -1,13 +1,21 @@
-﻿using QS.Views.GtkUI;
+﻿using Gdk;
+using Gtk;
+using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.Views
 {
 	[ToolboxItem(true)]
 	public partial class SmallFileInformationsView : WidgetViewBase<AttachedFileInformationsViewModel>
 	{
+		private static readonly Pixbuf _emptyIcon = new Pixbuf(System.Reflection.Assembly.GetEntryAssembly(), "Vodovoz.icons.common.empty16.png");
+		private static readonly Pixbuf _fileMissingOnServerIcon = new Pixbuf(System.Reflection.Assembly.GetEntryAssembly(), "Vodovoz.icons.common.fire16.png");
 
+		private readonly Menu _menu = new Menu();
+		private MenuItem _deleteFileMenuItem;
+		private MenuItem _saveFileMenuItem;
 
 		public SmallFileInformationsView()
 		{
@@ -16,7 +24,75 @@ namespace Vodovoz.Presentation.Views
 
 		protected override void ConfigureWidget()
 		{
-			base.ConfigureWidget();
+			if(ViewModel == null)
+			{
+				return;
+			}
+
+			ybuttonAddFileInformation.BindCommand(ViewModel.AddCommand);
+
+			ytreeviewFiles.CreateFluentColumnsConfig<FileInformation>()
+				.AddColumn("").AddPixbufRenderer((node) =>
+					ViewModel.FilesMissingOnStorage.Contains(node.FileName)
+					? _fileMissingOnServerIcon
+					: _emptyIcon)
+				.AddColumn("Файл").AddTextRenderer(n => n.FileName)
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewFiles.ItemsDataSource = ViewModel.FileInformations;
+			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
+			ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenCommand.Execute();
+
+			ytreeviewFiles.Binding.AddBinding(ViewModel, vm => vm.SelectedFile, w => w.SelectedRow).InitializeFromSource();
+
+			ConfigureMenu();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanSave))
+			{
+				_saveFileMenuItem.Visible = ViewModel.CanSave;
+			}
+
+			if(e.PropertyName == nameof(ViewModel.CanDelete))
+			{
+				_deleteFileMenuItem.Visible = ViewModel.CanDelete;
+			}
+		}
+
+		private void ConfigureMenu()
+		{
+			_deleteFileMenuItem = new MenuItem("Удалить файл");
+			_deleteFileMenuItem.Activated += (s, args) =>
+			{
+				ViewModel.DeleteCommand.Execute();
+				_menu.Popdown();
+			};
+			_deleteFileMenuItem.Visible = ViewModel.CanSave;
+			_menu.Add(_deleteFileMenuItem);
+
+			_saveFileMenuItem = new MenuItem("Загрузить файл");
+			_saveFileMenuItem.Activated += (s, args) =>
+			{
+				ViewModel.SaveCommand.Execute();
+				_menu.Popdown();
+			};
+			_saveFileMenuItem.Visible = ViewModel.CanDelete;
+			_menu.Add(_saveFileMenuItem);
+
+			_menu.ShowAll();
+		}
+
+		private void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button == 3 && !ViewModel.ReadOnly && ViewModel.SelectedFile != null)
+			{
+				_menu.Popup();
+			}
 		}
 	}
 }
