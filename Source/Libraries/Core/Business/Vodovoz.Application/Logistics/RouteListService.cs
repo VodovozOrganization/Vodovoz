@@ -706,7 +706,7 @@ namespace Vodovoz.Application.Logistics
 			if(addressTransferType != AddressTransferType.FromHandToHand
 				&& _routeListRepository.IsOrderNeedIndividualSetOnLoad(unitOfWork, address.Order.Id))
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.RouteListItem.CreateOrdersWithCreatedUpdNeedToReload(address.Order.Id));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateOrdersWithCreatedUpdNeedToReload(address.Order.Id));
 			}
 
 			var transferredAddressFromRouteListTo =
