@@ -159,6 +159,8 @@ using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using QS.Attachments;
+using QSAttachment;
 using Vodovoz.Additions.Printing;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -676,6 +678,8 @@ namespace Vodovoz
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()
 						.AddGuiInteracive()
+
+						.AddScoped<IScanDialogService, ScanDialogService>()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()
