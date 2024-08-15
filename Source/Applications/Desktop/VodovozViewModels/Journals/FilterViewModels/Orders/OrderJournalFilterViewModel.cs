@@ -197,7 +197,7 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual Counterparty Counterparty
 		{
 			get => _counterparty;
-			set => SetField(ref _counterparty, value);
+			set => UpdateFilterField(ref _counterparty, value);
 		}
 
 		public virtual Counterparty RestrictCounterparty
