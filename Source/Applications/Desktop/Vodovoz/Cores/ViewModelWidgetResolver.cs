@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Presentation.ViewModels.Attributes;
 using IJournalFilter = QS.RepresentationModel.IJournalFilter;
 
 namespace Vodovoz.Core
@@ -284,6 +285,11 @@ namespace Vodovoz.Core
 			Type viewModelType,
 			Type widgetType)
 		{
+			if(viewModelType.GetCustomAttribute<SkipWidgetRegistrationAttribute>() != null)
+			{
+				return this;
+			}
+
 			if(!typeof(ViewModelBase).IsAssignableFrom(viewModelType))
 			{
 				throw new ArgumentException($"Тип {viewModelType.Name} не является подтипом {typeof(ViewModelBase).Name}");
@@ -298,6 +304,7 @@ namespace Vodovoz.Core
 			{
 				throw new InvalidOperationException($"Модель представления {viewModelType.Name} уже зарегистрирована");
 			}
+
 			_viewModelWidgets.Add(viewModelType, widgetType);
 
 			return this;
