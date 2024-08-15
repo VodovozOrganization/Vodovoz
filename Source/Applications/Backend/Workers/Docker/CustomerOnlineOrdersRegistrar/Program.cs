@@ -50,7 +50,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
 						.AddInfrastructure()
-						.AddCustomerOrdersApiLibrary()
+						.AddDependenciesGroup()
 						.AddApplicationOrderServices()
 
 						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
@@ -63,10 +63,9 @@ namespace CustomerOnlineOrdersRegistrar
 
 							busConf.ConfigureRabbitMq();
 						})
-						;
 
-					services.AddStaticScopeForEntity();
-					services.AddStaticHistoryTracker();
+						.AddStaticScopeForEntity()
+						.AddStaticHistoryTracker();
 				});
 	}
 }

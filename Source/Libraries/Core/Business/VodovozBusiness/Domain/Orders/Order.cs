@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;

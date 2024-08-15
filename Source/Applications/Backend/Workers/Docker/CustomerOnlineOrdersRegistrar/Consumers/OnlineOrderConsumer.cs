@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
 using Microsoft.Extensions.Logging;
