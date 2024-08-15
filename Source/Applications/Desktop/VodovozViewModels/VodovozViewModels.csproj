@@ -126,6 +126,10 @@
     <Compile Include="Dialogs\Orders\PrintOrdersDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Orders\PrintOrdersDocumentsViewModel.OrdersToPrintNode.cs" />
     <Compile Include="Dialogs\Pacs\PacsOperatorReferenceBookViewModel.cs" />
+    <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
+    <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.cs" />
+    <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.PrintDocumentSelectableNode.cs" />
+    <Compile Include="Print\PrinterSelectionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
@@ -280,6 +284,9 @@
     <Compile Include="Orders\Reports\OnlinePaymentsReport.OrderRow.ReportPaymentStatus.cs" />
     <Compile Include="Orders\Reports\OnlinePaymentsReport.PaymentWithoutOrderRow.cs" />
     <Compile Include="Orders\Reports\OnlinePaymentsReportViewModel.cs" />
+    <Compile Include="Print\PrintEventArgs.cs" />
+    <Compile Include="Print\Store\EquipmentCarLoadDocumentRdl.cs" />
+    <Compile Include="Print\Store\WaterCarLoadDocumentRdl.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
@@ -881,6 +888,7 @@
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
     <Compile Include="Widgets\Cars\Insurance\ChangeIsKaskoNotRelevantClickedEventArgs.cs" />
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeSearchViewModel.cs" />

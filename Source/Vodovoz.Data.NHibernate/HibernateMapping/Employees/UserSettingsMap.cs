@@ -40,6 +40,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 
 			HasMany(x => x.CashSubdivisionSortingSettings).KeyColumn("user_settings_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("sorting_index");
+
+			HasMany(x => x.DocumentPrinterSettings).KeyColumn("user_settings_id")
+				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("id");
 		}
 	}
 }

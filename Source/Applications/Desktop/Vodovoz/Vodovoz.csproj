@@ -418,6 +418,7 @@
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
+    <Compile Include="Additions\Printing\CustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
@@ -2105,6 +2106,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallClosedReasonView.cs" />
     <Compile Include="Views\Orders\RequestForCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallView.cs" />
+    <Compile Include="Views\Print\PrintDocumentsSelectablePrinterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.PrintDocumentsSelectablePrinterView.cs" />
+    <Compile Include="ViewWidgets\Users\DocumentsPrinterSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView.cs" />
+    <Compile Include="Views\Print\PrinterSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.PrinterSelectionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1535,6 +1535,13 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
+				if(Entity.IsNeedIndividualSetOnLoad)
+				{
+					ResetFastDeliveryForNetworkClient();
+
+					return;
+				}
+
 				if(Entity.DeliverySchedule?.Id != _deliveryRulesSettings.FastDeliveryScheduleId)
 				{
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
@@ -1552,6 +1559,15 @@ namespace Vodovoz
 			Entity.RemoveFastDeliveryNomenclature();
 
 			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = null;
+		}
+
+		private void ResetFastDeliveryForNetworkClient()
+		{
+			ycheckFastDelivery.Active = false;
+
+			ServicesConfig.InteractiveService.ShowMessage(
+				ImportanceLevel.Error,
+				"Нельзя выбрать доставку за час для сетевого клиента");
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
@@ -3761,6 +3777,11 @@ namespace Vodovoz
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
+
+			if(ycheckFastDelivery.Active && Entity.IsNeedIndividualSetOnLoad)
+			{
+				ResetFastDeliveryForNetworkClient();
+			}
 		}
 
 		private void UpdateContactPhoneFilter()
@@ -3856,6 +3877,11 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			UpdateOnlineOrderText();
+
+			if(Entity.IsNeedIndividualSetOnLoad)
+			{
+				ResetFastDeliveryForNetworkClient();
+			}
 		}
 
 		private void UpdateOnlineOrderText()
