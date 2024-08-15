@@ -83,16 +83,13 @@
 		'\n',
 		CONCAT('ИНН:', organizations.INN)
 	) AS org_address,
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
-	FROM phones 
-	WHERE phones.delivery_point_id = orders.delivery_point_id AND phones.is_archive = 0) AS delivery_point_contact,
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
-	FROM phones
-	WHERE phones.counterparty_id = orders.client_id AND phones.is_archive = 0) AS client_contact,
-	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
-	FROM phones
-	WHERE phones.id = orders.contact_phone_id AND phones.is_archive = 0) AS order_contact,
-
+	CONCAT('+7 ',
+		COALESCE (contact_phone.number, delivery_point_phone_work.number, delivery_point_phone_general.number,
+			delivery_point_phone_all.number, counterparty_phone_work.number, counterparty_phone_general.number, counterparty_phone_all.number),
+		' ',
+		IFNULL(COALESCE(contact_phone.comment, delivery_point_phone_work.comment, delivery_point_phone_general.comment,
+			delivery_point_phone_all.comment, counterparty_phone_work.comment, counterparty_phone_general.comment, counterparty_phone_all.comment)
+		, "")) AS contact_phone,
 	districts.district_name AS logistics_area,
 	delivery_points.compiled_address_short AS del_point_address,
 	orders.daily_number_1c AS daily_number,
@@ -133,6 +130,36 @@ FROM
 	districts ON delivery_points.district_id = districts.id
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
+		LEFT JOIN (
+              SELECT p.id, p.number, p.comment
+              FROM phones p WHERE p.is_archive = 0)
+              AS contact_phone ON orders.contact_phone_id = contact_phone.id
+         LEFT JOIN (
+              SELECT p.delivery_point_id, p.id, p.number, p.comment
+              FROM phones p              
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')      
+              ) AS delivery_point_phone_work ON delivery_points.id = delivery_point_phone_work.delivery_point_id
+         LEFT JOIN (
+              SELECT p.delivery_point_id, p.id, p.number, p.comment
+              FROM phones p              
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+              ) AS delivery_point_phone_general ON delivery_points.id = delivery_point_phone_general.delivery_point_id
+         LEFT JOIN phones delivery_point_phone_all ON delivery_point_phone_all.delivery_point_id = delivery_points.id AND delivery_point_phone_all.is_archive = 0
+         LEFT JOIN (
+              SELECT p.counterparty_id, p.id, p.number, p.comment
+              FROM phones p
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+              ) AS counterparty_phone_work ON counterparty.id = counterparty_phone_work.counterparty_id
+         LEFT JOIN (
+              SELECT p.counterparty_id, p.id, p.number, p.comment
+              FROM phones p
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+              ) AS counterparty_phone_general ON counterparty.id = counterparty_phone_general.counterparty_id
+         LEFT JOIN phones counterparty_phone_all ON counterparty_phone_all.counterparty_id  = counterparty.id AND counterparty_phone_all.is_archive = 0
 WHERE
 	orders.id = @order_id
 ;</CommandText>
@@ -193,14 +220,6 @@ WHERE
         </Field>
         <Field Name="org_address">
           <DataField>org_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="delivery_point_contact">
-          <DataField>delivery_point_contact</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="client_contact">
-          <DataField>client_contact</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="logistics_area">
@@ -267,8 +286,8 @@ WHERE
           <DataField>fast_payment_paid</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
-        <Field Name="order_contact">
-          <DataField>order_contact</DataField>
+        <Field Name="contact_phone">
+          <DataField>contact_phone</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1908,15 +1927,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>=Iif(
-    {order_contact} = null,
-    Iif(
-        {delivery_point_contact} = null,
-        {client_contact},
-        {delivery_point_contact}
-    ),
-    {order_contact}
-)</Value>
+                      <Value>={contact_phone}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
