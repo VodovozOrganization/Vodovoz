@@ -143,7 +143,7 @@ namespace FastPaymentsAPI.Controllers
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
-				_logger.LogError(e, $"При регистрации заказа {orderId} с получением QR-кода произошла ошибка");
+				_logger.LogError(e, "При регистрации заказа {OrderId} с получением QR-кода произошла ошибка", orderId);
 			}
 			
 			return response;
@@ -310,7 +310,7 @@ namespace FastPaymentsAPI.Controllers
 					_logger.LogError(
 						e,
 						"При получении информации об оплате из банка {Ticket} или обновлении статуса платежа произошла ошибка",
-						fastPayments.First().Ticket);
+						fastPayments.FirstOrDefault()?.Ticket);
 					return response;
 				}
 

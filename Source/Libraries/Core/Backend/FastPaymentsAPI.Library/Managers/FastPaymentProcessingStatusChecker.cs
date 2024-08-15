@@ -36,6 +36,7 @@ namespace FastPaymentsAPI.Library.Managers
 					var logMessage = string.Format(_errorMessageTemplate, "{Ticket}");
 					
 					_logger.LogError(logMessage + " Код ответа {ResponseCode}\n{ResponseMessage}",
+						ticket,
 						orderInfoResponseDto.ResponseCode,
 						orderInfoResponseDto.ResponseMessage);
 					
