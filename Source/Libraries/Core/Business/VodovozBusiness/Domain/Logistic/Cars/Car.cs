@@ -68,8 +68,22 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private int? _techInspectForKm;
 		private string _photoFileName;
 		private IObservableList<CarFileInformation> _attachedFileInformations = new ObservableList<CarFileInformation>();
+		private int _id;
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(value == _id)
+				{
+					return;
+				}
+
+				_id = value;
+				UpdateFileInformations();
+			}
+		}
 
 		[Display(Name = "Модель")]
 		public virtual CarModel CarModel
@@ -487,6 +501,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate).FirstOrDefault()?.FuelConsumption;
 
 			return result ?? 0;
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.CarId = Id;
+			}
 		}
 	}
 }
