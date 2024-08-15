@@ -11,9 +11,5 @@ namespace FastPaymentsApi.Contracts.Responses
 		/// Статус платежа
 		/// </summary>
 		FastPaymentStatus? FastPaymentStatus { get; set; }
-		/// <summary>
-		/// Сообщение об ошибке/проблеме
-		/// </summary>
-		string ErrorMessage { get; set; }
 	}
 }

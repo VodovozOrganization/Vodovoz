@@ -8,10 +8,17 @@ namespace FastPaymentsApi.Contracts.Responses
 	/// </summary>
 	public class FastPaymentResponseDTO : IFastPaymentStatusDto
 	{
+		/// <summary>
+		/// Конструктор
+		/// </summary>
 		public FastPaymentResponseDTO()
 		{
 		}
 
+		/// <summary>
+		/// Конструктор для заполнения сообщения об ошибке
+		/// </summary>
+		/// <param name="errorMessage">ошибка</param>
 		public FastPaymentResponseDTO(string errorMessage)
 		{
 			ErrorMessage = errorMessage;
