@@ -1,7 +1,4 @@
 ﻿using System;
-using Vodovoz.Domain.FastPayments;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsApi.Contracts
 {
@@ -37,11 +34,11 @@ namespace FastPaymentsApi.Contracts
 		/// <summary>
 		/// Тип оплаты
 		/// </summary>
-		public FastPaymentPayType FastPaymentPayType { get; set; }
+		public string FastPaymentPayType { get; set; }
 		/// <summary>
-		/// Организация
+		/// Id организации
 		/// </summary>
-		public Organization Organization { get; set; }
+		public int OrganizationId { get; set; }
 		/// <summary>
 		/// Телефонный номер, на который идет смс
 		/// </summary>
@@ -49,6 +46,6 @@ namespace FastPaymentsApi.Contracts
 		/// <summary>
 		/// Откуда оплата
 		/// </summary>
-		public PaymentFrom PaymentByCardFrom { get; set; }
+		public int PaymentByCardFromId { get; set; }
 	}
 }

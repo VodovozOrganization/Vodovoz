@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using Vodovoz.Domain.FastPayments;
+using System.Text.Json.Serialization;
+using Vodovoz.Core.Domain.FastPayments;
 
 namespace FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration
 {

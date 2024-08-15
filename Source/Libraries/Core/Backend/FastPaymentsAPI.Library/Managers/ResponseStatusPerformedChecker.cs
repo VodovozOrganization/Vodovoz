@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Responses;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Library.Managers

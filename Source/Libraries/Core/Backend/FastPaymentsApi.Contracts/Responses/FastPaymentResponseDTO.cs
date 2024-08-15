@@ -1,5 +1,5 @@
-﻿using System;
-using Vodovoz.Domain.FastPayments;
+using System;
+using Vodovoz.Core.Domain.FastPayments;
 
 namespace FastPaymentsApi.Contracts.Responses
 {

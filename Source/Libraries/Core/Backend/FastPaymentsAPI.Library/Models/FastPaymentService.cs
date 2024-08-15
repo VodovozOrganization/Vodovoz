@@ -211,10 +211,10 @@ namespace FastPaymentsAPI.Library.Models
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = orderId,
 				FastPaymentGuid = fastPaymentGuid,
-				FastPaymentPayType = payType,
-				Organization = organization,
+				FastPaymentPayType = payType.ToString(),
+				OrganizationId = organization.Id,
 				PhoneNumber = phoneNumber,
-				PaymentByCardFrom = paymentByCardFrom
+				PaymentByCardFromId = paymentByCardFrom.Id
 			};
 
 			_fastPaymentFileCache.WritePaymentCache(fastPaymentDTO);

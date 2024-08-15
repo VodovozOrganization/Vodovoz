@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.FastPayments;
+using Vodovoz.Core.Domain.FastPayments;
 
 namespace FastPaymentsApi.Contracts.Responses
 {
