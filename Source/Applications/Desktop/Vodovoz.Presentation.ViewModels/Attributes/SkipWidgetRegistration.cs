@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Presentation.ViewModels.Attributes
 {
-	public class SkipWidgetRegistration : Attribute
+	public class SkipWidgetRegistrationAttribute : Attribute
 	{
 	}
 }

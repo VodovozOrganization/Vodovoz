@@ -285,7 +285,7 @@ namespace Vodovoz.Core
 			Type viewModelType,
 			Type widgetType)
 		{
-			if(viewModelType.GetCustomAttribute<SkipWidgetRegistration>() != null)
+			if(viewModelType.GetCustomAttribute<SkipWidgetRegistrationAttribute>() != null)
 			{
 				return this;
 			}
