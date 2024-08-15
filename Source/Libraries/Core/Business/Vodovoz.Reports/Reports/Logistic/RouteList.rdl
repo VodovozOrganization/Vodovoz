@@ -2301,10 +2301,13 @@ LIMIT 1
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
     CONCAT_WS('\n', orders.id, CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = 
-         COALESCE (contact_phone.roboats_counterparty_name_id, delivery_point_phone.roboats_counterparty_name_id, counterparty_phone.roboats_counterparty_name_id)), ' ',
+         COALESCE (contact_phone.roboats_counterparty_name_id, delivery_point_phone_work.roboats_counterparty_name_id, delivery_point_phone_general.roboats_counterparty_name_id,
+             delivery_point_phone_all.roboats_counterparty_name_id, counterparty_phone_work.roboats_counterparty_name_id, counterparty_phone_general.roboats_counterparty_name_id, counterparty_phone_all.roboats_counterparty_name_id)), ' ',
 	     (SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id =
-         COALESCE(contact_phone.roboats_counterparty_patronymic_id, delivery_point_phone.roboats_counterparty_patronymic_id, counterparty_phone.roboats_counterparty_patronymic_id))),
-         COALESCE (contact_phone.`number`, delivery_point_phone.`number`, counterparty_phone.`number`)) as phone_and_name_and_order,
+         COALESCE (contact_phone.roboats_counterparty_patronymic_id, delivery_point_phone_work.roboats_counterparty_patronymic_id, delivery_point_phone_general.roboats_counterparty_patronymic_id,
+             delivery_point_phone_all.roboats_counterparty_patronymic_id, counterparty_phone_work.roboats_counterparty_patronymic_id, counterparty_phone_general.roboats_counterparty_patronymic_id, counterparty_phone_all.roboats_counterparty_patronymic_id))),
+         COALESCE (contact_phone.`number`, delivery_point_phone_work.`number`, delivery_point_phone_general.`number`, delivery_point_phone_all.`number`,
+             counterparty_phone_work.`number`, counterparty_phone_general.`number`, counterparty_phone_all.`number`)) as phone_and_name_and_order,
     CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS order_and_daily_nr,
     orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.address_transfer_type = 'NeedToReload' AS Reloaded,
     (SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
@@ -2404,14 +2407,35 @@ FROM route_list_addresses
          LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
          LEFT JOIN counterparty ON counterparty.id = orders.client_id
          LEFT JOIN (
-              SELECT p.id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id,  p.`number`
-              FROM phones p WHERE p.is_archive = 0) AS contact_phone ON orders.contact_phone_id = contact_phone.id
+              SELECT p.id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id,  p.`number`, ~0 as sort_index
+              FROM phones p WHERE p.is_archive = 0)
+              AS contact_phone ON orders.contact_phone_id = contact_phone.id
          LEFT JOIN (
               SELECT p.delivery_point_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
-              FROM phones p WHERE p.is_archive = 0) AS delivery_point_phone ON delivery_points.id = delivery_point_phone.delivery_point_id
+              FROM phones p              
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+              ) AS delivery_point_phone_work ON delivery_points.id = delivery_point_phone_work.delivery_point_id
+         LEFT JOIN (
+              SELECT p.delivery_point_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
+              FROM phones p              
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+              ) AS delivery_point_phone_general ON delivery_points.id = delivery_point_phone_general.delivery_point_id
+         LEFT JOIN phones delivery_point_phone_all ON delivery_point_phone_all.delivery_point_id = delivery_points.id AND delivery_point_phone_all.is_archive = 0
          LEFT JOIN (
               SELECT p.counterparty_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
-              FROM phones p WHERE p.is_archive = 0) AS counterparty_phone ON counterparty.id = counterparty_phone.counterparty_id
+              FROM phones p
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+              ) AS counterparty_phone_work ON counterparty.id = counterparty_phone_work.counterparty_id
+         LEFT JOIN (
+              SELECT p.counterparty_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
+              FROM phones p
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+              ) AS counterparty_phone_general ON counterparty.id = counterparty_phone_general.counterparty_id
+         LEFT JOIN phones counterparty_phone_all ON counterparty_phone_all.counterparty_id  = counterparty.id AND counterparty_phone_all.is_archive = 0
          LEFT JOIN
      (SELECT
           route_list_addresses.id,
