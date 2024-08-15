@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace DriverApi.Contracts.V5.Requests
 {
 	/// <summary>
-	/// Запрос на изменения типа оплаты
+	/// DTO запроса на изменения типа оплаты
 	/// </summary>
 	public class ChangeOrderPaymentTypeRequest
 	{

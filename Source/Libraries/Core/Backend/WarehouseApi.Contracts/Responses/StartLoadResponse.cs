@@ -1,14 +1,15 @@
-﻿using System.Text.Json.Serialization;
-using WarehouseApi.Contracts.Dto;
+﻿using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Contracts.Responses
 {
-	public class StartLoadResponse :ResponseBase
+	/// <summary>
+	/// DTO ответа на запрос начала погрузки талона
+	/// </summary>
+	public class StartLoadResponse : ResponseBase
 	{
 		/// <summary>
 		/// Документ погрузки
 		/// </summary>
-		[JsonPropertyName("carLoadDocument")]
 		public CarLoadDocumentDto CarLoadDocument { get; set; }
 	}
 }

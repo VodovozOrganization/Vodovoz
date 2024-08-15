@@ -2,6 +2,9 @@
 
 namespace WarehouseApi.Contracts.Dto
 {
+	/// <summary>
+	/// Документ погрузки авто
+	/// </summary>
 	public class CarLoadDocumentDto
 	{
 		/// <summary>
@@ -26,8 +29,8 @@ namespace WarehouseApi.Contracts.Dto
 		public int LoadPriority { get; set; }
 
 		/// <summary>
-		/// Статус документа погрузки
+		/// Состояние процесса погрузки номенклатур по документу
 		/// </summary>
-		public CarLoadDocumentState State { get; set; }
+		public LoadOperationStateEnumDto State { get; set; }
 	}
 }
