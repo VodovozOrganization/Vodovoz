@@ -5,6 +5,7 @@ using QS.Views.Dialog;
 using System;
 using Vodovoz.ViewModels.Print;
 using static Vodovoz.ViewModels.Print.PrintDocumentsSelectablePrinterViewModel;
+
 namespace Vodovoz.Views.Print
 {
 	public partial class PrintDocumentsSelectablePrinterView : DialogViewBase<PrintDocumentsSelectablePrinterViewModel>
