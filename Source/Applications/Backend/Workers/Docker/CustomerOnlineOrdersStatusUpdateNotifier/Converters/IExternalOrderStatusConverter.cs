@@ -1,4 +1,4 @@
-using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Converters

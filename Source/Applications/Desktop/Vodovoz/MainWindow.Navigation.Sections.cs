@@ -1,4 +1,4 @@
-﻿using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
 using System;
@@ -185,6 +185,11 @@ public partial class MainWindow
 				filter.EndDate = DateTime.Today;
 			},
 			OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)

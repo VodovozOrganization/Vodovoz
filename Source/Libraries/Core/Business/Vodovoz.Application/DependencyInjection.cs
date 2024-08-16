@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.Complaints;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.RouteOptimization;
@@ -19,7 +20,8 @@ namespace Vodovoz.Application
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
 			.AddScoped<IRouteOptimizer, RouteOptimizer>()
-			.AddApplicationServices();
+			.AddApplicationServices()
+			.ConfigureFileOptions();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
@@ -45,5 +47,18 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 		;
+
+		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)
+			=> services.Configure<FileSecurityOptions>(options =>
+			{
+				options.RestrictedToOpenExtensions = new string[]
+				{
+					".exe",
+					".cmd",
+					".bat",
+					".jar",
+					".ps1"
+				};
+			});
 	}
 }

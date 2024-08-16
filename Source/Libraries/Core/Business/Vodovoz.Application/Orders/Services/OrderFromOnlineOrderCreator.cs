@@ -151,12 +151,11 @@ namespace Vodovoz.Application.Orders.Services
 
 				var promoSetItemsCount = promoSet.PromotionalSetItems.Count;
 				var onlinePromoItemsCount = onlineOrderItemGroup.Count();
-				var promoSetCount = onlinePromoItemsCount % promoSetItemsCount;
+				var promoSetCount = onlinePromoItemsCount / promoSetItemsCount;
 
 				if(promoSetCount == default)
 				{
 					promoSetCount = 1;
-					//добавить сообщение о несоответствии количества позиций в пришедшем промике и существующем
 				}
 
 				for(var i = 0; i < promoSetCount; i++)
