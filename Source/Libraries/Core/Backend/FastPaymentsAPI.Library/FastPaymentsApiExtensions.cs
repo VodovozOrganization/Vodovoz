@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools.Orders;
@@ -32,6 +33,7 @@ namespace FastPaymentsAPI.Library
 				.AddScoped<MobileAppNotifier>()
 				.AddScoped<NotificationModel>()
 				.AddScoped<OrderStateKey>()
+				.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
 				.AddScoped<FastPaymentStatusManagerFromDesktop>()
 				.AddScoped<FastPaymentStatusManagerFromDriverApp>()
 				.AddScoped<FastPaymentStatusManagerFromOnline>()
