@@ -15,7 +15,9 @@ using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
@@ -71,6 +73,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private List<ComplaintSource> _complaintSources;
 		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
 		private IList<ComplaintKind> _complaintKindSource;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -697,9 +701,64 @@ namespace Vodovoz.ViewModels.Complaints
 			base.Close(askSave, source);
 		}
 
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_complaintFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_complaintFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
 		public override bool Save(bool close)
 		{
 			_logger.Debug("Вызываем {Method}()", nameof(Save));
+
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
 				return false;
