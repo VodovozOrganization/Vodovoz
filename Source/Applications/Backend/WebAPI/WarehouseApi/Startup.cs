@@ -1,16 +1,20 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MySqlConnector;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
+using WarehouseApi.Data;
+using Vodovoz.Presentation.WebApi;
 
 namespace WarehouseApi
 {
@@ -28,10 +32,43 @@ namespace WarehouseApi
 		{
 
 			services.AddControllers();
+
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WarehouseApi", Version = "v1" });
 			});
+
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly
+				)
+				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Приложение для сканирования событий(склад)"))
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddInfrastructure()
+				.AddTrackedUoW();
+
+			services.AddStaticHistoryTracker();
+
+			services.AddDbContext<ApplicationDbContext>((provider, options) =>
+			{
+				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
+				options.UseMySql(connectionStringBuilder.ConnectionString, ServerVersion.AutoDetect(connectionStringBuilder.ConnectionString));
+			});
+
+			// Аутентификация
+			services
+				.AddDefaultIdentity<IdentityUser>(options
+					=> options.SignIn.RequireConfirmedAccount = true)
+				.AddRoles<IdentityRole>()
+				.AddEntityFrameworkStores<ApplicationDbContext>();
+
+			services.AddSecurity(Configuration)
+				.AddOnlyOneSessionRestriction();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
