@@ -11,7 +11,9 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -36,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private ILifetimeScope _lifetimeScope;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public CashlessRequestViewModel(
 			IFileDialogService fileDialogService,
@@ -246,6 +249,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.Submited))
 			{
+				Save(false);
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
 				Save(true);
 			}
 		}
@@ -254,6 +261,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.Canceled))
 			{
+				Save(false);
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
 				Save(true);
 			}
 		}
@@ -262,6 +273,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.OnClarification))
 			{
+				Save(false);
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
 				Save(true);
 			}
 		}
@@ -270,6 +285,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.GivenForTake))
 			{
+				Save(false);
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
 				Save(true);
 			}
 		}
@@ -278,6 +297,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.Closed))
 			{
+				Save(false);
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
 				Save(true);
 			}
 		}
@@ -347,6 +370,52 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			return roles;
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _cashlessRequestFileStorageService.CreateFileAsync(Entity, fileName,
+				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_cashlessRequestFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_cashlessRequestFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
 		}
 
 		#endregion
