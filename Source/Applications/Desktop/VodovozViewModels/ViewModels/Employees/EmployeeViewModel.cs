@@ -18,8 +18,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
@@ -109,7 +111,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _createNewEmployeeRegistrationVersionCommand;
 		private DelegateCommand _changeEmployeeRegistrationVersionStartDateCommand;
 
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
 		public IReadOnlyList<Organization> organizations;
+		private string _photoFilename;
+		private byte[] _photo;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
@@ -213,6 +219,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SetPermissions();
 			CreateCommands();
 			InitializeSubdivisionEntryViewModel();
+
+			if(Entity.Id != 0 && !string.IsNullOrWhiteSpace(Entity.PhotoFileName))
+			{
+				var photoResult = _employeeFileStorageService.GetPhotoAsync(Entity, _cancellationTokenSource.Token).GetAwaiter().GetResult();
+
+				if(photoResult.IsSuccess)
+				{
+					using(var ms = new MemoryStream())
+					{
+						photoResult.Value.CopyTo(ms);
+						Photo = ms.ToArray();
+						PhotoFilename = Entity.PhotoFileName;
+					}
+				}
+			}
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Employee, EmployeeFileInformation>(
 				UoW,
@@ -846,6 +867,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
+		public byte[] Photo
+		{
+			get => _photo;
+			set => SetField(ref _photo, value);
+		}
+
+		public string PhotoFilename
+		{
+			get => _photoFilename;
+			set => SetField(ref _photoFilename, value);
+		}
+
 		public void CopyCredentialsToOtherUser(bool toWarehouseAppUser = true)
 		{
 			if(toWarehouseAppUser)
@@ -1167,6 +1200,77 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
+		private void SavePhotoIfNeeded()
+		{
+			if(Photo is null)
+			{
+				return;
+			}
+
+			if(PhotoFilename != Entity.PhotoFileName)
+			{
+				var result = _employeeFileStorageService
+					.UpdatePhotoAsync(
+						Entity,
+						PhotoFilename,
+						new MemoryStream(Photo),
+						_cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				if(result.IsSuccess)
+				{
+					Entity.PhotoFileName = PhotoFilename;
+				}
+			}
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _employeeFileStorageService.CreateFileAsync(Entity, fileName,
+				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_employeeFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_employeeFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
 		public bool Save()
 		{
 			if(Entity.Id == 0 && !CanManageOfficeWorkers && !CanManageDriversAndForwarders)
@@ -1297,8 +1401,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			UoWGeneric.Save(Entity);
 
+			SavePhotoIfNeeded();
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+
 			#region Попытка сохранить логин для нового юзера
-			
+
 			if(!TrySaveNewUser())
 			{
 				return false;
