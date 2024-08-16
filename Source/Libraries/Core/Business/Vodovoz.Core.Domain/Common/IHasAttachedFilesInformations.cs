@@ -2,9 +2,9 @@
 
 namespace Vodovoz.Core.Domain.Common
 {
-	public interface IHasAttachedFilesInformations<TFileInformationType>
-		where TFileInformationType : FileInformation
+	public interface IHasAttachedFilesInformations<TFileInformation>
+		where TFileInformation : FileInformation
 	{
-		IObservableList<TFileInformationType> AttachedFileInformations { get; }
+		IObservableList<TFileInformation> AttachedFileInformations { get; }
 	}
 }

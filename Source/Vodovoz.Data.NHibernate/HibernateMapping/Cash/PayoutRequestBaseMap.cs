@@ -39,6 +39,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 			Map(clr => clr.Sum).Column("sum");
 			References(clr => clr.Counterparty).Column("counterparty_id");
 			HasMany(clr => clr.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("cashless_request_id");
+			HasMany(clr => clr.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("cashless_request_id");
 		}
 	}
 
