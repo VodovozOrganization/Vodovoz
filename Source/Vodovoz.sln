@@ -425,11 +425,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Infrastructure.S3",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Infrastructure.FileStorage", "Libraries\Infrastructure\Vodovoz.Infrastructure.FileStorage\Vodovoz.Infrastructure.FileStorage.csproj", "{9BEFFD98-7181-4282-AF62-8C697DD4AC1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApi", "Applications\Backend\WebAPI\WarehouseApi\WarehouseApi.csproj", "{31B44F4C-25F8-4D13-B3A8-4288892A89F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi", "Applications\Backend\WebAPI\WarehouseApi\WarehouseApi.csproj", "{31B44F4C-25F8-4D13-B3A8-4288892A89F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApi.Contracts", "Libraries\Core\Backend\WarehouseApi.Contracts\WarehouseApi.Contracts.csproj", "{86AAA1F7-D99A-4980-8119-2DA9154BB3E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi.Contracts", "Libraries\Core\Backend\WarehouseApi.Contracts\WarehouseApi.Contracts.csproj", "{86AAA1F7-D99A-4980-8119-2DA9154BB3E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarehouseApi.Library", "Libraries\Core\Backend\WarehouseApi.Library\WarehouseApi.Library.csproj", "{3CC13C50-4752-4724-B3A7-C222371C1878}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi.Library", "Libraries\Core\Backend\WarehouseApi.Library\WarehouseApi.Library.csproj", "{3CC13C50-4752-4724-B3A7-C222371C1878}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -5635,9 +5635,7 @@ Global
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Docker|x86.ActiveCfg = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Docker|x86.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
-		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Release|x86.ActiveCfg = Release|Any CPU
@@ -5647,17 +5645,13 @@ Global
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.ReleaseWin|x86.Build.0 = Release|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
-		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WCF|Any CPU.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WCF|x86.ActiveCfg = Debug|Any CPU
-		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WCF|x86.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Web|Any CPU.ActiveCfg = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Web|Any CPU.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Web|x86.ActiveCfg = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.Web|x86.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
-		{31B44F4C-25F8-4D13-B3A8-4288892A89F7}.WinDesktop|x86.Build.0 = Debug|Any CPU
 		{86AAA1F7-D99A-4980-8119-2DA9154BB3E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86AAA1F7-D99A-4980-8119-2DA9154BB3E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86AAA1F7-D99A-4980-8119-2DA9154BB3E2}.Debug|x86.ActiveCfg = Debug|Any CPU
