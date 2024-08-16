@@ -94,5 +94,13 @@ namespace Vodovoz.Presentation.Views
 				_menu.Popup();
 			}
 		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			ytreeviewFiles.ButtonReleaseEvent -= KeystrokeHandler;
+
+			base.Destroy();
+		}
 	}
 }
