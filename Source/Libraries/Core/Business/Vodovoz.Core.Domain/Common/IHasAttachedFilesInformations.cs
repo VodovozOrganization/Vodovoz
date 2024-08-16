@@ -1,7 +1,6 @@
 ﻿using QS.Extensions.Observable.Collections.List;
-using VodovozBusiness.Domain.Common;
 
-namespace VodovozBusiness.Common
+namespace Vodovoz.Core.Domain.Common
 {
 	public interface IHasAttachedFilesInformations<TFileInformationType>
 		where TFileInformationType : FileInformation
