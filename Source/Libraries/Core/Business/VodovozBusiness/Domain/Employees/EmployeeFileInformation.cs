@@ -12,7 +12,6 @@ namespace VodovozBusiness.Domain.Employees
 		private int _employeeId;
 
 		[Display(Name = "Идентификатор сотрудника")]
-
 		public virtual int EmployeeId
 		{
 			get => _employeeId;
