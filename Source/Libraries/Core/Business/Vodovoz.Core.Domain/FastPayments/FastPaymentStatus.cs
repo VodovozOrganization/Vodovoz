@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.FastPayments
+namespace Vodovoz.Core.Domain.FastPayments
 {
 	public enum FastPaymentStatus
 	{
