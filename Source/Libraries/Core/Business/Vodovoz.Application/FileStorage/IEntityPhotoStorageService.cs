@@ -2,8 +2,8 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Errors;
-using VodovozBusiness.Common;
 
 namespace Vodovoz.Application.FileStorage
 {

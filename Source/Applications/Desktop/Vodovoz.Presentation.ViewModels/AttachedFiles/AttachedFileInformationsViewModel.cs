@@ -16,9 +16,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Attributes;
-using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 {

@@ -4,8 +4,7 @@ using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Errors;
 using QS.DomainModel.Entity;
-using VodovozBusiness.Common;
-using VodovozBusiness.Domain.Common;
+using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {

@@ -4,8 +4,8 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
-using VodovozBusiness.Common;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders

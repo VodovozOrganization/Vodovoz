@@ -1,4 +1,4 @@
-﻿using VodovozBusiness.Domain.Common;
+﻿using Vodovoz.Core.Domain.Common;
 
 namespace VodovozBusiness.Domain.Client
 {

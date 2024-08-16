@@ -15,6 +15,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -27,7 +28,6 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Counterparty;
-using VodovozBusiness.Common;
 using VodovozBusiness.Domain.Client;
 using VodovozInfrastructure.Attributes;
 

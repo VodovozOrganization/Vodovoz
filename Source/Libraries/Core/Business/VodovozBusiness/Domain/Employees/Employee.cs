@@ -18,10 +18,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -31,7 +31,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Common;
 using VodovozBusiness.Domain.Employees;
 
 namespace Vodovoz.Domain.Employees
@@ -814,14 +813,18 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 
-		public virtual void AddFileInformation(string obj)
+		public virtual void AddFileInformation(string fileName)
 		{
-			throw new NotImplementedException();
+			AttachedFileInformations.Add(new EmployeeFileInformation
+			{
+				FileName = fileName,
+				EmployeeId = Id
+			});
 		}
 
-		public virtual void RemoveFileInformation(string obj)
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			throw new NotImplementedException();
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 	}
 }

@@ -2,8 +2,7 @@
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Application.FileStorage;
-using VodovozBusiness.Common;
-using VodovozBusiness.Domain.Common;
+using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 {

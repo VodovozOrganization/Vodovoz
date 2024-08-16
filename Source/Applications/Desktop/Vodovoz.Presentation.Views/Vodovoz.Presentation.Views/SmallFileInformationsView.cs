@@ -2,8 +2,8 @@
 using Gtk;
 using QS.Views.GtkUI;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
-using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.Views
 {

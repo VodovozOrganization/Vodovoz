@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using VodovozBusiness.Domain.Common;
+using Vodovoz.Core.Domain.Common;
 
 namespace VodovozBusiness.Domain.Orders
 {

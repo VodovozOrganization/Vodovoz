@@ -7,8 +7,8 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
-using VodovozBusiness.Common;
 using VodovozBusiness.Domain.Cash.CashRequest;
 
 namespace Vodovoz.Domain.Cash

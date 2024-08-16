@@ -9,9 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
-using VodovozBusiness.Common;
-using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 {
