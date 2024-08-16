@@ -67,7 +67,8 @@ namespace Vodovoz.Views.Orders
 				}
 			};
 
-			filesView.Sensitive = false;
+			//smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			smallfileinformationsview.Sensitive = false;
 		}
 
 		private void SetColor(CellRenderer cell, object node)

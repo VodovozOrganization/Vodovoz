@@ -10,15 +10,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -31,6 +34,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IComplaintFileStorageService _complaintFileStorageService;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
@@ -48,8 +52,16 @@ namespace Vodovoz.ViewModels.Complaints
 			IFileDialogService fileDialogService,
 			IUserRepository userRepository,
 			ISubdivisionSettings subdivisionSettings,
-			IRouteListItemRepository routeListItemRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IRouteListItemRepository routeListItemRepository,
+			IComplaintFileStorageService complaintFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			: base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -58,12 +70,20 @@ namespace Vodovoz.ViewModels.Complaints
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_complaintFileStorageService = complaintFileStorageService;
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 
 			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			TabName = "Новая внутреняя рекламация";
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Complaint, ComplaintFileInformation>(
+				UoW,
+				Entity,
+				_complaintFileStorageService,
+				Entity.AddFile,
+				Entity.RemoveFile);
 
 			Entity.PropertyChanged += EntityPropertyChanged;
 		}
@@ -152,7 +172,9 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-        protected override bool BeforeValidation()
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+
+		protected override bool BeforeValidation()
 		{
 			if(UoW.IsNew) {
 				Entity.CreatedBy = CurrentEmployee;

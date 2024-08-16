@@ -4,6 +4,7 @@ using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Services;
 using QS.Utilities;
@@ -26,6 +27,8 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Counterparty;
+using VodovozBusiness.Common;
+using VodovozBusiness.Domain.Client;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
@@ -41,7 +44,7 @@ namespace Vodovoz.Domain.Client
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable, IHasAttachedFilesInformations<CounterpartyFileInformation>
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
@@ -165,6 +168,7 @@ namespace Vodovoz.Domain.Client
 		private bool _excludeFromAutoCalls;
 		private Counterparty _refferer;
 		private bool _hideDeliveryPointForBill;
+		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 
 		#region Свойства
 
@@ -1110,6 +1114,13 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<CounterpartyFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
+		}
+
 		#endregion
 
 		#region CloseDelivery
@@ -1233,23 +1244,23 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public virtual void AddFile(CounterpartyFile file)
+		public virtual void AddFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
+			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
 			{
 				return;
 			}
 
-			file.Counterparty = this;
-			ObservableFiles.Add(file);
+			AttachedFileInformations.Add(new CounterpartyFileInformation
+			{
+				FileName = fileName,
+				CounterpartyId = Id
+			});
 		}
 
-		public virtual void RemoveFile(CounterpartyFile file)
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
@@ -1635,5 +1646,13 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.CounterpartyId = Id;
+			}
+		}
 	}
 }

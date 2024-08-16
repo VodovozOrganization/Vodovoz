@@ -567,7 +567,6 @@
     <Compile Include="TempAdapters\ICarManufacturerJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\IUserJournalFactory.cs" />
-    <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
@@ -930,7 +929,6 @@
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\SelectUserJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
-    <Compile Include="Dialogs\Counterparties\CounterpartyFilesViewModel.cs" />
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />

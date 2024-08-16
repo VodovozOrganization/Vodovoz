@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -25,6 +25,9 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Application.FileStorage;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -38,6 +41,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IComplaintService _complaintService;
+		private readonly IComplaintFileStorageService _complaintFileStorageService;
 		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
@@ -62,8 +66,15 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionSettings subdivisionSettings,
 			IComplaintService complaintService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IComplaintFileStorageService complaintFileStorageService,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			LifetimeScope = lifetimeScope;
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -73,6 +84,7 @@ namespace Vodovoz.ViewModels.Complaints
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
+			_complaintFileStorageService = complaintFileStorageService;
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
 			ConfigureEntityPropertyChanges();
@@ -91,6 +103,13 @@ namespace Vodovoz.ViewModels.Complaints
 
 			CanEditComplaintClassification =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Complaint, ComplaintFileInformation>(
+				UoW,
+				Entity,
+				complaintFileStorageService,
+				Entity.AddFile,
+				Entity.RemoveFile);
 		}
 
 		public void SetOrder(int orderId)
@@ -179,6 +198,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanEdit => PermissionResult.CanCreate;
 
 		public bool CanEditComplaintClassification { get; }
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; private set; }
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 		

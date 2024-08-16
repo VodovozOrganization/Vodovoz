@@ -1543,8 +1543,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonTypeView.cs" />
     <Compile Include="Views\Retail\SalesChannelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
-    <Compile Include="Views\Client\CounterpartyFilesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
     <Compile Include="ServiceDialogs\RecalculateDriverWageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.RecalculateDriverWageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeePostView.cs" />
@@ -1634,8 +1632,6 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
     <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
-    <Compile Include="Views\Cash\CashlessRequestFilesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestFilesView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="Views\Logistic\CarModelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarModelView.cs" />

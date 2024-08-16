@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -37,6 +38,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
@@ -48,6 +50,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Domain.Employees;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 
@@ -70,6 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly IEmployeeFileStorageService _employeeFileStorageService;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
@@ -135,6 +139,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			INomenclatureFixedPriceController nomenclatureFixedPriceController,
+			IEmployeeFileStorageService employeeFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -163,7 +169,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureFixedPriceController =
 				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
-
+			_employeeFileStorageService = employeeFileStorageService ?? throw new ArgumentNullException(nameof(employeeFileStorageService));
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(validationContextFactory == null)
@@ -187,9 +193,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				TabName = Entity.GetPersonNameWithInitials();
 			}
 			
-			AttachmentsViewModel = (attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
-				.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
-			
 			if(Entity.Phones == null)
 			{
 				Entity.Phones = new List<Phone>();
@@ -210,6 +213,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SetPermissions();
 			CreateCommands();
 			InitializeSubdivisionEntryViewModel();
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Employee, EmployeeFileInformation>(
+				UoW,
+				Entity,
+				_employeeFileStorageService,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -292,8 +302,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public PhonesViewModel PhonesViewModel { get; }
 		
-		public AttachmentsViewModel AttachmentsViewModel { get; }
-
 		public TerminalManagementViewModel TerminalManagementViewModel =>
 			_terminalManagementViewModel ?? (_terminalManagementViewModel =
 				new TerminalManagementViewModel(
@@ -835,6 +843,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					OnPropertyChanged(nameof(CanAddNewRegistrationVersion));
 					OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
 				}));
+
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		public void CopyCredentialsToOtherUser(bool toWarehouseAppUser = true)
 		{

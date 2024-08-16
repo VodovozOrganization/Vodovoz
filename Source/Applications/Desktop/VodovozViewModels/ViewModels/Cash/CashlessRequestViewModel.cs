@@ -12,6 +12,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
@@ -19,10 +20,12 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Domain.Cash.CashRequest;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -30,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
+		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private ILifetimeScope _lifetimeScope;
 		private FinancialExpenseCategory _financialExpenseCategory;
 
@@ -42,10 +46,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
+			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			TabName = base.TabName;
+			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
@@ -54,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
 
-			if(UoW.IsNew)
+			if(Entity.Id == 0)
 			{
 				Entity.Author = _currentEmployee;
 				Entity.Subdivision = _currentEmployee.Subdivision;
@@ -74,11 +86,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UserRole = UserRoles.First();
 
 			OurOrganisations = UoW.Session.QueryOver<Organization>().List();
-			var filesViewModel = new CashlessRequestFilesViewModel(Entity, UoW, fileDialogService, CommonServices, userRepository)
-			{
-				ReadOnly = !IsNotClosed || IsSecurityServiceRole
-			};
-			CashlessRequestFilesViewModel = filesViewModel;
 
 			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashlessRequestViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
@@ -112,6 +119,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.Finish();
 
 			SubdivisionViewModel.IsEditable = false;
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<CashlessRequest, CashlessRequestFileInformation>(
+				UoW,
+				Entity,
+				_cashlessRequestFileStorageService,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !IsNotClosed || IsSecurityServiceRole;
 		}
 
 		#region Статья расхода
@@ -122,7 +138,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region Инициализация виджетов
 
-		public CashlessRequestFilesViewModel CashlessRequestFilesViewModel { get; }
 		public IEnumerable<Organization> OurOrganisations { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
 
@@ -210,6 +225,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => !IsSecurityServiceRole;
+
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		#endregion
 

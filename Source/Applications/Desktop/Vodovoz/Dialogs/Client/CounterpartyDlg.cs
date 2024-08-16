@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Core.Lifetime;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -11,6 +12,7 @@ using NHibernate;
 using NHibernate.Transform;
 using NLog;
 using QS.Attachments.Domain;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Dialog;
@@ -46,6 +48,7 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -71,6 +74,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -98,6 +102,8 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozBusiness.Domain.Client;
+using VodovozBusiness.Domain.Complaints;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -148,6 +154,8 @@ namespace Vodovoz
 		private IDeleteEntityService _deleteEntityService;
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
+		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
+		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
@@ -316,6 +324,8 @@ namespace Vodovoz
 			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
 			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
+			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -675,12 +685,16 @@ namespace Vodovoz
 
 			// Прикрепляемые документы
 
-			var filesViewModel =
-				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
-				{
-					ReadOnly = !CanEdit
-				};
-			counterpartyfilesview1.ViewModel = filesViewModel;
+			_attachmentsViewModel = _attachmentsViewModelFactory.CreateAndInitialize<Counterparty, CounterpartyFileInformation>(
+				UoW,
+				Entity,
+				_counterpartyFileStorageService,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
+
+			_attachmentsViewModel.ReadOnly = !CanEdit;
+
+			smallfileinformationsview.ViewModel = _attachmentsViewModel;
 
 			chkNeedNewBottles.Binding
 				.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active)
@@ -2014,6 +2028,7 @@ namespace Vodovoz
 		}
 
 		private string _cargoReceiverBackupBuffer;
+		private AttachedFileInformationsViewModel _attachmentsViewModel;
 
 		private void UpdateCargoReceiver()
 		{

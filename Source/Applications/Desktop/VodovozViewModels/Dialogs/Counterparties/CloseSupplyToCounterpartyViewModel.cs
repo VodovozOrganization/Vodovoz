@@ -16,6 +16,9 @@ using Vodovoz.Domain.Organizations;
 using NHibernate.Transform;
 using Vodovoz.Domain.Retail;
 using QS.DomainModel.Entity;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Application.FileStorage;
+using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
@@ -24,6 +27,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
+		private readonly ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 
 		private Employee _currentEmployee;
@@ -44,16 +48,32 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
-			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices, navigationManager)
+			IUserRepository userRepository,
+			ICounterpartyFileStorageService counterpartyFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_counterpartyFileStorageService = counterpartyFileStorageService ?? throw new ArgumentNullException(nameof(counterpartyFileStorageService));
 			CloseDeliveryComment = Entity.CloseDeliveryComment ?? string.Empty;
 			_canOpenCloseDeliveries =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
 				
 			Title = $"Открытие/закрытие поставок {Entity.Name}";
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Counterparty, CounterpartyFileInformation>(
+				UoW,
+				Entity,
+				_counterpartyFileStorageService,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
 		}
 
 		#region Свойства
@@ -198,6 +218,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		}
 
 		public bool CanEditCloseComment => CanCloseDelivery && !string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment);
+
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		private void EditCloseComment()
 		{

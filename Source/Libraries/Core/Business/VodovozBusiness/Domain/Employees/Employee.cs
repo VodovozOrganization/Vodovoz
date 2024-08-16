@@ -31,6 +31,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Common;
+using VodovozBusiness.Domain.Employees;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -39,7 +41,7 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Core.Domain.Employees.EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
+	public class Employee : EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject, IHasAttachedFilesInformations<EmployeeFileInformation>, IHasPhoto
 	{
 		private const int _commentLimit = 255;
 
@@ -76,6 +78,8 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 		private IWageCalculationRepository _wageCalculationRepository;
+		private IObservableList<EmployeeFileInformation> _attachedFileInformations = new ObservableList<EmployeeFileInformation>();
+		private string _photoFileName;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -253,6 +257,12 @@ namespace Vodovoz.Domain.Employees
 			=> _observableDriverWorkScheduleSets ?? (_observableDriverWorkScheduleSets =
 				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
 
+		public virtual string PhotoFileName
+		{
+			get => _photoFileName;
+			set => SetField(ref _photoFileName, value);
+		}
+
 		#region IAccountOwner implementation
 
 		public virtual IObservableList<Account> Accounts
@@ -279,6 +289,13 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<EmployeeFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
+		}
+
 		public virtual void AddAccount(Account account)
 		{
 			Accounts.Add(account);
@@ -288,6 +305,14 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		#endregion
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.EmployeeId = Id;
+			}
+		}
 
 		#region IValidatableObject implementation
 
@@ -788,5 +813,15 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		#endregion
+
+		public virtual void AddFileInformation(string obj)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void RemoveFileInformation(string obj)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
