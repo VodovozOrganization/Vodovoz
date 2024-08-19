@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FirebaseAdmin;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +11,14 @@ using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Services;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
-using WarehouseApi.Data;
 using Vodovoz.Presentation.WebApi;
+using WarehouseApi.Data;
 
 namespace WarehouseApi
 {
@@ -50,7 +54,9 @@ namespace WarehouseApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddInfrastructure()
-				.AddTrackedUoW();
+				.AddTrackedUoW()
+				.AddFirebaseCloudMessaging(Configuration)
+				.ConfigureBusinessOptions(Configuration);
 
 			services.AddStaticHistoryTracker();
 
@@ -74,23 +80,30 @@ namespace WarehouseApi
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetRequiredService<FirebaseApp>();
+
+			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WarehouseApi v1"));
 			}
+
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WarehouseApi v1"));
 
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
 			});
+
+			//app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }

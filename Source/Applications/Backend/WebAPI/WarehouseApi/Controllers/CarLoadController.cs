@@ -1,18 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
 
 namespace WarehouseApi.Controllers
 {
-	//[Authorize(Roles = _rolesToAccess)]
+	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
+	[OnlyOneSession]
 	[Route("/api/")]
 	public class CarLoadController : ControllerBase
 	{
+		private const string _rolesToAccess =
+			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
+
 		private readonly ILogger<CarLoadController> _logger;
 
 		public CarLoadController(
