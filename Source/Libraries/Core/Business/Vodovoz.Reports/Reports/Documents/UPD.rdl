@@ -101,7 +101,7 @@ WHERE
     orders.id AS order_id,
     orders.delivery_date AS order_date,
     orders.counterparty_external_order_id,
-    CONCAT(counterparty.vod_internal_id, '-', counterparty_contract.subnumber) AS contract_number,
+    counterparty_contract.number AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
                 '%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
