@@ -1394,7 +1394,7 @@ namespace Vodovoz
 
 			UpdateEdoContainers();
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
-			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
 		}
