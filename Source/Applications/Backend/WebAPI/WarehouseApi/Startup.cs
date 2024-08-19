@@ -12,13 +12,12 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
-using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using WarehouseApi.Data;
+using WarehouseApi.Library;
 
 namespace WarehouseApi
 {
@@ -50,13 +49,11 @@ namespace WarehouseApi
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(EmployeeWithLoginMap).Assembly
 				)
-				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Приложение для сканирования событий(склад)"))
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
-				.AddFirebaseCloudMessaging(Configuration)
-				.ConfigureBusinessOptions(Configuration);
+				.AddWarehouseApiDependencies(Configuration);
 
 			services.AddStaticHistoryTracker();
 
