@@ -48,6 +48,10 @@ namespace Vodovoz.Services
 			OrderDocumentType.SpecialUPD
 		};
 
+		private bool IsAllowedStatusToSendBill(Order order) =>
+			_emailRequiredOrderStatuses.Contains(order.OrderStatus)
+				|| (order.IsFastDelivery && order.OrderStatus == OrderStatus.OnTheWay);
+
 		public EmailService(OrderStateKey orderStateKey,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
@@ -77,7 +81,7 @@ namespace Vodovoz.Services
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 			var sended = sendedByEdo || sendedByEmail;
 
-			return _emailRequiredOrderStatuses.Contains(order.OrderStatus)
+			return IsAllowedStatusToSendBill(order)
 				&& _emailRequiredOrderPaymentTypes.Contains(order.PaymentType)
 				&& !sended
 				&& GetRequiredDocumentTypes(order)
@@ -95,7 +99,7 @@ namespace Vodovoz.Services
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 
-			return _emailRequiredOrderStatuses.Contains(order.OrderStatus)
+			return IsAllowedStatusToSendBill(order)
 				&& _emailRequiredOrderPaymentTypes.Contains(order.PaymentType)
 				&& !sendedByEdo
 				&& sendedByEmail
