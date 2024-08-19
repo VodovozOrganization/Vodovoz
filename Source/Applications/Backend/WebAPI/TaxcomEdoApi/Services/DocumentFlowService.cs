@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -317,6 +317,13 @@ namespace TaxcomEdoApi.Services
 						MainDocumentId = string.Empty,
 						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 					};
+
+					if(action.Order is Order order)
+					{
+						edoContainer.Type = Type.Bill;
+						edoContainer.Order = order;
+						edoContainer.Counterparty = order.Client;
+					}
 
 					if(action.OrderWithoutShipmentForPayment is OrderWithoutShipmentForPayment orderWithoutShipmentForPayment)
 					{
