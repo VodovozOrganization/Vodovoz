@@ -25,7 +25,7 @@ using VodovozInfrastructure.Configuration;
 
 namespace FastPaymentsAPI.Library.Models
 {
-	public class FastPaymentOrderModel : IFastPaymentOrderModel
+	public class FastPaymentOrderService : IFastPaymentOrderService
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
@@ -33,7 +33,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IEmailSettings _emailSettings;
 		private readonly IOrderRequestManager _orderRequestManager;
 
-		public FastPaymentOrderModel(
+		public FastPaymentOrderService(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
@@ -53,8 +53,8 @@ namespace FastPaymentsAPI.Library.Models
 		}
 
 		public string ValidateParameters(int orderId) => _fastPaymentValidator.Validate(orderId);
-		public string ValidateParameters(int onlineOrderId, string backUrl, string backUrlOk, string backUrlFail) =>
-			_fastPaymentValidator.Validate(onlineOrderId, backUrl, backUrlOk, backUrlFail);
+		public string ValidateParameters(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, RequestFromType requestFromType) =>
+			_fastPaymentValidator.Validate(registerOnlineOrderDto, requestFromType);
 		public string ValidateParameters(int orderId, ref string phoneNumber) => _fastPaymentValidator.Validate(orderId, ref phoneNumber);
 		public string ValidateOrder(Order order, int orderId) => _fastPaymentValidator.Validate(order, orderId);
 		public string ValidateOnlineOrder(decimal onlineOrderSum) => _fastPaymentValidator.ValidateOnlineOrder(onlineOrderSum);
@@ -67,9 +67,11 @@ namespace FastPaymentsAPI.Library.Models
 		}
 		
 		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(
-			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, Organization organization)
+			RequestRegisterOnlineOrderDTO registerOnlineOrderDto,
+			Organization organization,
+			RequestFromType requestFromType)
 		{
-			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto, organization);
+			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto, organization, requestFromType);
 		}
 
 		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization)
@@ -133,7 +135,8 @@ namespace FastPaymentsAPI.Library.Models
 				configuration.MessageBrokerHost,
 				configuration.MessageBrokerUsername,
 				configuration.MessageBrokerPassword,
-				configuration.MessageBrokerVirtualHost);
+				configuration.MessageBrokerVirtualHost,
+				configuration.Port);
 			var channel = connection.CreateModel();
 
 			var properties = channel.CreateBasicProperties();

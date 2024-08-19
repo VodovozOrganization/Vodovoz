@@ -20,9 +20,9 @@ using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Models
 {
-	public class FastPaymentModel : IFastPaymentModel
+	public class FastPaymentService : IFastPaymentService
 	{
-		private readonly ILogger<FastPaymentModel> _logger;
+		private readonly ILogger<FastPaymentService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -34,8 +34,8 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRequestFromConverter _requestFromConverter;
 
-		public FastPaymentModel(
-			ILogger<FastPaymentModel> logger,
+		public FastPaymentService(
+			ILogger<FastPaymentService> logger,
 			IUnitOfWork uow,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderRepository orderRepository,
@@ -211,10 +211,10 @@ namespace FastPaymentsAPI.Library.Models
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = orderId,
 				FastPaymentGuid = fastPaymentGuid,
-				FastPaymentPayType = payType,
-				Organization = organization,
+				FastPaymentPayType = payType.ToString(),
+				OrganizationId = organization.Id,
 				PhoneNumber = phoneNumber,
-				PaymentByCardFrom = paymentByCardFrom
+				PaymentByCardFromId = paymentByCardFrom.Id
 			};
 
 			_fastPaymentFileCache.WritePaymentCache(fastPaymentDTO);

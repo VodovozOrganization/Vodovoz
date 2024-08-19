@@ -8,7 +8,7 @@ using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsAPI.Library.Models
 {
-	public interface IFastPaymentModel
+	public interface IFastPaymentService
 	{
 		FastPayment GetFastPaymentByTicket(string ticket);
 		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOrder(int orderId);

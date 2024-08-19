@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -432,6 +432,9 @@
     <Compile Include="JournalColumnsConfigs\MileageWriteOffJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\MileageWriteOffReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OperatorsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OrdersRatingReasonsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OrdersRatingsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\RequestsForCallClosedReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
     <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
@@ -2026,6 +2029,16 @@
     <Compile Include="gtk-gui\Vodovoz.Counterparties.CallTaskMassEditView.cs" />
     <Compile Include="Store\Reports\TurnoverOfWarehouseBalancesReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Store.Reports.TurnoverOfWarehouseBalancesReportView.cs" />
+    <Compile Include="Views\Orders\OrderRatingReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderRatingReasonView.cs" />
+    <Compile Include="Filters\GtkViews\OrdersRatingsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrdersRatingsJournalFilterView.cs" />
+    <Compile Include="Views\Orders\OrderRatingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrderRatingView.cs" />
+    <Compile Include="Views\Orders\RequestForCallClosedReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallClosedReasonView.cs" />
+    <Compile Include="Views\Orders\RequestForCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
