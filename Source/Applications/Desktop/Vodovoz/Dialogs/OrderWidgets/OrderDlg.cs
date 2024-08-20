@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -2346,12 +2346,14 @@ namespace Vodovoz
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
 
-				var needToResendBill = CheckNeedBillResend();
+				var canSendOrResendBillToEmail = (Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.WaitForPayment)
+					|| (Entity.IsFastDelivery && Entity.OrderStatus == OrderStatus.OnTheWay);
 
-				PrepareSendBillInformation();
-
-				if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.WaitForPayment)
+				if(canSendOrResendBillToEmail)
 				{
+					PrepareSendBillInformation();
+					var needToResendBill = CheckNeedBillResend();
+
 					if(_isNeedSendBillToEmail)
 					{
 						_emailService.SendBillToEmail(UoW, Entity);

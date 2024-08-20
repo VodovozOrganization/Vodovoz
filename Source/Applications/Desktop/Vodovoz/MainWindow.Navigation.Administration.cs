@@ -115,16 +115,6 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Загрузка 1с
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenTdiTab<LoadFrom1cClientsAndDeliveryPoints>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
-	}
-
-	/// <summary>
 	/// Выгрузка в интернет-магазин
 	/// </summary>
 	/// <param name="sender"></param>

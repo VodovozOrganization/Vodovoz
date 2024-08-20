@@ -24,14 +24,14 @@ namespace Vodovoz.Factories
 			var contractType = _counterpartyContractRepository.GetContractTypeForPaymentType(order.Client.PersonType, order.PaymentType);
 			var org = organization ?? _organizationProvider.GetOrganization(unitOfWork, order);
 
-			CounterpartyContract contract = new CounterpartyContract
+			var contract = new CounterpartyContract
 			{
 				Counterparty = order.Client,
 				Organization = org,
 				IsArchive = false,
 				ContractType = contractType
 			};
-			contract.GenerateSubNumber(order.Client);
+			contract.UpdateNumber();
 
 			if(issueDate.HasValue)
 			{
