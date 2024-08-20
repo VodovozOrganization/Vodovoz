@@ -16,11 +16,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.TimeStamp).Column("time_stamp");
 			Map(x => x.LastEditedTime).Column("last_edit_time");
 			Map(x => x.Comment).Column("comment");
+			Map(x => x.LoadOperationState).Column("load_operation_state");
 			References(x => x.Author).Column("author_id");
 			References(x => x.LastEditor).Column("last_editor_id");
 			References(x => x.RouteList).Column("route_list_id");
 			References(x => x.Warehouse).Column("warehouse_id");
-			References(x => x.LoadOperationState).Column("load_operation_state");
 			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_load_document_id");
 		}
 	}

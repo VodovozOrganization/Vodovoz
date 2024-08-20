@@ -3,11 +3,11 @@ using VodovozBusiness.Domain.TrueMark;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.TrueMark
 {
-	public class CarLoadDocumentItemProductCodeMap : ClassMap<CarLoadDocumentItemProductCode>
+	public class CarLoadDocumentItemTrueMarkCodeMap : ClassMap<CarLoadDocumentItemTrueMarkCode>
 	{
-		public CarLoadDocumentItemProductCodeMap()
+		public CarLoadDocumentItemTrueMarkCodeMap()
 		{
-			Table("store_car_load_document_item_product_codes");
+			Table("store_car_load_document_item_true_mark_codes");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

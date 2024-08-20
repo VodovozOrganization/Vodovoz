@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Library.Services;
 
 namespace WarehouseApi.Controllers
 {
@@ -15,17 +18,20 @@ namespace WarehouseApi.Controllers
 	[ApiController]
 	[OnlyOneSession]
 	[Route("/api/")]
-	public class CarLoadController : ControllerBase
+	public class CarLoadController : ApiControllerBase
 	{
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 
 		private readonly ILogger<CarLoadController> _logger;
+		private readonly ICarLoadService _carLoadService;
 
 		public CarLoadController(
-			ILogger<CarLoadController> logger)
+			ILogger<CarLoadController> logger,
+			ICarLoadService carLoadService) : base(logger)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_carLoadService = carLoadService ?? throw new System.ArgumentNullException(nameof(carLoadService));
 		}
 
 		/// <summary>
@@ -36,18 +42,11 @@ namespace WarehouseApi.Controllers
 		[HttpPost("StartLoad")]
 		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
 		{
-			var response = new StartLoadResponse();
-			response.Result = OperationResultEnumDto.Success;
-			response.CarLoadDocument = new CarLoadDocumentDto
-			{
-				Id = documentId,
-				Driver = "Super Driver",
-				Car = "Super Car",
-				LoadPriority = 12,
-				State = LoadOperationStateEnumDto.InProgress
-			};
+			_logger.LogInformation("(DocumentId: {DocumentId}) User token: {AccessToken}",
+				documentId,
+				Request.Headers[HeaderNames.Authorization]);
 
-			return Ok(response);
+			return MapResult(_carLoadService.StartLoad(documentId));
 		}
 
 		/// <summary>

@@ -11,7 +11,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
-using VodovozBusiness.Domain.TrueMark;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -31,7 +30,6 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
-		private IObservableList<CarLoadDocumentItemProductCode> _carLoadDocumentItemProductCodes = new ObservableList<CarLoadDocumentItemProductCode>();
 
 		protected OrderItem()
 		{
@@ -110,13 +108,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);
-		}
-
-		[Display(Name = "Коды ЧЗ для товаров в талоне погрузке")]
-		public IObservableList<CarLoadDocumentItemProductCode> CarLoadDocumentItemProductCodes
-		{
-			get => _carLoadDocumentItemProductCodes;
-			set => SetField(ref _carLoadDocumentItemProductCodes, value);
 		}
 
 		#endregion

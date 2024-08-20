@@ -24,6 +24,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
 			References(x => x.EmployeeNomenclatureMovementOperation).Column("employee_nomenclature_movement_operation_id").Cascade.All();
 			References(x => x.DeliveryFreeBalanceOperation).Column("delivery_free_balance_operation_id").Cascade.All();
+
+			HasMany(x => x.TrueMarkCodes).KeyColumn("car_load_document_item_id")
+				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
 		}
 	}
 }

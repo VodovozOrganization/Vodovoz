@@ -1,8 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.FirebaseCloudMessaging;
+using Vodovoz.Infrastructure.Persistance;
+using WarehouseApi.Library.Services;
 
 namespace WarehouseApi.Library
 {
@@ -18,8 +22,15 @@ namespace WarehouseApi.Library
 		{
 			services
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("API приложения склада"))
+				.AddCore()
+				.AddInfrastructure()
+				.AddRepositories()
+				.AddTrackedUoW()
 				.AddFirebaseCloudMessaging(configuration)
-				.ConfigureBusinessOptions(configuration);
+				.ConfigureBusinessOptions(configuration)
+				.AddScoped<ICarLoadService, CarLoadService>();
+
+			services.AddStaticHistoryTracker();
 
 			return services;
 		}

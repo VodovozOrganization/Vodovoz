@@ -9,10 +9,12 @@
     <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
     <ProjectReference Include="..\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />
+    <ProjectReference Include="..\WarehouseApi.Contracts\WarehouseApi.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

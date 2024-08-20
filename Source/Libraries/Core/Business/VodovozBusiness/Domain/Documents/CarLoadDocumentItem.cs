@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using VodovozBusiness.Domain.TrueMark;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -29,6 +31,7 @@ namespace Vodovoz.Domain.Documents
 		private decimal _amountInStock;
 		private decimal _amountInRouteList;
 		private decimal _amountLoaded;
+		private IObservableList<CarLoadDocumentItemTrueMarkCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkCode>();
 
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -104,6 +107,13 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _isIndividualSetForOrder;
 			set => SetField(ref _isIndividualSetForOrder, value);
+		}
+
+		[Display(Name = "Коды ЧЗ товаров")]
+		public virtual IObservableList<CarLoadDocumentItemTrueMarkCode> TrueMarkCodes
+		{
+			get => _trueMarkCodes;
+			set => SetField(ref _trueMarkCodes, value);
 		}
 
 		#endregion

@@ -8,13 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
-using QS.DomainModel.UoW;
-using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using WarehouseApi.Data;
 using WarehouseApi.Library;
@@ -50,12 +47,7 @@ namespace WarehouseApi
 					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
-				.AddCore()
-				.AddInfrastructure()
-				.AddTrackedUoW()
 				.AddWarehouseApiDependencies(Configuration);
-
-			services.AddStaticHistoryTracker();
 
 			services.AddDbContext<ApplicationDbContext>((provider, options) =>
 			{
