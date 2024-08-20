@@ -26,12 +26,12 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
 			ResolveDependencies();
-			this.Build ();
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
 			UoWGeneric.Root.Counterparty = counterparty;
-			UoWGeneric.Root.GenerateSubNumber(counterparty);
+			UoWGeneric.Root.UpdateNumber();
 			TabName = "Новый договор";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		/// <summary>
@@ -71,14 +71,26 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			checkOnCancellation.Binding.AddBinding (Entity, e => e.OnCancellation, w => w.Active).InitializeFromSource ();
-			checkArchive.Binding.AddBinding (Entity, e => e.IsArchive, w => w.Active).InitializeFromSource ();
+			checkOnCancellation.Binding
+				.AddBinding(Entity, e => e.OnCancellation, w => w.Active)
+				.InitializeFromSource();
+			checkArchive.Binding
+				.AddBinding(Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 
-			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
-			entryNumber.Binding.AddBinding (Entity, e => e.ContractFullNumber, w => w.Text).InitializeFromSource ();
-			spinDelay.Binding.AddBinding (Entity, e => e.MaxDelay, w => w.ValueAsInt).InitializeFromSource ();
+			dateIssue.Binding
+				.AddBinding(Entity, e => e.IssueDate, w => w.Date)
+				.InitializeFromSource();
+			entryNumber.Binding
+				.AddBinding(Entity, e => e.Number, w => w.Text)
+				.InitializeFromSource();
+			spinDelay.Binding
+				.AddBinding(Entity, e => e.MaxDelay, w => w.ValueAsInt)
+				.InitializeFromSource();
 			ycomboContractType.ItemsEnum = typeof(ContractType);
-			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
+			ycomboContractType.Binding
+				.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CounterpartyContract>(
 				this,

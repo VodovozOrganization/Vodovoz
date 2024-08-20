@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
@@ -157,14 +158,20 @@ namespace FastPaymentsAPI.Library.Factories
 				Amount = order.OrderSum,
 				CreationDate = paymentDto.CreationDate,
 				Order = order,
-				Organization = paymentDto.Organization,
-				PaymentByCardFrom = paymentDto.PaymentByCardFrom,
+				Organization = new Organization
+				{
+					Id = paymentDto.OrganizationId
+				},
+				PaymentByCardFrom = new PaymentFrom
+				{
+					Id = paymentDto.PaymentByCardFromId
+				},
 				Ticket = paymentDto.Ticket,
 				QRPngBase64 = paymentDto.QRPngBase64,
 				ExternalId = paymentDto.ExternalId,
 				PhoneNumber = paymentDto.PhoneNumber,
 				FastPaymentGuid = paymentDto.FastPaymentGuid,
-				FastPaymentPayType = paymentDto.FastPaymentPayType
+				FastPaymentPayType = Enum.Parse<FastPaymentPayType>(paymentDto.FastPaymentPayType)
 			};
 		}
 
