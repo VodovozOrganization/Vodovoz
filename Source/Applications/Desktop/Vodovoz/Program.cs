@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -99,7 +99,7 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
-using Vodovoz.Presentation.ViewModels.PaymentType;
+using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -157,6 +157,7 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 
 namespace Vodovoz
 {
@@ -476,7 +477,6 @@ namespace Vodovoz
 					builder.RegisterType<EquipmentBalance>().AsSelf();
 					builder.RegisterType<CardPaymentsOrdersReport>().AsSelf();
 					builder.RegisterType<DefectiveItemsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromTinkoffReport>().AsSelf();
 					builder.RegisterType<OrdersByDistrictsAndDeliverySchedulesReport>().AsSelf();
 					builder.RegisterType<OrdersByCreationDateReport>().AsSelf();
 					builder.RegisterType<NomenclatureForShipment>().AsSelf();

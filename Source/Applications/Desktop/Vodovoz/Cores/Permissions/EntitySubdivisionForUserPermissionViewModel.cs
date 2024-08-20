@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Permissions
 			_originalPermissionList = _permissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
 			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(_originalPermissionList.ToList());
 
-			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntityOrderedByName(uow);
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 		}
 		
@@ -99,7 +99,7 @@ namespace Vodovoz.Core.Permissions
 		public void SearchPermissions(string searchString)
 		{
 			//Каждый раз перезаписываем список
-			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(Uow);
+			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntityOrderedByName(Uow);
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 			
 			if(searchString != "")

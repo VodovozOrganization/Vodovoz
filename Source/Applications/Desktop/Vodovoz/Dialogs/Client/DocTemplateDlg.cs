@@ -10,6 +10,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
+using QS.DocTemplates;
+using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz
 {

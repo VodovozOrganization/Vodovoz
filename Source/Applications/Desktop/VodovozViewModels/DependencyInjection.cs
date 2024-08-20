@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.BankStatements;
-using Vodovoz.Presentation.ViewModels.Organisations;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels

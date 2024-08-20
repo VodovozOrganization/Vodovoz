@@ -60,23 +60,6 @@ namespace Vodovoz.Application.BankStatements
 			}
 
 			return stringRows;
-			/*var xlsxRowValues = new List<IList<string>>();
-
-			using(var document = SpreadsheetDocument.Open(filePath, false))
-			{
-				var workbookPart = document.WorkbookPart;
-				var tablePart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
-				var sharedStringTable = tablePart.SharedStringTable;
-
-				var worksheetPart = workbookPart.WorksheetParts.First();
-				var worksheet = worksheetPart.Worksheet;
-
-				var rows = worksheet.Descendants<Row>();
-
-				xlsxRowValues = GetRowsCellsValues(rows, sharedStringTable).ToList();
-			}
-
-			return xlsxRowValues;*/
 		}
 
 		private IEnumerable<IEnumerable<string>> ParseXls(string filePath)

@@ -1,9 +1,10 @@
-﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5;
 using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
@@ -55,7 +56,7 @@ namespace DriverAPI.Library.V5.Converters
 			Order vodovozOrder,
 			DateTime addedToRouteListTime,
 			SmsPaymentStatus? smsPaymentStatus,
-			Vodovoz.Domain.FastPayments.FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -70,7 +71,7 @@ namespace DriverAPI.Library.V5.Converters
 				BottlesByStockActualCount = vodovozOrder.BottlesByStockActualCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
-				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderSum = vodovozOrder.OrderSum,
 				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),

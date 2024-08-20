@@ -7,6 +7,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -1218,7 +1220,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(x => x.Order.Id == orderId)
 				.And(x => x.Type == Type.Upd)
 				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
-				.Take(1);
+				.Take(1)
+				.SingleOrDefault();
 
 			return result != null;
 		}
@@ -1429,6 +1432,79 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<TrueMarkCancellationDto>();
 
 			return result;
+		}
+
+		//TODO обновить условие подбора статуса оплаты заказа
+		public IEnumerable<OrderDto> GetCounterpartyOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom)
+		{
+			var orders = from order in uow.Session.Query<VodovozOrder>()
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
+				join onlineOrder in uow.Session.Query<OnlineOrder>()
+					on order.Id equals onlineOrder.Order.Id into onlineOrders
+				from onlineOrder in onlineOrders.DefaultIfEmpty()
+				join orderRating in uow.Session.Query<OrderRating>()
+					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
+				from orderRating in orderRatings.DefaultIfEmpty()
+				from deliverySchedule in schedules.DefaultIfEmpty()
+				where order.Client.Id == counterpartyId
+				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
+				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
+				let orderStatus =
+					order.OrderStatus == OrderStatus.Canceled
+					|| order.OrderStatus == OrderStatus.DeliveryCanceled
+					|| order.OrderStatus == OrderStatus.NotDelivered
+						? ExternalOrderStatus.Canceled
+						: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
+							? ExternalOrderStatus.OrderPerformed
+							: order.OrderStatus == OrderStatus.Shipped
+							|| order.OrderStatus == OrderStatus.Closed
+							|| order.OrderStatus == OrderStatus.UnloadingOnStock
+								? ExternalOrderStatus.OrderCompleted
+								: order.OrderStatus == OrderStatus.WaitForPayment
+									? ExternalOrderStatus.WaitingForPayment
+									: order.OrderStatus == OrderStatus.OnTheWay
+										? ExternalOrderStatus.OrderDelivering
+										: order.OrderStatus == OrderStatus.OnLoading
+											? ExternalOrderStatus.OrderCollecting
+											: ExternalOrderStatus.OrderProcessing
+				
+				let ratingAvailable =
+					order.CreateDate.HasValue
+					&& order.CreateDate >= ratingAvailableFrom
+					&& orderRating == null
+					&& (orderStatus == ExternalOrderStatus.OrderCompleted
+						|| orderStatus == ExternalOrderStatus.Canceled
+						|| orderStatus == ExternalOrderStatus.OrderDelivering)
+				
+				let orderPaymentStatus = order.OnlineOrder.HasValue
+					? OnlineOrderPaymentStatus.Paid
+					: OnlineOrderPaymentStatus.UnPaid
+					
+				let deliveryScheduleString = order.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: deliverySchedule != null
+						? deliverySchedule.DeliveryTime
+						: null
+
+				select new OrderDto
+				{
+					OrderId = order.Id,
+					OnlineOrderId = onlineOrder.Id,
+					OrderStatus = orderStatus,
+					//OrderPaymentStatus = orderPaymentStatus, на старте null
+					DeliveryDate = order.DeliveryDate.Value,
+					CreationDate = order.CreateDate.Value,
+					OrderSum = order.OrderSum,
+					DeliveryAddress = address,
+					DeliverySchedule = deliveryScheduleString,
+					RatingValue = orderRating.Rating,
+					IsRatingAvailable = ratingAvailable,
+					IsNeedPayment = false,
+					DeliveryPointId = deliveryPointId
+				};
+
+			return orders;
 		}
 
 		public IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters)

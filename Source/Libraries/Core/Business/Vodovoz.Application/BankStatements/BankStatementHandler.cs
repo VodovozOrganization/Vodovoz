@@ -42,15 +42,6 @@ namespace Vodovoz.Application.BankStatements
 			_parser = parser ?? throw new ArgumentNullException(nameof(parser));
 		}
 		
-		public BankStatementProcessedResult ProcessBankStatementsFromFile(string filePath, DateTime date)
-		{
-			var bankStatementProcessedResult = new BankStatementProcessedResult();
-			
-			TryParseData(filePath, filePath, filePath, date, bankStatementProcessedResult);
-
-			return bankStatementProcessedResult;
-		}
-		
 		public BankStatementProcessedResult ProcessBankStatementsFromDirectory(string directoryPath, DateTime date)
 		{
 			var bankStatementProcessedResult = new BankStatementProcessedResult();

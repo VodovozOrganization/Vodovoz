@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.Helpers;
@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -166,7 +167,7 @@ namespace DriverAPI.Library.V5.Services
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
-			bool paid = _fastPaymentModel.GetOrderFastPaymentStatus(order.Id) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+			bool paid = _fastPaymentModel.GetOrderFastPaymentStatus(order.Id) == FastPaymentStatus.Performed;
 
 			if(order.PaymentType == PaymentType.Cash)
 			{

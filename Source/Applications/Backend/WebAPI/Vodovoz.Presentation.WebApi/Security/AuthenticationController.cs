@@ -162,14 +162,13 @@ namespace Vodovoz.Presentation.WebApi.Security
 						&& _securityOptions.Value.Authorization.ApplicationUserTypes.Contains(eau.ExternalApplicationType))
 					.FirstOrDefault();
 
-				if(!string.IsNullOrWhiteSpace(externalApplicationUser.Token))
+				if(!string.IsNullOrWhiteSpace(externalApplicationUser?.Token))
 				{
-					// Отключено до реализации задачи 4898
-					//await _firebaseCloudMessagingService
-					//	.SendMessage(
-					//		externalApplicationUser.Token,
-					//		"Веселый водовоз",
-					//		"Ваша сессия для этого приложения была завершена.");
+					await _firebaseCloudMessagingService
+						.SendMessage(
+							externalApplicationUser.Token,
+							"Веселый водовоз",
+							"Выполнен вход на другом устройстве");
 				}
 
 				externalApplicationUser.SessionKey = activeSessionKey;

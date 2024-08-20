@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -100,7 +100,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.NotificationRecievers;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
-using Vodovoz.Presentation.ViewModels.PaymentType;
+using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database.Logistics;
@@ -2291,12 +2291,14 @@ namespace Vodovoz
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
 
-				var needToResendBill = CheckNeedBillResend();
+				var canSendOrResendBillToEmail = (Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.WaitForPayment)
+					|| (Entity.IsFastDelivery && Entity.OrderStatus == OrderStatus.OnTheWay);
 
-				PrepareSendBillInformation();
-
-				if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.WaitForPayment)
+				if(canSendOrResendBillToEmail)
 				{
+					PrepareSendBillInformation();
+					var needToResendBill = CheckNeedBillResend();
+
 					if(_isNeedSendBillToEmail)
 					{
 						_emailService.SendBillToEmail(UoW, Entity);

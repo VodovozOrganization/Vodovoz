@@ -7,7 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using QS.Project.Core;
 using QS.Services;
+using Vodovoz;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerOrdersApi
 {
@@ -32,9 +37,26 @@ namespace CustomerOrdersApi
 					});
 				})
 				
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddBusiness(Configuration)
+				.AddInfrastructure()
+				.AddConfig(Configuration)
+				.AddDependenciesGroup()
+				.AddStaticScopeForEntity()
+				.AddMemoryCache()
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
-				.AddCustomerOrdersApiLibrary()
 				.AddHttpClient();
 		}
 
