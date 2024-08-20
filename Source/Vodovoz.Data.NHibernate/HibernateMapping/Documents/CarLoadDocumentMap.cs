@@ -20,6 +20,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			References(x => x.LastEditor).Column("last_editor_id");
 			References(x => x.RouteList).Column("route_list_id");
 			References(x => x.Warehouse).Column("warehouse_id");
+			References(x => x.LoadOperationState).Column("load_operation_state");
 			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_load_document_id");
 		}
 	}
