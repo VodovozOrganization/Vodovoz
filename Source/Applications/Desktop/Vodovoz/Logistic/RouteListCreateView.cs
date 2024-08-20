@@ -226,9 +226,7 @@ namespace Vodovoz.Logistic
 				.InitializeFromSource();
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
-
 			ViewModel.DocumentPrinted += OnDocumentsPrinted;
-
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
@@ -444,5 +442,12 @@ namespace Vodovoz.Logistic
 		}
 
 		private void DisableItemsUpdate(bool isDisable) => createroutelistitemsview1.DisableColumnsUpdate = isDisable;
+
+		public override void Destroy()
+		{
+			ViewModel.DocumentPrinted -= OnDocumentsPrinted;
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
+		}
 	}
 }

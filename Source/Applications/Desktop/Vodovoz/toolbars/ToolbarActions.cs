@@ -33,7 +33,6 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
@@ -157,7 +156,6 @@ public partial class MainWindow : Window
 	//Работа с 1С
 	Action ActionRevision;
 	Action ActionExportTo1c;
-	Action ActionOldExportTo1c;
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionAnalyseCounterpartyDiscrepancies;
 
@@ -256,7 +254,6 @@ public partial class MainWindow : Window
 		//Работа с 1С
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
-		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
 
@@ -359,7 +356,6 @@ public partial class MainWindow : Window
 		//Работа с 1С
 		w1.Add(ActionRevision, null);
 		w1.Add(ActionExportTo1c, null);
-		w1.Add(ActionOldExportTo1c, null);
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
 
@@ -452,7 +448,6 @@ public partial class MainWindow : Window
 		//Работа с 1С
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
-		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
 
@@ -731,14 +726,6 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
 			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
-		);
-	}
-
-	void ActionOldExportTo1c_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<Old1612ExportTo1cDialog>(),
-			() => new Old1612ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
 		);
 	}
 

@@ -2,6 +2,7 @@
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
+	//TODO Если не будет обращений по поводу VodInternalId, удалить его из таблицы
 	public class CounterpartyMap : ClassMap<Domain.Client.Counterparty>
 	{
 		public CounterpartyMap()
@@ -33,7 +34,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.PersonType).Column("person_type");
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type");
-			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
 			Map(x => x.UseSpecialDocFields).Column("use_special_doc_fields");
 			Map(x => x.AlwaysPrintInvoice).Column("always_print_invoice");
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
