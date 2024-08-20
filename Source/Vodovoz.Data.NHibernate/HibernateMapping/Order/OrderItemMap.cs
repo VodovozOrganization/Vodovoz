@@ -42,6 +42,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.PaidRentPackage).Column("paid_rent_package_id");
 			References(x => x.FreeRentPackage).Column("free_rent_package_id");
 			References(x => x.CopiedFromUndelivery).Column("copied_from_undelivery_id");
+
+			HasMany(x => x.CarLoadDocumentItemProductCodes).KeyColumn("car_load_document_item_id")
+				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
 		}
 	}
 }

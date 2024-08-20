@@ -7,8 +7,8 @@ namespace VodovozBusiness.Domain.TrueMark
 {
 	[Appellative(
 			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "коды товаров в талонах погрузки",
-			Nominative = "код товара в талоне погрузки")]
+			NominativePlural = "коды ЧЗ для товаров в талонах погрузки",
+			Nominative = "код ЧЗ для товара в талоне погрузки")]
 	public class CarLoadDocumentItemProductCode : PropertyChangedBase, IDomainObject
 	{
 		private CarLoadDocumentItem _carLoadDocumentItem;
