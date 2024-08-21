@@ -157,7 +157,10 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using Vodovoz.Additions.Printing;
+using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz
 {
@@ -222,6 +225,7 @@ namespace Vodovoz
 					builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 					builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
 					builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
+					builder.RegisterType<CustomPrintRdlDocumentsPrinter>().As<ICustomPrintRdlDocumentsPrinter>();
 
 					builder.RegisterType<EntityDeleteWorker>().AsSelf().As<IEntityDeleteWorker>();
 					builder.RegisterType<CommonMessages>().AsSelf();
@@ -331,7 +335,8 @@ namespace Vodovoz
 
 					builder.RegisterAssemblyTypes(
 							Assembly.GetExecutingAssembly(),
-							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
+							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)),
+							Assembly.GetAssembly(typeof(Vodovoz.Presentation.ViewModels.AssemblyFinder)))
 						.Where(t => t.Name.EndsWith("Factory")
 							&& t.GetInterfaces()
 								.Where(i => i.Name == $"I{t.Name}")
@@ -666,6 +671,7 @@ namespace Vodovoz
 						.AddDatabaseSingletonSettings()
 						.AddCore()
 						.AddDesktop()
+						.AddFileStorage()
 						.AddGuiTrackedUoW()
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()

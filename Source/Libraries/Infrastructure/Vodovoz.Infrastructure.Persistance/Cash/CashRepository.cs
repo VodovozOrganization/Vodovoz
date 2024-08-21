@@ -178,6 +178,34 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			return income - expense;
 		}
 
+		public IEnumerable<(int SubdivisionId, decimal Income, decimal Expense)> CashForSubdivisionsByDate(
+			IUnitOfWork uow, IEnumerable<int> subdivisionsIds, DateTime date)
+		{
+			Subdivision subdivisionAlias = null;
+			(int SubdivisionId, decimal Income, decimal Expense) resultAlias = default;
+
+			var expenseProjection = QueryOver.Of<Expense>()
+				.Where(e => e.RelatedToSubdivision.Id == subdivisionAlias.Id)
+				.And(e => e.Date <= date)
+				.Select(Projections.Sum<Expense>(e => e.Money));
+			
+			var incomeProjection = QueryOver.Of<Income>()
+				.Where(i => i.RelatedToSubdivision.Id == subdivisionAlias.Id)
+				.And(i => i.Date <= date)
+				.Select(Projections.Sum<Income>(i => i.Money));
+			
+			var result = uow.Session.QueryOver(() => subdivisionAlias)
+				.WhereRestrictionOn(s => s.Id).IsInG(subdivisionsIds)
+				.SelectList(list => list
+					.SelectGroup(s => s.Id).WithAlias(() => resultAlias.SubdivisionId)
+					.SelectSubQuery(incomeProjection).WithAlias(() => resultAlias.Income)
+					.SelectSubQuery(expenseProjection).WithAlias(() => resultAlias.Expense))
+				.TransformUsing(Transformers.AliasToBean<(int SubdivisionId, decimal Income, decimal Expense)>())
+				.List<(int SubdivisionId, decimal Income, decimal Expense)>();
+
+			return result;
+		}
+
 		public decimal GetRouteListBalanceExceptAccountableCash(IUnitOfWork uow, int routeListId)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()

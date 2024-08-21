@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
@@ -15,7 +15,6 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.Entity.PresetPermissions;
 using QS.Services;
 using System;
-using System.Net.Http.Headers;
 using Vodovoz.Core;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -23,6 +22,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.Presentation.Views;
 
 namespace Vodovoz
 {
@@ -30,6 +30,7 @@ namespace Vodovoz
 	{
 		public static IServiceCollection AddWaterDeliveryDesktop(this IServiceCollection services) =>
 			services.AddVodovozViewModels()
+				.AddPresentationViews()
 				.AddDocumentPrinter();
 
 		public static IServiceCollection AddPermissionValidation(this IServiceCollection services)

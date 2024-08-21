@@ -126,6 +126,10 @@
     <Compile Include="Dialogs\Orders\PrintOrdersDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Orders\PrintOrdersDocumentsViewModel.OrdersToPrintNode.cs" />
     <Compile Include="Dialogs\Pacs\PacsOperatorReferenceBookViewModel.cs" />
+    <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
+    <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.cs" />
+    <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.PrintDocumentSelectableNode.cs" />
+    <Compile Include="Print\PrinterSelectionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
@@ -280,6 +284,9 @@
     <Compile Include="Orders\Reports\OnlinePaymentsReport.OrderRow.ReportPaymentStatus.cs" />
     <Compile Include="Orders\Reports\OnlinePaymentsReport.PaymentWithoutOrderRow.cs" />
     <Compile Include="Orders\Reports\OnlinePaymentsReportViewModel.cs" />
+    <Compile Include="Print\PrintEventArgs.cs" />
+    <Compile Include="Print\Store\EquipmentCarLoadDocumentRdl.cs" />
+    <Compile Include="Print\Store\WaterCarLoadDocumentRdl.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
@@ -365,10 +372,8 @@
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />
-    <Compile Include="Factories\IMonthPickerViewModelFactory.cs" />
     <Compile Include="Factories\IProfitabilityConstantsDataViewModelFactory.cs" />
     <Compile Include="Factories\ISelectableParametersFilterViewModelFactory.cs" />
-    <Compile Include="Factories\MonthPickerViewModelFactory.cs" />
     <Compile Include="Factories\OrganizationVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IOrganizationVersionsViewModelFactory.cs" />
     <Compile Include="Factories\ProfitabilityConstantsDataViewModelFactory.cs" />
@@ -697,6 +702,7 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Cars\CarInsurancesReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\CarTechInspectReport.cs" />
+    <Compile Include="ViewModels\Reports\Cars\CarTechnicalCheckupReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReport.ExportToExcel.cs" />
     <Compile Include="ViewModels\Reports\Cars\ExploitationReport\CarsExploitationReportRow.cs" />
@@ -880,6 +886,7 @@
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
     <Compile Include="Widgets\Cars\Insurance\ChangeIsKaskoNotRelevantClickedEventArgs.cs" />
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeSearchViewModel.cs" />
@@ -953,7 +960,6 @@
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
-    <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReportViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />

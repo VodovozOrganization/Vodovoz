@@ -698,7 +698,12 @@ namespace Vodovoz.ViewModels.Logistic
 				.Where(x => x.Code == Errors.Common.DriverApiClient.RequestIsNotSuccess(x.Message))
 				.Select(x => x.Message)
 				.ToList();
-			
+
+			var ordersWithCreatedUpdNeedToReload = errors
+				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.OrdersWithCreatedUpdNeedToReload)
+				.Select(x => x.Message)
+				.ToList();
+
 			_interactiveService.ShowMessage(ImportanceLevel.Error,
 				"Перенос не был осуществлен:\n" +
 				string.Join(",\n",
@@ -710,7 +715,9 @@ namespace Vodovoz.ViewModels.Logistic
 				string.Join(",\n",
 					transferNotEnoughFreeBalance) +
 				string.Join(",\n",
-					driverApiClientRequestIsNotSuccess),
+					driverApiClientRequestIsNotSuccess) +
+				string.Join(",\n",
+					ordersWithCreatedUpdNeedToReload),
 				"Ошибка при переносе адресов");
 		}
 
