@@ -26,6 +26,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 {
 	public class CompanyBalanceByDateViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
+		private const string _bankStatementsDirectory = @"Z:\SystemStatements\activities\CurrentStatements";
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
@@ -114,10 +115,8 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			LoadAndProcessDataCommand = new DelegateCommand(
 				() =>
 				{
-					var directoryPath = @"Z:\SystemStatements\activities\CurrentStatements";
-
 					var banksStatementsData =
-						_bankStatementHandler.ProcessBankStatementsFromDirectory(directoryPath, DatePickerViewModel.SelectedDate);
+						_bankStatementHandler.ProcessBankStatementsFromDirectory(_bankStatementsDirectory, DatePickerViewModel.SelectedDate);
 					
 					UpdateLocalData(banksStatementsData);
 				},
