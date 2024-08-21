@@ -418,6 +418,7 @@
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
+    <Compile Include="Additions\Printing\CustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
@@ -2042,6 +2043,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallClosedReasonView.cs" />
     <Compile Include="Views\Orders\RequestForCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.RequestForCallView.cs" />
+    <Compile Include="Views\Print\PrintDocumentsSelectablePrinterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.PrintDocumentsSelectablePrinterView.cs" />
+    <Compile Include="ViewWidgets\Users\DocumentsPrinterSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView.cs" />
+    <Compile Include="Views\Print\PrinterSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.PrinterSelectionView.cs" />
     <Compile Include="Views\Organization\FundsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.FundsView.cs" />
     <Compile Include="Views\Organization\BusinessActivityView.cs" />
@@ -2634,6 +2641,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.FileStorage\Vodovoz.Infrastructure.FileStorage.csproj">
+      <Project>{9beffd98-7181-4282-af62-8c697dd4ac1e}</Project>
+      <Name>Vodovoz.Infrastructure.FileStorage</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj">
       <Project>{7204b9bb-efdb-4148-91c1-193b48b9293b}</Project>

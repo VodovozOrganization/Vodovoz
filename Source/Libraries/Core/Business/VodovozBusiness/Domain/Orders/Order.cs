@@ -1477,6 +1477,10 @@ namespace Vodovoz.Domain.Orders
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
+		public virtual bool IsNeedIndividualSetOnLoad =>
+			PaymentType == PaymentType.Cashless
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+
 		#endregion
 
 		#region Автосоздание договоров, при изменении подтвержденного заказа
@@ -4052,7 +4056,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SetNeedToRecendEdoUpd(IUnitOfWorkFactory uowFactory)
 		{
-			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			if(!userCanResendUpd)
 			{
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");

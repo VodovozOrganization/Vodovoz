@@ -159,6 +159,8 @@ namespace Vodovoz.Views.Users
 			var warehousesUserSelectionView = new WarehousesUserSelectionView(ViewModel.WarehousesUserSelectionViewModel);
 			yhboxWarehousesForNotifications.Add(warehousesUserSelectionView);
 			warehousesUserSelectionView.Show();
+
+			documentsprintersettingsview.ViewModel = ViewModel.DocumentsPrinterSettingsViewModel;
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
