@@ -59,6 +59,7 @@ ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
 WIN_BUILD_TOOL = "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
+DOCKER_REGISTRY_URL = "https://docker.vod.qsolution.ru:5100"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
@@ -308,6 +309,8 @@ stage('Cleanup docker')
 {
 	node(NODE_WIN_BUILD){
 		RemoveImage(trueMarkCodePoolCheckWorkerImage)
+		RemoveImage(roboatsCallsWorkerImage)
+		RunPowerShell("docker image prune -f")
 	}
 }
 //-----------------------------------------------------------------------
@@ -526,7 +529,7 @@ def DeployDesktop(){
 
 def PushImage(image, tag = "") {
 	node(NODE_WIN_BUILD){
-		docker.withRegistry('https://docker.vod.qsolution.ru:5100', 'docker-registry') {
+		docker.withRegistry(DOCKER_REGISTRY_URL, 'docker-registry') {
 			if (tag != "") {
 				image.push(tag)
 			}else{
@@ -602,11 +605,8 @@ def PublishWeb(projectName){
 // 308	Фукнции. Очистка
 
 def RemoveImage(image) {
-	node(NODE_WIN_BUILD){
-		RunPowerShell("""
-			docker image rm -f ${image.imageName()}
-		""")
-	}
+	RunPowerShell("docker image rm -f ${image.imageName()}")
+	RunPowerShell("docker image rm -f ${DOCKER_REGISTRY_URL}/${image.imageName()}")
 }
 
 // 309	Фукнции. Утилитарные
