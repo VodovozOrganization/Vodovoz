@@ -529,7 +529,7 @@ def DeployDesktop(){
 
 def PushImage(image, tag = "") {
 	node(NODE_WIN_BUILD){
-		docker.withRegistry(DOCKER_REGISTRY_URL, 'docker-registry') {
+		docker.withRegistry("https://${DOCKER_REGISTRY_URL}", 'docker-registry') {
 			if (tag != "") {
 				image.push(tag)
 			}else{
