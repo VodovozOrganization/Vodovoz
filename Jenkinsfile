@@ -227,22 +227,22 @@ stage('Web'){
 
 // 204	Этапы. Запаковка
 stage('Compress'){
-	parallel(
-		"Desktop" : { CompressDesktopArtifact() },
+	// parallel(
+	// 	"Desktop" : { CompressDesktopArtifact() },
 
-		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
-		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
-		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
-		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
-		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
-		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
-		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") }
-	)
+	// 	"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
+	// 	"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
+	// 	"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
+	// 	"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
+	// 	"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
+	// 	"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
+	// 	"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
+	// 	"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
+	// 	"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
+	// 	"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
+	// 	"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
+	// 	"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") }
+	// )
 }
 
 // 205	Этапы. Доставка
