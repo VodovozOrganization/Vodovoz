@@ -52,7 +52,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = _carLoadService.StartLoad(documentId);
+				var result = await _carLoadService.StartLoad(documentId);
 
 				if(result.IsSuccess)
 				{

@@ -5,7 +5,7 @@ namespace WarehouseApi.Contracts.Responses
 	/// <summary>
 	/// DTO ответа на запрос получения информации о заказе
 	/// </summary>
-	public class GetOrderResponse : ResponseBase
+	public class GetOrderResponse : WarehouseApiResponseBase
 	{
 		/// <summary>
 		/// Данные по заказу

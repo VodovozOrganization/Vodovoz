@@ -3,7 +3,7 @@
 	/// <summary>
 	/// DTO ответа на запрос завершения погрузки по талону погрузки
 	/// </summary>
-	public class EndLoadResponse : ResponseBase
+	public class EndLoadResponse : WarehouseApiResponseBase
 	{
 	}
 }

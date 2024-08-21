@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
@@ -35,13 +36,13 @@ namespace WarehouseApi.Library.Services
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 		}
 
-		public Result<StartLoadResponse> StartLoad(int documentId)
+		public async Task<Result<StartLoadResponse>> StartLoad(int documentId)
 		{
 			Error error = null;
 			var response = new StartLoadResponse();
 
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
-			var carLoadDocument = _carLoadDocumentRepository.GetCarLoadDocumentById(_uow, documentId);
+			var carLoadDocument = await _carLoadDocumentRepository.GetCarLoadDocumentById(_uow, documentId);
 
 			if(carLoadDocument is null)
 			{

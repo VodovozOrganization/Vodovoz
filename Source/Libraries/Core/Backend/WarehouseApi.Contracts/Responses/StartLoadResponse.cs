@@ -5,7 +5,7 @@ namespace WarehouseApi.Contracts.Responses
 	/// <summary>
 	/// DTO ответа на запрос начала погрузки талона
 	/// </summary>
-	public class StartLoadResponse : ResponseBase
+	public class StartLoadResponse : WarehouseApiResponseBase
 	{
 		/// <summary>
 		/// Документ погрузки

@@ -5,7 +5,7 @@ namespace WarehouseApi.Contracts.Responses
 	/// <summary>
 	/// DTO ответа на запрос добавления кода маркировки ЧЗ в заказ
 	/// </summary>
-	public class AddOrderCodeResponse : ResponseBase
+	public class AddOrderCodeResponse : WarehouseApiResponseBase
 	{
 		/// <summary>
 		/// Номенклатура

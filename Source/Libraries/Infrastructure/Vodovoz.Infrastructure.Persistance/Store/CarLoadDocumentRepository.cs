@@ -1,6 +1,8 @@
 ﻿using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
@@ -33,10 +35,11 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return query;
 		}
 
-		public CarLoadDocument GetCarLoadDocumentById(IUnitOfWork uow, int carLoadDocumentId)
+		public async Task<CarLoadDocument> GetCarLoadDocumentById(IUnitOfWork uow, int carLoadDocumentId)
 		{
-			var document = uow.Session.Query<CarLoadDocument>()
+			var document = (await uow.Session.Query<CarLoadDocument>()
 				.Where(d => d.Id == carLoadDocumentId)
+				.ToListAsync())
 				.FirstOrDefault();
 
 			return document;

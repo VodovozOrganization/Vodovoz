@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using WarehouseApi.Contracts.Dto;
+﻿using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Contracts.Responses
 {
-	public class ResponseBase
+	public class WarehouseApiResponseBase
 	{
 		/// <summary>
 		/// Результат выполнения операции
