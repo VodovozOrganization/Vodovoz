@@ -1,7 +1,9 @@
 ﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
@@ -42,12 +44,14 @@ namespace WarehouseApi.Library.Services
 			var response = new StartLoadResponse();
 
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
-			var carLoadDocument = await _carLoadDocumentRepository.GetCarLoadDocumentById(_uow, documentId);
+			var carLoadDocument = 
+				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
+				.FirstOrDefault();
 
 			if(carLoadDocument is null)
 			{
 				_logger.LogInformation("Талон погрузки #{DocumentId} не найден", documentId);
-				error = CarLoadDocumentErrors.CreateNotFound(documentId);
+				error = CarLoadDocumentErrors.CreateDocumentNotFound(documentId);
 			}
 			else if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress)
 			{
@@ -74,6 +78,41 @@ namespace WarehouseApi.Library.Services
 			}
 
 			SetLoadOperationStateInProgress(carLoadDocument);
+
+			response.Result = OperationResultEnumDto.Success;
+			response.Error = null;
+
+			return Result.Success(response);
+		}
+
+		public async Task<Result<GetOrderResponse>> GetOrder(int orderId)
+		{
+			Error error = null;
+			var response = new GetOrderResponse();
+
+			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
+			var documentItems = await _carLoadDocumentRepository.GetItemsInCarLoadDocumentById(_uow, orderId).ToListAsync();
+
+			if(documentItems is null || documentItems.Count == 0)
+			{
+				_logger.LogInformation("Данные заказа #{OrderId} в талонах погрузки не найдены", orderId);
+				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
+			}
+			else if(documentItems.Select(oi => oi.Document.Id).Distinct().Count() > 1)
+			{
+				_logger.LogInformation("Строки заказа #{OrderId} сетевого клиента присутствуют в нескольких талонах погрузки", orderId);
+				error = CarLoadDocumentErrors.CreateOrderItemsExistInMultipleDocuments(orderId);
+			}
+
+			if(error != null)
+			{
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				return Result.Failure(response, error);
+			}
+
+			response.Order = _carLoadDocumentConverter.ConvertToApiOrder(documentItems);
 
 			response.Result = OperationResultEnumDto.Success;
 			response.Error = null;

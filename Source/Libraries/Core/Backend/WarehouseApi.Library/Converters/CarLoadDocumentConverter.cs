@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
+using VodovozBusiness.Domain.TrueMark;
 using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Library.Converters
@@ -14,10 +17,98 @@ namespace WarehouseApi.Library.Converters
 				Driver = carLoadDocument.RouteList.Driver?.FullName,
 				Car = carLoadDocument.RouteList.Car?.RegistrationNumber,
 				LoadPriority = loadPriority,
-				State = (LoadOperationStateEnumDto)Enum.Parse(typeof(LoadOperationStateEnumDto), carLoadDocument.LoadOperationState.ToString())
+				State = ConvertToApiLoadOperationState(carLoadDocument.LoadOperationState)
 			};
 
 			return carLoadDocumentDto;
+		}
+
+		public OrderDto ConvertToApiOrder(IEnumerable<CarLoadDocumentItem> carLoadDocumentItems)
+		{
+			var waterCarLoadDocumentItems = carLoadDocumentItems
+				.Where(item => item.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
+				.ToList();
+
+			var firstDocumentItem = waterCarLoadDocumentItems.FirstOrDefault();
+
+			var apiOrder = new OrderDto
+			{
+				Id = firstDocumentItem?.Id ?? 0,
+				CarLoadDocument = firstDocumentItem?.Document?.Id ?? 0,
+				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
+				Items = GetApiOrderItems(waterCarLoadDocumentItems)
+			};
+
+			return apiOrder;
+		}
+
+		private List<OrderItemDto> GetApiOrderItems(List<CarLoadDocumentItem> waterCarLoadDocuemntItems)
+		{
+			var apiOrderItems = new List<OrderItemDto>();
+
+			foreach(var documentItem in waterCarLoadDocuemntItems)
+			{
+				var apiOrderItem = new OrderItemDto
+				{
+					NomenclatureId = documentItem.Nomenclature.Id,
+					Name = documentItem.Nomenclature.Name,
+					Gtin = documentItem.Nomenclature.Gtin,
+					Quantity = (int)documentItem.Amount,
+					Codes = GetApiTrueMarkCodes(documentItem)
+				};
+
+				apiOrderItems.Add(apiOrderItem);
+			}
+
+			return apiOrderItems;
+		}
+
+		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<CarLoadDocumentItem> carLoadDocumentItems)
+		{
+			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
+
+			foreach(var item in carLoadDocumentItems)
+			{
+				itemsLoadState.Add(item.GetDocumentItemLoadOperationState());
+			}
+
+			var apiOrderLoadOperationState = LoadOperationStateEnumDto.NotStarted;
+
+			if(itemsLoadState.Any(st => st == CarLoadDocumentLoadOperationState.InProgress || st == CarLoadDocumentLoadOperationState.Done))
+			{
+				apiOrderLoadOperationState = LoadOperationStateEnumDto.InProgress;
+			}
+
+			if(itemsLoadState.All(st => st == CarLoadDocumentLoadOperationState.Done))
+			{
+				apiOrderLoadOperationState = LoadOperationStateEnumDto.Done;
+			}
+
+			return apiOrderLoadOperationState;
+		}
+
+		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(CarLoadDocumentItem documentItem)
+		{
+			var apiTrueMarkCodes =
+				documentItem.TrueMarkCodes
+				.Select(code => ConvertToApiTrueMarkCode(code))
+				.ToList();
+
+			return apiTrueMarkCodes;
+		}
+
+		private TrueMarkCodeDto ConvertToApiTrueMarkCode(CarLoadDocumentItemTrueMarkCode documentTrueMarkCode)
+		{
+			return new TrueMarkCodeDto
+			{
+				SequenceNumber = documentTrueMarkCode.SequenceNumber,
+				Code = documentTrueMarkCode.TrueMarkCode.RawCode
+			};
+		}
+
+		private LoadOperationStateEnumDto ConvertToApiLoadOperationState(CarLoadDocumentLoadOperationState documentLoadOperationState)
+		{
+			return (LoadOperationStateEnumDto)Enum.Parse(typeof(LoadOperationStateEnumDto), documentLoadOperationState.ToString());
 		}
 	}
 }

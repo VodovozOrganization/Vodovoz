@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Office2010.Word;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -65,7 +66,7 @@ namespace WarehouseApi.Controllers
 					{
 						var firstError = result.Errors.FirstOrDefault();
 
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.NotFound)
+						if(firstError != null && firstError.Code == CarLoadDocumentErrors.DocumentNotFound)
 						{
 							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
 						}
@@ -89,44 +90,39 @@ namespace WarehouseApi.Controllers
 		[HttpGet("GetOrder")]
 		public async Task<IActionResult> GetOrder([FromQuery] int orderId)
 		{
-			var response = new GetOrderResponse();
-			response.Result = OperationResultEnumDto.Success;
-			response.Order = new OrderDto
-			{
-				Id = orderId,
-				CarLoadDocument = 321,
-				State = LoadOperationStateEnumDto.InProgress,
-				Items = new List<OrderItemDto>
-				{
-					new OrderItemDto
-					{
-						NomenclatureId = 1,
-						Name = "Name1",
-						Gtin = "Gtin12345",
-						Quantity = 3,
-						Codes = new List<TrueMarkCodeDto>
-						{
-							new TrueMarkCodeDto { SequenceNumber = 1, Code = "TrueMarkCodeDto-1"},
-							new TrueMarkCodeDto { SequenceNumber = 2, Code = "TrueMarkCodeDto-2"},
-							new TrueMarkCodeDto { SequenceNumber = 3, Code = "TrueMarkCodeDto-3"}
-						}
-					},
-					new OrderItemDto
-					{
-						NomenclatureId = 2,
-						Name = "Name2",
-						Gtin = "Gtin123456",
-						Quantity = 2,
-						Codes = new List<TrueMarkCodeDto>
-						{
-							new TrueMarkCodeDto { SequenceNumber = 11, Code = "TrueMarkCodeDto-11"},
-							new TrueMarkCodeDto { SequenceNumber = 12, Code = "TrueMarkCodeDto-12"}
-						}
-					},
-				}
-			};
+			_logger.LogInformation("Запрос получения информации о заказе. OrderId: {OrderId}. User token: {AccessToken}",
+				orderId,
+				Request.Headers[HeaderNames.Authorization]);
 
-			return Ok(response);
+			try
+			{
+				var result = await _carLoadService.GetOrder(orderId);
+
+				if(result.IsSuccess)
+				{
+					return MapResult(result);
+				}
+
+				return MapFailureValueResult(
+					result,
+					result =>
+					{
+						var firstError = result.Errors.FirstOrDefault();
+
+						if(firstError != null && firstError.Code == CarLoadDocumentErrors.OrderNotFound)
+						{
+							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+						}
+
+						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+
+				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+			}
 		}
 
 		/// <summary>

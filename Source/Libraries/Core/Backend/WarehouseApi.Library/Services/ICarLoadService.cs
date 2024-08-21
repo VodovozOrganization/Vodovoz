@@ -7,5 +7,6 @@ namespace WarehouseApi.Library.Services
 	public interface ICarLoadService
 	{
 		Task<Result<StartLoadResponse>> StartLoad(int documentId);
+		Task<Result<GetOrderResponse>> GetOrder(int orderId);
 	}
 }

@@ -1,9 +1,8 @@
 ﻿using NHibernate.Criterion;
-using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System.Linq;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
@@ -35,14 +34,22 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return query;
 		}
 
-		public async Task<CarLoadDocument> GetCarLoadDocumentById(IUnitOfWork uow, int carLoadDocumentId)
+		public IQueryable<CarLoadDocument> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
 		{
-			var document = (await uow.Session.Query<CarLoadDocument>()
-				.Where(d => d.Id == carLoadDocumentId)
-				.ToListAsync())
-				.FirstOrDefault();
+			var documents = uow.Session.Query<CarLoadDocument>()
+				.Where(d => d.Id == carLoadDocumentId);
 
-			return document;
+			return documents;
+		}
+
+		public IQueryable<CarLoadDocumentItem> GetItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId)
+		{
+			var documentItems = from documentItem in uow.Session.Query<CarLoadDocumentItem>()
+								join nomenclature in uow.Session.Query<Nomenclature>() on documentItem.Nomenclature.Id equals nomenclature.Id
+								where documentItem.OrderId == orderId && nomenclature.Category == NomenclatureCategory.water
+								select documentItem;
+
+			return documentItems;
 		}
 	}
 }
