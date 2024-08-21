@@ -72,7 +72,7 @@
 	orders.payment_type AS order_payment_type,
 	orders.online_order AS order_online_number,
 	delivery_schedule.name AS delivery_schedule,
-	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+	counterparty_contract.number AS contract_number,
 	DATE_FORMAT(counterparty_contract.issue_date,
 			'%d.%m.%y') AS contract_date,
 	counterparty.full_name AS client_name,

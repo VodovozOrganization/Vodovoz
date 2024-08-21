@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V5.Converters;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -268,7 +269,7 @@ namespace DriverAPI.Library.V5.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressIncomingTransferDto
 			{
@@ -312,7 +313,7 @@ namespace DriverAPI.Library.V5.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressOutgoingTransferDto
 			{

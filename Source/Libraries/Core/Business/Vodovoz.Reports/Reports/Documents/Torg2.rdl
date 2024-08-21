@@ -12459,7 +12459,7 @@
         CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
         IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_name),
             counterparty.special_contract_name,
-            CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber))) AS contract_number,
+            counterparty_contract.number)) AS contract_number,
     counterparty_contract.issue_date AS contract_date
 FROM
     order_documents

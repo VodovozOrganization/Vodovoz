@@ -335,7 +335,8 @@ namespace Vodovoz
 
 					builder.RegisterAssemblyTypes(
 							Assembly.GetExecutingAssembly(),
-							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
+							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)),
+							Assembly.GetAssembly(typeof(Vodovoz.Presentation.ViewModels.AssemblyFinder)))
 						.Where(t => t.Name.EndsWith("Factory")
 							&& t.GetInterfaces()
 								.Where(i => i.Name == $"I{t.Name}")
