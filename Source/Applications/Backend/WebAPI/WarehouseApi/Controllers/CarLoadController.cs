@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Common;
@@ -11,6 +14,7 @@ using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Services;
+using CarLoadDocumentErrors = Vodovoz.Errors.Store.CarLoadDocument;
 
 namespace WarehouseApi.Controllers
 {
@@ -42,11 +46,39 @@ namespace WarehouseApi.Controllers
 		[HttpPost("StartLoad")]
 		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
 		{
-			_logger.LogInformation("(DocumentId: {DocumentId}) User token: {AccessToken}",
+			_logger.LogInformation("Запрос начала погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
 				Request.Headers[HeaderNames.Authorization]);
 
-			return MapResult(_carLoadService.StartLoad(documentId));
+			try
+			{
+				var result = _carLoadService.StartLoad(documentId);
+
+				if(result.IsSuccess)
+				{
+					return MapResult(result);
+				}
+
+				return MapFailureValueResult(
+					result,
+					result =>
+					{
+						var firstError = result.Errors.FirstOrDefault();
+
+						if(firstError != null && firstError.Code == CarLoadDocumentErrors.NotFound)
+						{
+							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+						}
+
+						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+
+				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+			}
 		}
 
 		/// <summary>

@@ -6,6 +6,8 @@ using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models;
+using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Services;
 
 namespace WarehouseApi.Library
@@ -28,7 +30,9 @@ namespace WarehouseApi.Library
 				.AddTrackedUoW()
 				.AddFirebaseCloudMessaging(configuration)
 				.ConfigureBusinessOptions(configuration)
-				.AddScoped<ICarLoadService, CarLoadService>();
+				.AddScoped<ICarLoadService, CarLoadService>()
+				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
+				.AddScoped<CarLoadDocumentConverter>();
 
 			services.AddStaticHistoryTracker();
 
