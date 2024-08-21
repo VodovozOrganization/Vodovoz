@@ -165,7 +165,6 @@ stage('Web'){
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 			}
 			stage('Web.Build'){
 				// IIS
@@ -195,6 +194,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")*/
 
 				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
+					bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 					trueMarkCodePoolCheckWorkerImage = docker.build("true-mark-code-pool.check-worker:${TAG}", "-f ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/Dockerfile ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker")
 				}
