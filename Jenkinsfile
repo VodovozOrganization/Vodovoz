@@ -604,7 +604,7 @@ def PublishWeb(projectName){
 def RemoveImage(image) {
 	node(NODE_WIN_BUILD){
 		RunPowerShell("""
-			docker image rm -f ${myImg.imageName()}
+			docker image rm -f ${image.imageName()}
 		""")
 	}
 }
