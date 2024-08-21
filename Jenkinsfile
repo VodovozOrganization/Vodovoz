@@ -38,7 +38,8 @@
 // 305		Доставка
 // 306		Развертывание
 // 307		Публикация
-// 308		Утилитарные
+// 308		Очистка
+// 309		Утилитарные
 
 //-----------------------------------------------------------------------
 
@@ -165,6 +166,7 @@ stage('Web'){
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			stage('Web.Restore'){
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
 			}
 			stage('Web.Build'){
 				// IIS
@@ -194,7 +196,6 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")*/
 
 				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
-					bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 					trueMarkCodePoolCheckWorkerImage = docker.build("true-mark-code-pool.check-worker:${TAG}", "-f ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/Dockerfile ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker")
 				}
@@ -248,26 +249,26 @@ stage('Compress'){
 stage('Delivery'){
 	parallel(
 
-		// Desktop
-		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
+		// // Desktop
+		// "Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
+		// "Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
+		// "Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
+		// "Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
+		// "Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
 
-		// IIS
-		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
-		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
-		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
-		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
-		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
-		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
-		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
+		// // IIS
+		// "FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
+		// "PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
+		// "MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
+		// "UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
+		// "DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
+		// "RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
+		// "TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
+		// "CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
+		// "CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
+		// "CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
+		// "CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
+		// "PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
 		"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
 		"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
@@ -276,33 +277,39 @@ stage('Delivery'){
 
 // 206	Этапы. Развертывание
 stage('Deploy'){
-	DeployDesktop()
+	//DeployDesktop()
 }
 
 // 207	Этапы. Публикация
 stage('Publish'){
-	parallel(
-		"Desktop ${NODE_VOD1}" : { PublishDesktop(NODE_VOD1) },
-		"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
-		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
-		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
-		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
+	// parallel(
+	// 	"Desktop ${NODE_VOD1}" : { PublishDesktop(NODE_VOD1) },
+	// 	"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
+	// 	"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
+	// 	"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
+	// 	"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
 
-		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
-		"PayPageAPI" : { PublishWeb("PayPageAPI") },
-		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
-		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
-		"RoboatsService" : { PublishWeb("RoboatsService") },
-		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
-		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
-		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
-	)
+	// 	"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
+	// 	"PayPageAPI" : { PublishWeb("PayPageAPI") },
+	// 	"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
+	// 	"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
+	// 	"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
+	// 	"RoboatsService" : { PublishWeb("RoboatsService") },
+	// 	"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
+	// 	"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
+	// 	"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
+	// 	"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
+	// 	"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
+	// 	"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
+	// )
 }
 
+stage('Cleanup docker')
+{
+	node(NODE_WIN_BUILD){
+		RemoveImage(trueMarkCodePoolCheckWorkerImage)
+	}
+}
 //-----------------------------------------------------------------------
 
 // 300	Фукнции
@@ -592,7 +599,17 @@ def PublishWeb(projectName){
 	}
 }
 
-// 308	Фукнции. Утилитарные
+// 308	Фукнции. Очистка
+
+def RemoveImage(image) {
+	node(NODE_WIN_BUILD){
+		RunPowerShell("""
+			docker image rm -f ${myImg.imageName()}
+		""")
+	}
+}
+
+// 309	Фукнции. Утилитарные
 
 
 def LockHotfix(hotfixName){
