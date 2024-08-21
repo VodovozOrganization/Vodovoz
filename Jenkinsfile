@@ -76,18 +76,13 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
-//TEST
-//CAN_BUILD_DESKTOP = true
-CAN_BUILD_DESKTOP = false
+CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
-//TEST
-//CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
-CAN_PUBLISH_BUILD_WEB = true
+CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
-//TEST
-//CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 CAN_COMPRESS_WEB = true
 
 // 107	Настройки. Доставка
@@ -108,8 +103,7 @@ CAN_DEPLOY_WEB = false
 
 // 109	Настройки. Публикация	
 CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
-//TEST
-//CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
+CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
 CAN_PUBLISH_WEB = false
 //Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
 NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
@@ -171,7 +165,7 @@ stage('Web'){
 			}
 			stage('Web.Build'){
 				// IIS
-				/*PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
@@ -194,7 +188,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")*/
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
 
 				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
 					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
@@ -228,48 +222,48 @@ stage('Web'){
 
 // 204	Этапы. Запаковка
 stage('Compress'){
-	// parallel(
-	// 	"Desktop" : { CompressDesktopArtifact() },
+	parallel(
+		"Desktop" : { CompressDesktopArtifact() },
 
-	// 	"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
-	// 	"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
-	// 	"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
-	// 	"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
-	// 	"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
-	// 	"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-	// 	"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
-	// 	"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
-	// 	"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
-	// 	"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
-	// 	"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
-	// 	"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") }
-	// )
+		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
+		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
+		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
+		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
+		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
+		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
+		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
+		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
+		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") }
+	)
 }
 
 // 205	Этапы. Доставка
 stage('Delivery'){
 	parallel(
 
-		// // Desktop
-		// "Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
-		// "Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
-		// "Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
-		// "Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
-		// "Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
+		// Desktop
+		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
 
-		// // IIS
-		// "FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
-		// "PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
-		// "MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
-		// "UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
-		// "DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
-		// "RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		// "TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
-		// "CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
-		// "CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
-		// "CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
-		// "CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
-		// "PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
+		// IIS
+		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
+		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
+		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
+		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
+		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
+		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
+		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
+		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
 		"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
 		"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
@@ -278,31 +272,31 @@ stage('Delivery'){
 
 // 206	Этапы. Развертывание
 stage('Deploy'){
-	//DeployDesktop()
+	DeployDesktop()
 }
 
 // 207	Этапы. Публикация
 stage('Publish'){
-	// parallel(
-	// 	"Desktop ${NODE_VOD1}" : { PublishDesktop(NODE_VOD1) },
-	// 	"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
-	// 	"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
-	// 	"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
-	// 	"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
+	parallel(
+		"Desktop ${NODE_VOD1}" : { PublishDesktop(NODE_VOD1) },
+		"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
+		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
+		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
+		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
 
-	// 	"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
-	// 	"PayPageAPI" : { PublishWeb("PayPageAPI") },
-	// 	"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
-	// 	"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
-	// 	"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
-	// 	"RoboatsService" : { PublishWeb("RoboatsService") },
-	// 	"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
-	// 	"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
-	// 	"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
-	// 	"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
-	// 	"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
-	// 	"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
-	// )
+		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
+		"PayPageAPI" : { PublishWeb("PayPageAPI") },
+		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
+		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
+		"RoboatsService" : { PublishWeb("RoboatsService") },
+		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
+		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
+		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
+		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
+	)
 }
 
 stage('Cleanup docker')
