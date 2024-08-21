@@ -165,7 +165,7 @@ stage('Web'){
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 			}
 			stage('Web.Build'){
 				// IIS
