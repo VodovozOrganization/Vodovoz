@@ -520,6 +520,11 @@ def DeployDesktop(){
 }
 
 def PushImage(image, tag = "") {
+	if(!CAN_PUBLISH_BUILD_WEB)
+	{
+		echo "Push image not needed"
+		return
+	}
 	node(NODE_WIN_BUILD){
 		docker.withRegistry("https://${DOCKER_REGISTRY_URL}", 'docker-registry') {
 			if (tag != "") {
