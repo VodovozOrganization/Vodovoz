@@ -64,12 +64,12 @@ namespace Vodovoz.Application.Payments
 
 			if(!orderNodes.Any())
 			{
-				return Result.Failure(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute(counterpartyId));
+				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.NoOrdersToDistribute(counterpartyId));
 			}
 
 			if(!paymentNodes.Any())
 			{
-				return Result.Failure(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance(counterpartyId));
+				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance(counterpartyId));
 			}
 
 			foreach(var paymentNode in paymentNodes)
@@ -161,7 +161,7 @@ namespace Vodovoz.Application.Payments
 				}
 				catch(Exception e)
 				{
-					return Result.Failure(Errors.Payments.PaymentsDistribution.AutomaticDistribution(e.Message));
+					return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.AutomaticDistribution(e.Message));
 				}
 			}
 

@@ -1146,10 +1146,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					Restrictions.NotEqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
 					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatusesForOrderDocumentCloser));
 
+			var prohibitedOrderStatusRestriction = Restrictions.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder);
+
 			var result = query
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(orderStatusRestriction)
+				.And(prohibitedOrderStatusRestriction)
 				.And(() => counterpartyAlias.NeedSendBillByEdo && counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();

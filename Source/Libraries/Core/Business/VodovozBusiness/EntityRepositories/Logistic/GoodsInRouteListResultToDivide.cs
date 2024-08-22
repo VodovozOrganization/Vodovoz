@@ -8,5 +8,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public decimal Amount { get; set; }
 		public decimal? ExpireDatePercent { get; set; } = null;
 		public OwnTypes OwnType { get; set; }
+		public int? OrderId { get; set; }
 	}
 }
