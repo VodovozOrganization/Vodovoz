@@ -36,7 +36,7 @@
         ELSE ''
         END AS pay_type,
     delivery_schedule.name AS delivery_schedule,
-    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+    counterparty_contract.number AS contract_number,
     DATE_FORMAT(
             counterparty_contract.issue_date,
             '%d.%m.%y'

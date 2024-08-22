@@ -24,7 +24,7 @@
        counterparty.special_contract_name) AS special_contract_number,
 	GROUP_CONCAT(CONCAT('+7 ', phones.digits_number), ', ') AS phone,
 	delivery_points.compiled_address as delivery_address,
-	CONCAT(counterparty.vod_internal_id, '-', counterparty_contract.subnumber) AS contract
+	counterparty_contract.number AS contract
 FROM orders 
 	LEFT JOIN counterparty ON orders.client_id = counterparty.id
     LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id

@@ -33,7 +33,8 @@
 	dp.compiled_address_short as delivery_address,
 	IFNULL(o.id, '0') as order_id,
 	n.id as nomenclature_id,
-	scldi.is_individual_set_for_order
+	scldi.is_individual_set_for_order,
+	ng.is_highlight_in_car_load_document as is_highlight_row
 FROM
 	store_car_load_document_items scldi 
 	LEFT JOIN store_car_load_documents scld ON scld.id = scldi.car_load_document_id
@@ -42,6 +43,7 @@ FROM
 	LEFT JOIN orders o ON scldi.order_id = o.id
 	LEFT JOIN counterparty c ON o.client_id = c.id
 	LEFT JOIN delivery_points dp ON o.delivery_point_id = dp.id
+	LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
 WHERE 
 	scld.id = @id
 	AND n.online_store_id IS NULL
@@ -96,6 +98,10 @@ ORDER BY clmn_for_sorting;</CommandText>
         </Field>
         <Field Name="is_individual_set_for_order">
           <DataField>is_individual_set_for_order</DataField>
+          <rd:TypeName>System.Int16</rd:TypeName>
+        </Field>
+        <Field Name="is_highlight_row">
+          <DataField>is_highlight_row</DataField>
           <rd:TypeName>System.Int16</rd:TypeName>
         </Field>
       </Fields>
@@ -470,6 +476,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingBottom>0pt</PaddingBottom>
                         <PaddingTop>0pt</PaddingTop>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -491,6 +498,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <Format>N0</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -514,6 +522,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -537,6 +546,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -561,6 +571,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <Format>N0</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -585,6 +596,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
                         <Format>N0</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1533,6 +1545,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingBottom>0pt</PaddingBottom>
                         <PaddingTop>0pt</PaddingTop>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1553,6 +1566,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <Format>N0</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1576,6 +1590,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1599,6 +1614,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <FontSize>10pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1623,6 +1639,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <Format>N0</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1647,6 +1664,7 @@ Format({route_list_date}, "dd.MM.yyyy")
                         <Format>N0</Format>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>=Iif({is_highlight_row}=1, 'Bold', 'Normal') </FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>

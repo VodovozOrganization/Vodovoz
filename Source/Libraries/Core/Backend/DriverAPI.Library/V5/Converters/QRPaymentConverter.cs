@@ -1,6 +1,7 @@
-﻿using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using FastPaymentsApi.Contracts.Responses;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
 namespace DriverAPI.Library.V5.Converters
