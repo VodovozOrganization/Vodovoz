@@ -138,7 +138,7 @@ stage('Desktop'){
 		if(CAN_BUILD_DESKTOP)
 		{
 			stage('Desktop.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86"
 			}
 
 			stage('Desktop.Build'){
@@ -159,7 +159,7 @@ stage('Web'){
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86"
 			}
 			stage('Web.Build'){
 				// IIS
@@ -202,7 +202,7 @@ stage('Web'){
 		else if(CAN_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86"
 			}
 			stage('Web.Build'){
 				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
