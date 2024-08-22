@@ -439,7 +439,7 @@ def CompressArtifact(sourcePath, artifactName) {
 
 	if (fileExists(archive_file_path)) {
 		echo "Delete exiting artifact ${archive_file_path} from ${sourcePath}/*"
-		RunPowerShell("Remove-Item -LiteralPath ${archive_file_path} -Force")
+		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file_path}")])
 	}
 
 	echo "Compressing artifact ${archive_file} from ./${sourcePath}/*"
