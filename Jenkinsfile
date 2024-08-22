@@ -202,7 +202,7 @@ stage('Web'){
 		else if(CAN_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
 			}
 			stage('Web.Build'){
 				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
