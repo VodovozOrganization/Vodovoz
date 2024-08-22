@@ -409,6 +409,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			_guiDispatcher.RunInGuiTread(() =>
 			{
+				_logger.LogInformation("RunInGuiTread operatorViewModels.ToList()");
 				OperatorsOnBreak = new GenericObservableList<DashboardOperatorOnBreakViewModel>(operatorViewModels.ToList());
 			});
 		}
