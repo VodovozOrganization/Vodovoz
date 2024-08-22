@@ -347,28 +347,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private bool RevertPay()
 		{
-			if(_orderRepository.GetUndeliveryStatuses().Contains(SelectedAllocatedNode.OrderStatus))
+			var paymentItem = Entity.PaymentItems.SingleOrDefault(x => x.Id == SelectedAllocatedNode.PaymentItemId);
+
+			if(paymentItem is null)
 			{
-				ShowWarningMessage("Нельзя снимать оплату с отмененного заказа!");
 				return false;
 			}
 
-			Entity.RemovePaymentItem(SelectedAllocatedNode.PaymentItemId);
-			var order = UoW.GetById<VodOrder>(SelectedAllocatedNode.OrderId);
+			paymentItem.CancelAllocation(true);
 
-			if(SelectedAllocatedNode.AllAllocatedSum > SelectedAllocatedNode.AllocatedSum)
-			{
-				order.OrderPaymentStatus =
-					SelectedAllocatedNode.AllAllocatedSum - SelectedAllocatedNode.AllocatedSum >= order.OrderSum
-						? OrderPaymentStatus.Paid
-						: OrderPaymentStatus.PartiallyPaid;
-			}
-			else
-			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-			}
-
-			UoW.Save(order);
 			UoW.Save();
 
 			if(Entity.PaymentItems.Any())
