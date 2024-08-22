@@ -18,7 +18,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsOperatorViewModel : WidgetViewModelBase
+	public class PacsOperatorViewModel : WidgetViewModelBase, IDisposable
 	{
 		private readonly ILogger<PacsOperatorViewModel> _logger;
 		private readonly OperatorService _operatorService;
@@ -419,6 +419,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				operatorOnBreak.Model.Settings = _operatorService.Settings;
 			}
+		}
+
+		public void Dispose()
+		{
+			_operatorService.PropertyChanged -= OperatorServicePropertyChanged;
 		}
 	}
 }
