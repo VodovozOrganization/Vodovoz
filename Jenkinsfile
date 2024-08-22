@@ -261,11 +261,18 @@ stage('Delivery'){
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
-
-		"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
-		"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") }
 	)
+}
+
+stage('Delivery.Docker'){
+	if(CAN_PUBLISH_BUILD_WEB)
+	{
+		parallel(
+			"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
+			"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
+		)
+	}
 }
 
 // 206	Этапы. Развертывание
