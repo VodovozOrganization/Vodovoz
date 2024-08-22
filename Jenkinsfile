@@ -266,7 +266,7 @@ stage('Delivery'){
 }
 
 stage('Delivery.Docker'){
-	if(CAN_PUBLISH_BUILD_WEB)
+	if(CAN_DELIVERY_WEB)
 	{
 		parallel(
 			"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
@@ -311,7 +311,7 @@ stage('Cleanup docker')
 		echo "Cleanup docker not needed"
 		return
 	}
-	
+
 	node(NODE_WIN_BUILD){
 		RemoveImage(trueMarkCodePoolCheckWorkerImage)
 		RemoveImage(roboatsCallsWorkerImage)
@@ -438,10 +438,7 @@ def CompressWebArtifact(relativeProjectPath){
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	//def workspacePath = GetWorkspacePath()
 	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
-	//def archive_file_path = "${workspacePath}/${artifactName}${ARCHIVE_EXTENTION}"
-	
 
 	if (fileExists(archive_file)) {
 		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
