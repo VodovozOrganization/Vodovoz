@@ -9,6 +9,6 @@ namespace Vodovoz.EntityRepositories.Store
 	{
 		decimal LoadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId);
 		IQueryable<CarLoadDocument> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId);
-		IQueryable<CarLoadDocumentItem> GetItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId);
+		IQueryable<CarLoadDocumentItem> GetWaterItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId);
 	}
 }

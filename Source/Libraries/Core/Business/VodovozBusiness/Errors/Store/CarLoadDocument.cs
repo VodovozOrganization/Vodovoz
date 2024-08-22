@@ -1,4 +1,7 @@
-﻿namespace Vodovoz.Errors.Store
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using System.Security.Cryptography;
+
+namespace Vodovoz.Errors.Store
 {
 	public static partial class CarLoadDocument
 	{
@@ -60,5 +63,65 @@
 				typeof(CarLoadDocument),
 				nameof(OrderItemsExistInMultipleDocuments),
 				$"Строки заказа #{id} сетевого клиента присутствуют в нескольких талонах погрузки");
+
+		public static Error OrderDoesNotContainNomenclature =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(OrderDoesNotContainNomenclature),
+				"В сетевом заказе номенклатура не найдена");
+
+		public static Error CreateOrderDoesNotContainNomenclature(int? orderId, int? nomenclatureId) =>
+			orderId is null || nomenclatureId is null ? OrderDoesNotContainNomenclature : new Error(
+				typeof(CarLoadDocument),
+				nameof(OrderDoesNotContainNomenclature),
+				$"В сетевом заказе #{orderId} номенклатура #{nomenclatureId} не найдена");
+
+		public static Error OrderNomenclatureExistInMultipleDocumentItems =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(OrderNomenclatureExistInMultipleDocumentItems),
+				"В талоне погрузки имеется несколько строк сетевого заказа с номенклатурой");
+
+		public static Error CreateOrderNomenclatureExistInMultipleDocumentItems(int? orderId, int? nomenclatureId) =>
+			orderId is null || nomenclatureId is null ? OrderNomenclatureExistInMultipleDocumentItems : new Error(
+				typeof(CarLoadDocument),
+				nameof(OrderNomenclatureExistInMultipleDocumentItems),
+				$"В талоне погрузки имеется несколько строк сетевого заказа #{orderId} с номенклатурой #{nomenclatureId}");
+
+		public static Error TrueMarkCodeStringIsNotValid =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(TrueMarkCodeStringIsNotValid),
+				"Полученная строка кода ЧЗ невалидна");
+
+		public static Error CreateTrueMarkCodeStringIsNotValid(string codeString) =>
+			string.IsNullOrEmpty(codeString) ? TrueMarkCodeStringIsNotValid : new Error(
+				typeof(CarLoadDocument),
+				nameof(TrueMarkCodeStringIsNotValid),
+				$"Полученная строка кода ЧЗ ({codeString}) невалидна");
+
+		public static Error TrueMarkCodeIsAlreadyExists =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(TrueMarkCodeIsAlreadyExists),
+				"Код ЧЗ уже имеется в базе. Добавляемый код является дублем");
+
+		public static Error CreateTrueMarkCodeIsAlreadyExists(string codeString) =>
+			string.IsNullOrEmpty(codeString) ? TrueMarkCodeIsAlreadyExists : new Error(
+				typeof(CarLoadDocument),
+				nameof(TrueMarkCodeIsAlreadyExists),
+				$"Код ЧЗ ({codeString}) уже имеется в базе. Добавляемый код является дублем");
+
+		public static Error TrueMarkCodeGtinIsNotEqualsNomenclatureGtin =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(TrueMarkCodeGtinIsNotEqualsNomenclatureGtin),
+				"Значение GTIN переданного кода не соответствует значению GTIN для указанной номенклатуры");
+
+		public static Error CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(string codeString) =>
+			string.IsNullOrEmpty(codeString) ? TrueMarkCodeGtinIsNotEqualsNomenclatureGtin : new Error(
+				typeof(CarLoadDocument),
+				nameof(TrueMarkCodeGtinIsNotEqualsNomenclatureGtin),
+				$"Значение GTIN переданного кода ({codeString}) не соответствует значению GTIN для указанной номенклатуры");
 	}
 }

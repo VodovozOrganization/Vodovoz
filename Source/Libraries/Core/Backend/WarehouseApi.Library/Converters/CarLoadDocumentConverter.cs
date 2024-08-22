@@ -42,6 +42,20 @@ namespace WarehouseApi.Library.Converters
 			return apiOrder;
 		}
 
+		public NomenclatureDto ConvertToApiNomenclature(CarLoadDocumentItem documentItem)
+		{
+			var apiNomenclature = new NomenclatureDto
+			{
+				NomenclatureId = documentItem.Nomenclature.Id,
+				Name = documentItem.Nomenclature.Name,
+				Gtin = documentItem.Nomenclature.Gtin,
+				Quantity = (int)documentItem.Amount,
+				Codes = GetApiTrueMarkCodes(documentItem)
+			};
+
+			return apiNomenclature;
+		}
+
 		private List<OrderItemDto> GetApiOrderItems(List<CarLoadDocumentItem> waterCarLoadDocuemntItems)
 		{
 			var apiOrderItems = new List<OrderItemDto>();

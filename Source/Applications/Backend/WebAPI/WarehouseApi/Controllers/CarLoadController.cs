@@ -133,24 +133,34 @@ namespace WarehouseApi.Controllers
 		[HttpPost("AddOrderCode")]
 		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest codeData)
 		{
-			var response = new AddOrderCodeResponse
-			{
-				Result = OperationResultEnumDto.Success,
-				Nomenclature = new NomenclatureDto
-				{
-					NomenclatureId = codeData.NomenclatureId,
-					Name = "Name3",
-					Gtin = "Gtin1234567",
-					Quantity = 2,
-					Codes = new List<TrueMarkCodeDto>
-						{
-							new TrueMarkCodeDto { SequenceNumber = 11, Code = "TrueMarkCodeDto-21"},
-							new TrueMarkCodeDto { SequenceNumber = 12, Code = codeData.Code}
-						}
-				}
-			};
+			_logger.LogInformation("Запрос добавления кода в заказ. OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, Code: {Code}. User token: {AccessToken}",
+				codeData.OrderId,
+				codeData.NomenclatureId,
+				codeData.Code,
+				Request.Headers[HeaderNames.Authorization]);
 
-			return Ok(response);
+			try
+			{
+				var result = await _carLoadService.AddOrderCode(codeData.OrderId, codeData.NomenclatureId, codeData.Code);
+
+				if(result.IsSuccess)
+				{
+					return MapResult(result);
+				}
+
+				return MapFailureValueResult(
+					result,
+					result =>
+					{
+						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+
+				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+			}
 		}
 
 		/// <summary>

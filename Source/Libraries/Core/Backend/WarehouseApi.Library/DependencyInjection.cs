@@ -7,6 +7,7 @@ using Vodovoz;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Services;
 
@@ -32,7 +33,8 @@ namespace WarehouseApi.Library
 				.ConfigureBusinessOptions(configuration)
 				.AddScoped<ICarLoadService, CarLoadService>()
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
-				.AddScoped<CarLoadDocumentConverter>();
+				.AddScoped<CarLoadDocumentConverter>()
+				.AddScoped<TrueMarkWaterCodeParser>();
 
 			services.AddStaticHistoryTracker();
 

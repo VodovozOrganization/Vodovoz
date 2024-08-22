@@ -50,5 +50,13 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				return result;
 			}
 		}
+
+		public IQueryable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode)
+		{
+			var query = uow.Session.Query<TrueMarkWaterIdentificationCode>()
+				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
+
+			return query;
+		}
 	}
 }

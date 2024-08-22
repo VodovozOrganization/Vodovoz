@@ -42,7 +42,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return documents;
 		}
 
-		public IQueryable<CarLoadDocumentItem> GetItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId)
+		public IQueryable<CarLoadDocumentItem> GetWaterItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId)
 		{
 			var documentItems = from documentItem in uow.Session.Query<CarLoadDocumentItem>()
 								join nomenclature in uow.Session.Query<Nomenclature>() on documentItem.Nomenclature.Id equals nomenclature.Id
