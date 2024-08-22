@@ -432,14 +432,14 @@ def CompressWebArtifact(relativeProjectPath){
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	def workspacePath = GetWorkspacePath()
+	//def workspacePath = GetWorkspacePath()
 	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
-	def archive_file_path = "${workspacePath}/${artifactName}${ARCHIVE_EXTENTION}"
+	//def archive_file_path = "${workspacePath}/${artifactName}${ARCHIVE_EXTENTION}"
 	
 
-	if (fileExists(archive_file_path)) {
-		echo "Delete exiting artifact ${archive_file_path} from ${sourcePath}/*"
-		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file_path}")])
+	if (fileExists(archive_file)) {
+		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
+		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 	}
 
 	echo "Compressing artifact ${archive_file} from ./${sourcePath}/*"
