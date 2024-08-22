@@ -306,6 +306,12 @@ stage('Publish'){
 
 stage('Cleanup docker')
 {
+	if(!CAN_PUBLISH_BUILD_WEB)
+	{
+		echo "Cleanup docker not needed"
+		return
+	}
+	
 	node(NODE_WIN_BUILD){
 		RemoveImage(trueMarkCodePoolCheckWorkerImage)
 		RemoveImage(roboatsCallsWorkerImage)
