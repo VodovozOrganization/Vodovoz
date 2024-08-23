@@ -88,7 +88,7 @@ namespace WarehouseApi.Library.Services
 				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
 			};
 
-			if(!_documentErrorsChecker.IsDocumentOrderDataCorrect(orderId, documentOrderItems, out Error error))
+			if(!_documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems, out Error error))
 			{
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
@@ -108,15 +108,20 @@ namespace WarehouseApi.Library.Services
 
 			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
 
-			var allDocumentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
-			var itemsHavingRequiredNomenclature = allDocumentOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
+			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
+			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
 			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
 
-			if(!_documentErrorsChecker.IsScannedCodeValid(scannedCode, isScannedCodeValid, out Error error)
-				|| !_documentErrorsChecker.IsDocumentOrderDataCorrect(orderId, allDocumentOrderItems, out error)
-				|| !_documentErrorsChecker.IsDocumentItemsNomenclatureDataCorrect(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
-				|| !_documentErrorsChecker.IsNeedToAddTrueMarkCodesInDocumentItem(orderId, nomenclatureId, documentItemToEdit, out error)
-				|| !_documentErrorsChecker.IsTrueMarkCodeCanBeAdded(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error))
+			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+				orderId,
+				nomenclatureId,
+				scannedCode,
+				isScannedCodeValid,
+				trueMarkCode,
+				allWaterOrderItems,
+				itemsHavingRequiredNomenclature,
+				documentItemToEdit,
+				out Error error))
 			{
 				response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 				response.Result = OperationResultEnumDto.Error;
@@ -126,6 +131,47 @@ namespace WarehouseApi.Library.Services
 			}
 
 			AddTrueMarkCodeAndSaveCarLoadDocumentItem(nomenclatureId, documentItemToEdit, trueMarkCode);
+
+			response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+			response.Result = OperationResultEnumDto.Success;
+			response.Error = null;
+
+			return Result.Success(response);
+		}
+
+		public async Task<Result<AddOrderCodeResponse>> ChangeOrderCode(int orderId, int nomenclatureId, string oldScannedCode, string newScannedCode)
+		{
+			var response = new AddOrderCodeResponse();
+
+			var isOldScannedCodeValid = _trueMarkWaterCodeParser.TryParse(oldScannedCode, out TrueMarkWaterCode oldTrueMarkCode);
+			var isNewScannedCodeValid = _trueMarkWaterCodeParser.TryParse(newScannedCode, out TrueMarkWaterCode newTrueMarkCode);
+
+			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
+			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
+			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
+
+			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeChanged(
+				orderId,
+				nomenclatureId,
+				oldScannedCode,
+				isOldScannedCodeValid,
+				oldTrueMarkCode,
+				newScannedCode,
+				isNewScannedCodeValid,
+				newTrueMarkCode,
+				allWaterOrderItems,
+				itemsHavingRequiredNomenclature,
+				documentItemToEdit,
+				out Error error))
+			{
+				response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				return Result.Failure(response, error);
+			}
+
+			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkCode, newTrueMarkCode);
 
 			response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 			response.Result = OperationResultEnumDto.Success;
@@ -174,14 +220,7 @@ namespace WarehouseApi.Library.Services
 
 		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(int nomenclatureId, CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
 		{
-			var codeEntity = new TrueMarkWaterIdentificationCode
-			{
-				IsInvalid = false,
-				RawCode = trueMarkCode.SourceCode.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
-				GTIN = trueMarkCode.GTIN,
-				SerialNumber = trueMarkCode.SerialNumber,
-				CheckCode = trueMarkCode.CheckCode
-			};
+			var codeEntity = CreateTrueMarkCodeEntity(trueMarkCode);
 
 			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkCode
 			{
@@ -194,6 +233,38 @@ namespace WarehouseApi.Library.Services
 			_uow.Save(codeEntity);
 			_uow.Save(carLoadDocumentItem);
 			_uow.Commit();
+		}
+
+		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode oldTrueMarkCode, TrueMarkWaterCode newTrueMarkCode)
+		{
+			var codeToEdit = carLoadDocumentItem.TrueMarkCodes
+				.Select(x => x.TrueMarkCode)
+				.Where(x => x.GTIN == oldTrueMarkCode.GTIN && x.SerialNumber == oldTrueMarkCode.SerialNumber && x.CheckCode == oldTrueMarkCode.CheckCode)
+				.First();
+
+			codeToEdit.RawCode = newTrueMarkCode.SourceCode;
+			codeToEdit.GTIN = newTrueMarkCode.GTIN;
+			codeToEdit.SerialNumber = newTrueMarkCode.SerialNumber;
+			codeToEdit.CheckCode = newTrueMarkCode.CheckCode;
+			codeToEdit.IsInvalid = false;
+
+			_uow.Save(codeToEdit);
+			_uow.Save(carLoadDocumentItem);
+			_uow.Commit();
+		}
+
+		private TrueMarkWaterIdentificationCode CreateTrueMarkCodeEntity(TrueMarkWaterCode trueMarkCode)
+		{
+			var codeEntity = new TrueMarkWaterIdentificationCode
+			{
+				IsInvalid = false,
+				RawCode = trueMarkCode.SourceCode.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
+				GTIN = trueMarkCode.GTIN,
+				SerialNumber = trueMarkCode.SerialNumber,
+				CheckCode = trueMarkCode.CheckCode
+			};
+
+			return codeEntity;
 		}
 	}
 }

@@ -1,11 +1,9 @@
-﻿using DocumentFormat.OpenXml.Office2010.Word;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
@@ -128,20 +126,20 @@ namespace WarehouseApi.Controllers
 		/// <summary>
 		/// Добавление отсканированного кода маркировки ЧЗ в заказ
 		/// </summary>
-		/// <param name="codeData"></param>
+		/// <param name="requestData"></param>
 		/// <returns></returns>
 		[HttpPost("AddOrderCode")]
-		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest codeData)
+		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest requestData)
 		{
-			_logger.LogInformation("Запрос добавления кода в заказ. OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, Code: {Code}. User token: {AccessToken}",
-				codeData.OrderId,
-				codeData.NomenclatureId,
-				codeData.Code,
+			_logger.LogInformation("Запрос добавления кода ЧЗ в заказ. OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, Code: {Code}. User token: {AccessToken}",
+				requestData.OrderId,
+				requestData.NomenclatureId,
+				requestData.Code,
 				Request.Headers[HeaderNames.Authorization]);
 
 			try
 			{
-				var result = await _carLoadService.AddOrderCode(codeData.OrderId, codeData.NomenclatureId, codeData.Code);
+				var result = await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code);
 
 				if(result.IsSuccess)
 				{
@@ -170,24 +168,37 @@ namespace WarehouseApi.Controllers
 		[HttpPost("ChangeOrderCode")]
 		public async Task<IActionResult> ChangeOrderCode(ChangeOrderCodeRequest requestData)
 		{
-			var response = new ChangeOrderCodeResponse
-			{
-				Result = OperationResultEnumDto.Success,
-				Nomenclature = new NomenclatureDto
-				{
-					NomenclatureId = requestData.NomenclatureId,
-					Name = "Name3",
-					Gtin = "Gtin1234567",
-					Quantity = 2,
-					Codes = new List<TrueMarkCodeDto>
-						{
-							new TrueMarkCodeDto { SequenceNumber = 11, Code = "TrueMarkCodeDto-21"},
-							new TrueMarkCodeDto { SequenceNumber = 12, Code = requestData.NewCode}
-						}
-				}
-			};
+			_logger.LogInformation("Запрос замены кода ЧЗ в заказе." +
+				" OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, OldCode: {OldCode}, NewCode: {NewCode}. User token: {AccessToken}",
+				requestData.OrderId,
+				requestData.NomenclatureId,
+				requestData.OldCode,
+				requestData.NewCode,
+				Request.Headers[HeaderNames.Authorization]);
 
-			return Ok(response);
+			try
+			{
+				var result =
+					await _carLoadService.ChangeOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.OldCode, requestData.NewCode);
+
+				if(result.IsSuccess)
+				{
+					return MapResult(result);
+				}
+
+				return MapFailureValueResult(
+					result,
+					result =>
+					{
+						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+
+				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+			}
 		}
 
 		/// <summary>

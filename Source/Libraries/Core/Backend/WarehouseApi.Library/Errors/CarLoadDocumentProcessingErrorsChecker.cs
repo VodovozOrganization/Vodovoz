@@ -30,6 +30,13 @@ namespace WarehouseApi.Library.Errors
 
 		public bool IsCarLoadDocumentLoadOperationStateCanBeSetInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
 		{
+			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
+				&& IsCarLoadDocumentLoadOperationStateDone(carLoadDocument, documentId, out error)
+				&& IsCarLoadDocumentLoadOperationStateDone(carLoadDocument, documentId, out error);
+		}
+
+		private bool IsCarLoadDocumentNotNull(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		{
 			error = null;
 
 			if(carLoadDocument is null)
@@ -39,12 +46,26 @@ namespace WarehouseApi.Library.Errors
 				return false;
 			}
 
+			return true;
+		}
+
+		private bool IsCarLoadDocumentLoadOperationStateDone(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		{
+			error = null;
+
 			if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress)
 			{
 				error = CarLoadDocumentErrors.CreateLoadingIsAlreadyInProgress(documentId);
 				LogError(error);
 				return false;
 			}
+
+			return true;
+		}
+
+		private bool IsCarLoadDocumentLoadOperationStateInDone(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		{
+			error = null;
 
 			if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.Done)
 			{
@@ -56,7 +77,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsDocumentOrderDataCorrect(int orderId, IList<CarLoadDocumentItem> documentOrderItems, out Error error)
+		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IList<CarLoadDocumentItem> documentOrderItems, out Error error)
 		{
 			error = null;
 
@@ -77,7 +98,48 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsDocumentItemsNomenclatureDataCorrect(
+		public bool IsTrueMarkCodeCanBeAdded(
+			int orderId,
+			int nomenclatureId,
+			string scannedCode,
+			bool isScannedCodeValid,
+			TrueMarkWaterCode trueMarkCode,
+			IList<CarLoadDocumentItem> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
+			CarLoadDocumentItem documentItemToEdit,
+			out Error error)
+		{
+			return IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)
+				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
+				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
+				&& IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit, out error)
+				&& IsTrueMarkCodeNotExistAndHasRequiredGtin(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error);
+		}
+
+		public bool IsTrueMarkCodeCanBeChanged(
+			int orderId,
+			int nomenclatureId,
+			string oldScannedCode,
+			bool isOldScannedCodeValid,
+			TrueMarkWaterCode oldTrueMarkCode,
+			string newScannedCode,
+			bool isNewScannedCodeValid,
+			TrueMarkWaterCode newTrueMarkCode,
+			IList<CarLoadDocumentItem> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
+			CarLoadDocumentItem documentItemToEdit,
+			out Error error)
+		{
+			return IsScannedCodeValid(oldScannedCode, isOldScannedCodeValid, out error)
+				&& IsScannedCodeValid(newScannedCode, isNewScannedCodeValid, out error)
+				&& IsTrueMarkCodesHasEqualGtins(oldTrueMarkCode, newTrueMarkCode, out error)
+				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
+				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
+				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
+				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error);
+		}
+
+		private bool IsSingleItemHavingRequiredOrderAndNomenclatureExists(
 			int orderId,
 			int nomenclatureId,
 			IEnumerable<CarLoadDocumentItem> documentNomenclatureOrderItems,
@@ -102,7 +164,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsNeedToAddTrueMarkCodesInDocumentItem(
+		private bool IsNotAllProductsHasTrueMarkCode(
 			int orderId,
 			int nomenclatureId,
 			CarLoadDocumentItem carLoadDocumentItem,
@@ -120,7 +182,26 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsScannedCodeValid(string scannedCode, bool isScannedCodeValid, out Error error)
+		private bool IsProductsHavingRequiredTrueMarkCodeExists(
+			CarLoadDocumentItem carLoadDocumentItem,
+			TrueMarkWaterCode trueMarkCode,
+			out Error error)
+		{
+			error = null;
+
+			if(!carLoadDocumentItem
+				.TrueMarkCodes.Select(x => x.TrueMarkCode)
+				.Any(x => x.GTIN == trueMarkCode.GTIN && x.SerialNumber == trueMarkCode.SerialNumber && x.CheckCode == trueMarkCode.CheckCode))
+			{
+				error = TrueMarkCodeErrors.CreateTrueMarkCodeForCarLoadDocumentItemNotFound(trueMarkCode.SourceCode);
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsScannedCodeValid(string scannedCode, bool isScannedCodeValid, out Error error)
 		{
 			error = null;
 
@@ -134,27 +215,53 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsTrueMarkCodeCanBeAdded(
+		private bool IsTrueMarkCodeNotExistAndHasRequiredGtin(
 			TrueMarkWaterCode trueMarkCode,
 			string nomenclatureGtin,
 			string scannedCode,
 			out Error error)
 		{
+			return IsTrueMarkCodeNotExists(trueMarkCode, scannedCode, out error)
+				&& IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkCode, nomenclatureGtin, scannedCode, out error);
+		}
+
+		private bool IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterCode trueMarkCode, string nomenclatureGtin, string scannedCode, out Error error)
+		{
 			error = null;
 
+			if(trueMarkCode.GTIN != nomenclatureGtin)
+			{
+				error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(scannedCode);
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsTrueMarkCodesHasEqualGtins(TrueMarkWaterCode trueMarkCode1, TrueMarkWaterCode trueMarkCode2, out Error error)
+		{
+			error = null;
+
+			if(trueMarkCode1.GTIN != trueMarkCode2.GTIN)
+			{
+				error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(trueMarkCode1.SourceCode, trueMarkCode2.SourceCode);
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsTrueMarkCodeNotExists(TrueMarkWaterCode trueMarkCode, string scannedCode, out Error error)
+		{
+			error = null;
 			var existingDuplicatedCodes =
 				_trueMarkRepository.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode).ToList();
 
 			if(existingDuplicatedCodes.Count > 0)
 			{
 				error = TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyExists(scannedCode);
-				LogError(error);
-				return false;
-			}
-
-			if(trueMarkCode.GTIN != nomenclatureGtin)
-			{
-				error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(scannedCode);
 				LogError(error);
 				return false;
 			}
