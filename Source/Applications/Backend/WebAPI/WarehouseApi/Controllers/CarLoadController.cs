@@ -74,8 +74,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-
-				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
 			}
 		}
 
@@ -117,8 +116,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-
-				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
 			}
 		}
 
@@ -155,8 +153,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-
-				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
 			}
 		}
 
@@ -195,8 +192,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-
-				return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
 			}
 		}
 
@@ -214,7 +210,7 @@ namespace WarehouseApi.Controllers
 			try
 			{
 				var result = await _carLoadService.EndLoad(documentId);
-				throw new Exception();
+
 				if(result.IsSuccess)
 				{
 					return MapResult(result);
@@ -237,8 +233,6 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-
-				//return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
 				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
 			}
 		}
