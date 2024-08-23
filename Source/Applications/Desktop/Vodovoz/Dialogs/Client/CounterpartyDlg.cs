@@ -43,10 +43,13 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using QS.Commands;
+using QS.Extensions.Observable.Collections.List;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Nodes;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -99,7 +102,9 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozBusiness.EntityRepositories.Counterparties;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz
 {
@@ -150,11 +155,14 @@ namespace Vodovoz
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
+		private IConnectedCustomerRepository _connectedCustomerRepository;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
+		private ConnectedCustomerInfoNode _selectedConnectedCustomer;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -302,6 +310,19 @@ namespace Vodovoz
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
 		}
+		
+		private DelegateCommand ActivateConnectConnectedCustomerCommand { get; set; }
+		private DelegateCommand BlockConnectConnectedCustomerCommand { get; set; }
+
+		private ConnectedCustomerInfoNode SelectedConnectedCustomer
+		{
+			get => _selectedConnectedCustomer;
+			set
+			{
+				_selectedConnectedCustomer = value;
+				UpdateStateConnectButtons();
+			}
+		}
 
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
@@ -310,6 +331,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			ResolveDependencies();
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
@@ -382,6 +404,11 @@ namespace Vodovoz
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			ConfigureClientReferEntityEntry();
+		}
+
+		private void ResolveDependencies()
+		{
+			_connectedCustomerRepository = _lifetimeScope.Resolve<IConnectedCustomerRepository>();
 		}
 
 		private void ConfigureClientReferEntityEntry()
@@ -874,6 +901,85 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text)
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
+			
+			ConfigureConnectedCustomers();
+		}
+
+		private void ConfigureConnectedCustomers()
+		{
+			ConfigureTreeConnectedCustomers();
+
+			ActivateConnectConnectedCustomerCommand = new DelegateCommand(
+				() =>
+				{
+					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+					connectedCustomer.ActivateConnect();
+					UpdateStateConnectButtons();
+					treeViewConnectedCustomers.QueueDraw();
+				},
+				() => SelectedConnectedCustomer != null
+					&& SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Active);
+			
+			BlockConnectConnectedCustomerCommand = new DelegateCommand(
+				() =>
+				{
+					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+
+					if(string.IsNullOrWhiteSpace(connectedCustomer.BlockingReason))
+					{
+						MessageDialogHelper.RunWarningDialog("Прежде чем блокировать связь, нужно заполнить причину блокировки!");
+						return;
+					}
+					connectedCustomer.BlockConnect();
+					UpdateStateConnectButtons();
+					//treeViewConnectedCustomers.QueueDraw();
+					treeViewConnectedCustomers.YTreeModel.EmitModelChanged();
+				},
+				() => SelectedConnectedCustomer != null
+					&& SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Blocked);
+			
+			btnActivateConnect.BindCommand(ActivateConnectConnectedCustomerCommand);
+			btnBlockConnect.BindCommand(BlockConnectConnectedCustomerCommand);
+		}
+
+		private void UpdateStateConnectButtons()
+		{
+			ActivateConnectConnectedCustomerCommand.RaiseCanExecuteChanged();
+			BlockConnectConnectedCustomerCommand.RaiseCanExecuteChanged();
+		}
+
+		private void ConfigureTreeConnectedCustomers()
+		{
+			treeViewConnectedCustomers.ColumnsConfig = FluentColumnsConfig<ConnectedCustomerInfoNode>.Create()
+				.AddColumn("Id клиента")
+				.AddNumericRenderer(node => Entity.PersonType == PersonType.legal
+					? node.ConnectedCustomer.NaturalCounterpartyId
+					: node.ConnectedCustomer.LegalCounterpartyId)
+				.AddColumn("Наименование клиента")
+				.AddTextRenderer(node => node.CounterpartyFullName)
+				.AddColumn("Состояние связи")
+				.AddEnumRenderer(node => node.ConnectState)
+				.AddColumn("Причина блокировки")
+				.AddTextRenderer(node => node.BlockingReason)
+				.Editable()
+				.Finish();
+			
+			GetConnectedCustomers();
+			treeViewConnectedCustomers.ItemsDataSource = _connectedCustomers;
+			
+			treeViewConnectedCustomers.Binding
+				.AddBinding(this, dlg => dlg.SelectedConnectedCustomer, w => w.SelectedRow)
+				.InitializeFromSource();
+		}
+
+		private void GetConnectedCustomers()
+		{
+			var connectedCustomers = _connectedCustomerRepository.GetConnectedCustomersInfo(UoW, Entity.Id, Entity.PersonType);
+
+			foreach(var connectedCustomer in connectedCustomers)
+			{
+				_connectedCustomers.Add(connectedCustomer);
+			}
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)

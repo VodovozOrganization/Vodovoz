@@ -12,6 +12,7 @@ using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
@@ -316,7 +317,7 @@ namespace CustomerAppsApi.Library.Models
 			return counterparties;
 		}
 		
-		public IEnumerable<LegalCounterpartyInfo> GetLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto)
+		public IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto)
 		{
 			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
 				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
@@ -326,7 +327,8 @@ namespace CustomerAppsApi.Library.Models
 				return null;
 			}
 			
-			var counterparties = _counterpartyServiceDataHandler.GetLegalCustomers(_uow, dto.ErpCounterpartyId);
+			var counterparties =
+				_counterpartyServiceDataHandler.GetNaturalCounterpartyLegalCustomers(_uow, dto.ErpCounterpartyId);
 			return counterparties;
 		}
 		
@@ -403,9 +405,64 @@ namespace CustomerAppsApi.Library.Models
 			return (null, registered);
 		}
 
+		public (string Message, ConnectedLegalCustomerDto Data) ConnectLegalCustomer(ConnectingLegalCustomerDto dto)
+		{
+			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
+				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+
+			var legalCounterpartyId = dto.ErpLegalCounterpartyId;
+			var naturalCounterpartyId = dto.ErpNaturalCounterpartyId;
+
+			if(externalCounterparty is null)
+			{
+				return ("Не найден зарегистрированный пользователь", null);
+			}
+			
+			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, naturalCounterpartyId);
+
+			if(!naturalCounterpartyExists)
+			{
+				return ("Не найдено физическое лицо с таким Id", null);
+			}
+
+			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, legalCounterpartyId);
+
+			if(!legalCounterpartyExists)
+			{
+				return ("Не найдено юридическое лицо с таким Id", null);
+			}
+			
+			var connectedCustomer =
+				_counterpartyServiceDataHandler.GetConnectedCustomer(_uow, legalCounterpartyId, naturalCounterpartyId);
+
+			if(connectedCustomer != null)
+			{
+				if(connectedCustomer.ConnectState == ConnectedCustomerConnectState.Active)
+				{
+					return ($"Связь юр лица {legalCounterpartyId} с физ лицом {naturalCounterpartyId} уже создана", null);
+				}
+				
+				if(connectedCustomer.ConnectState == ConnectedCustomerConnectState.Blocked)
+				{
+					return ("Нельзя связать этих клиентов, обратитесь в компанию", null);
+				}
+			}
+
+			var customer = ConnectedCustomer.Create(legalCounterpartyId, naturalCounterpartyId);
+			_uow.Save(customer);
+			_uow.Commit();
+
+			return (null, ConnectedLegalCustomerDto.Create(legalCounterpartyId, naturalCounterpartyId));
+		}
+
 		public string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto)
 		{
 			return _counterpartyModelValidator.RegisteringLegalCustomerValidate(dto);
+		}
+
+		public string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto)
+		{
+			return _counterpartyModelValidator.ConnectingLegalCustomerValidate(dto);
 		}
 
 		private Email GetCounterpartyEmailForExternalCounterparty(int counterpartyId)

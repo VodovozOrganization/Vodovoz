@@ -10,5 +10,6 @@ namespace CustomerAppsApi.Library.Validators
 		string CounterpartyDtoValidate(CounterpartyDto counterpartyDto);
 		string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto counterpartyDto);
 		string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto);
+		string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto);
 	}
 }

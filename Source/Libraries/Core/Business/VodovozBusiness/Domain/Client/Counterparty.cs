@@ -1074,7 +1074,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _hideDeliveryPointForBill, value);
 		}
 
-
 		#endregion Свойства
 
 		#region Calculated Properties

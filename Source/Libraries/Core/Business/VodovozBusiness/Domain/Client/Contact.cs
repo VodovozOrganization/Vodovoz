@@ -14,7 +14,6 @@ namespace Vodovoz.Domain.Client
 		Nominative = "контакт",
 		Accusative = "контакта",
 		AccusativePlural = "контакты"
-
 	)]
 	[EntityPermission]
 	public class Contact : PropertyChangedBase, IDomainObject

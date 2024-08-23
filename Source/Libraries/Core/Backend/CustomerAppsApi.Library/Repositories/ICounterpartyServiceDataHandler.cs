@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
@@ -23,7 +24,7 @@ namespace CustomerAppsApi.Library.Repositories
 		ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom);
 		bool ExternalCounterpartyMatchingExists(IUnitOfWork uow, Guid externalCounterpartyId, string phoneNumber);
 		IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(IUnitOfWork uow, string inn);
-		IEnumerable<LegalCounterpartyInfo> GetLegalCustomers(IUnitOfWork uow, int counterpartyId);
+		IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(IUnitOfWork uow, int counterpartyId);
 		RoboAtsCounterpartyName GetRoboatsCounterpartyName(IUnitOfWork uow, string counterpartyName);
 		RoboAtsCounterpartyPatronymic GetRoboatsCounterpartyPatronymic(IUnitOfWork uow, string counterpartyPatronymic);
 		Task<int> GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId);
@@ -31,6 +32,7 @@ namespace CustomerAppsApi.Library.Repositories
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
 		OrganizationOwnershipType GetOrganizationOwnershipTypeByCode(IUnitOfWork uow, string code);
 		bool CounterpartyExists(IUnitOfWork uow, int counterpartyId);
+		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId);
 		bool CounterpartyExists(IUnitOfWork uow, string inn);
 	}
 }

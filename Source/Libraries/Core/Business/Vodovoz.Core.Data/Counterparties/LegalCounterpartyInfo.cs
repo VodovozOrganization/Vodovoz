@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Core.Data.Counterparties
 {
@@ -27,6 +28,10 @@ namespace Vodovoz.Core.Data.Counterparties
 		/// Юр адрес
 		/// </summary>
 		public string JurAddress { get; set; }
+		/// <summary>
+		/// Состояние связи <see cref="ConnectedCustomerConnectState"/>
+		/// </summary>
+		public string ConnectState { get; set; }
 		/// <summary>
 		/// Список телефонов
 		/// </summary>

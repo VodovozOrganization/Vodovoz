@@ -1,3 +1,5 @@
+using Vodovoz.Core.Domain.Clients;
+
 namespace Vodovoz.Domain.Client
 {
 	public class MobileAppCounterparty : ExternalCounterparty

@@ -1,7 +1,6 @@
 using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Clients;
@@ -31,7 +30,7 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateContactInfo(counterpartyContactInfoDto.PhoneNumber);
 			ValidateCameFromProperty(counterpartyContactInfoDto.CameFromId);
 
-			return _sb.ToString();
+			return ValidationResult();
 		}
 		
 		public string CounterpartyDtoValidate(CounterpartyDto counterpartyDto)
@@ -52,29 +51,64 @@ namespace CustomerAppsApi.Library.Validators
 					break;
 			}
 
-			return _sb.ToString();
+			return ValidationResult();
 		}
 
 		public string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto dto)
 		{
 			_sb.Clear();
 
+			ValidateSource(dto.Source);
 			ValidateInn(dto.Inn);
 
-			return _sb.ToString();
+			return ValidationResult();
+		}
+
+		private void ValidateSource(Source source)
+		{
+			var sourceValue = (int)source;
+			if(sourceValue < (int)Source.MobileApp || sourceValue > (int)Source.KulerSaleWebSite)
+			{
+				_sb.AppendLine("Неизвестный источник запроса");
+			}
 		}
 
 		public string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto)
 		{
 			_sb.Clear();
 
+			ValidateSource(dto.Source);
 			ValidateName(dto.Name);
 			ValidateTypeOfOwnership(dto.CodeTypeOfOwnership, dto.ShortTypeOfOwnership, dto.FullTypeOfOwnership);
 			ValidateInn(dto.Inn, dto.ShortTypeOfOwnership);
 			ValidateKpp(dto.Kpp);
 			ValidateJurAddress(dto.JurAddress);
 			
-			return _sb.ToString();
+			return ValidationResult();
+		}
+
+		public string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto)
+		{
+			_sb.Clear();
+
+			ValidateSource(dto.Source);
+
+			if(dto.ErpNaturalCounterpartyId <= 0)
+			{
+				_sb.AppendLine("Передан неверный Id физического лица");
+			}
+			
+			if(dto.ErpLegalCounterpartyId <= 0)
+			{
+				_sb.AppendLine("Передан неверный Id юридического лица");
+			}
+			
+			return ValidationResult();
+		}
+		
+		private string ValidationResult()
+		{
+			return _sb.ToString().Trim('\r', '\n');
 		}
 
 		private void ValidateContactInfo(string counterpartyNumber)
@@ -109,7 +143,7 @@ namespace CustomerAppsApi.Library.Validators
 			{
 				if(string.IsNullOrWhiteSpace(typeOfOwnership))
 				{
-					if(inn.Length != Counterparty.InnPrivateBusinessmanLength || inn.Length != Counterparty.InnOtherLegalPersonLength)
+					if(inn.Length != Counterparty.InnPrivateBusinessmanLength && inn.Length != Counterparty.InnOtherLegalPersonLength)
 					{
 						_sb.AppendLine($"ИНН должен содержать {Counterparty.InnOtherLegalPersonLength}" +
 							$" или {Counterparty.InnPrivateBusinessmanLength} символов");

@@ -2113,6 +2113,7 @@ namespace Vodovoz
 			this.vboxExternalCounterparties = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxExternalCounterparties.WidthRequest = 0;
 			this.vboxExternalCounterparties.HeightRequest = 0;
+			this.vboxExternalCounterparties.Sensitive = true;
 			this.vboxExternalCounterparties.Name = "vboxExternalCounterparties";
 			this.vboxExternalCounterparties.Spacing = 6;
 			// Container child vboxExternalCounterparties.Gtk.Box+BoxChild

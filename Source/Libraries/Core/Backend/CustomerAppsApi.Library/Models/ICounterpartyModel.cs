@@ -13,9 +13,11 @@ namespace CustomerAppsApi.Library.Models
 		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
 		Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId);
 		IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(GetLegalCustomersByInnDto dto);
-		IEnumerable<LegalCounterpartyInfo> GetLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto);
+		IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto);
 		string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto dto);
 		(string Message, RegisteredLegalCustomerDto Data) RegisterLegalCustomer(RegisteringLegalCustomerDto dto);
+		(string Message, ConnectedLegalCustomerDto Data) ConnectLegalCustomer(ConnectingLegalCustomerDto dto);
 		string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto);
+		string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto);
 	}
 }

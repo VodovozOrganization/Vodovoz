@@ -9,7 +9,7 @@ using Vodovoz.Extensions;
 namespace CustomerAppsApi.Controllers
 {
 	[ApiController]
-	[Route("/api/")]
+	[Route("/api/[action]")]
 	public class CounterpartyController : ControllerBase
 	{
 		private readonly ILogger<CounterpartyController> _logger;
@@ -23,8 +23,14 @@ namespace CustomerAppsApi.Controllers
 			_counterpartyModel = counterpartyModel ?? throw new ArgumentNullException(nameof(counterpartyModel));
 		}
 
+		/// <summary>
+		/// Идентификация пользователя, как нашего клиента
+		/// </summary>
+		/// <param name="counterpartyContactInfoDto">
+		/// Внешний номер пользователя с телефоном и кодом откуда запрос <see cref="CounterpartyContactInfoDto"/>
+		/// </param>
+		/// <returns></returns>
 		[HttpPost]
-		[Route("GetCounterparty")]
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
 		{
 			try
@@ -41,8 +47,12 @@ namespace CustomerAppsApi.Controllers
 			}
 		}
 		
+		/// <summary>
+		/// Регистрация нового клиента в Erp
+		/// </summary>
+		/// <param name="counterpartyDto">Информация о клиенте <see cref="CounterpartyDto"/></param>
+		/// <returns></returns>
 		[HttpPost]
-		[Route("RegisterCounterparty")]
 		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
 		{
 			try
@@ -59,8 +69,12 @@ namespace CustomerAppsApi.Controllers
 			}
 		}
 		
+		/// <summary>
+		/// Обновление данных клиента, если что-то было заполнено неверно
+		/// </summary>
+		/// <param name="counterpartyDto">Информация о клиенте <see cref="CounterpartyDto"/></param>
+		/// <returns></returns>
 		[HttpPost]
-		[Route("UpdateCounterpartyInfo")]
 		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
 			try
@@ -74,6 +88,11 @@ namespace CustomerAppsApi.Controllers
 			}
 		}
 		
+		/// <summary>
+		/// Получение юр лиц по ИНН
+		/// </summary>
+		/// <param name="dto">детали запроса <see cref="GetLegalCustomersByInnDto"/></param>
+		/// <returns></returns>
 		[HttpGet]
 		public IActionResult GetLegalCustomersByInn(GetLegalCustomersByInnDto dto)
 		{
@@ -118,6 +137,11 @@ namespace CustomerAppsApi.Controllers
 			}
 		}
 		
+		/// <summary>
+		/// Получение списка юр лиц доступных физику для заказа
+		/// </summary>
+		/// <param name="dto">детали запроса <see cref="GetNaturalCounterpartyLegalCustomersDto"/></param>
+		/// <returns></returns>
 		[HttpGet]
 		public IActionResult GetLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto)
 		{
@@ -128,7 +152,7 @@ namespace CustomerAppsApi.Controllers
 			
 			try
 			{
-				var result = _counterpartyModel.GetLegalCustomers(dto);
+				var result = _counterpartyModel.GetNaturalCounterpartyLegalCustomers(dto);
 
 				if(result is null)
 				{
@@ -151,14 +175,18 @@ namespace CustomerAppsApi.Controllers
 				return Problem();
 			}
 		}
-			
+		
+		/// <summary>
+		/// Регистрация нового юр лица
+		/// </summary>
+		/// <param name="dto">детали запроса <see cref="RegisteringLegalCustomerDto"/></param>
+		/// <returns></returns>
 		[HttpPost]
 		public IActionResult RegisterLegalCustomer(RegisteringLegalCustomerDto dto)
 		{
 			_logger.LogInformation(
-				"Поступил запрос на регистрацию нового юр лица от клиента Id: {CounterpartyId} с {Source}",
-				dto.ErpCounterpartyId,
-				dto.Source.GetEnumDisplayName());
+				"Поступил запрос на регистрацию нового юр лица от клиента Id: {CounterpartyId}",
+				dto.ErpCounterpartyId);
 			
 			try
 			{
@@ -167,9 +195,8 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при регистрации нового юр лица от клиента Id: {CounterpartyId} с {Source}:\n{ValidationResult}",
+						"Не прошли валидацию при регистрации нового юр лица от клиента Id: {CounterpartyId}:\n{ValidationResult}",
 						dto.ErpCounterpartyId,
-						dto.Source.GetEnumDisplayName(),
 						validationResult);
 					return ValidationProblem(validationResult);
 				}
@@ -194,18 +221,34 @@ namespace CustomerAppsApi.Controllers
 			}
 		}
 		
+		/// <summary>
+		/// Соединение физика с юр лицом, чтобы первый мог делать заказы под вторым
+		/// </summary>
+		/// <param name="dto">детали запроса <see cref="ConnectingLegalCustomerDto"/></param>
+		/// <returns></returns>
 		[HttpPost]
-		public IActionResult ConnectLegalCustomer(CounterpartyDto dto)
+		public IActionResult ConnectLegalCustomer(ConnectingLegalCustomerDto dto)
 		{
 			_logger.LogInformation(
-				"Поступил запрос на прикрепление физика с Id {NaturalId} к юрику с Id: {LegalId} с {Source}",
+				"Поступил запрос на прикрепление физика с Id {NaturalId} к юрику с Id: {LegalId}",
 				dto.ErpNaturalCounterpartyId,
-				dto.ErpLegalCounterpartyId,
-				dto.Source.GetEnumDisplayName());
+				dto.ErpLegalCounterpartyId);
 			
 			try
 			{
-				var result = _counterpartyModel.RegisterLegalCustomer(dto);
+				var validationResult = _counterpartyModel.ConnectingLegalCustomerValidate(dto);
+				
+				if(!string.IsNullOrWhiteSpace(validationResult))
+				{
+					_logger.LogInformation(
+						"Не прошли валидацию при прикреплении физика с Id {NaturalId} к юрику с Id: {LegalId}:\n{ValidationResult}",
+						dto.ErpNaturalCounterpartyId,
+						dto.ErpLegalCounterpartyId,
+						validationResult);
+					return ValidationProblem(validationResult);
+				}
+				
+				var result = _counterpartyModel.ConnectLegalCustomer(dto);
 				
 				if(!string.IsNullOrWhiteSpace(result.Message))
 				{
@@ -216,7 +259,10 @@ namespace CustomerAppsApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при регистрации юр лица от ");
+				_logger.LogError(e, "Ошибка при прикреплении физика с Id {NaturalId} к юрику с Id: {LegalId} с {Source}",
+					dto.ErpNaturalCounterpartyId,
+					dto.ErpLegalCounterpartyId,
+					dto.Source.GetEnumDisplayName());
 				return Problem();
 			}
 		}
