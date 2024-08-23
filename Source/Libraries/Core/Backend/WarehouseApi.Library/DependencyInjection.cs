@@ -9,6 +9,7 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using WarehouseApi.Library.Converters;
+using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
 
 namespace WarehouseApi.Library
@@ -34,7 +35,8 @@ namespace WarehouseApi.Library
 				.AddScoped<ICarLoadService, CarLoadService>()
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
 				.AddScoped<CarLoadDocumentConverter>()
-				.AddScoped<TrueMarkWaterCodeParser>();
+				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddScoped<CarLoadDocumentProcessingErrorsChecker>();
 
 			services.AddStaticHistoryTracker();
 

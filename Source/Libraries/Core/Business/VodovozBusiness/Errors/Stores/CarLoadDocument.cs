@@ -1,7 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using System.Security.Cryptography;
-
-namespace Vodovoz.Errors.Store
+﻿namespace Vodovoz.Errors.Stores
 {
 	public static partial class CarLoadDocument
 	{
@@ -88,40 +85,16 @@ namespace Vodovoz.Errors.Store
 				nameof(OrderNomenclatureExistInMultipleDocumentItems),
 				$"В талоне погрузки имеется несколько строк сетевого заказа #{orderId} с номенклатурой #{nomenclatureId}");
 
-		public static Error TrueMarkCodeStringIsNotValid =>
+		public static Error AllOrderNomenclatureCodesAlreadyAdded =>
 			new Error(
 				typeof(CarLoadDocument),
-				nameof(TrueMarkCodeStringIsNotValid),
-				"Полученная строка кода ЧЗ невалидна");
+				nameof(AllOrderNomenclatureCodesAlreadyAdded),
+				"Коды ЧЗ номенклатуры в заказе уже добавлены уже добавлены для всех единиц товара");
 
-		public static Error CreateTrueMarkCodeStringIsNotValid(string codeString) =>
-			string.IsNullOrEmpty(codeString) ? TrueMarkCodeStringIsNotValid : new Error(
+		public static Error CreateAllOrderNomenclatureCodesAlreadyAdded(int? orderId, int? nomenclatureId) =>
+			orderId is null || nomenclatureId is null ? AllOrderNomenclatureCodesAlreadyAdded : new Error(
 				typeof(CarLoadDocument),
-				nameof(TrueMarkCodeStringIsNotValid),
-				$"Полученная строка кода ЧЗ ({codeString}) невалидна");
-
-		public static Error TrueMarkCodeIsAlreadyExists =>
-			new Error(
-				typeof(CarLoadDocument),
-				nameof(TrueMarkCodeIsAlreadyExists),
-				"Код ЧЗ уже имеется в базе. Добавляемый код является дублем");
-
-		public static Error CreateTrueMarkCodeIsAlreadyExists(string codeString) =>
-			string.IsNullOrEmpty(codeString) ? TrueMarkCodeIsAlreadyExists : new Error(
-				typeof(CarLoadDocument),
-				nameof(TrueMarkCodeIsAlreadyExists),
-				$"Код ЧЗ ({codeString}) уже имеется в базе. Добавляемый код является дублем");
-
-		public static Error TrueMarkCodeGtinIsNotEqualsNomenclatureGtin =>
-			new Error(
-				typeof(CarLoadDocument),
-				nameof(TrueMarkCodeGtinIsNotEqualsNomenclatureGtin),
-				"Значение GTIN переданного кода не соответствует значению GTIN для указанной номенклатуры");
-
-		public static Error CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(string codeString) =>
-			string.IsNullOrEmpty(codeString) ? TrueMarkCodeGtinIsNotEqualsNomenclatureGtin : new Error(
-				typeof(CarLoadDocument),
-				nameof(TrueMarkCodeGtinIsNotEqualsNomenclatureGtin),
-				$"Значение GTIN переданного кода ({codeString}) не соответствует значению GTIN для указанной номенклатуры");
+				nameof(AllOrderNomenclatureCodesAlreadyAdded),
+				$"Коды ЧЗ номенклатуры #{nomenclatureId} в заказе #{orderId} уже добавлены для всех единиц товара");
 	}
 }

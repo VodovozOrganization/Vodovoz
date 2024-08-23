@@ -17,7 +17,7 @@ using VodovozBusiness.Domain.TrueMark;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
-using CarLoadDocumentErrors = Vodovoz.Errors.Store.CarLoadDocument;
+using WarehouseApi.Library.Errors;
 
 namespace WarehouseApi.Library.Services
 {
@@ -30,6 +30,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 
 		public CarLoadService(
 			ILogger<CarLoadService> logger,
@@ -38,7 +39,8 @@ namespace WarehouseApi.Library.Services
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ITrueMarkRepository trueMarkRepository,
 			CarLoadDocumentConverter carLoadDocumentConverter,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser)
+			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
+			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -47,11 +49,11 @@ namespace WarehouseApi.Library.Services
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 		}
 
 		public async Task<Result<StartLoadResponse>> StartLoad(int documentId)
 		{
-			Error error = null;
 			var response = new StartLoadResponse();
 
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
@@ -59,29 +61,9 @@ namespace WarehouseApi.Library.Services
 				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
 				.FirstOrDefault();
 
-			if(carLoadDocument is null)
+			if(!_documentErrorsChecker.IsCarLoadDocumentLoadOperationStateCanBeSetInProgress(carLoadDocument, documentId, out Error error))
 			{
-				_logger.LogInformation("Талон погрузки #{DocumentId} не найден", documentId);
-				error = CarLoadDocumentErrors.CreateDocumentNotFound(documentId);
-			}
-			else if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress)
-			{
-				_logger.LogInformation("Талон погрузки #{DocumentId} уже в процессе погрузки", documentId);
-				error = CarLoadDocumentErrors.CreateLoadingIsAlreadyInProgress(documentId);
-			}
-			else if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.Done)
-			{
-				_logger.LogInformation("Талон погрузки #{DocumentId} уже погружен", documentId);
-				error = CarLoadDocumentErrors.CreateLoadingIsAlreadyDone(documentId);
-			}
-
-			if(carLoadDocument != null)
-			{
-				response.CarLoadDocument = GetCarLoadDocumentDto(carLoadDocument);
-			}
-
-			if(error != null)
-			{
+				response.CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument);
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
 
@@ -90,6 +72,7 @@ namespace WarehouseApi.Library.Services
 
 			SetLoadOperationStateInProgressAndSaveDocument(carLoadDocument);
 
+			response.CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument);
 			response.Result = OperationResultEnumDto.Success;
 			response.Error = null;
 
@@ -99,20 +82,19 @@ namespace WarehouseApi.Library.Services
 		public async Task<Result<GetOrderResponse>> GetOrder(int orderId)
 		{
 			var documentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
-			var errors = GetOrderErrors(orderId, documentOrderItems);
-			var response = new GetOrderResponse();
 
-			if(errors.Count > 0)
+			var response = new GetOrderResponse
 			{
-				var firstError = errors.First();
+				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
+			};
 
+			if(!_documentErrorsChecker.IsDocumentOrderDataCorrect(orderId, documentOrderItems, out Error error))
+			{
 				response.Result = OperationResultEnumDto.Error;
-				response.Error = firstError.Message;
+				response.Error = error.Message;
 
-				return Result.Failure(response, firstError);
+				return Result.Failure(response, error);
 			}
-
-			response.Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems);
 
 			response.Result = OperationResultEnumDto.Success;
 			response.Error = null;
@@ -120,54 +102,32 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(response);
 		}
 
-		public async Task<Result<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string code)
+		public async Task<Result<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode)
 		{
-			CarLoadDocumentItem carLoadDocumentItem = null;
-			TrueMarkWaterCode trueMarkCode = null;
-
-			var documentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
-			var documentOrderNomenclatureItems = documentOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
-
-			var errors = new List<Error>();
-			errors.AddRange(GetOrderErrors(orderId, documentOrderItems));
-			errors.AddRange(GetOrderNomenclatureErrors(orderId, nomenclatureId, documentOrderNomenclatureItems));
-
-			if(errors.Count == 0)
-			{
-				bool isValidCode = _trueMarkWaterCodeParser.TryParse(code, out trueMarkCode);
-
-				if(isValidCode)
-				{
-					carLoadDocumentItem = documentOrderNomenclatureItems.First();
-					errors.AddRange(await GetTrueMarkCodesErrors(trueMarkCode, carLoadDocumentItem.Nomenclature.Gtin, code));
-				}
-				else
-				{
-					_logger.LogInformation("Полученная строка кода ЧЗ \"{CodeString}\" невалидна", code);
-					errors.Add(CarLoadDocumentErrors.CreateTrueMarkCodeStringIsNotValid(code));
-				}
-			}
-
 			var response = new AddOrderCodeResponse();
 
-			if(errors.Count > 0)
+			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
+
+			var allDocumentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
+			var itemsHavingRequiredNomenclature = allDocumentOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
+			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
+
+			if(!_documentErrorsChecker.IsScannedCodeValid(scannedCode, isScannedCodeValid, out Error error)
+				|| !_documentErrorsChecker.IsDocumentOrderDataCorrect(orderId, allDocumentOrderItems, out error)
+				|| !_documentErrorsChecker.IsDocumentItemsNomenclatureDataCorrect(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
+				|| !_documentErrorsChecker.IsNeedToAddTrueMarkCodesInDocumentItem(orderId, nomenclatureId, documentItemToEdit, out error)
+				|| !_documentErrorsChecker.IsTrueMarkCodeCanBeAdded(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error))
 			{
-				var firstError = errors.First();
-
+				response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 				response.Result = OperationResultEnumDto.Error;
-				response.Error = firstError.Message;
-				response.Nomenclature =
-					carLoadDocumentItem is null
-					? null
-					: _carLoadDocumentConverter.ConvertToApiNomenclature(carLoadDocumentItem);
+				response.Error = error.Message;
 
-				return Result.Failure(response, firstError);
+				return Result.Failure(response, error);
 			}
 
-			AddTrueMarkCodeAndSaveCarLoadDocumentItem(nomenclatureId, carLoadDocumentItem, trueMarkCode);
+			AddTrueMarkCodeAndSaveCarLoadDocumentItem(nomenclatureId, documentItemToEdit, trueMarkCode);
 
-			response.Nomenclature = _carLoadDocumentConverter.ConvertToApiNomenclature(carLoadDocumentItem);
-
+			response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 			response.Result = OperationResultEnumDto.Success;
 			response.Error = null;
 
@@ -180,80 +140,6 @@ namespace WarehouseApi.Library.Services
 			var documentOrderItems = await _carLoadDocumentRepository.GetWaterItemsInCarLoadDocumentById(_uow, orderId).ToListAsync();
 
 			return documentOrderItems;
-		}
-
-		private IList<Error> GetOrderErrors(int orderId, IList<CarLoadDocumentItem> documentOrderItems)
-		{
-			var errors = new List<Error>();
-			Error error = null;
-
-			if(documentOrderItems is null || documentOrderItems.Count == 0)
-			{
-				_logger.LogInformation("Данные заказа #{OrderId} в талонах погрузки не найдены", orderId);
-				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
-			}
-			else if(documentOrderItems.Select(oi => oi.Document.Id).Distinct().Count() > 1)
-			{
-				_logger.LogInformation("Строки заказа #{OrderId} сетевого клиента присутствуют в нескольких талонах погрузки", orderId);
-				error = CarLoadDocumentErrors.CreateOrderItemsExistInMultipleDocuments(orderId);
-			}
-
-			if(error != null)
-			{
-				errors.Add(error);
-			}
-
-			return errors;
-		}
-
-		private IList<Error> GetOrderNomenclatureErrors(int orderId, int nomenclatureId, IList<CarLoadDocumentItem> documentNomenclatureOrderItems)
-		{
-			var errors = new List<Error>();
-			Error error = null;
-
-			if(documentNomenclatureOrderItems.Count == 0)
-			{
-				_logger.LogInformation("В сетевом заказе #{OrderId} номенклатура #{NomenclatureId} не найдена", orderId, nomenclatureId);
-				error = CarLoadDocumentErrors.CreateOrderDoesNotContainNomenclature(orderId, nomenclatureId);
-			}
-			else if(documentNomenclatureOrderItems.Count > 1)
-			{
-				_logger.LogInformation("В талоне погрузки имеется несколько строк сетевого заказа #{OrderId} с номенклатурой #{NomenclatureId}", orderId, nomenclatureId);
-				error = CarLoadDocumentErrors.CreateOrderNomenclatureExistInMultipleDocumentItems(orderId, nomenclatureId);
-			}
-
-			if(error != null)
-			{
-				errors.Add(error);
-			}
-
-			return errors;
-		}
-
-		private async Task<IList<Error>> GetTrueMarkCodesErrors(TrueMarkWaterCode trueMarkCode, string nomenclatureGtin, string rawCodeString)
-		{
-			var errors = new List<Error>();
-
-			var existingDuplicatedCodes =
-				await _trueMarkRepository.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode).ToListAsync();
-
-			if(existingDuplicatedCodes.Count > 0)
-			{
-				_logger.LogInformation("Код ЧЗ \"{CodeString}\" уже имеется в базе. Добавляемый код является дублем", rawCodeString);
-				errors.Add(CarLoadDocumentErrors.CreateTrueMarkCodeIsAlreadyExists(rawCodeString));
-
-				return errors;
-			}
-
-			if(trueMarkCode.GTIN != nomenclatureGtin)
-			{
-				_logger.LogInformation("Значение GTIN переданного кода \"{CodeString}\" не соответствует значению GTIN для указанной номенклатуры", rawCodeString);
-				errors.Add(CarLoadDocumentErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(rawCodeString));
-
-				return errors;
-			}
-
-			return errors;
 		}
 
 		private CarLoadDocumentDto GetCarLoadDocumentDto(CarLoadDocument carLoadDocument)
@@ -290,7 +176,7 @@ namespace WarehouseApi.Library.Services
 		{
 			var codeEntity = new TrueMarkWaterIdentificationCode
 			{
-				IsInvalid = true,
+				IsInvalid = false,
 				RawCode = trueMarkCode.SourceCode.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
 				GTIN = trueMarkCode.GTIN,
 				SerialNumber = trueMarkCode.SerialNumber,

@@ -15,7 +15,7 @@ using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Services;
-using CarLoadDocumentErrors = Vodovoz.Errors.Store.CarLoadDocument;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 
 namespace WarehouseApi.Controllers
 {
