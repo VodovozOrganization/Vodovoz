@@ -31,8 +31,14 @@ namespace WarehouseApi.Library.Errors
 		public bool IsCarLoadDocumentLoadOperationStateCanBeSetInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
 		{
 			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
-				&& IsCarLoadDocumentLoadOperationStateDone(carLoadDocument, documentId, out error)
-				&& IsCarLoadDocumentLoadOperationStateDone(carLoadDocument, documentId, out error);
+				&& IsCarLoadDocumentLoadOperationStateNotStarted(carLoadDocument, documentId, out error);
+		}
+
+		public bool IsCarLoadDocumentLoadOperationStateCanBeSetInDone(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		{
+			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
+				&& IsCarLoadDocumentLoadOperationStateInProgress(carLoadDocument, documentId, out error)
+				&& IsAllTrueMarkCodesInCarLoadDocumentAdded(carLoadDocument, documentId, out error);
 		}
 
 		private bool IsCarLoadDocumentNotNull(CarLoadDocument carLoadDocument, int documentId, out Error error)
@@ -49,13 +55,13 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateDone(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private bool IsCarLoadDocumentLoadOperationStateNotStarted(CarLoadDocument carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
 
-			if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress)
+			if(carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.NotStarted)
 			{
-				error = CarLoadDocumentErrors.CreateLoadingIsAlreadyInProgress(documentId);
+				error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStarted(documentId);
 				LogError(error);
 				return false;
 			}
@@ -63,13 +69,31 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateInDone(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private bool IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocument carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
 
-			if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.Done)
+			var isNotAllCodesAdded = carLoadDocument.Items
+				.Where(x => x.OrderId != null && x.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
+				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+
+			if(isNotAllCodesAdded)
 			{
-				error = CarLoadDocumentErrors.CreateLoadingIsAlreadyDone(documentId);
+				error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(documentId);
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		{
+			error = null;
+
+			if(carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.InProgress)
+			{
+				error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeInProgress(documentId);
 				LogError(error);
 				return false;
 			}

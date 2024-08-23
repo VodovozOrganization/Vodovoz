@@ -25,29 +25,41 @@
 				nameof(OrderNotFound),
 				$"Заказ #{id} не найден");
 
-		public static Error LoadingIsAlreadyInProgress =>
+		public static Error LoadingProcessStateMustBeNotStarted =>
 			new Error(
 				typeof(CarLoadDocument),
-				nameof(LoadingIsAlreadyInProgress),
-				"Талон погрузки уже в процессе погрузки");
+				nameof(LoadingProcessStateMustBeNotStarted),
+				"Статус погрузки талона должен быть в \"Погрузка не начата\"");
 
-		public static Error CreateLoadingIsAlreadyInProgress(int? id) =>
-			id is null ? LoadingIsAlreadyInProgress : new Error(
+		public static Error CreateLoadingProcessStateMustBeNotStarted(int? id) =>
+			id is null ? LoadingProcessStateMustBeNotStarted : new Error(
 				typeof(CarLoadDocument),
-				nameof(LoadingIsAlreadyInProgress),
-				$"Талон погрузки #{id} уже в процессе погрузки");
+				nameof(LoadingProcessStateMustBeNotStarted),
+				$"Статус погрузки талона #{id} должен быть в \"Погрузка не начата\"");
 
-		public static Error LoadingIsAlreadyDone =>
+		public static Error LoadingProcessStateMustBeInProgress =>
 			new Error(
 				typeof(CarLoadDocument),
-				nameof(LoadingIsAlreadyDone),
-				"Талон погрузки уже полностью погружен");
+				nameof(LoadingProcessStateMustBeInProgress),
+				"Статус погрузки талона должен быть в \"В процессе погрузки\"");
 
-		public static Error CreateLoadingIsAlreadyDone(int? id) =>
-			id is null ? LoadingIsAlreadyDone : new Error(
+		public static Error CreateLoadingProcessStateMustBeInProgress(int? id) =>
+			id is null ? LoadingProcessStateMustBeInProgress : new Error(
 				typeof(CarLoadDocument),
-				nameof(LoadingIsAlreadyDone),
-				$"Талон погрузки #{id} уже полностью погружен");
+				nameof(LoadingProcessStateMustBeInProgress),
+				$"Статус погрузки талона #{id} должен быть в \"В процессе погрузки\"");
+
+		public static Error NotAllTrueMarkCodesWasAddedIntoCarLoadDocument =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(NotAllTrueMarkCodesWasAddedIntoCarLoadDocument),
+				"Не для всех товаров документа погрузки были добавлены коды ЧЗ");
+
+		public static Error CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(int? id) =>
+			id is null ? NotAllTrueMarkCodesWasAddedIntoCarLoadDocument : new Error(
+				typeof(CarLoadDocument),
+				nameof(NotAllTrueMarkCodesWasAddedIntoCarLoadDocument),
+				$"Не для всех товаров документа погрузки #{id} были добавлены коды ЧЗ");
 
 		public static Error OrderItemsExistInMultipleDocuments =>
 			new Error(

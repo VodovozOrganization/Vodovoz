@@ -10,5 +10,6 @@ namespace WarehouseApi.Library.Services
 		Task<Result<GetOrderResponse>> GetOrder(int orderId);
 		Task<Result<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string code);
 		Task<Result<AddOrderCodeResponse>> ChangeOrderCode(int orderId, int nomenclatureId, string oldScannedCode, string newScannedCode);
+		Task<Result<EndLoadResponse>> EndLoad(int documentId);
 	}
 }

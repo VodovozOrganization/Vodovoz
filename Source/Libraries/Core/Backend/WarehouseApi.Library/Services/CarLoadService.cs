@@ -70,7 +70,7 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure(response, error);
 			}
 
-			SetLoadOperationStateInProgressAndSaveDocument(carLoadDocument);
+			SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress);
 
 			response.CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument);
 			response.Result = OperationResultEnumDto.Success;
@@ -180,6 +180,31 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(response);
 		}
 
+		public async Task<Result<EndLoadResponse>> EndLoad(int documentId)
+		{
+			var response = new EndLoadResponse();
+
+			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
+			var carLoadDocument =
+				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
+				.FirstOrDefault();
+
+			if(!_documentErrorsChecker.IsCarLoadDocumentLoadOperationStateCanBeSetInDone(carLoadDocument, documentId, out Error error))
+			{
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				return Result.Failure(response, error);
+			}
+
+			SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done);
+
+			response.Result = OperationResultEnumDto.Success;
+			response.Error = null;
+
+			return Result.Success(response);
+		}
+
 		private async Task<IList<CarLoadDocumentItem>> GetCarLoadDocumentWaterOrderItems(int orderId)
 		{
 			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
@@ -199,10 +224,9 @@ namespace WarehouseApi.Library.Services
 			return carLoadDocumentDto;
 		}
 
-		private void SetLoadOperationStateInProgressAndSaveDocument(CarLoadDocument document)
+		private void SetLoadOperationStateAndSaveDocument(CarLoadDocument document, CarLoadDocumentLoadOperationState newLoadOperationState)
 		{
 			var currentLoadOperationState = document.LoadOperationState;
-			var newLoadOperationState = CarLoadDocumentLoadOperationState.InProgress;
 
 			_logger.LogInformation("Меняем статус талона погрузки #{DocumentId} с \"{CurrentStatus}\" на \"{NewStatus}\"",
 				document.Id,

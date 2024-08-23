@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
-using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Services;
@@ -208,12 +207,54 @@ namespace WarehouseApi.Controllers
 		[HttpPost("EndLoad")]
 		public async Task<IActionResult> EndLoad([FromQuery] int documentId)
 		{
-			var response = new EndLoadResponse
+			_logger.LogInformation("Запрос завершения погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
+				documentId,
+				Request.Headers[HeaderNames.Authorization]);
+
+			try
 			{
-				Result = OperationResultEnumDto.Success
+				var result = await _carLoadService.EndLoad(documentId);
+				throw new Exception();
+				if(result.IsSuccess)
+				{
+					return MapResult(result);
+				}
+
+				return MapFailureValueResult(
+					result,
+					result =>
+					{
+						var firstError = result.Errors.FirstOrDefault();
+
+						if(firstError != null && firstError.Code == CarLoadDocumentErrors.DocumentNotFound)
+						{
+							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+						}
+
+						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+
+				//return Problem("Внутренняя ошибка сервера. Обратитесь в техподдержку", statusCode: 500);
+				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+			}
+		}
+
+		private IActionResult GetProblemResult(string message)
+		{
+			var response = new WarehouseApiResponseBase
+			{
+				Result = Contracts.Dto.OperationResultEnumDto.Error,
+				Error = message,
 			};
 
-			return Ok(response);
+			return new ObjectResult(response)
+			{
+				StatusCode = StatusCodes.Status500InternalServerError
+			};
 		}
 	}
 }
