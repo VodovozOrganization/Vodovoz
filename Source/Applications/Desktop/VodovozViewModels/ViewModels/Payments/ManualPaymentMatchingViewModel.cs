@@ -530,7 +530,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			AllocateOrders();
 			CreateOperations();
 
-			foreach(var item in Entity.PaymentItems)
+			var notCancelledItems = Entity.PaymentItems.Where(x => x.PaymentItemStatus != AllocationStatus.Cancelled);
+
+			foreach(var item in notCancelledItems)
 			{
 				if(item.Order.OrderPaymentStatus == OrderPaymentStatus.Paid)
 				{
