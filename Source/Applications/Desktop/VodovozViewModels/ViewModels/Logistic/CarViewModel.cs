@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -392,6 +392,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 
 				return base.Save(close);
 			}
@@ -439,6 +440,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 
 				return base.Save(close);
 			}

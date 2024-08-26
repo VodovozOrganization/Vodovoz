@@ -28,15 +28,15 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Id
 		{
 			get => _id;
-            set
-            {
-                if(_id != value)
-                {
-                    _id = value;
+			set
+			{
+				if(_id != value)
+				{
+					_id = value;
 
-                    UpdateFileInformations();
-                }
-            }
+					UpdateFileInformations();
+				}
+			}
 		}
 
 		[Display(Name = "Автор")]
@@ -76,12 +76,12 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => $"Комментарий сотрудника \"{Author.ShortName}\"";
 
-        private void UpdateFileInformations()
-        {
-            foreach(var fileInformation in AttachedFileInformations)
-            {
-                fileInformation.UndeliveryDiscussionCommentId = Id;
-            }
-        }
-    }
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.UndeliveryDiscussionCommentId = Id;
+			}
+		}
+	}
 }

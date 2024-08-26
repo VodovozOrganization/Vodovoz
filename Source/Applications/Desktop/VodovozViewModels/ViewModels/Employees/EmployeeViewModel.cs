@@ -1405,6 +1405,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			AddAttachedFilesIfNeeded();
 			UpdateAttachedFilesIfNeeded();
 			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 
 			#region Попытка сохранить логин для нового юзера
 

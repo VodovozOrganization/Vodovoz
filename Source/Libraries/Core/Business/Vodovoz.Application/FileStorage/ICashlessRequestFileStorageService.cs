@@ -4,5 +4,5 @@ namespace Vodovoz.Application.FileStorage
 {
 	public interface ICashlessRequestFileStorageService : IEntityFileStorageService<CashlessRequest>
 	{
-    }
+	}
 }

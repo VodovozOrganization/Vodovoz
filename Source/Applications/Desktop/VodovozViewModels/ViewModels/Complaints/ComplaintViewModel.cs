@@ -758,6 +758,7 @@ namespace Vodovoz.ViewModels.Complaints
 			AddAttachedFilesIfNeeded();
 			UpdateAttachedFilesIfNeeded();
 			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{

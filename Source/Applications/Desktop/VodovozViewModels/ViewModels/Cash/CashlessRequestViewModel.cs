@@ -253,6 +253,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -265,6 +266,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -277,6 +279,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -289,6 +292,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -301,6 +305,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}

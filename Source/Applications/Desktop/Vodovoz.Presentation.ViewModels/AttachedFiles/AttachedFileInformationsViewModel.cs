@@ -64,6 +64,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 			DeleteCommand = new DelegateCommand(DeleteHandler, () => CanDelete);
 			DeleteCommand.CanExecuteChangedWith(this, vm => vm.CanDelete);
 
+			ClearPersistentInformationCommand = new DelegateCommand(ClearPersistentInformation);
+
 			OpenCommand = new DelegateCommand(OpenHandler, () => CanOpen);
 			OpenCommand.CanExecuteChangedWith(this, vm => vm.CanOpen);
 			SaveCommand = new DelegateCommand(SaveHandler, () => CanSave);
@@ -155,6 +157,7 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		public DelegateCommand AddCommand { get; }
 		public DelegateCommand DeleteCommand { get; }
+		public DelegateCommand ClearPersistentInformationCommand { get; }
 		public DelegateCommand OpenCommand { get; }
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand ScanCommand { get; }
@@ -344,6 +347,13 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 					AddFileCallback?.Invoke(fileName);
 				}
 			}
+		}
+
+		private void ClearPersistentInformation()
+		{
+			FilesToAddOnSave.Clear();
+			FilesToUpdateOnSave.Clear();
+			FilesToDeleteOnSave.Clear();
 		}
 
 		#endregion Command Handlers
