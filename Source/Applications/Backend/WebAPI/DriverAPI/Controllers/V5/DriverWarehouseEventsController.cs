@@ -42,7 +42,7 @@ namespace DriverAPI.Controllers.V5
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_driverWarehouseEventsService = driverWarehouseEventsService ?? throw new ArgumentNullException(nameof(driverWarehouseEventsService));
 		}
-		
+
 		/// <summary>
 		/// Завершение события нахождения на складе
 		/// </summary>
@@ -56,8 +56,8 @@ namespace DriverAPI.Controllers.V5
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
-			DriverWarehouseEventQrData qrData = null; 
-			
+			DriverWarehouseEventQrData qrData = null;
+
 			try
 			{
 				qrData = _driverWarehouseEventsService.ConvertAndValidateQrData(eventData.QrData);
@@ -73,7 +73,7 @@ namespace DriverAPI.Controllers.V5
 			{
 				return ValidationProblem("Неправильный QR код");
 			}
-			
+
 			_logger.LogInformation("Попытка завершения события {EventId} пользователем {Username} User token: {AccessToken}",
 				qrData.EventId,
 				userName,
@@ -87,12 +87,59 @@ namespace DriverAPI.Controllers.V5
 			{
 				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(
 					qrData, eventData, driver, out var distanceMetersFromScanningLocation);
-				
+
 				if(completedEvent is null)
 				{
 					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: StatusCodes.Status403Forbidden);
 				}
-				
+
+				return Ok(
+					new CompletedDriverWarehouseEventDto
+					{
+						EventName = completedEvent.DriverWarehouseEvent.EventName,
+						CompletedDate = completedEvent.CompletedDate,
+						EmployeeName = completedEvent.Employee.ShortName
+					});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при попытке завершить событие {EventId} пользователем {Username}: {ExceptionMessage}",
+					qrData.EventId,
+					userName,
+					e.Message);
+
+				return Problem("Сервис не доступен. Обратитесь в техподдержку");
+			}
+		}
+
+		/// <summary>
+		/// Завершение события нахождения на складе
+		/// </summary>
+		/// <param name="qrData">данные Qr для завершения события</param>
+		/// <returns>Http status OK или ошибка</returns>
+		/// <exception cref="Exception">ошибка</exception>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]
+		public async Task<IActionResult> CompleteNoCoordinatesDriverWarehouseEvent(DriverWarehouseEventQrData qrData)
+		{
+			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
+
+			_logger.LogInformation("Попытка завершения события {EventId} пользователем {Username} User token: {AccessToken}",
+				qrData.EventId,
+				userName,
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
+				user.UserName, ExternalApplicationType.DriverApp);
+
+			try
+			{
+				var completedEvent = _driverWarehouseEventsService.CompleteNoCoordinatesWarehouseEvent(
+					qrData, driver, out var distanceMetersFromScanningLocation);
+
 				return Ok(
 					new CompletedDriverWarehouseEventDto
 					{
