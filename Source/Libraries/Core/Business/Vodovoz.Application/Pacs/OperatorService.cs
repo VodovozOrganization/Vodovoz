@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
@@ -204,6 +204,9 @@ namespace Vodovoz.Application.Pacs
 				OperatorState?.State,
 				stateEvent?.State?.State);
 
+			var previousShortBreakAvailable = BreakAvailability?.ShortBreakAvailable;
+			var previousLongBreakAvailable = BreakAvailability?.LongBreakAvailable;
+
 			if(OperatorState == null || OperatorState.Id != stateEvent.State.Id)
 			{
 				OperatorState = stateEvent.State;
@@ -212,9 +215,9 @@ namespace Vodovoz.Application.Pacs
 			_logger.LogInformation(
 				"Изменение доступности малого перерыва оператора с {PreviousShortBreakAvailability} на {NewShortBreakAvailability}," +
 				" большого перерыва оператора с {PreviousLongBreakAvailability} на {NewLongBreakAvailability}",
-				BreakAvailability?.ShortBreakAvailable,
+				previousShortBreakAvailable,
 				stateEvent?.BreakAvailability?.ShortBreakAvailable,
-				BreakAvailability?.LongBreakAvailable,
+				previousLongBreakAvailable,
 				stateEvent?.BreakAvailability?.LongBreakAvailable);
 
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
@@ -750,7 +753,7 @@ namespace Vodovoz.Application.Pacs
 				var hasPhone = uint.TryParse(OperatorState?.PhoneNumber, out var phone);
 				if(!hasPhone)
 				{
-					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState.PhoneNumber);
+					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState?.PhoneNumber);
 				}
 
 				if(_operatorStateAgent.OnWorkshift)
