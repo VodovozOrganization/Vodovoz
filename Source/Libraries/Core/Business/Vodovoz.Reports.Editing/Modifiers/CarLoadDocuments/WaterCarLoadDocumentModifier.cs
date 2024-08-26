@@ -9,14 +9,10 @@ namespace Vodovoz.Reports.Editing.Modifiers
 	public class WaterCarLoadDocumentModifier : ReportModifierBase
 	{
 		private const string _dataTableName = "TableData";
-		private const string _dataWithoutQrTableName = "TableDataWithoutQr";
 		private const string _tearOffCouponTableName = "TableTearOffCoupon";
-		private const string _confirmationTableName = "TableConfirmation";
-		private const string _infoTextboxName = "TextboxInfo";
 		private const string _orderQrCodeName = "OrderQrCode";
 
 		private const double _dataTableHeightInPt = 145;
-		private const double _dataWithoutQrTableHeightInPt = 70;
 		private const double _tearOffCouponTableHeightInPt = 90;
 		private const double _dataTableDefaultHeaderRowHeightInPt = 25;
 		private const double _dataTableWithQrHeaderRowHeightInPt = 85;
@@ -30,10 +26,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			AddActions(InsertDataTablesWithQr(orderIds, isDocumentHasCommonOrders));
 			AddActions(InsertTearOffCouponTablesActions(tearOffCouponsCount));
-			AddActions(InsertDataTablesWithoutQrActions(orderIds, isDocumentHasCommonOrders));
 
 			AddAction(RemoveTableAction(_dataTableName));
-			AddAction(RemoveTableAction(_dataWithoutQrTableName));
 			AddAction(RemoveQrCodeAction(_orderQrCodeName));
 		}
 
@@ -69,9 +63,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				: offsetForNextElements - _dataTableHeightInPt;
 
 			actions.Add(MoveTableVerticallyAction(_tearOffCouponTableName, offsetForNextElements));
-			actions.Add(MoveTableVerticallyAction(_dataWithoutQrTableName, offsetForNextElements));
-			actions.Add(MoveTableVerticallyAction(_confirmationTableName, offsetForNextElements));
-			actions.Add(MoveTextboxVerticallyAction(_infoTextboxName, offsetForNextElements));
 
 			return actions;
 		}
@@ -107,53 +98,15 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				actions.Add(MoveTableVerticallyAction(newTearOffCouponTableName, verticalOffset));
 			}
 
-			var offsetForNextElements = (totalCount - 1) * _tearOffCouponTableHeightInPt;
-
-			actions.Add(MoveTableVerticallyAction(_dataWithoutQrTableName, offsetForNextElements));
-			actions.Add(MoveTableVerticallyAction(_confirmationTableName, offsetForNextElements));
-			actions.Add(MoveTextboxVerticallyAction(_infoTextboxName, offsetForNextElements));
-
-			return actions;
-		}
-
-		private static IEnumerable<ModifierAction> InsertDataTablesWithoutQrActions(IEnumerable<int> orderIds, bool isDocumentHasCommonOrders)
-		{
-			var tablesWithQrCount = orderIds.Count();
-
-			var actions = new List<ModifierAction>();
-
-			for(var i = 0; i < tablesWithQrCount; i++)
-			{
-				var orderId = orderIds.ElementAt(i);
-				var verticalOffset = i * _dataWithoutQrTableHeightInPt;
-				var newTableName = $"{_dataWithoutQrTableName}_{orderId}";
-
-				actions.AddRange(CopyTableAndMoveVerticallyActions(_dataWithoutQrTableName, newTableName, verticalOffset));
-				actions.Add(AddOrderEqualTableFilterAction(newTableName, orderId.ToString()));
-			}
-
-			var offsetForNextElements = tablesWithQrCount * _dataWithoutQrTableHeightInPt;
-
-			if(isDocumentHasCommonOrders)
-			{
-				actions.AddRange(GetDataTableWithCommonOrdersActions(orderIds, $"{_dataWithoutQrTableName}_common", offsetForNextElements, true));
-			}
-
-			if(tablesWithQrCount > 0)
-			{
-				actions.Add(MoveTableVerticallyAction(_confirmationTableName, offsetForNextElements));
-				actions.Add(MoveTextboxVerticallyAction(_infoTextboxName, offsetForNextElements));
-			}
-
 			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetDataTableWithCommonOrdersActions(IEnumerable<int> orderIds, string newTableName,
-			double verticalOffset, bool copyFromTableWithoutQr = false)
+			double verticalOffset)
 		{
 			var actions = new List<ModifierAction>();
 
-			var sourceTableName = copyFromTableWithoutQr ? _dataWithoutQrTableName : _dataTableName;
+			var sourceTableName = _dataTableName;
 
 			actions.AddRange(CopyTableAndMoveVerticallyActions(sourceTableName, newTableName, verticalOffset));
 
@@ -205,16 +158,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private static ModifierAction MoveTableVerticallyAction(string tableName, double offsetInPt)
 		{
 			return new MoveElementVertically(tableName, ElementType.Table, offsetInPt);
-		}
-
-		private static ModifierAction MoveTextboxVerticallyAction(string textboxName, double offsetInPt)
-		{
-			return new MoveElementVertically(textboxName, ElementType.Textbox, offsetInPt);
-		}
-
-		private static ModifierAction MoveRectangleVerticallyAction(string rectangleName, double offsetInPt)
-		{
-			return new MoveElementVertically(rectangleName, ElementType.Rectangle, offsetInPt);
 		}
 
 		private static ModifierAction MoveQrCodeVerticallyAction(string qrItemName, double offsetInPt)

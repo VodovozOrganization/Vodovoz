@@ -11,6 +11,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.PrintableDocuments;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -397,6 +398,11 @@ namespace Vodovoz.Domain.Employees
 				new GenericObservableList<DocumentPrinterSetting>(DocumentPrinterSettings));
 
 		#endregion
+
+		public virtual DocumentPrinterSetting GetPrinterSettingByDocumentType(CustomPrintDocumentType documentType) =>
+			DocumentPrinterSettings
+			.Where(s => s.DocumentType == documentType)
+			.FirstOrDefault();
 
 		public virtual void UpdateCashSortingIndices()
 		{
