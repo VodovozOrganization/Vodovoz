@@ -103,23 +103,10 @@ namespace Vodovoz.ViewModels.Print.Store
 		{
 			var modifier = new WaterCarLoadDocumentModifier();
 			var tearOffCouponsCount = GetTearOffCouponsCount();
-			var isDocumentHasCommonOrders = IsDocumentHasCommonOrders();
 
-			modifier.Setup(SeparateTableOrderIds, tearOffCouponsCount, isDocumentHasCommonOrders);
+			modifier.Setup(_carLoadDocument.SeparateTableOrderIds, tearOffCouponsCount, _carLoadDocument.IsDocumentHasCommonOrders);
 
 			return modifier;
-		}
-
-		private IEnumerable<int> SeparateTableOrderIds =>
-			_carLoadDocument.Items
-			.Where(item => item.OrderId.HasValue && item.IsIndividualSetForOrder)
-			.Select(item => item.OrderId.Value)
-			.Distinct()
-			.ToList();
-
-		private bool IsDocumentHasCommonOrders()
-		{
-			return _carLoadDocument.Items.Any(x => !x.IsIndividualSetForOrder);
 		}
 
 		private int GetTearOffCouponsCount()
@@ -197,10 +184,7 @@ namespace Vodovoz.ViewModels.Print.Store
 		{
 			var document = new WaterCarLoadDocumentRdl(carLoadDocument, qRPlacerFunc);
 
-			var savedPrinterSettings =
-				userSettings.DocumentPrinterSettings
-				.Where(s => s.DocumentType == document.DocumentType)
-				.FirstOrDefault();
+			var savedPrinterSettings = userSettings.GetPrinterSettingByDocumentType(document.DocumentType);
 
 			document.CopiesToPrint = savedPrinterSettings is null ? 1 : savedPrinterSettings.NumberOfCopies;
 			document.PrinterName = savedPrinterSettings?.PrinterName;
