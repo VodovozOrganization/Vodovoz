@@ -51,30 +51,29 @@ namespace Vodovoz.Application.Contacts
 		{
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var counterpartyPhoneId = _phoneRepository
+				var counterpartyPhoneIds = _phoneRepository
 					.GetValue(unitOfWork,
 						p => p.Id,
 						p => p.DigitsNumber == counterpartyPhoneNumber
 							&& (p.Counterparty != null
-								|| p.DeliveryPoint != null))
-					.FirstOrDefault();
+								|| p.DeliveryPoint != null));
 
-				if(counterpartyPhoneId == 0)
+				if(!counterpartyPhoneIds.Any())
 				{
-					return Result.Failure<string>(Errors.Contacts.Phone.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Contacts.Phone.NotFound);
 				}
 
 				var orderId = _orderRepository
 					.GetValue(
 						unitOfWork,
 						o => o.Id,
-						o => o.ContactPhone.Id == counterpartyPhoneId
+						o => counterpartyPhoneIds.Contains(o.ContactPhone.Id)
 							&& o.OrderStatus == OrderStatus.OnTheWay)
 					.FirstOrDefault();
 
 				if(orderId == 0)
 				{
-					return Result.Failure<string>(Errors.Orders.Order.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Orders.Order.NotFound);
 				}
 
 				var routeList = _routeListRepository
@@ -87,7 +86,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(routeList is null)
 				{
-					return Result.Failure<string>(Errors.Logistics.RouteList.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.NotFound);
 				}
 
 				var driver = _employeeRepository
@@ -96,14 +95,14 @@ namespace Vodovoz.Application.Contacts
 
 				if(driver is null)
 				{
-					return Result.Failure<string>(Errors.Employees.Driver.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.NotFound);
 				}
 
 				var phone = driver.Phones.FirstOrDefault();
 
 				if(phone is null)
 				{
-					return Result.Failure<string>(Errors.Contacts.Phone.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Contacts.Phone.NotFound);
 				}
 
 				return Result.Success(phone.DigitsNumber);
