@@ -32,8 +32,8 @@ namespace WarehouseApi.Controllers
 			ILogger<CarLoadController> logger,
 			ICarLoadService carLoadService) : base(logger)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_carLoadService = carLoadService ?? throw new System.ArgumentNullException(nameof(carLoadService));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_carLoadService = carLoadService ?? throw new ArgumentNullException(nameof(carLoadService));
 		}
 
 		/// <summary>

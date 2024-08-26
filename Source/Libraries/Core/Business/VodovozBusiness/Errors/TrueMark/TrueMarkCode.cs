@@ -62,5 +62,23 @@
 				typeof(TrueMarkCode),
 				nameof(TrueMarkCodeForCarLoadDocumentItemNotFound),
 				$"Код ЧЗ ({codeString}) не найден среди добавленных в строке документа погрузки");
+
+		public static Error TrueMarkCodeIsNotIntroduced =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeIsNotIntroduced),
+				"Код ЧЗ не в обороте");
+
+		public static Error TrueMarkApiRequestError =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkApiRequestError),
+				"Ошибка при выполнении запроса к API честного знака");
+
+		public static Error CreateTrueMarkApiRequestError(string message) =>
+			string.IsNullOrEmpty(TrueMarkApiRequestError) ? TrueMarkApiRequestError : new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkApiRequestError),
+				$"{message}");
 	}
 }

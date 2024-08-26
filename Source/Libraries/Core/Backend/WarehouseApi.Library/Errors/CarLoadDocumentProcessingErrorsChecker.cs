@@ -3,7 +3,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
@@ -17,15 +19,18 @@ namespace WarehouseApi.Library.Errors
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
 			IUnitOfWork uow,
-			ITrueMarkRepository trueMarkRepository)
+			ITrueMarkRepository trueMarkRepository,
+			TrueMarkCodesChecker trueMarkCodesChecker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 		}
 
 		public bool IsCarLoadDocumentLoadOperationStateCanBeSetInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
@@ -137,7 +142,8 @@ namespace WarehouseApi.Library.Errors
 				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit, out error)
-				&& IsTrueMarkCodeNotExistAndHasRequiredGtin(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error);
+				&& IsTrueMarkCodeNotExistAndHasRequiredGtin(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error)
+				&& IsTrueMarkCodeIntroduced(trueMarkCode, out error);
 		}
 
 		public bool IsTrueMarkCodeCanBeChanged(
@@ -160,7 +166,8 @@ namespace WarehouseApi.Library.Errors
 				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
-				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error);
+				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error)
+				&& IsTrueMarkCodeIntroduced(newTrueMarkCode, out error);
 		}
 
 		private bool IsSingleItemHavingRequiredOrderAndNomenclatureExists(
@@ -291,6 +298,53 @@ namespace WarehouseApi.Library.Errors
 			}
 
 			return true;
+		}
+
+		private bool IsTrueMarkCodeIntroduced(TrueMarkWaterCode trueMarkCode, out Error error)
+		{
+			error = null;
+
+			var waterCode = new TrueMarkWaterIdentificationCode
+			{
+				IsInvalid = false,
+				RawCode = trueMarkCode.SourceCode.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
+				GTIN = trueMarkCode.GTIN,
+				SerialNumber = trueMarkCode.SerialNumber,
+				CheckCode = trueMarkCode.CheckCode
+			};
+
+			var cancellationTokenSource = new CancellationTokenSource();
+			var cancellationToken = cancellationTokenSource.Token;
+
+			try
+			{
+				var checkResults =
+					_trueMarkCodesChecker.CheckCodesAsync(new List<TrueMarkWaterIdentificationCode> { waterCode }, cancellationToken)
+					.Result
+					.FirstOrDefault();
+
+				if(checkResults is null || !checkResults.Introduced)
+				{
+					error = TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced;
+					LogError(error);
+					return false;
+				}
+
+				return true;
+			}
+			catch(Exception ex)
+			{
+				error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
+					"При выполнении запроса к API ЧЗ для проверки кода возникла непредвиденная ошибка. " +
+					"Обратитесь в техподдержку");
+				_logger.LogError(error.Message, ex);
+				return false;
+			}
+			finally
+			{
+				cancellationTokenSource.Dispose();
+				cancellationTokenSource = null;
+			}
 		}
 
 		private void LogError(Error error)

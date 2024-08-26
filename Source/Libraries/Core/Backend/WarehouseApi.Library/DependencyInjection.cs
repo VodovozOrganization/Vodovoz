@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
+using TrueMarkApi.Client;
 using Vodovoz;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
@@ -36,7 +37,10 @@ namespace WarehouseApi.Library
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
 				.AddScoped<CarLoadDocumentConverter>()
 				.AddScoped<TrueMarkWaterCodeParser>()
-				.AddScoped<CarLoadDocumentProcessingErrorsChecker>();
+				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
+				.AddScoped<TrueMarkApiClientFactory>()
+				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
+				.AddScoped<TrueMarkCodesChecker>(); ;
 
 			services.AddStaticHistoryTracker();
 
