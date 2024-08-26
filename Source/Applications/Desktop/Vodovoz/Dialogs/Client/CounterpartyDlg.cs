@@ -907,6 +907,10 @@ namespace Vodovoz
 
 		private void ConfigureConnectedCustomers()
 		{
+			lblConnectedCustomers.LabelProp = Entity.PersonType == PersonType.natural
+				? "Клиенты, от имени которых может заказывать в ИПЗ это физическое лицо:"
+				: "Клиенты, которые могут заказывать в ИПЗ на это юр лицо:";
+
 			ConfigureTreeConnectedCustomers();
 
 			ActivateConnectConnectedCustomerCommand = new DelegateCommand(
@@ -932,7 +936,6 @@ namespace Vodovoz
 					}
 					connectedCustomer.BlockConnect();
 					UpdateStateConnectButtons();
-					//treeViewConnectedCustomers.QueueDraw();
 					treeViewConnectedCustomers.YTreeModel.EmitModelChanged();
 				},
 				() => SelectedConnectedCustomer != null
