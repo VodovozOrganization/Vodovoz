@@ -2,6 +2,9 @@
 
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
+	/// <summary>
+	/// Информация о id внешнего пользователя
+	/// </summary>
 	public abstract class ExternalCounterpartyDto
 	{
 		/// <summary>

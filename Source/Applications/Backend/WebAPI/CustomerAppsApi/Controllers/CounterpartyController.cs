@@ -117,16 +117,15 @@ namespace CustomerAppsApi.Controllers
 				
 				var result = _counterpartyModel.GetLegalCustomersByInn(dto);
 
-				if(result is null)
+				if(!string.IsNullOrWhiteSpace(result.Message))
 				{
-					_logger.LogInformation(
-						"Не нашли пользователя при получении юр лиц по ИНН {INN} от {ExternalCounterpartyId}",
+					_logger.LogInformation(result.Message + "при получении юр лиц по ИНН {INN} от {ExternalCounterpartyId}",
 						dto.Inn,
 						dto.ExternalCounterpartyId);
-					return BadRequest("Пользователь не найден");
+					return BadRequest(result.Message);
 				}
 				
-				return Ok(result);
+				return Ok(result.Data);
 			}
 			catch(Exception e)
 			{

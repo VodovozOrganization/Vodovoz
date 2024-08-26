@@ -85,9 +85,9 @@ namespace CustomerAppsApi.Library.Repositories
 			return _externalCounterpartyMatchingRepository.ExternalCounterpartyMatchingExists(uow, externalCounterpartyId, phoneNumber);
 		}
 		
-		public IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(IUnitOfWork uow, string inn)
+		public IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(IUnitOfWork uow, string inn, int naturalCounterpartyId)
 		{
-			var counterparties = _counterpartyRepository.GetLegalCounterpartiesByInn(uow, inn);
+			var counterparties = _counterpartyRepository.GetLegalCounterpartiesByInn(uow, inn, naturalCounterpartyId);
 
 			var counterpartiesIds = counterparties
 				.Select(x => x.ErpCounterpartyId)

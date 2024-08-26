@@ -303,18 +303,29 @@ namespace CustomerAppsApi.Library.Models
 			return _counterpartyModelValidator.GetLegalCustomersDtoValidate(dto);
 		}
 
-		public IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(GetLegalCustomersByInnDto dto)
+		public (string Message, IEnumerable<LegalCounterpartyInfo> Data) GetLegalCustomersByInn(GetLegalCustomersByInnDto dto)
 		{
 			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
 				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
 
 			if(externalCounterparty is null)
 			{
-				return null;
+				return ("Неизвестный пользователь", null);
+			}
+
+			var registeredCounterpartyId = externalCounterparty.Phone.Counterparty.Id;
+			
+			if(registeredCounterpartyId != dto.ErpCounterpartyId)
+			{
+				return (
+					$"Переданный Id клиента {dto.ErpCounterpartyId} не совпадает с зарегистрированным {registeredCounterpartyId}",
+					null);
 			}
 			
-			var counterparties = _counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto.Inn);
-			return counterparties;
+			var counterparties =
+				_counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto.Inn, dto.ErpCounterpartyId);
+			
+			return (null, counterparties);
 		}
 		
 		public IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto)

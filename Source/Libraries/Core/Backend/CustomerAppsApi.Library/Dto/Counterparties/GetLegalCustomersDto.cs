@@ -2,6 +2,9 @@
 
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
+	/// <summary>
+	/// Информация о источнике запроса (ИПЗ)
+	/// </summary>
 	public abstract class GetLegalCustomersDto : ExternalCounterpartyDto
 	{
 		/// <summary>

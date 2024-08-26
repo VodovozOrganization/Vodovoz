@@ -7,7 +7,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.SqlCommand;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -496,24 +498,32 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return query;
 		}
 
-		public IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(IUnitOfWork uow, string inn)
+		public IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(IUnitOfWork uow, string inn, int naturalCounterpartyId)
 		{
-			var result =
-				from counterparty in uow.Session.Query<Counterparty>()
-				where counterparty.INN == inn
-					&& counterparty.PersonType == PersonType.legal
-					&& !counterparty.IsArchive
-				
-				select new LegalCounterpartyInfo
-				{
-					ErpCounterpartyId = counterparty.Id,
-					Inn = counterparty.INN,
-					Kpp = counterparty.KPP,
-					JurAddress = counterparty.JurAddress,
-					FullName = counterparty.FullName
-				};
+			Counterparty counterpartyAlias = null;
+			ConnectedCustomer connectedCustomerAlias = null;
+			LegalCounterpartyInfo resultAlias = null;
 
-			return result.ToList();
+			var result = uow.Session.QueryOver(() => counterpartyAlias)
+				.JoinEntityAlias(
+					() => connectedCustomerAlias,
+					() => counterpartyAlias.Id == connectedCustomerAlias.LegalCounterpartyId
+					      && connectedCustomerAlias.NaturalCounterpartyId == naturalCounterpartyId,
+					JoinType.LeftOuterJoin)
+				.Where(c => c.INN == inn)
+				.And(c => c.PersonType == PersonType.legal)
+				.And(c => !c.IsArchive)
+				.SelectList(list => list
+					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.ErpCounterpartyId)
+					.Select(c => c.INN).WithAlias(() => resultAlias.Inn)
+					.Select(c => c.KPP).WithAlias(() => resultAlias.Kpp)
+					.Select(c => c.JurAddress).WithAlias(() => resultAlias.JurAddress)
+					.Select(c => c.Name).WithAlias(() => resultAlias.FullName)
+					.Select(() => connectedCustomerAlias.ConnectState).WithAlias(() => resultAlias.ConnectState)
+				)
+				.TransformUsing(Transformers.AliasToBean<LegalCounterpartyInfo>());
+			
+			return result.List<LegalCounterpartyInfo>();
 		}
 
 		public bool CounterpartyByIdExists(IUnitOfWork uow, int counterpartyId)
