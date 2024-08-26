@@ -20,15 +20,12 @@ using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace RoboatsService
 {
@@ -56,6 +53,8 @@ namespace RoboatsService
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddMvc().AddControllersAsServices();
+
+			services.AddSwaggerGen();
 
 			services.AddMappingAssemblies(
 				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -137,6 +136,9 @@ namespace RoboatsService
 			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
+
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LogisticsEventsApi v1"));
 			}
 
 			app.UseHttpsRedirection();
