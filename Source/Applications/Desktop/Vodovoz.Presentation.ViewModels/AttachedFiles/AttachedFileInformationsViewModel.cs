@@ -195,7 +195,10 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 		{
 			try
 			{
-				var fileName = Path.GetFileName(filePath);
+				var fileName = Path.GetFileNameWithoutExtension(filePath) +
+					" " +
+					DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
+					Path.GetExtension(filePath);
 
 				if(fileName.Length > _maxFileLength)
 				{
@@ -220,17 +223,6 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 					AttachedFiles[fileName] = fileContent;
 					FilesToDeleteOnSave.Remove(fileName);
 					FilesToUpdateOnSave.Add(fileName);
-				}
-				else
-				{
-					fileName =
-						Path.GetFileNameWithoutExtension(fileName) +
-						" " +
-						DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
-						Path.GetExtension(fileName);
-
-					AttachedFiles.Add(fileName, fileContent);
-					FilesToAddOnSave.Add(fileName);
 				}
 
 				if(!FileInformations.Any(fi => fi.FileName == fileName))
