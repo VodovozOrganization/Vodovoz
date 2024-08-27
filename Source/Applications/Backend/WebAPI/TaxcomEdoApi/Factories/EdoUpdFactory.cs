@@ -5,10 +5,10 @@ using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TISystems.TTC.Common;
+using Vodovoz.Core.Data.Documents;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Payments;
 
 namespace TaxcomEdoApi.Factories
 {
@@ -27,12 +27,12 @@ namespace TaxcomEdoApi.Factories
 		}
 		
 		public Fajl CreateNewUpdXml(
-			OrderInfoForEdo orderInfoForEdo,
+			InfoForCreatingEdoUpd infoForCreatingEdoUpd,
 			WarrantOptions warrantOptions,
 			string organizationAccountId,
-			string certificateSubject,
-			IEnumerable<Payment> orderPayments)
+			string certificateSubject)
 		{
+			var orderInfoForEdo = infoForCreatingEdoUpd.OrderInfoForEdo;
 			var org = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo;
 			
 			var upd = new Fajl
@@ -103,13 +103,13 @@ namespace TaxcomEdoApi.Factories
 			};
 
 			//К платежно-расчетному документу
-			if(orderPayments.Any())
+			if(infoForCreatingEdoUpd.PaymentsInfoForEdo.Any())
 			{
-				upd.Dokument.SvSchFakt.SvPRD = orderPayments
+				upd.Dokument.SvSchFakt.SvPRD = infoForCreatingEdoUpd.PaymentsInfoForEdo
 					.Select(p => new FajlDokumentSvSchFaktSvPRD
 					{
-						NomerPRD = p.PaymentNum.ToString(),
-						DataPRD = p.Date.ToString("dd.MM.yyyy")
+						NomerPRD = p.PaymentNum,
+						DataPRD = p.PaymentDate
 					})
 					.ToArray();
 			}

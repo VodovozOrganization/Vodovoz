@@ -1,18 +1,21 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Payments;
 
 namespace Vodovoz.Core.Data.Documents
 {
 	public class InfoForCreatingEdoUpd : InfoForCreatingDocumentEdo
 	{
-		protected InfoForCreatingEdoUpd(OrderInfoForEdo orderInfoForEdo)
+		protected InfoForCreatingEdoUpd(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo)
 		{
 			OrderInfoForEdo = orderInfoForEdo;
+			PaymentsInfoForEdo = paymentsInfoForEdo;
 		}
 		
 		public OrderInfoForEdo OrderInfoForEdo { get; }
+		public IEnumerable<PaymentInfoForEdo> PaymentsInfoForEdo { get; }
 
-		public static InfoForCreatingEdoUpd Create(OrderInfoForEdo orderInfoForEdo) =>
-			new InfoForCreatingEdoUpd(orderInfoForEdo);
+		public static InfoForCreatingEdoUpd Create(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo) =>
+			new InfoForCreatingEdoUpd(orderInfoForEdo, paymentsInfoForEdo);
 	}
 }

@@ -78,7 +78,11 @@ namespace TaxcomEdoApi.Controllers
 					throw new InvalidOperationException("Организация заказа отличается от указанной для отправки документов в конфиге");
 				}
 				
-				var updXml = _edoUpdFactory.CreateNewUpdXml(infoForCreatingEdoUpd.OrderInfoForEdo, _warrantOptions, edoAccountId, _certificate.Subject);
+				var updXml = _edoUpdFactory.CreateNewUpdXml(
+					infoForCreatingEdoUpd,
+					_warrantOptions,
+					edoAccountId,
+					_certificate.Subject);
 				
 				var container = new TaxcomContainer
 				{

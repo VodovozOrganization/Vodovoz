@@ -21,6 +21,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Converters;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace EdoDocumentsPreparer
@@ -37,6 +38,7 @@ namespace EdoDocumentsPreparer
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IOrderConverter _orderConverter;
 		private readonly IOrderWithoutShipmentConverter _orderWithoutShipmentConverter;
+		private readonly IPaymentConverter _paymentConverter;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly TaxcomEdoOptions _edoOptions;
 		
@@ -54,6 +56,7 @@ namespace EdoDocumentsPreparer
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IOrderConverter orderConverter,
 			IOrderWithoutShipmentConverter orderWithoutShipmentConverter,
+			IPaymentConverter paymentConverter,
 			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger;
@@ -68,6 +71,7 @@ namespace EdoDocumentsPreparer
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_orderWithoutShipmentConverter =
 				orderWithoutShipmentConverter ?? throw new ArgumentNullException(nameof(orderWithoutShipmentConverter));
+			_paymentConverter = paymentConverter ?? throw new ArgumentNullException(nameof(paymentConverter));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -121,7 +125,13 @@ namespace EdoDocumentsPreparer
 				{
 					try
 					{
-						var updInfo = InfoForCreatingEdoUpd.Create(_orderConverter.ConvertOrderToOrderInfoForEdo(order));
+						var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
+							.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
+							.Distinct();
+						
+						var updInfo = InfoForCreatingEdoUpd.Create(
+							_orderConverter.ConvertOrderToOrderInfoForEdo(order),
+							_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
 
 						try
 						{
