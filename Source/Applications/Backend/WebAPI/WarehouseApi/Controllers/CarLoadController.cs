@@ -44,13 +44,15 @@ namespace WarehouseApi.Controllers
 		[HttpPost("StartLoad")]
 		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
 		{
+			var accessToken = Request.Headers[HeaderNames.Authorization].FirstOrDefault();
+
 			_logger.LogInformation("Запрос начала погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
-				Request.Headers[HeaderNames.Authorization]);
+				accessToken);
 
 			try
 			{
-				var result = await _carLoadService.StartLoad(documentId);
+				var result = await _carLoadService.StartLoad(documentId, accessToken.Replace("Bearer ", ""));
 
 				if(result.IsSuccess)
 				{
@@ -203,13 +205,15 @@ namespace WarehouseApi.Controllers
 		[HttpPost("EndLoad")]
 		public async Task<IActionResult> EndLoad([FromQuery] int documentId)
 		{
+			var accessToken = Request.Headers[HeaderNames.Authorization];
+
 			_logger.LogInformation("Запрос завершения погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
-				Request.Headers[HeaderNames.Authorization]);
+				accessToken);
 
 			try
 			{
-				var result = await _carLoadService.EndLoad(documentId);
+				var result = await _carLoadService.EndLoad(documentId, accessToken);
 
 				if(result.IsSuccess)
 				{
