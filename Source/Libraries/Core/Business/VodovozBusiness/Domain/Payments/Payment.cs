@@ -289,7 +289,8 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual void AddPaymentItem(Order order, decimal sum)
 		{
-			var item = ObservableItems.SingleOrDefault(x => x.Order.Id == order.Id);
+			var item = ObservableItems.SingleOrDefault(x =>
+				x.Order.Id == order.Id && x.PaymentItemStatus != AllocationStatus.Cancelled);
 
 			if(item == null)
 			{
@@ -304,7 +305,9 @@ namespace Vodovoz.Domain.Payments
 				ObservableItems.Add(paymentItem);
 			}
 			else
+			{
 				item.Sum += sum;
+			}
 		}
 
 		public virtual void RemovePaymentItem(int paymentItemId)

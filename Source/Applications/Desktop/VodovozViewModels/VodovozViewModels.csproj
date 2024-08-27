@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -285,6 +285,7 @@
     <Compile Include="Orders\Reports\OnlinePaymentsReport.PaymentWithoutOrderRow.cs" />
     <Compile Include="Orders\Reports\OnlinePaymentsReportViewModel.cs" />
     <Compile Include="Print\PrintEventArgs.cs" />
+    <Compile Include="Print\Store\ContorlCarLoadDocumentRdl.cs" />
     <Compile Include="Print\Store\EquipmentCarLoadDocumentRdl.cs" />
     <Compile Include="Print\Store\WaterCarLoadDocumentRdl.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />

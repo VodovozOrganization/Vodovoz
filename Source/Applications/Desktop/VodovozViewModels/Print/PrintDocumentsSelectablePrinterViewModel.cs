@@ -93,9 +93,11 @@ namespace Vodovoz.ViewModels.Print
 			_carLoadDocument = carLoadDocument;
 
 			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, CarLoadDocumentPlaseEventsQr);
+			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
 			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
 
 			DocumentsToPrint.Add(waterCarLoadDocument);
+			DocumentsToPrint.Add(controlCarLoadDocument);
 			DocumentsToPrint.Add(equipmentCarLoadDocument);
 
 			DocumentsNodes = new GenericObservableList<PrintDocumentSelectableNode>(

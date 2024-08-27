@@ -103,6 +103,16 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
 
+		public virtual IEnumerable<int> SeparateTableOrderIds =>
+			Items
+			.Where(item => item.OrderId.HasValue && item.IsIndividualSetForOrder)
+			.Select(item => item.OrderId.Value)
+			.Distinct()
+			.ToList();
+
+		public virtual bool IsDocumentHasCommonOrders =>
+			Items.Any(x => !x.IsIndividualSetForOrder);
+
 		#endregion
 
 		#region Публичные функции

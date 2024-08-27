@@ -40,10 +40,10 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 			set => SetField(ref _btnSendEmailSensitive, value);
 		}
 
-		private object _selectedObj;
-		public object SelectedObj {
-			get => _selectedObj;
-			set => SetField(ref _selectedObj, value);
+		private StoredEmail _selectedStoredEmail;
+		public StoredEmail SelectedStoredEmail {
+			get => _selectedStoredEmail;
+			set => SetField(ref _selectedStoredEmail, value);
 		}
 
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -89,6 +89,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						case OrderDocumentType.Bill:
 						case OrderDocumentType.SpecialBill:
+						case OrderDocumentType.UPD:
+						case OrderDocumentType.SpecialUPD:
 							SendDocument();
 							break;
 						case OrderDocumentType.BillWSForDebt:
@@ -111,10 +113,6 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							{
 								SaveAndSend();
 							}
-							break;
-						case OrderDocumentType.UPD:
-						case OrderDocumentType.SpecialUPD:
-							SendDocument();
 							break;
 					}
 				},
@@ -146,10 +144,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						return Document?.Order != null;
 					}
-					else
-					{
-						return Document?.Id != 0;
-					}
+					
+					return Document?.Id != 0;
 				}
 			);
 		}
