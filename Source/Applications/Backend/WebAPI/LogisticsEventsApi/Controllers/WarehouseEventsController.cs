@@ -102,11 +102,8 @@ namespace LogisticsEventsApi.Controllers
 		/// <param name="qrData">данные Qr для завершения события</param>
 		/// <returns>Http status OK или ошибка</returns>
 		/// <exception cref="Exception">ошибка</exception>
-		[HttpPost]
-		[Consumes(MediaTypeNames.Application.Json)]
-		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]
-		public async Task<IActionResult> CompleteNoCoordinatesDriverWarehouseEvent(DriverWarehouseEventQrData qrData)
+		[HttpPost("CompleteDriverWarehouseEventWithoutCoordinates")]
+		public async Task<IActionResult> CompleteDriverWarehouseEventWithoutCoordinates(DriverWarehouseEventQrData qrData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
 
@@ -119,7 +116,7 @@ namespace LogisticsEventsApi.Controllers
 
 			try
 			{
-				var completedEvent = _warehouseEventsService.CompleteNoCoordinatesWarehouseEvent(
+				var completedEvent = _warehouseEventsService.CompleteWarehouseEventWithoutCoordinates(
 					qrData, employee, out var distanceMetersFromScanningLocation);
 
 				if(completedEvent is null)

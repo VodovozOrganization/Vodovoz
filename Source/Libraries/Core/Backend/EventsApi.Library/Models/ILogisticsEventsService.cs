@@ -29,7 +29,7 @@ namespace EventsApi.Library.Models
 		/// Завершение события нахождения на складе для событий без координат
 		/// </summary>
 		/// <returns></returns>
-		public CompletedDriverWarehouseEventProxy CompleteNoCoordinatesWarehouseEvent(
+		public CompletedDriverWarehouseEventProxy CompleteWarehouseEventWithoutCoordinates(
 			DriverWarehouseEventQrData qrData,
 			EmployeeWithLogin employee,
 			out int distanceMetersFromScanningLocation);
