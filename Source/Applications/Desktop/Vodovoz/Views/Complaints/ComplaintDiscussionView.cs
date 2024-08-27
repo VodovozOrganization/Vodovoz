@@ -66,7 +66,6 @@ namespace Vodovoz.Views.Complaints
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			filesview.ViewModel = ViewModel.FilesViewModel;
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
