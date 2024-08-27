@@ -4,7 +4,7 @@ using Sms.Internal.Client.Framework;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;

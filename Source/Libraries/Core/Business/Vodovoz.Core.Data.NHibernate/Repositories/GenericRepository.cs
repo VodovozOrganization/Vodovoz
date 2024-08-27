@@ -9,7 +9,7 @@ using Vodovoz.Core.Domain.Repositories;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
-	internal class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class, IDomainObject
+	public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class, IDomainObject
 	{
 		public IEnumerable<TEntity> Get(
 			IUnitOfWork unitOfWork,
