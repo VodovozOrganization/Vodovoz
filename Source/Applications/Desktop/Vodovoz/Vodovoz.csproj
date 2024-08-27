@@ -1262,8 +1262,6 @@
     <Compile Include="Filters\GtkViews\ComplaintFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintFilterView.cs" />
     <Compile Include="ViewWidgets\GtkReportViewOpener.cs" />
-    <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
     <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />

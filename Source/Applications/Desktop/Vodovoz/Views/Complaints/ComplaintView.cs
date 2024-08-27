@@ -147,7 +147,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
+			//complaintfilesview.ViewModel = ViewModel.FilesViewModel;
 
 			ytextviewComplaintText.Binding
 				.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text)
@@ -187,7 +187,7 @@ namespace Vodovoz.Views.Complaints
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
-			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+			//ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
 
 			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))

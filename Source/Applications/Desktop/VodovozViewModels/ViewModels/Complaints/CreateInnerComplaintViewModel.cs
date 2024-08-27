@@ -82,8 +82,8 @@ namespace Vodovoz.ViewModels.Complaints
 				UoW,
 				Entity,
 				_complaintFileStorageService,
-				Entity.AddFile,
-				Entity.RemoveFile);
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
 
 			Entity.PropertyChanged += EntityPropertyChanged;
 		}
@@ -156,19 +156,6 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 
 				return guiltyItemsViewModel;
-			}
-		}
-
-		private ComplaintFilesViewModel filesViewModel;
-		public ComplaintFilesViewModel FilesViewModel
-		{
-			get
-			{
-				if (filesViewModel == null)
-				{
-					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
-				}
-				return filesViewModel;
 			}
 		}
 

@@ -49,7 +49,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private Employee _currentEmployee;
 		private List<ComplaintSource> _complaintSources;
 		private IList<ComplaintKind> _complaintKindSource;
-		private ComplaintFilesViewModel _filesViewModel;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
 
 		public CreateComplaintViewModel(
@@ -108,8 +107,8 @@ namespace Vodovoz.ViewModels.Complaints
 				UoW,
 				Entity,
 				complaintFileStorageService,
-				Entity.AddFile,
-				Entity.RemoveFile);
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
 		}
 
 		public void SetOrder(int orderId)
@@ -179,18 +178,6 @@ namespace Vodovoz.ViewModels.Complaints
 					_currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return _currentEmployee;
-			}
-		}
-
-		public ComplaintFilesViewModel FilesViewModel
-		{
-			get
-			{
-				if (_filesViewModel == null)
-				{
-					_filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
-				}
-				return _filesViewModel;
 			}
 		}
 

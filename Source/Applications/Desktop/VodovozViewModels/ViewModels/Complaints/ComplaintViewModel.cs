@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Application.Complaints;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -30,6 +31,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Complaints;
@@ -44,6 +46,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -58,6 +61,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGeneralSettings _generalSettingsSettings;
 		private readonly IComplaintSettings _complaintSettings;
+		private readonly IComplaintFileStorageService _complaintFileStorageService;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -69,7 +73,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private Employee _currentEmployee;
 		private ComplaintDiscussionsViewModel _discussionsViewModel;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
-		private ComplaintFilesViewModel _filesViewModel;
 		private List<ComplaintSource> _complaintSources;
 		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
 		private IList<ComplaintKind> _complaintKindSource;
@@ -91,9 +94,16 @@ namespace Vodovoz.ViewModels.Complaints
 			IRouteListItemRepository routeListItemRepository,
 			IGeneralSettings generalSettingsSettings,
 			IComplaintSettings complaintSettings,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IComplaintFileStorageService complaintFileStorageService,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -105,7 +115,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
-
+			_complaintFileStorageService = complaintFileStorageService ?? throw new ArgumentNullException(nameof(complaintFileStorageService));
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
@@ -152,6 +162,16 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			InitializeEntryViewModels();
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
+				.CreateAndInitialize<Complaint, ComplaintFileInformation>(
+					UoW,
+					Entity,
+					_complaintFileStorageService,
+					Entity.AddFileInformation,
+					Entity.RemoveFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -246,18 +266,6 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 
 				return _guiltyItemsViewModel;
-			}
-		}
-
-		public ComplaintFilesViewModel FilesViewModel
-		{
-			get
-			{
-				if(_filesViewModel == null)
-				{
-					_filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
-				}
-				return _filesViewModel;
 			}
 		}
 
@@ -546,6 +554,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		private ISubdivisionSettings SubdivisionSettings { get; }
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		public void ShowMessage(string message)
 		{

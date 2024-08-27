@@ -1,3 +1,7 @@
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,8 +19,10 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject
+	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject, IHasAttachedFilesInformations<ComplaintDiscussionCommentFileInformation>
 	{
+		private IObservableList<ComplaintDiscussionCommentFileInformation> _attachedFileInformations = new ObservableList<ComplaintDiscussionCommentFileInformation>();
+
 		public virtual int Id { get; set; }
 
 		private Employee author;
@@ -55,6 +61,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		GenericObservableList<ComplaintFile> observableFiles;
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ComplaintFile> ObservableFiles {
 			get {
@@ -65,6 +72,13 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		public IList<ComplaintFile> ComplaintFiles => Files.Cast<ComplaintFile>().ToList();
+
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<ComplaintDiscussionCommentFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
+		}
 
 		public virtual string Title => $"Комментарий сотрудника \"{Author.ShortName}\"";
 	}

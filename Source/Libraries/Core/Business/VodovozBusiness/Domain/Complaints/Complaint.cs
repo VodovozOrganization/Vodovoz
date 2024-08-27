@@ -1,5 +1,6 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Complaints;
+using VodovozBusiness.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -22,7 +24,7 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
+	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject, IHasAttachedFilesInformations<ComplaintFileInformation>
 	{
 		private const int _phoneLimit = 45;
 		private DateTime _version;
@@ -62,6 +64,7 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintResultComment> _observableResultComments;
 		private Employee _driver;
 		private OrderRating _orderRating;
+		private IObservableList<ComplaintFileInformation> _attachedFileInformations = new ObservableList<ComplaintFileInformation>();
 
 		public virtual int Id { get; set; }
 
@@ -344,6 +347,13 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _files, value);
 		}
 
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<ComplaintFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
+		}
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ComplaintFile> ObservableFiles
 		{
@@ -377,22 +387,25 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		public virtual void AddFile(ComplaintFile file)
+		public virtual void AddFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
+			if(AttachedFileInformations.Any(f => f.FileName == fileName))
 			{
 				return;
 			}
-			file.Complaint = this;
-			ObservableFiles.Add(file);
+
+			var fileInformation = new ComplaintFileInformation
+			{
+				ComplaintId = Id,
+				FileName = fileName,
+			};
+			
+			AttachedFileInformations.Add(fileInformation);
 		}
 
-		public virtual void RemoveFile(ComplaintFile file)
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
