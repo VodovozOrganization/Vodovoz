@@ -7,12 +7,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj" />
+    <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.8" />
   </ItemGroup>
 
   <ItemGroup>

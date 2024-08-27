@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -308,16 +308,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _fullName, value);
 		}
 
-		/// <summary>
-		/// Генерируется триггером на строне БД.
-		/// </summary>
-		[Display(Name = "Внутренний номер контрагента")]
-		public virtual int VodovozInternalId
-		{
-			get => _vodovozInternalId;
-			set => SetField(ref _vodovozInternalId, value);
-		}
-
 		public virtual string Code1c
 		{
 			get => _code1c;
@@ -553,14 +543,14 @@ namespace Vodovoz.Domain.Client
 			get => _cameFrom;
 			set => SetField(ref _cameFrom, value);
 		}
-		
+
 		[Display(Name = "Первый заказ")]
 		public virtual Order FirstOrder
 		{
 			get => _firstOrder;
 			set => SetField(ref _firstOrder, value);
 		}
-		
+
 		[Display(Name = "Налогобложение")]
 		public virtual TaxType TaxType
 		{
@@ -583,7 +573,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#region ОсобаяПечать
-		
+
 		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields
 		{
@@ -1562,7 +1552,7 @@ namespace Vodovoz.Domain.Client
 				var phoneNumberDuplicatesIsChecked = new List<string>();
 
 				var phonesDuplicates =
-					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.ToList(), Id);
+					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.Where(p => !p.IsArchive).ToList(), Id);
 
 				foreach(var phone in phonesDuplicates)
 				{

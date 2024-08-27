@@ -30,7 +30,13 @@ namespace RabbitMQ.Infrastructure
 				UserName = section.GetValue<string>("Username"),
 				Password = section.GetValue<string>("Password"),
 				VirtualHost = section.GetValue<string>("VirtualHost"),
-				DispatchConsumersAsync = true
+				DispatchConsumersAsync = true,
+				Port = section.GetValue<int>("Port"),
+				Ssl =
+				{
+					ServerName = hostname,
+					Enabled = true
+				}
 			};
 
 			bool waitingForRabbit = true;
@@ -68,7 +74,7 @@ namespace RabbitMQ.Infrastructure
 			return connection;
 		}
 
-		public IConnection CreateConnection(string hostname, string username, string password, string virtualhost)
+		public IConnection CreateConnection(string hostname, string username, string password, string virtualhost, int port)
 		{
 			var connectionFactory = new ConnectionFactory
 			{
@@ -76,7 +82,13 @@ namespace RabbitMQ.Infrastructure
 				UserName = username,
 				Password = password,
 				VirtualHost = virtualhost,
-				DispatchConsumersAsync = true
+				DispatchConsumersAsync = true,
+				Port = port,
+				Ssl =
+				{
+					ServerName = hostname,
+					Enabled = true
+				}
 			};
 
 			IConnection connection;

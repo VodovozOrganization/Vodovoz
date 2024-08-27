@@ -17,7 +17,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 
@@ -36,6 +36,7 @@ namespace Vodovoz
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountAndColor(x))
+				.AddColumn("Заказ").AddNumericRenderer(x => x.OrderId)
 				.AddColumn("")
 				.Finish();
 

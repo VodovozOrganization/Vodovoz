@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -16,7 +17,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			speccomboStock.SetRenderTextFunc<Warehouse>(x => x.Name);
-			speccomboStock.ItemsList =new WarehouseRepository().GetActiveWarehouse(UoW);
+			speccomboStock.ItemsList = ScopeProvider.Scope.Resolve<IWarehouseRepository>().GetActiveWarehouse(UoW);
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 		}

@@ -9,8 +9,10 @@ using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.PrintableDocuments;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -23,6 +25,8 @@ namespace Vodovoz.Domain.Employees
 		private IList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings;
 		private GenericObservableList<CashSubdivisionSortingSettings> _observableCashSubdivisionSortingSettings;
 		private string _movementDocumentsNotificationUserSelectedWarehousesString;
+		private IList<DocumentPrinterSetting> _documentPrinterSettings;
+		private GenericObservableList<DocumentPrinterSetting> _observableDocumentPrinterSettings;
 
 		public UserSettings()
 		{
@@ -382,7 +386,24 @@ namespace Vodovoz.Domain.Employees
 			set => CarIsNotAtLineReportExcludedEventTypeIdsString = string.Join(", ", value);
 		}
 
+		[Display(Name = "Настройки принтеров для документов")]
+		public virtual IList<DocumentPrinterSetting> DocumentPrinterSettings
+		{
+			get => _documentPrinterSettings;
+			set => SetField(ref _documentPrinterSettings, value);
+		}
+
+		public virtual GenericObservableList<DocumentPrinterSetting> ObservableDocumentPrinterSettings =>
+			_observableDocumentPrinterSettings
+			?? (_observableDocumentPrinterSettings =
+				new GenericObservableList<DocumentPrinterSetting>(DocumentPrinterSettings));
+
 		#endregion
+
+		public virtual DocumentPrinterSetting GetPrinterSettingByDocumentType(CustomPrintDocumentType documentType) =>
+			DocumentPrinterSettings
+			.Where(s => s.DocumentType == documentType)
+			.FirstOrDefault();
 
 		public virtual void UpdateCashSortingIndices()
 		{

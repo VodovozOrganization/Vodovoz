@@ -12,12 +12,12 @@ namespace Vodovoz.Domain.Goods
 	{
 		InventoryNomenclatureInstance GetInventoryNomenclatureInstance(IUnitOfWork uow, int id);
 		decimal GetNomenclatureInstanceBalance(IUnitOfWork uow, int instanceId);
-		IList<NomenclatureInstanceRepository.InstanceOnStorageData> GetOtherInstancesOnStorageBalance(
+		IList<InstanceOnStorageData> GetOtherInstancesOnStorageBalance(
 			IUnitOfWork uow, StorageType storageType, int storageId, int[] instanceIds, DateTime? date = null);
-		ILookup<int, NomenclatureInstanceRepository.InstanceOnStorageData> GetCurrentInstancesOnOtherStorages(
+		ILookup<int, InstanceOnStorageData> GetCurrentInstancesOnOtherStorages(
 			IUnitOfWork uow, StorageType storageType, int storageId, int[] instanceIds, DateTime? date = null);
 
-		IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> GetInventoryInstancesByStorage(
+		IList<NomenclatureInstanceBalanceNode> GetInventoryInstancesByStorage(
 			IUnitOfWork uow,
 			StorageType storageType,
 			int storageId,

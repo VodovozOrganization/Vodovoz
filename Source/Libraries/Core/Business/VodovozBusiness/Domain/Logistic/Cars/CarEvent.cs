@@ -34,6 +34,7 @@ namespace Vodovoz.Domain.Logistic
 		private decimal _repairCost;
 		private CarEvent _originalCarEvent;
 		private int _odometer;
+		private DateTime? _carTechnicalCheckupEndingDate;
 
 		#region Свойства
 
@@ -145,6 +146,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _odometer, value);
 		}
 
+		[Display(Name = "Дата окончания действия техосмотра")]
+		public virtual DateTime? CarTechnicalCheckupEndingDate
+		{
+			get => _carTechnicalCheckupEndingDate;
+			set => SetField(ref _carTechnicalCheckupEndingDate, value);
+		}
+
 		GenericObservableList<Fine> observableFines;		
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
@@ -243,6 +251,21 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"Заполните показания одометра.",
 					new[] { nameof(Odometer) });
+			}
+
+			if(CarEventType?.Id == carEventSettings.CarTechnicalCheckupEventTypeId)
+			{
+				if(!CarTechnicalCheckupEndingDate.HasValue)
+				{
+					yield return new ValidationResult($"Заполните дату окончания действия техосмотра.",
+						new[] { nameof(CarTechnicalCheckupEndingDate) });
+				}
+
+				if(CarTechnicalCheckupEndingDate.HasValue && CarTechnicalCheckupEndingDate.Value < StartDate)
+				{
+					yield return new ValidationResult($"Дата окончания действия техосмотра не должна быть меньше даты начала события.",
+						new[] { nameof(CarTechnicalCheckupEndingDate) });
+				}
 			}
 		}
 

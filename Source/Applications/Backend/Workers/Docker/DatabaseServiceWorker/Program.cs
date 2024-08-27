@@ -1,5 +1,7 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using DatabaseServiceWorker.PowerBiWorker;
+using DatabaseServiceWorker.PowerWorker.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,11 +10,11 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.HistoryChanges;
-using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -28,10 +30,6 @@ namespace DatabaseServiceWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureContainer<ContainerBuilder>(builder =>
 				{
-					builder.RegisterType<TrackRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchivedTrackPointRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchivedHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<CachedDistanceRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<DataArchiver>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<FastDeliveryAvailabilityHistoryModel>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<FastDeliveryAvailabilityHistorySettings>().AsImplementedInterfaces().SingleInstance();
@@ -57,6 +55,7 @@ namespace DatabaseServiceWorker
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
@@ -67,6 +66,12 @@ namespace DatabaseServiceWorker
 						.ConfigurePowerBiExportWorker(hostContext)
 						.ConfigureTextInspectWorker(hostContext)
 						.AddFuelTransactionsControlWorker(hostContext)
+						.ConfigureZabbixSender(nameof(TechInspectWorker))
+						.ConfigureZabbixSender(nameof(PowerBiExportWorker))
+						.ConfigureZabbixSender(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
+						.ConfigureZabbixSender(nameof(FuelTransactionsControlWorker))
+						.ConfigureZabbixSender(nameof(MonitoringArchivingWorker))
+						.AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

@@ -31,7 +31,7 @@ namespace Vodovoz.Filters.ViewModels
 		private ReasonForLeaving? _reasonForLeaving;
 		private bool _isNeedToSendBillByEdo;
 		private int? _counterpartyId;
-		private int? _counterpartyVodovozInternalId;
+		private string _counterpartyContractNumber;
 		private string _counterpartyInn;
 		private bool _showLiquidating;
 		private CounterpartyCompositeClassification? _counterpartyClassification;
@@ -191,10 +191,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyId, value);
 		}
 
-		public int? CounterpartyVodovozInternalId
+		public string CounterpartyContractNumber
 		{
-			get => _counterpartyVodovozInternalId;
-			set => SetField(ref _counterpartyVodovozInternalId, value);
+			get => _counterpartyContractNumber;
+			set => SetField(ref _counterpartyContractNumber, value);
 		}
 
 		public string CounterpartyInn

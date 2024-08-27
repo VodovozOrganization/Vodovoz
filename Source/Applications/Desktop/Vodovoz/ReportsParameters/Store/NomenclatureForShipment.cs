@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -21,12 +22,13 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private SelectableParametersReportFilter _filter;
 
-		public NomenclatureForShipment()
+		public NomenclatureForShipment(IGeographicGroupRepository geographicGroupRepository)
 		{
-			this.Build();
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ydatepicker.Date = DateTime.Today.AddDays(1);

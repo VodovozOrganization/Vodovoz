@@ -26,6 +26,8 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Presentation.ViewModels.Employees.Journals;
+using Vodovoz.Presentation.ViewModels.Organisations;
+using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
@@ -763,6 +765,28 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
 	}
 
+	protected void OnCompanyBalanceByDateActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CompanyBalanceByDateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+	}
+
+	protected void OnBusinessActivitiesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BusinessActivitiesJournalViewModel>(null);
+
+	}
+
+	protected void OnBusinesAccountsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BusinessAccountsJournalViewModel>(null);
+
+	}
+
+	protected void OnFundsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FundsJournalViewModel>(null);
+	}
+
 	#endregion Финансы
 
 	#region Контрагенты
@@ -1204,6 +1228,16 @@ public partial class MainWindow
 	protected void OnActionUndeliveryDetalizationActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UndeliveryDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOrdersRatingReasonsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrdersRatingReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOnlineOrdersCancellationReasonsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrderCancellationReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Заказы

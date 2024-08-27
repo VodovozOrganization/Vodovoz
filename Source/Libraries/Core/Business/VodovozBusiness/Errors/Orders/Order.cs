@@ -61,5 +61,11 @@
 				typeof(Order),
 				nameof(FastDelivery19LBottlesLimitError),
 				$"Максимально допустимое кол-во 19л воды для доставки за час - {fastDelivery19LBottlesLimit}, в заказе указано {water19lInOrder}");
+
+		public static Error PaidCashlessOrderClientReplacementError =>
+			new Error(
+				typeof(Order),
+				nameof(PaidCashlessOrderClientReplacementError),
+				"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.");
 	}
 }

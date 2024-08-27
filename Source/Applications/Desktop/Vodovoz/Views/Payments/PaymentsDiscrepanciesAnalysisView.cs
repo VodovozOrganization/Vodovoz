@@ -173,6 +173,17 @@ namespace Vodovoz.Views.Payments
 					.AddTextRenderer(n => n.OrderPaymentStatus.HasValue
 						? n.OrderPaymentStatus.GetEnumTitle()
 						: string.Empty)
+				.AddColumn("Клиент")
+					.AddTextRenderer(n => n.OrderClientNameInDatabase)
+					.AddSetter((spin, node) =>
+					{
+						spin.ForegroundGdk = _primaryTextColor;
+
+						if(ViewModel.SelectedClient != null && node.OrderClientInnInDatabase != ViewModel.SelectedClient.INN)
+						{
+							spin.ForegroundGdk = _dangerTextColor;
+						}
+					})
 				.AddColumn("")
 				.Finish();
 

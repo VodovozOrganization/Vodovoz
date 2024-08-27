@@ -120,7 +120,9 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason
 					, true
-				).AddSetter((c, n) => {
+				)
+				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
@@ -152,11 +154,19 @@ namespace Vodovoz.ViewWidgets
 							case DirectionReason.RepairAndCleaning:
 								c.Text = "В ремонт и санобработку";
 								break;
+							case DirectionReason.TradeIn:
+								c.Text = "По акции \"Трейд-Ин\"";
+								break;
+							case DirectionReason.ClientGift:
+								c.Text = "Подарок от клиента";
+								break;
 							default:
 								break;
 						}
 					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+
+					c.UpdateComboList(n);
+				})
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
@@ -221,7 +231,9 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason,
 					true
-				).AddSetter((c, n) => {
+				)
+				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
@@ -253,11 +265,19 @@ namespace Vodovoz.ViewWidgets
 							case DirectionReason.RepairAndCleaning:
 								c.Text = "В ремонт и санобработку";
 								break;
+							case DirectionReason.TradeIn:
+								c.Text = "По акции \"Трейд-Ин\"";
+								break;
+							case DirectionReason.ClientGift:
+								c.Text = "Подарок от клиента";
+								break;
 							default:
 								break;
 						}
 					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+
+					c.UpdateComboList(n);
+				})
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
@@ -284,10 +304,13 @@ namespace Vodovoz.ViewWidgets
 				case DirectionReason.None:
 					return true;
 				case DirectionReason.Rent:
-					return node.Direction == Domain.Orders.Direction.Deliver;
 				case DirectionReason.Repair:
 				case DirectionReason.Cleaning:
 				case DirectionReason.RepairAndCleaning:
+					return false;
+				case DirectionReason.TradeIn:
+				case DirectionReason.ClientGift:
+					return node.Direction == Domain.Orders.Direction.Deliver;
 				default:
 					return false;
 			}

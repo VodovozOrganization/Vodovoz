@@ -39,9 +39,9 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+		private IEmployeeRepository _employeeRepository;
+		private IEquipmentRepository _equipmentRepository;
+		private INomenclatureRepository _nomenclatureRepository;
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
@@ -78,6 +78,7 @@ namespace Vodovoz
 
 		public ServiceClaimDlg(Order order)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
 			ConfigureDlg ();
@@ -89,12 +90,14 @@ namespace Vodovoz
 
 		public ServiceClaimDlg(int id)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
 		}
 
 		public ServiceClaimDlg(ServiceClaimType type)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
 			if (type == ServiceClaimType.RegularService)
@@ -102,6 +105,13 @@ namespace Vodovoz
 			Entity.ServiceStartDate = DateTime.Today;
 			Entity.ServiceStartDate = DateTime.Now.AddDays(1);
 			ConfigureDlg();
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_equipmentRepository = _lifetimeScope.Resolve<IEquipmentRepository>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 		}
 
 		void CreateOrder()
@@ -467,6 +477,9 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
+			_equipmentRepository = null;
+			_nomenclatureRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

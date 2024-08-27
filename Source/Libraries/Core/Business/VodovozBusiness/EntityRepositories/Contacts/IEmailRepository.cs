@@ -36,6 +36,14 @@ namespace Vodovoz.EntityRepositories
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
 		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
 
+		/// <summary>
+		/// Проверка уже отправленных писем, за исключением определенного письма
+		/// </summary>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="emailId">Идентификатор письма</param>
+		/// <returns></returns>
+		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
+
 		#endregion
 	}
 }

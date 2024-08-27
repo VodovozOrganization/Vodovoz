@@ -23,5 +23,5 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
             RouteList routeList,
 	        RouteListPrintableDocuments[] routeListPrintableDocumentTypes,
             IList<OrderDocumentType> orderDocumentTypes = null);
-    }
+	}
 }

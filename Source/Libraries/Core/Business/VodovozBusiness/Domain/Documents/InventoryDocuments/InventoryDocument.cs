@@ -358,7 +358,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 				return;
 			}
 			
-			IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> instances;
+			IList<NomenclatureInstanceBalanceNode> instances;
 			
 			switch(InventoryDocumentType)
 			{

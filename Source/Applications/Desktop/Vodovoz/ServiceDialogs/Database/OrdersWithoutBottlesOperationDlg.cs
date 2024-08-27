@@ -66,7 +66,10 @@ namespace Vodovoz.ServiceDialogs.Database
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
 			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
-			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , nomenclatureSettings, new RouteListItemRepository(), new CashRepository()));
+			var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
+			var routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
+
+			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , nomenclatureSettings, routeListItemRepository, cashRepository));
 			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
 				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",
 				orders.Count(x => x.BottlesMovementOperation != null))){

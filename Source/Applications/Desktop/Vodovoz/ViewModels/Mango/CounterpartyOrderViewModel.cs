@@ -18,12 +18,10 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
-using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
@@ -37,9 +35,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
-		private ILifetimeScope _lifetimeScope;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private ITdiCompatibilityNavigation tdiNavigation;
+		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderSettings _orderSettings;
 
@@ -47,11 +44,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteListRepository _routedListRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ICallTaskRepository _callTaskRepository;
 
 		private IUnitOfWork UoW;
 		
@@ -80,38 +76,40 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		public bool IsDeliveryPointChoiceRequired => 
 			Client.Phones.All(p => p.DigitsNumber != MangoManager.CurrentCall.Phone.DigitsNumber)
 			&& DeliveryPoints.Count > 1;
-		
+
 		#endregion
 
 		#region Конструкторы
 
 		public CounterpartyOrderViewModel(
 			Counterparty client,
-			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
 			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
 			IOrderSettings orderSettings,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
+			IEmployeeRepository employeeRepository,
+			IOrderRepository orderRepository,
+			IRouteListItemRepository routeListItemRepository,
+			ICallTaskRepository callTaskRepository,
 			int count = 5)
 		{
 			Client = client;
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			tdiNavigation = tdinavigation;
-			_routedListRepository = routedListRepository;
+			_tdiNavigation = tdinavigation;
+			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			MangoManager = mangoManager;
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -205,18 +203,18 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		
 		public void OpenMoreInformationAboutCounterparty()
 		{
-			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
+			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg, int>(null, Client.Id, OpenPageOptions.IgnoreHash);
 			var tab = page.TdiTab as CounterpartyDlg;
 		}
 		public void OpenMoreInformationAboutOrder(int id)
 		{
-			var page = tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
+			var page = _tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
 		}
 
 		public void RepeatOrder(int orderId)
 		{
 			if(orderId != 0)
-				tdiNavigation.OpenTdiTab<OrderDlg, int, bool>(null, orderId, true, OpenPageOptions.IgnoreHash);
+				_tdiNavigation.OpenTdiTab<OrderDlg, int, bool>(null, orderId, true, OpenPageOptions.IgnoreHash);
 		}
 
 		public void OpenRoutedList(Order order)
@@ -225,25 +223,25 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				order.OrderStatus == OrderStatus.Accepted ||
 				order.OrderStatus == OrderStatus.OnLoading
 			) {
-				tdiNavigation.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+				_tdiNavigation.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 			} else if(order.OrderStatus == OrderStatus.OnTheWay ||
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed
 			) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeList.Id));
+					_tdiNavigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeList.Id));
 				
 			} else if (order.OrderStatus == OrderStatus.Shipped) {
 				RouteList routeList = _routedListRepository.GetActualRouteListByOrder(UoW, order);
 				if(routeList != null)
-					tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
+					_tdiNavigation.OpenTdiTab<RouteListClosingDlg,RouteList>(null, routeList);
 			}
 		}
 
 		public void OpenUndelivery(Order order)
 		{
-			var page = tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel>(null);
+			var page = _tdiNavigation.OpenTdiTab<UndeliveredOrdersJournalViewModel>(null);
 			var dlg = page.TdiTab as UndeliveredOrdersJournalViewModel;
 			var filter = dlg.UndeliveredOrdersFilterViewModel;
 			filter.HidenByDefault = true;
@@ -258,7 +256,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
 				_unitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
+				_callTaskRepository,
 				_orderRepository,
 				_employeeRepository,
 				employeeSettings,
@@ -278,7 +276,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					return;
 				}
 
-				_undeliveryViewModel = tdiNavigation.OpenViewModel<UndeliveryViewModel>(
+				_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
 					null,
 					OpenPageOptions.AsSlave,
 					vm =>
@@ -315,21 +313,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public void CreateComplaint(Order order)
 		{
-			if (order != null)
+			if(order is null)
 			{
-				var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-				var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
-
-				var parameters = new Dictionary<string, object> {
-					{"order", order},
-					{"uowBuilder", EntityUoWBuilder.ForCreate()},
-					{"unitOfWorkFactory", _unitOfWorkFactory},
-					{"employeeSelectorFactory", employeeSelectorFactory},
-					{"counterpartySelectorFactory", counterpartySelectorFactory},
-					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }
-				};
-				tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
+				return;
 			}
+
+			var phoneNumber = "+7" + MangoManager.CurrentCall.Phone.Number;
+			var viewModel = _tdiNavigation
+				.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder, string>(null, EntityUoWBuilder.ForCreate(), phoneNumber)
+				.ViewModel;
+			
+			viewModel.SetOrder(order.Id);
 		}
 		#endregion
 
@@ -348,7 +342,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			RefreshOrders = null;
-			_lifetimeScope = null;
 			UoW?.Dispose();
 		}
 	}

@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Autofac;
+using Gamma.GtkWidgets;
 using GMap.NET.MapProviders;
 using Gtk;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +38,7 @@ using Vodovoz.Commons;
 using Vodovoz.Configuration;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
@@ -46,7 +48,6 @@ using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
-using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
@@ -86,6 +87,7 @@ namespace Vodovoz
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
+			yTreeView.TreeModelProvider = new VodovozTreeModelProvider();
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
@@ -240,7 +242,8 @@ namespace Vodovoz
 			}
 
 			var settingsController = AppDIContainer.Resolve<ISettingsController>();
-			if(ChangePassword(applicationConfigurator) && CanLogin())
+			var userRepository = AppDIContainer.Resolve<IUserRepository>();
+			if(ChangePassword(applicationConfigurator, userRepository) && CanLogin())
 			{
 				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, settingsController, _wikiSettings);
 			}
@@ -273,7 +276,7 @@ namespace Vodovoz
 		/// <b>False</b> - Если смена была затребована смена пароля, но пароль не был изменён
 		/// </returns>
 		/// <exception cref="InvalidOperationException">Если текущий пользователь null</exception>
-		private static bool ChangePassword(IApplicationConfigurator applicationConfigurator)
+		private static bool ChangePassword(IApplicationConfigurator applicationConfigurator, IUserRepository userRepository)
 		{
 			ResponseType result;
 			int currentUserId;
@@ -281,7 +284,6 @@ namespace Vodovoz
 
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var userRepository = new UserRepository();
 				var currentUser = userRepository.GetCurrentUser(uow);
 				if(currentUser is null)
 				{

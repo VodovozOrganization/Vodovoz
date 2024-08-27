@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using Vodovoz.Domain.Permissions;
@@ -31,10 +33,10 @@ namespace Vodovoz.ViewModels.Permissions
 			var permissionList = permissionRepository.GetAllSubdivisionEntityPermissions(uow, subdivision.Id, ExtensionStore);
 			originalPermissionList = permissionList.ToList(); 
 
-			PermissionListViewModel.PermissionsList = new GenericObservableList<IPermissionNode>(permissionList.OfType<IPermissionNode>().ToList());
-			PermissionListViewModel.PermissionsList.ElementRemoved += (aList, aIdx, aObject) => DeletePermission(aObject as SubdivisionPermissionNode);
+			PermissionListViewModel.PermissionsList = new ObservableList<IPermissionNode>(permissionList.OfType<IPermissionNode>().ToList());
+			PermissionListViewModel.PermissionsList.CollectionChanged += PermissionsListCollectionChanged;
 
-			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow).ToList();
+			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntityOrderedByName(uow).ToList();
 			//убираем типы уже загруженные в права
 			foreach(var item in originalPermissionList) {
 				if(originalTypeOfEntityList.Contains(item.TypeOfEntity)) {
@@ -44,7 +46,23 @@ namespace Vodovoz.ViewModels.Permissions
 			SortTypeOfEntityList();
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
 		}
-		
+
+		private void PermissionsListCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			if(e.Action != NotifyCollectionChangedAction.Remove)
+			{
+				return;
+			}
+
+			foreach(var item in e.OldItems)
+			{
+				if(item is SubdivisionPermissionNode node)
+				{
+					DeletePermission(node);
+				}
+			}
+		}
+
 		public Subdivision Subdivision { get; }
 
 		public void AddPermission(TypeOfEntity entityNode)

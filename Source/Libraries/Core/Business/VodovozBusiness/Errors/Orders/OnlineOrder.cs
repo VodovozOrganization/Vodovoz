@@ -22,6 +22,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IsEmptyDeliveryPoint),
 				"Не указана точка доставки");
 		
+		public static Error DeliveryPointNotBelongCounterparty =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(DeliveryPointNotBelongCounterparty),
+				$"Точка доставки не принадлежит клиенту");
+		
 		public static Error IncorrectDeliveryDate =>
 			new Error(
 				typeof(OnlineOrder),

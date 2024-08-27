@@ -152,12 +152,11 @@ namespace Vodovoz.Application.Orders.Services
 
 				var promoSetItemsCount = promoSet.PromotionalSetItems.Count;
 				var onlinePromoItemsCount = onlineOrderItemGroup.Count();
-				var promoSetCount = onlinePromoItemsCount % promoSetItemsCount;
+				var promoSetCount = onlinePromoItemsCount / promoSetItemsCount;
 
 				if(promoSetCount == default)
 				{
 					promoSetCount = 1;
-					//добавить сообщение о несоответствии количества позиций в пришедшем промике и существующем
 				}
 
 				for(var i = 0; i < promoSetCount; i++)
@@ -216,12 +215,9 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void AddNomenclature(Order order, Product onlineOrderItem)
+		private void AddNomenclature(Order order, IProduct onlineOrderItem)
 		{
 			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
-			//временный костыль для исправления расчета цены, пока не протестили основное решение
-			order.RecalculateItemsPrice();
-			order.UpdateRentsCount();
 		}
 
 		private void AddFreeRentPackages(Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)

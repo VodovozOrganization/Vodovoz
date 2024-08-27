@@ -1,4 +1,5 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
@@ -112,6 +113,10 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
 			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
 
+			yentryCarTechnicalCheckup.Binding
+				.AddBinding(ViewModel, vm => vm.LastCarTechnicalCheckupDate, w => w.Text)
+				.InitializeFromSource();
+
 			yentryPreviousTechInspectDate.Binding
 				.AddBinding(ViewModel, vm => vm.PreviousTechInspectDate, w => w.Text)
 				.InitializeFromSource();
@@ -124,6 +129,8 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectKm, w => w.Text, new IntToStringConverter())
 				.InitializeFromSource();
 
+			yentryUpcomingTechInspectKm.Changed += OnUpcomingTechInspectKmChanged;
+
 			yentryUpcomingTechInspectLeft.Binding
 				.AddBinding(ViewModel, vm => vm.UpcomingTechInspectLeft, w => w.Text, new IntToStringConverter())
 				.InitializeFromSource();
@@ -135,9 +142,39 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
+			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+		}
+
+		private void OnUpcomingTechInspectKmChanged(object sender, EventArgs e)
+		{
+			var entry = sender as yEntry;
+			var chars = entry.Text.ToCharArray();
+
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+
+			if(string.IsNullOrWhiteSpace(text))
+			{
+				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
+				return;
+			}
+
+			if(!int.TryParse(text, out int newValue))
+			{
+				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
+				return;
+			}
+
+			if(ViewModel.UpcomingTechInspectKmCalculated < newValue)
+			{
+				ViewModel.ShowErrorMessage("Нельзя установить значение более расчетного");
+				entry.Text = ViewModel.UpcomingTechInspectKmCalculated.ToString();
+				return;
+			}
+
+			entry.Text = text;
 		}
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
@@ -170,6 +207,13 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.Entity.ObservableGeographicGroups.Remove(selectedObj);
 			}
+		}
+
+		public override void Destroy()
+		{
+			yentryUpcomingTechInspectKm.Changed -= OnUpcomingTechInspectKmChanged;
+
+			base.Destroy();
 		}
 	}
 }

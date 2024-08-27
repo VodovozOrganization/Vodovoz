@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -16,14 +16,14 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors;
 using Vodovoz.Factories;
 using Vodovoz.Models.Orders;
+using Vodovoz.Services.Orders;
+using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.Errors;
-using Vodovoz.Services.Orders;
-using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -217,7 +217,7 @@ namespace Vodovoz.Application.Orders.Services
 				var employee = unitOfWork.GetById<Employee>(roboatsEmployeeId);
 				order.AcceptOrder(employee, _callTaskWorker);
 				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
-				return  (order.Id, order.Author.Id, order.OrderStatus);
+				return (order.Id, order.Author.Id, order.OrderStatus);
 			}
 		}
 
@@ -276,14 +276,14 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				return 0;
 			}
-			
+
 			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(onlineOrder);
 
 			if(validationResult.IsFailure)
 			{
 				return 0;
 			}
-			
+
 			Employee employee = null;
 			switch(onlineOrder.Source)
 			{
@@ -297,9 +297,9 @@ namespace Vodovoz.Application.Orders.Services
 					employee = uow.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
 					break;
 			}
-			
+
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
-			
+
 			UpdateDeliveryCost(uow, order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded();
@@ -316,34 +316,34 @@ namespace Vodovoz.Application.Orders.Services
 			var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
 			uow.Save(notification);
 			uow.Commit();
-			
+
 			return order.Id;
 		}
-		
+
 		private Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
 		{
 			var hasPromoSetForNewClients = order.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
-			
+
 			if(hasPromoSetForNewClients && order.HasUsedPromoForNewClients(_promotionalSetRepository))
 			{
-				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
 			}
 
 			if(!order.SelfDelivery)
 			{
 				var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
-			
+
 				if(fastDeliveryResult.IsFailure)
 				{
 					return fastDeliveryResult;
 				}
-				
+
 				_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
 			}
-			
+
 			order.AcceptOrder(order.Author, _callTaskWorker);
 			order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
-			
+
 			return Result.Success();
 		}
 
@@ -372,7 +372,7 @@ namespace Vodovoz.Application.Orders.Services
 			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
 
 			var beforeAddItemsCount = order.OrderItems.Count();
-			order.AddNomenclature(nomenclature, bottlesToAdd);		
+			order.AddNomenclature(nomenclature, bottlesToAdd);
 			var afterAddItemsCount = order.OrderItems.Count();
 
 			if(afterAddItemsCount == beforeAddItemsCount)
@@ -383,6 +383,13 @@ namespace Vodovoz.Application.Orders.Services
 			var orderItem = order.OrderItems.Last();
 
 			_orderDiscountsController.SetDiscountFromDiscountReasonForOrderItem(referFriendDiscountReason, orderItem, canChangeDiscountValue, out string message);
+		}
+
+		public bool NeedResendByEdo(IUnitOfWork unitOfWork, Order order)
+		{
+			return _orderRepository
+				.GetEdoContainersByOrderId(unitOfWork, order.Id)
+				.Count(x => x.Type == Domain.Orders.Documents.Type.Bill) > 0;
 		}
 	}
 }

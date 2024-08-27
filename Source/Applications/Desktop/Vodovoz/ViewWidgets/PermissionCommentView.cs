@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -9,7 +10,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PermissionCommentView : Gtk.Bin
 	{
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private IEmployeeRepository _employeeRepository;
 		public IUnitOfWork UoW { get; set; }
 
 		public bool AddCommentInfo { get; set; } = false;
@@ -26,7 +27,8 @@ namespace Vodovoz.ViewWidgets
 
 		public PermissionCommentView()
 		{
-			this.Build();
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			Build();
 			ytextviewComment.Buffer.Changed += (sender, args) => 
 				CommentChanged?.Invoke(Comment);
 		}
@@ -87,6 +89,12 @@ namespace Vodovoz.ViewWidgets
 
 			Comment = String.Empty;
 			CommentChanged?.Invoke(comment);
+		}
+
+		public override void Destroy()
+		{
+			_employeeRepository = null;
+			base.Destroy();
 		}
 	}
 }

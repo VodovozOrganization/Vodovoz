@@ -248,7 +248,7 @@ namespace Vodovoz.Domain.Documents
 				return;
 			}
 			
-			IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> instances = null;
+			IList<NomenclatureInstanceBalanceNode> instances = null;
 
 			switch(ShiftChangeResidueDocumentType)
 			{

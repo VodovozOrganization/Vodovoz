@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -54,7 +54,7 @@ namespace Vodovoz.Tools.Orders
 			return !deliveryIsFree;
 		}
 		
-		protected virtual void CalculateAllWaterCount(IEnumerable<Product> products)
+		protected virtual void CalculateAllWaterCount(IEnumerable<IProduct> products)
 		{
 			ResetCounts();
 			CalculatePromoSetWaterCount(products);
@@ -71,7 +71,7 @@ namespace Vodovoz.Tools.Orders
 			DisposableWater500mlCount = default;
 		}
 
-		protected virtual void CalculatePromoSetWaterCount(IEnumerable<Product> products)
+		protected virtual void CalculatePromoSetWaterCount(IEnumerable<IProduct> products)
 		{
 			var water = products.Where(
 					x => x.PromoSet != null &&
@@ -91,7 +91,7 @@ namespace Vodovoz.Tools.Orders
 			}
 		}
 
-		protected virtual void CalculateNotPromoSetWaterCount(IEnumerable<Product> products)
+		protected virtual void CalculateNotPromoSetWaterCount(IEnumerable<IProduct> products)
 		{
 			var water = products.Where(
 					x => x.PromoSet == null
@@ -106,7 +106,7 @@ namespace Vodovoz.Tools.Orders
 			}
 		}
 
-		protected virtual void CalculateWaterCount(Product item)
+		protected virtual void CalculateWaterCount(IProduct item)
 		{
 			switch(item.Nomenclature.TareVolume)
 			{

@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				if(contract == null) {
 					return "Нет договора";
 				}
-				return String.Format("Договор №{0}", contract.ContractFullNumber);
+				return $"Договор №{contract.Number}";
 			}
 		}
 

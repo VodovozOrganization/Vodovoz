@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
 {
@@ -21,17 +22,20 @@ namespace DatabaseServiceWorker
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptions<TechInspectOptions> _options;
 		private readonly ICarEventSettings _carEventSettings;
+		private readonly IZabbixSender _zabbixSender;
 
 		public TechInspectWorker(
 			ILogger<TechInspectWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptions<TechInspectOptions> options,
-			ICarEventSettings carEventSettings)
+			ICarEventSettings carEventSettings,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			Interval = _options.Value.Interval;
 		}
 
@@ -69,6 +73,7 @@ namespace DatabaseServiceWorker
 			try
 			{
 				UpdateLeftUntilTechInspect(DateTime.Now, _carEventSettings.TechInspectCarEventTypeId);
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{
@@ -159,10 +164,18 @@ namespace DatabaseServiceWorker
 							select rl.ConfirmedDistance
 						).Sum()
 
+					let isTechInspectForKmManual = c.TechInspectForKm != null
+
+					let techInspectForKm = isTechInspectForKmManual
+						? c.TechInspectForKm
+						: (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0)
+
+					let leftUntilTechInspect = techInspectForKm - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0)
+
 					select new
 					{
 						Car = c,
-						LeftUntilTechInspect = Math.Max(0, (lastOdometerFromEvent ?? 0) + (techInspectInterval ?? 0) - (lastOdometerReadingValue ?? 0) - (confirmedDistance ?? 0))
+						LeftUntilTechInspect = leftUntilTechInspect,
 					}
 				).ToList();
 

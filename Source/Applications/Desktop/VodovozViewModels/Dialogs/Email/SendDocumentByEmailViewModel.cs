@@ -41,10 +41,10 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 			set => SetField(ref _btnSendEmailSensitive, value);
 		}
 
-		private object _selectedObj;
-		public object SelectedObj {
-			get => _selectedObj;
-			set => SetField(ref _selectedObj, value);
+		private StoredEmail _selectedStoredEmail;
+		public StoredEmail SelectedStoredEmail {
+			get => _selectedStoredEmail;
+			set => SetField(ref _selectedStoredEmail, value);
 		}
 
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -90,6 +90,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						case OrderDocumentType.Bill:
 						case OrderDocumentType.SpecialBill:
+						case OrderDocumentType.UPD:
+						case OrderDocumentType.SpecialUPD:
 							SendDocument();
 							break;
 						case OrderDocumentType.BillWSForDebt:
@@ -143,10 +145,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						return Document?.Order != null;
 					}
-					else
-					{
-						return Document?.Id != 0;
-					}
+					
+					return Document?.Id != 0;
 				}
 			);
 		}
@@ -209,6 +209,15 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					case OrderDocumentType.BillWSForPayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
 							.Where(o => o.OrderWithoutShipmentForPayment.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						break;
+					case OrderDocumentType.UPD:
+					case OrderDocumentType.SpecialUPD:
+						listEmails = uow.Session.QueryOver<UpdDocumentEmail>()
+							.Where(o => o.OrderDocument.Id == Document.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
@@ -369,6 +378,16 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+							break;
+						case OrderDocumentType.UPD:
+						case OrderDocumentType.SpecialUPD:
+							var updDocumentEmail = new UpdDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderDocument = (OrderDocument)Document
+							};
+							unitOfWork.Save(updDocumentEmail);
 							break;
 					}
 

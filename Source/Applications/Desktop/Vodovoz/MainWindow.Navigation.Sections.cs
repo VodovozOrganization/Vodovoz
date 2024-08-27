@@ -1,4 +1,4 @@
-﻿using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
 using System;
@@ -177,7 +177,19 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.StartDate = DateTime.Today.AddMonths(-2);
+				filter.EndDate = DateTime.Today;
+			},
+			OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
@@ -225,7 +237,12 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
-			filter => filter.IsForRetail = true,
+			filter =>
+			{
+				filter.IsForRetail = true;
+				filter.StartDate = DateTime.Today.AddMonths(-2);
+				filter.EndDate = DateTime.Today;
+			},
 			OpenPageOptions.IgnoreHash);
 	}
 

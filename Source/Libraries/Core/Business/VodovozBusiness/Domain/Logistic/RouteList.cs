@@ -81,6 +81,7 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
 			.Resolve<IRouteListRepository>();
+		private IRouteListItemRepository _routeListItemRepository => ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
 		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
 			.Resolve<IDeliveryRulesSettings>();
 		private IDeliveryRepository _deliveryRepository => ScopeProvider.Scope
@@ -108,6 +109,7 @@ namespace Vodovoz.Domain.Logistic
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
 
+		private IPermissionRepository _permissionRepository => ScopeProvider.Scope.Resolve<IPermissionRepository>();
 
 		private CarVersion _carVersion;
 		private Car _car;
@@ -927,7 +929,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RemoveAddress(RouteListItem address)
 		{
-			if(!TryRemoveAddress(address, out string message, new RouteListItemRepository()))
+			if(!TryRemoveAddress(address, out string message, _routeListItemRepository))
 				throw new NotSupportedException(string.Format("\n\n{0}\n", message));
 		}
 
@@ -1874,8 +1876,22 @@ namespace Vodovoz.Domain.Logistic
 									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(orderSettings);
-							orderValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
+
+							orderValidationContext.InitializeServiceProvider(type =>
+							{
+								if(type == typeof(IOrderSettings))
+								{
+									return orderSettings;
+								}
+
+								if(type == typeof(IDeliveryRulesSettings))
+								{
+									return deliveryRulesSettings;
+								}
+
+								return null;
+							});
+								
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)
@@ -2281,7 +2297,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
-				&& new PermissionRepository().HasAccessToClosingRoutelist(
+				&& _permissionRepository.HasAccessToClosingRoutelist(
 					UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;

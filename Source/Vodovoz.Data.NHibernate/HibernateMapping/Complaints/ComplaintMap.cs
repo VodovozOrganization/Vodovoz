@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
@@ -20,8 +20,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 			Map(x => x.ComplaintText).Column("complaint_text");
 			Map(x => x.Phone).Column("phone");
 			Map(x => x.PlannedCompletionDate).Column("planned_completion_date");
-			Map(x => x.Status).Column("status").CustomType<ComplaintStatusesStringType>();
-			Map(x => x.ComplaintType).Column("type").CustomType<ComplaintTypeStringType>();
+			Map(x => x.Status).Column("status");
+			Map(x => x.ComplaintType).Column("type");
 			Map(x => x.ActualCompletionDate).Column("actual_completion_date");
 			Map(x => x.DriverRating).Column("driver_rating");
 
@@ -30,6 +30,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.Order).Column("order_id");
+			References(x => x.OrderRating).Column("order_rating_id");
 			References(x => x.ComplaintSource).Column("complaint_source_id");
 			References(x => x.Driver).Column("driver_id");
 			References(x => x.ComplaintResultOfCounterparty).Column("complaint_result_of_counterparty_id");

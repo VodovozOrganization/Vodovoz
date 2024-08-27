@@ -15,33 +15,40 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.Entity.PresetPermissions;
 using QS.Services;
 using System;
-using System.Net.Http.Headers;
+using Vodovoz.Core;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Settings.Pacs;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.Presentation.Views;
 
 namespace Vodovoz
 {
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddWaterDeliveryDesktop(this IServiceCollection services) =>
-			services.AddVodovozViewModels();
+			services.AddVodovozViewModels()
+				.AddPresentationViews()
+				.AddDocumentPrinter();
 
 		public static IServiceCollection AddPermissionValidation(this IServiceCollection services)
 		{
 			services.AddSingleton<IPermissionService, PermissionService>()
 				.AddSingleton<IEntityExtendedPermissionValidator, EntityExtendedPermissionValidator>()
 				.AddSingleton<IWarehousePermissionValidator, WarehousePermissionValidator>()
-				.AddSingleton<IPermissionExtensionStore>(sp => PermissionExtensionSingletonStore.GetInstance());
+				.AddSingleton<IPermissionExtensionStore>(sp => PermissionExtensionSingletonStore.GetInstance())
+				.AddScoped<IDocumentPrinter, DocumentPrinter>();
 
 			services.AddSingleton<IEntityPermissionValidator, Vodovoz.Domain.Permissions.EntityPermissionValidator>()
 				.AddSingleton<IPresetPermissionValidator, Vodovoz.Domain.Permissions.HierarchicalPresetPermissionValidator>();
 
 			return services;
 		}
+
+		public static IServiceCollection AddDocumentPrinter(this IServiceCollection services) =>
+			services.AddScoped<IDocumentPrinter, DocumentPrinter>();
 
 		public static IServiceCollection AddPacs(this IServiceCollection services)
 		{

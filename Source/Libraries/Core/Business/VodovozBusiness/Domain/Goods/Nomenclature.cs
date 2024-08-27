@@ -1069,7 +1069,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(nomenclatureRepository)}");

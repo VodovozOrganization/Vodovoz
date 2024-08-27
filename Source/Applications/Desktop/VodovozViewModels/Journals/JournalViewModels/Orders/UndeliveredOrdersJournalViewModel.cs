@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(
@@ -54,6 +55,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionSettings subdivisionSettings,
+			IRouteListItemRepository routeListItemRepository,
 			INavigationManager navigationManager,
 			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -62,6 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
@@ -886,7 +889,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 						var undeliveredOrder = page.ViewModel.UoW.GetById<UndeliveredOrder>(selectedNode.Id);
 						page.ViewModel.UndeliveredOrder = undeliveredOrder;
-						page.ViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(page.ViewModel.UoW, undeliveredOrder.OldOrder)?.RouteList;
+						page.ViewModel.RouteList = _routeListItemRepository.GetRouteListItemForOrder(page.ViewModel.UoW, undeliveredOrder.OldOrder)?.RouteList;
 					}
 				)
 			);

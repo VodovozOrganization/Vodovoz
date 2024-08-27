@@ -115,16 +115,16 @@ namespace Vodovoz
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly IDepositRepository _depositRepository = new DepositRepository();
-		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
-		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository(ServicesConfig.UnitOfWorkFactory);
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IUserRepository _userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+		private readonly IBottlesRepository _bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
+		private readonly IDepositRepository _depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
+		private readonly IMoneyRepository _moneyRepository = ScopeProvider.Scope.Resolve<IMoneyRepository>();
+		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
+		private readonly IOrderRepository _orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+		private readonly IPhoneRepository _phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
+		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
 		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
@@ -509,7 +509,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			SetSensitivityByPermission("can_arc_counterparty_and_deliverypoint", ycheckIsArchived);
 
-			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
+			lblVodovozNumber.Visible = false;
 
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0 || _canEditClientRefer;
 
@@ -1394,7 +1394,7 @@ namespace Vodovoz
 
 			UpdateEdoContainers();
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
-			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
 		}

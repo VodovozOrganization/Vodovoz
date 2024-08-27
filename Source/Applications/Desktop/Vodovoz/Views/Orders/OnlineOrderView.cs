@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
 using Vodovoz.Domain.Client;
@@ -22,32 +20,12 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			var btnCreateOrder = new yButton();
-			btnCreateOrder.Label = "Создать заказ";
-			btnCreateOrder.Show();
-			
-			var btnAssignCounterparty = new yButton();
-			btnAssignCounterparty.Label = "Привязать КА";
-			btnAssignCounterparty.Show();
-			hboxHandleButtons.Add(btnCreateOrder);
-			hboxHandleButtons.Add(btnAssignCounterparty);
-			
 			btnGetToWork.Clicked += (sender, args) => ViewModel.GetToWorkCommand.Execute();
 			btnCreateOrder.Clicked += OnCreateOrderClicked;
 			btnAssignCounterparty.Clicked += (sender, args) => ViewModel.OpenExternalCounterpartyMatchingCommand.Execute();
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			btnCancelOnlineOrder.Clicked += (sender, args) => ViewModel.CancelOnlineOrderCommand.Execute();
 
-			var boxBtnCreateOrder = (Box.BoxChild)hboxHandleButtons[btnCreateOrder];
-			boxBtnCreateOrder.Position = 1;
-			boxBtnCreateOrder.Expand = false;
-			boxBtnCreateOrder.Fill = false;
-			
-			var boxBtnAssignCounterparty = (Box.BoxChild)hboxHandleButtons[btnAssignCounterparty];
-			boxBtnAssignCounterparty.Position = 2;
-			boxBtnAssignCounterparty.Expand = false;
-			boxBtnAssignCounterparty.Fill = false;
-			
 			btnGetToWork.Binding
 				.AddBinding(ViewModel, vm => vm.CanGetToWork, w => w.Sensitive)
 				.InitializeFromSource();
@@ -121,9 +99,9 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.Counterparty, w => w.LabelProp)
 				.InitializeFromSource();
 
-			lblDeliveryPoint.Selectable = true;
-			lblDeliveryPoint.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPoint, w => w.LabelProp)
+			entryDeliveryPoint.ViewModel = ViewModel.DeliveryPointViewModel;
+			entryDeliveryPoint.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryPoint, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			chkIsSelfDelivery.Sensitive = false;
@@ -246,10 +224,10 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("Сумма(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
 				.AddColumn("Скидка(онлайн заказ)")
-				.AddNumericRenderer(node => node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount)
+				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 					{
-						var onlineDiscount = node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount;
+						var onlineDiscount = node.GetDiscount;
 						cell.CellBackgroundGdk = onlineDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
 					})
 				.AddColumn("Скидка(в промонаборе)")
@@ -359,13 +337,15 @@ namespace Vodovoz.Views.Orders
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
 			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
-				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity);
+				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity, OpenPageOptions.AsSlave);
 			page.PageClosed += OnOrderTabClosed;
 		}
 		
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
-			var dlg = (sender as ITdiPage).TdiTab as OrderDlg;
+			var page = sender as ITdiPage;
+			page.PageClosed -= OnOrderTabClosed;
+			var dlg = page.TdiTab as OrderDlg;
 
 			if(dlg.Entity.Id > 0)
 			{

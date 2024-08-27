@@ -65,6 +65,7 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IFlyerRepository _flyerRepository;
 		private readonly ITdiCompatibilityNavigation _tdiNavigationManager;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
@@ -112,6 +113,7 @@ namespace Vodovoz
 			IOrderSettings orderSettings,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			IFlyerRepository flyerRepository,
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope)
 		{
@@ -144,6 +146,7 @@ namespace Vodovoz
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
@@ -153,6 +156,8 @@ namespace Vodovoz
 		public bool IgnoreReceipt { get; private set; } = false;
 
 		public int? OrderId => _routeListItem?.Order?.Id;
+		private bool IsClientSelectedAndOrderCashlessAndPaid =>
+			_orderNode.Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
 		{
@@ -275,16 +280,9 @@ namespace Vodovoz
 
 			_orderNode = new OrderNode(_routeListItem.Order);
 
-			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
+			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
-			clientEntry.ViewModel = builder.ForProperty(x => x.Client)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
-				.Finish();
-			clientEntry.ViewModel.Changed += OnClientEntryViewModelChanged;
-			clientEntry.ViewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
-
-			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
+			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
 			ConfigureDeliveryPointRefference(_orderNode.Client);
 
 			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);
@@ -398,7 +396,23 @@ namespace Vodovoz
 			OnlineOrderVisible();
 			OnClientEntryViewModelChanged(null, null);
 		}
-		
+
+		private IEntityEntryViewModel GetClientEntityEntryViewModel()
+		{
+			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
+
+			var viewModel = builder.ForProperty(x => x.Client)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			viewModel.Changed += OnClientEntryViewModelChanged;
+			viewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
+			viewModel.BeforeChangeByUser += OnClientBeforeChangeByUser;
+
+			return viewModel;
+		}
+
 		private IEnumerable<PaymentFrom> GetActivePaymentFromWithSelected(IDomainObject selectedPaymentFrom)
 		{
 			var selectedPaymentFromId = selectedPaymentFrom?.Id ?? 0; 
@@ -611,6 +625,20 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
+		{
+			if(IsClientSelectedAndOrderCashlessAndPaid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+
+				e.CanChange = false;
+				return;
+			}
+			e.CanChange = true;
+		}
+
 		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
 			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty))
@@ -683,6 +711,8 @@ namespace Vodovoz
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 				}
 			}
+
+			yenumcomboOrderPayment.Sensitive = !IsClientSelectedAndOrderCashlessAndPaid && _routeListItem.Status != RouteListItemStatus.Transfered;
 		}
 
 		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)

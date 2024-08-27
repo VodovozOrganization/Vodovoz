@@ -46,7 +46,6 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -63,7 +62,9 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGlobalSettings _globalSettings;
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		private Employee _employee;
@@ -110,10 +111,12 @@ namespace Vodovoz.ViewModels.Logistic
 			IUserRepository userRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeService employeeService,
+			IEmployeeRepository employeeRepository,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IRouteOptimizer routeOptimizer,
 			IGlobalSettings globalSettings,
+			ICachedDistanceRepository cachedDistanceRepository,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -129,15 +132,17 @@ namespace Vodovoz.ViewModels.Logistic
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings);
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings, _cachedDistanceRepository);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
@@ -1363,7 +1368,7 @@ namespace Vodovoz.ViewModels.Logistic
 			int totalBottles = 0;
 			int totalAddresses = 0;
 
-			var drivers = new EmployeeRepository().GetWorkingDriversAtDay(UoW, DateForRouting);
+			var drivers = _employeeRepository.GetWorkingDriversAtDay(UoW, DateForRouting);
 
 			var cars = CarRepository.GetCarsByDrivers(UoW, drivers.Select(x => x.Id).ToArray());
 

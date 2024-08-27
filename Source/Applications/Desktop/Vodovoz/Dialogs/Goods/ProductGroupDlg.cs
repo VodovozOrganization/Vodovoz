@@ -3,10 +3,8 @@ using Gamma.Binding.Converters;
 using Gamma.Widgets.Additions;
 using NLog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
-using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Representations.ProductGroups;
@@ -47,6 +45,12 @@ namespace Vodovoz.Dialogs.Goods
 			
 			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			ycheckArchived.Toggled += OnArchiveToggled;
+
+			ycheckbuttonIsHighlightInCarLoadDocument.Binding
+				.AddBinding(Entity, e => e.IsHighlightInCarLoadDocument, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonIsHighlightInCarLoadDocument.Toggled += OnIsHighlightInCarLoadDocumentToggled;
 			
 			entryParent.JournalButtons = Buttons.None;
 			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel
@@ -61,8 +65,8 @@ namespace Vodovoz.Dialogs.Goods
 				Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
 
 			ylblOnlineStore.Text = Entity.OnlineStore?.Name;
-			ylblOnlineStore.Visible = !String.IsNullOrWhiteSpace(Entity.OnlineStore?.Name);
-			ylblOnlineStoreStr.Visible = !String.IsNullOrWhiteSpace(Entity.OnlineStore?.Name);
+			ylblOnlineStore.Visible = !string.IsNullOrWhiteSpace(Entity.OnlineStore?.Name);
+			ylblOnlineStoreStr.Visible = !string.IsNullOrWhiteSpace(Entity.OnlineStore?.Name);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -107,9 +111,22 @@ namespace Vodovoz.Dialogs.Goods
 			}
 		}
 
+		private void OnIsHighlightInCarLoadDocumentToggled(object sender, EventArgs e)
+		{
+			var infoMessage = $"Атрибут \"Выделять в талонах погрузки\" будет " +
+				$"{(Entity.IsHighlightInCarLoadDocument ? "проставлен" : "снят")} " +
+				$"также для всех дочерних групп";
+
+			MessageDialogHelper.RunInfoDialog(infoMessage);
+
+			Entity.FetchChilds(UoW);
+			Entity.SetIsHighlightInCarLoadDocumenToAllChildGroups(Entity.IsHighlightInCarLoadDocument);
+		}
+
 		public override void Destroy()
 		{
 			ycheckArchived.Toggled -= OnArchiveToggled;
+			ycheckbuttonIsHighlightInCarLoadDocument.Toggled -= OnIsHighlightInCarLoadDocumentToggled;
 			base.Destroy();
 		}
 	}

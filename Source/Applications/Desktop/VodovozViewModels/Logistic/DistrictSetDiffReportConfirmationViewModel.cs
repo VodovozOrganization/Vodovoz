@@ -9,8 +9,8 @@ using QS.ViewModels.Dialog;
 using RestSharp.Extensions;
 using System;
 using System.Linq;
-using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.Presentation.ViewModels.Extensions;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic

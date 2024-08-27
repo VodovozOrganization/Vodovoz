@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Orders;
 
@@ -41,6 +41,10 @@ namespace Vodovoz.Settings.Database.Orders
 			_settingsController.GetValue<int>(nameof(ReferFriendDiscountReasonId));
 		public int FastDeliveryLateDiscountReasonId =>
 			_settingsController.GetValue<int>(nameof(FastDeliveryLateDiscountReasonId));
+		public int GetOrderRatingForMandatoryProcessing =>
+			_settingsController.GetIntValue(nameof(GetOrderRatingForMandatoryProcessing));
+		public DateTime GetDateAvailabilityRatingOrder =>
+			_settingsController.GetValue<DateTime>(nameof(GetDateAvailabilityRatingOrder));
 
 		public int[] PaymentsByCardFromAvangard =>
 			new[]

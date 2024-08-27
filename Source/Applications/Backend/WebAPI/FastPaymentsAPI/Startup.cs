@@ -1,12 +1,5 @@
 ﻿using FastPaymentsAPI.HealthChecks;
-using FastPaymentsAPI.Library.ApiClients;
-using FastPaymentsAPI.Library.Converters;
-using FastPaymentsAPI.Library.Factories;
-using FastPaymentsAPI.Library.Managers;
-using FastPaymentsAPI.Library.Models;
-using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
-using FastPaymentsAPI.Library.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,21 +12,12 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using System;
+using FastPaymentsAPI.Library;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Services;
-using Vodovoz.Settings.FastPayments;
+using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
-using VodovozInfrastructure.Cryptography;
-using Vodovoz.Tools.Orders;
 
 namespace FastPaymentsAPI
 {
@@ -84,13 +68,21 @@ namespace FastPaymentsAPI
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 			
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 
-			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "FastPaymentsAPI", Version = "v1" }); });
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1",
+					new OpenApiInfo
+					{
+						Title = "FastPaymentsAPI", Version = "v1"
+					});
+			});
 
 			services.AddHttpClient<IOrderService, OrderService>(c =>
 			{
@@ -104,54 +96,7 @@ namespace FastPaymentsAPI
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
 
-			services.AddScoped<ISiteSettings, SiteSettings>();
-			services.AddScoped<SiteClient>();
-			services.AddScoped<MobileAppClient>();
-			services.AddScoped<SiteNotifier>();
-			services.AddScoped<MobileAppNotifier>();
-			services.AddScoped<NotificationModel>();
-			services.AddScoped<OrderStateKey>();
-
-
-			//backgroundServices
-			services.AddHostedService<FastPaymentStatusUpdater>();
-			services.AddHostedService<CachePaymentManager>();
-
-			//repositories
-			services.AddSingleton<IOrderRepository, OrderRepository>();
-			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
-			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
-			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
-			services.AddSingleton<ISelfDeliveryRepository, SelfDeliveryRepository>();
-			services.AddSingleton<ICashRepository, CashRepository>();
-			services.AddSingleton<ICashReceiptRepository, CashReceiptRepository>();
-			services.AddSingleton<IEmailService, EmailService>();
-			services.AddSingleton<IEmailRepository, EmailRepository>();
-
-			//factories
-			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();
-
-			//converters
-			services.AddSingleton<IOrderSumConverter, OrderSumConverter>();
-			services.AddSingleton<IResponseCodeConverter, ResponseCodeConverter>();
-			services.AddSingleton<IRequestFromConverter, RequestFromConverter>();
-
-			//models
-			services.AddScoped<IFastPaymentOrderModel, FastPaymentOrderModel>();
-			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-
-			//validators
-			services.AddScoped<IFastPaymentValidator, FastPaymentValidator>();
-
-			//helpers
-			services.AddSingleton<IDTOManager, DTOManager>();
-			services.AddScoped<ISignatureManager, SignatureManager>();
-			services.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
-			services.AddSingleton<IFastPaymentManager, FastPaymentManager>();
-			services.AddSingleton<IErrorHandler, ErrorHandler>();
-			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
-			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
-
+			services.AddDependencyGroup();
 			services.ConfigureHealthCheckService<FastPaymentsHealthCheck>();
 		}
 		

@@ -12,10 +12,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
 			Map(x => x.TempalteFile).Column("file").LazyLoad();
-			Map(x => x.TemplateType).Column("type").CustomType<TemplateTypeStringType>();
-			Map(x => x.ContractType).Column("contract_type").CustomType<ContractTypeStringType>();
+			Map(x => x.TemplateType).Column("type");
+			Map(x => x.ContractType).Column("contract_type");
 			References(x => x.Organization).Column("organization_id");
 		}
 	}
 }
-
