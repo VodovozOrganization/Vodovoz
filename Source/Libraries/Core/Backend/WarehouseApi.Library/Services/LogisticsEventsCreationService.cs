@@ -13,7 +13,7 @@ namespace WarehouseApi.Library.Services
 {
 	public class LogisticsEventsCreationService : IDisposable, ILogisticsEventsCreationService
 	{
-		private const string _eventCreationEndpointAddress = "api/CompleteNoCoordinatesDriverWarehouseEvent";
+		private const string _eventCreationEndpointAddress = "api/CompleteDriverWarehouseEventWithoutCoordinates";
 
 		private readonly ILogger<LogisticsEventsCreationService> _logger;
 		private readonly ILogisticsEventsSettings _logisticsEventsSettings;
