@@ -14,6 +14,9 @@ namespace Vodovoz.Settings.Database.Warehouse
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
+		public string BaseUrl =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(BaseUrl)}");
+
 		public int CarLoadDocumentStartLoadEventId =>
 			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(CarLoadDocumentStartLoadEventId)}");
 

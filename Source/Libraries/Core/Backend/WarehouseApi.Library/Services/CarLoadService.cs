@@ -58,7 +58,7 @@ namespace WarehouseApi.Library.Services
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 		}
 
-		public async Task<Result<StartLoadResponse>> StartLoad(int documentId)
+		public async Task<Result<StartLoadResponse>> StartLoad(int documentId, string accessToken)
 		{
 			var response = new StartLoadResponse();
 
@@ -77,7 +77,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress);
+				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress, accessToken);
 
 			if(!isDocumentSavedAndEventsCreated)
 			{
@@ -197,7 +197,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(response);
 		}
 
-		public async Task<Result<EndLoadResponse>> EndLoad(int documentId)
+		public async Task<Result<EndLoadResponse>> EndLoad(int documentId, string accessToken)
 		{
 			var response = new EndLoadResponse();
 
@@ -215,7 +215,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done);
+				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done, accessToken);
 
 			if(!isDocumentSavedAndEventsCreated)
 			{
@@ -252,7 +252,10 @@ namespace WarehouseApi.Library.Services
 			return carLoadDocumentDto;
 		}
 
-		private async Task<bool> SetLoadOperationStateAndSaveDocument(CarLoadDocument document, CarLoadDocumentLoadOperationState newLoadOperationState)
+		private async Task<bool> SetLoadOperationStateAndSaveDocument(
+			CarLoadDocument document,
+			CarLoadDocumentLoadOperationState newLoadOperationState,
+			string logisticsEventApiAccessToken)
 		{
 			if(newLoadOperationState != CarLoadDocumentLoadOperationState.InProgress
 				&& newLoadOperationState != CarLoadDocumentLoadOperationState.Done)
@@ -272,8 +275,8 @@ namespace WarehouseApi.Library.Services
 
 			var isLogisticsEventCreated =
 				newLoadOperationState == CarLoadDocumentLoadOperationState.InProgress
-				? await CreateStartLoadLogisticEvent(document.Id)
-				: await CreateEndLoadLogisticEvent(document.Id);
+				? await CreateStartLoadLogisticEvent(document.Id, logisticsEventApiAccessToken)
+				: await CreateEndLoadLogisticEvent(document.Id, logisticsEventApiAccessToken);
 
 			if(!isLogisticsEventCreated)
 			{
@@ -340,12 +343,12 @@ namespace WarehouseApi.Library.Services
 			return codeEntity;
 		}
 
-		private async Task<bool> CreateStartLoadLogisticEvent(int documentId)
+		private async Task<bool> CreateStartLoadLogisticEvent(int documentId, string accessToken)
 		{
 			try
 			{
 				var isEventCreated =
-					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, CancellationToken.None);
+					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
 
 				return isEventCreated;
 			}
@@ -356,12 +359,12 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private async Task<bool> CreateEndLoadLogisticEvent(int documentId)
+		private async Task<bool> CreateEndLoadLogisticEvent(int documentId, string accessToken)
 		{
 			try
 			{
 				var isEventCreated =
-					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, CancellationToken.None);
+					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
 
 				return isEventCreated;
 			}

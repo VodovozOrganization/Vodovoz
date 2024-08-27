@@ -9,11 +9,8 @@ using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Settings.Database.Warehouse;
-using Vodovoz.Settings.Warehouse;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
-using WarehouseApi.Library.Options;
 using WarehouseApi.Library.Services;
 
 namespace WarehouseApi.Library
@@ -30,7 +27,6 @@ namespace WarehouseApi.Library
 		{
 			services
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("API приложения склада"))
-				.Configure<LogisticsEventsApiSettings>(logisticsEventsApiSettings => configuration.GetSection(nameof(LogisticsEventsApiSettings)).Bind(logisticsEventsApiSettings))
 				.AddCore()
 				.AddInfrastructure()
 				.AddRepositories()

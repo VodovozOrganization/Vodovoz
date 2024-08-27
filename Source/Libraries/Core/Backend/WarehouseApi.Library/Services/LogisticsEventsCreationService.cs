@@ -1,6 +1,5 @@
 ﻿using LogisticsEventsApi.Contracts;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -9,7 +8,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Settings.Warehouse;
-using WarehouseApi.Library.Options;
 
 namespace WarehouseApi.Library.Services
 {
@@ -19,25 +17,19 @@ namespace WarehouseApi.Library.Services
 
 		private readonly ILogger<LogisticsEventsCreationService> _logger;
 		private readonly ILogisticsEventsSettings _logisticsEventsSettings;
-		private readonly IOptions<LogisticsEventsApiSettings> _logisticsEventsApiSettings;
 		private static HttpClient _httpClient;
 
 		public LogisticsEventsCreationService(
 			ILogger<LogisticsEventsCreationService> logger,
-			ILogisticsEventsSettings logisticsEventsSettings,
-			IOptions<LogisticsEventsApiSettings> logisticsEventsApiSettings)
+			ILogisticsEventsSettings logisticsEventsSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_logisticsEventsSettings = logisticsEventsSettings ?? throw new ArgumentNullException(nameof(logisticsEventsSettings));
-			_logisticsEventsApiSettings = logisticsEventsApiSettings ?? throw new ArgumentNullException(nameof(logisticsEventsApiSettings));
 
-			_httpClient = new HttpClient { BaseAddress = new Uri(logisticsEventsApiSettings.Value.BaseAddress) };
-			_httpClient.DefaultRequestHeaders.Accept.Clear();
-			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", logisticsEventsApiSettings.Value.Token);
+			_httpClient = new HttpClient { BaseAddress = new Uri(_logisticsEventsSettings.BaseUrl) };
 		}
 
-		public async Task<bool> CreateStartLoadingWarehouseEvent(int documentId, CancellationToken cancellationToken)
+		public async Task<bool> CreateStartLoadingWarehouseEvent(int documentId, string accessToken, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Добавляем событие начала погрузки талона #{DocumentId}", documentId);
 
@@ -47,6 +39,7 @@ namespace WarehouseApi.Library.Services
 				EventId = _logisticsEventsSettings.CarLoadDocumentStartLoadEventId
 			};
 
+			SetHttpHeaders(accessToken);
 			var httpContent = CreateHttpContent(eventData);
 
 			var response = await _httpClient.PostAsync(_eventCreationEndpointAddress, httpContent, cancellationToken);
@@ -57,7 +50,7 @@ namespace WarehouseApi.Library.Services
 			return response.IsSuccessStatusCode;
 		}
 
-		public async Task<bool> CreateEndLoadingWarehouseEvent(int documentId, CancellationToken cancellationToken)
+		public async Task<bool> CreateEndLoadingWarehouseEvent(int documentId, string accessToken, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Добавляем событие окончания погрузки талона #{DocumentId}", documentId);
 
@@ -67,6 +60,7 @@ namespace WarehouseApi.Library.Services
 				EventId = _logisticsEventsSettings.CarLoadDocumentEndLoadEventId
 			};
 
+			SetHttpHeaders(accessToken);
 			var httpContent = CreateHttpContent(eventData);
 
 			var response = await _httpClient.PostAsync(_eventCreationEndpointAddress, httpContent, cancellationToken);
@@ -77,11 +71,22 @@ namespace WarehouseApi.Library.Services
 			return response.IsSuccessStatusCode;
 		}
 
-		private static StringContent CreateHttpContent(DriverWarehouseEventQrData eventData)
+		private StringContent CreateHttpContent(DriverWarehouseEventQrData eventData)
 		{
 			var content = JsonSerializer.Serialize(eventData);
 			var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 			return httpContent;
+		}
+
+		private void SetHttpHeaders(string accessToken)
+		{
+			_httpClient.DefaultRequestHeaders.Accept.Clear();
+			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+			if(!string.IsNullOrEmpty(accessToken))
+			{
+				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+			}
 		}
 
 		private string GetResponseInfoMessage(HttpResponseMessage response, DriverWarehouseEventQrData eventData) =>

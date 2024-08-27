@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Common;
@@ -44,13 +45,16 @@ namespace WarehouseApi.Controllers
 		[HttpPost("StartLoad")]
 		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
 		{
+			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
+			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
+
 			_logger.LogInformation("Запрос начала погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
-				Request.Headers[HeaderNames.Authorization]);
+				accessToken);
 
 			try
 			{
-				var result = await _carLoadService.StartLoad(documentId);
+				var result = await _carLoadService.StartLoad(documentId, accessToken);
 
 				if(result.IsSuccess)
 				{
@@ -203,13 +207,16 @@ namespace WarehouseApi.Controllers
 		[HttpPost("EndLoad")]
 		public async Task<IActionResult> EndLoad([FromQuery] int documentId)
 		{
+			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
+			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
+
 			_logger.LogInformation("Запрос завершения погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
-				Request.Headers[HeaderNames.Authorization]);
+				accessToken);
 
 			try
 			{
-				var result = await _carLoadService.EndLoad(documentId);
+				var result = await _carLoadService.EndLoad(documentId, accessToken);
 
 				if(result.IsSuccess)
 				{
