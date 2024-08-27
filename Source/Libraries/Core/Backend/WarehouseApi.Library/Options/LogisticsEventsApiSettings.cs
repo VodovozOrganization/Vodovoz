@@ -5,7 +5,7 @@
 		/// <summary>
 		/// Адрес службы
 		/// </summary>
-		public string Address { get; set; }
+		public string BaseAddress { get; set; }
 
 		/// <summary>
 		/// Токен доступа к службе

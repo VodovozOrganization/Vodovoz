@@ -9,6 +9,8 @@ using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Database.Warehouse;
+using Vodovoz.Settings.Warehouse;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Options;
@@ -43,7 +45,7 @@ namespace WarehouseApi.Library
 				.AddScoped<TrueMarkApiClientFactory>()
 				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
 				.AddScoped<TrueMarkCodesChecker>()
-				.AddScoped<LogisticsEventsCreationService>();
+				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>();
 
 			services.AddStaticHistoryTracker();
 

@@ -1,10 +1,12 @@
 ﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.TrueMark;
@@ -18,6 +20,7 @@ using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 
 namespace WarehouseApi.Library.Services
 {
@@ -28,6 +31,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
@@ -38,6 +42,7 @@ namespace WarehouseApi.Library.Services
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ITrueMarkRepository trueMarkRepository,
+			ILogisticsEventsCreationService logisticsEventsCreationService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker)
@@ -47,6 +52,7 @@ namespace WarehouseApi.Library.Services
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
@@ -70,7 +76,18 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure(response, error);
 			}
 
-			SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress);
+			var isDocumentSavedAndEventsCreated =
+				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress);
+
+			if(!isDocumentSavedAndEventsCreated)
+			{
+				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
+
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				return Result.Failure(response, error);
+			}
 
 			response.CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument);
 			response.Result = OperationResultEnumDto.Success;
@@ -197,7 +214,18 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure(response, error);
 			}
 
-			SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done);
+			var isDocumentSavedAndEventsCreated =
+				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done);
+
+			if(!isDocumentSavedAndEventsCreated)
+			{
+				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
+
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				return Result.Failure(response, error);
+			}
 
 			response.Result = OperationResultEnumDto.Success;
 			response.Error = null;
@@ -224,8 +252,14 @@ namespace WarehouseApi.Library.Services
 			return carLoadDocumentDto;
 		}
 
-		private void SetLoadOperationStateAndSaveDocument(CarLoadDocument document, CarLoadDocumentLoadOperationState newLoadOperationState)
+		private async Task<bool> SetLoadOperationStateAndSaveDocument(CarLoadDocument document, CarLoadDocumentLoadOperationState newLoadOperationState)
 		{
+			if(newLoadOperationState != CarLoadDocumentLoadOperationState.InProgress
+				&& newLoadOperationState != CarLoadDocumentLoadOperationState.Done)
+			{
+				return false;
+			}
+
 			var currentLoadOperationState = document.LoadOperationState;
 
 			_logger.LogInformation("Меняем статус талона погрузки #{DocumentId} с \"{CurrentStatus}\" на \"{NewStatus}\"",
@@ -235,11 +269,26 @@ namespace WarehouseApi.Library.Services
 
 			document.LoadOperationState = newLoadOperationState;
 			_uow.Save(document);
+
+			var isLogisticsEventCreated =
+				newLoadOperationState == CarLoadDocumentLoadOperationState.InProgress
+				? await CreateStartLoadLogisticEvent(document.Id)
+				: await CreateEndLoadLogisticEvent(document.Id);
+
+			if(!isLogisticsEventCreated)
+			{
+				_logger.LogInformation("Логистическое событие для талона погрузки не было создано. Отменяем изменение статуса талона погрузки.");
+				_uow.Session.GetCurrentTransaction().Rollback();
+				return false;
+			}
+
 			_uow.Commit();
 
 			_logger.LogInformation("Статус талона погрузки #{DocumentId} успешно изменен на \"{NewStatus}\"",
 				document.Id,
 				newLoadOperationState.GetEnumTitle());
+
+			return true;
 		}
 
 		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(int nomenclatureId, CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
@@ -289,6 +338,38 @@ namespace WarehouseApi.Library.Services
 			};
 
 			return codeEntity;
+		}
+
+		private async Task<bool> CreateStartLoadLogisticEvent(int documentId)
+		{
+			try
+			{
+				var isEventCreated =
+					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, CancellationToken.None);
+
+				return isEventCreated;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+				return false;
+			}
+		}
+
+		private async Task<bool> CreateEndLoadLogisticEvent(int documentId)
+		{
+			try
+			{
+				var isEventCreated =
+					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, CancellationToken.None);
+
+				return isEventCreated;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message, ex);
+				return false;
+			}
 		}
 	}
 }

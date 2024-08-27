@@ -108,5 +108,17 @@
 				typeof(CarLoadDocument),
 				nameof(AllOrderNomenclatureCodesAlreadyAdded),
 				$"Коды ЧЗ номенклатуры #{nomenclatureId} в заказе #{orderId} уже добавлены для всех единиц товара");
+
+		public static Error CarLoadDocumentStateChangeError =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentStateChangeError),
+				"Ошибка при изменении статуса операции погрузки талона погрузки");
+
+		public static Error CreateCarLoadDocumentStateChangeError(int? id) =>
+			id is null ? CarLoadDocumentStateChangeError : new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentStateChangeError),
+				$"Ошибка при изменении статуса операции погрузки талона погрузки #{id}");
 	}
 }
