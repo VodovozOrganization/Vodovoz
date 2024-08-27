@@ -85,7 +85,7 @@ namespace WarehouseApi.Library.Services
 
 			if(!string.IsNullOrEmpty(accessToken))
 			{
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(accessToken);
+				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 			}
 		}
 
