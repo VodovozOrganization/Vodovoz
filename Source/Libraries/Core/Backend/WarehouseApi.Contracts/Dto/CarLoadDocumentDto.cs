@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace WarehouseApi.Contracts.Dto
+﻿namespace WarehouseApi.Contracts.Dto
 {
 	/// <summary>
 	/// Документ погрузки авто
@@ -10,7 +8,6 @@ namespace WarehouseApi.Contracts.Dto
 		/// <summary>
 		/// Id талона погрузки авто
 		/// </summary>
-		[JsonPropertyName("id")]
 		public int Id { get; set; }
 
 		/// <summary>

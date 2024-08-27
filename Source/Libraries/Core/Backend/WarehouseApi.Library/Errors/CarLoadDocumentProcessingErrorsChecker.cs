@@ -313,13 +313,10 @@ namespace WarehouseApi.Library.Errors
 				CheckCode = trueMarkCode.CheckCode
 			};
 
-			var cancellationTokenSource = new CancellationTokenSource();
-			var cancellationToken = cancellationTokenSource.Token;
-
 			try
 			{
 				var checkResults =
-					_trueMarkCodesChecker.CheckCodesAsync(new List<TrueMarkWaterIdentificationCode> { waterCode }, cancellationToken)
+					_trueMarkCodesChecker.CheckCodesAsync(new List<TrueMarkWaterIdentificationCode> { waterCode }, CancellationToken.None)
 					.Result
 					.FirstOrDefault();
 
@@ -339,11 +336,6 @@ namespace WarehouseApi.Library.Errors
 					"Обратитесь в техподдержку");
 				_logger.LogError(error.Message, ex);
 				return false;
-			}
-			finally
-			{
-				cancellationTokenSource.Dispose();
-				cancellationTokenSource = null;
 			}
 		}
 
