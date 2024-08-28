@@ -955,16 +955,16 @@ namespace Vodovoz
 		{
 			treeViewConnectedCustomers.ColumnsConfig = FluentColumnsConfig<ConnectedCustomerInfoNode>.Create()
 				.AddColumn("Id клиента")
-				.AddNumericRenderer(node => Entity.PersonType == PersonType.legal
-					? node.ConnectedCustomer.NaturalCounterpartyId
-					: node.ConnectedCustomer.LegalCounterpartyId)
+					.AddNumericRenderer(node => node.CounterpartyId)
 				.AddColumn("Наименование клиента")
-				.AddTextRenderer(node => node.CounterpartyFullName)
+					.AddTextRenderer(node => node.CounterpartyFullName)
+				.AddColumn("Привязанный телефон")
+					.AddTextRenderer(node => node.PhoneNumber)
 				.AddColumn("Состояние связи")
-				.AddEnumRenderer(node => node.ConnectState)
+					.AddEnumRenderer(node => node.ConnectState)
 				.AddColumn("Причина блокировки")
-				.AddTextRenderer(node => node.BlockingReason)
-				.Editable()
+					.AddTextRenderer(node => node.BlockingReason)
+					.Editable()
 				.Finish();
 			
 			GetConnectedCustomers();

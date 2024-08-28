@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Clients
 			Id(x => x.Id).GeneratedBy.Native();
 
 			Map(x => x.LegalCounterpartyId).Column("legal_counterparty_id");
-			Map(x => x.NaturalCounterpartyId).Column("natural_counterparty_id");
+			Map(x => x.NaturalCounterpartyPhoneId).Column("natural_counterparty_phone_id");
 			Map(x => x.ConnectState).Column("connect_state");
 			Map(x => x.BlockingReason).Column("blocking_reason");
 		}

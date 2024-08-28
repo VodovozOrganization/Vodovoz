@@ -9,5 +9,9 @@
 		/// Id клиента в ERP, делающего запрос
 		/// </summary>
 		public int ErpCounterpartyId { get; set; }
+		/// <summary>
+		/// Номер телефона для связки в формате ХХХХХХХХХХ
+		/// </summary>
+		public string PhoneNumber { get; set; }
 	}
 }

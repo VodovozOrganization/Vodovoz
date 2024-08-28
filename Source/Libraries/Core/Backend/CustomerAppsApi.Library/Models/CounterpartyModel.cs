@@ -16,7 +16,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Roboats;
 
 namespace CustomerAppsApi.Library.Models
@@ -298,9 +297,9 @@ namespace CustomerAppsApi.Library.Models
 			return _counterpartyFactory.CounterpartyBottlesDebtDto(counterpartyId, debt);
 		}
 		
-		public string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto dto)
+		public string GetLegalCustomersDtoByInnValidate(GetLegalCustomersByInnDto dto)
 		{
-			return _counterpartyModelValidator.GetLegalCustomersDtoValidate(dto);
+			return _counterpartyModelValidator.GetLegalCustomersByInnDtoValidate(dto);
 		}
 
 		public (string Message, IEnumerable<LegalCounterpartyInfo> Data) GetLegalCustomersByInn(GetLegalCustomersByInnDto dto)
@@ -312,6 +311,13 @@ namespace CustomerAppsApi.Library.Models
 			{
 				return ("Неизвестный пользователь", null);
 			}
+			
+			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, dto.ErpCounterpartyId);
+
+			if(!naturalCounterpartyExists)
+			{
+				return ("Не найден клиент с таким Id", null);
+			}
 
 			var registeredCounterpartyId = externalCounterparty.Phone.Counterparty.Id;
 			
@@ -322,25 +328,44 @@ namespace CustomerAppsApi.Library.Models
 					null);
 			}
 			
+			if(externalCounterparty.Phone.DigitsNumber != dto.PhoneNumber)
+			{
+				return ("Не совпадает номер телефона у пользователя и который пришел в запросе", null);
+			}
+			
 			var counterparties =
-				_counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto.Inn, dto.ErpCounterpartyId);
+				_counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto);
 			
 			return (null, counterparties);
 		}
 		
-		public IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto)
+		public (string Message, IEnumerable<LegalCounterpartyInfo> Data) GetNaturalCounterpartyLegalCustomers(
+			GetNaturalCounterpartyLegalCustomersDto dto)
 		{
 			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
 				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
 
 			if(externalCounterparty is null)
 			{
-				return null;
+				return ("Неизвестный пользователь", null);
+			}
+			
+			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, dto.ErpCounterpartyId);
+
+			if(!naturalCounterpartyExists)
+			{
+				return ("Не найден клиент с таким Id", null);
+			}
+			
+			if(externalCounterparty.Phone.DigitsNumber != dto.PhoneNumber)
+			{
+				return ("Не совпадает номер телефона у пользователя и который пришел в запросе", null);
 			}
 			
 			var counterparties =
-				_counterpartyServiceDataHandler.GetNaturalCounterpartyLegalCustomers(_uow, dto.ErpCounterpartyId);
-			return counterparties;
+				_counterpartyServiceDataHandler.GetNaturalCounterpartyLegalCustomers(_uow, dto.ErpCounterpartyId, dto.PhoneNumber);
+			
+			return (null, counterparties);
 		}
 		
 		public (string Message, RegisteredLegalCustomerDto Data) RegisterLegalCustomer(RegisteringLegalCustomerDto dto)
@@ -416,7 +441,23 @@ namespace CustomerAppsApi.Library.Models
 			return (null, registered);
 		}
 
-		public (string Message, ConnectedLegalCustomerDto Data) ConnectLegalCustomer(ConnectingLegalCustomerDto dto)
+		public string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto)
+		{
+			return _counterpartyModelValidator.RegisteringLegalCustomerValidate(dto);
+		}
+
+		public string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto)
+		{
+			return _counterpartyModelValidator.ConnectingLegalCustomerValidate(dto);
+		}
+
+		public string GetPhonesConnectedToLegalCustomerValidate(GetPhonesConnectedToLegalCustomerDto dto)
+		{
+			return _counterpartyModelValidator.GetPhonesConnectedToLegalCustomerValidate(dto);
+		}
+
+		public (string Message, PhonesConnectedToLegalCustomerDto Data) GetPhonesConnectedToLegalCustomer(
+			GetPhonesConnectedToLegalCustomerDto dto)
 		{
 			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
 				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
@@ -435,6 +476,15 @@ namespace CustomerAppsApi.Library.Models
 			{
 				return ("Не найдено физическое лицо с таким Id", null);
 			}
+			
+			var registeredCounterpartyId = externalCounterparty.Phone.Counterparty.Id;
+			
+			if(registeredCounterpartyId != dto.ErpNaturalCounterpartyId)
+			{
+				return (
+					$"Переданный Id клиента {dto.ErpNaturalCounterpartyId} не совпадает с зарегистрированным {registeredCounterpartyId}",
+					null);
+			}
 
 			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, legalCounterpartyId);
 
@@ -443,37 +493,125 @@ namespace CustomerAppsApi.Library.Models
 				return ("Не найдено юридическое лицо с таким Id", null);
 			}
 			
-			var connectedCustomer =
-				_counterpartyServiceDataHandler.GetConnectedCustomer(_uow, legalCounterpartyId, naturalCounterpartyId);
+			var connectedCustomerPhones =
+				_counterpartyServiceDataHandler.GetConnectedCustomerPhones(_uow, legalCounterpartyId, naturalCounterpartyId);
+
+			return (null, PhonesConnectedToLegalCustomerDto.Create(connectedCustomerPhones));
+		}
+
+		public string UpdateConnectToLegalCustomerByPhone(UpdateConnectToLegalCustomerByPhoneDto dto)
+		{
+			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
+				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+
+			var legalCounterpartyId = dto.ErpLegalCounterpartyId;
+			var naturalCounterpartyId = dto.ErpNaturalCounterpartyId;
+
+			if(externalCounterparty is null)
+			{
+				return "Не найден зарегистрированный пользователь";
+			}
+			
+			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, naturalCounterpartyId);
+
+			if(!naturalCounterpartyExists)
+			{
+				return "Не найдено физическое лицо с таким Id";
+			}
+
+			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, legalCounterpartyId);
+
+			if(!legalCounterpartyExists)
+			{
+				return "Не найдено юридическое лицо с таким Id";
+			}
+
+			var connectedCustomer = _counterpartyServiceDataHandler.GetConnectedCustomer(
+				_uow, dto.ErpLegalCounterpartyId, dto.ErpPhoneId);
+
+			if(connectedCustomer is null)
+			{
+				return "Не найдена связка номера и юр лица";
+			}
+			
+			var currentConnectState = Enum.Parse<ConnectedCustomerConnectState>(dto.ConnectState);
+
+			switch(currentConnectState)
+			{
+				case ConnectedCustomerConnectState.Active:
+					connectedCustomer.ConnectState = ConnectedCustomerConnectState.Blocked;
+					break;
+				case ConnectedCustomerConnectState.Blocked:
+					connectedCustomer.ConnectState = ConnectedCustomerConnectState.Active;
+					break;
+			}
+			
+			_uow.Save(connectedCustomer);
+			_uow.Commit();
+
+			return null;
+		}
+
+		public string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto)
+		{
+			return _counterpartyModelValidator.GetNaturalCounterpartyLegalCustomersDtoValidate(dto);
+		}
+
+		public string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto)
+		{
+			return _counterpartyModelValidator.UpdateConnectToLegalCustomerByPhoneValidate(dto);
+		}
+
+		public string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto)
+		{
+			return _counterpartyModelValidator.ConnectingNewPhoneToLegalCustomerValidate(dto);
+		}
+
+		public string ConnectNewPhoneToLegalCustomer(ConnectingNewPhoneToLegalCustomerDto dto)
+		{
+			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
+				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+
+			var legalCounterpartyId = dto.ErpLegalCounterpartyId;
+			var naturalCounterpartyId = dto.ErpNaturalCounterpartyId;
+
+			if(externalCounterparty is null)
+			{
+				return "Не найден зарегистрированный пользователь";
+			}
+			
+			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, naturalCounterpartyId);
+
+			if(!naturalCounterpartyExists)
+			{
+				return "Не найдено физическое лицо с таким Id";
+			}
+
+			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, legalCounterpartyId);
+
+			if(!legalCounterpartyExists)
+			{
+				return "Не найдено юридическое лицо с таким Id";
+			}
+			
+			if(externalCounterparty.Phone.DigitsNumber != dto.PhoneNumber)
+			{
+				return "Не совпадает номер телефона у пользователя и который пришел в запросе";
+			}
+
+			var connectedCustomer = _counterpartyServiceDataHandler.GetConnectedCustomer(
+				_uow, dto.ErpLegalCounterpartyId, dto.ErpNaturalCounterpartyId, dto.PhoneNumber);
 
 			if(connectedCustomer != null)
 			{
-				if(connectedCustomer.ConnectState == ConnectedCustomerConnectState.Active)
-				{
-					return ($"Связь юр лица {legalCounterpartyId} с физ лицом {naturalCounterpartyId} уже создана", null);
-				}
-				
-				if(connectedCustomer.ConnectState == ConnectedCustomerConnectState.Blocked)
-				{
-					return ("Нельзя связать этих клиентов, обратитесь в компанию", null);
-				}
+				return "Эта связка уже существует";
 			}
-
-			var customer = ConnectedCustomer.Create(legalCounterpartyId, naturalCounterpartyId);
-			_uow.Save(customer);
+			
+			var newConnectedCustomer = ConnectedCustomer.Create(dto.ErpLegalCounterpartyId, externalCounterparty.Phone.Id);
+			_uow.Save(newConnectedCustomer);
 			_uow.Commit();
 
-			return (null, ConnectedLegalCustomerDto.Create(legalCounterpartyId, naturalCounterpartyId));
-		}
-
-		public string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto)
-		{
-			return _counterpartyModelValidator.RegisteringLegalCustomerValidate(dto);
-		}
-
-		public string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto)
-		{
-			return _counterpartyModelValidator.ConnectingLegalCustomerValidate(dto);
+			return null;
 		}
 
 		private Email GetCounterpartyEmailForExternalCounterparty(int counterpartyId)

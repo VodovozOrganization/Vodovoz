@@ -10,7 +10,9 @@ namespace VodovozBusiness.EntityRepositories.Counterparties
 	public interface IConnectedCustomerRepository
 	{
 		IEnumerable<ConnectedCustomerInfoNode> GetConnectedCustomersInfo(IUnitOfWork uow, int counterpartyId, PersonType personType);
-		IEnumerable<LegalCounterpartyInfo> GetConnectedCustomers(IUnitOfWork uow, int counterpartyId);
-		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId);
+		IEnumerable<LegalCounterpartyInfo> GetConnectedCustomers(IUnitOfWork uow, int counterpartyId, string phone);
+		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId, string phone);
+		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int phoneId);
+		IEnumerable<PhoneInfo> GetConnectedCustomerPhones(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId);
 	}
 }

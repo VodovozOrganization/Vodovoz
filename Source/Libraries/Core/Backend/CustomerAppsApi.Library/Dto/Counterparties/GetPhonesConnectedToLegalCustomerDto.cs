@@ -1,11 +1,9 @@
-﻿using Vodovoz.Core.Domain.Clients;
-
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
 	/// <summary>
-	/// Информация для связывания физика и юрика, для возможности заказов этим клиентом от юр лица
+	/// Информация для получения телефонов, прикрепленных к юридическому лицу
 	/// </summary>
-	public class ConnectingLegalCustomerDto : GetLegalCustomersDto
+	public class GetPhonesConnectedToLegalCustomerDto : GetLegalCustomersDto
 	{
 		/// <summary>
 		/// Id юридического лица

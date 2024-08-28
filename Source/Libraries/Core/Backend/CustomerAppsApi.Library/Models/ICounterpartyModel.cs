@@ -12,11 +12,17 @@ namespace CustomerAppsApi.Library.Models
 		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
 		Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId);
 		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetLegalCustomersByInn(GetLegalCustomersByInnDto dto);
-		IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto);
-		string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto dto);
+		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetNaturalCounterpartyLegalCustomers(
+			GetNaturalCounterpartyLegalCustomersDto dto);
+		string GetLegalCustomersDtoByInnValidate(GetLegalCustomersByInnDto dto);
 		(string Message, RegisteredLegalCustomerDto Data) RegisterLegalCustomer(RegisteringLegalCustomerDto dto);
-		(string Message, ConnectedLegalCustomerDto Data) ConnectLegalCustomer(ConnectingLegalCustomerDto dto);
 		string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto);
-		string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto);
+		string GetPhonesConnectedToLegalCustomerValidate(GetPhonesConnectedToLegalCustomerDto dto);
+		(string Message, PhonesConnectedToLegalCustomerDto Data) GetPhonesConnectedToLegalCustomer(GetPhonesConnectedToLegalCustomerDto dto);
+		string UpdateConnectToLegalCustomerByPhone(UpdateConnectToLegalCustomerByPhoneDto dto);
+		string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto);
+		string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto);
+		string ConnectNewPhoneToLegalCustomer(ConnectingNewPhoneToLegalCustomerDto dto);
+		string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto);
 	}
 }

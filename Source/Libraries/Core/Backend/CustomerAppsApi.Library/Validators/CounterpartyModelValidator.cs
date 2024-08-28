@@ -54,7 +54,7 @@ namespace CustomerAppsApi.Library.Validators
 			return ValidationResult();
 		}
 
-		public string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto dto)
+		public string GetLegalCustomersByInnDtoValidate(GetLegalCustomersByInnDto dto)
 		{
 			_sb.Clear();
 
@@ -92,20 +92,82 @@ namespace CustomerAppsApi.Library.Validators
 			_sb.Clear();
 
 			ValidateSource(dto.Source);
-
-			if(dto.ErpNaturalCounterpartyId <= 0)
-			{
-				_sb.AppendLine("Передан неверный Id физического лица");
-			}
-			
-			if(dto.ErpLegalCounterpartyId <= 0)
-			{
-				_sb.AppendLine("Передан неверный Id юридического лица");
-			}
+			ValidateNaturalCounterpartyId(dto.ErpNaturalCounterpartyId);
+			ValidateLegalCounterpartyId(dto.ErpLegalCounterpartyId);
 			
 			return ValidationResult();
 		}
+
+		public string GetPhonesConnectedToLegalCustomerValidate(GetPhonesConnectedToLegalCustomerDto dto)
+		{
+			_sb.Clear();
+
+			ValidateSource(dto.Source);
+			ValidateNaturalCounterpartyId(dto.ErpNaturalCounterpartyId);
+			ValidateLegalCounterpartyId(dto.ErpLegalCounterpartyId);
+			
+			return ValidationResult();
+		}
+
+		public string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto)
+		{
+			_sb.Clear();
+
+			ValidateSource(dto.Source);
+			ValidateNaturalCounterpartyId(dto.ErpNaturalCounterpartyId);
+			ValidateLegalCounterpartyId(dto.ErpLegalCounterpartyId);
+			ValidatePhoneId(dto.ErpPhoneId);
+			
+			return ValidationResult();
+		}
+
+		public string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto)
+		{
+			_sb.Clear();
+
+			ValidateSource(dto.Source);
+			ValidateNaturalCounterpartyId(dto.ErpNaturalCounterpartyId);
+			ValidateLegalCounterpartyId(dto.ErpLegalCounterpartyId);
+			ValidateContactInfo(dto.PhoneNumber);
+			
+			return ValidationResult();
+		}
+
+		public string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto)
+		{
+			_sb.Clear();
+
+			ValidateSource(dto.Source);
+			ValidateNaturalCounterpartyId(dto.ErpCounterpartyId);
+			ValidateContactInfo(dto.PhoneNumber);
+			
+			return ValidationResult();
+		}
+
+		private void ValidateNaturalCounterpartyId(int naturalCounterpartyId)
+		{
+			if(naturalCounterpartyId <= 0)
+			{
+				_sb.AppendLine("Передан неверный Id физического лица");
+			}
+		}
 		
+		private void ValidateLegalCounterpartyId(int legalCounterpartyId)
+		{
+			if(legalCounterpartyId <= 0)
+			{
+				_sb.AppendLine("Передан неверный Id юридического лица");
+			}
+		}
+		
+		private void ValidatePhoneId(int phoneId)
+		{
+			if(phoneId <= 0)
+			{
+				_sb.AppendLine("Передан неверный Id телефона");
+			}
+		}
+
 		private string ValidationResult()
 		{
 			return _sb.ToString().Trim('\r', '\n');

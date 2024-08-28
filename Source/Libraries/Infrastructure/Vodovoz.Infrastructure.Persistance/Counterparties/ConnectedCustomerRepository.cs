@@ -5,6 +5,7 @@ using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Nodes;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using VodovozBusiness.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
@@ -24,13 +25,16 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return Enumerable.Empty<ConnectedCustomerInfoNode>();
 		}
 
-		public IEnumerable<LegalCounterpartyInfo> GetConnectedCustomers(IUnitOfWork uow, int counterpartyId)
+		public IEnumerable<LegalCounterpartyInfo> GetConnectedCustomers(IUnitOfWork uow, int counterpartyId, string phone)
 		{
 			var connectedLegalClients =
 				from connectedCustomer in uow.Session.Query<ConnectedCustomer>()
 				join legalCounterparty in uow.Session.Query<Counterparty>()
-					on connectedCustomer.LegalCounterpartyId equals legalCounterparty.Id 
-				where connectedCustomer.NaturalCounterpartyId == counterpartyId
+					on connectedCustomer.LegalCounterpartyId equals legalCounterparty.Id
+				join connectedPhone in uow.Session.Query<Phone>()
+					on connectedCustomer.NaturalCounterpartyPhoneId equals connectedPhone.Id
+				where connectedPhone.Counterparty.Id == counterpartyId
+					&& connectedPhone.DigitsNumber == phone
 				select new LegalCounterpartyInfo
 				{
 					ErpCounterpartyId = legalCounterparty.Id,
@@ -46,15 +50,48 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.ToList();
 		}
 
-		public ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId)
+		public ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId, string phone)
 		{
 			var connectedCustomers =
 				from connectedCustomer in uow.Session.Query<ConnectedCustomer>()
-				where connectedCustomer.NaturalCounterpartyId == naturalCounterpartyId
+				join connectedPhone in uow.Session.Query<Phone>()
+					on connectedCustomer.NaturalCounterpartyPhoneId equals connectedPhone.Id
+				where connectedPhone.Counterparty.Id == naturalCounterpartyId
+					&& connectedPhone.DigitsNumber == phone
 					&& connectedCustomer.LegalCounterpartyId == legalCounterpartyId
 				select connectedCustomer;
 
 			return connectedCustomers.FirstOrDefault();
+		}
+
+		public ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int phoneId)
+		{
+			var connectedCustomers =
+				from connectedCustomer in uow.Session.Query<ConnectedCustomer>()
+				join connectedPhone in uow.Session.Query<Phone>()
+					on connectedCustomer.NaturalCounterpartyPhoneId equals connectedPhone.Id
+				where connectedPhone.Id == phoneId
+				      && connectedCustomer.LegalCounterpartyId == legalCounterpartyId
+				select connectedCustomer;
+
+			return connectedCustomers.FirstOrDefault();
+		}
+
+		public IEnumerable<PhoneInfo> GetConnectedCustomerPhones(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId)
+		{
+			var connectedCustomerPhones =
+				from connectedCustomer in uow.Session.Query<ConnectedCustomer>()
+				join connectedPhone in uow.Session.Query<Phone>()
+					on connectedCustomer.NaturalCounterpartyPhoneId equals connectedPhone.Id
+				where connectedCustomer.LegalCounterpartyId == legalCounterpartyId
+				select new PhoneInfo
+				{
+					ErpPhoneId = connectedPhone.Id,
+					Number = $"+7{ connectedPhone.DigitsNumber }",
+					ConnectState = connectedCustomer.ConnectState.ToString()
+				};
+
+			return connectedCustomerPhones.ToList();
 		}
 
 		private IEnumerable<ConnectedCustomerInfoNode> GetConnectedCustomersToNaturalCounterparty(IUnitOfWork uow, int counterpartyId)
@@ -62,12 +99,16 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			var connectedCustomers =
 				from connectedCustomer in uow.Session.Query<ConnectedCustomer>()
 				join legalCounterparty in uow.Session.Query<Counterparty>()
-					on connectedCustomer.LegalCounterpartyId equals legalCounterparty.Id 
-				where connectedCustomer.NaturalCounterpartyId == counterpartyId
+					on connectedCustomer.LegalCounterpartyId equals legalCounterparty.Id
+				join connectedPhone in uow.Session.Query<Phone>()
+					on connectedCustomer.NaturalCounterpartyPhoneId equals connectedPhone.Id
+				where connectedPhone.Counterparty.Id == counterpartyId
 				select new ConnectedCustomerInfoNode
 				{
 					ConnectedCustomer = connectedCustomer,
-					CounterpartyFullName = legalCounterparty.Name
+					CounterpartyFullName = legalCounterparty.Name,
+					CounterpartyId = legalCounterparty.Id,
+					PhoneNumber = connectedPhone.Number
 				};
 
 			return connectedCustomers
@@ -79,13 +120,17 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		{
 			var connectedCustomers =
 				from connectedCustomer in uow.Session.Query<ConnectedCustomer>()
+				join connectedPhone in uow.Session.Query<Phone>()
+					on connectedCustomer.NaturalCounterpartyPhoneId equals connectedPhone.Id
 				join naturalCounterparty in uow.Session.Query<Counterparty>()
-					on connectedCustomer.NaturalCounterpartyId equals naturalCounterparty.Id
+					on connectedPhone.Counterparty.Id equals naturalCounterparty.Id
 				where connectedCustomer.LegalCounterpartyId == counterpartyId
 				select new ConnectedCustomerInfoNode
 				{
 					ConnectedCustomer = connectedCustomer,
 					CounterpartyFullName = naturalCounterparty.Name,
+					CounterpartyId = naturalCounterparty.Id,
+					PhoneNumber = connectedPhone.Number
 				};
 
 			return connectedCustomers

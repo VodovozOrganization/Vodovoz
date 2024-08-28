@@ -4,6 +4,8 @@
 	{
 		public ConnectedCustomer ConnectedCustomer { get; set; }
 		public string CounterpartyFullName { get; set; }
+		public int CounterpartyId { get; set; }
+		public string PhoneNumber { get; set; }
 		
 		public string BlockingReason
 		{

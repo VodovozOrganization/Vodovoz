@@ -12,16 +12,17 @@ namespace Vodovoz.Core.Domain.Clients
 	public class ConnectedCustomer : PropertyChangedBase, IDomainObject
 	{
 		private int _legalCounterpartyId;
-		private int _naturalCounterpartyId;
+		private int _naturalCounterpartyPhoneId;
 		private string _blockingReason;
 		private ConnectedCustomerConnectState _connectedCustomerConnectState;
-		
+
 		protected ConnectedCustomer() { }
 		
-		private ConnectedCustomer(int legalCounterpartyId, int naturalCounterpartyId)
+		private ConnectedCustomer(int legalCounterpartyId, int naturalCounterpartyPhoneId)
 		{
 			LegalCounterpartyId = legalCounterpartyId;
-			NaturalCounterpartyId = naturalCounterpartyId;
+			NaturalCounterpartyPhoneId = naturalCounterpartyPhoneId;
+			ConnectState = ConnectedCustomerConnectState.Active;
 		}
 
 		/// <summary>
@@ -40,13 +41,13 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
-		/// Id физического лица, который сможет заказывать в ИПЗ, как юр лицо
+		/// Id телефона клиента физика, который привязан к юр лицу, для возможности заказа
 		/// </summary>
-		[Display(Name = "Id физического лица, привязанного к юрику")]
-		public virtual int NaturalCounterpartyId
+		[Display(Name = "Id телефона физика, привязанного к юрику")]
+		public virtual int NaturalCounterpartyPhoneId
 		{
-			get => _naturalCounterpartyId;
-			set => SetField(ref _naturalCounterpartyId, value);
+			get => _naturalCounterpartyPhoneId;
+			set => SetField(ref _naturalCounterpartyPhoneId, value);
 		}
 		
 		/// <summary>
@@ -69,9 +70,6 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _blockingReason, value);
 		}
 
-		public static ConnectedCustomer Create(int legalCounterpartyId, int naturalCounterpartyId) =>
-			new ConnectedCustomer(legalCounterpartyId, naturalCounterpartyId);
-
 		public virtual void ActivateConnect()
 		{
 			ConnectState = ConnectedCustomerConnectState.Active;
@@ -82,5 +80,8 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			ConnectState = ConnectedCustomerConnectState.Blocked;
 		}
+
+		public static ConnectedCustomer Create(int legalCounterpartyId, int naturalCounterpartyPhoneId) =>
+			new ConnectedCustomer(legalCounterpartyId, naturalCounterpartyPhoneId);
 	}
 }

@@ -498,18 +498,27 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return query;
 		}
 
-		public IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(IUnitOfWork uow, string inn, int naturalCounterpartyId)
+		public IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(
+			IUnitOfWork uow, string inn, int naturalCounterpartyId, string phone)
 		{
-			Counterparty counterpartyAlias = null;
+			Counterparty legalCounterpartyAlias = null;
+			Phone connectedPhoneAlias = null;
 			ConnectedCustomer connectedCustomerAlias = null;
 			LegalCounterpartyInfo resultAlias = null;
 
-			var result = uow.Session.QueryOver(() => counterpartyAlias)
+			var connectSubQuery = QueryOver.Of(() => connectedCustomerAlias)
 				.JoinEntityAlias(
-					() => connectedCustomerAlias,
-					() => counterpartyAlias.Id == connectedCustomerAlias.LegalCounterpartyId
-					      && connectedCustomerAlias.NaturalCounterpartyId == naturalCounterpartyId,
-					JoinType.LeftOuterJoin)
+					() => connectedPhoneAlias,
+					() => connectedCustomerAlias.NaturalCounterpartyPhoneId == connectedPhoneAlias.Id
+					      && connectedPhoneAlias.Counterparty.Id == naturalCounterpartyId
+					      && connectedPhoneAlias.DigitsNumber == phone)
+				.Where(cc => cc.LegalCounterpartyId == legalCounterpartyAlias.Id)
+				.Select(Projections.Cast(
+					NHibernateUtil.String,
+					Projections.Property(() => connectedCustomerAlias.ConnectState)))
+				.Take(1);
+
+			var result = uow.Session.QueryOver(() => legalCounterpartyAlias)
 				.Where(c => c.INN == inn)
 				.And(c => c.PersonType == PersonType.legal)
 				.And(c => !c.IsArchive)
@@ -519,7 +528,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 					.Select(c => c.KPP).WithAlias(() => resultAlias.Kpp)
 					.Select(c => c.JurAddress).WithAlias(() => resultAlias.JurAddress)
 					.Select(c => c.Name).WithAlias(() => resultAlias.FullName)
-					.Select(() => connectedCustomerAlias.ConnectState).WithAlias(() => resultAlias.ConnectState)
+					.SelectSubQuery(connectSubQuery).WithAlias(() => resultAlias.ConnectState)
 				)
 				.TransformUsing(Transformers.AliasToBean<LegalCounterpartyInfo>());
 			

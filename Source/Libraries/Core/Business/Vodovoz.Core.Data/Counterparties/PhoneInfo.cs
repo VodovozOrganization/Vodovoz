@@ -17,5 +17,9 @@
 		/// Номер телефона в формате +7XXXXXXXXXX
 		/// </summary>
 		public string Number { get; set; }
+		/// <summary>
+		/// Состояние связи
+		/// </summary>
+		public string ConnectState { get; set; }
 	}
 }

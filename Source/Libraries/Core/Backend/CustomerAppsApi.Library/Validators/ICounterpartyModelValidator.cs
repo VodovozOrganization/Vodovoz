@@ -8,8 +8,12 @@ namespace CustomerAppsApi.Library.Validators
 	{
 		string CounterpartyContactInfoDtoValidate(CounterpartyContactInfoDto counterpartyContactInfoDto);
 		string CounterpartyDtoValidate(CounterpartyDto counterpartyDto);
-		string GetLegalCustomersDtoValidate(GetLegalCustomersByInnDto counterpartyDto);
+		string GetLegalCustomersByInnDtoValidate(GetLegalCustomersByInnDto counterpartyDto);
 		string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto);
 		string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto);
+		string GetPhonesConnectedToLegalCustomerValidate(GetPhonesConnectedToLegalCustomerDto dto);
+		string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto);
+		string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto);
+		string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto);
 	}
 }
