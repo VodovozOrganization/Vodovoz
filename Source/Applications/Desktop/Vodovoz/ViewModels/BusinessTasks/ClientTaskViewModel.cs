@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -18,6 +18,10 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Controllers;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.TempAdapters;
@@ -173,8 +177,14 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
-			return new PhonesViewModel(phoneTypeSettings, phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
+			return new PhonesViewModel(
+				phoneRepository,
+				UoW,
+				_contactsParameters,
+				_roboAtsCounterpartyJournalFactory,
+				CommonServices,
+				_lifetimeScope.Resolve<IExternalCounterpartyController>())
+			{
 				ReadOnly = true
 			};
 		}

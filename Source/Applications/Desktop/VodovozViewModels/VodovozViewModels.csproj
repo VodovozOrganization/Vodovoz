@@ -388,7 +388,6 @@
     <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
     <Compile Include="Factories\IEmployeeWageParametersFactory.cs" />
-    <Compile Include="Factories\IPhonesViewModelFactory.cs" />
     <Compile Include="Factories\IValidationContextFactory.cs" />
     <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
     <Compile Include="Infrastructure\Print\RouteListPrintableDocuments.cs" />

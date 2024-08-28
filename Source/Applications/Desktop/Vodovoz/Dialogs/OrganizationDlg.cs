@@ -1,17 +1,19 @@
-﻿using Autofac;
+using Autofac;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Services;
 using QS.Validation;
 using QS.ViewModels.Extension;
 using System;
-using System.Collections.Generic;
-using Vodovoz.Domain.Contacts;
+using Autofac;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using QS.Services;
+using Vodovoz.Controllers;
 
 namespace Vodovoz
 {
@@ -19,12 +21,18 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager), ScopeProvider.Scope.Resolve<IStoredResourceRepository>());
+		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
+		private IPhoneRepository _phoneRepository;
+		private ICommonServices _commonServices;
+		private IExternalCounterpartyController _externalCounterpartyController;
+		private IContactParametersProvider _contactsParameters;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		private PhonesViewModel _phonesViewModel;
 
 		public override bool HasChanges {
 			get {
-				phonesview1.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
@@ -33,15 +41,15 @@ namespace Vodovoz
 		public OrganizationDlg ()
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
-			ConfigureDlg ();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
+			ConfigureDlg();
 		}
 
 		public OrganizationDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Organization> (id);
-			ConfigureDlg ();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization> (id);
+			ConfigureDlg();
 		}
 
 		public OrganizationDlg (Organization sub) : this (sub.Id)
@@ -57,6 +65,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
+			ResolveDependencies();
 			notebookMain.Visible = IsCanEditEntity || permissionResult.CanRead;
 
 			accountsview1.CanEdit = IsCanEditEntity;
@@ -82,13 +91,29 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(UoW, Entity);
 
-			phonesview1.UoW = UoWGeneric;
-			if (UoWGeneric.Root.Phones == null)
-				UoWGeneric.Root.Phones = new List<Phone> ();
-			phonesview1.Phones = UoWGeneric.Root.Phones;
+			_phonesViewModel =
+				new PhonesViewModel(
+					_phoneRepository,
+					UoW,
+					_contactsParameters,
+					_commonServices,
+					_externalCounterpartyController)
+					{
+						PhonesList = UoWGeneric.Root.ObservablePhones
+					};
+			phonesView.ViewModel = _phonesViewModel;
 
 			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, IsCanEditEntity);
 			versionsView.ViewModel = organizationVersionsViewModel;
+		}
+
+		private void ResolveDependencies()
+		{
+			_organizationVersionsViewModelFactory = _lifetimeScope.Resolve<IOrganizationVersionsViewModelFactory>();
+			_phoneRepository = _lifetimeScope.Resolve<IPhoneRepository>();
+			_commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
+			_contactsParameters = _lifetimeScope.Resolve<IContactParametersProvider>();
 		}
 
 		public override bool Save ()
@@ -101,7 +126,7 @@ namespace Vodovoz
 
 			logger.Info ("Сохраняем организацию...");
 			try {
-				phonesview1.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				UoWGeneric.Save ();
 				return true;
 			} catch (Exception ex) {
@@ -122,6 +147,17 @@ namespace Vodovoz
 		{
 			if (radioTabAccounts.Active)
 				notebookMain.CurrentPage = 1;
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			
+			base.Destroy();
 		}
 	}
 }

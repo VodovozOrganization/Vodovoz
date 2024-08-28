@@ -6,6 +6,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Contacts;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Client
 {
@@ -18,6 +19,9 @@ namespace Vodovoz.Domain.Client
 	[EntityPermission]
 	public class Contact : PropertyChangedBase, IDomainObject
 	{
+		private IList<Phone> _phones = new List<Phone>();
+		private GenericObservableList<Phone> _observablePhones;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -82,8 +86,15 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		[Display (Name = "Телефоны")]
-		public virtual IList<Phone> Phones { get; set; }
+		[Display(Name = "Телефоны")]
+		public virtual IList<Phone> Phones
+		{
+			get => _phones;
+			set => SetField(ref _phones, value);
+		}
+
+		public virtual GenericObservableList<Phone> ObservablePhones => _observablePhones
+			?? (_observablePhones = new GenericObservableList<Phone>(Phones));
 
 		[Display(Name = "E-mail адреса")]
 		public virtual IList<Email> Emails { get; set; } = new List<Email>();

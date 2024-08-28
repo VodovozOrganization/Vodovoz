@@ -215,16 +215,18 @@ namespace CustomerAppsApi.Library.Models
 
 			FillCounterpartyContact(phone, counterpartyDto.FirstName, counterpartyDto.Patronymic);
 
+			_uow.Save(counterparty);
+			
 			//Создаем новую почту
 			var email = CreateNewEmail(counterpartyDto.Email, counterparty);
-
+			
 			//Делаем привязку нового клиента и покупателя
 			var externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
 			externalCounterparty.Email = email;
 			externalCounterparty.ExternalCounterpartyId = counterpartyDto.ExternalCounterpartyId;
 			externalCounterparty.Phone = phone;
 			
-			_uow.Save(counterparty);
+			_uow.Save(phone);
 			_uow.Save(externalCounterparty);
 			_uow.Commit();
 
@@ -274,12 +276,14 @@ namespace CustomerAppsApi.Library.Models
 					break;
 			}
 
+			_uow.Save(counterparty);
+
 			if(externalCounterparty.Email?.Address != counterpartyDto.Email)
 			{
-				externalCounterparty.Email = CreateNewEmail(counterpartyDto.Email, counterparty);
+				var email = CreateNewEmail(counterpartyDto.Email, counterparty);
+				externalCounterparty.Email = email;
 			}
 
-			_uow.Save(counterparty);
 			_uow.Save(externalCounterparty);
 			_uow.Commit();
 			
@@ -621,13 +625,16 @@ namespace CustomerAppsApi.Library.Models
 
 		private Email CreateNewEmail(string emailAddress, Counterparty counterparty)
 		{
-			var emailType = _counterpartyServiceDataHandler.GetEmailTypeForReceipts(_uow);
-			return new Email
+			var emailType = _emailRepository.GetEmailTypeForReceipts(_uow);
+			var email = new Email
 			{
 				Address = emailAddress,
 				Counterparty = counterparty,
 				EmailType = emailType
 			};
+			_uow.Save(email);
+			
+			return email;
 		}
 
 		private CounterpartyRegistrationDto CheckExternalCounterpartyWithSameExternalId(

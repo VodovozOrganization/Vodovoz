@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -101,6 +102,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			IGlobalSettings globalSettings,
 			IPhoneTypeSettings phoneTypeSettings,
 			INomenclatureFixedPriceRepository fixedPriceRepository,
+			IExternalCounterpartyController externalCounterpartyController,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -132,6 +134,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			{
 				throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			}
+			
+			if(externalCounterpartyController == null)
+			{
+				throw new ArgumentNullException(nameof(externalCounterpartyController));
+			}
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -146,7 +153,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(_phoneTypeSettings, phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
+			PhonesViewModel = new PhonesViewModel(
+				phoneRepository,
+				UoW,
+				contactsParameters,
+				_roboatsJournalsFactory,
+				CommonServices,
+				externalCounterpartyController)
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -46,11 +46,9 @@ using System.Threading;
 using QS.Commands;
 using QS.Extensions.Observable.Collections.List;
 using TISystems.TTC.CRM.BE.Serialization;
-using TrueMark.Contracts;
-using TrueMarkApi.Client;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Clients.Nodes;
-using Vodovoz.Core.Domain.Employees;
+using TrueMarkApi.Library.Converters;
+using TrueMarkApi.Library.Dto;
+using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -74,7 +72,8 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Models.TrueMark;
+using Vodovoz.Nodes;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -133,6 +132,7 @@ namespace Vodovoz
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private IExternalCounterpartyController _externalCounterpartyController;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -155,6 +155,7 @@ namespace Vodovoz
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private GenericObservableList<ExternalCounterpartyNode> _externalCounterparties;
 		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
 		private IConnectedCustomerRepository _connectedCustomerRepository;
 
@@ -339,6 +340,7 @@ namespace Vodovoz
 			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
 			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -838,13 +840,20 @@ namespace Vodovoz
 		{
 			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
-				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(
+					_phoneRepository,
+					UoW,
+					_contactsParameters,
+					_roboatsJournalsFactory,
+					_commonServices,
+					_externalCounterpartyController)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
 					ReadOnly = !CanEdit
 				};
 			phonesView.ViewModel = _phonesViewModel;
+			_phonesViewModel.UpdateExternalCounterpartyAction += UpdateExternalCounterparties;
 
 			var emailsViewModel = new EmailsViewModel(
 				UoWGeneric,
@@ -905,44 +914,49 @@ namespace Vodovoz
 			ConfigureConnectedCustomers();
 		}
 
-		private void ConfigureConnectedCustomers()
+			ConfigureTreeExternalCounterparties();
+		}
+
+		private void ConfigureTreeExternalCounterparties()
 		{
-			lblConnectedCustomers.LabelProp = Entity.PersonType == PersonType.natural
-				? "Клиенты, от имени которых может заказывать в ИПЗ это физическое лицо:"
-				: "Клиенты, которые могут заказывать в ИПЗ на это юр лицо:";
+			GetExternalCounterparties();
 
-			ConfigureTreeConnectedCustomers();
-
-			ActivateConnectConnectedCustomerCommand = new DelegateCommand(
-				() =>
-				{
-					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
-					connectedCustomer.ActivateConnect();
-					UpdateStateConnectButtons();
-					treeViewConnectedCustomers.QueueDraw();
-				},
-				() => SelectedConnectedCustomer != null
-					&& SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Active);
+			treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
+				.AddColumn("Id внешнего пользователя")
+				.AddTextRenderer(node => node.ExternalCounterpartyId.ToString())
+				.AddColumn("Номер телефона")
+				.AddTextRenderer(node => node.Phone)
+				.AddColumn("Откуда")
+				.AddTextRenderer(node => node.CounterpartyFrom.GetEnumDisplayName(false))
+				.Finish();
 			
-			BlockConnectConnectedCustomerCommand = new DelegateCommand(
-				() =>
-				{
-					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;
+		}
 
-					if(string.IsNullOrWhiteSpace(connectedCustomer.BlockingReason))
-					{
-						MessageDialogHelper.RunWarningDialog("Прежде чем блокировать связь, нужно заполнить причину блокировки!");
-						return;
-					}
-					connectedCustomer.BlockConnect();
-					UpdateStateConnectButtons();
-					treeViewConnectedCustomers.YTreeModel.EmitModelChanged();
-				},
-				() => SelectedConnectedCustomer != null
-					&& SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Blocked);
+		private void GetExternalCounterparties()
+		{
+			_externalCounterparties = new GenericObservableList<ExternalCounterpartyNode>();
+			var existingExternalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByCounterparty(UoW, Entity.Id);
+
+			FillExternalCounterparties(existingExternalCounterparties);
+		}
+
+		private void UpdateExternalCounterparties()
+		{
+			_externalCounterparties.Clear();
+			var existingExternalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByPhones(UoW, Entity.Phones.Select(x => x.Id));
 			
-			btnActivateConnect.BindCommand(ActivateConnectConnectedCustomerCommand);
-			btnBlockConnect.BindCommand(BlockConnectConnectedCustomerCommand);
+			FillExternalCounterparties(existingExternalCounterparties);
+		}
+
+		private void FillExternalCounterparties(IEnumerable<ExternalCounterpartyNode> existingExternalCounterparties)
+		{
+			foreach(var item in existingExternalCounterparties)
+			{
+				_externalCounterparties.Add(item);
+			}
 		}
 
 		private void UpdateStateConnectButtons()
@@ -2694,6 +2708,8 @@ namespace Vodovoz
 				_lifetimeScope.Dispose();
 				_lifetimeScope = null;
 			}
+			_phonesViewModel.UpdateExternalCounterpartyAction -= UpdateExternalCounterparties;
+			_phonesViewModel.Dispose();
 			base.Destroy();
 		}
 	}

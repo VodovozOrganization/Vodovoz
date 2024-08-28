@@ -51,7 +51,8 @@ namespace Vodovoz.Domain.Client
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-
+		
+		[Display(Name = "Откуда")]
 		public virtual CounterpartyFrom CounterpartyFrom { get; }
 	}
 }

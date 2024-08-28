@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
 using System;
@@ -15,18 +15,64 @@ namespace Vodovoz.Domain.Contacts
 	[HistoryTrace]
 	public class Phone : Core.Domain.Contacts.PhoneEntity
 	{
-		#region Свойства
-
+		private string _number;
+		private string _digitsNumber;
+		private PhoneType _phoneType;
+		private string _comment;
+		private bool _isArchive;
 		private DeliveryPoint _deliveryPoint;
 		private Counterparty _counterparty;
 		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
 		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
 
-		private PhoneType phoneType;
+		#region Свойства
+		
+		public virtual int Id { get; set; }
+
+		public virtual string Number
+		{
+			get => _number;
+			set
+			{
+				var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+				var phone = formatter.FormatString(value);
+				SetField(ref _number, phone);
+				DigitsNumber = value;
+			}
+		}
+
+		[Display(Name = "Только цифры")]
+		public virtual string DigitsNumber
+		{
+			get => _digitsNumber;
+			protected set
+			{
+				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
+				var phone = formatter.FormatString(value);
+				SetField(ref _digitsNumber, phone);
+			}
+		}
+
+		public virtual string Additional { get; set; }
+
 		public virtual PhoneType PhoneType
 		{
-			get => phoneType;
-			set => SetField(ref phoneType, value);
+			get => _phoneType;
+			set => SetField(ref _phoneType, value);
+		}
+
+		[Display(Name = "Комментарий")]
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
+		}
+
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		[Display(Name = "Точка доставки")]
@@ -94,7 +140,7 @@ namespace Vodovoz.Domain.Contacts
 		public Phone(string number, string comment = null)
 		{
 			var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
-			string phone = formatter.FormatString(number);
+			var phone = formatter.FormatString(number);
 			_number = phone;
 
 			formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
@@ -106,8 +152,8 @@ namespace Vodovoz.Domain.Contacts
 
 		public virtual Phone Init(IContactSettings contactsParameters)
 		{
-			Number = String.Empty;
-			Additional = String.Empty;
+			Number = string.Empty;
+			Additional = string.Empty;
 			return this;
 		}
 

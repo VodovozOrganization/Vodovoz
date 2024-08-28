@@ -252,7 +252,7 @@ namespace Vodovoz
 
 		private global::Gtk.ScrolledWindow scrollContacts;
 
-		private global::Gtk.Table datatable2;
+		private global::Gamma.GtkWidgets.yVBox vboxContacts;
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry dataentryFinancialContact;
 
@@ -266,7 +266,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entrySalesManager;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow13;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow14;
 
 		private global::Gamma.GtkWidgets.yTextView txtRingUpPhones;
 
