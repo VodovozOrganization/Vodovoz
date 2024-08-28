@@ -52,7 +52,6 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Organizations;
-using VodovozBusiness.Domain.Employees;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 
@@ -308,7 +307,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 				return UoWGeneric.HasChanges
 					|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					|| (_terminalManagementViewModel?.HasChanges ?? false);
+					|| (_terminalManagementViewModel?.HasChanges ?? false)
+					|| AttachedFileInformationsViewModel.FilesToAddOnSave.Any()
+					|| AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any()
+					|| AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any();
 			}
 		}
 
@@ -1399,7 +1401,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				TryRemoveEmployeeFixedPricesFromOldCounterparty();
 			}
 
-			UoWGeneric.Save(Entity);
+			UoW.Save();
 
 			SavePhotoIfNeeded();
 			AddAttachedFilesIfNeeded();

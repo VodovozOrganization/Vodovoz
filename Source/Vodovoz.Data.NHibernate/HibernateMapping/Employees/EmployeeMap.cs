@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
             Map(x => x.Patronymic).Column("patronymic");
             Map(x => x.DrivingLicense).Column("driving_number");
             Map(x => x.Photo).Column("photo").CustomSqlType("BinaryBlob").LazyLoad();
+            Map(x => x.PhotoFileName).Column("photo_file_name");
             Map(x => x.AddressRegistration).Column("address_registration");
             Map(x => x.BirthdayDate).Column("birthday_date");
             Map(x => x.AddressCurrent).Column("address_current");
@@ -62,6 +63,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Documents).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			HasMany(x => x.EmployeeRegistrationVersions)

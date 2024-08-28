@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using VodovozBusiness.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 {

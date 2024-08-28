@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Common;
 
-namespace VodovozBusiness.Domain.Employees
+namespace Vodovoz.Core.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "информация о прикрепляемых файлах сотружников",
