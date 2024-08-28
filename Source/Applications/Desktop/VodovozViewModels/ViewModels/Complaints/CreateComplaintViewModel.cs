@@ -3,16 +3,18 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Application.Complaints;
-using QS.ViewModels.Control.EEVM;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -20,13 +22,12 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
-using Vodovoz.Presentation.ViewModels.AttachedFiles;
-using Vodovoz.Application.FileStorage;
 using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -50,6 +51,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private List<ComplaintSource> _complaintSources;
 		private IList<ComplaintKind> _complaintKindSource;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -298,6 +301,66 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+
+			return base.Save(close);
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName,
+				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_complaintFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_complaintFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
 
 		public override void Dispose()
 		{

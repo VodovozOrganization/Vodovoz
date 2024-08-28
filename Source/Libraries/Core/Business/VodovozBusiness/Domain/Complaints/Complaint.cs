@@ -65,8 +65,22 @@ namespace Vodovoz.Domain.Complaints
 		private Employee _driver;
 		private OrderRating _orderRating;
 		private IObservableList<ComplaintFileInformation> _attachedFileInformations = new ObservableList<ComplaintFileInformation>();
+		private int _id;
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(value == _id)
+				{
+					return;
+				}
+
+				_id = value;
+				UpdateFileInformations();
+			}
+		}
 
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
@@ -476,7 +490,6 @@ namespace Vodovoz.Domain.Complaints
 			return result;
 		}
 
-
 		public virtual string GetFineReason()
 		{
 			string result = $"Рекламация №{Id} от {CreationDate.ToShortDateString()}";
@@ -504,6 +517,14 @@ namespace Vodovoz.Domain.Complaints
 		public virtual (bool CanChange, string Message) CanChangeOrder()
 		{
 			return OrderRating != null ? (false, "Нельзя менять заказ у рекламации, созданной по оценке заказа!") : (true, null);
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.ComplaintId = Id;
+			}
 		}
 
 		#region IValidatableObject implementation

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core.Lifetime;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -9,7 +8,9 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -20,7 +21,6 @@ using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -39,6 +39,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public CreateInnerComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -172,6 +174,66 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ChangedDate = DateTime.Now;
 
 			return base.BeforeValidation();
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+
+			return base.Save(close);
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName,
+				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_complaintFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_complaintFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
 		}
 	}
 }
