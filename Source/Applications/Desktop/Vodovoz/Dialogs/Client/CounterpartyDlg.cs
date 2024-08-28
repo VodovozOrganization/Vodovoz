@@ -919,7 +919,7 @@ namespace Vodovoz
 		{
 			GetExternalCounterparties();
 
-			/*treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
+			treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
 				.AddColumn("Id внешнего пользователя")
 				.AddTextRenderer(node => node.ExternalCounterpartyId.ToString())
 				.AddColumn("Номер телефона")
@@ -928,7 +928,7 @@ namespace Vodovoz
 				.AddTextRenderer(node => node.CounterpartyFrom.GetEnumDisplayName(false))
 				.Finish();
 			
-			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;*/
+			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;
 		}
 
 		private void ConfigureConnectedCustomers()
