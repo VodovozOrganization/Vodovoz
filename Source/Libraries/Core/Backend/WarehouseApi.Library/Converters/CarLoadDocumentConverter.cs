@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
-using VodovozBusiness.Domain.TrueMark;
+using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Library.Converters
@@ -33,7 +33,7 @@ namespace WarehouseApi.Library.Converters
 
 			var apiOrder = new OrderDto
 			{
-				Id = firstDocumentItem?.Id ?? 0,
+				Id = firstDocumentItem?.OrderId ?? 0,
 				CarLoadDocument = firstDocumentItem?.Document?.Id ?? 0,
 				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
 				Items = GetApiOrderItems(waterCarLoadDocumentItems)
@@ -103,19 +103,21 @@ namespace WarehouseApi.Library.Converters
 
 		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(CarLoadDocumentItem documentItem)
 		{
+			var sequenceNumber = 0;
+
 			var apiTrueMarkCodes =
 				documentItem.TrueMarkCodes
-				.Select(code => ConvertToApiTrueMarkCode(code))
+				.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
 				.ToList();
 
 			return apiTrueMarkCodes;
 		}
 
-		private TrueMarkCodeDto ConvertToApiTrueMarkCode(CarLoadDocumentItemTrueMarkCode documentTrueMarkCode)
+		private TrueMarkCodeDto ConvertToApiTrueMarkCode(CarLoadDocumentItemTrueMarkProductCode documentTrueMarkCode, int sequenceNumber)
 		{
 			return new TrueMarkCodeDto
 			{
-				SequenceNumber = documentTrueMarkCode.SequenceNumber,
+				SequenceNumber = sequenceNumber,
 				Code = documentTrueMarkCode.TrueMarkCode.RawCode
 			};
 		}

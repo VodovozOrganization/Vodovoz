@@ -287,6 +287,15 @@ namespace WarehouseApi.Library.Errors
 		private bool IsTrueMarkCodeNotExists(TrueMarkWaterCode trueMarkCode, string scannedCode, out Error error)
 		{
 			error = null;
+
+			//TODO
+			//Пока проверка отсутствия кода осуществляется только проверкой наличия кода в таблице true_mark_identification_code
+			//Если код отсутствует в таблице, то его можно добавить.
+			//Но эта логика не совсем верна. Код может быть добавлен в таблицу, но в чеках не задействован. То есть мы откидываем код, который можно добавить
+			//Но при этом, т.к. код уже есть в таблице, то он может быть доступен в пуле кодов, т.е. в любой момент прикрепиться к чеку.
+			//И тогда получится, что код и к чеку прикрепился и к документу погрузки
+			//Логика проверки доступности кода будет исправлена в дальнейшем, по мере внедрения нового функционала привязки кодов к чекам товаров
+			// из МЛ и документов самовывоза
 			var existingDuplicatedCodes =
 				_trueMarkRepository.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode).ToList();
 

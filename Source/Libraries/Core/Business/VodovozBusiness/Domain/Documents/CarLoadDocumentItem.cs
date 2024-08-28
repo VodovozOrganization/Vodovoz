@@ -7,7 +7,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using VodovozBusiness.Domain.TrueMark;
+using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.Documents
 		private decimal _amountInStock;
 		private decimal _amountInRouteList;
 		private decimal _amountLoaded;
-		private IObservableList<CarLoadDocumentItemTrueMarkCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkCode>();
+		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -110,7 +110,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display(Name = "Коды ЧЗ товаров")]
-		public virtual IObservableList<CarLoadDocumentItemTrueMarkCode> TrueMarkCodes
+		public virtual IObservableList<CarLoadDocumentItemTrueMarkProductCode> TrueMarkCodes
 		{
 			get => _trueMarkCodes;
 			set => SetField(ref _trueMarkCodes, value);

@@ -15,7 +15,7 @@ using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using VodovozBusiness.Domain.TrueMark;
+using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
@@ -147,7 +147,7 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure(response, error);
 			}
 
-			AddTrueMarkCodeAndSaveCarLoadDocumentItem(nomenclatureId, documentItemToEdit, trueMarkCode);
+			AddTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, trueMarkCode);
 
 			response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 			response.Result = OperationResultEnumDto.Success;
@@ -294,37 +294,38 @@ namespace WarehouseApi.Library.Services
 			return true;
 		}
 
-		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(int nomenclatureId, CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
+		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
 		{
 			var codeEntity = CreateTrueMarkCodeEntity(trueMarkCode);
 
-			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkCode
+			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkProductCode
 			{
-				CarLoadDocumentItem = carLoadDocumentItem,
-				SequenceNumber = carLoadDocumentItem.TrueMarkCodes.Count,
 				TrueMarkCode = codeEntity,
-				NomenclatureId = nomenclatureId
+				CarLoadDocumentItem = carLoadDocumentItem
 			});
 
-			_uow.Save(codeEntity);
 			_uow.Save(carLoadDocumentItem);
 			_uow.Commit();
 		}
 
 		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode oldTrueMarkCode, TrueMarkWaterCode newTrueMarkCode)
 		{
-			var codeToEdit = carLoadDocumentItem.TrueMarkCodes
-				.Select(x => x.TrueMarkCode)
-				.Where(x => x.GTIN == oldTrueMarkCode.GTIN && x.SerialNumber == oldTrueMarkCode.SerialNumber && x.CheckCode == oldTrueMarkCode.CheckCode)
+			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
+				.Where(x =>
+					x.TrueMarkCode.GTIN == oldTrueMarkCode.GTIN
+					&& x.TrueMarkCode.SerialNumber == oldTrueMarkCode.SerialNumber
+					&& x.TrueMarkCode.CheckCode == oldTrueMarkCode.CheckCode)
 				.First();
 
-			codeToEdit.RawCode = newTrueMarkCode.SourceCode;
-			codeToEdit.GTIN = newTrueMarkCode.GTIN;
-			codeToEdit.SerialNumber = newTrueMarkCode.SerialNumber;
-			codeToEdit.CheckCode = newTrueMarkCode.CheckCode;
-			codeToEdit.IsInvalid = false;
+			var codeToAdd = new CarLoadDocumentItemTrueMarkProductCode
+			{
+				TrueMarkCode = CreateTrueMarkCodeEntity(newTrueMarkCode),
+				CarLoadDocumentItem = carLoadDocumentItem
+			};
 
-			_uow.Save(codeToEdit);
+			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
+			carLoadDocumentItem.TrueMarkCodes.Add(codeToAdd);
+
 			_uow.Save(carLoadDocumentItem);
 			_uow.Commit();
 		}
