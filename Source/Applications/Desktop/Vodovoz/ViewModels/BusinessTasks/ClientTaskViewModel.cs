@@ -18,10 +18,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Controllers;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.TempAdapters;
@@ -182,8 +179,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				UoW,
 				_contactsParameters,
 				_roboAtsCounterpartyJournalFactory,
-				CommonServices,
-				_lifetimeScope.Resolve<IExternalCounterpartyController>())
+				_lifetimeScope.Resolve<IExternalCounterpartyController>(),
+				_lifetimeScope)
 			{
 				ReadOnly = true
 			};

@@ -5,15 +5,12 @@ using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels.Extension;
 using System;
-using Autofac;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.StoredResourceRepository;
-using Vodovoz.TempAdapters;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
-using QS.Services;
 using Vodovoz.Controllers;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz
 {
@@ -23,9 +20,8 @@ namespace Vodovoz
 
 		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
 		private IPhoneRepository _phoneRepository;
-		private ICommonServices _commonServices;
 		private IExternalCounterpartyController _externalCounterpartyController;
-		private IContactParametersProvider _contactsParameters;
+		private IContactSettings _contactSettings;
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private PhonesViewModel _phonesViewModel;
@@ -40,15 +36,15 @@ namespace Vodovoz
 
 		public OrganizationDlg ()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
+			Build ();
+			UoWGeneric = _lifetimeScope.Resolve<IUnitOfWorkFactory>().CreateWithNewRoot<Organization>();
 			ConfigureDlg();
 		}
 
 		public OrganizationDlg (int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization> (id);
+			Build ();
+			UoWGeneric = _lifetimeScope.Resolve<IUnitOfWorkFactory>().CreateForRoot<Organization>(id);
 			ConfigureDlg();
 		}
 
@@ -91,16 +87,15 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(UoW, Entity);
 
-			_phonesViewModel =
-				new PhonesViewModel(
-					_phoneRepository,
-					UoW,
-					_contactsParameters,
-					_commonServices,
-					_externalCounterpartyController)
-					{
-						PhonesList = UoWGeneric.Root.ObservablePhones
-					};
+			_phonesViewModel = new PhonesViewModel(
+				_phoneRepository,
+				UoW,
+				_contactSettings,
+				_externalCounterpartyController,
+				_lifetimeScope)
+				{
+					PhonesList = UoWGeneric.Root.ObservablePhones
+				};
 			phonesView.ViewModel = _phonesViewModel;
 
 			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, IsCanEditEntity);
@@ -111,14 +106,13 @@ namespace Vodovoz
 		{
 			_organizationVersionsViewModelFactory = _lifetimeScope.Resolve<IOrganizationVersionsViewModelFactory>();
 			_phoneRepository = _lifetimeScope.Resolve<IPhoneRepository>();
-			_commonServices = _lifetimeScope.Resolve<ICommonServices>();
 			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
-			_contactsParameters = _lifetimeScope.Resolve<IContactParametersProvider>();
+			_contactSettings = _lifetimeScope.Resolve<IContactSettings>();
 		}
 
 		public override bool Save ()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = _lifetimeScope.Resolve<IValidator>();
 			if(!validator.Validate(Entity))
 			{
 				return false;

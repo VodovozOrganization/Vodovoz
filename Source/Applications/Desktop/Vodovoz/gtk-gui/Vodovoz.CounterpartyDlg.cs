@@ -1908,7 +1908,7 @@ namespace Vodovoz
 			global::Gtk.Viewport w123 = new global::Gtk.Viewport();
 			w123.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport2.Gtk.Container+ContainerChild
-			this.datatable2 = new global::Gtk.Table(((uint)(7)), ((uint)(4)), false);
+			/*this.datatable2 = new global::Gtk.Table(((uint)(7)), ((uint)(4)), false);
 			this.datatable2.Name = "datatable2";
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
@@ -2108,7 +2108,7 @@ namespace Vodovoz
 			w140.LeftAttach = ((uint)(1));
 			w140.RightAttach = ((uint)(4));
 			w140.XOptions = ((global::Gtk.AttachOptions)(4));
-			w140.YOptions = ((global::Gtk.AttachOptions)(4));
+			w140.YOptions = ((global::Gtk.AttachOptions)(4));*/
 			// Container child datatable2.Gtk.Table+TableChild
 			this.vboxExternalCounterparties = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxExternalCounterparties.WidthRequest = 0;
@@ -2169,14 +2169,14 @@ namespace Vodovoz
 			w146.Position = 3;
 			w146.Expand = false;
 			w146.Fill = false;
-			this.datatable2.Add(this.vboxExternalCounterparties);
+			/*this.datatable2.Add(this.vboxExternalCounterparties);
 			global::Gtk.Table.TableChild w147 = ((global::Gtk.Table.TableChild)(this.datatable2[this.vboxExternalCounterparties]));
 			w147.TopAttach = ((uint)(6));
 			w147.BottomAttach = ((uint)(7));
 			w147.RightAttach = ((uint)(4));
 			w123.Add(this.datatable2);
 			this.scrollContacts.Add(w123);
-			this.notebook1.Add(this.scrollContacts);
+			this.notebook1.Add(this.scrollContacts);*/
 			global::Gtk.Notebook.NotebookChild w150 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.scrollContacts]));
 			w150.Position = 1;
 			// Notebook tab
@@ -3757,10 +3757,10 @@ namespace Vodovoz
 			this.ycheckAlwaysSendReceitps.Hide();
 			this.label19.Hide();
 			this.spinMaxCredit.Hide();
-			this.dataentryFinancialContact.Hide();
+			/*this.dataentryFinancialContact.Hide();
 			this.dataentryMainContact.Hide();
 			this.label13.Hide();
-			this.label15.Hide();
+			this.label15.Hide();*/
 			this.yentryCargoReceiver.Hide();
 			this.Hide();
 			this.radioInfo.Toggled += new global::System.EventHandler(this.OnRadioInfoToggled);

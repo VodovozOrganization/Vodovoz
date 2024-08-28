@@ -13,6 +13,7 @@ using QS.ViewModels.Dialog;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -21,7 +22,6 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
@@ -42,13 +42,9 @@ namespace Vodovoz.ViewModels.Counterparties
 		private string _bottleReserve;
 		private string _oldComments;
 		private string _counterpartyDebt;
-		private readonly IOrderOrganizationProviderFactory _orderOrganizationProviderFactory;
-		private readonly IPhoneTypeSettings _phoneTypeSettings;
-		private readonly IPhoneRepository _phoneRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IContactSettings _contactSettings;
 		private readonly ICommonServices _commonServices;
 
 		private string _lastComment;
@@ -63,15 +59,11 @@ namespace Vodovoz.ViewModels.Counterparties
 			INavigationManager navigation,
 			IValidator validator,
 			IEmployeeService employeeService,
-			IOrderOrganizationProviderFactory orderOrganizationProviderFactory,
 			ViewModelEEVMBuilder<Employee> attachedEmployyeeViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelEEVMBuilder,
-			IPhoneTypeSettings phoneTypeSettings,
-			IPhoneRepository phoneRepository,
 			IBottlesRepository bottlesRepository,
 			ICallTaskRepository callTaskRepository,
 			IEmployeeRepository employeeRepository,
-			IContactSettings contactSettings,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, navigation, validator)
@@ -86,20 +78,12 @@ namespace Vodovoz.ViewModels.Counterparties
 				throw new ArgumentNullException(nameof(deliveryPointViewModelEEVMBuilder));
 			}
 
-			_orderOrganizationProviderFactory = orderOrganizationProviderFactory
-				?? throw new ArgumentNullException(nameof(orderOrganizationProviderFactory));
-			_phoneTypeSettings = phoneTypeSettings
-				?? throw new ArgumentNullException(nameof(phoneTypeSettings));
-			_phoneRepository = phoneRepository
-				?? throw new ArgumentNullException(nameof(phoneRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_callTaskRepository = callTaskRepository
 				?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_employeeRepository = employeeRepository
 				?? throw new ArgumentNullException(nameof(employeeRepository));
-			_contactSettings = contactSettings
-				?? throw new ArgumentNullException(nameof(contactSettings));
 			_commonServices = commonServices
 				?? throw new ArgumentNullException(nameof(commonServices));
 			LifetimeScope = lifetimeScope;
@@ -143,10 +127,24 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
 
-			CounterpartyPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
+			CounterpartyPhonesViewModel =
+			new PhonesViewModel(
+				LifetimeScope.Resolve<IPhoneRepository>(),
+				UoW,
+				LifetimeScope.Resolve<IContactSettings>(),
+				LifetimeScope.Resolve<IExternalCounterpartyController>(),
+				LifetimeScope
+				);
 			CounterpartyPhonesViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
+			DeliveryPointPhonesViewModel = 
+				new PhonesViewModel(
+					LifetimeScope.Resolve<IPhoneRepository>(),
+					UoW,
+					LifetimeScope.Resolve<IContactSettings>(),
+					LifetimeScope.Resolve<IExternalCounterpartyController>(),
+					LifetimeScope
+				);
 			DeliveryPointPhonesViewModel.ReadOnly = true;
 
 			CreateReportByCounterpartyCommand = new DelegateCommand(CreateReportByCounterparty, () => CanCreateReportByCounterparty);

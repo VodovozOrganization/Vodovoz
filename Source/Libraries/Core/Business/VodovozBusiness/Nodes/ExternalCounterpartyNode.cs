@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Nodes
 {

@@ -46,9 +46,12 @@ using System.Threading;
 using QS.Commands;
 using QS.Extensions.Observable.Collections.List;
 using TISystems.TTC.CRM.BE.Serialization;
-using TrueMarkApi.Library.Converters;
-using TrueMarkApi.Library.Dto;
+using TrueMark.Contracts;
+using TrueMarkApi.Client;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Nodes;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -72,8 +75,8 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Nodes;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -103,7 +106,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.EntityRepositories.Counterparties;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
-using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz
 {
@@ -675,7 +677,6 @@ namespace Vodovoz
 			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
 			{
 				Entity.OurOrganizationAccountForBills = null;
-
 				UpdateOurOrganizationSpecialAccountItemList();
 			};
 
@@ -838,15 +839,14 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
 				new PhonesViewModel(
 					_phoneRepository,
 					UoW,
-					_contactsParameters,
+					_contactsSettings,
 					_roboatsJournalsFactory,
-					_commonServices,
-					_externalCounterpartyController)
+					_externalCounterpartyController,
+					_lifetimeScope)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
@@ -911,17 +911,15 @@ namespace Vodovoz
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
 			
-			ConfigureConnectedCustomers();
-		}
-
 			ConfigureTreeExternalCounterparties();
+			ConfigureConnectedCustomers();
 		}
 
 		private void ConfigureTreeExternalCounterparties()
 		{
 			GetExternalCounterparties();
 
-			treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
+			/*treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
 				.AddColumn("Id внешнего пользователя")
 				.AddTextRenderer(node => node.ExternalCounterpartyId.ToString())
 				.AddColumn("Номер телефона")
@@ -930,7 +928,47 @@ namespace Vodovoz
 				.AddTextRenderer(node => node.CounterpartyFrom.GetEnumDisplayName(false))
 				.Finish();
 			
-			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;
+			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;*/
+		}
+
+		private void ConfigureConnectedCustomers()
+		{
+			lblConnectedCustomers.LabelProp = Entity.PersonType == PersonType.natural
+				? "Клиенты, от имени которых может заказывать в ИПЗ это физическое лицо:"
+				: "Клиенты, которые могут заказывать в ИПЗ на это юр лицо:";
+
+			ConfigureTreeConnectedCustomers();
+
+			ActivateConnectConnectedCustomerCommand = new DelegateCommand(
+				() =>
+				{
+					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+					connectedCustomer.ActivateConnect();
+					UpdateStateConnectButtons();
+					treeViewConnectedCustomers.QueueDraw();
+				},
+				() => SelectedConnectedCustomer != null
+				      && SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Active);
+			
+			BlockConnectConnectedCustomerCommand = new DelegateCommand(
+				() =>
+				{
+					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+
+					if(string.IsNullOrWhiteSpace(connectedCustomer.BlockingReason))
+					{
+						MessageDialogHelper.RunWarningDialog("Прежде чем блокировать связь, нужно заполнить причину блокировки!");
+						return;
+					}
+					connectedCustomer.BlockConnect();
+					UpdateStateConnectButtons();
+					treeViewConnectedCustomers.YTreeModel.EmitModelChanged();
+				},
+				() => SelectedConnectedCustomer != null
+				      && SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Blocked);
+			
+			btnActivateConnect.BindCommand(ActivateConnectConnectedCustomerCommand);
+			btnBlockConnect.BindCommand(BlockConnectConnectedCustomerCommand);
 		}
 
 		private void GetExternalCounterparties()

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -18,10 +19,10 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class PhonesViewModel : WidgetViewModelBase, IDisposable
 	{
-		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWork _uow;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
-		private readonly IContactParametersProvider _contactsParameters;
+		private readonly ILifetimeScope _scope;
+		private readonly IContactSettings _contactSettings;
 		
 		private bool _readOnly;
 		private GenericObservableList<Phone> _phonesList;
@@ -50,21 +51,22 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public PhonesViewModel(
 			IPhoneRepository phoneRepository,
 			IUnitOfWork uow,
-			IContactParametersProvider contactsParameters,
-			ICommonServices commonServices,
-			IExternalCounterpartyController externalCounterpartyController)
+			IContactSettings contactSettings,
+			IExternalCounterpartyController externalCounterpartyController,
+			ILifetimeScope scope)
 		{
-			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_contactSettings = contactSettings ?? throw new ArgumentNullException(nameof(contactSettings));
 			_externalCounterpartyController =
 				externalCounterpartyController ?? throw new ArgumentNullException(nameof(externalCounterpartyController));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 
-			var roboAtsCounterpartyNamePermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
+			var currentPermissionService = _scope.Resolve<ICurrentPermissionService>();
+			var roboAtsCounterpartyNamePermissions = currentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
 			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
 			CanEditCounterpartyName = roboAtsCounterpartyNamePermissions.CanUpdate;
 
-			var roboAtsCounterpartyPatronymicPermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyPatronymic));
+			var roboAtsCounterpartyPatronymicPermissions = currentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyPatronymic));
 			CanReadCounterpartyPatronymic = roboAtsCounterpartyPatronymicPermissions.CanRead;
 			CanEditCounterpartyPatronymic = roboAtsCounterpartyPatronymicPermissions.CanUpdate;
 
@@ -75,11 +77,11 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public PhonesViewModel(
 			IPhoneRepository phoneRepository,
 			IUnitOfWork uow,
-			IContactParametersProvider contactsParameters,
+			IContactSettings contactSettings,
 			RoboatsJournalsFactory roboatsJournalsFactory,
-			ICommonServices commonServices,
-			IExternalCounterpartyController externalCounterpartyController)
-			: this(phoneRepository, uow, contactsParameters, commonServices, externalCounterpartyController)
+			IExternalCounterpartyController externalCounterpartyController,
+			ILifetimeScope scope)
+			: this(phoneRepository, uow, contactSettings, externalCounterpartyController, scope)
 		{
 			if(roboatsJournalsFactory == null)
 			{
@@ -103,12 +105,15 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			 var viewModel = new PhoneViewModel(
+			 var viewModel = _scope.Resolve<PhoneViewModel>(
+					 new TypedParameter(typeof(Phone), phone),
+					 new TypedParameter(typeof(IUnitOfWork), _uow)
+					 )/*new PhoneViewModel(
 				phone,
 				_uow,
 				_commonServices,
-				new PhoneTypeSettings(new ParametersProvider()),
-				_externalCounterpartyController);
+				new PhoneTypeSettings(new SettingsController()),
+				_externalCounterpartyController)*/;
 
 			viewModel.UpdateExternalCounterpartyAction += OnUpdateExternalCounterparty;
 			_phoneViewModels.Add(viewModel);
@@ -133,7 +138,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					var phone = new Phone().Init(_contactsParameters);
+					var phone = new Phone().Init(_contactSettings);
 					phone.DeliveryPoint = DeliveryPoint;
 					phone.Counterparty = Counterparty;
 					
@@ -181,7 +186,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			PhonesList.Where(p => p.DigitsNumber.Length < _contactsParameters.MinSavePhoneLength)
+			PhonesList.Where(p => p.DigitsNumber.Length < _contactSettings.MinSavePhoneLength)
 					.ToList().ForEach(p => PhonesList.Remove(p));
 		}
 

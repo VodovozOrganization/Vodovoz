@@ -158,8 +158,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				UoW,
 				contactsParameters,
 				_roboatsJournalsFactory,
-				CommonServices,
-				externalCounterpartyController)
+				externalCounterpartyController,
+				LifetimeScope)
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,
