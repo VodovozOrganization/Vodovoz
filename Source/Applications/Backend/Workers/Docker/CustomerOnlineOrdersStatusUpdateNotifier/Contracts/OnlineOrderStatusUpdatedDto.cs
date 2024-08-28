@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
+using Vodovoz.Core.Data.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 {
@@ -22,6 +24,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 		/// <summary>
 		/// Статус заказа для ИПЗ
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public ExternalOrderStatus OrderStatus { get; set; }
 		/// <summary>
 		/// Дата доставки

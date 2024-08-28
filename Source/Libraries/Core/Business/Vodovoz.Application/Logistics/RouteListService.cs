@@ -453,7 +453,7 @@ namespace Vodovoz.Application.Logistics
 
 			if(targetRouteList is null)
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.CreateNotFound(targetRouteListId));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.CreateNotFound(targetRouteListId));
 			}
 
 			var ordersToTransfer = unitOfWork.Session.Query<Order>()
@@ -496,7 +496,7 @@ namespace Vodovoz.Application.Logistics
 
 			if(targetRouteList is null)
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.CreateNotFound(targetRouteListId));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.CreateNotFound(targetRouteListId));
 			}
 
 			var addressesToTransfer = sourceRouteList.Addresses
@@ -546,7 +546,7 @@ namespace Vodovoz.Application.Logistics
 
 			if(sourceRouteList is null)
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.CreateNotFound(sourceRouteListId));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.CreateNotFound(sourceRouteListId));
 			}
 
 			var targetRouteList = unitOfWork.Session
@@ -634,14 +634,14 @@ namespace Vodovoz.Application.Logistics
 		{
 			if(transferType != AddressTransferType.FromFreeBalance)
 			{
-				return Result.Failure<string>(Errors.Logistics.RouteList.RouteListItem.CreateInvalidOrderTransferType(order.Id));
+				return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateInvalidOrderTransferType(order.Id));
 			}
 
 			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(unitOfWork, order, targetRouteList);
 
 			if(!hasBalanceForTransfer)
 			{
-				return Result.Failure<string>(Errors.Logistics.RouteList.RouteListItem.CreateOrderTransferNotEnoughtFreeBalance(order.Id, targetRouteList.Id));
+				return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateOrderTransferNotEnoughtFreeBalance(order.Id, targetRouteList.Id));
 			}
 
 			var newRouteListItem = new RouteListItem(targetRouteList, order, RouteListItemStatus.EnRoute)
@@ -688,19 +688,25 @@ namespace Vodovoz.Application.Logistics
 				&& addressTransferType != AddressTransferType.FromHandToHand
 				&& addressTransferType != AddressTransferType.FromFreeBalance)
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.RouteListItem.CreateTransferTypeNotSet(address.Id, address.Order.DeliveryPoint.ShortAddress));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateTransferTypeNotSet(address.Id, address.Order.DeliveryPoint.ShortAddress));
 			}
 
 			if(addressTransferType == AddressTransferType.NeedToReload
 				&& targetRouteList.Status >= RouteListStatus.EnRoute)
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.RouteListItem.CreateTransferRequiresLoadingWhenRouteListEnRoute(address.Id, address.Order.DeliveryPoint.ShortAddress, targetRouteList.Id));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateTransferRequiresLoadingWhenRouteListEnRoute(address.Id, address.Order.DeliveryPoint.ShortAddress, targetRouteList.Id));
 			}
 
 			if(addressTransferType == AddressTransferType.FromFreeBalance
 				&& !_routeListRepository.HasFreeBalanceForOrder(unitOfWork, address.Order, targetRouteList))
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, targetRouteList.Id));
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, targetRouteList.Id));
+			}
+
+			if(addressTransferType != AddressTransferType.FromHandToHand
+				&& _routeListRepository.IsOrderNeedIndividualSetOnLoad(unitOfWork, address.Order.Id))
+			{
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateOrdersWithCreatedUpdNeedToReload(address.Order.Id));
 			}
 
 			var transferredAddressFromRouteListTo =
@@ -815,7 +821,7 @@ namespace Vodovoz.Application.Logistics
 		{
 			if(address.Status == RouteListItemStatus.Transfered)
 			{
-				return Result.Failure<string>(Errors.Logistics.RouteList.RouteListItem.CreateAlreadyTransfered(address.Id, address.Order.DeliveryPoint.ShortAddress, address.TransferedTo.RouteList.Id));
+				return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateAlreadyTransfered(address.Id, address.Order.DeliveryPoint.ShortAddress, address.TransferedTo.RouteList.Id));
 			}
 
 			RouteListItem pastPlace =
@@ -834,7 +840,7 @@ namespace Vodovoz.Application.Logistics
 
 					if(!hasBalanceForTransfer)
 					{
-						return Result.Failure<string>(Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, pastPlace.RouteList.Id));
+						return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.CreateAddressTransferNotEnoughtFreeBalance(address.Id, pastPlace.RouteList.Id));
 					}
 				}
 
@@ -871,22 +877,22 @@ namespace Vodovoz.Application.Logistics
 
 			if(routeList.Car is null)
 			{
-				return Result.Failure(Errors.Logistics.RouteList.CarIsEmpty);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.CarIsEmpty);
 			}
 
 			if(routeList.HasOverweight())
 			{
-				errors.Add(Errors.Logistics.RouteList.Overweighted(routeList.Overweight()));
+				errors.Add(Vodovoz.Errors.Logistics.RouteList.Overweighted(routeList.Overweight()));
 			}
 
 			if(routeList.HasVolumeExecess())
 			{
-				errors.Add(Errors.Logistics.RouteList.Overvolumed(routeList.VolumeExecess()));
+				errors.Add(Vodovoz.Errors.Logistics.RouteList.Overvolumed(routeList.VolumeExecess()));
 			}
 
 			if(routeList.HasReverseVolumeExcess())
 			{
-				errors.Add(Errors.Logistics.RouteList.InsufficientFreeVolumeForReturn(routeList.ReverseVolumeExecess()));
+				errors.Add(Vodovoz.Errors.Logistics.RouteList.InsufficientFreeVolumeForReturn(routeList.ReverseVolumeExecess()));
 			}
 
 			var canceledOrdersIds = routeList.Addresses
@@ -896,10 +902,10 @@ namespace Vodovoz.Application.Logistics
 
 			if(canceledOrdersIds.Any())
 			{
-				errors.Add(Errors.Logistics.RouteList.ContainsCanceledOrdersOnAccept(canceledOrdersIds));
+				errors.Add(Vodovoz.Errors.Logistics.RouteList.ContainsCanceledOrdersOnAccept(canceledOrdersIds));
 			}
 
-			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
+			var overfillErrorsCodes = Vodovoz.Errors.Logistics.RouteList.OverfilledErrorCodes;
 
 			if(errors.Any()
 				&& !(errors.All(error => overfillErrorsCodes.Contains(error.Code))
@@ -944,7 +950,7 @@ namespace Vodovoz.Application.Logistics
 
 			if(routeList.Status != RouteListStatus.New)
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.IncorrectStatusForAccept);
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.IncorrectStatusForAccept);
 			}
 
 			var contextItems = new Dictionary<object, object>
@@ -957,7 +963,7 @@ namespace Vodovoz.Application.Logistics
 
 			if(!validationService.Validate(routeList, context))
 			{
-				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.ValidationFailure);
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
 			}
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
@@ -1033,7 +1039,7 @@ namespace Vodovoz.Application.Logistics
 
 						if(!validationService.Validate(routeList, contextEnroute))
 						{
-							return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.ValidationFailure);
+							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
 						}
 
 						SendEnRoute(unitOfWork, routeList);
@@ -1055,12 +1061,12 @@ namespace Vodovoz.Application.Logistics
 			if(routeList.Status != RouteListStatus.InLoading
 				&& routeList.Status != RouteListStatus.Confirmed)
 			{
-				return Result.Failure(Errors.Logistics.RouteList.IncorrectStatusForEdit);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.IncorrectStatusForEdit);
 			}
 
 			if(_routeListRepository.GetCarLoadDocuments(unitOfWork, routeList.Id).Any())
 			{
-				return Result.Failure(Errors.Logistics.RouteList.HasCarLoadingDocuments);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.HasCarLoadingDocuments);
 			}
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);

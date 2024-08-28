@@ -1,5 +1,6 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;

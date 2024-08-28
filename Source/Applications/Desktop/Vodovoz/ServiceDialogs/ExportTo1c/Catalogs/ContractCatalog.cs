@@ -57,7 +57,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			var contract = new VirtualContract(
 				order.Client,
 				order.Contract.Organization,
-				$"{order.Client.VodovozInternalId}-1"
+				order.Contract.Number
 			);
 
 			return CreateReferenceTo(contract);

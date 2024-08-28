@@ -248,7 +248,26 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
 				}
+				else if(type == OrderDocumentType.UPD || type == OrderDocumentType.SpecialUPD)
+				{
+					StoredEmail storedEmailAlias = null;
+					OrderDocument orderDocumentAlias = null;
+					var lastSendTime = uow.Session.QueryOver<UpdDocumentEmail>()
+						.JoinAlias(ude => ude.OrderDocument, () => orderDocumentAlias)
+						.Where(() => orderDocumentAlias.Order.Id == orderId)
+						.JoinAlias(ode => ode.StoredEmail, () => storedEmailAlias)
+						.Where(() => storedEmailAlias.RecipientAddress == address)
+						.And(() => storedEmailAlias.State != StoredEmailStates.SendingError)
+						.Select(Projections.Max(() => storedEmailAlias.SendDate))
+						.SingleOrDefault<DateTime>();
+
+					if(lastSendTime != default)
+					{
+						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
+					}
+				}
 			}
+
 			return true;
 		}
 

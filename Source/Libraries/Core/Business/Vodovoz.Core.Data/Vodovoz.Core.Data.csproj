@@ -9,4 +9,8 @@
     <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="6.0.8" />
+  </ItemGroup>
+
 </Project>

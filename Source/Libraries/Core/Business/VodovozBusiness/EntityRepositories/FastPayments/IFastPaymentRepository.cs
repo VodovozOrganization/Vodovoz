@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
 namespace Vodovoz.EntityRepositories.FastPayments
