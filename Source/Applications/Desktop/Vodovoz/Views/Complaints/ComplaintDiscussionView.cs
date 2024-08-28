@@ -5,7 +5,6 @@ using Gamma.ColumnConfig;
 using Gamma.Binding;
 using System.Linq;
 using Gtk;
-using System;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Vodovoz.Infrastructure;
 using VodovozBusiness.Domain.Complaints;
@@ -13,12 +12,12 @@ using System.ComponentModel;
 
 namespace Vodovoz.Views.Complaints
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>
 	{
 		public ComplaintDiscussionView(ComplaintDiscussionViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -68,8 +67,6 @@ namespace Vodovoz.Views.Complaints
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();

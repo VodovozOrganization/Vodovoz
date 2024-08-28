@@ -19,6 +19,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
+using Vodovoz.ViewModelBased;
 using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -51,7 +52,6 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
-			newCommentFiles = new GenericObservableList<ComplaintFile>();
 			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
 			_complaintPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Complaint));
@@ -69,6 +69,8 @@ namespace Vodovoz.ViewModels.Complaints
 				_complaintDiscussionCommentFileStorageService,
 				ComplaintDiscussionComment.AddFileInformation,
 				ComplaintDiscussionComment.DeleteFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -94,19 +96,6 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			get => _complaintDiscussionComment;
 			set => _complaintDiscussionComment = value;
-		}
-
-
-		private FilesViewModel filesViewModel;
-		public FilesViewModel FilesViewModel {
-			get {
-				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(_fileDialogService, CommonServices.InteractiveService, UoW, _userRepository);
-					filesViewModel.FilesList = NewCommentFiles;
-				}
-
-				return filesViewModel;
-			}
 		}
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel
@@ -144,13 +133,7 @@ namespace Vodovoz.ViewModels.Complaints
 			set => SetField(ref newCommentText, value, () => NewCommentText);
 		}
 
-		private GenericObservableList<ComplaintFile> newCommentFiles;
 		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
-
-		public virtual GenericObservableList<ComplaintFile> NewCommentFiles {
-			get => newCommentFiles;
-			set => SetField(ref newCommentFiles, value, () => NewCommentFiles);
-		}
 
 		#region Commands
 
@@ -175,7 +158,6 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintDiscussionComment.ComplaintDiscussion = Entity;
 			Entity.ObservableComments.Add(ComplaintDiscussionComment);
 			NewCommentText = string.Empty;
-			NewCommentFiles.Clear();
 
 			var newComment = ComplaintDiscussionComment;
 			FilesToUploadOnSave.Add(() => newComment.Id, AttachedFileInformationsViewModel.AttachedFiles.ToDictionary(kv => kv.Key, kv => kv.Value));
@@ -188,6 +170,8 @@ namespace Vodovoz.ViewModels.Complaints
 				_complaintDiscussionCommentFileStorageService,
 				ComplaintDiscussionComment.AddFileInformation,
 				ComplaintDiscussionComment.DeleteFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
 		#endregion AddCommentCommand
